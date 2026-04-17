@@ -160,7 +160,7 @@
     <record id="view_crm_lead_tree_custom" model="ir.ui.view">
         <field name="name">crm.lead.tree.custom</field>
         <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_all_leads_tree_view"/>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="priority">20</field>
         <field name="arch" type="xml">
             <!-- Add Assign To and Customer Type columns after Salesperson -->
