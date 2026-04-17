@@ -13,9 +13,9 @@
         <field name="priority">20</field>
         <field name="arch" type="xml">
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  A.  STATUS BAR – inject "Refused" indicator after stage
-            --------------------------------------------------------- -->
+            ========================================================= -->
             <xpath expr="//header" position="inside">
                 <!-- Refusal alert banner – only shows when refused -->
                 <div class="alert alert-warning mb-0 py-1 px-2"
@@ -30,9 +30,9 @@
                 </div>
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  B.  BUTTONS – Add Refuse & Reset buttons in header
-            --------------------------------------------------------- -->
+            ========================================================= -->
             <xpath expr="//header/button[last()]" position="after">
 
                 <!-- Refuse button: visible to assigned user only, lead not yet refused -->
@@ -52,10 +52,10 @@
 
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  C.  TOP SECTION – Lead title area
                      Add "Assign To" field right after the Salesperson field
-            --------------------------------------------------------- -->
+            ========================================================= -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="x_assign_to_id"
                        string="Assign To"
@@ -64,10 +64,10 @@
                        placeholder="Assign to team member..."/>
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  D.  LEAD SOURCE  –  already exists as source_id in UTM tab.
                      Move/show it prominently right after team_id in header area.
-            --------------------------------------------------------- -->
+            ========================================================= -->
             <xpath expr="//field[@name='team_id']" position="after">
                 <field name="source_id"
                        string="Lead Source"
@@ -75,10 +75,10 @@
                        placeholder="Select lead source..."/>
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  E.  CONTACT INFO TAB  –  add custom fields after existing
                      contact block (partner_name / contact_name / email / phone)
-            --------------------------------------------------------- -->
+            ========================================================= -->
 
             <!-- After the email_from field, add Job Title if not already shown -->
             <xpath expr="//field[@name='email_from']" position="after">
@@ -87,11 +87,11 @@
                        placeholder="e.g. Purchase Manager"/>
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  F.  NEW TAB  –  "Opportunity Details"
                      Insert after the default "Extra Info" tab.
                      Contains all our custom qualification fields.
-            --------------------------------------------------------- -->
+            ========================================================= -->
             <xpath expr="//page[@name='extra_info']" position="after">
 
                 <page string="Opportunity Details" name="x_opportunity_details">
@@ -144,10 +144,10 @@
 
             </xpath>
 
-            <!-- --------------------------------------------------------
+            <!-- ========================================================
                  G.  KANBAN quick-info: lead age indicator color
                      (handled via CSS class on overdue boolean)
-            --------------------------------------------------------- -->
+            ========================================================= -->
 
         </field>
     </record>
