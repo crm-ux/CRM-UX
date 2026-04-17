@@ -92,7 +92,7 @@
                      Insert after the default "Extra Info" tab.
                      Contains all our custom qualification fields.
             ========================================================= -->
-            <xpath expr="//page[@name='extra_info']" position="after">
+            <xpath expr="//notebook" position="inside">
 
                 <page string="Opportunity Details" name="x_opportunity_details">
                     <group>
@@ -182,7 +182,7 @@
             </xpath>
 
             <!-- Custom tab in leads form too -->
-            <xpath expr="//notebook/page[last()]" position="after">
+            <xpath expr="//notebook" position="inside">
                 <page string="Opportunity Details" name="x_opportunity_details">
                     <group>
                         <group string="Classification">
