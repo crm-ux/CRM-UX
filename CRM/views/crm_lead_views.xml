@@ -183,7 +183,7 @@
     <record id="view_crm_lead_kanban_custom" model="ir.ui.view">
         <field name="name">crm.lead.kanban.custom</field>
         <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_kanban_view"/>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
         <field name="priority">20</field>
         <field name="arch" type="xml">
             <!-- Load our fields so they're available in kanban -->
