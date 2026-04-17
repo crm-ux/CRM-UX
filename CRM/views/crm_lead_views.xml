@@ -153,57 +153,6 @@
     </record>
 
 
-    <!-- ==============================================================
-         2.  LEADS FORM VIEW  –  inherit crm.crm_case_form_view_leads
-         Leads (not yet converted) use a slightly different form.
-         We apply the same additions to that view too.
-    =============================================================== -->
-    <record id="view_crm_lead_leads_form_custom" model="ir.ui.view">
-        <field name="name">crm.lead.leads.form.custom</field>
-        <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_all_leads"/>
-        <field name="priority">20</field>
-        <field name="arch" type="xml">
-
-            <!-- Assign To after Salesperson -->
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="x_assign_to_id"
-                       string="Assign To"
-                       readonly="x_assign_to_readonly"
-                       options="{'no_create': True, 'no_open': True}"
-                       placeholder="Assign to team member..."/>
-            </xpath>
-
-            <!-- Lead Source after team -->
-            <xpath expr="//field[@name='team_id']" position="after">
-                <field name="source_id"
-                       string="Lead Source"
-                       options="{'no_create': True}"/>
-            </xpath>
-
-            <!-- Custom tab in leads form too -->
-            <xpath expr="//notebook" position="inside">
-                <page string="Opportunity Details" name="x_opportunity_details">
-                    <group>
-                        <group string="Classification">
-                            <field name="x_customer_type" string="Customer Type"/>
-                            <field name="x_purchase_timeline" string="Purchase Timeline"/>
-                            <field name="priority" string="Priority" widget="priority"/>
-                        </group>
-                        <group string="Product Interest">
-                            <field name="x_product_category_ids"
-                                   string="Product Categories"
-                                   widget="many2many_tags"
-                                   options="{'no_create_edit': True}"
-                                   placeholder="Select categories..."/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
-
-        </field>
-    </record>
-
 
     <!-- ==============================================================
          3.  LIST / TREE VIEW  –  add key custom columns
