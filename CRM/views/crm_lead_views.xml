@@ -138,8 +138,8 @@
                                    string="Priority"/>
                         </group>
 
-                        <!-- Col 2: Product Interest -->
-                        <group string="Product Interest">
+                        <!-- Col 2: Product Categories -->
+                        <group string="Product Categories">
                             <field name="x_product_category_ids"
                                    string="Product Categories"
                                    widget="many2many_tags"

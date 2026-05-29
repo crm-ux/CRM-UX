@@ -15,6 +15,7 @@
         'sale',
         'sale_crm',
         'uom',
+        'CRM',
     ],
     'data': [
         'security/ir.model.access.csv',

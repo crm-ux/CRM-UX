@@ -8,25 +8,7 @@
 
         <field name="arch" type="xml">
 
-            <xpath expr="//page[@name='internal_notes']" position="after">
-
-                <page string="Opportunity Details" name="x_opportunity_details">
-
-                    <group>
-                        <group string="Lead Info">
-                            <field name="x_lead_age_days" readonly="1"/>
-                            <field name="x_is_overdue" readonly="1"/>
-                            <field name="priority" string="Priority"/>
-                        </group>
-
-                        <group string="Refusal History" invisible="not x_refused_by_id">
-                            <field name="x_refused_by_id" readonly="1"/>
-                            <field name="x_refuse_date" readonly="1"/>
-                            <field name="x_refuse_reason" readonly="1"/>
-                        </group>
-                    </group>
-
-                </page>
+            <xpath expr="//page[@name='x_opportunity_details']" position="after">
 
                 <page string="Product Interest" name="x_product_lines">
 
