@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
+import logging
 import re
 
 from odoo import api, models
 
+_logger = logging.getLogger(__name__)
+
 VIEW_PATCH_NAME = 'crm.lead.form.priority.dropdown.fix'
 CONFIG_KEY = 'custom_crm_extended.priority_view_patch_version'
-PATCH_VERSION = '1.2.2'
+PATCH_VERSION = '1.2.3'
 
 PRIORITY_FIX_ARCH = """
-    <xpath expr="//field[@name='priority'][@widget='priority']" position="replace">
-        <field name="x_priority_selection" string="Priority"/>
+    <xpath expr="//field[@name='priority'][@widget='priority']" position="attributes">
+        <attribute name="invisible">1</attribute>
     </xpath>
-    <xpath expr="//group[@string='Assignment']//field[@name='priority']" position="replace">
-        <field name="x_priority_selection" string="Priority"/>
+    <xpath expr="//field[@name='x_assign_to_id']/following-sibling::field[@name='priority']" position="attributes">
+        <attribute name="invisible">1</attribute>
     </xpath>
-    <xpath expr="//group[@string='ASSIGNMENT']//field[@name='priority']" position="replace">
-        <field name="x_priority_selection" string="Priority"/>
-    </xpath>
-    <xpath expr="//field[@name='x_assign_to_id']/following-sibling::field[@name='priority']" position="replace">
-        <field name="x_priority_selection" string="Priority"/>
-    </xpath>
-    <xpath expr="//field[@name='user_id']/following-sibling::field[@name='priority']" position="replace">
+    <xpath expr="//field[@name='x_assign_to_id']" position="after">
         <field name="x_priority_selection" string="Priority"/>
     </xpath>
 """
@@ -31,7 +28,7 @@ class CrmLeadViewPatch(models.AbstractModel):
     _description = 'Patch custom CRM lead form views (Assignment priority dropdown)'
 
     @api.model
-    def _find_assignment_views(self):
+    def _find_views_to_patch(self):
         View = self.env['ir.ui.view'].sudo()
         candidates = View.search([
             ('model', '=', 'crm.lead'),
@@ -51,15 +48,16 @@ class CrmLeadViewPatch(models.AbstractModel):
 
     @api.model
     def _patch_arch_db_direct(self, view):
-        """Rewrite custom/Studio view XML: drop star widget, use dropdown field."""
+        """Rewrite Studio/DB view XML in place."""
         arch = view.arch_db or ''
         if not arch or 'priority' not in arch:
             return False
 
+        new_arch = arch
         new_arch = re.sub(
             r'(\<field\b[^>]*\bname=["\']priority["\'][^>]*?)\s+widget=["\']priority["\']([^>]*\>)',
             r'\1\2',
-            arch,
+            new_arch,
             flags=re.IGNORECASE,
         )
         new_arch = re.sub(
@@ -69,12 +67,13 @@ class CrmLeadViewPatch(models.AbstractModel):
             flags=re.IGNORECASE,
         )
 
-        is_assignment_view = (
+        if (
             'ASSIGNMENT' in arch.upper()
             or 'Assign To' in arch
             or 'Assign to' in arch
-        )
-        if is_assignment_view:
+            or 'widget="priority"' in arch
+            or "widget='priority'" in arch
+        ):
             new_arch = re.sub(
                 r'<field\b([^>]*?)\bname=["\']priority["\']([^>]*)/>',
                 r'<field\1name="x_priority_selection"\2/>',
@@ -92,32 +91,47 @@ class CrmLeadViewPatch(models.AbstractModel):
             return False
 
         view.write({'arch_db': new_arch})
+        _logger.info('Patched crm.lead form view id=%s name=%s', view.id, view.name)
         return True
 
     @api.model
     def ensure_assignment_priority_dropdown(self):
         View = self.env['ir.ui.view'].sudo()
 
-        # Remove previous auto-patch inherits so we can re-apply on upgrade
         View.search([
             ('name', '=', VIEW_PATCH_NAME),
             ('model', '=', 'crm.lead'),
         ]).unlink()
 
-        for view in self._find_assignment_views():
-            self._patch_arch_db_direct(view)
+        patched = 0
+        for view in self._find_views_to_patch():
+            if self._patch_arch_db_direct(view):
+                patched += 1
 
-        for parent in self._find_assignment_views():
+        for parent in self._find_views_to_patch():
             if View.search_count([
                 ('inherit_id', '=', parent.id),
                 ('name', '=', VIEW_PATCH_NAME),
             ]):
                 continue
-            View.create({
-                'name': VIEW_PATCH_NAME,
-                'model': 'crm.lead',
-                'inherit_id': parent.id,
-                'priority': 1000,
-                'mode': 'extension',
-                'arch': PRIORITY_FIX_ARCH,
-            })
+            try:
+                View.create({
+                    'name': VIEW_PATCH_NAME,
+                    'model': 'crm.lead',
+                    'inherit_id': parent.id,
+                    'priority': 9999,
+                    'mode': 'extension',
+                    'arch': PRIORITY_FIX_ARCH,
+                })
+            except Exception as exc:
+                _logger.warning(
+                    'Could not create priority fix inherit on view %s: %s',
+                    parent.id,
+                    exc,
+                )
+
+        _logger.info(
+            'Assignment priority patch finished (%s DB view(s) updated).',
+            patched,
+        )
+        return patched

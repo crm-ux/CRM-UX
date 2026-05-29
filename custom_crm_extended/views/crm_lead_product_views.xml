@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Dropdown (Low / Medium / High) instead of stars – including Assignment section -->
-    <record id="crm_lead_form_priority_selection" model="ir.ui.view">
-        <field name="name">crm.lead.form.priority.selection</field>
-        <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="priority">1000</field>
-        <field name="arch" type="xml">
-
-            <!-- Assignment: same dropdown field as Lead Info (not star widget) -->
-            <xpath expr="//field[@name='x_assign_to_id']/following-sibling::field[@name='priority']" position="replace">
-                <field name="x_priority_selection" string="Priority"/>
-            </xpath>
-            <xpath expr="//field[@name='user_id']/following-sibling::field[@name='priority']" position="replace">
-                <field name="x_priority_selection" string="Priority"/>
-            </xpath>
-            <xpath expr="//group[@string='Assignment']//field[@name='priority']" position="replace">
-                <field name="x_priority_selection" string="Priority"/>
-            </xpath>
-            <xpath expr="//group[@string='ASSIGNMENT']//field[@name='priority']" position="replace">
-                <field name="x_priority_selection" string="Priority"/>
-            </xpath>
-            <xpath expr="//field[@name='priority'][@widget='priority']" position="replace">
-                <field name="x_priority_selection" string="Priority"/>
-            </xpath>
-
-        </field>
-    </record>
-
     <record id="crm_lead_form_products" model="ir.ui.view">
         <field name="name">crm.lead.form.products</field>
         <field name="model">crm.lead</field>

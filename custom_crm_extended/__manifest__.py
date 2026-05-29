@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '1.2.2',
+    'version': '1.2.3',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '
@@ -19,6 +19,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/crm_data.xml',
+        'data/crm_priority_fix_action.xml',
         'views/crm_lead_views.xml',
         'views/crm_lead_product_views.xml',
         'views/sale_order_views.xml',
