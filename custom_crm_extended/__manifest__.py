@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '1.2.4',
+    'version': '1.2.5',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '
@@ -33,6 +33,8 @@
     'assets': {
         'web.assets_backend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
+            'custom_crm_extended/static/src/js/crm_new_button.js',
+            'custom_crm_extended/static/src/js/crm_kanban_override.js',
         ],
     },
     'installable': True,

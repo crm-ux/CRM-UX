@@ -124,7 +124,7 @@
     </record>
 
     <record id="action_crm_lead_wizard" model="ir.actions.act_window">
-        <field name="name"></field>
+        <field name="name">Lead Creation</field>
         <field name="res_model">crm.lead.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

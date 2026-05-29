@@ -17,14 +17,9 @@ function patchCrmKanban() {
             this.actionService = useService("action");
         }
         async openNewRecord() {
-            await this.actionService.doAction({
-                type: "ir.actions.act_window",
-                name: "Lead Creation",
-                res_model: "crm.lead.wizard",
-                view_mode: "form",
-                target: "new",
-                context: { default_step: 1 },
-            });
+            await this.env.services.action.doAction(
+                "custom_crm_extended.action_crm_lead_wizard"
+            );
         }
     }
 
