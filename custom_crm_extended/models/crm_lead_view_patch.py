@@ -6,18 +6,16 @@ from odoo import api, models
 
 _logger = logging.getLogger(__name__)
 
-VIEW_PATCH_NAME = 'crm.lead.form.priority.dropdown.fix'
+VIEW_PATCH_NAME = 'crm.lead.form.hide.default.priority.fix'
 CONFIG_KEY = 'custom_crm_extended.priority_view_patch_version'
-PATCH_VERSION = '1.2.3'
+PATCH_VERSION = '1.2.4'
 
 PRIORITY_FIX_ARCH = """
-    <xpath expr="//field[@name='priority'][@widget='priority']" position="attributes">
-        <attribute name="invisible">1</attribute>
-    </xpath>
-    <xpath expr="//field[@name='x_assign_to_id']/following-sibling::field[@name='priority']" position="attributes">
+    <xpath expr="//form//field[@name='priority']" position="attributes">
         <attribute name="invisible">1</attribute>
     </xpath>
     <xpath expr="//field[@name='x_assign_to_id']" position="after">
+        <field name="priority" invisible="1"/>
         <field name="x_priority_selection" string="Priority"/>
     </xpath>
 """
@@ -25,7 +23,7 @@ PRIORITY_FIX_ARCH = """
 
 class CrmLeadViewPatch(models.AbstractModel):
     _name = 'crm.lead.view.patch'
-    _description = 'Patch custom CRM lead form views (Assignment priority dropdown)'
+    _description = 'Hide default priority stars; show dropdown on custom CRM views'
 
     @api.model
     def _find_views_to_patch(self):
@@ -48,41 +46,26 @@ class CrmLeadViewPatch(models.AbstractModel):
 
     @api.model
     def _patch_arch_db_direct(self, view):
-        """Rewrite Studio/DB view XML in place."""
         arch = view.arch_db or ''
         if not arch or 'priority' not in arch:
             return False
 
-        new_arch = arch
         new_arch = re.sub(
             r'(\<field\b[^>]*\bname=["\']priority["\'][^>]*?)\s+widget=["\']priority["\']([^>]*\>)',
-            r'\1\2',
-            new_arch,
+            r'\1 invisible="1"\2',
+            arch,
             flags=re.IGNORECASE,
         )
         new_arch = re.sub(
             r'(\<field\b[^>]*?)\s+widget=["\']priority["\']([^>]*\bname=["\']priority["\'][^>]*\>)',
-            r'\1\2',
+            r'\1 invisible="1"\2',
             new_arch,
             flags=re.IGNORECASE,
         )
-
-        if (
-            'ASSIGNMENT' in arch.upper()
-            or 'Assign To' in arch
-            or 'Assign to' in arch
-            or 'widget="priority"' in arch
-            or "widget='priority'" in arch
-        ):
+        if 'invisible' not in new_arch and 'name="priority"' in new_arch:
             new_arch = re.sub(
                 r'<field\b([^>]*?)\bname=["\']priority["\']([^>]*)/>',
-                r'<field\1name="x_priority_selection"\2/>',
-                new_arch,
-                flags=re.IGNORECASE,
-            )
-            new_arch = re.sub(
-                r'<field\b([^>]*?)\bname=["\']priority["\']([^>]*)>',
-                r'<field\1name="x_priority_selection"\2>',
+                r'<field\1name="priority"\2 invisible="1"/>',
                 new_arch,
                 flags=re.IGNORECASE,
             )
@@ -130,8 +113,5 @@ class CrmLeadViewPatch(models.AbstractModel):
                     exc,
                 )
 
-        _logger.info(
-            'Assignment priority patch finished (%s DB view(s) updated).',
-            patched,
-        )
+        _logger.info('Priority hide/dropdown patch done (%s DB view(s) updated).', patched)
         return patched

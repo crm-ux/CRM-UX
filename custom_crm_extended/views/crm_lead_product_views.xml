@@ -16,6 +16,7 @@
                         <group string="Lead Info">
                             <field name="x_lead_age_days" readonly="1"/>
                             <field name="x_is_overdue" readonly="1"/>
+                            <field name="priority" invisible="1"/>
                             <field name="x_priority_selection" string="Priority"/>
                         </group>
 
