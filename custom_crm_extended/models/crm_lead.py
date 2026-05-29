@@ -30,16 +30,6 @@ class CrmLead(models.Model):
     """
     _inherit = 'crm.lead'
 
-    @api.model
-    def _register_hook(self):
-        super()._register_hook()
-        from .crm_lead_view_patch import CONFIG_KEY, PATCH_VERSION
-        ICP = self.env['ir.config_parameter'].sudo()
-        if ICP.get_param(CONFIG_KEY) == PATCH_VERSION:
-            return
-        self.env['crm.lead.view.patch'].ensure_assignment_priority_dropdown()
-        ICP.set_param(CONFIG_KEY, PATCH_VERSION)
-
     priority = fields.Selection(
         selection=[
             ('0', 'Low'),
@@ -49,13 +39,6 @@ class CrmLead(models.Model):
         string='Priority',
         default='0',
         index=True,
-    )
-
-    # UI dropdown (Assignment + Lead Info). Hides default priority stars on the form.
-    x_priority_selection = fields.Selection(
-        related='priority',
-        string='Priority',
-        readonly=False,
     )
 
     # ------------------------------------------------------------------

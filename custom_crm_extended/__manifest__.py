@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '1.2.7',
+    'version': '1.3.0',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '
@@ -11,15 +11,14 @@
     'author': 'Your Company',
     'website': 'https://yourcompany.com',
     'depends': [
-        'crm',      # Core CRM - crm.lead
-        'sale',     # Sales - sale.order, product.product
-        'sale_crm', # Bridges CRM <-> Sale (opportunity_id on sale.order)
-        'uom',      # Unit of Measure
+        'crm',
+        'sale',
+        'sale_crm',
+        'uom',
     ],
     'data': [
         'security/ir.model.access.csv',
         'data/crm_data.xml',
-        'data/crm_priority_fix_action.xml',
         'views/crm_lead_views.xml',
         'views/crm_lead_create_views.xml',
         'views/crm_lead_product_views.xml',
@@ -33,16 +32,13 @@
     ],
     'assets': {
         'web.assets_backend': [
-            'custom_crm_extended/static/src/css/crm_hide_new.css',
             'custom_crm_extended/static/src/js/crm_lead_form_view.js',
-            'custom_crm_extended/static/src/js/crm_lead_list_kanban_create.js',
-            'custom_crm_extended/static/src/js/crm_new_button.js',
-            'custom_crm_extended/static/src/js/crm_kanban_override.js',
         ],
     },
     'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
+    'pre_init_hook': 'pre_init_hook',
     'post_init_hook': 'post_init_hook',
 }
