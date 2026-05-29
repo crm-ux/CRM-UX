@@ -9,28 +9,21 @@
         <field name="priority">1000</field>
         <field name="arch" type="xml">
 
-            <!-- Assignment block: Priority next to Assign To -->
+            <!-- Assignment: same dropdown field as Lead Info (not star widget) -->
             <xpath expr="//field[@name='x_assign_to_id']/following-sibling::field[@name='priority']" position="replace">
-                <field name="priority" string="Priority"/>
+                <field name="x_priority_selection" string="Priority"/>
             </xpath>
             <xpath expr="//field[@name='user_id']/following-sibling::field[@name='priority']" position="replace">
-                <field name="priority" string="Priority"/>
+                <field name="x_priority_selection" string="Priority"/>
             </xpath>
             <xpath expr="//group[@string='Assignment']//field[@name='priority']" position="replace">
-                <field name="priority" string="Priority"/>
+                <field name="x_priority_selection" string="Priority"/>
             </xpath>
             <xpath expr="//group[@string='ASSIGNMENT']//field[@name='priority']" position="replace">
-                <field name="priority" string="Priority"/>
+                <field name="x_priority_selection" string="Priority"/>
             </xpath>
-
-            <!-- Header / other areas still using the star widget -->
             <xpath expr="//field[@name='priority'][@widget='priority']" position="replace">
-                <field name="priority" string="Priority"/>
-            </xpath>
-
-            <!-- Fallback: strip star widget from any remaining priority fields -->
-            <xpath expr="//field[@name='priority']" position="attributes">
-                <attribute name="widget" remove="1"/>
+                <field name="x_priority_selection" string="Priority"/>
             </xpath>
 
         </field>
@@ -51,7 +44,7 @@
                         <group string="Lead Info">
                             <field name="x_lead_age_days" readonly="1"/>
                             <field name="x_is_overdue" readonly="1"/>
-                            <field name="priority" string="Priority"/>
+                            <field name="x_priority_selection" string="Priority"/>
                         </group>
 
                         <group string="Refusal History" invisible="not x_refused_by_id">

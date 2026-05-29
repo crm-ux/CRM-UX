@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- CRM Lead form view is managed directly via database (view id 1250) -->
+
+    <!-- Standard CRM form: Assignment priority = dropdown (same as Lead Info) -->
+    <record id="crm_lead_form_assignment_priority" model="ir.ui.view">
+        <field name="name">crm.lead.form.assignment.priority</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="priority">1001</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='priority'][@widget='priority']" position="replace">
+                <field name="x_priority_selection" string="Priority"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

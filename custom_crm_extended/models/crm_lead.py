@@ -51,6 +51,13 @@ class CrmLead(models.Model):
         index=True,
     )
 
+    # Dropdown alias – avoids Odoo star widget on field name "priority" in custom views
+    x_priority_selection = fields.Selection(
+        related='priority',
+        string='Priority',
+        readonly=False,
+    )
+
     # ------------------------------------------------------------------
     # 1. ASSIGNMENT & OWNERSHIP
     # ------------------------------------------------------------------
