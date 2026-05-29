@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '1.2.0',
+    'version': '1.2.1',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '
@@ -38,4 +38,5 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
+    'post_init_hook': 'post_init_hook',
 }

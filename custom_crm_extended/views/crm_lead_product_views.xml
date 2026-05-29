@@ -6,7 +6,7 @@
         <field name="name">crm.lead.form.priority.selection</field>
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="priority">99</field>
+        <field name="priority">1000</field>
         <field name="arch" type="xml">
 
             <!-- Assignment block: Priority next to Assign To -->
