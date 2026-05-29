@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 VIEW_PATCH_NAME = 'crm.lead.form.hide.default.priority.fix'
 CONFIG_KEY = 'custom_crm_extended.priority_view_patch_version'
-PATCH_VERSION = '1.2.4'
+PATCH_VERSION = '1.2.6'
 
 PRIORITY_FIX_ARCH = """
     <xpath expr="//form//field[@name='priority']" position="attributes">
@@ -79,6 +79,7 @@ class CrmLeadViewPatch(models.AbstractModel):
 
     @api.model
     def ensure_assignment_priority_dropdown(self):
+        self.ensure_crm_lead_form_js_class()
         View = self.env['ir.ui.view'].sudo()
 
         View.search([
@@ -115,3 +116,23 @@ class CrmLeadViewPatch(models.AbstractModel):
 
         _logger.info('Priority hide/dropdown patch done (%s DB view(s) updated).', patched)
         return patched
+
+    @api.model
+    def ensure_crm_lead_form_js_class(self):
+        """Add js_class on custom Studio form views so New opens the wizard."""
+        View = self.env['ir.ui.view'].sudo()
+        forms = View.search([('model', '=', 'crm.lead'), ('type', '=', 'form')])
+        for view in forms.filtered(lambda v: v.arch_db and '<form' in v.arch_db):
+            if 'js_class="crm_lead_form"' in view.arch_db or "js_class='crm_lead_form'" in view.arch_db:
+                continue
+            arch = view.arch_db
+            new_arch = re.sub(
+                r'<form\b',
+                '<form js_class="crm_lead_form"',
+                arch,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+            if new_arch != arch:
+                view.write({'arch_db': new_arch})
+                _logger.info('Added crm_lead_form js_class to view id=%s', view.id)

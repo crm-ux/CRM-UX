@@ -8,7 +8,7 @@
         <field name="code" type="py">
 env['crm.lead.view.patch'].ensure_assignment_priority_dropdown()
 env['ir.config_parameter'].sudo().set_param(
-    'custom_crm_extended.priority_view_patch_version', '1.2.4')
+    'custom_crm_extended.priority_view_patch_version', '1.2.6')
 action = {
     'type': 'ir.actions.client',
     'tag': 'display_notification',

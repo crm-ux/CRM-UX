@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form: Control Panel "New" opens Lead Creation wizard (custom js_class) -->
+    <record id="crm_lead_form_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.form.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">crm_lead_form</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Opportunity list -->
+    <record id="crm_lead_tree_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.tree.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="create">false</attribute>
+                <attribute name="js_class">crm_lead_list</attribute>
+            </xpath>
+            <xpath expr="//list" position="inside">
+                <header>
+                    <button name="%(custom_crm_extended.action_crm_lead_wizard)d"
+                            type="action"
+                            string="New"
+                            display="always"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Leads list -->
+    <record id="crm_lead_tree_leads_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.tree.leads.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="create">false</attribute>
+                <attribute name="js_class">crm_lead_list</attribute>
+            </xpath>
+            <xpath expr="//list" position="inside">
+                <header>
+                    <button name="%(custom_crm_extended.action_crm_lead_wizard)d"
+                            type="action"
+                            string="New"
+                            display="always"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Kanban -->
+    <record id="crm_lead_kanban_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="priority">9999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="create">false</attribute>
+                <attribute name="js_class">crm_lead_kanban</attribute>
+            </xpath>
+            <xpath expr="//kanban" position="inside">
+                <header>
+                    <button name="%(custom_crm_extended.action_crm_lead_wizard)d"
+                            type="action"
+                            string="New"
+                            display="always"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

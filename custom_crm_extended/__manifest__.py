@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '1.2.5',
+    'version': '1.2.6',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '
@@ -21,6 +21,7 @@
         'data/crm_data.xml',
         'data/crm_priority_fix_action.xml',
         'views/crm_lead_views.xml',
+        'views/crm_lead_create_views.xml',
         'views/crm_lead_product_views.xml',
         'views/sale_order_views.xml',
         'views/sale_quote_preview_wizard_views.xml',
@@ -33,6 +34,8 @@
     'assets': {
         'web.assets_backend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
+            'custom_crm_extended/static/src/js/crm_lead_form_view.js',
+            'custom_crm_extended/static/src/js/crm_lead_list_kanban_create.js',
             'custom_crm_extended/static/src/js/crm_new_button.js',
             'custom_crm_extended/static/src/js/crm_kanban_override.js',
         ],

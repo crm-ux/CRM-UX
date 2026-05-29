@@ -396,17 +396,18 @@ class CrmLead(models.Model):
         }
 
     def get_formview_action(self, access_uid=None):
-        """Override to open wizard when creating new lead."""
-        action = super().get_formview_action(access_uid=access_uid)
-        return action
+        if not self:
+            return self.action_new_lead_wizard()
+        return super().get_formview_action(access_uid=access_uid)
 
     @api.model
     def action_new_lead_wizard(self):
+        """Open multi-step Lead Creation wizard (used by New buttons)."""
         return {
             'type': 'ir.actions.act_window',
             'name': 'Lead Creation',
             'res_model': 'crm.lead.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_step': 1},
+            'context': dict(self.env.context, default_step=1),
         }
