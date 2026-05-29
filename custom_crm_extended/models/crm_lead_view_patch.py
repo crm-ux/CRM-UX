@@ -8,14 +8,11 @@ _logger = logging.getLogger(__name__)
 
 VIEW_PATCH_NAME = 'crm.lead.form.hide.default.priority.fix'
 CONFIG_KEY = 'custom_crm_extended.priority_view_patch_version'
-PATCH_VERSION = '1.2.6'
+PATCH_VERSION = '1.2.7'
 
 PRIORITY_FIX_ARCH = """
-    <xpath expr="//form//field[@name='priority']" position="attributes">
-        <attribute name="invisible">1</attribute>
-    </xpath>
-    <xpath expr="//field[@name='x_assign_to_id']" position="after">
-        <field name="priority" invisible="1"/>
+    <xpath expr="//label[@for='priority']" position="replace"/>
+    <xpath expr="//field[@name='priority']" position="replace">
         <field name="x_priority_selection" string="Priority"/>
     </xpath>
 """
@@ -45,11 +42,27 @@ class CrmLeadViewPatch(models.AbstractModel):
         )
 
     @api.model
+    def _strip_priority_labels(self, arch):
+        arch = re.sub(
+            r'<label\b[^>]*\bfor=["\']priority["\'][^>]*/>\s*',
+            '',
+            arch,
+            flags=re.IGNORECASE,
+        )
+        return re.sub(
+            r'<label\b[^>]*\bfor=["\']priority["\'][^>]*>[\s\S]*?</label>\s*',
+            '',
+            arch,
+            flags=re.IGNORECASE,
+        )
+
+    @api.model
     def _patch_arch_db_direct(self, view):
         arch = view.arch_db or ''
         if not arch or 'priority' not in arch:
             return False
 
+        new_arch = self._strip_priority_labels(arch)
         new_arch = re.sub(
             r'(\<field\b[^>]*\bname=["\']priority["\'][^>]*?)\s+widget=["\']priority["\']([^>]*\>)',
             r'\1 invisible="1"\2',
@@ -78,7 +91,21 @@ class CrmLeadViewPatch(models.AbstractModel):
         return True
 
     @api.model
+    def _clean_all_priority_labels(self):
+        View = self.env['ir.ui.view'].sudo()
+        for view in View.search([('model', '=', 'crm.lead'), ('type', '=', 'form')]):
+            if not view.arch_db:
+                continue
+            if 'for="priority"' not in view.arch_db and "for='priority'" not in view.arch_db:
+                continue
+            cleaned = self._strip_priority_labels(view.arch_db)
+            if cleaned != view.arch_db:
+                view.write({'arch_db': cleaned})
+                _logger.info('Cleaned orphan priority labels in view id=%s', view.id)
+
+    @api.model
     def ensure_assignment_priority_dropdown(self):
+        self._clean_all_priority_labels()
         self.ensure_crm_lead_form_js_class()
         View = self.env['ir.ui.view'].sudo()
 
@@ -122,6 +149,12 @@ class CrmLeadViewPatch(models.AbstractModel):
         """Add js_class on custom Studio form views so New opens the wizard."""
         View = self.env['ir.ui.view'].sudo()
         forms = View.search([('model', '=', 'crm.lead'), ('type', '=', 'form')])
+        for view in forms.filtered(lambda v: v.arch_db):
+            if 'for="priority"' in view.arch_db or "for='priority'" in view.arch_db:
+                cleaned = self._strip_priority_labels(view.arch_db)
+                if cleaned != view.arch_db:
+                    view.write({'arch_db': cleaned})
+                    _logger.info('Removed orphan priority labels in view id=%s', view.id)
         for view in forms.filtered(lambda v: v.arch_db and '<form' in v.arch_db):
             if 'js_class="crm_lead_form"' in view.arch_db or "js_class='crm_lead_form'" in view.arch_db:
                 continue
