@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Use dropdown (Low / Medium / High) instead of star widget everywhere on the form -->
+    <record id="crm_lead_form_priority_selection" model="ir.ui.view">
+        <field name="name">crm.lead.form.priority.selection</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="widget"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="crm_lead_form_products" model="ir.ui.view">
         <field name="name">crm.lead.form.products</field>
         <field name="model">crm.lead</field>
@@ -16,7 +28,7 @@
                         <group string="Lead Info">
                             <field name="x_lead_age_days" readonly="1"/>
                             <field name="x_is_overdue" readonly="1"/>
-                            <field name="priority" widget="priority"/>
+                            <field name="priority" string="Priority"/>
                         </group>
 
                         <group string="Refusal History" invisible="not x_refused_by_id">

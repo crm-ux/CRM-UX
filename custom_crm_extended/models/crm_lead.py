@@ -21,7 +21,7 @@ class CrmLead(models.Model):
         user_id         – Salesperson (we rename label to "Lead Owner")
         team_id         – Sales Team
         source_id       – Lead Source  (utm.source)
-        priority        – Priority  (0/1/2 = Normal/High/Very High)
+        priority        – Priority  (0/1/2 = Low/Medium/High)
         currency_id     – Currency
         stage_id        – Stage
         tag_ids         – Tags
@@ -29,6 +29,17 @@ class CrmLead(models.Model):
         description     – Notes / Internal Notes
     """
     _inherit = 'crm.lead'
+
+    priority = fields.Selection(
+        selection=[
+            ('0', 'Low'),
+            ('1', 'Medium'),
+            ('2', 'High'),
+        ],
+        string='Priority',
+        default='0',
+        index=True,
+    )
 
     # ------------------------------------------------------------------
     # 1. ASSIGNMENT & OWNERSHIP
@@ -179,9 +190,9 @@ class CrmLead(models.Model):
         if self.source_id:
             src_name = (self.source_id.name or '').lower()
             if any(kw in src_name for kw in ['referral', 'direct', 'reference', 'partner']):
-                self.priority = '2'  # Very High
+                self.priority = '2'  # High
             elif any(kw in src_name for kw in ['social', 'email', 'campaign']):
-                self.priority = '1'  # High
+                self.priority = '1'  # Medium
             # else keep existing
 
     # ==================================================================

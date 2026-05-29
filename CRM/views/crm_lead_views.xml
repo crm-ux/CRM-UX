@@ -6,6 +6,17 @@
          View ref: crm.crm_lead_all_leads (leads) + crm.crm_lead_view_form (opportunities)
          We inherit the base form which serves both.
     =============================================================== -->
+    <record id="view_crm_lead_form_priority_selection" model="ir.ui.view">
+        <field name="name">crm.lead.form.priority.selection</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="widget"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="view_crm_lead_form_custom" model="ir.ui.view">
         <field name="name">crm.lead.form.custom</field>
         <field name="model">crm.lead</field>
@@ -106,8 +117,7 @@
                             <field name="x_purchase_timeline"
                                    string="Purchase Timeline"/>
                             <field name="priority"
-                                   string="Priority"
-                                   widget="priority"/>
+                                   string="Priority"/>
                         </group>
 
                         <!-- Col 2: Product Interest -->
