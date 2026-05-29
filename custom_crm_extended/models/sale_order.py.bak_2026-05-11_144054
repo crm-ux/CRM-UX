@@ -1,0 +1,307 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models, _
+from odoo.exceptions import UserError
+
+
+class SaleOrder(models.Model):
+    """
+    Extends sale.order (Quotation / Sales Order).
+
+    Existing fields we USE (no redeclaration):
+        name            - Quotation Reference
+        partner_id      - Customer
+        opportunity_id  - Linked CRM Lead/Opportunity  [from sale_crm]
+        order_line      - Order Lines (sale.order.line)
+        amount_untaxed  - Subtotal (before tax)
+        amount_tax      - Tax Total
+        amount_total    - Grand Total
+        validity_date   - Expiration Date
+        note            - Terms & Conditions
+        payment_term_id - Payment Terms
+        user_id         - Salesperson
+        team_id         - Sales Team
+        state           - Draft/Sent/Sale/Cancel
+        currency_id     - Currency
+    """
+    _inherit = 'sale.order'
+
+    # ------------------------------------------------------------------
+    # 1. GST TOGGLE  (With GST / Without GST)
+    # ------------------------------------------------------------------
+    x_gst_included = fields.Boolean(
+        string='Include GST',
+        default=True,
+        tracking=True,
+        help='Toggle to show or hide GST/tax columns on all order lines. '
+             'When OFF, tax fields are hidden but not deleted.',
+    )
+
+    # ------------------------------------------------------------------
+    # 2. QUOTE VERSION  (v1, v2, ... - for revision tracking)
+    # ------------------------------------------------------------------
+    x_quote_version = fields.Integer(
+        string='Quote Version',
+        default=1,
+        readonly=True,
+        copy=False,
+        tracking=True,
+    )
+
+    x_quote_version_label = fields.Char(
+        string='Version',
+        compute='_compute_version_label',
+        store=False,
+    )
+
+    # ------------------------------------------------------------------
+    # 3. FLAT DISCOUNT on the whole order (header level)
+    # ------------------------------------------------------------------
+    x_flat_discount = fields.Float(
+        string='Flat Discount (Amount)',
+        default=0.0,
+        digits='Product Price',
+        tracking=True,
+        help='Fixed amount discount applied on the grand total.',
+    )
+
+    x_flat_discount_pct = fields.Float(
+        string='Overall Discount (%)',
+        default=0.0,
+        digits=(5, 2),
+        tracking=True,
+        help='Percentage discount applied on the subtotal (before GST). '
+             'Applied after all line-level discounts.',
+    )
+
+    x_amount_after_discount = fields.Monetary(
+        string='Total After Discount',
+        compute='_compute_discount_totals',
+        store=True,
+        currency_field='currency_id',
+    )
+
+    # ------------------------------------------------------------------
+    # 4. PO DETAILS  (filled at PO stage, after quote is accepted)
+    # ------------------------------------------------------------------
+    x_po_number = fields.Char(
+        string='PO Number',
+        tracking=True,
+        copy=False,
+    )
+
+    x_po_date = fields.Date(
+        string='PO Date',
+        tracking=True,
+        copy=False,
+    )
+
+    x_po_file = fields.Binary(
+        string='PO Document',
+        attachment=True,
+        copy=False,
+    )
+
+    x_po_filename = fields.Char(string='PO Filename')
+
+    x_final_quote_locked = fields.Boolean(
+        string='Final Quote Locked',
+        default=False,
+        tracking=True,
+        copy=False,
+        help='When True, line prices and quantities are locked. Set after PO is received.',
+    )
+
+    # ------------------------------------------------------------------
+    # 5. REMARKS / HANDOFF NOTES
+    # ------------------------------------------------------------------
+    x_internal_remarks = fields.Text(
+        string='Internal Remarks',
+        help='Internal notes visible only to the sales team.',
+    )
+
+    x_service_remarks = fields.Text(
+        string='Remarks for Service Team',
+        help='Handoff notes when assigning to Service or After Sales.',
+        tracking=True,
+    )
+
+    # ------------------------------------------------------------------
+    # 6. HANDOFF ASSIGNMENT
+    # ------------------------------------------------------------------
+    x_assigned_to_service = fields.Many2one(
+        'res.users',
+        string='Assign to Service',
+        tracking=True,
+        domain=[('share', '=', False)],
+        copy=False,
+    )
+
+    x_assigned_to_aftersales = fields.Many2one(
+        'res.users',
+        string='Assign to After Sales',
+        tracking=True,
+        domain=[('share', '=', False)],
+        copy=False,
+    )
+
+    x_handoff_date = fields.Date(
+        string='Handoff Date',
+        tracking=True,
+        copy=False,
+    )
+
+    # ------------------------------------------------------------------
+    # 7. QUOTE STATUS STAGE (beyond default state)
+    # ------------------------------------------------------------------
+    x_quote_stage = fields.Selection(
+        selection=[
+            ('draft',     'Draft'),
+            ('prepared',  'Quote Prepared'),
+            ('sent',      'Quote Sent'),
+            ('po_received', 'PO Received'),
+            ('won',       'Won'),
+            ('lost',      'Lost'),
+        ],
+        string='Quote Stage',
+        default='draft',
+        tracking=True,
+        copy=False,
+    )
+
+    # ==================================================================
+    # COMPUTE
+    # ==================================================================
+
+    @api.depends('x_quote_version')
+    def _compute_version_label(self):
+        for order in self:
+            order.x_quote_version_label = f'v{order.x_quote_version}'
+
+    @api.depends('amount_untaxed', 'amount_total',
+                 'x_flat_discount', 'x_flat_discount_pct')
+    def _compute_discount_totals(self):
+        for order in self:
+            base = order.amount_total
+            # Apply flat percentage on untaxed amount
+            pct_disc = order.amount_untaxed * (order.x_flat_discount_pct / 100.0)
+            # Apply flat amount discount
+            flat_disc = order.x_flat_discount
+            order.x_amount_after_discount = max(0.0, base - pct_disc - flat_disc)
+
+    # ==================================================================
+    # ACTIONS
+    # ==================================================================
+
+    def action_new_quote_version(self):
+        """
+        Increment version counter and reset to draft for revision.
+        Called from a button on the form.
+        """
+        self.ensure_one()
+        if self.state not in ('draft', 'sent'):
+            raise UserError(
+                _('You can only create a new version of a draft or sent quotation.')
+            )
+        self.x_quote_version += 1
+        self.state = 'draft'
+        self.message_post(
+            body=_('New quote version created: <b>v%d</b>') % self.x_quote_version
+        )
+
+    def action_lock_final_quote(self):
+        """Lock line prices after PO is received."""
+        self.ensure_one()
+        if not self.x_po_number:
+            raise UserError(_('Please enter the PO Number before locking the final quote.'))
+        self.x_final_quote_locked = True
+        self.x_quote_stage = 'po_received'
+        self.message_post(
+            body=_('Final quote locked. PO: <b>%s</b>') % (self.x_po_number or '')
+        )
+
+    def action_handoff_to_service(self):
+        """Mark as handed off to service team."""
+        self.ensure_one()
+        if not self.x_assigned_to_service:
+            raise UserError(_('Please select a Service team member before handoff.'))
+        self.x_handoff_date = fields.Date.today()
+        self.message_post(
+            body=_('Handed off to service: <b>%s</b>. Remarks: %s') % (
+                self.x_assigned_to_service.name,
+                self.x_service_remarks or '—'
+            )
+        )
+        # Schedule an activity for the service person
+        self.activity_schedule(
+            'mail.mail_activity_data_todo',
+            user_id=self.x_assigned_to_service.id,
+            note=_('New order handed off for service delivery. Order: %s') % self.name,
+        )
+
+
+class SaleOrderLine(models.Model):
+    """
+    Extends sale.order.line.
+
+    Existing fields used:
+        product_id          - Product
+        product_uom_qty     - Quantity
+        product_uom         - Unit of Measure
+        price_unit          - Unit Price
+        discount            - % Discount per line (requires sale.group_discount_per_so_line)
+        tax_id              - Taxes (GST, etc.) Many2many
+        price_subtotal      - Subtotal (computed, no tax)
+        price_total         - Total (computed, with tax)
+        name                - Description
+    """
+    _inherit = 'sale.order.line'
+
+    # ------------------------------------------------------------------
+    # Flat discount per line (in addition to % discount)
+    # ------------------------------------------------------------------
+    x_flat_discount_line = fields.Float(
+        string='Flat Disc.',
+        default=0.0,
+        digits='Product Price',
+        help='Fixed amount discount on this line.',
+    )
+
+    x_price_after_flat_disc = fields.Float(
+        string='Net Unit Price',
+        compute='_compute_net_price',
+        store=True,
+        digits='Product Price',
+        help='Unit price after applying flat line discount.',
+    )
+
+    # ------------------------------------------------------------------
+    # GST visibility helper  (read from parent order toggle)
+    # ------------------------------------------------------------------
+    x_show_gst = fields.Boolean(
+        string='Show GST',
+        related='order_id.x_gst_included',
+        store=False,
+    )
+
+    # ==================================================================
+    # COMPUTE
+    # ==================================================================
+
+    @api.depends('price_unit', 'x_flat_discount_line', 'product_uom_qty')
+    def _compute_net_price(self):
+        for line in self:
+            if line.product_uom_qty:
+                per_unit_flat = line.x_flat_discount_line / line.product_uom_qty
+            else:
+                per_unit_flat = 0.0
+            line.x_price_after_flat_disc = max(0.0, line.price_unit - per_unit_flat)
+
+    # ==================================================================
+    # OVERRIDE price_subtotal to factor in flat line discount
+    # ==================================================================
+    # NOTE: We do NOT override _compute_amount because Odoo's tax engine
+    # uses price_unit * (1 - discount/100) internally. Instead, we use
+    # x_flat_discount_line as a display/info field and the salesperson
+    # adjusts price_unit manually if they want it reflected in totals,
+    # OR the client confirms they want a computed override (Phase 2).
+    # This keeps the module safe and non-breaking for the tax engine.

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="crm_whitelabel.Dashboard">
+        <div class="crm-dashboard">
+            <!-- Header -->
+            <div class="crm-dash-header">
+                <h2>Welcome back 👋</h2>
+                <button class="btn-new-lead" t-on-click="newLead">+ New Lead</button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="crm-dash-cards">
+                <div class="crm-card" t-on-click="openLeads">
+                    <div class="crm-card-icon" style="background:#875A7B;">📋</div>
+                    <div class="crm-card-info">
+                        <div class="crm-card-num"><t t-esc="state.leads"/></div>
+                        <div class="crm-card-label">Leads</div>
+                    </div>
+                </div>
+                <div class="crm-card" t-on-click="openLeads">
+                    <div class="crm-card-icon" style="background:#3498db;">✅</div>
+                    <div class="crm-card-info">
+                        <div class="crm-card-num"><t t-esc="state.qualified"/></div>
+                        <div class="crm-card-label">Qualified</div>
+                    </div>
+                </div>
+                <div class="crm-card" t-on-click="openLeads">
+                    <div class="crm-card-icon" style="background:#e67e22;">🎯</div>
+                    <div class="crm-card-info">
+                        <div class="crm-card-num"><t t-esc="state.opportunity"/></div>
+                        <div class="crm-card-label">Opportunities</div>
+                    </div>
+                </div>
+                <div class="crm-card" t-on-click="openQuotes">
+                    <div class="crm-card-icon" style="background:#27ae60;">📄</div>
+                    <div class="crm-card-info">
+                        <div class="crm-card-num"><t t-esc="state.quotes"/></div>
+                        <div class="crm-card-label">Quotes</div>
+                    </div>
+                </div>
+                <div class="crm-card" t-on-click="openLeads">
+                    <div class="crm-card-icon" style="background:#f39c12;">🏆</div>
+                    <div class="crm-card-info">
+                        <div class="crm-card-num"><t t-esc="state.won"/></div>
+                        <div class="crm-card-label">Won</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="crm-dash-section">
+                <h3>Quick Access</h3>
+                <div class="crm-quick-actions">
+                    <div class="crm-quick-btn" t-on-click="openLeads">
+                        <span>📊</span><span>Pipeline</span>
+                    </div>
+                    <div class="crm-quick-btn" t-on-click="openQuotes">
+                        <span>📝</span><span>Quotations</span>
+                    </div>
+                    <div class="crm-quick-btn" t-on-click="openContacts">
+                        <span>👥</span><span>Contacts</span>
+                    </div>
+                    <div class="crm-quick-btn" t-on-click="openProducts">
+                        <span>📦</span><span>Products</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

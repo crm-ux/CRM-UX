@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="crm_whitelabel.Dashboard">
+        <div class="crm-pro-dashboard">
+
+            <div class="crm-pro-hero">
+                <div>
+                    <div class="crm-pro-kicker">CRM CONTROL CENTER</div>
+                    <h1>Business Management Dashboard</h1>
+                    <p>Manage leads, customers, quotations and products from one clean workspace.</p>
+                </div>
+                <button class="crm-primary-btn" t-on-click="newLead">+ Create New Lead</button>
+            </div>
+
+            <div class="crm-pro-grid">
+
+                <div class="crm-pro-panel crm-lead-panel">
+                    <div class="crm-panel-head">
+                        <div>
+                            <span class="crm-panel-icon">📊</span>
+                            <h2>Lead Management</h2>
+                        </div>
+                        <button t-on-click="openLeads">Open Leads</button>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.open_leads"/></strong>
+                            <span>Open Leads</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.qualified"/></strong>
+                            <span>Qualified</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.won"/></strong>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Track enquiry progress and convert leads into quotations.</p>
+                </div>
+
+                <div class="crm-pro-panel">
+                    <div class="crm-panel-head">
+                        <div>
+                            <span class="crm-panel-icon">👥</span>
+                            <h2>Customer Management</h2>
+                        </div>
+                        <button t-on-click="openContacts">Open Customers</button>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.customers"/></strong>
+                            <span>Total Customers</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">View customer records, company details and communication history.</p>
+                </div>
+
+                <div class="crm-pro-panel">
+                    <div class="crm-panel-head">
+                        <div>
+                            <span class="crm-panel-icon">🧾</span>
+                            <h2>Quote Management</h2>
+                        </div>
+                        <button t-on-click="openQuotes">Open Quotations</button>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.quotes"/></strong>
+                            <span>Total Quotes</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Create, preview, print and send professional quotations.</p>
+                </div>
+
+                <div class="crm-pro-panel">
+                    <div class="crm-panel-head">
+                        <div>
+                            <span class="crm-panel-icon">📦</span>
+                            <h2>Product Management</h2>
+                        </div>
+                        <button t-on-click="openProducts">Open Products</button>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.products"/></strong>
+                            <span>Total Products</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Manage product catalogue, pricing, HSN/SAC and make/brand details.</p>
+                </div>
+
+            </div>
+        </div>
+    </t>
+</templates>

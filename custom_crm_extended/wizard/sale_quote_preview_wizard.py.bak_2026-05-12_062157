@@ -1,0 +1,101 @@
+# -*- coding: utf-8 -*-
+from odoo import api, fields, models
+
+
+class SaleQuotePreviewWizard(models.TransientModel):
+    _name = 'sale.quote.preview.wizard'
+    _description = 'Editable Quotation Preview Wizard'
+
+    order_id = fields.Many2one('sale.order', string='Quotation', required=True, readonly=True)
+
+    seller_name = fields.Char(string='Seller / Company Name')
+    buyer_name = fields.Char(string='Buyer / Customer Name')
+    quote_name = fields.Char(string='Quotation No.')
+    quote_date = fields.Date(string='Quotation Date')
+    valid_until = fields.Date(string='Valid Upto')
+    subject = fields.Char(string='Subject')
+
+    document_html = fields.Html(string='Editable Quote Content')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        order = self.env['sale.order'].browse(self.env.context.get('default_order_id'))
+        if not order:
+            return res
+
+        rows = ''
+        for line in order.order_line.filtered(lambda l: not l.display_type):
+            rows += """
+                <tr>
+                    <td>%s</td>
+                    <td>%s</td>
+                    <td style="text-align:right;">%s</td>
+                    <td style="text-align:right;">%s</td>
+                    <td style="text-align:right;">%s%%</td>
+                    <td>%s</td>
+                    <td style="text-align:right;">%s</td>
+                </tr>
+            """ % (
+                line.x_product_code or line.product_id.default_code or '',
+                line.x_product_name or line.name or '',
+                line.product_uom_qty or 0,
+                line.price_unit or 0,
+                line.discount or 0,
+                ', '.join(line.tax_ids.mapped('name')),
+                line.price_subtotal or 0,
+            )
+
+        html = """
+            <h2 style="text-align:center;">QUOTATION</h2>
+            <p><b>Seller:</b> %s</p>
+            <p><b>Buyer:</b> %s</p>
+            <p><b>Quotation No:</b> %s</p>
+            <p><b>Date:</b> %s &nbsp;&nbsp; <b>Valid Upto:</b> %s</p>
+            <p><b>Subject:</b> Quotation for Products / Services</p>
+
+            <table border="1" cellpadding="6" cellspacing="0" style="width:100%%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                        <th>Qty</th>
+                        <th>Unit Price</th>
+                        <th>Discount</th>
+                        <th>Taxes</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    %s
+                </tbody>
+            </table>
+
+            <p style="text-align:right;"><b>Untaxed Amount:</b> %s</p>
+            <p style="text-align:right;"><b>Total:</b> %s</p>
+
+            <h4>Terms & Conditions</h4>
+            <p>%s</p>
+        """ % (
+            order.company_id.name or '',
+            order.partner_id.name or '',
+            order.name or '',
+            order.date_order.date() if order.date_order else fields.Date.today(),
+            order.validity_date or '',
+            rows,
+            order.amount_untaxed,
+            order.amount_total,
+            order.note or '',
+        )
+
+        res.update({
+            'order_id': order.id,
+            'seller_name': order.company_id.name or '',
+            'buyer_name': order.partner_id.name or '',
+            'quote_name': order.name or '',
+            'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
+            'valid_until': order.validity_date,
+            'subject': 'Quotation for Products / Services',
+            'document_html': html,
+        })
+        return res

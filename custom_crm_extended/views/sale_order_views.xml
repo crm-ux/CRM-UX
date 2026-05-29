@@ -1,270 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!--
-    ================================================================
-    Verified sale.order view XML IDs (stable Odoo 14-19):
-      Form view      : sale.view_order_form
-      Tree view      : sale.view_order_tree
-      Search view    : sale.view_sales_order_filter
-      Order line tree: addressed via xpath inside form
-
-    sale.order fields used from default:
-      partner_id, opportunity_id (sale_crm), order_line,
-      validity_date, note, payment_term_id, user_id, team_id,
-      state, currency_id, amount_untaxed, amount_tax, amount_total
-
-    sale.order.line fields used:
-      product_id, product_uom_qty, product_uom, price_unit,
-      discount, tax_id, price_subtotal, price_total, name
-    ================================================================
-    -->
-
-    <!-- ==============================================================
-         1.  SALE ORDER FORM VIEW  (Quotation + Sales Order)
-         inherit: sale.view_order_form
-    =============================================================== -->
     <record id="view_sale_order_form_custom" model="ir.ui.view">
         <field name="name">sale.order.form.custom</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-
-            <!-- A. Hidden fields needed in expressions -->
-            <xpath expr="//sheet" position="before">
-                <field name="x_gst_included"          invisible="1"/>
-                <field name="x_final_quote_locked"    invisible="1"/>
-                <field name="x_quote_stage"           invisible="1"/>
+            <!-- Hide default/confusing quotation buttons first -->
+            <xpath expr="//header/button[@name='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_preview_sale_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='sale.action_report_saleorder']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_quotation_send']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- B. HEADER BUTTONS: version bump + lock + handoff -->
-            <xpath expr="//header/button[last()]" position="after">
-
-                <button name="action_new_quote_version"
-                        string="New Version"
-                        type="object"
+            <!-- Add simple quotation buttons after hiding defaults -->
+            <xpath expr="//header/button[1]" position="before">
+                <button name="action_preview_sale_order" string="Preview" type="object" class="btn-primary"/>
+                <button name="sale.action_report_saleorder" string="Print" type="action" class="btn-secondary"/>
+                <button name="action_quotation_send" string="Send" type="object"
+                        context="{'validate_analytic': True, 'check_document_layout': True}"
+                        class="btn-secondary"/>
+                <button name="action_lock_final_quote" string="Lock" type="object"
                         class="btn-secondary"
-                        icon="fa-copy"
-                        invisible="state not in ('draft','sent')"
-                        help="Create a revised version of this quotation (increments version counter)."/>
-
-                <button name="action_lock_final_quote"
-                        string="Lock Final Quote"
-                        type="object"
-                        class="btn-secondary"
-                        icon="fa-lock"
-                        invisible="x_final_quote_locked or state not in ('draft','sent','sale')"
-                        confirm="Lock this quote? Line prices and quantities will become read-only."/>
-
-                <button name="action_handoff_to_service"
-                        string="Handoff to Service"
-                        type="object"
-                        class="btn-secondary"
-                        icon="fa-share"
-                        invisible="not x_assigned_to_service or x_quote_stage not in ('po_received','won')"/>
-
+                        invisible="x_final_quote_locked"/>
             </xpath>
 
-            <!-- C. QUOTE VERSION badge near the title area -->
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="x_quote_version_label"
-                       string="Version"
-                       readonly="1"
-                       class="badge bg-info text-white ms-2"
-                       nolabel="1"/>
-            </xpath>
-
-            <!-- D. GST TOGGLE + Quote Stage near top of form (after partner) -->
-            <xpath expr="//field[@name='validity_date']" position="after">
-                <field name="x_gst_included"
-                       string="Include GST"
-                       widget="boolean_toggle"/>
-                <field name="x_quote_stage"
-                       string="Quote Stage"
-                       widget="statusbar"
-                       statusbar_visible="draft,prepared,sent,po_received,won"/>
-            </xpath>
-
-            <!-- E. OPPORTUNITY LINK - already exists via sale_crm.
-                 Make sure it is visible (sale_crm may hide it by default).
-                 We expose it prominently after partner_id. -->
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="opportunity_id"
-                       string="CRM Opportunity"
-                       options="{'no_create': True}"
-                       placeholder="Link to CRM opportunity..."/>
+                <field name="opportunity_id" string="CRM Opportunity"
+                       options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='validity_date']" position="after">
+                <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="x_quote_version_label" string="Version" readonly="1" nolabel="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_template_id']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+                <attribute name="optional">hide</attribute>
             </xpath>
 
-            <!-- F. ORDER LINE COLUMNS: inject Flat Disc. and Net Price -->
-            <!-- After discount column in the order_line tree.
-                 discount col only visible when discount group is enabled. -->
-            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="after">
-                <field name="x_flat_discount_line"
-                       string="Flat Disc."
-                       optional="show"
-                       invisible="not parent.x_gst_included and parent.x_gst_included != True"/>
-                <field name="x_price_after_flat_disc"
-                       string="Net Price"
-                       readonly="1"
-                       optional="show"/>
-            </xpath>
-
-            <!-- GST/Tax column visibility: hide tax_id column when GST toggle is OFF -->
-            <xpath expr="//field[@name='order_line']/tree//field[@name='tax_id']" position="attributes">
-                <attribute name="column_invisible">not parent.x_gst_included</attribute>
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="attributes">
+                <attribute name="string">Product ID</attribute>
                 <attribute name="optional">show</attribute>
+                <attribute name="width">110px</attribute>
+                <attribute name="context">{'show_code_only': True, 'default_lst_price': price_unit, 'default_uom_id': product_uom_id, 'partner_id': parent.partner_id}</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True, 'show_label_warning': True}</attribute>
             </xpath>
 
-            <!-- Lock prices when final quote is locked -->
-            <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']" position="attributes">
-                <attribute name="readonly">parent.x_final_quote_locked</attribute>
-            </xpath>
-            <xpath expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']" position="attributes">
-                <attribute name="readonly">parent.x_final_quote_locked</attribute>
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="before">
+                <field name="x_category_id" string="Category" optional="show" readonly="1" width="90px"/>
+                <field name="x_sub_category_id" string="Sub Category" optional="show" readonly="1" width="100px"/>
             </xpath>
 
-            <!-- G. HEADER DISCOUNT section - inject after order_line field -->
-            <xpath expr="//field[@name='order_line']" position="after">
-                <group name="x_discount_group" string="Discounts" col="4">
-                    <field name="x_flat_discount_pct"
-                           string="Overall Disc. (%)"
-                           nolabel="0"/>
-                    <field name="x_flat_discount"
-                           string="Flat Discount (Amt)"
-                           nolabel="0"/>
-                    <field name="x_amount_after_discount"
-                           string="Total After Discount"
-                           readonly="1"
-                           nolabel="0"/>
-                </group>
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="after">
+                <field name="x_product_name" string="Product Name" optional="show" readonly="1" width="160px"/>
+                <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1" width="90px"/>
+                <field name="x_make" string="Make / Brand" optional="show" readonly="1" width="110px"/>
             </xpath>
 
-            <!-- H. PO DETAILS TAB - new tab in the notebook -->
+            <xpath expr="//field[@name='order_line']//list//field[@name='discount']" position="attributes">
+                <attribute name="string">Discount %</attribute>
+                <attribute name="optional">show</attribute>
+                <attribute name="groups">base.group_user</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
+                <field name="x_notes" string="Notes" optional="show"/>
+            </xpath>
+
             <xpath expr="//page[@name='order_lines']" position="after">
-
                 <page string="PO and Handoff" name="x_po_handoff">
                     <group>
-                        <group string="Purchase Order Details">
-                            <field name="x_po_number"   string="PO Number"
-                                   placeholder="Customer PO reference..."/>
-                            <field name="x_po_date"     string="PO Date"/>
-                            <field name="x_po_file"     string="PO Document"
-                                   filename="x_po_filename"
-                                   widget="binary"/>
-                            <field name="x_final_quote_locked"
-                                   string="Final Quote Locked"
-                                   readonly="1"
-                                   widget="boolean_toggle"/>
-                        </group>
-                        <group string="Handoff Assignment">
-                            <field name="x_assigned_to_service"
-                                   string="Service Team Member"
-                                   options="{'no_create': True}"/>
-                            <field name="x_assigned_to_aftersales"
-                                   string="After Sales Member"
-                                   options="{'no_create': True}"/>
-                            <field name="x_handoff_date"
-                                   string="Handoff Date"
+                        <group string="Purchase Order">
+                            <field name="x_po_number" string="PO Number"/>
+                            <field name="x_po_date" string="PO Date"/>
+                            <field name="x_po_file" string="PO Document"
+                                   filename="x_po_filename" widget="binary"/>
+                            <field name="x_final_quote_locked" string="Final Quote Locked"
                                    readonly="1"/>
+                        </group>
+                        <group string="Handoff">
+                            <field name="x_assigned_to_service" string="Service Member"
+                                   options="{'no_create': True}"/>
+                            <field name="x_assigned_to_aftersales" string="After Sales"
+                                   options="{'no_create': True}"/>
+                            <field name="x_handoff_date" string="Handoff Date" readonly="1"/>
                         </group>
                     </group>
                     <group>
-                        <field name="x_service_remarks"
-                               string="Remarks for Service Team"
-                               placeholder="Describe delivery requirements, special instructions..."/>
+                        <field name="x_service_remarks" string="Remarks for Service Team"/>
                     </group>
                 </page>
-
                 <page string="Internal Remarks" name="x_internal_remarks_tab">
-                    <field name="x_internal_remarks"
-                           string="Internal Remarks"
-                           nolabel="1"
-                           placeholder="Notes visible to the sales team only..."/>
+                    <field name="x_internal_remarks" nolabel="1"
+                           placeholder="Notes visible to sales team only..."/>
                 </page>
-
-            </xpath>
-
-        </field>
-    </record>
-
-
-    <!-- ==============================================================
-         2.  SALE ORDER TREE VIEW  -  add version + stage columns
-         inherit: sale.view_order_tree
-    =============================================================== -->
-    <record id="view_sale_order_tree_custom" model="ir.ui.view">
-        <field name="name">sale.order.tree.custom</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_tree"/>
-        <field name="priority">20</field>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='user_id']" position="after">
-                <field name="x_quote_version_label" string="Ver."    optional="show"/>
-                <field name="x_quote_stage"         string="Stage"   optional="show"/>
-                <field name="x_po_number"           string="PO No."  optional="show"/>
-                <field name="opportunity_id"        string="Opportunity" optional="show"/>
+                <page string="Discounts" name="x_discounts_tab">
+                    <group>
+                        <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
+                        <field name="x_flat_discount" string="Flat Discount (Amount)"/>
+                        <field name="x_amount_after_discount" string="Total After Discount"
+                               readonly="1"/>
+                    </group>
+                </page>
             </xpath>
         </field>
     </record>
-
-
-    <!-- ==============================================================
-         3.  SALE ORDER SEARCH VIEW  -  add stage filter + PO filter
-         inherit: sale.view_sales_order_filter
-    =============================================================== -->
-    <record id="view_sale_order_search_custom" model="ir.ui.view">
-        <field name="name">sale.order.search.custom</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
-        <field name="priority">20</field>
-        <field name="arch" type="xml">
-            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
-                <filter string="PO Received"
-                        name="x_po_received"
-                        domain="[('x_quote_stage', '=', 'po_received')]"/>
-                <filter string="Locked Final Quote"
-                        name="x_locked"
-                        domain="[('x_final_quote_locked', '=', True)]"/>
-                <separator/>
-                <field name="opportunity_id" string="Opportunity"/>
-                <field name="x_po_number"    string="PO Number"/>
-            </xpath>
-            <xpath expr="//filter[@name='order_date']" position="after">
-                <filter string="Quote Stage"
-                        name="group_quote_stage"
-                        context="{'group_by': 'x_quote_stage'}"/>
-            </xpath>
-        </field>
-    </record>
-
-
-    <!-- ==============================================================
-         4.  SMART BUTTON on CRM Lead form: "Quotations"
-         sale_crm already adds this, but we want to make sure it shows.
-         We use a minimal inherit to ensure the count button is visible.
-    =============================================================== -->
-    <!-- Note: sale_crm module already injects the "Quotations" smart button
-         on the CRM lead form. No duplication needed here.
-         If sale_crm is not available, uncomment the block below.
-
-    <record id="view_crm_lead_quotation_button" model="ir.ui.view">
-        <field name="name">crm.lead.quotation.button</field>
-        <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="priority">30</field>
-        <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_sale_quotations_with_onboarding"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-usd">
-                    <field name="sale_amount_total" widget="statinfo"
-                           string="Sales" />
-                </button>
-            </xpath>
-        </field>
-    </record>
-    -->
-
 </odoo>

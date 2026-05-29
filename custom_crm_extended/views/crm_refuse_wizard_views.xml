@@ -1,5 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Wizard view is defined inside crm_lead_views.xml.
-     This file is a placeholder so the manifest reference resolves.
-     You can move the wizard <record> here if you prefer separation. -->
 <odoo/>

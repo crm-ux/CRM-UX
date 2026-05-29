@@ -22,9 +22,18 @@
         'views/crm_lead_views.xml',
         'views/crm_lead_product_views.xml',
         'views/sale_order_views.xml',
+        'views/sale_quote_preview_wizard_views.xml',
         'views/crm_refuse_wizard_views.xml',
         'views/crm_csv_import_wizard_views.xml',
+        'views/crm_lead_wizard_views.xml',
+        'views/product_label_view.xml',
+        'views/product_make_view.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'custom_crm_extended/static/src/css/crm_hide_new.css',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,

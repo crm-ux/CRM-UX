@@ -192,6 +192,20 @@ class SaleOrder(models.Model):
     # ACTIONS
     # ==================================================================
 
+    def action_preview_sale_order(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Editable Quotation Preview',
+            'res_model': 'sale.quote.preview.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+            },
+        }
+
+
     def action_new_quote_version(self):
         """
         Increment version counter and reset to draft for revision.
@@ -256,6 +270,15 @@ class SaleOrderLine(models.Model):
     """
     _inherit = 'sale.order.line'
 
+    x_category_id = fields.Many2one('product.category', string='Category')
+    x_sub_category_id = fields.Many2one('product.category', string='Sub Category')
+    x_product_code = fields.Char(string='Product ID')
+    x_product_name = fields.Char(string='Product Name')
+    x_hsn_code = fields.Char(string='HSN/SAC')
+    x_make = fields.Char(string='Make / Brand')
+    x_default_price = fields.Float(string='Master Price', digits='Product Price')
+    x_notes = fields.Char(string='Notes')
+
     # ------------------------------------------------------------------
     # Flat discount per line (in addition to % discount)
     # ------------------------------------------------------------------
@@ -282,6 +305,44 @@ class SaleOrderLine(models.Model):
         related='order_id.x_gst_included',
         store=False,
     )
+
+    def _fill_custom_product_fields(self, product):
+        categ = product.categ_id
+        self.x_category_id = categ.parent_id if categ and categ.parent_id else categ
+        self.x_sub_category_id = categ if categ and categ.parent_id else False
+        self.x_product_code = product.default_code or ''
+        self.x_product_name = product.name or ''
+        self.x_hsn_code = product.l10n_in_hsn_code or ''
+        self.x_make = product.x_make or ''
+        self.x_default_price = product.list_price or 0.0
+
+    @api.onchange('product_id')
+    def _onchange_custom_product_fields(self):
+        if self.product_id:
+            self._fill_custom_product_fields(self.product_id)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            product_id = vals.get('product_id')
+            if product_id:
+                product = self.env['product.product'].browse(product_id)
+                categ = product.categ_id
+                if not vals.get('x_category_id'):
+                    vals['x_category_id'] = categ.parent_id.id if categ and categ.parent_id else categ.id if categ else False
+                if not vals.get('x_sub_category_id'):
+                    vals['x_sub_category_id'] = categ.id if categ and categ.parent_id else False
+                if not vals.get('x_product_code'):
+                    vals['x_product_code'] = product.default_code or ''
+                if not vals.get('x_product_name'):
+                    vals['x_product_name'] = product.name or ''
+                if not vals.get('x_hsn_code'):
+                    vals['x_hsn_code'] = product.l10n_in_hsn_code or ''
+                if not vals.get('x_make'):
+                    vals['x_make'] = product.x_make or ''
+                if not vals.get('x_default_price'):
+                    vals['x_default_price'] = product.list_price or 0.0
+        return super().create(vals_list)
 
     # ==================================================================
     # COMPUTE

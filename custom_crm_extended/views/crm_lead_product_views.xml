@@ -1,254 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ==============================================================
-         PRODUCT LINE INLINE LIST (used inside lead form as o2m widget)
-         Standalone tree view for crm.lead.product.line
-    =============================================================== -->
-    <record id="view_crm_lead_product_line_tree" model="ir.ui.view">
-        <field name="name">crm.lead.product.line.tree</field>
-        <field name="model">crm.lead.product.line</field>
-        <field name="arch" type="xml">
-            <tree
-                string="Product Interest Lines"
-                editable="bottom"
-                decoration-warning="x_is_manual == True">
-
-                <field name="sequence" widget="handle"/>
-
-                <!-- Product ID (Internal Ref) - searchable, triggers auto-fill -->
-                <field name="x_product_code"
-                       string="Product ID"
-                       placeholder="e.g. EL-1042"
-                       optional="show"/>
-
-                <!-- Product Name - M2o, searches name and default_code -->
-                <field name="product_id"
-                       string="Product"
-                       context="{'display_default_code': True}"
-                       placeholder="Search by name or ID..."
-                       optional="show"/>
-
-                <!-- Category - auto-filled, editable for manual lines -->
-                <field name="x_category_id"
-                       string="Category"
-                       optional="show"/>
-
-                <!-- Make / Brand -->
-                <field name="x_make"
-                       string="Make / Brand"
-                       placeholder="e.g. Schneider"
-                       optional="show"/>
-
-                <!-- Master price - read-only reference -->
-                <field name="x_default_price"
-                       string="Master Price"
-                       readonly="1"
-                       optional="show"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"/>
-
-                <!-- Qty + UoM -->
-                <field name="x_qty"      string="Qty"  optional="show"/>
-                <field name="x_uom_id"   string="UoM"  optional="show"/>
-
-                <!-- Working price (editable) -->
-                <field name="x_unit_price"
-                       string="Unit Price"
-                       optional="show"
-                       widget="monetary"
-                       options="{'currency_field': 'currency_id'}"/>
-
-                <!-- Notes -->
-                <field name="x_notes" string="Notes" optional="show"/>
-
-                <!-- Mismatch indicator - shown inline -->
-                <field name="x_is_manual"
-                       string="Manual"
-                       readonly="1"
-                       optional="show"/>
-
-                <field name="x_mismatch_info"
-                       string="Mismatch Info"
-                       readonly="1"
-                       optional="show"/>
-
-                <!-- Hidden: currency_id needed for monetary widget -->
-                <field name="lead_id" column_invisible="1"/>
-
-            </tree>
-        </field>
-    </record>
-
-
-    <!-- ==============================================================
-         PRODUCT LINE FORM VIEW (popup when clicking a line)
-    =============================================================== -->
-    <record id="view_crm_lead_product_line_form" model="ir.ui.view">
-        <field name="name">crm.lead.product.line.form</field>
-        <field name="model">crm.lead.product.line</field>
-        <field name="arch" type="xml">
-            <form string="Product Interest Line">
-                <sheet>
-                    <div invisible="not x_is_manual"
-                         class="alert alert-warning" role="alert">
-                        <i class="fa fa-exclamation-triangle me-1"/>
-                        <strong>Manual Entry</strong> - This product was not found in the master table.
-                        <span invisible="not x_mismatch_info">
-                            Reason: <field name="x_mismatch_info" readonly="1" nolabel="1" class="oe_inline"/>
-                        </span>
-                    </div>
-                    <group>
-                        <group string="Product">
-                            <field name="x_product_code"
-                                   string="Product ID (Internal Ref)"
-                                   placeholder="Type ID to auto-search..."/>
-                            <field name="product_id"
-                                   string="Product (Master)"
-                                   context="{'display_default_code': True}"
-                                   options="{'no_create': True}"
-                                   placeholder="Or search by name..."/>
-                            <field name="x_product_name"
-                                   string="Product Name"
-                                   readonly="product_id != False"/>
-                            <field name="x_category_id"
-                                   string="Category"
-                                   options="{'no_create': True}"
-                                   readonly="product_id != False"/>
-                            <field name="x_make"   string="Make / Brand"/>
-                            <field name="x_is_manual" string="Manual Entry" readonly="1"/>
-                        </group>
-                        <group string="Quantity &amp; Price">
-                            <field name="x_qty"          string="Quantity"/>
-                            <field name="x_uom_id"        string="Unit of Measure"
-                                   options="{'no_create': True}"/>
-                            <field name="x_default_price" string="Master Price (ref)"
-                                   readonly="1"/>
-                            <field name="x_unit_price"    string="Working Price"/>
-                        </group>
-                    </group>
-                    <group>
-                        <field name="x_notes" string="Notes" placeholder="Any specific requirement or note..."/>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
-
-    <!-- ==============================================================
-         INJECT PRODUCT LINES TAB INTO LEAD FORM
-         Inherit crm.crm_lead_view_form and add a "Products" tab
-         after our "Opportunity Details" tab.
-    =============================================================== -->
-    <record id="view_crm_lead_form_products" model="ir.ui.view">
+    <record id="crm_lead_form_products" model="ir.ui.view">
         <field name="name">crm.lead.form.products</field>
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="priority">25</field>
+
         <field name="arch" type="xml">
 
-            <xpath expr="//page[@name='x_opportunity_details']" position="after">
+            <xpath expr="//page[@name='internal_notes']" position="after">
+
+                <page string="Opportunity Details" name="x_opportunity_details">
+
+                    <group>
+                        <group string="Lead Info">
+                            <field name="x_lead_age_days" readonly="1"/>
+                            <field name="x_is_overdue" readonly="1"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+
+                        <group string="Refusal History" invisible="not x_refused_by_id">
+                            <field name="x_refused_by_id" readonly="1"/>
+                            <field name="x_refuse_date" readonly="1"/>
+                            <field name="x_refuse_reason" readonly="1"/>
+                        </group>
+                    </group>
+
+                </page>
+
                 <page string="Product Interest" name="x_product_lines">
 
-                    <!-- CSV import button -->
                     <div class="mb-2">
                         <button name="action_import_products_csv"
                                 string="Import from CSV"
                                 type="object"
-                                class="btn-secondary btn-sm"
-                                icon="fa-upload"
-                                help="Bulk import product lines from a CSV file (product_code, product_name, make, qty, unit_price, notes)"/>
-                        <span class="ms-2 text-muted" style="font-size:12px">
-                            Or add lines manually below. Search by Product ID or Name.
-                        </span>
+                                class="btn-secondary btn-sm"/>
+
+                        <button name="action_new_quotation"
+                                string="Create Quotation"
+                                type="object"
+                                class="btn-primary btn-sm ms-2"/>
                     </div>
 
-                    <!-- Inline editable product lines -->
-                    <field name="x_product_line_ids"
-                           widget="one2many"
-                           context="{'default_lead_id': active_id}"
-                           nolabel="1">
-                        <tree
-                            string="Product Interest Lines"
-                            editable="bottom"
-                            decoration-warning="x_is_manual == True">
-                            <field name="sequence" widget="handle"/>
-                            <field name="x_product_code"
-                                   string="Product ID"
-                                   placeholder="e.g. EL-1042"/>
-                            <field name="product_id"
-                                   string="Product"
-                                   context="{'display_default_code': True}"
-                                   placeholder="Search by name or ID..."
-                                   options="{'no_create': True}"/>
-                            <field name="x_category_id"
-                                   string="Category"
-                                   options="{'no_create': True}"
-                                   readonly="product_id != False"/>
-                            <field name="x_make"
-                                   string="Make / Brand"
-                                   placeholder="e.g. Schneider"/>
-                            <field name="x_default_price"
-                                   string="Master Price"
-                                   readonly="1"/>
-                            <field name="x_qty"        string="Qty"/>
-                            <field name="x_uom_id"     string="UoM"
-                                   options="{'no_create': True}"/>
-                            <field name="x_unit_price" string="Unit Price"/>
-                            <field name="x_notes"      string="Notes" optional="show"/>
-                            <field name="x_is_manual"  string="Manual"
-                                   readonly="1"         optional="show"/>
-                            <field name="x_mismatch_info"
-                                   string="Mismatch"
-                                   readonly="1"         optional="hide"/>
-                        </tree>
-                        <form>
-                            <group>
-                                <group string="Product">
-                                    <field name="x_product_code"
-                                           string="Product ID"
-                                           placeholder="Type to auto-search..."/>
-                                    <field name="product_id"
-                                           string="Product (Master)"
-                                           context="{'display_default_code': True}"
-                                           options="{'no_create': True}"/>
-                                    <field name="x_product_name"
-                                           string="Product Name"
-                                           readonly="product_id != False"/>
-                                    <field name="x_category_id"
-                                           string="Category"
-                                           options="{'no_create': True}"
-                                           readonly="product_id != False"/>
-                                    <field name="x_make" string="Make / Brand"/>
-                                </group>
-                                <group string="Quantity and Price">
-                                    <field name="x_qty"           string="Quantity"/>
-                                    <field name="x_uom_id"        string="Unit of Measure"
-                                           options="{'no_create': True}"/>
-                                    <field name="x_default_price" string="Master Price"
-                                           readonly="1"/>
-                                    <field name="x_unit_price"    string="Working Price"/>
-                                </group>
-                            </group>
-                            <group>
-                                <field name="x_notes" string="Notes"/>
-                            </group>
-                        </form>
+                    <field name="x_product_line_ids" nolabel="1">
+
+<list editable="bottom">
+
+    <field name="sequence" widget="handle"/>
+
+    <field name="x_category_id"
+           string="Category"
+           options="{'no_create': True, 'no_open': True}"
+           domain="[('parent_id', '=', False)]"/>
+
+<field name="x_sub_category_id"
+       string="Sub Category"
+       options="{'no_create': True, 'no_open': True}"
+       domain="[('parent_id', '=', x_category_id)]"/>
+
+<field name="x_allowed_product_ids"
+       column_invisible="1"/>
+
+<field name="product_id"
+       string="Product ID"
+       domain="[('id', 'in', x_allowed_product_ids)]"
+       context="{'show_code_only': True}"
+       options="{'no_create': True, 'no_open': True}"/>
+<field name="x_product_name_m2o"
+       column_invisible="1"/>
+<field name="x_product_template_id"
+       string="Product Name"
+       context="{'display_default_code': False}"
+       options="{'no_create': True, 'no_open': True}"/>
+<field name="x_hsn_code"
+       string="HSN/SAC"
+       readonly="1"/>
+
+    <field name="x_make"
+           string="Make / Brand"/>
+
+    <field name="x_tax_ids"
+           string="Taxes"
+           widget="many2many_tags"
+           options="{'no_create': True}"/>
+
+    <field name="x_default_price"
+           string="Master Price"
+           readonly="1"/>
+
+    <field name="x_unit_price"
+           string="Unit Price"/>
+
+    <field name="x_qty"
+           string="Qty"/>
+
+    <field name="x_discount"
+           string="Discount %"/>
+
+    <field name="x_amount"
+           string="Amount"
+           readonly="1"/>
+
+    <field name="x_notes"
+           string="Notes"
+           optional="show"/>
+
+</list>
                     </field>
 
-                    <!-- Mismatch summary (only visible when any manual lines exist) -->
-                    <div class="mt-2 alert alert-warning"
-                         invisible="not x_product_line_ids or not any(l.x_is_manual for l in x_product_line_ids)"
-                         role="alert">
-                        <i class="fa fa-exclamation-triangle me-1"/>
-                        Some lines are <strong>manual entries</strong> (highlighted in orange)
-                        because the product was not found in the master table.
-                        Please verify or link them manually.
-                    </div>
-
                 </page>
+
             </xpath>
+
         </field>
     </record>
 

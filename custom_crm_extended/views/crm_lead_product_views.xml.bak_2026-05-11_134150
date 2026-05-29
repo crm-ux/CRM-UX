@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="crm_lead_form_products" model="ir.ui.view">
+        <field name="name">crm.lead.form.products</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+
+        <field name="arch" type="xml">
+
+            <xpath expr="//page[@name='internal_notes']" position="after">
+
+                <page string="Opportunity Details" name="x_opportunity_details">
+
+                    <group>
+                        <group string="Lead Info">
+                            <field name="x_lead_age_days" readonly="1"/>
+                            <field name="x_is_overdue" readonly="1"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+
+                        <group string="Refusal History" invisible="not x_refused_by_id">
+                            <field name="x_refused_by_id" readonly="1"/>
+                            <field name="x_refuse_date" readonly="1"/>
+                            <field name="x_refuse_reason" readonly="1"/>
+                        </group>
+                    </group>
+
+                </page>
+
+                <page string="Product Interest" name="x_product_lines">
+
+                    <div class="mb-2">
+                        <button name="action_import_products_csv"
+                                string="Import from CSV"
+                                type="object"
+                                class="btn-secondary btn-sm"/>
+
+                        <button name="action_new_quotation"
+                                string="Create Quotation"
+                                type="object"
+                                class="btn-primary btn-sm ms-2"/>
+                    </div>
+
+                    <field name="x_product_line_ids" nolabel="1">
+
+<list editable="bottom">
+
+    <field name="sequence" widget="handle"/>
+
+    <field name="x_category_id"
+           string="Category"
+           options="{'no_create': True, 'no_open': True}"
+           domain="[('parent_id', '=', False)]"/>
+
+<field name="x_sub_category_id"
+       string="Sub Category"
+       options="{'no_create': True, 'no_open': True}"
+       domain="[('parent_id', '=', x_category_id)]"/>
+
+<field name="x_allowed_product_ids"
+       column_invisible="1"/>
+
+<field name="x_product_code"
+       string="Product ID"/>
+<field name="x_product_name"
+       string="Product Name"/>
+<field name="x_hsn_code"
+       string="HSN/SAC"
+       readonly="1"/>
+
+    <field name="x_make"
+           string="Make / Brand"/>
+
+    <field name="x_tax_ids"
+           string="Taxes"
+           widget="many2many_tags"
+           options="{'no_create': True}"/>
+
+    <field name="x_default_price"
+           string="Master Price"
+           readonly="1"/>
+
+    <field name="x_unit_price"
+           string="Unit Price"/>
+
+    <field name="x_qty"
+           string="Qty"/>
+
+    <field name="x_discount"
+           string="Discount %"/>
+
+    <field name="x_amount"
+           string="Amount"
+           readonly="1"/>
+
+    <field name="x_notes"
+           string="Notes"
+           optional="show"/>
+
+</list>
+                    </field>
+
+                </page>
+
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

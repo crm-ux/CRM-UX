@@ -1,0 +1,46 @@
+/** @odoo-module **/
+import { registry } from "@web/core/registry";
+import { useService } from "@web/core/utils/hooks";
+import { Component, onMounted, useState } from "@odoo/owl";
+import { rpc } from "@web/core/network/rpc";
+
+class CrmDashboard extends Component {
+    static template = "crm_whitelabel.Dashboard";
+
+    setup() {
+        this.actionService = useService("action");
+        this.state = useState({
+            leads: 0, qualified: 0, opportunity: 0, quotes: 0, won: 0,
+            total_revenue: 0, my_leads: 0,
+        });
+        onMounted(() => this.loadStats());
+    }
+
+    async loadStats() {
+        try {
+            const result = await rpc("/web/dataset/call_kw", {
+                model: "crm.lead",
+                method: "read_group",
+                args: [[["active", "=", true]], ["stage_id", "__count"]],
+                kwargs: { groupby: ["stage_id"] },
+            });
+            result.forEach(g => {
+                const name = (g.stage_id[1] || "").toLowerCase();
+                if (name.includes("lead")) this.state.leads = g.__count;
+                else if (name.includes("qualified")) this.state.qualified = g.__count;
+                else if (name.includes("opportunit")) this.state.opportunity = g.__count;
+                else if (name.includes("quot")) this.state.quotes = g.__count;
+                else if (name.includes("won")) this.state.won = g.__count;
+            });
+        } catch(e) { console.log(e); }
+    }
+
+    openLeads() { this.actionService.doAction(212); }
+    openQuotes() { this.actionService.doAction({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", view_mode: "list,form" }); }
+    openContacts() { this.actionService.doAction({ type: "ir.actions.act_window", name: "Contacts", res_model: "res.partner", view_mode: "list,form" }); }
+    openProducts() { this.actionService.doAction({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", view_mode: "list,form" }); }
+    newLead() { this.actionService.doAction(405); }
+}
+
+registry.category("actions").add("crm_dashboard", CrmDashboard);
+export default CrmDashboard;

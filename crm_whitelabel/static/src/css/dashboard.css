@@ -1,0 +1,177 @@
+.crm-pro-dashboard {
+    min-height: 100vh;
+    padding: 24px 28px;
+    background: #f0f2f5;
+}
+
+/* Hero */
+.crm-pro-hero {
+    background: linear-gradient(135deg, #0b3d91 0%, #1769aa 55%, #2f9fd0 100%);
+    border-radius: 16px;
+    padding: 28px 32px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 24px rgba(11,61,145,0.2);
+    margin-bottom: 20px;
+}
+.crm-pro-hero-left h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 6px 0 4px;
+    color: #fff;
+}
+.crm-pro-hero-left p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.75);
+    margin: 0 0 12px;
+}
+.crm-pro-kicker {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+}
+.crm-hero-revenue {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 16px;
+    display: inline-flex;
+}
+.crm-rev-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+.crm-rev-amount { font-size: 22px; font-weight: 700; color: #fff; }
+.crm-primary-btn {
+    background: #fff;
+    color: #0b3d91;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.crm-primary-btn:hover {
+    background: #e8f0fe;
+    transform: translateY(-1px);
+}
+
+/* Pipeline Strip */
+.crm-pipeline-strip {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    overflow-x: auto;
+}
+.crm-pipe-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 70px;
+    border-top: 3px solid transparent;
+}
+.crm-pipe-item:hover { background: #f8f9fa; transform: translateY(-2px); }
+.crm-pipe-c1 { border-top-color: #4facfe; }
+.crm-pipe-c2 { border-top-color: #a18cd1; }
+.crm-pipe-c3 { border-top-color: #f093fb; }
+.crm-pipe-c4 { border-top-color: #fda085; }
+.crm-pipe-c5 { border-top-color: #43e97b; }
+.crm-pipe-num { font-size: 26px; font-weight: 700; color: #1a2332; line-height: 1; }
+.crm-pipe-lbl { font-size: 11px; color: #888; margin-top: 3px; font-weight: 500; }
+.crm-pipe-sep { color: #ddd; font-size: 18px; padding: 0 2px; }
+
+/* Grid */
+.crm-pro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+.crm-pro-panel {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+}
+.crm-pro-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.crm-lead-panel { border-left-color: #4facfe; }
+.crm-quote-panel { border-left-color: #f093fb; }
+.crm-customer-panel { border-left-color: #43e97b; }
+.crm-product-panel { border-left-color: #fda085; }
+.crm-user-panel { border-left-color: #a18cd1; }
+.crm-won-panel { border-left-color: #f7971e; }
+
+.crm-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.crm-panel-head > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.crm-panel-head h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a2332;
+    margin: 0;
+}
+.crm-panel-icon { font-size: 20px; }
+.crm-panel-arrow { font-size: 22px; color: #ccc; font-weight: 300; }
+
+.crm-metrics {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 12px;
+}
+.crm-metric { text-align: center; }
+.crm-metric strong {
+    display: block;
+    font-size: 26px;
+    font-weight: 700;
+    color: #1a2332;
+    line-height: 1;
+}
+.crm-metric span {
+    font-size: 11px;
+    color: #888;
+    margin-top: 3px;
+    display: block;
+}
+.crm-panel-note {
+    font-size: 12px;
+    color: #aaa;
+    margin: 0;
+    border-top: 1px solid #f0f2f5;
+    padding-top: 10px;
+}
+
+/* Footer */
+.crm-pro-footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: #bbb;
+    margin-top: 8px;
+}

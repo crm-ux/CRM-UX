@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_form_custom" model="ir.ui.view">
+        <field name="name">sale.order.form.custom</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="opportunity_id" string="CRM Opportunity"
+                       options="{'no_create': True}"/>
+            </xpath>
+            <xpath expr="//field[@name='validity_date']" position="after">
+                <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
+                <field name="x_quote_stage" string="Quote Stage" widget="statusbar"
+                       statusbar_visible="draft,prepared,sent,po_received,won"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="x_quote_version_label" string="Version" readonly="1" nolabel="1"/>
+            </xpath>
+            <xpath expr="//header/button[last()]" position="after">
+                <button name="action_new_quote_version" string="New Version"
+                        type="object" class="btn-secondary"
+                        invisible="state not in ('draft','sent')"/>
+                <button name="action_lock_final_quote" string="Lock Final Quote"
+                        type="object" class="btn-secondary"
+                        invisible="x_final_quote_locked"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="attributes">
+                <attribute name="string">Product ID</attribute>
+                <attribute name="context">{'show_code_only': True}</attribute>
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="before">
+                <field name="x_category_id" string="Category" optional="show" readonly="1"/>
+                <field name="x_sub_category_id" string="Sub Category" optional="show" readonly="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="after">
+                <field name="x_product_name" string="Product Name" optional="show" readonly="1"/>
+                <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1"/>
+                <field name="x_make" string="Make / Brand" optional="show" readonly="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='discount']" position="attributes">
+                <attribute name="string">Discount %</attribute>
+                <attribute name="optional">show</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']//list//field[@name='price_subtotal']" position="after">
+                <field name="x_notes" string="Notes" optional="show"/>
+            </xpath>
+
+            <xpath expr="//page[@name='order_lines']" position="after">
+                <page string="PO and Handoff" name="x_po_handoff">
+                    <group>
+                        <group string="Purchase Order">
+                            <field name="x_po_number" string="PO Number"/>
+                            <field name="x_po_date" string="PO Date"/>
+                            <field name="x_po_file" string="PO Document"
+                                   filename="x_po_filename" widget="binary"/>
+                            <field name="x_final_quote_locked" string="Final Quote Locked"
+                                   readonly="1"/>
+                        </group>
+                        <group string="Handoff">
+                            <field name="x_assigned_to_service" string="Service Member"
+                                   options="{'no_create': True}"/>
+                            <field name="x_assigned_to_aftersales" string="After Sales"
+                                   options="{'no_create': True}"/>
+                            <field name="x_handoff_date" string="Handoff Date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="x_service_remarks" string="Remarks for Service Team"/>
+                    </group>
+                </page>
+                <page string="Internal Remarks" name="x_internal_remarks_tab">
+                    <field name="x_internal_remarks" nolabel="1"
+                           placeholder="Notes visible to sales team only..."/>
+                </page>
+                <page string="Discounts" name="x_discounts_tab">
+                    <group>
+                        <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
+                        <field name="x_flat_discount" string="Flat Discount (Amount)"/>
+                        <field name="x_amount_after_discount" string="Total After Discount"
+                               readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
