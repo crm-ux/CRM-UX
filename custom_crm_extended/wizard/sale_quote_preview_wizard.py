@@ -140,7 +140,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<td style="padding:6px 12px;font-weight:bold;text-align:right;"><b>Date:</b> %s</td>'
             '</tr>'
             '</table>'
-            '<p><b>%s</b></p>'
             '<p><b>To,</b> %s</p>'
             '<p>%s</p>'
             '<p>%s</p>'
@@ -175,7 +174,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             logo_html,
             order.name or '',
             order.date_order.date() if order.date_order else fields.Date.today(),
-            order.company_id.name or '',
             order.partner_id.name or '',
             order.partner_id.city or '',
             order.partner_id.email or '',
@@ -187,8 +185,27 @@ class SaleQuotePreviewWizard(models.TransientModel):
             tax_amount_row,
             int(order.amount_total),
             order.note or '',
-
         )
+
+        # Build tech specs section
+        tech_section = ''
+        if tech_rows:
+            tech_section = (
+                '<div style="page-break-before:always;">'
+                '<div style="text-align:right;">%s</div>'
+                '<h2>Technical Specifications</h2>%s'
+                '</div>'
+            ) % (logo_html, tech_rows)
+
+        # Build images section
+        img_section = ''
+        if img_rows:
+            img_section = (
+                '<div style="page-break-before:always;">'
+                '<div style="text-align:right;">%s</div>'
+                '<h2>Product Images</h2>%s'
+                '</div>'
+            ) % (logo_html, img_rows)
 
         res.update({
             'order_id': order.id,
@@ -230,6 +247,32 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'flags': {'mode': 'edit'},
         }
 
+
+    def _style_html_tables(self, html_content):
+        """Add proper border and styling to all tables in HTML content"""
+        from markupsafe import Markup
+        import re
+        html_str = str(html_content)
+        # Style table tags
+        html_str = re.sub(
+            r'<table(?![^>]*style)[^>]*>',
+            '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;" border="1" cellpadding="6" cellspacing="0">',
+            html_str
+        )
+        # Style th tags
+        html_str = re.sub(
+            r'<th(?![^>]*style)[^>]*>',
+            '<th style="background:#f0f0f0;border:1px solid #ccc;padding:6px;text-align:left;font-weight:bold;">',
+            html_str
+        )
+        # Style td tags
+        html_str = re.sub(
+            r'<td(?![^>]*style)[^>]*>',
+            '<td style="border:1px solid #ccc;padding:6px;text-align:left;">',
+            html_str
+        )
+        return Markup(html_str)
+
     def _rebuild_document_html(self):
         from markupsafe import Markup
         order = self.order_id
@@ -258,7 +301,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if order.company_id.logo_web:
                 logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
                 logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
-            tech_html = '<div style="page-break-before:always;"><div style="text-align:right;">%s</div><h2>Technical Specifications</h2>%s</div>' % (logo_html, self.technical_specs_html)
+            styled_specs = self._style_html_tables(self.technical_specs_html)
+            tech_html = (
+                '<div style="page-break-before:always;">'
+                '<div style="text-align:right;">%s</div>'
+                '<h2 style="margin-bottom:12px;">Technical Specifications</h2>'
+                '<style>'
+                'table{width:100%%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}'
+                'th{background:#f0f0f0;border:1px solid #999;padding:8px;text-align:left;font-weight:bold;}'
+                'td{border:1px solid #999;padding:8px;text-align:left;}'
+                'tr:nth-child(even){background:#f9f9f9;}'
+                '</style>'
+                '<div style="font-size:12px;">%s</div>'
+                '</div>'
+            ) % (logo_html, styled_specs)
 
         # Append images from wizard field
         img_html = ''
@@ -275,6 +331,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 img_html = '<div style="page-break-before:always;"><div style="text-align:right;">%s</div><h2>Product Images</h2>%s</div>' % (logo_html, imgs)
 
         self.document_html = Markup(str(base_html) + tech_html + img_html)
+        # Note: base_html already contains Terms & Conditions at end
 
     def action_add_images(self):
         self.ensure_one()
@@ -345,10 +402,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             shd.set(qn('w:val'), 'clear')
             tcPr.append(shd)
         doc.add_paragraph('')
-
-        # Company name
-        comp_para = doc.add_paragraph(self.seller_name or '')
-        comp_para.runs[0].bold = True
 
         # To
         to_para = doc.add_paragraph()
@@ -423,12 +476,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
         total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         total_p.runs[0].bold = True
 
-        # Terms
-        if order.note:
-            doc.add_paragraph('')
-            doc.add_heading('Terms & Conditions', 2)
-            doc.add_paragraph(order.note)
-
         # Technical Specs - Page 2
         if self.technical_specs_html:
             doc.add_page_break()
@@ -442,7 +489,98 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 logo_p2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
                 logo_p2.add_run().add_picture(logo_buf2, width=Inches(1.5))
             doc.add_heading('Technical Specifications', 1)
-            doc.add_paragraph(html2plaintext(self.technical_specs_html))
+            # Parse HTML and render BOTH text and tables in order
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(str(self.technical_specs_html), 'html.parser')
+                # Process all top-level elements in order
+                for element in soup.children:
+                    if hasattr(element, 'name') and element.name == 'table':
+                        # Render table
+                        rows = element.find_all('tr')
+                        if not rows:
+                            continue
+                        max_cols = max(len(r.find_all(['td','th'])) for r in rows)
+                        if max_cols == 0:
+                            continue
+                        docx_table = doc.add_table(rows=0, cols=max_cols)
+                        docx_table.style = 'Table Grid'
+                        for row in rows:
+                            cells = row.find_all(['td', 'th'])
+                            row_cells = docx_table.add_row().cells
+                            for i, cell in enumerate(cells):
+                                if i < max_cols:
+                                    row_cells[i].text = cell.get_text(strip=True)
+                                    if cell.name == 'th':
+                                        for para in row_cells[i].paragraphs:
+                                            for run in para.runs:
+                                                run.bold = True
+                                        tc = row_cells[i]._tc
+                                        tcPr = tc.get_or_add_tcPr()
+                                        shd = OxmlElement('w:shd')
+                                        shd.set(qn('w:fill'), 'F0F0F0')
+                                        shd.set(qn('w:color'), 'auto')
+                                        shd.set(qn('w:val'), 'clear')
+                                        tcPr.append(shd)
+                        doc.add_paragraph('')
+                    elif hasattr(element, 'name') and element.name in ['p', 'div']:
+                        # Check if contains nested table
+                        nested_tables = element.find_all('table')
+                        if nested_tables:
+                            # Render any text before table
+                            pre_text = element.get_text(separator='\n').strip()
+                            for nested_table in nested_tables:
+                                pre_text = pre_text.replace(nested_table.get_text(separator='\n'), '').strip()
+                            if pre_text:
+                                doc.add_paragraph(pre_text)
+                            # Render nested tables
+                            for nested_table in nested_tables:
+                                rows = nested_table.find_all('tr')
+                                if not rows:
+                                    continue
+                                max_cols = max(len(r.find_all(['td','th'])) for r in rows)
+                                if max_cols == 0:
+                                    continue
+                                docx_table = doc.add_table(rows=0, cols=max_cols)
+                                docx_table.style = 'Table Grid'
+                                for row in rows:
+                                    cells = row.find_all(['td', 'th'])
+                                    row_cells = docx_table.add_row().cells
+                                    for i, cell in enumerate(cells):
+                                        if i < max_cols:
+                                            row_cells[i].text = cell.get_text(strip=True)
+                                            if cell.name == 'th':
+                                                for para in row_cells[i].paragraphs:
+                                                    for run in para.runs:
+                                                        run.bold = True
+                                                tc = row_cells[i]._tc
+                                                tcPr = tc.get_or_add_tcPr()
+                                                shd = OxmlElement('w:shd')
+                                                shd.set(qn('w:fill'), 'F0F0F0')
+                                                shd.set(qn('w:color'), 'auto')
+                                                shd.set(qn('w:val'), 'clear')
+                                                tcPr.append(shd)
+                                doc.add_paragraph('')
+                        else:
+                            # Plain text paragraph
+                            text = element.get_text(strip=True)
+                            if text:
+                                para = doc.add_paragraph(text)
+                                if element.name in ['h1','h2','h3','h4']:
+                                    para.runs[0].bold = True
+                    elif hasattr(element, 'name') and element.name in ['h1','h2','h3','h4']:
+                        text = element.get_text(strip=True)
+                        if text:
+                            p = doc.add_paragraph(text)
+                            p.runs[0].bold = True
+                    elif hasattr(element, 'name') and element.name and element.get_text(strip=True):
+                        text = element.get_text(strip=True)
+                        if text:
+                            doc.add_paragraph(text)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error('Tech specs render error: %s', e)
+                doc.add_paragraph(html2plaintext(self.technical_specs_html))
 
         # Images - Page 3
         if self.quote_image_ids:
@@ -465,6 +603,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         pass  # no image name
                     except Exception:
                         pass
+
+        # Terms & Conditions - Last page
+        if order.note:
+            doc.add_page_break()
+            if order.company_id.logo_web:
+                logo_buf4 = io.BytesIO(base64.b64decode(
+                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
+                    else order.company_id.logo_web.encode()
+                ))
+                logo_p4 = doc.add_paragraph()
+                logo_p4.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                logo_p4.add_run().add_picture(logo_buf4, width=Inches(1.5))
+            doc.add_heading('Terms & Conditions', 2)
+            doc.add_paragraph(order.note)
 
         # Save
         buf = io.BytesIO()
@@ -542,8 +694,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_print_edited_pdf(self):
         self.ensure_one()
-        # Use document_html as-is (user may have edited it directly)
-        # Only rebuild if empty
-        if not self.document_html or len(str(self.document_html)) < 200:
-            self._rebuild_document_html()
+        # Always rebuild to include technical specs and images
+        self._rebuild_document_html()
         return self.env['ir.actions.report'].search([('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')], limit=1).report_action(self)
