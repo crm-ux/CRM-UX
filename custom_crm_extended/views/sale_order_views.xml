@@ -6,30 +6,46 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <!-- Hide default/confusing quotation buttons first -->
             <xpath expr="//field[@name='state'][@widget='statusbar']" position="replace">
                 <field name="state" widget="statusbar" statusbar_visible="draft"/>
             </xpath>
-            <xpath expr="//header/button[@name='action_confirm']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//header/button[@name='action_preview_sale_order']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//header/button[@name='sale.action_report_saleorder']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//header/button[@name='action_quotation_send']" position="attributes">
+
+            <!-- Hide Confirm button (draft state, no id) -->
+            <xpath expr="//button[@name='action_confirm'][@data-hotkey='q'][not(@id)]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- Add simple quotation buttons after hiding defaults -->
+            <!-- Hide Confirm button (sent state, id=action_confirm) -->
+            <xpath expr="//button[@id='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Send button (draft state, id=quotation_send_primary) -->
+            <xpath expr="//button[@id='quotation_send_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Cancel button -->
+            <xpath expr="//button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Preview button -->
+            <xpath expr="//button[@name='action_preview_sale_order'][not(@class='btn-primary')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Print button -->
+            <xpath expr="//button[@name='sale.action_report_saleorder']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide Send button (sent/sale state) -->
+            <xpath expr="//button[@id='quotation_send']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Add our custom buttons -->
             <xpath expr="//header" position="inside">
                 <button name="action_preview_sale_order" string="Preview" type="object" class="btn-primary"/>
                 <button name="action_print_custom_pdf" string="Print" type="object" class="btn-secondary"/>
@@ -42,8 +58,7 @@
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="opportunity_id" string="CRM Opportunity"
-                       options="{'no_create': True}"/>
+                <field name="opportunity_id" string="CRM Opportunity" options="{'no_create': True}"/>
             </xpath>
             <xpath expr="//field[@name='validity_date']" position="after">
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
@@ -55,7 +70,6 @@
                 <attribute name="column_invisible">1</attribute>
                 <attribute name="optional">hide</attribute>
             </xpath>
-
             <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="attributes">
                 <attribute name="string">Product ID</attribute>
                 <attribute name="optional">show</attribute>
@@ -63,47 +77,36 @@
                 <attribute name="context">{'show_code_only': True, 'default_lst_price': price_unit, 'default_uom_id': product_uom_id, 'partner_id': parent.partner_id}</attribute>
                 <attribute name="options">{'no_create': True, 'no_open': True, 'show_label_warning': True}</attribute>
             </xpath>
-
-
-
             <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="after">
                 <field name="x_product_name" string="Product Name" optional="show" readonly="1" width="160px"/>
                 <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1" width="90px"/>
                 <field name="x_make" string="Make / Brand" optional="show" readonly="1" width="110px"/>
             </xpath>
-
             <xpath expr="//field[@name='order_line']//list//field[@name='discount']" position="attributes">
                 <attribute name="string">Discount %</attribute>
                 <attribute name="optional">show</attribute>
                 <attribute name="groups">base.group_user</attribute>
             </xpath>
-
             <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
-
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
                 <field name="x_product_image" string="Product Image" widget="image" optional="show"/>
             </xpath>
-
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="PO and Handoff" name="x_po_handoff">
                     <group>
                         <group string="Purchase Order">
                             <field name="x_po_number" string="PO Number"/>
                             <field name="x_po_date" string="PO Date"/>
-                            <field name="x_po_file" string="PO Document"
-                                   filename="x_po_filename" widget="binary"/>
-                            <field name="x_final_quote_locked" string="Final Quote Locked"
-                                   readonly="1"/>
+                            <field name="x_po_file" string="PO Document" filename="x_po_filename" widget="binary"/>
+                            <field name="x_final_quote_locked" string="Final Quote Locked" readonly="1"/>
                         </group>
                         <group string="Handoff">
-                            <field name="x_assigned_to_service" string="Service Member"
-                                   options="{'no_create': True}"/>
-                            <field name="x_assigned_to_aftersales" string="After Sales"
-                                   options="{'no_create': True}"/>
+                            <field name="x_assigned_to_service" string="Service Member" options="{'no_create': True}"/>
+                            <field name="x_assigned_to_aftersales" string="After Sales" options="{'no_create': True}"/>
                             <field name="x_handoff_date" string="Handoff Date" readonly="1"/>
                         </group>
                     </group>
@@ -112,22 +115,19 @@
                     </group>
                 </page>
                 <page string="Internal Remarks" name="x_internal_remarks_tab">
-                    <field name="x_internal_remarks" nolabel="1"
-                           placeholder="Notes visible to sales team only..."/>
+                    <field name="x_internal_remarks" nolabel="1" placeholder="Notes visible to sales team only..."/>
                 </page>
                 <page string="Discounts" name="x_discounts_tab">
                     <group>
                         <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
                         <field name="x_flat_discount" string="Flat Discount (Amount)"/>
-                        <field name="x_amount_after_discount" string="Total After Discount"
-                               readonly="1"/>
+                        <field name="x_amount_after_discount" string="Total After Discount" readonly="1"/>
                     </group>
                 </page>
             </xpath>
         </field>
     </record>
 
-    <!-- Override quotation PDF: show price(discount%)=amount format -->
     <template id="sale_report_discount_format" inherit_id="sale.report_saleorder_document">
         <xpath expr="//td[@name='td_product_priceunit']" position="replace">
             <td name="td_product_priceunit" class="text-end text-nowrap">
@@ -143,20 +143,4 @@
             <td t-if="display_discount" name="td_product_discount"/>
         </xpath>
     </template>
-
-    <record id="sale_order_form_next_stage_inherit" model="ir.ui.view">
-        <field name="name">sale.order.form.next.stage</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//button[@name='action_confirm']" position="before">
-                <button name="action_quotation_send" string="→ Next" type="object"
-                    class="btn-success"
-                    invisible="state != 'draft'"/>
-                <button name="action_confirm" string="→ Next" type="object"
-                    class="btn-success"
-                    invisible="state != 'sent'"/>
-            </xpath>
-        </field>
-    </record>
 </odoo>
