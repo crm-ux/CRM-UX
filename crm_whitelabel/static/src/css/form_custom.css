@@ -1,0 +1,68 @@
+/* ── Save & Discard buttons - bigger ── */
+.o_cp_buttons .btn-primary,
+.o_cp_buttons .btn-secondary {
+    font-size: 15px !important;
+    padding: 8px 20px !important;
+    font-weight: bold !important;
+}
+
+/* ── Status bar - ALL 3 stages green, same size, no arrow shape ── */
+.o_statusbar_status {
+    display: flex !important;
+    gap: 6px !important;
+}
+
+.o_statusbar_status > button,
+.o_statusbar_status > .o_arrow_button {
+    background-color: #28a745 !important;
+    color: white !important;
+    border: 2px solid #28a745 !important;
+    border-radius: 6px !important;
+    padding: 6px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-width: 130px !important;
+    text-align: center !important;
+    /* Remove arrow/chevron shape */
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+}
+
+/* Override arrow pseudo-elements */
+.o_statusbar_status > button::before,
+.o_statusbar_status > button::after,
+.o_statusbar_status > .o_arrow_button::before,
+.o_statusbar_status > .o_arrow_button::after {
+    display: none !important;
+}
+
+/* Current active stage - darker green */
+.o_statusbar_status > button.o_arrow_button_current,
+.o_statusbar_status > .o_arrow_button.o_arrow_button_current {
+    background-color: #155724 !important;
+    border-color: #155724 !important;
+    opacity: 1 !important;
+}
+
+/* Disabled/future stages - lighter green */
+.o_statusbar_status > button:disabled,
+.o_statusbar_status > button[disabled] {
+    background-color: #5cb85c !important;
+    border-color: #5cb85c !important;
+    color: white !important;
+    opacity: 1 !important;
+}
+
+/* Make all status bar buttons clickable - remove disabled state */
+.o_statusbar_status > button:disabled,
+.o_statusbar_status > button[disabled] {
+    pointer-events: all !important;
+    cursor: pointer !important;
+}
+
+/* Force enable clicks on disabled status buttons */
+.o_statusbar_status button:disabled {
+    pointer-events: all !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+}

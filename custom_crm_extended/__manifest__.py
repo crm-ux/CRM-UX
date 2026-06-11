@@ -20,6 +20,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/crm_data.xml',
+        'views/utm_source_views.xml',
         'views/crm_lead_views.xml',
         'views/crm_lead_create_views.xml',
         'views/crm_lead_product_views.xml',
@@ -27,13 +28,18 @@
         'views/sale_quote_preview_wizard_views.xml',
         'views/crm_refuse_wizard_views.xml',
         'views/crm_csv_import_wizard_views.xml',
+        'views/sale_line_media_wizard_views.xml',
         'views/crm_lead_wizard_views.xml',
         'views/product_label_view.xml',
         'views/product_make_view.xml',
     ],
     'assets': {
         'web.assets_backend': [
+            'custom_crm_extended/static/src/css/crm_hide_new.css',
+            'custom_crm_extended/static/src/js/crm_hide_new.js',
             'custom_crm_extended/static/src/js/crm_lead_form_view.js',
+            'custom_crm_extended/static/src/js/crm_kanban_override.js',
+            'custom_crm_extended/static/src/js/crm_new_button.js',
         ],
     },
     'installable': True,

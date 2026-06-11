@@ -8,7 +8,7 @@
 
         <field name="arch" type="xml">
 
-            <xpath expr="//page[@name='x_opportunity_details']" position="after">
+            <xpath expr="//page[@name='extra']" position="after">
 
                 <page string="Product Interest" name="x_product_lines">
 

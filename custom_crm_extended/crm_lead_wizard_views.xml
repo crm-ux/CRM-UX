@@ -6,7 +6,6 @@
         <field name="arch" type="xml">
             <form string="Lead Creation">
                 <field name="step" invisible="1"/>
-                <field name="is_admin" invisible="1"/>
                 <sheet>
                     <!-- Step indicators -->
                     <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -35,15 +34,14 @@
                     <div invisible="step != 1">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Lead Information</div>
                         <group col="2">
-                            <field name="company_id" string="Our Company" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
-                            <!-- Admin: can create new company -->
-                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'quick_create': True, 'no_open': False}" invisible="not is_admin"/>
-                            <!-- Non-admin: no create allowed -->
-                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" invisible="is_admin"/>
+                            <field name="company_id" string="Our Company" options="{'no_create': True}"/>
+                            <field name="partner_company_id" string="Company Name"
+                               placeholder="Select or type company name..."
+                               options="{'quick_create': True, 'no_open': False}"/>
                         </group>
                         <group col="2">
-                            <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals" required="1"/>
-                            <field name="created_by_id" string="Created By" readonly="1" options="{'no_open': True}"/>
+                            <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals"/>
+                            <field name="created_by_id" string="Created By" readonly="1"/>
                         </group>
                         <group col="2">
                             <field name="x_customer_type" string="Customer Type"/>
@@ -69,11 +67,9 @@
                             <field name="function" string="Job Title" placeholder="e.g. Purchase Manager"/>
                         </group>
                         <group col="3">
-                            <field name="email_from" string="Email" placeholder="email@example.com" required="e2_contact and not phone and not x_mobile"/>
-                            <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not x_mobile"/>
-                            <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not phone"/>
-                        <field name="e2_contact" invisible="1"/>
-                        <div invisible="not e2_contact" style="color:red;font-weight:bold;padding:4px;border:1px solid red;border-radius:4px;margin-top:4px;">⚠ Please provide at least one: Email, Phone or Mobile.</div>
+                            <field name="email_from" string="Email" placeholder="email@example.com"/>
+                            <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX"/>
+                            <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX"/>
                         </group>
                         <group col="3">
                             <field name="city" string="City" placeholder="City"/>

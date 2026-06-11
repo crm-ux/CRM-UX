@@ -375,6 +375,7 @@ class CrmLead(models.Model):
                 'default_partner_id': partner_id,
                 'default_order_line': order_lines,
                 'default_user_id': self.user_id.id,
+                'default_company_id': self.company_id.id if self.company_id else self.env.company.id,
             },
         }
 
@@ -394,3 +395,18 @@ class CrmLead(models.Model):
             'target': 'new',
             'context': dict(self.env.context, default_step=1),
         }
+
+
+class ResPartnerRestrict(models.Model):
+    _inherit = 'res.partner'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        allowed_ids = [2, 10]  # Admin and Dhruvil
+        if self.env.uid not in allowed_ids and not self.env.su:
+            for vals in vals_list:
+                if vals.get('is_company'):
+                    from odoo.exceptions import UserError
+                    raise UserError('Only Admin and Dhruvil Shah can create new companies.')
+        return super().create(vals_list)
+

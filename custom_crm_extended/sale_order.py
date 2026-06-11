@@ -192,16 +192,6 @@ class SaleOrder(models.Model):
     # ACTIONS
     # ==================================================================
 
-    def action_print_custom_pdf(self):
-        self.ensure_one()
-        wizard = self.env['sale.quote.preview.wizard'].with_context(
-            default_order_id=self.id
-        ).create({'order_id': self.id})
-        wizard._rebuild_document_html()
-        return self.env['ir.actions.report'].search([
-            ('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')
-        ], limit=1).report_action(wizard)
-
     def action_preview_sale_order(self):
         self.ensure_one()
         return {

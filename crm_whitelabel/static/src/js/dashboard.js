@@ -24,9 +24,33 @@ class CrmDashboard extends Component {
             users: 0,
             revenue: 0,
             userName: user.name || "User",
+            companies: [],
+            currentCompany: parseInt(localStorage.getItem('crm_selected_company') || user.context.allowed_company_ids?.[0] || 1),
         });
 
-        onMounted(() => this.loadStats());
+        onMounted(() => { this.loadStats(); this.loadCompanies(); });
+    }
+
+    async loadCompanies() {
+        try {
+            const res = await rpc("/web/dataset/call_kw", {
+                model: "res.company",
+                method: "search_read",
+                args: [[]],
+                kwargs: { fields: ["id", "name"], limit: 20 },
+            });
+            this.state.companies = res || [];
+            // Keep currentCompany from localStorage, don't override it
+        } catch(e) {
+            this.state.companies = [];
+        }
+    }
+
+    switchCompany(ev) {
+        const cid = parseInt(ev.target.value);
+        this.state.currentCompany = cid;
+        localStorage.setItem('crm_selected_company', cid);
+        this.loadStats();
     }
 
     async _count(model, domain = []) {
@@ -39,18 +63,26 @@ class CrmDashboard extends Component {
     }
 
     async _sum(model, field, domain = []) {
-        const res = await rpc("/web/dataset/call_kw", {
-            model: model,
-            method: "read_group",
-            args: [domain, [field], []],
-            kwargs: {},
-        });
-
-        return res[0] ? (res[0][field] || 0) : 0;
+        try {
+            const res = await rpc("/web/dataset/call_kw", {
+                model: model,
+                method: "read_group",
+                args: [domain, [field], []],
+                kwargs: {},
+            });
+            return res[0] ? (res[0][field] || 0) : 0;
+        } catch(e) {
+            return 0;
+        }
     }
 
     async loadStats() {
         try {
+            // Get active company ids from URL or session
+            const activeCids = [this.state.currentCompany];
+            const companyDomain = [["company_id","in",activeCids]];
+            const isAdmin = user.userId === 2;
+            const userDomain = isAdmin ? [] : [["user_id","=",user.userId]];
             const [
                 leads,
                 qualified,
@@ -62,15 +94,15 @@ class CrmDashboard extends Component {
                 users,
                 revenue
             ] = await Promise.all([
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",0]]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",1]]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2]]),
-                this._count("sale.order", [["state","in",["draft","sent"]]]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",4]]),
+                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",0],...companyDomain,...userDomain]),
+                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",1],...companyDomain,...userDomain]),
+                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2],...companyDomain,...userDomain]),
+                this._count("sale.order", [["state","in",["draft","sent"]],...companyDomain,...userDomain]),
+                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",4],...companyDomain,...userDomain]),
                 this._count("res.partner", [["customer_rank",">",0]]),
                 this._count("product.template", [["sale_ok","=",true]]),
                 this._count("res.users", [["active","=",true],["share","=",false]]),
-                this._sum("sale.order", "amount_total", [["state","in",["sale","done"]]]),
+                this._sum("sale.order", "amount_total", [["state","in",["sale","done"]],...companyDomain,...userDomain]),
             ]);
 
             const userName = user.name || "User";
@@ -105,13 +137,23 @@ class CrmDashboard extends Component {
         this.actionService.doAction(action);
     }
 
-    openLeads() { this.go(212); }
-    openQuotes() { this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]] }); }
+    openLeads() {
+        const isAdmin = user.userId === 2;
+        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
+        const domain = [["active","=",true],["company_id","in",[this.state.currentCompany]],...userFilter];
+        this.go({ type:"ir.actions.act_window", name:"Leads", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain });
+    }
+    openQuotes() {
+        const isAdmin = user.userId === 2;
+        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
+        const domain = [["state","in",["draft","sent"]],["company_id","in",[this.state.currentCompany]],...userFilter];
+        this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
+    }
     openContacts() { this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain:[["customer_rank",">",0]] }); }
     openProducts() { this.go({ type:"ir.actions.act_window", name:"Products", res_model:"product.template", views:[[false,"list"],[false,"form"]] }); }
     openUsers() { this.go({ type:"ir.actions.act_window", name:"Users", res_model:"res.users", views:[[false,"list"],[false,"form"]], domain:[["share","=",false]] }); }
     openWon() { this.go({ type:"ir.actions.act_window", name:"Won Deals", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["x_stage_sequence","=",4]] }); }
-    openStage(seq) { this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
+    openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
     newLead() { this.go(405); }
 }
 

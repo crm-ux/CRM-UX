@@ -2,6 +2,29 @@
 <templates>
     <t t-name="crm_whitelabel.Dashboard">
         <div class="crm-pro-dashboard">
+            <!-- Top bar -->
+            <div class="crm-topbar">
+                <div class="crm-topbar-left">
+                    YANTRACONNECT · CRM
+                </div>
+                <div class="crm-topbar-right">
+                    <div class="crm-topbar-user">
+                        <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
+                        <span><t t-esc="state.userName"/></span>
+                    </div>
+                    <div class="crm-company-wrapper" t-if="state.companies.length > 0">
+                        <span class="crm-company-icon">🏢</span>
+                        <select class="crm-company-switch" t-on-change="switchCompany">
+                            <t t-foreach="state.companies" t-as="co" t-key="co.id">
+                                <option t-att-value="co.id" t-att-selected="co.id === state.currentCompany">
+                                    <t t-esc="co.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <a href="/web/session/logout" class="crm-topbar-logout">⏻ Logout</a>
+                </div>
+            </div>
 
             <!-- Hero -->
             <div class="crm-pro-hero">
@@ -21,17 +44,17 @@
 
             <!-- Pipeline Strip -->
             <div class="crm-pipeline-strip">
-                <div class="crm-pipe-item crm-pipe-c1" t-on-click="() => openStage(0)">
+                <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
                     <div class="crm-pipe-num"><t t-esc="state.leads"/></div>
                     <div class="crm-pipe-lbl">Leads</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="() => openStage(1)">
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="1">
                     <div class="crm-pipe-num"><t t-esc="state.qualified"/></div>
                     <div class="crm-pipe-lbl">Qualified</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c3" t-on-click="() => openStage(2)">
+                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="2">
                     <div class="crm-pipe-num"><t t-esc="state.opportunity"/></div>
                     <div class="crm-pipe-lbl">Opportunity</div>
                 </div>

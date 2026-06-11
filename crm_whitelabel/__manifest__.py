@@ -15,8 +15,10 @@
         ],
         'web.assets_backend': [
             'crm_whitelabel/static/src/css/dashboard.css',
+            'crm_whitelabel/static/src/css/form_custom.css',
             'crm_whitelabel/static/src/xml/dashboard.xml',
             'crm_whitelabel/static/src/js/dashboard.js',
+            'crm_whitelabel/static/src/js/statusbar_override.js',
         ],
     },
     'installable': True,

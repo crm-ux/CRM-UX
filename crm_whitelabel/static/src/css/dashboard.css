@@ -175,3 +175,136 @@
     color: #bbb;
     margin-top: 8px;
 }
+
+/* ── Hide Odoo top navbar completely ── */
+.o_main_navbar {
+    display: none !important;
+}
+/* Push content up since navbar is gone */
+.o_action_manager,
+.o_web_client > .o_action_manager {
+    top: 0 !important;
+}
+.o_web_client {
+    padding-top: 0 !important;
+}
+/* Hide home/apps menu button */
+.o_menu_brand,
+.o_menu_sections,
+.o_navbar_apps_menu,
+.o_main_navbar .o_menu_toggle {
+    display: none !important;
+}
+/* Hide debug mode indicator */
+.o_debug_manager {
+    display: none !important;
+}
+
+/* ── Enable scrolling ── */
+html, body, .o_web_client, .o_action_manager, .o_view_controller {
+    overflow: auto !important;
+    height: auto !important;
+}
+.o_content {
+    overflow: auto !important;
+}
+
+/* ── Top bar for user info + logout ── */
+.crm-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 24px;
+    background: #0b3d91;
+    color: white;
+    font-size: 13px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+.crm-topbar-left {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.crm-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.crm-topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.crm-topbar-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+}
+.crm-topbar-logout {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 5px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.crm-topbar-logout:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+}
+
+/* Company switcher */
+.crm-company-switch {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+}
+.crm-company-switch option {
+    background: #0b3d91;
+    color: white;
+}
+
+/* Company wrapper */
+.crm-company-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+.crm-company-icon {
+    font-size: 14px;
+}
+.crm-company-switch {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    padding: 2px 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    outline: none !important;
+    max-width: 200px;
+}
+.crm-company-switch option {
+    background: #0b3d91;
+    color: white;
+}

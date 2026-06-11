@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.bak*
+*.save
+*.tar.gz
+*.sql
+*.sql.gz
+.DS_Store
+sessions/
+filestore/

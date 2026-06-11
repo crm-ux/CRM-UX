@@ -1,41 +1,46 @@
-/* Hide New button only on CRM kanban view */
-.o_crm_opportunity_kanban .o-kanban-button-new,
-.o_kanban_view[class*="crm"] .o-kanban-button-new,
-body:has(.o_crm_opportunity_kanban) .o_control_panel .o-kanban-button-new,
-body:has(.o_crm_opportunity_kanban) .o_control_panel .btn-primary:first-child {
+.o_dialog .o_form_renderer button.step_current {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+.o_dialog .o_form_renderer button.step_done {
+    background-color: #b7d7ff !important;
+    color: #0b3d91 !important;
+    border: none !important;
+}
+.o_dialog .o_form_renderer button.step_future {
+    background-color: #e0e0e0 !important;
+    color: #888888 !important;
+    border: none !important;
+}
+
+
+/* Hide statusbar on sale order form */
+.o_sale_order .o_statusbar_status {
     display: none !important;
 }
 
 
-.o_field_widget.o_required_modifier.o_field_no_required_color ~ label,
-.o_wrap_field:has(.o_field_no_required_color) .o_form_label,
-.o_group:has(.o_field_no_required_color) .o_form_label,
-.o_field_no_required_color + .o_form_label,
-label:has(+ .o_field_no_required_color),
-.o_field_no_required_color .o_form_label {
-    color: #212529 !important;
+/* Hide statusbar, chatter/logs, sidebar on sale order form */
+.o_sale_order .o_statusbar_status {
+    display: none !important;
 }
 
-
-/* Force black label color for Email/Phone/Mobile in wizard */
-
-/* Current active step - light blue */
-.o_dialog .o_form_renderer button.step_current {
-    background-color: #6ea8fe !important;
-    color: #fff !important;
-    border: none !important;
+/* Hide chatter/message log panel */
+.o_sale_order .o-mail-Thread,
+.o_sale_order .o_message_list,
+.o_sale_order .o-mail-Form-chatter,
+.o_sale_order .o_chatter {
+    display: none !important;
 }
 
-/* Completed step - dark blue */
-.o_dialog .o_form_renderer button.step_done {
-    background-color: #0d6efd !important;
-    color: #fff !important;
-    border: none !important;
+/* Make form full width when chatter hidden */
+.o_sale_order .o_form_view > .o_form_sheet_bg {
+    width: 100% !important;
 }
 
-/* Future step - light grey */
-.o_dialog .o_form_renderer button.step_future {
-    background-color: #dee2e6 !important;
-    color: #666 !important;
-    border: none !important;
+/* Hide activity buttons in chatter area */
+.o_sale_order .o_activity_btn,
+.o_sale_order .o-mail-ChatterTopbar {
+    display: none !important;
 }

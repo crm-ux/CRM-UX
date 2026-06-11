@@ -17,7 +17,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
     valid_until = fields.Date(string='Valid Upto')
     subject = fields.Char(string='Subject')
     best_offer_for = fields.Char(string='Best Offer For', help='Text after best offer for in the intro paragraph')
-
     company_logo = fields.Binary(string='Company Logo')
     document_html = fields.Html(string='Editable Quote Content')
     technical_specs_html = fields.Html(string='Technical Specifications')
@@ -84,11 +83,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '<td style="text-align:center;">%s</td>'
                 '<td>%s%s</td>'
                 '<td style="text-align:center;">%s</td>'
-                '<td style="text-align:right;" contenteditable="false">%s</td>'
-                '<td style="text-align:right;" contenteditable="false">%s</td>'
-                '<td style="text-align:right;" contenteditable="false">%s</td>'
-                '<td style="text-align:right;" contenteditable="false">%s</td>'
-                '<td style="text-align:right;" contenteditable="false">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
                 '</tr>'
             ) % (idx, desc_html, img_html, hsn, int(unit_price), disc_str, int(after_discount), int(qty), int(amount))
 
@@ -127,11 +126,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Logo
         logo_html = ''
-        if order.company_id.logo_web:
-            logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
+        if order.company_id.logo:
+            logo_b64 = order.company_id.logo.decode('utf-8') if isinstance(order.company_id.logo, bytes) else order.company_id.logo
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
 
-        intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
         html = (
             '<div style="text-align:right;">%s</div>'
             '<table style="width:100%%;border-collapse:collapse;margin-bottom:8px;background:#eaf0fb;">'
@@ -150,7 +148,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p><b>Subject:</b> Quotation for Products / Services</p>'
             '<br/>'
             '<p>Dear Sir,</p>'
-            '<p>%s</p>'
+            '<p>With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote<br/>our best offer for %s.</p>'
             '<br/>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:12px;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
@@ -181,7 +179,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             order.partner_id.email or '',
             order.partner_id.phone or '',
             order.partner_id.mobile if hasattr(order.partner_id, 'mobile') else '',
-            intro_text,
+            self.best_offer_for or product_cats,
             rows,
             int(order.amount_untaxed),
             tax_amount_row,
@@ -200,7 +198,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'valid_until': order.validity_date,
             'subject': 'Quotation for Products / Services',
             'best_offer_for': product_cats,
-            'company_logo': order.company_id.logo_web,
+            'company_logo': order.company_id.logo,
             'document_html': Markup(html),
         })
         return res
@@ -242,21 +240,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Replace placeholder with actual best_offer_for if needed
         if self.best_offer_for:
             import re
-            from markupsafe import Markup
-            base_html_str = str(base_html)
-            base_html_str = re.sub(
+            base_html = re.sub(
                 r'our best offer for [^<.]*\.',
-                'our best offer for<br/>%s.' % self.best_offer_for,
-                base_html_str
+                'our best offer for %s.' % self.best_offer_for,
+                str(base_html)
             )
-            base_html = Markup(base_html_str)
 
         # Append tech specs from wizard field
         tech_html = ''
         if self.technical_specs_html:
             logo_html = ''
-            if order.company_id.logo_web:
-                logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
+            if order.company_id.logo:
+                logo_b64 = order.company_id.logo.decode('utf-8') if isinstance(order.company_id.logo, bytes) else order.company_id.logo
                 logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
             tech_html = '<div style="page-break-before:always;"><div style="text-align:right;">%s</div><h2>Technical Specifications</h2>%s</div>' % (logo_html, self.technical_specs_html)
 
@@ -264,13 +259,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         img_html = ''
         if self.quote_image_ids:
             logo_html = ''
-            if order.company_id.logo_web:
-                logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
+            if order.company_id.logo:
+                logo_b64 = order.company_id.logo.decode('utf-8') if isinstance(order.company_id.logo, bytes) else order.company_id.logo
                 logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
             imgs = ''
             for att in self.quote_image_ids:
                 if att.datas:
-                    imgs += '<div style="margin-bottom:20px;"><img src="data:image/png;base64,%s" style="max-width:400px;max-height:400px;"/></div>' % (att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas)
+                    imgs += '<div style="margin-bottom:20px;"><img src="data:image/png;base64,%s" style="max-width:400px;max-height:400px;"/><p>%s</p></div>' % (att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas, att.name or '')
             if imgs:
                 img_html = '<div style="page-break-before:always;"><div style="text-align:right;">%s</div><h2>Product Images</h2>%s</div>' % (logo_html, imgs)
 
@@ -311,8 +306,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on = order.x_gst_included
 
         # Logo right aligned
-        if order.company_id.logo_web:
-            logo_data = order.company_id.logo_web
+        if order.company_id.logo:
+            logo_data = order.company_id.logo
             if isinstance(logo_data, str):
                 logo_data = logo_data.encode()
             logo_buf = io.BytesIO(base64.b64decode(logo_data))
@@ -433,10 +428,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if self.technical_specs_html:
             doc.add_page_break()
             # Logo on page 2
-            if order.company_id.logo_web:
+            if order.company_id.logo:
                 logo_buf2 = io.BytesIO(base64.b64decode(
-                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
-                    else order.company_id.logo_web.encode()
+                    order.company_id.logo if isinstance(order.company_id.logo, bytes)
+                    else order.company_id.logo.encode()
                 ))
                 logo_p2 = doc.add_paragraph()
                 logo_p2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -447,10 +442,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Images - Page 3
         if self.quote_image_ids:
             doc.add_page_break()
-            if order.company_id.logo_web:
+            if order.company_id.logo:
                 logo_buf3 = io.BytesIO(base64.b64decode(
-                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
-                    else order.company_id.logo_web.encode()
+                    order.company_id.logo if isinstance(order.company_id.logo, bytes)
+                    else order.company_id.logo.encode()
                 ))
                 logo_p3 = doc.add_paragraph()
                 logo_p3.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -462,7 +457,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         img_buf = io.BytesIO(base64.b64decode(att.datas))
                         img_para = doc.add_paragraph()
                         img_para.add_run().add_picture(img_buf, width=Inches(4))
-                        pass  # no image name
+                        doc.add_paragraph(att.name or '')
                     except Exception:
                         pass
 
@@ -486,64 +481,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'target': 'new',
         }
 
-    def action_send_email(self):
-        self.ensure_one()
-        import base64
-        self._rebuild_document_html()
-        order = self.order_id
-        best_offer = self.best_offer_for or ''
-        subject = 'Quotation %s - %s' % (self.quote_name or '', order.partner_id.name or '')
-        body = '<p>Dear Sir,</p><p>' + self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for') + '</p><p>Please find the attached quotation for your reference.</p><p>Best Regards,<br/>%s</p>' % (self.seller_name or '')
-
-        # Generate PDF from HTML content directly
-        try:
-            from odoo.tools import pdf as pdf_tools
-            html = self.document_html or ''
-            # Use wkhtmltopdf directly
-            import subprocess, tempfile, os
-            with tempfile.NamedTemporaryFile(suffix='.html', delete=False, mode='w', encoding='utf-8') as f:
-                f.write('<html><body>%s</body></html>' % str(html))
-                html_file = f.name
-            pdf_file = html_file.replace('.html', '.pdf')
-            subprocess.run(['wkhtmltopdf', '--quiet', html_file, pdf_file], check=True)
-            with open(pdf_file, 'rb') as f:
-                pdf_content = f.read()
-            os.unlink(html_file)
-            os.unlink(pdf_file)
-            attachment = self.env['ir.attachment'].create({
-                'name': 'Quotation-%s.pdf' % (self.quote_name or 'quote'),
-                'type': 'binary',
-                'datas': base64.b64encode(pdf_content).decode(),
-                'res_model': 'sale.order',
-                'res_id': order.id,
-                'mimetype': 'application/pdf',
-            })
-            attachment_ids = [(4, attachment.id)]
-        except Exception as e:
-            import logging
-            logging.getLogger(__name__).error('PDF generation failed: %s', e)
-            attachment_ids = []
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Send Email',
-            'res_model': 'mail.compose.message',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_model': 'sale.order',
-                'default_res_ids': [order.id],
-                'default_subject': subject,
-                'default_body': body,
-                'default_attachment_ids': attachment_ids,
-                'default_partner_ids': [(4, order.partner_id.id)] if order.partner_id else [],
-            },
-        }
-
     def action_print_edited_pdf(self):
         self.ensure_one()
-        # Use document_html as-is (user may have edited it directly)
-        # Only rebuild if empty
-        if not self.document_html or len(str(self.document_html)) < 200:
-            self._rebuild_document_html()
-        return self.env['ir.actions.report'].search([('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')], limit=1).report_action(self)
+        # Always rebuild to include latest tech specs and images
+        self._rebuild_document_html()
+        return self.env.ref('custom_crm_extended.action_report_sale_quote_preview_wizard').report_action(self)

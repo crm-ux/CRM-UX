@@ -12,32 +12,15 @@ class CrmLeadWizard(models.TransientModel):
 
     # Step 1
     company_id = fields.Many2one("res.company", string="Our Company",
-        default=lambda self: self.env.company, domain="[(1, '=', 1)]")
+        default=lambda self: self.env.company)
     name = fields.Char(string="Lead Name")
     partner_name = fields.Char(string="Company Name")
-    @api.model
-    def _get_company_field_options(self):
-        allowed_ids = [2, 10]  # Admin and Dhruvil
-        if self.env.uid in allowed_ids:
-            return {'quick_create': True, 'no_open': False}
-        return {'quick_create': False, 'no_create': True, 'no_open': False}
-
     partner_company_id = fields.Many2one(
         'res.partner',
         string='Company Name',
         domain=[('is_company', '=', True)],
-        context={'default_is_company': True, 'restrict_company_create': True},
+        context={'default_is_company': True},
     )
-    can_create_company = fields.Boolean(
-        compute='_compute_can_create_company',
-        default=False
-    )
-
-    @api.depends_context('uid')
-    def _compute_can_create_company(self):
-        allowed_ids = [2, 10]  # Admin and Dhruvil
-        for rec in self:
-            rec.can_create_company = self.env.uid in allowed_ids
     x_customer_type = fields.Selection([
         ("new_new", "New Customer - New Product"),
         ("new_existing", "New Customer - Existing Product"),
@@ -84,63 +67,14 @@ class CrmLeadWizard(models.TransientModel):
         domain=[("share", "=", False)])
     description = fields.Text(string="Notes")
 
-    # Admin check
-    is_admin = fields.Boolean(
-        compute='_compute_is_admin',
-        default=lambda self: self.env.user.has_group('base.group_erp_manager')
-    )
-
-    @api.depends_context('uid')
-    def _compute_is_admin(self):
-        is_admin = self.env.user.has_group('base.group_erp_manager')
-        for rec in self:
-            rec.is_admin = is_admin
-
     # Validation flags - show red borders
     e1_name = fields.Boolean(default=False)       # step1: name missing
-    e2_contact = fields.Boolean(default=lambda self: self.env.context.get('default_e2_contact', False))    # step2: no contact method
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        return super().create(vals_list)
+    e2_contact = fields.Boolean(default=False)    # step2: no contact method
 
     @api.onchange('partner_company_id')
     def _onchange_partner_company_id(self):
         if self.partner_company_id:
-            allowed_ids = [2, 10]  # Admin and Dhruvil
-            if self.env.uid not in allowed_ids:
-                # Check if this partner was just created (not in original domain)
-                partner = self.partner_company_id
-                existing = self.env['res.partner'].search([
-                    ('is_company', '=', True),
-                    ('id', '=', partner.id),
-                    ('create_uid', '!=', self.env.uid),
-                ], limit=1)
-                # If partner was created by current user just now
-                from datetime import datetime, timedelta
-                if partner.create_uid.id == self.env.uid:
-                    created_at = partner.create_date
-                    if created_at and (datetime.now() - created_at.replace(tzinfo=None)).seconds < 30:
-                        partner.sudo().unlink()
-                        self.partner_company_id = False
-                        self.partner_name = False
-                        return {'warning': {
-                            'title': 'Not Allowed',
-                            'message': 'Only Admin and Dhruvil Shah can create new companies.'
-                        }}
             self.partner_name = self.partner_company_id.name
-            # Check if newly created by unauthorized user
-            allowed_ids = [2, 10]  # Admin and Dhruvil
-            if self.env.uid not in allowed_ids:
-                # Check if this is a new record (just created)
-                # Check if the record is completely new and unsaved
-                if not self.partner_company_id.id:
-                    self.partner_company_id = False
-                    self.partner_name = False
-                    return {'warning': {
-                        'title': 'Not Allowed',
-                        'message': 'You are not allowed to create new companies. Please select an existing one.'
-                    }}
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
@@ -155,10 +89,7 @@ class CrmLeadWizard(models.TransientModel):
             self.state_id = p.state_id
             self.zip = p.zip or ""
 
-    def _reopen(self, extra_context=None):
-        ctx = dict(self.env.context)
-        if extra_context:
-            ctx.update(extra_context)
+    def _reopen(self):
         return {
             "type": "ir.actions.act_window",
             "name": "Lead Creation",
@@ -166,7 +97,7 @@ class CrmLeadWizard(models.TransientModel):
             "res_id": self.id,
             "view_mode": "form",
             "target": "new",
-            "context": ctx,
+            "context": self.env.context,
         }
 
     def action_next(self):
@@ -175,7 +106,8 @@ class CrmLeadWizard(models.TransientModel):
             self.e1_name = False
         elif self.step == 2:
             if not self.email_from and not self.phone and not self.x_mobile:
-                return self._reopen({'default_e2_contact': True})
+                self.e2_contact = True
+                raise ValidationError(_("Please provide at least one: Email, Phone or Mobile."))
             self.e2_contact = False
         self.step += 1
         return self._reopen()
@@ -209,8 +141,8 @@ class CrmLeadWizard(models.TransientModel):
         return self._reopen()
 
     def action_save_lead(self):
-        if not self.partner_name and not self.partner_company_id:
-            raise ValidationError(_("Please enter a Company Name."))
+        if not self.name and not self.partner_name:
+            raise ValidationError(_("Please enter a Lead Name or Company Name."))
         vals = {
             "name": self.name or self.partner_name or "New Lead",
             "company_id": self.company_id.id,
