@@ -165,10 +165,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
             intro_text,
         )
 
-        # TABLE section (commercial table + totals)
+        # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
-            '<br/>'
-            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:12px;" contenteditable="false">'
+            '<div style="page-break-before:always;page-break-inside:avoid;">'
+            '<h3>Quotation</h3>'
+            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:12px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
             '<th style="text-align:center;width:35px;">SR No.</th>'
             '<th style="text-align:left;">Item Description</th>'
@@ -185,6 +186,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p style="text-align:right;"><b>Gross Total Amount:</b> %s</p>'
             '%s'
             '<p style="text-align:right;font-size:14px;"><b>Total:</b> %s</p>'
+            '</div>'
         ) % (
             rows,
             int(order.amount_untaxed),
@@ -195,7 +197,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # TERMS section
         terms_content = str(order.note or '')
         terms_html = (
-            '<div style="margin-top:15px;">'
+            '<div style="page-break-before:always;">'
             '<h3>Terms &amp; Conditions</h3>'
             '<div style="font-size:12px;line-height:1.6;">%s</div>'
             '</div>'
@@ -587,7 +589,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 doc.add_paragraph(html2plaintext(self.technical_specs_html))
 
 
-        # Table
+        # Table - on its own page
+        doc.add_page_break()
+        if order.company_id.logo_web:
+            logo_data2 = order.company_id.logo_web
+            if isinstance(logo_data2, str):
+                logo_data2 = logo_data2.encode()
+            logo_buf2 = io.BytesIO(base64.b64decode(logo_data2))
+            logo_para2 = doc.add_paragraph()
+            logo_para2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            logo_para2.add_run().add_picture(logo_buf2, width=Inches(1.5))
+        quot_heading = doc.add_heading('Quotation', 2)
+        quot_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
         headers = ['SR No.', 'Item Description', 'HSN', 'Unit Price', 'Discount', 'After Discount', 'Qty', 'Amount']
 
         table = doc.add_table(rows=1, cols=len(headers))
@@ -639,10 +652,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
         total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         total_p.runs[0].bold = True
 
-        # Terms & Conditions
+        # Terms & Conditions - own page
         if order.note:
-            doc.add_paragraph('')
-            doc.add_heading('Terms & Conditions', 2)
+            doc.add_page_break()
+            if order.company_id.logo_web:
+                logo_data3 = order.company_id.logo_web
+                if isinstance(logo_data3, str):
+                    logo_data3 = logo_data3.encode()
+                logo_buf3b = io.BytesIO(base64.b64decode(logo_data3))
+                logo_para3b = doc.add_paragraph()
+                logo_para3b.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                logo_para3b.add_run().add_picture(logo_buf3b, width=Inches(1.5))
+            terms_heading = doc.add_heading('Terms & Conditions', 2)
+            terms_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
             try:
                 from bs4 import BeautifulSoup
                 soup = BeautifulSoup(str(order.note), 'html.parser')
