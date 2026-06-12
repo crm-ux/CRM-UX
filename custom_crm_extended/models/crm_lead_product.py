@@ -133,6 +133,24 @@ class CrmLeadProductLine(models.Model):
                 vals.setdefault('x_product_template_id', product.product_tmpl_id.id)
                 vals.setdefault('x_product_code', product.default_code or '')
                 vals.setdefault('x_product_name', product.name or '')
+                if not vals.get('x_hsn_code'):
+                    vals['x_hsn_code'] = product.l10n_in_hsn_code or ''
+                if not vals.get('x_make'):
+                    vals['x_make'] = product.x_make or ''
+                if not vals.get('x_unit_price'):
+                    vals['x_unit_price'] = product.list_price or 0.0
+                if not vals.get('x_default_price'):
+                    vals['x_default_price'] = product.list_price or 0.0
+                if not vals.get('x_uom_id'):
+                    vals['x_uom_id'] = product.uom_id.id
+                if not vals.get('x_tax_ids'):
+                    vals['x_tax_ids'] = [(6, 0, product.taxes_id.ids)]
+                if product.categ_id:
+                    if product.categ_id.parent_id and not vals.get('x_category_id'):
+                        vals['x_category_id'] = product.categ_id.parent_id.id
+                        vals.setdefault('x_sub_category_id', product.categ_id.id)
+                    elif not vals.get('x_category_id'):
+                        vals['x_category_id'] = product.categ_id.id
         return super().create(vals_list)
 
     def write(self, vals):
