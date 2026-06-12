@@ -341,3 +341,9 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .o_form_status_indicator_buttons .fa-times {
     display: none !important;
 }
+
+/* Hide $ opportunity count badges on contacts list */
+.o_list_view .fa-usd,
+.o_list_view .badge:has(.fa-usd) {
+    display: none !important;
+}
