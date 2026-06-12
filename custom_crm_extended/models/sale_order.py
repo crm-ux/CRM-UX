@@ -150,6 +150,15 @@ class SaleOrder(models.Model):
         copy=False,
     )
 
+    # Draft fields for quotation wizard
+    x_draft_tech_specs = fields.Html(string='Draft Technical Specs')
+    x_draft_best_offer = fields.Char(string='Draft Best Offer For')
+    x_draft_image_ids = fields.Many2many(
+        'ir.attachment', 'sale_order_draft_image_rel',
+        'order_id', 'attachment_id',
+        string='Draft Quote Images'
+    )
+
     # ------------------------------------------------------------------
     # 7. QUOTE STATUS STAGE (beyond default state)
     # ------------------------------------------------------------------

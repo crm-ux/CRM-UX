@@ -308,3 +308,14 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
     background: #0b3d91;
     color: white;
 }
+
+/* Hide ONLY the icon buttons in status indicator (cloud & X) */
+.o_form_status_indicator_buttons {
+    display: none !important;
+}
+
+/* Make sure text Save/Discard buttons in control panel are visible */
+.o_control_panel .o_form_button_save,
+.o_control_panel .o_form_button_cancel {
+    display: inline-block !important;
+}

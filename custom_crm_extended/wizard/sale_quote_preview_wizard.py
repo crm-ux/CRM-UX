@@ -216,11 +216,36 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
             'valid_until': order.validity_date,
             'subject': 'Quotation for Products / Services',
-            'best_offer_for': product_cats,
+            'best_offer_for': getattr(order, 'x_draft_best_offer', None) or product_cats,
             'company_logo': order.company_id.logo_web,
             'document_html': Markup(html),
+            'technical_specs_html': getattr(order, 'x_draft_tech_specs', None) or False,
+            'quote_image_ids': [(6, 0, getattr(order, 'x_draft_image_ids', self.env['ir.attachment']).ids)],
         })
         return res
+
+    def action_save_draft(self):
+        self.ensure_one()
+        order = self.order_id
+        if not order:
+            return
+        vals = {
+            'x_draft_tech_specs': self.technical_specs_html,
+            'x_draft_best_offer': self.best_offer_for,
+        }
+        if hasattr(order, 'x_draft_image_ids'):
+            vals['x_draft_image_ids'] = [(6, 0, self.quote_image_ids.ids)]
+        order.sudo().write(vals)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Draft Saved!',
+                'message': 'Your content has been saved. Reopen Preview to continue.',
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def action_add_technical_specs(self):
         self.ensure_one()
@@ -289,7 +314,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             base_html_str = str(base_html)
             base_html_str = re.sub(
                 r'our best offer for [^<.]*\.',
-                'our best offer for<br/>%s.' % self.best_offer_for,
+                'our best offer for %s.' % self.best_offer_for,
                 base_html_str
             )
             base_html = Markup(base_html_str)
