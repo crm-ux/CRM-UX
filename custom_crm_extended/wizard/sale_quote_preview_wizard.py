@@ -20,6 +20,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     company_logo = fields.Binary(string='Company Logo')
     document_html = fields.Html(string='Editable Quote Content')
+    x_table_html = fields.Html(string='Commercial Table HTML')
+    x_terms_html = fields.Html(string='Terms HTML')
     technical_specs_html = fields.Html(string='Technical Specifications')
     quote_image_ids = fields.Many2many(
         'ir.attachment', 'sale_quote_wizard_image_rel',
@@ -132,7 +134,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
 
         intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
-        html = (
+        # INTRO section (header info, before table)
+        intro_html = (
             '<div style="text-align:right;">%s</div>'
             '<table style="width:100%%;border-collapse:collapse;margin-bottom:8px;background:#eaf0fb;">'
             '<tr>'
@@ -150,6 +153,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<br/>'
             '<p>Dear Sir,</p>'
             '<p>%s</p>'
+        ) % (
+            logo_html,
+            order.name or '',
+            order.date_order.date() if order.date_order else fields.Date.today(),
+            order.partner_id.name or '',
+            order.partner_id.city or '',
+            order.partner_id.email or '',
+            order.partner_id.phone or '',
+            order.partner_id.mobile if hasattr(order.partner_id, 'mobile') else '',
+            intro_text,
+        )
+
+        # TABLE section (commercial table + totals)
+        table_html = (
             '<br/>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:12px;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
@@ -168,23 +185,23 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p style="text-align:right;"><b>Gross Total Amount:</b> %s</p>'
             '%s'
             '<p style="text-align:right;font-size:14px;"><b>Total:</b> %s</p>'
-            '<h4>Terms &amp; Conditions</h4>'
-            '<p>%s</p>'
         ) % (
-            logo_html,
-            order.name or '',
-            order.date_order.date() if order.date_order else fields.Date.today(),
-            order.partner_id.name or '',
-            order.partner_id.city or '',
-            order.partner_id.email or '',
-            order.partner_id.phone or '',
-            order.partner_id.mobile if hasattr(order.partner_id, 'mobile') else '',
-            intro_text,
             rows,
             int(order.amount_untaxed),
             tax_amount_row,
             int(order.amount_total),
-            order.note or '',
+        )
+
+        # TERMS section
+        terms_html = (
+            '<h4>Terms &amp; Conditions</h4>'
+            '<p>%s</p>'
+        ) % (order.note or '',)
+
+        html = intro_html  # default_get only needs intro for initial preview
+
+        _unused = (
+            rows, int(order.amount_untaxed), tax_amount_row, int(order.amount_total), order.note or ''
         )
 
         # Build tech specs section
@@ -219,6 +236,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'best_offer_for': getattr(order, 'x_draft_best_offer', None) or product_cats,
             'company_logo': order.company_id.logo_web,
             'document_html': Markup(html),
+            'x_table_html': table_html,
+            'x_terms_html': terms_html,
             'technical_specs_html': getattr(order, 'x_draft_tech_specs', None) or False,
             'quote_image_ids': [(6, 0, getattr(order, 'x_draft_image_ids', self.env['ir.attachment']).ids)],
         })
@@ -328,9 +347,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
             styled_specs = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="page-break-before:always;">'
-                '<div style="text-align:right;">%s</div>'
-                '<h2 style="margin-bottom:12px;">Technical Specifications</h2>'
+                '<div style="margin-top:15px;">'
+                '<h3 style="margin-bottom:8px;">Technical Specifications</h3>'
                 '<style>'
                 'table{width:100%%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}'
                 'th{background:#f0f0f0;border:1px solid #999;padding:8px;text-align:left;font-weight:bold;}'
@@ -339,24 +357,26 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '</style>'
                 '<div style="font-size:12px;">%s</div>'
                 '</div>'
-            ) % (logo_html, styled_specs)
+            ) % (styled_specs,)
 
         # Append images from wizard field
         img_html = ''
         if self.quote_image_ids:
-            logo_html = ''
-            if order.company_id.logo_web:
-                logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
-                logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
             imgs = ''
             for att in self.quote_image_ids:
                 if att.datas:
-                    imgs += '<div style="margin-bottom:20px;"><img src="data:image/png;base64,%s" style="max-width:400px;max-height:400px;"/></div>' % (att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas)
+                    img_data = att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas
+                    imgs += (
+                        '<div style="display:inline-block;width:48%%;margin:1%%;vertical-align:top;text-align:center;">'
+                        '<img src="data:image/png;base64,%s" style="max-width:100%%;max-height:250px;border:1px solid #ddd;padding:4px;"/>'
+                        '</div>'
+                    ) % img_data
             if imgs:
-                img_html = '<div style="page-break-before:always;"><div style="text-align:right;">%s</div><h2>Product Images</h2>%s</div>' % (logo_html, imgs)
+                img_html = '<div style="margin-top:15px;"><h3>Product Images</h3><div style="text-align:left;">%s</div></div>' % imgs
 
-        self.document_html = Markup(str(base_html) + tech_html + img_html)
-        # Note: base_html already contains Terms & Conditions at end
+        table_html = str(self.x_table_html or '')
+        terms_html = str(self.x_terms_html or '')
+        self.document_html = Markup(str(base_html) + img_html + tech_html + table_html + terms_html)
 
     def action_add_images(self):
         self.ensure_one()
@@ -449,70 +469,26 @@ class SaleQuotePreviewWizard(models.TransientModel):
         doc.add_paragraph('With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote\nour best offer for %s.' % best_offer)
         doc.add_paragraph('')
 
-        # Table
-        headers = ['SR No.', 'Item Description', 'HSN', 'Unit Price', 'Discount', 'After Discount', 'Qty', 'Amount']
-
-        table = doc.add_table(rows=1, cols=len(headers))
-        table.style = 'Table Grid'
-        hdr_cells = table.rows[0].cells
-        for i, h in enumerate(headers):
-            p = hdr_cells[i].paragraphs[0]
-            run = p.add_run(h)
-            run.bold = True
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            # Grey background
-            tc = hdr_cells[i]._tc
-            tcPr = tc.get_or_add_tcPr()
-            shd = OxmlElement('w:shd')
-            shd.set(qn('w:fill'), 'F0F0F0')
-            shd.set(qn('w:color'), 'auto')
-            shd.set(qn('w:val'), 'clear')
-            tcPr.append(shd)
-
-        for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
-            row_cells = table.add_row().cells
-            desc = line.x_product_name or line.product_id.name or ''
-            if line.x_make:
-                desc += '\nMake: ' + line.x_make
-            if hasattr(line, 'x_notes') and line.x_notes:
-                desc += '\nNote: ' + line.x_notes
-            hsn = line.product_id.l10n_in_hsn_code or ''
-            unit_price = line.price_unit or 0
-            disc_pct = line.discount or 0
-            disc_amt = unit_price * disc_pct / 100
-            after_disc = unit_price - disc_amt
-            qty = line.product_uom_qty or 0
-            amount = line.price_subtotal or 0
-            disc_str = '(%s%%)=%s' % (int(disc_pct), int(disc_amt)) if disc_pct else '-'
-            row_data = [str(idx), desc, hsn, str(int(unit_price)), disc_str, str(int(after_disc)), str(int(qty)), str(int(amount))]
-
-            for i, val in enumerate(row_data):
-                row_cells[i].text = val
-                row_cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER if i != 1 else WD_ALIGN_PARAGRAPH.LEFT
-
-        # Totals
-        doc.add_paragraph('')
-        untax_p = doc.add_paragraph('Gross Total Amount: %s' % int(order.amount_untaxed))
-        untax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        if gst_on:
-            tax_p = doc.add_paragraph('Tax: %s' % int(order.amount_tax))
-            tax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        total_p = doc.add_paragraph('Total: %s' % int(order.amount_total))
-        total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        total_p.runs[0].bold = True
+        # Images - Page 3
+        if self.quote_image_ids:
+            doc.add_heading('Product Images', 1)
+            imgs_list = [att for att in self.quote_image_ids if att.datas]
+            # 2-column grid using table
+            for i in range(0, len(imgs_list), 2):
+                row_atts = imgs_list[i:i+2]
+                img_table = doc.add_table(rows=1, cols=2)
+                for j, att in enumerate(row_atts):
+                    try:
+                        img_buf = io.BytesIO(base64.b64decode(att.datas))
+                        cell_para = img_table.rows[0].cells[j].paragraphs[0]
+                        cell_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        cell_para.add_run().add_picture(img_buf, width=Inches(3))
+                    except Exception:
+                        pass
+                doc.add_paragraph('')
 
         # Technical Specs - Page 2
         if self.technical_specs_html:
-            doc.add_page_break()
-            # Logo on page 2
-            if order.company_id.logo_web:
-                logo_buf2 = io.BytesIO(base64.b64decode(
-                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
-                    else order.company_id.logo_web.encode()
-                ))
-                logo_p2 = doc.add_paragraph()
-                logo_p2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                logo_p2.add_run().add_picture(logo_buf2, width=Inches(1.5))
             doc.add_heading('Technical Specifications', 1)
             # Parse HTML and render BOTH text and tables in order
             try:
@@ -607,41 +583,58 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 logging.getLogger(__name__).error('Tech specs render error: %s', e)
                 doc.add_paragraph(html2plaintext(self.technical_specs_html))
 
-        # Images - Page 3
-        if self.quote_image_ids:
-            doc.add_page_break()
-            if order.company_id.logo_web:
-                logo_buf3 = io.BytesIO(base64.b64decode(
-                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
-                    else order.company_id.logo_web.encode()
-                ))
-                logo_p3 = doc.add_paragraph()
-                logo_p3.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                logo_p3.add_run().add_picture(logo_buf3, width=Inches(1.5))
-            doc.add_heading('Product Images', 1)
-            for att in self.quote_image_ids:
-                if att.datas:
-                    try:
-                        img_buf = io.BytesIO(base64.b64decode(att.datas))
-                        img_para = doc.add_paragraph()
-                        img_para.add_run().add_picture(img_buf, width=Inches(4))
-                        pass  # no image name
-                    except Exception:
-                        pass
 
-        # Terms & Conditions - Last page
-        if order.note:
-            doc.add_page_break()
-            if order.company_id.logo_web:
-                logo_buf4 = io.BytesIO(base64.b64decode(
-                    order.company_id.logo_web if isinstance(order.company_id.logo_web, bytes)
-                    else order.company_id.logo_web.encode()
-                ))
-                logo_p4 = doc.add_paragraph()
-                logo_p4.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                logo_p4.add_run().add_picture(logo_buf4, width=Inches(1.5))
-            doc.add_heading('Terms & Conditions', 2)
-            doc.add_paragraph(order.note)
+        # Table
+        headers = ['SR No.', 'Item Description', 'HSN', 'Unit Price', 'Discount', 'After Discount', 'Qty', 'Amount']
+
+        table = doc.add_table(rows=1, cols=len(headers))
+        table.style = 'Table Grid'
+        hdr_cells = table.rows[0].cells
+        for i, h in enumerate(headers):
+            p = hdr_cells[i].paragraphs[0]
+            run = p.add_run(h)
+            run.bold = True
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            # Grey background
+            tc = hdr_cells[i]._tc
+            tcPr = tc.get_or_add_tcPr()
+            shd = OxmlElement('w:shd')
+            shd.set(qn('w:fill'), 'F0F0F0')
+            shd.set(qn('w:color'), 'auto')
+            shd.set(qn('w:val'), 'clear')
+            tcPr.append(shd)
+
+        for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
+            row_cells = table.add_row().cells
+            desc = line.x_product_name or line.product_id.name or ''
+            if line.x_make:
+                desc += '\nMake: ' + line.x_make
+            if hasattr(line, 'x_notes') and line.x_notes:
+                desc += '\nNote: ' + line.x_notes
+            hsn = line.product_id.l10n_in_hsn_code or ''
+            unit_price = line.price_unit or 0
+            disc_pct = line.discount or 0
+            disc_amt = unit_price * disc_pct / 100
+            after_disc = unit_price - disc_amt
+            qty = line.product_uom_qty or 0
+            amount = line.price_subtotal or 0
+            disc_str = '(%s%%)=%s' % (int(disc_pct), int(disc_amt)) if disc_pct else '-'
+            row_data = [str(idx), desc, hsn, str(int(unit_price)), disc_str, str(int(after_disc)), str(int(qty)), str(int(amount))]
+
+            for i, val in enumerate(row_data):
+                row_cells[i].text = val
+                row_cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER if i != 1 else WD_ALIGN_PARAGRAPH.LEFT
+
+        # Totals
+        doc.add_paragraph('')
+        untax_p = doc.add_paragraph('Gross Total Amount: %s' % int(order.amount_untaxed))
+        untax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        if gst_on:
+            tax_p = doc.add_paragraph('Tax: %s' % int(order.amount_tax))
+            tax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        total_p = doc.add_paragraph('Total: %s' % int(order.amount_total))
+        total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        total_p.runs[0].bold = True
 
         # Save
         buf = io.BytesIO()
