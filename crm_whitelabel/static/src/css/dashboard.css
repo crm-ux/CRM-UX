@@ -310,12 +310,34 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 }
 
 /* Hide ONLY the icon buttons in status indicator (cloud & X) */
+/* Restyle icon save/discard buttons to look like text buttons */
 .o_form_status_indicator_buttons {
-    display: none !important;
+    display: flex !important;
+    gap: 6px;
 }
-
-/* Make sure text Save/Discard buttons in control panel are visible */
-.o_control_panel .o_form_button_save,
-.o_control_panel .o_form_button_cancel {
-    display: inline-block !important;
+.o_form_status_indicator_buttons .o_form_button_save {
+    background-color: #6f42c1 !important;
+    color: white !important;
+    border-radius: 4px !important;
+    padding: 4px 14px !important;
+    font-size: 13px !important;
+}
+.o_form_status_indicator_buttons .o_form_button_save::after {
+    content: "Save";
+    margin-left: 4px;
+}
+.o_form_status_indicator_buttons .o_form_button_cancel {
+    background-color: #6c757d !important;
+    color: white !important;
+    border-radius: 4px !important;
+    padding: 4px 14px !important;
+    font-size: 13px !important;
+}
+.o_form_status_indicator_buttons .o_form_button_cancel::after {
+    content: "Cancel";
+    margin-left: 4px;
+}
+.o_form_status_indicator_buttons .fa-cloud-upload,
+.o_form_status_indicator_buttons .fa-times {
+    display: none !important;
 }
