@@ -310,32 +310,46 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 }
 
 /* Hide ONLY the icon buttons in status indicator (cloud & X) */
-/* Restyle icon save/discard buttons to look like text buttons */
+/* Restyle icon save/discard buttons to look like proper text buttons */
 .o_form_status_indicator_buttons {
     display: flex !important;
-    gap: 6px;
+    align-items: center !important;
+    gap: 8px;
+    margin-left: 8px;
+}
+.o_form_status_indicator_buttons button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px;
+    min-width: 80px;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    cursor: pointer;
 }
 .o_form_status_indicator_buttons .o_form_button_save {
     background-color: #6f42c1 !important;
-    color: white !important;
-    border-radius: 4px !important;
-    padding: 4px 14px !important;
-    font-size: 13px !important;
+    color: #fff !important;
+}
+.o_form_status_indicator_buttons .o_form_button_save:hover {
+    background-color: #5a32a3 !important;
 }
 .o_form_status_indicator_buttons .o_form_button_save::after {
     content: "Save";
-    margin-left: 4px;
 }
 .o_form_status_indicator_buttons .o_form_button_cancel {
-    background-color: #6c757d !important;
-    color: white !important;
-    border-radius: 4px !important;
-    padding: 4px 14px !important;
-    font-size: 13px !important;
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+    border: 1px solid #ced4da !important;
+}
+.o_form_status_indicator_buttons .o_form_button_cancel:hover {
+    background-color: #dee2e6 !important;
 }
 .o_form_status_indicator_buttons .o_form_button_cancel::after {
     content: "Cancel";
-    margin-left: 4px;
 }
 .o_form_status_indicator_buttons .fa-cloud-upload,
 .o_form_status_indicator_buttons .fa-times {
