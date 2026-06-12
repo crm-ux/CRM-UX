@@ -193,10 +193,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         )
 
         # TERMS section
+        terms_content = str(order.note or '')
         terms_html = (
-            '<h4>Terms &amp; Conditions</h4>'
-            '<p>%s</p>'
-        ) % (order.note or '',)
+            '<div style="margin-top:15px;">'
+            '<h3>Terms &amp; Conditions</h3>'
+            '<div style="font-size:12px;line-height:1.6;">%s</div>'
+            '</div>'
+        ) % (terms_content,)
 
         html = intro_html  # default_get only needs intro for initial preview
 
@@ -635,6 +638,37 @@ class SaleQuotePreviewWizard(models.TransientModel):
         total_p = doc.add_paragraph('Total: %s' % int(order.amount_total))
         total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         total_p.runs[0].bold = True
+
+        # Terms & Conditions
+        if order.note:
+            doc.add_paragraph('')
+            doc.add_heading('Terms & Conditions', 2)
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(str(order.note), 'html.parser')
+                lists = soup.find_all(['ol', 'ul'])
+                if lists:
+                    for element in soup.children:
+                        if hasattr(element, 'name') and element.name in ['ol', 'ul']:
+                            for li in element.find_all('li', recursive=False):
+                                text = li.get_text(strip=True)
+                                if text:
+                                    doc.add_paragraph(text, style='List Number' if element.name == 'ol' else 'List Bullet')
+                        elif hasattr(element, 'name') and element.name in ['p', 'div']:
+                            text = element.get_text(strip=True)
+                            if text:
+                                doc.add_paragraph(text)
+                else:
+                    for element in soup.find_all(['p', 'div']):
+                        text = element.get_text(strip=True)
+                        if text:
+                            doc.add_paragraph(text)
+                    if not soup.find_all(['p', 'div']):
+                        doc.add_paragraph(soup.get_text(strip=True))
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).error('Terms render error: %s', e)
+                doc.add_paragraph(html2plaintext(order.note))
 
         # Save
         buf = io.BytesIO()

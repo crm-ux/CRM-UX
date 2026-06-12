@@ -25,6 +25,28 @@ class SaleOrder(models.Model):
     """
     _inherit = 'sale.order'
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'note' in fields_list and not res.get('note'):
+            res['note'] = '''<ol>
+<li>All prices quoted are in Indian Rupees (INR) and are valid for a period of 40 days from the date of quotation.</li>
+<li>GST @ 18% shall be charged extra as applicable.</li>
+<li>Prices: All prices quoted are in Indian Rupees (INR).</li>
+<li>Incoterms: FOR (Free on Road) at the specified destination.</li>
+<li>Payment Terms: 100% advance payment against Proforma Invoice.</li>
+<li>Purchase Order should be issued in favor of Ultrawin Technologies.<br/>FOURTH FLOOR, 401, RUDRAM ICON, OPP SILVER OAK COLLEGE, OPP SHAYONA ARCADE, GOTA, GHATLODIA, AHMEDABAD - 382481<br/>GST Reg. No. - 24CTXPP6943F1Z0</li>
+<li>Delivery shall be made within 8-10 weeks from the date of receipt of a technically and commercially clear, error-free Purchase Order.</li>
+<li>Warranty: One (1) year from the date of invoice against manufacturing defects.</li>
+<li>Cancellation of Order: Orders once accepted cannot be cancelled or modified without written consent from Ultrawin Technologies.</li>
+<li>Jurisdiction: Any dispute arising out of this quotation, order, or supply shall be subject to the exclusive jurisdiction of the courts at Ahmedabad, Gujarat, India.</li>
+<li>Acceptance of this quotation constitutes acceptance of all terms and conditions stated herein.</li>
+</ol>
+<p>Should you require any further information or clarification, please feel free to contact us.</p>
+<p>We thank you for your enquiry and look forward to receiving your valued order.</p>
+<p>Thanking You,<br/>Sincerely,<br/>Himanshu Patel<br/>Ultrawin Technologies</p>'''
+        return res
+
     # ------------------------------------------------------------------
     # 1. GST TOGGLE  (With GST / Without GST)
     # ------------------------------------------------------------------
