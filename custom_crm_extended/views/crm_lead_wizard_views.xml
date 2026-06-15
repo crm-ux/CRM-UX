@@ -73,7 +73,6 @@
                             <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not x_mobile"/>
                             <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not phone"/>
                         <field name="e2_contact" invisible="1"/>
-                        <div invisible="not e2_contact" style="color:red;font-weight:bold;padding:4px;border:1px solid red;border-radius:4px;margin-top:4px;">⚠ Please provide at least one: Email, Phone or Mobile.</div>
                         </group>
                         <group col="3">
                             <field name="city" string="City" placeholder="City"/>

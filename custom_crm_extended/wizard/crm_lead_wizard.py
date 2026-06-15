@@ -175,7 +175,8 @@ class CrmLeadWizard(models.TransientModel):
             self.e1_name = False
         elif self.step == 2:
             if not self.email_from and not self.phone and not self.x_mobile:
-                return self._reopen({'default_e2_contact': True})
+                self.e2_contact = True
+                return self._reopen()
             self.e2_contact = False
         self.step += 1
         return self._reopen()
