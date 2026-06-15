@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+import re
 
 class CrmLeadWizard(models.TransientModel):
     _name = "crm.lead.wizard"
@@ -104,6 +105,20 @@ class CrmLeadWizard(models.TransientModel):
     def create(self, vals_list):
         return super().create(vals_list)
 
+    @api.onchange('phone')
+    def _onchange_phone_digits_only(self):
+        if self.phone:
+            digits = re.sub(r'\D', '', self.phone)[:10]
+            if digits != self.phone:
+                self.phone = digits
+
+    @api.onchange('x_mobile')
+    def _onchange_mobile_digits_only(self):
+        if self.x_mobile:
+            digits = re.sub(r'\D', '', self.x_mobile)[:10]
+            if digits != self.x_mobile:
+                self.x_mobile = digits
+
     @api.onchange('partner_company_id')
     def _onchange_partner_company_id(self):
         if self.partner_company_id:
@@ -129,6 +144,18 @@ class CrmLeadWizard(models.TransientModel):
                             'message': 'Only Admin and Dhruvil Shah can create new companies.'
                         }}
             self.partner_name = self.partner_company_id.name
+            # Auto-fill Contact Person & Job Title from company's first contact
+            child = self.env['res.partner'].search([
+                ('parent_id', '=', self.partner_company_id.id),
+                ('is_company', '=', False),
+            ], limit=1)
+            if child:
+                self.contact_name = child.name or ""
+                self.function = child.function or ""
+                if not self.email_from:
+                    self.email_from = child.email or ""
+                if not self.phone:
+                    self.phone = child.phone or ""
             # Check if newly created by unauthorized user
             allowed_ids = [2, 10]  # Admin and Dhruvil
             if self.env.uid not in allowed_ids:
@@ -178,6 +205,20 @@ class CrmLeadWizard(models.TransientModel):
                 self.e2_contact = True
                 return self._reopen()
             self.e2_contact = False
+            # Validate phone format (10 digits)
+            if self.phone:
+                digits = re.sub(r'\D', '', self.phone)
+                if len(digits) != 10:
+                    raise ValidationError(_("Phone number must be exactly 10 digits."))
+            # Validate mobile format (10 digits)
+            if self.x_mobile:
+                digits = re.sub(r'\D', '', self.x_mobile)
+                if len(digits) != 10:
+                    raise ValidationError(_("Mobile number must be exactly 10 digits."))
+            # Validate email format
+            if self.email_from:
+                if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', self.email_from):
+                    raise ValidationError(_("Please enter a valid email address."))
         self.step += 1
         return self._reopen()
 

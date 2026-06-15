@@ -58,9 +58,6 @@
                         invisible="x_final_quote_locked"/>
             </xpath>
 
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="opportunity_id" string="CRM Opportunity" options="{'no_create': True}"/>
-            </xpath>
             <xpath expr="//field[@name='validity_date']" position="after">
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
             </xpath>

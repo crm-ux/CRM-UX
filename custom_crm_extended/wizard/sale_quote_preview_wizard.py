@@ -196,12 +196,33 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # TERMS section
         terms_content = str(order.note or '')
+        # Footer: selected company's address
+        cp = order.company_id.partner_id
+        addr_parts = [p for p in [cp.street, cp.street2, cp.city,
+                                   cp.state_id.name if cp.state_id else '',
+                                   cp.zip, cp.country_id.name if cp.country_id else ''] if p]
+        addr_line = ', '.join(addr_parts)
+        contact_parts = []
+        if cp.phone:
+            contact_parts.append('Phone: %s' % cp.phone)
+        if cp.email:
+            contact_parts.append('Email: %s' % cp.email)
+        contact_line = ' | '.join(contact_parts)
+        footer_html = (
+            '<div style="margin-top:30px;padding-top:10px;border-top:1px solid #ccc;'
+            'text-align:center;font-size:11px;color:#555;">'
+            '<div style="font-weight:bold;">%s</div>'
+            '<div>%s</div>'
+            '<div>%s</div>'
+            '</div>'
+        ) % (order.company_id.name or '', addr_line, contact_line)
         terms_html = (
             '<div style="page-break-before:always;">'
             '<h3>Terms &amp; Conditions</h3>'
             '<div style="font-size:12px;line-height:1.6;">%s</div>'
+            '%s'
             '</div>'
-        ) % (terms_content,)
+        ) % (terms_content, footer_html)
 
         html = intro_html  # default_get only needs intro for initial preview
 
@@ -701,6 +722,38 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 import logging
                 logging.getLogger(__name__).error('Terms render error: %s', e)
                 doc.add_paragraph(html2plaintext(order.note))
+
+            # Footer: selected company's address
+            cp = order.company_id.partner_id
+            addr_parts = [p for p in [cp.street, cp.street2, cp.city,
+                                       cp.state_id.name if cp.state_id else '',
+                                       cp.zip, cp.country_id.name if cp.country_id else ''] if p]
+            addr_line = ', '.join(addr_parts)
+            contact_parts = []
+            if cp.phone:
+                contact_parts.append('Phone: %s' % cp.phone)
+            if cp.email:
+                contact_parts.append('Email: %s' % cp.email)
+            contact_line = ' | '.join(contact_parts)
+
+            doc.add_paragraph('')
+            name_para = doc.add_paragraph()
+            name_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            name_run = name_para.add_run(order.company_id.name or '')
+            name_run.bold = True
+            name_run.font.size = Pt(9)
+
+            if addr_line:
+                addr_para = doc.add_paragraph()
+                addr_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                addr_run = addr_para.add_run(addr_line)
+                addr_run.font.size = Pt(8)
+
+            if contact_line:
+                contact_para = doc.add_paragraph()
+                contact_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                contact_run = contact_para.add_run(contact_line)
+                contact_run.font.size = Pt(8)
 
         # Save
         buf = io.BytesIO()

@@ -25,6 +25,9 @@
                     <field name="technical_specs_html" widget="html" nolabel="1" placeholder="Add technical specifications here..."/>
                     <separator string="Quote Images (optional)"/>
                     <field name="quote_image_ids" widget="many2many_binary" nolabel="1"/>
+
+                    <separator string="Product Table Preview"/>
+                    <field name="x_table_html" widget="html" nolabel="1" readonly="1"/>
                     <!-- Quote Preview hidden - PDF generates directly -->
                 </sheet>
 
