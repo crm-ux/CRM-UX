@@ -13,16 +13,26 @@
                         <span><t t-esc="state.userName"/></span>
                     </div>
                     <div class="crm-company-wrapper" t-if="state.companies.length > 0">
-                        <span class="crm-company-icon">🏢</span>
-                        <select class="crm-company-switch" t-on-change="switchCompany">
-                            <t t-foreach="state.companies" t-as="co" t-key="co.id">
-                                <option t-att-value="co.id" t-att-selected="co.id === state.currentCompany">
-                                    <t t-esc="co.name"/>
-                                </option>
-                            </t>
-                        </select>
+                        <div class="crm-company-multiselect">
+                            <button class="crm-company-toggle-btn" t-on-click="toggleCompanyDropdown">
+                                <span class="crm-company-toggle-text"><t t-esc="selectedCompanyLabel"/></span>
+                                <span class="crm-company-arrow">▾</span>
+                            </button>
+                            <div class="crm-company-dropdown" t-if="state.companyDropdownOpen">
+                                <div class="crm-company-dropdown-header">Select Companies</div>
+                                <t t-foreach="state.companies" t-as="co" t-key="co.id">
+                                    <label class="crm-company-option" t-att-class="isCompanySelected(co.id) ? 'selected' : ''">
+                                        <input type="checkbox"
+                                               t-att-checked="isCompanySelected(co.id)"
+                                               t-on-change="() => this.toggleCompany(co.id)"/>
+                                        <span class="crm-co-badge"><t t-esc="co.name[0].toUpperCase()"/></span>
+                                        <span class="crm-co-name"><t t-esc="co.name"/></span>
+                                    </label>
+                                </t>
+                            </div>
+                        </div>
                     </div>
-                    <a href="/web/session/logout" class="crm-topbar-logout">⏻ Logout</a>
+                    <a href="/web/session/logout" class="crm-topbar-logout">Logout</a>
                 </div>
             </div>
 

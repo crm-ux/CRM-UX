@@ -25,7 +25,8 @@ class CrmDashboard extends Component {
             revenue: 0,
             userName: user.name || "User",
             companies: [],
-            currentCompany: parseInt(localStorage.getItem('crm_selected_company') || user.context.allowed_company_ids?.[0] || 1),
+            selectedCompanies: JSON.parse(localStorage.getItem('crm_selected_companies') || JSON.stringify(user.context.allowed_company_ids || [1])),
+            companyDropdownOpen: false,
         });
 
         onMounted(() => { this.loadStats(); this.loadCompanies(); });
@@ -46,11 +47,41 @@ class CrmDashboard extends Component {
         }
     }
 
-    switchCompany(ev) {
-        const cid = parseInt(ev.target.value);
-        this.state.currentCompany = cid;
-        localStorage.setItem('crm_selected_company', cid);
+    toggleCompany(cid) {
+        const idx = this.state.selectedCompanies.indexOf(cid);
+        if (idx === -1) {
+            this.state.selectedCompanies.push(cid);
+        } else {
+            if (this.state.selectedCompanies.length > 1) {
+                this.state.selectedCompanies.splice(idx, 1);
+            }
+        }
+        localStorage.setItem('crm_selected_companies', JSON.stringify(this.state.selectedCompanies));
         this.loadStats();
+    }
+
+    toggleCompanyDropdown() {
+        this.state.companyDropdownOpen = !this.state.companyDropdownOpen;
+    }
+
+    isCompanySelected(cid) {
+        return this.state.selectedCompanies.includes(cid);
+    }
+
+    get selectedCompanyInitial() {
+        const selected = this.state.companies.filter(c => this.state.selectedCompanies.includes(c.id));
+        if (selected.length === 0) return "?";
+        if (selected.length === 1) return selected[0].name[0].toUpperCase();
+        return selected.length;
+    }
+
+    get selectedCompanyLabel() {
+        const names = this.state.companies
+            .filter(c => this.state.selectedCompanies.includes(c.id))
+            .map(c => c.name);
+        if (names.length === 0) return "Select Company";
+        if (names.length === 1) return names[0];
+        return names.length + " Companies";
     }
 
     async _count(model, domain = []) {
@@ -79,7 +110,7 @@ class CrmDashboard extends Component {
     async loadStats() {
         try {
             // Get active company ids from URL or session
-            const activeCids = [this.state.currentCompany];
+            const activeCids = this.state.selectedCompanies;
             const companyDomain = [["company_id","in",activeCids]];
             const isAdmin = user.userId === 2;
             const userDomain = isAdmin ? [] : [["user_id","=",user.userId]];
@@ -140,13 +171,13 @@ class CrmDashboard extends Component {
     openLeads() {
         const isAdmin = user.userId === 2;
         const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["active","=",true],["company_id","in",[this.state.currentCompany]],...userFilter];
+        const domain = [["active","=",true],["company_id","in",this.state.selectedCompanies],...userFilter];
         this.go({ type:"ir.actions.act_window", name:"Leads", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain });
     }
     openQuotes() {
         const isAdmin = user.userId === 2;
         const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["state","in",["draft","sent"]],["company_id","in",[this.state.currentCompany]],...userFilter];
+        const domain = [["state","in",["draft","sent"]],["company_id","in",this.state.selectedCompanies],...userFilter];
         this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
     }
     openContacts() { this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain:[["customer_rank",">",0]] }); }

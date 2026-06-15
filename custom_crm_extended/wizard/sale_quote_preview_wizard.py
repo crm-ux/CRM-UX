@@ -332,16 +332,26 @@ class SaleQuotePreviewWizard(models.TransientModel):
         defaults = self.with_context(default_order_id=order.id, best_offer_for=self.best_offer_for or '').default_get(['document_html'])
         base_html = defaults.get('document_html', '')
         # Replace placeholder with actual best_offer_for if needed
-        if self.best_offer_for:
-            import re
-            from markupsafe import Markup
-            base_html_str = str(base_html)
+        import re
+        from markupsafe import Markup
+        base_html_str = str(base_html)
+        # Replace Subject line with user-entered subject
+        if self.subject:
             base_html_str = re.sub(
-                r'our best offer for [^<.]*\.',
-                'our best offer for %s.' % self.best_offer_for,
-                base_html_str
+                r'<b>Subject:</b>\s*[^<]*',
+                '<b>Subject:</b> %s' % self.subject,
+                base_html_str,
+                count=1
             )
-            base_html = Markup(base_html_str)
+        # Replace best offer for line
+        if self.best_offer_for:
+            base_html_str = re.sub(
+                r'our best offer for(\s*[^<]*?)(</p>)',
+                lambda m: 'our best offer for %s.%s' % (self.best_offer_for, m.group(2)),
+                base_html_str,
+                count=1
+            )
+        base_html = Markup(base_html_str)
 
         # Append tech specs from wizard field
         tech_html = ''
@@ -467,7 +477,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Subject
         subj_para = doc.add_paragraph()
         subj_para.add_run('Subject: ').bold = True
-        subj_para.add_run('Quotation for Products / Services')
+        subj_para.add_run(self.subject or 'Quotation for Products / Services')
         doc.add_paragraph('')
         doc.add_paragraph('Dear Sir,')
         best_offer = self.best_offer_for or ''
@@ -718,7 +728,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         self._rebuild_document_html()
         order = self.order_id
         best_offer = self.best_offer_for or ''
-        subject = 'Quotation %s - %s' % (self.quote_name or '', order.partner_id.name or '')
+        subject = self.subject or ('Quotation %s - %s' % (self.quote_name or '', order.partner_id.name or ''))
         body = '<p>Dear Sir,</p><p>' + self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for') + '</p><p>Please find the attached quotation for your reference.</p><p>Best Regards,<br/>%s</p>' % (self.seller_name or '')
 
         # Generate PDF from HTML content directly

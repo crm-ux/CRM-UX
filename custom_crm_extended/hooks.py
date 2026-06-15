@@ -51,4 +51,11 @@ def post_init_hook(env):
             view.write({'arch_db': new_arch})
             _logger.info('Removed priority star widget in view id=%s', view.id)
 
+    # Restrict utm.source create/unlink to Administrators only
+    Access = env['ir.model.access'].sudo()
+    acc = Access.search([('name', '=', 'access_utm_source_user')], limit=1)
+    if acc:
+        acc.write({'perm_create': False, 'perm_unlink': False, 'perm_write': False})
+        _logger.info('Restricted utm.source create/write/unlink for regular users.')
+
     _logger.info('custom_crm_extended 1.3.0 ready.')
