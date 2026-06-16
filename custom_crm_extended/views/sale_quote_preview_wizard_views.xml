@@ -71,10 +71,37 @@
     <t t-call="web.html_container">
         <main style="width:100%;">
             <t t-foreach="docs" t-as="doc">
-                <div class="page">
+                <t t-set="cp" t-value="doc.sudo().order_id.company_id.partner_id"/>
+                <div class="article">
                     <t t-out="doc.sudo().document_html"/>
                 </div>
             </t>
+            <div class="footer">
+                <style type="text/css">
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    #crm-footer-table { background-color: #0096b4 !important; }
+                    #crm-footer-td { background-color: #0096b4 !important; color: #ffffff !important; }
+                </style>
+                <t t-set="cp" t-value="docs[0].sudo().order_id.company_id.partner_id"/>
+                <table id="crm-footer-table" width="100%" cellpadding="6" cellspacing="0" border="0"
+                    style="background-color:#0096b4 !important;width:100%;border-collapse:collapse;margin:0;padding:0;">
+                    <tr>
+                        <td id="crm-footer-td" bgcolor="#0096b4" align="center"
+                            style="background-color:#0096b4 !important;color:#ffffff !important;font-size:9pt;font-family:Arial,sans-serif;padding:6px 10px;text-align:center;border:none;">
+                            <font color="#ffffff" face="Arial">
+                                <b><t t-esc="docs[0].sudo().order_id.company_id.name"/></b>
+                                <t t-if="cp.street"> | <t t-esc="cp.street"/></t>
+                                <t t-if="cp.city">, <t t-esc="cp.city"/></t>
+                                <t t-if="cp.state_id">, <t t-esc="cp.state_id.name"/></t>
+                                <t t-if="cp.zip"> - <t t-esc="cp.zip"/></t>
+                                <t t-if="docs[0].sudo().order_id.company_id.vat"> | GST: <t t-esc="docs[0].sudo().order_id.company_id.vat"/></t>
+                                <t t-if="cp.phone"> | Ph: <t t-esc="cp.phone"/></t>
+                                <t t-if="cp.email"> | Email: <t t-esc="cp.email"/></t>
+                            </font>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </main>
     </t>
 </template>

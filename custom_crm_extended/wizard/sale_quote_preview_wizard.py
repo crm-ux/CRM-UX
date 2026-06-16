@@ -125,7 +125,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 product_cats = ', '.join(order.opportunity_id.x_product_category_ids.mapped('name'))
 
         tax_th = '<th style="text-align:center;">Tax</th>' if gst_on else ''
-        tax_amount_row = '<p style="text-align:right;"><b>Tax:</b> %s</p>' % int(order.amount_tax) if gst_on else ''
+        tax_amount_row = ''
 
         # Logo
         logo_html = ''
@@ -137,21 +137,21 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # INTRO section (header info, before table)
         intro_html = (
             '<div style="text-align:right;">%s</div>'
-            '<table style="width:100%%;border-collapse:collapse;margin-bottom:8px;background:#eaf0fb;">'
+            '<table style="width:100%%;border-collapse:collapse;margin-bottom:8px;border-bottom:1px solid #ddd;">'
             '<tr>'
             '<td style="padding:6px 12px;font-weight:bold;"><b>Quotation No:</b> %s</td>'
             '<td style="padding:6px 12px;font-weight:bold;text-align:right;"><b>Date:</b> %s</td>'
             '</tr>'
             '</table>'
-            '<p><b>To,</b> %s</p>'
+            '<p style="font-size:13px;"><b>To,</b> %s</p>'
             '<p>%s</p>'
             '<p>%s</p>'
             '<p>%s</p>'
             '<p>%s</p>'
             '<br/>'
-            '<p><b>Subject:</b> Quotation for Products / Services</p>'
+            '<p style="font-size:13px;"><b>Subject:</b> Quotation for Products / Services</p>'
             '<br/>'
-            '<p>Dear Sir,</p>'
+            '<p style="font-size:13px;">Dear Sir,</p>'
             '<p>%s</p>'
         ) % (
             logo_html,
@@ -167,9 +167,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
-            '<div style="page-break-before:always;page-break-inside:avoid;">'
-            '<h3>Quotation</h3>'
-            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:12px;page-break-inside:avoid;" contenteditable="false">'
+            '<div style="page-break-before:always;page-break-inside:avoid;padding:20px 0 10px 0;">'
+            '<h3 style="text-align:center;font-size:13px;font-weight:bold;margin:0 0 14px 0;padding:8px 0;border-bottom:1px solid #ddd;">Quotation</h3>'
+            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:13px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
             '<th style="text-align:center;width:35px;">SR No.</th>'
             '<th style="text-align:left;">Item Description</th>'
@@ -183,9 +183,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tbody>%s</tbody>'
             '</table>'
             '<br/>'
-            '<p style="text-align:right;"><b>Gross Total Amount:</b> %s</p>'
+            '<p style="text-align:right;font-size:13px;"><b>Gross Total Amount:</b> %s</p>'
             '%s'
-            '<p style="text-align:right;font-size:14px;"><b>Total:</b> %s</p>'
+            '<p style="text-align:right;font-size:13px;"><b>Total:</b> %s</p>'
             '</div>'
         ) % (
             rows,
@@ -208,18 +208,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if cp.email:
             contact_parts.append('Email: %s' % cp.email)
         contact_line = ' | '.join(contact_parts)
-        footer_html = (
-            '<div style="margin-top:30px;padding-top:10px;border-top:1px solid #ccc;'
-            'text-align:center;font-size:11px;color:#555;">'
-            '<div style="font-weight:bold;">%s</div>'
-            '<div>%s</div>'
-            '<div>%s</div>'
-            '</div>'
-        ) % (order.company_id.name or '', addr_line, contact_line)
+        footer_html = ''  # Address shown in sidebar only
         terms_html = (
-            '<div style="page-break-before:always;">'
-            '<h3>Terms &amp; Conditions</h3>'
-            '<div style="font-size:12px;line-height:1.6;">%s</div>'
+            '<div style="margin-top:20px;">'
+            '<h3 style="text-align:center;font-size:13px;font-weight:bold;margin:12px 0 10px 0;">Terms &amp; Conditions</h3>'
+            '<div style="font-size:13px;line-height:1.6;">%s</div>'
             '%s'
             '</div>'
         ) % (terms_content, footer_html)
@@ -234,7 +227,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         tech_section = ''
         if tech_rows:
             tech_section = (
-                '<div style="page-break-before:always;">'
+                '<div style="margin-top:20px;">'
                 '<div style="text-align:right;">%s</div>'
                 '<h2>Technical Specifications</h2>%s'
                 '</div>'
@@ -244,9 +237,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
         img_section = ''
         if img_rows:
             img_section = (
-                '<div style="page-break-before:always;">'
+                '<div style="margin-top:20px;">'
                 '<div style="text-align:right;">%s</div>'
-                '<h2>Product Images</h2>%s'
+                '<p style="font-size:13px;font-weight:bold;margin:10px 0 6px 0;">Product Images</p>%s'
                 '</div>'
             ) % (logo_html, img_rows)
 
@@ -326,7 +319,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Style table tags
         html_str = re.sub(
             r'<table(?![^>]*style)[^>]*>',
-            '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;" border="1" cellpadding="6" cellspacing="0">',
+            '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;" border="1" cellpadding="6" cellspacing="0">',
             html_str
         )
         # Style th tags
@@ -383,15 +376,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
             styled_specs = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="margin-top:15px;">'
-                '<h3 style="margin-bottom:8px;">Technical Specifications</h3>'
+                '<div style="margin-top:20px;margin-bottom:20px;padding:10px 0;font-size:13px;font-family:Arial,sans-serif;">'
+                '<p style="font-size:13px;font-weight:bold;margin-bottom:6px;">Technical Specifications</p>'
                 '<style>'
-                'table{width:100%%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}'
-                'th{background:#f0f0f0;border:1px solid #999;padding:8px;text-align:left;font-weight:bold;}'
-                'td{border:1px solid #999;padding:8px;text-align:left;}'
+                'table{width:100%%;border-collapse:collapse;font-size:13px;margin-bottom:10px;font-family:Arial,sans-serif;}'
+                'th{background:#f0f0f0;border:1px solid #999;padding:6px 8px;text-align:left;font-weight:bold;font-size:13px;}'
+                'td{border:1px solid #999;padding:6px 8px;text-align:left;font-size:13px;}'
                 'tr:nth-child(even){background:#f9f9f9;}'
+                'p,div,span,li{font-size:13px !important;}'
                 '</style>'
-                '<div style="font-size:12px;">%s</div>'
+                '<div style="font-size:13px;">%s</div>'
                 '</div>'
             ) % (styled_specs,)
 
@@ -408,11 +402,48 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         '</div>'
                     ) % img_data
             if imgs:
-                img_html = '<div style="margin-top:15px;"><h3>Product Images</h3><div style="text-align:left;">%s</div></div>' % imgs
+                img_html = '<div style="margin-top:15px;"><p style="font-size:13px;font-weight:bold;margin-bottom:6px;">Product Images</p><div style="text-align:left;">%s</div></div>' % imgs
 
         table_html = str(self.x_table_html or '')
         terms_html = str(self.x_terms_html or '')
-        self.document_html = Markup(str(base_html) + img_html + tech_html + table_html + terms_html)
+        combined = str(base_html) + img_html + tech_html + table_html + terms_html
+
+        # Build company address for sidebar footer
+        cp = self.order_id.company_id.partner_id
+        addr_parts = [p for p in [cp.street, cp.street2, cp.city,
+                                   cp.state_id.name if cp.state_id else '',
+                                   cp.zip, cp.country_id.name if cp.country_id else ''] if p]
+        addr_text = ', '.join(addr_parts)
+
+        # Company footer address
+        cp = self.order_id.company_id.partner_id
+        addr_parts = [p for p in [
+            cp.street, cp.street2, cp.city,
+            cp.state_id.name if cp.state_id else '',
+            cp.zip, cp.country_id.name if cp.country_id else ''
+        ] if p]
+        addr_text = ', '.join(addr_parts)
+        contact_parts = []
+        if cp.phone:
+            contact_parts.append('Ph: %s' % cp.phone)
+        if cp.email:
+            contact_parts.append('Email: %s' % cp.email)
+        if contact_parts:
+            addr_text += ' | ' + ' | '.join(contact_parts)
+
+        footer_html = (
+            '<div style="background:#0096b4;color:#fff;text-align:center;'
+            'font-size:9px;font-family:Arial,sans-serif;padding:6px 0;'
+            'width:100%%;-webkit-print-color-adjust:exact;">%s</div>'
+        ) % addr_text
+
+        wrapped = (
+            '<div style="font-family:Arial,sans-serif;font-size:13px;'
+            'line-height:1.7;color:#222;">'
+            + combined +
+            '</div>'
+        )
+        self.document_html = Markup(wrapped)
 
     def action_add_images(self):
         self.ensure_one()
@@ -507,7 +538,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Images - Page 3
         if self.quote_image_ids:
-            doc.add_heading('Product Images', 1)
+            ts_img = doc.add_paragraph()
+            ts_img_run = ts_img.add_run('Product Images')
+            ts_img_run.bold = True
+            ts_img_run.font.size = Pt(11)
             imgs_list = [att for att in self.quote_image_ids if att.datas]
             # 2-column grid using table
             for i in range(0, len(imgs_list), 2):
@@ -525,7 +559,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Technical Specs - Page 2
         if self.technical_specs_html:
-            doc.add_heading('Technical Specifications', 1)
+            ts_heading = doc.add_paragraph()
+            ts_run = ts_heading.add_run('Technical Specifications')
+            ts_run.bold = True
+            ts_run.font.size = Pt(12)
             # Parse HTML and render BOTH text and tables in order
             try:
                 from bs4 import BeautifulSoup
@@ -586,10 +623,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
                                     for i, cell in enumerate(cells):
                                         if i < max_cols:
                                             row_cells[i].text = cell.get_text(strip=True)
+                                            for para in row_cells[i].paragraphs:
+                                                for run in para.runs:
+                                                    run.font.size = Pt(11)
                                             if cell.name == 'th':
                                                 for para in row_cells[i].paragraphs:
                                                     for run in para.runs:
                                                         run.bold = True
+                                                        run.font.size = Pt(11)
                                                 tc = row_cells[i]._tc
                                                 tcPr = tc.get_or_add_tcPr()
                                                 shd = OxmlElement('w:shd')
@@ -676,16 +717,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         doc.add_paragraph('')
         untax_p = doc.add_paragraph('Gross Total Amount: %s' % int(order.amount_untaxed))
         untax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        if gst_on:
-            tax_p = doc.add_paragraph('Tax: %s' % int(order.amount_tax))
-            tax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        # Tax row removed
         total_p = doc.add_paragraph('Total: %s' % int(order.amount_total))
         total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         total_p.runs[0].bold = True
 
-        # Terms & Conditions - own page
+        # Terms & Conditions - flows after Quotation table
         if order.note:
-            doc.add_page_break()
             if order.company_id.logo_web:
                 logo_data3 = order.company_id.logo_web
                 if isinstance(logo_data3, str):
@@ -834,3 +872,4 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Always rebuild to include technical specs and images
         self._rebuild_document_html()
         return self.env['ir.actions.report'].search([('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')], limit=1).report_action(self)
+
