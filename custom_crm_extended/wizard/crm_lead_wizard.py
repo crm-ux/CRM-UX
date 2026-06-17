@@ -58,6 +58,12 @@ class CrmLeadWizard(models.TransientModel):
     # Step 2
     contact_name = fields.Char(string="Contact Person")
     function = fields.Char(string="Job Title")
+    contact_picker_id = fields.Many2one(
+        'res.partner', string='Select Contact',
+        domain="[('parent_id', '=', partner_company_id), ('is_company', '=', False)]",
+        help="Company has multiple contacts. Pick one to auto-fill name/job title."
+    )
+    has_multiple_contacts = fields.Boolean(string='Has Multiple Contacts', default=False)
     email_from = fields.Char(string="Email")
     phone = fields.Char(string="Phone")
     x_mobile = fields.Char(string="Mobile")
@@ -144,18 +150,44 @@ class CrmLeadWizard(models.TransientModel):
                             'message': 'Only Admin and Dhruvil Shah can create new companies.'
                         }}
             self.partner_name = self.partner_company_id.name
-            # Auto-fill Contact Person & Job Title from company's first contact
-            child = self.env['res.partner'].search([
+            # Auto-fill Contact Person & Job Title only when company has exactly ONE contact.
+            # If multiple contacts exist, leave fields blank so the user picks/types the right one
+            # instead of silently grabbing a random contact.
+            children = self.env['res.partner'].search([
                 ('parent_id', '=', self.partner_company_id.id),
                 ('is_company', '=', False),
-            ], limit=1)
-            if child:
+            ], order='id asc')
+            if len(children) == 1:
+                child = children[0]
                 self.contact_name = child.name or ""
                 self.function = child.function or ""
                 if not self.email_from:
                     self.email_from = child.email or ""
                 if not self.phone:
                     self.phone = child.phone or ""
+                self.contact_picker_id = False
+                self.has_multiple_contacts = False
+            elif len(children) > 1:
+                self.contact_name = False
+                self.function = False
+                self.contact_picker_id = False
+                self.has_multiple_contacts = True
+            else:
+                self.contact_name = False
+                self.function = False
+                self.contact_picker_id = False
+                self.has_multiple_contacts = False
+
+    @api.onchange('contact_picker_id')
+    def _onchange_contact_picker_id(self):
+        if self.contact_picker_id:
+            child = self.contact_picker_id
+            self.contact_name = child.name or ""
+            self.function = child.function or ""
+            if not self.email_from:
+                self.email_from = child.email or ""
+            if not self.phone:
+                self.phone = child.phone or ""
             # Check if newly created by unauthorized user
             allowed_ids = [2, 10]  # Admin and Dhruvil
             if self.env.uid not in allowed_ids:

@@ -64,6 +64,10 @@
                     <!-- STEP 2: Contact Details -->
                     <div invisible="step != 2">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Contact Details</div>
+                        <field name="has_multiple_contacts" invisible="1"/>
+                        <group col="1" invisible="not has_multiple_contacts">
+                            <field name="contact_picker_id" string="Select Contact" options="{'no_create': True, 'no_open': True}"/>
+                        </group>
                         <group col="2">
                             <field name="contact_name" string="Contact Person" placeholder="Full Name"/>
                             <field name="function" string="Job Title" placeholder="e.g. Purchase Manager"/>
