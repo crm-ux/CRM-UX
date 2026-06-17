@@ -285,6 +285,19 @@ class CrmLeadWizard(models.TransientModel):
     def action_save_lead(self):
         if not self.partner_name and not self.partner_company_id:
             raise ValidationError(_("Please enter a Company Name."))
+
+        # Resolve the right partner_id to avoid Odoo creating duplicate companies later.
+        # Priority: 1) contact picked from "Select Contact" dropdown
+        #           2) existing company chosen in Step 1 (partner_company_id)
+        #           3) existing customer explicitly chosen (partner_id)
+        resolved_partner_id = False
+        if self.contact_picker_id:
+            resolved_partner_id = self.contact_picker_id.id
+        elif self.partner_id:
+            resolved_partner_id = self.partner_id.id
+        elif self.partner_company_id:
+            resolved_partner_id = self.partner_company_id.id
+
         vals = {
             "name": self.name or self.partner_name or "New Lead",
             "company_id": self.company_id.id,
@@ -292,8 +305,8 @@ class CrmLeadWizard(models.TransientModel):
             "x_requirement_date": self.x_requirement_date,
             "user_id": self.user_id.id if self.user_id else False,
             "source_id": self.source_id.id if self.source_id else False,
-            "partner_id": self.partner_id.id if self.partner_id else False,
-            "partner_name": self.partner_id.name if self.partner_id else self.partner_name,
+            "partner_id": resolved_partner_id,
+            "partner_name": self.partner_company_id.name if self.partner_company_id else self.partner_name,
             "contact_name": self.contact_name,
             "function": self.function,
             "email_from": self.email_from,
