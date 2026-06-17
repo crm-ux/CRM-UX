@@ -12,6 +12,21 @@
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
                         <span><t t-esc="state.userName"/></span>
                     </div>
+                    <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
+                        <div class="crm-admin-multiselect">
+                            <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
+                                <span class="crm-company-toggle-text">Quick Access</span>
+                                <span class="crm-company-arrow">▾</span>
+                            </button>
+                            <div class="crm-company-dropdown" t-if="state.adminMenuOpen">
+                                <div class="crm-company-dropdown-header">Admin Quick Links</div>
+                                <a href="/odoo/contacts" class="crm-admin-menu-item">👥 Contacts</a>
+                                <a href="/odoo/settings/users" class="crm-admin-menu-item">🏢 Companies</a>
+                                <a href="/odoo/sales" class="crm-admin-menu-item">💰 Sales</a>
+                                <a href="/odoo/action-383" class="crm-admin-menu-item">🧾 Quotations</a>
+                            </div>
+                        </div>
+                    </div>
                     <div class="crm-company-wrapper" t-if="state.companies.length > 0">
                         <div class="crm-company-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleCompanyDropdown">

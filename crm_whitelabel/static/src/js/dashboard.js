@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, useState, useExternalListener } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
 
@@ -27,9 +27,23 @@ class CrmDashboard extends Component {
             companies: [],
             selectedCompanies: JSON.parse(localStorage.getItem('crm_selected_companies') || JSON.stringify(user.context.allowed_company_ids || [1])),
             companyDropdownOpen: false,
+            isAdmin: user.userId === 2,
+            adminMenuOpen: false,
         });
 
         onMounted(() => { this.loadStats(); this.loadCompanies(); });
+        useExternalListener(window, "click", (ev) => {
+            if (this.state.companyDropdownOpen && !ev.target.closest('.crm-company-multiselect')) {
+                this.state.companyDropdownOpen = false;
+            }
+            if (this.state.adminMenuOpen && !ev.target.closest('.crm-admin-multiselect')) {
+                this.state.adminMenuOpen = false;
+            }
+        });
+    }
+
+    toggleAdminMenu() {
+        this.state.adminMenuOpen = !this.state.adminMenuOpen;
     }
 
     async loadCompanies() {
