@@ -49,12 +49,12 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">29</field>
-        <field name="margin_bottom">40</field>
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">35</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">2</field>
+        <field name="header_spacing">8</field>
         <field name="dpi">96</field>
     </record>
 
@@ -91,7 +91,7 @@
                     <b>Date:</b>&#160;<t t-esc="str(docs[0].sudo().order_id.date_order.date()) if docs[0].sudo().order_id.date_order else ''"/>
                 </div>
             </div>
-            <div style="border-top:2px solid #0096b4;margin:0;padding:0;"></div>
+            <div style="border-top:2px solid #0096b4;margin:2px 0 0 0;"></div>
         </div>
 
         <!-- FOOTER: repeats on every page, bottom -->
@@ -116,7 +116,7 @@
         <main style="width:100%;">
             <t t-foreach="docs" t-as="doc">
                 <!-- BODY -->
-                <div class="article" style="padding-top:1px;">
+                <div class="article">
                     <t t-out="doc.sudo().document_html"/>
                 </div>
             </t>

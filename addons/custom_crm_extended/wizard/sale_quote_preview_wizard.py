@@ -136,7 +136,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
         # INTRO section (header info, before table)
         intro_html = (
-            '<p style="font-size:13px;margin-top:10px;"><b>To,</b> %s</p>'
+            '<p style="font-size:13px;margin-top:10px;"><b>To,</b></p>'
+            '<p style="font-size:13px;margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
@@ -156,7 +157,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
             '<div style="page-break-inside:avoid;padding:20px 0 10px 0;">'
-            '<p style="text-align:center;font-size:14px;font-weight:bold;margin:10px 0 8px 0;padding:5px 0;border-top:1px solid #999;border-bottom:1px solid #999;">Quotation</p>'
+            '<p style="text-align:center;font-size:15px;font-weight:bold;margin:0 0 12px 0;padding:8px 0;border-top:2px solid #333;border-bottom:2px solid #333;">Quotation</p>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:13px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
             '<th style="text-align:center;width:55px;white-space:nowrap;">SR No.</th>'
@@ -326,196 +327,194 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def _rebuild_document_html(self):
         from markupsafe import Markup
+        import re as _re
         order = self.order_id
         if not order:
             return
 
-        # Get base HTML by regenerating
-        defaults = self.with_context(default_order_id=order.id, best_offer_for=self.best_offer_for or '').default_get(['document_html'])
-        base_html = defaults.get('document_html', '')
-        # Replace placeholder with actual best_offer_for if needed
-        import re
-        from markupsafe import Markup
-        base_html_str = str(base_html)
+        # ── COMPANY INFO ──────────────────────────────────────────
+        comp = order.company_id
+        cp   = comp.partner_id
 
-        # Strip any old Quotation No/Date table that may exist in stored document_html
-        import re as _re
-        # Remove the old bordered table with Quotation No and Date
-        base_html_str = _re.sub(
-            r'<table[^>]*border-bottom:1px solid #ddd[^>]*>.*?</table>',
-            '', base_html_str, flags=_re.DOTALL
-        )
-        # Remove old logo div at top (text-align:right with img inside)
-        base_html_str = _re.sub(
-            r'<div style="text-align:right;">\s*<img[^>]*logo[^>]*/>\s*</div>',
-            '', base_html_str, flags=_re.DOTALL
-        )
-        # Remove any standalone logo img at start
-        base_html_str = _re.sub(
-            r'^\s*<div[^>]*text-align:right[^>]*>\s*<img[^>]*/>\s*</div>',
-            '', base_html_str, flags=_re.DOTALL
-        )
+        # ── LOGO ─────────────────────────────────────────────────
+        logo_html = ''
+        if comp.logo_web:
+            b64 = comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web
+            logo_html = '<img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/>' % b64
 
-        # Replace Subject line with user-entered subject
-        if self.subject:
-            base_html_str = re.sub(
-                r'<b>Subject:</b>\s*[^<]*',
-                '<b>Subject:</b> %s' % self.subject,
-                base_html_str,
-                count=1
-            )
-        # Replace best offer for line
-        if self.best_offer_for:
-            base_html_str = re.sub(
-                r'our best offer for(\s*[^<]*?)(</p>)',
-                lambda m: 'our best offer for %s.%s' % (self.best_offer_for, m.group(2)),
-                base_html_str,
-                count=1
-            )
-        base_html = Markup(base_html_str)
-
-        # Append tech specs from wizard field
-        tech_html = ''
-        if self.technical_specs_html:
-            logo_html = ''
-            if order.company_id.logo_web:
-                logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
-                logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
-            styled_specs = self._style_html_tables(self.technical_specs_html)
-            tech_html = (
-                '<div style="margin-top:20px;margin-bottom:20px;padding:10px 0;font-size:13px;font-family:Arial,sans-serif;">'
-                '<p style="font-size:13px;font-weight:bold;margin-bottom:6px;">Technical Specifications</p>'
-                '<style>'
-                'table{width:100%%;border-collapse:collapse;font-size:13px;margin-bottom:10px;font-family:Arial,sans-serif;}'
-                'th{background:#f0f0f0;border:1px solid #999;padding:6px 8px;text-align:left;font-weight:bold;font-size:13px;}'
-                'td{border:1px solid #999;padding:6px 8px;text-align:left;font-size:13px;}'
-                'tr:nth-child(even){background:#f9f9f9;}'
-                'p,div,span,li{font-size:13px !important;}'
-                '</style>'
-                '<div style="font-size:13px;">%s</div>'
-                '</div>'
-            ) % (styled_specs,)
-
-        # Append images from wizard field
-        img_html = ''
-        if self.quote_image_ids:
-            imgs = ''
-            for att in self.quote_image_ids:
-                if att.datas:
-                    img_data = att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas
-                    imgs += (
-                        '<div style="display:inline-block;width:48%%;margin:1%%;vertical-align:top;text-align:center;">'
-                        '<img src="data:image/png;base64,%s" style="max-width:100%%;max-height:250px;border:1px solid #ddd;padding:4px;"/>'
-                        '</div>'
-                    ) % img_data
-            if imgs:
-                img_html = '<div style="margin-top:15px;"><div style="text-align:left;">%s</div></div>' % imgs
-
-        # Always rebuild table_html fresh so Quotation heading is current
-        order = self.order_id
-        gst_on = order.x_gst_included
-        rows = ''
-        for idx2, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
-            part_no = line.x_product_code or line.product_id.default_code or ''
-            note = (line.x_notes if hasattr(line, 'x_notes') and line.x_notes else '')
-            hsn = line.product_id.l10n_in_hsn_code or ''
-            make = line.x_make or ''
-            unit_price = line.price_unit or 0
-            discount_pct = line.discount or 0
-            disc_amount = unit_price * discount_pct / 100
-            after_discount = unit_price - disc_amount
-            qty = line.product_uom_qty or 0
-            amount = line.price_subtotal or 0
-            if discount_pct:
-                disc_str = '(%s%%)=%s' % (int(discount_pct), int(disc_amount))
-            else:
-                disc_str = '-'
-            desc_html = line.x_product_name or line.product_id.name or ''
-            if part_no:
-                desc_html += '<br/><small style="color:#666;">Part No: %s</small>' % part_no
-            if make:
-                desc_html += '<br/><small style="color:#555;">Make: %s</small>' % make
-            if note:
-                desc_html += '<br/><small style="color:#888;font-style:italic;">Note: %s</small>' % note
-            rows += (
-                '<tr>'
-                '<td style="text-align:center;white-space:nowrap;">%s</td>'
-                '<td>%s</td>'
-                '<td style="text-align:center;">%s</td>'
-                '<td style="text-align:right;">%s</td>'
-                '<td style="text-align:right;">%s</td>'
-                '<td style="text-align:right;">%s</td>'
-                '<td style="text-align:right;">%s</td>'
-                '<td style="text-align:right;">%s</td>'
-                '</tr>'
-            ) % (idx2, desc_html, hsn, int(unit_price), disc_str,
-                 int(after_discount), int(qty), int(amount))
-        tax_amount_row = ''
-        table_html = (
-            '<div style="page-break-inside:avoid;padding:8px 0 10px 0;">'
-            '<p style="text-align:center;font-size:14px;font-weight:bold;'
-            'margin:0 0 8px 0;padding:5px 0;'
-            'border-top:1px solid #999;border-bottom:1px solid #999;">Quotation</p>'
-            '<table border="1" cellpadding="6" cellspacing="0" '
-            'style="width:100%%;border-collapse:collapse;font-size:13px;" contenteditable="false">'
-            '<thead><tr style="background:#f0f0f0;">'
-            '<th style="text-align:center;width:50px;white-space:nowrap;">SR No.</th>'
-            '<th style="text-align:left;">Item Description</th>'
-            '<th style="text-align:center;">HSN</th>'
-            '<th style="text-align:right;">Unit Price</th>'
-            '<th style="text-align:right;">Discount</th>'
-            '<th style="text-align:right;">After Discount</th>'
-            '<th style="text-align:right;">Qty</th>'
-            '<th style="text-align:right;">Amount</th>'
-            '</tr></thead>'
-            '<tbody>%s</tbody>'
-            '</table>'
-            '<br/>'
-            '<p style="text-align:right;font-size:13px;"><b>Gross Total Amount:</b> %s</p>'
-            '%s'
-            '<p style="text-align:right;font-size:13px;"><b>Total:</b> %s</p>'
-            '</div>'
-        ) % (rows, int(order.amount_untaxed), tax_amount_row, int(order.amount_total))
-
-        terms_html = str(self.x_terms_html or '')
-        combined = str(base_html) + img_html + tech_html + table_html + terms_html
-
-        # Build company address for sidebar footer
-        cp = self.order_id.company_id.partner_id
-        addr_parts = [p for p in [cp.street, cp.street2, cp.city,
-                                   cp.state_id.name if cp.state_id else '',
-                                   cp.zip, cp.country_id.name if cp.country_id else ''] if p]
-        addr_text = ', '.join(addr_parts)
-
-        # Company footer address
-        cp = self.order_id.company_id.partner_id
+        # ── ADDRESS PARTS ─────────────────────────────────────────
         addr_parts = [p for p in [
             cp.street, cp.street2, cp.city,
             cp.state_id.name if cp.state_id else '',
             cp.zip, cp.country_id.name if cp.country_id else ''
         ] if p]
-        addr_text = ', '.join(addr_parts)
+        addr_line = ', '.join(addr_parts)
         contact_parts = []
-        if cp.phone:
-            contact_parts.append('Ph: %s' % cp.phone)
-        if cp.email:
-            contact_parts.append('Email: %s' % cp.email)
-        if contact_parts:
-            addr_text += ' | ' + ' | '.join(contact_parts)
+        if cp.phone: contact_parts.append('Ph: %s' % cp.phone)
+        if cp.email: contact_parts.append('Email: %s' % cp.email)
+        if comp.vat:  contact_parts.append('GST: %s' % comp.vat)
+        contact_line = ' | '.join(contact_parts)
 
-        footer_html = (
-            '<div style="background:#0096b4;color:#fff;text-align:center;'
-            'font-size:9px;font-family:Arial,sans-serif;padding:6px 0;'
-            'width:100%%;-webkit-print-color-adjust:exact;">%s</div>'
-        ) % addr_text
+        # ── PRODUCT ROWS ──────────────────────────────────────────
+        gst_on = order.x_gst_included
+        rows = ''
+        for idx2, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
+            part_no      = line.x_product_code or line.product_id.default_code or ''
+            note         = line.x_notes if hasattr(line, 'x_notes') and line.x_notes else ''
+            hsn          = line.product_id.l10n_in_hsn_code or ''
+            make         = line.x_make or ''
+            unit_price   = line.price_unit or 0
+            discount_pct = line.discount or 0
+            disc_amount  = unit_price * discount_pct / 100
+            after_disc   = unit_price - disc_amount
+            qty          = line.product_uom_qty or 0
+            amount       = line.price_subtotal or 0
 
-        wrapped = (
-            '<div style="font-family:Arial,sans-serif;font-size:13px;'
-            'line-height:1.7;color:#222;">'
-            + combined +
-            '</div>'
+            disc_str = '(%s%%)=&#8377;%s' % (int(discount_pct), int(disc_amount)) if discount_pct else '-'
+
+            desc = line.x_product_name or line.product_id.name or ''
+            if make:    desc += '<br/><small style="color:#666;">Make: %s</small>' % make
+            if part_no: desc += '<br/><small style="color:#888;">Part No: %s</small>' % part_no
+            if note:    desc += '<br/><small style="color:#999;font-style:italic;">%s</small>' % note
+
+            rows += (
+                '<tr>'
+                '<td style="text-align:center;padding:6px 4px;white-space:nowrap;">%s</td>'
+                '<td style="padding:6px 8px;">%s</td>'
+                '<td style="text-align:center;padding:6px 4px;">%s</td>'
+                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
+                '<td style="text-align:center;padding:6px 4px;">%s</td>'
+                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
+                '<td style="text-align:center;padding:6px 4px;">%s</td>'
+                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
+                '</tr>'
+            ) % (idx2, desc, hsn,
+                 int(unit_price), disc_str,
+                 int(after_disc), int(qty), int(amount))
+
+        # ── TAX ROW ───────────────────────────────────────────────
+        tax_row = ''
+        if gst_on and order.amount_tax:
+            tax_row = '<p style="text-align:right;margin:4px 0;font-size:12px;">Tax: &#8377;%s</p>' % int(order.amount_tax)
+
+        # ── SUBJECT ───────────────────────────────────────────────
+        subject = self.subject or 'Quotation for Products / Services'
+        best_offer = self.best_offer_for or ''
+        intro_text = self.env["ir.config_parameter"].sudo().get_param(
+            "sale.quote.intro.template",
+            "With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for"
         )
-        self.document_html = Markup(wrapped)
+
+        # ── INTRO PAGE ────────────────────────────────────────────
+        intro_html = (
+            '<div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.8;color:#222;">'
+
+            # To block
+            '<p style="margin:0 0 2px 0;font-size:13px;"><b>To,</b></p>'
+            '<p style="margin:0 0 2px 0;font-size:13px;">%s</p>'
+            '%s'
+            '%s'
+            '%s'
+
+            '<br/>'
+            '<p style="font-size:13px;margin:8px 0;"><b>Subject:</b> %s</p>'
+            '<br/>'
+            '<p style="font-size:13px;margin:4px 0;">Dear Sir,</p>'
+            '<p style="margin:8px 0;">%s %s</p>'
+            '</div>'
+        ) % (
+            order.partner_id.name or '',
+            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.city) if order.partner_id.city else '',
+            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.email) if order.partner_id.email else '',
+            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.phone) if order.partner_id.phone else '',
+            subject,
+            intro_text,
+            best_offer + '.' if best_offer else '',
+        )
+
+        # ── TECH SPECS ────────────────────────────────────────────
+        tech_html = ''
+        if self.technical_specs_html:
+            styled = self._style_html_tables(self.technical_specs_html)
+            tech_html = (
+                '<div style="margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
+                '<p style="font-weight:bold;font-size:13px;margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:4px;">Technical Specifications</p>'
+                '<style>table{width:100%%;border-collapse:collapse;font-size:12px;}'
+                'th{background:#f0f0f0;border:1px solid #bbb;padding:5px 8px;font-weight:bold;}'
+                'td{border:1px solid #bbb;padding:5px 8px;}</style>'
+                '%s'
+                '</div>'
+            ) % styled
+
+        # ── IMAGES ────────────────────────────────────────────────
+        img_html = ''
+        if self.quote_image_ids:
+            imgs = ''
+            for att in self.quote_image_ids:
+                if att.datas:
+                    b64 = att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas
+                    imgs += (
+                        '<div style="display:inline-block;width:47%%;margin:1%%;vertical-align:top;text-align:center;">'
+                        '<img src="data:image/png;base64,%s" style="max-width:100%%;max-height:220px;border:1px solid #ddd;padding:3px;"/>'
+                        '</div>'
+                    ) % b64
+            if imgs:
+                img_html = '<div style="margin-top:12px;">%s</div>' % imgs
+
+        # ── QUOTATION TABLE (always new page) ─────────────────────
+        table_html = (
+            '<div style="page-break-before:always;page-break-inside:avoid;">'
+
+            # Section title
+            '<p style="text-align:center;font-size:15px;font-weight:bold;'
+            'margin:16px 0 14px 0;padding:8px 0;'
+            'border-top:2px solid #222;border-bottom:2px solid #222;'
+            'letter-spacing:1px;">QUOTATION</p>'
+
+            # Table
+            '<table style="width:100%%;border-collapse:collapse;font-size:12px;" border="1" cellpadding="0" cellspacing="0">'
+            '<thead>'
+            '<tr style="background:#2c3e50;color:#fff;">'
+            '<th style="padding:8px 5px;text-align:center;width:45px;">SR No.</th>'
+            '<th style="padding:8px;text-align:left;">Item Description</th>'
+            '<th style="padding:8px 5px;text-align:center;">HSN</th>'
+            '<th style="padding:8px;text-align:right;">Unit Price</th>'
+            '<th style="padding:8px;text-align:center;">Discount</th>'
+            '<th style="padding:8px;text-align:right;">After Disc.</th>'
+            '<th style="padding:8px 5px;text-align:center;">Qty</th>'
+            '<th style="padding:8px;text-align:right;">Amount</th>'
+            '</tr>'
+            '</thead>'
+            '<tbody>%s</tbody>'
+            '</table>'
+
+            # Totals
+            '<div style="margin-top:12px;text-align:right;font-size:13px;">'
+            '<p style="margin:4px 0;">Gross Total (Before Tax): <b>&#8377;%s</b></p>'
+            '%s'
+            '<p style="margin:4px 0;font-size:14px;border-top:1px solid #333;padding-top:6px;">'
+            'Grand Total: <b>&#8377;%s</b></p>'
+            '</div>'
+            '</div>'
+        ) % (rows, int(order.amount_untaxed), tax_row, int(order.amount_total))
+
+        # ── TERMS ─────────────────────────────────────────────────
+        terms_html = ''
+        if order.note:
+            terms_html = (
+                '<div style="margin-top:20px;font-family:Arial,sans-serif;font-size:12px;">'
+                '<p style="text-align:center;font-weight:bold;font-size:13px;'
+                'border-bottom:1px solid #ccc;padding-bottom:6px;margin-bottom:10px;">'
+                'Terms &amp; Conditions</p>'
+                '%s'
+                '</div>'
+            ) % str(order.note)
+
+        # ── COMBINE ALL ───────────────────────────────────────────
+        full_html = intro_html + img_html + tech_html + table_html + terms_html
+
+        self.document_html = Markup(full_html)
+
 
     def action_add_images(self):
         self.ensure_one()
@@ -938,7 +937,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_print_edited_pdf(self):
         self.ensure_one()
+        import logging
+        _log = logging.getLogger(__name__)
         # Always rebuild to include technical specs and images
         self._rebuild_document_html()
+        _log.warning("PDF HTML length: %s", len(str(self.document_html or '')))
+        _log.warning("Has Quotation title: %s", '>Quotation<' in str(self.document_html or ''))
+        _log.warning("Has page-break: %s", 'page-break-before:always' in str(self.document_html or ''))
         return self.env['ir.actions.report'].search([('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')], limit=1).report_action(self)
 
