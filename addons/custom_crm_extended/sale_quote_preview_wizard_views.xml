@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_quote_preview_wizard_form" model="ir.ui.view">
+        <field name="name">sale.quote.preview.wizard.form</field>
+        <field name="model">sale.quote.preview.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Editable Quotation Preview">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="seller_name" string="Company Name"/>
+                            <field name="buyer_name" string="Party Name"/>
+                            <field name="quote_name"/>
+                        </group>
+                        <group>
+                            <field name="quote_date"/>
+                            <field name="valid_until"/>
+                            <field name="subject"/>
+                            <field name="best_offer_for" placeholder="e.g. Thermo Scientific Sorvall ST1R Plus Centrifuge"/>
+                        </group>
+                    </group>
+
+                    <separator string="Technical Specifications (optional)"/>
+                    <field name="technical_specs_html" widget="html" nolabel="1" placeholder="Add technical specifications here..."/>
+                    <separator string="Quote Images (optional)"/>
+                    <field name="quote_image_ids" widget="many2many_binary" nolabel="1"/>
+                    <separator string="Quote Preview"/>
+                    <field name="document_html" nolabel="1" widget="html"/>
+                </sheet>
+
+                <footer>
+                    <button name="action_print_edited_pdf" string="Print PDF" type="object" class="btn-primary"/>
+                    <button name="action_download_docx" string="Download DOCX" type="object" class="btn-secondary"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="paperformat_quote_preview" model="report.paperformat">
+        <field name="name">Quote Preview A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">0</field>
+        <field name="margin_bottom">5</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
+        <field name="name">Edited Quotation PDF</field>
+        <field name="model">sale.quote.preview.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_crm_extended.report_sale_quote_preview_wizard</field>
+        <field name="report_file">custom_crm_extended.report_sale_quote_preview_wizard</field>
+        <field name="print_report_name">'Edited Quotation - %s' % (object.quote_name or '')</field>
+        <field name="paperformat_id" ref="paperformat_quote_preview"/>
+    </record>
+<template id="report_sale_quote_preview_wizard">
+    <t t-call="web.html_container">
+        <main style="width:100%;">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <t t-out="doc.sudo().document_html"/>
+                </div>
+            </t>
+        </main>
+    </t>
+</template>
+
+
+    <!-- Tech Specs sub-form -->
+    <record id="view_quote_tech_specs_form" model="ir.ui.view">
+        <field name="name">sale.quote.preview.wizard.tech.specs</field>
+        <field name="model">sale.quote.preview.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Technical Specifications">
+                <sheet>
+                    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">Technical Specifications</div>
+                    <field name="technical_specs_html" widget="html" nolabel="1" style="min-height:300px;"/>
+                </sheet>
+                <footer>
+                    <button name="action_save_and_reopen" string="Save" type="object" class="btn-primary"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Images sub-form -->
+    <record id="view_quote_images_form" model="ir.ui.view">
+        <field name="name">sale.quote.preview.wizard.images</field>
+        <field name="model">sale.quote.preview.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Quote Images">
+                <sheet>
+                    <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">Upload Images for Quotation</div>
+                    <field name="quote_image_ids" widget="many2many_binary" nolabel="1"/>
+                </sheet>
+                <footer>
+                    <button name="action_save_and_reopen" string="Save" type="object" class="btn-primary"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

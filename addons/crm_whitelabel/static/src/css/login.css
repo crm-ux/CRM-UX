@@ -1,0 +1,61 @@
+/* Blue gradient background */
+body.bg-100 {
+    background: linear-gradient(135deg, #1A56DB 0%, #0F172A 100%) !important;
+    min-height: 100vh !important;
+}
+
+/* Smaller white card */
+body.bg-100 .card {
+    border-radius: 16px !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+    background: #FFFFFF !important;
+    max-width: 360px !important;
+    padding: 8px !important;
+}
+
+/* Hide Odoo logo image */
+body.bg-100 .card .text-center img,
+body.bg-100 .card .text-center svg,
+body.bg-100 .card .border-bottom {
+    display: none !important;
+}
+
+/* Inputs */
+body.bg-100 .form-control {
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    background: #F8FAFC !important;
+    font-size: 14px !important;
+}
+body.bg-100 .form-control:focus {
+    border-color: #1A56DB !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(26,86,219,0.15) !important;
+}
+
+/* Login button */
+body.bg-100 .btn-primary {
+    background: #1A56DB !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 11px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+body.bg-100 .btn-primary:hover {
+    background: #1E40AF !important;
+}
+
+/* Hide Powered by Odoo, Manage Databases, Log in as superuser, Use a Passkey */
+body.bg-100 .o_login_footer { display: none !important; }
+body.bg-100 a[href*="database"] { display: none !important; }
+body.bg-100 .o_login_auth { display: none !important; }
+body.bg-100 .btn-link { display: none !important; }
+body.bg-100 small { display: none !important; }
+body.bg-100 em { display: none !important; }
+
+/* Hide Powered by Odoo */
+body.bg-100 .list-group { display: none !important; }
+body.bg-100 a[href*="odoo.com"] { display: none !important; }
+body.bg-100 .o_database_list .card-body > .text-center:last-child { display: none !important; }

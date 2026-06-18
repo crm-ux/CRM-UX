@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Priority: remove star widget → normal dropdown (Low / Medium / High) -->
+    <record id="crm_lead_form_priority_dropdown" model="ir.ui.view">
+        <field name="name">crm.lead.form.priority.dropdown</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='priority']" position="replace">
+                <field name="priority" widget="selection"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- New button on form → Lead Creation wizard -->
+    <record id="crm_lead_form_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.form.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">crm_lead_form</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

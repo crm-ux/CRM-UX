@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_refuse_wizard_user,crm.lead.refuse.wizard.user,model_crm_lead_refuse_wizard,base.group_user,1,1,1,1
+access_crm_lead_product_line_user,crm.lead.product.line.user,model_crm_lead_product_line,base.group_user,1,1,1,1
+access_crm_lead_product_line_manager,crm.lead.product.line.manager,model_crm_lead_product_line,sales_team.group_sale_manager,1,1,1,1
+access_crm_lead_csv_wizard_user,crm.lead.csv.import.wizard.user,model_crm_lead_csv_import_wizard,base.group_user,1,1,1,1
+access_crm_lead_wizard,crm.lead.wizard,model_crm_lead_wizard,base.group_user,1,1,1,1
+
+access_sale_quote_preview_wizard,sale.quote.preview.wizard,model_sale_quote_preview_wizard,base.group_user,1,1,1,1
+access_sale_line_media_wizard,sale.line.media.wizard,model_sale_line_media_wizard,base.group_user,1,1,1,1
+access_sale_line_media_wizard_line,sale.line.media.wizard.line,model_sale_line_media_wizard_line,base.group_user,1,1,1,1
+access_sale_order_line_image,sale.order.line.image,model_sale_order_line_image,base.group_user,1,1,1,1
+access_sale_line_media_wizard_image,sale.line.media.wizard.image,model_sale_line_media_wizard_image,base.group_user,1,1,1,1

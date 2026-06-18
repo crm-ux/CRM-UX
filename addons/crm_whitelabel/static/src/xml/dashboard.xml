@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="crm_whitelabel.Dashboard">
+        <div class="crm-pro-dashboard">
+            <!-- Top bar -->
+            <div class="crm-topbar">
+                <div class="crm-topbar-left">
+                    YANTRACONNECT · CRM
+                </div>
+                <div class="crm-topbar-right">
+                    <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
+                        <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
+                        <span><t t-esc="state.userName"/></span>
+                        <span class="crm-company-arrow">▾</span>
+                        <div class="crm-user-dropdown" t-if="state.userDropdownOpen">
+                            <div class="crm-user-dropdown-name"><t t-esc="state.userName"/></div>
+                            <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item">🚪 Logout</a>
+                        </div>
+                    </div>
+                    <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
+                        <div class="crm-admin-multiselect">
+                            <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
+                                <span class="crm-company-toggle-text">Quick Access</span>
+                                <span class="crm-company-arrow">▾</span>
+                            </button>
+                            <div class="crm-company-dropdown" t-if="state.adminMenuOpen">
+                                <div class="crm-company-dropdown-header">Admin Quick Links</div>
+                                <a href="/odoo/contacts" class="crm-admin-menu-item">👥 Contacts</a>
+                                <a href="/odoo/settings/users" class="crm-admin-menu-item">🏢 Companies</a>
+                                <a href="/odoo/action-383" class="crm-admin-menu-item">🧾 Quotations</a>
+                                <a href="/odoo/settings/users" class="crm-admin-menu-item">👥 Users</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="crm-company-wrapper" t-if="state.companies.length > 0">
+                        <div class="crm-company-multiselect">
+                            <button class="crm-company-toggle-btn" t-on-click="toggleCompanyDropdown">
+                                <span class="crm-company-toggle-text"><t t-esc="selectedCompanyLabel"/></span>
+                                <span class="crm-company-arrow">▾</span>
+                            </button>
+                            <div class="crm-company-dropdown" t-if="state.companyDropdownOpen">
+                                <div class="crm-company-dropdown-header">Select Companies</div>
+                                <t t-foreach="state.companies" t-as="co" t-key="co.id">
+                                    <label class="crm-company-option" t-att-class="isCompanySelected(co.id) ? 'selected' : ''">
+                                        <input type="checkbox"
+                                               t-att-checked="isCompanySelected(co.id)"
+                                               t-on-change="() => this.toggleCompany(co.id)"/>
+                                        <span class="crm-co-badge"><t t-esc="co.name[0].toUpperCase()"/></span>
+                                        <span class="crm-co-name"><t t-esc="co.name"/></span>
+                                    </label>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Hero -->
+            <div class="crm-pro-hero">
+                <div class="crm-pro-hero-left">
+                    <div class="crm-pro-kicker">YANTRACONNECT · CRM CONTROL CENTER</div>
+                    <h1>Welcome back, <t t-esc="state.userName"/></h1>
+                    <p>Your business overview — Connect. Manage. Grow.</p>
+                    <div class="crm-hero-revenue">
+                        <span class="crm-rev-label">Confirmed Revenue</span>
+                        <span class="crm-rev-amount"><t t-esc="fmt(state.revenue)"/></span>
+                    </div>
+                </div>
+                <div class="crm-pro-hero-right">
+                    <button class="crm-primary-btn" t-on-click="newLead">+ New Lead</button>
+                </div>
+            </div>
+
+            <!-- Pipeline Strip -->
+            <div class="crm-pipeline-strip">
+                <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
+                    <div class="crm-pipe-num"><t t-esc="state.leads"/></div>
+                    <div class="crm-pipe-lbl">Leads</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="1">
+                    <div class="crm-pipe-num"><t t-esc="state.qualified"/></div>
+                    <div class="crm-pipe-lbl">Qualified</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="2">
+                    <div class="crm-pipe-num"><t t-esc="state.opportunity"/></div>
+                    <div class="crm-pipe-lbl">Opportunity</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c4" t-on-click="openQuotes">
+                    <div class="crm-pipe-num"><t t-esc="state.quotes"/></div>
+                    <div class="crm-pipe-lbl">Quotes</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c5" t-on-click="openWon">
+                    <div class="crm-pipe-num"><t t-esc="state.won"/></div>
+                    <div class="crm-pipe-lbl">Won 🏆</div>
+                </div>
+            </div>
+
+            <!-- Management Grid -->
+            <div class="crm-pro-grid">
+
+                <div class="crm-pro-panel crm-lead-panel" t-on-click="openLeads">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">📊</span><h2>Lead Management</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.leads"/></strong>
+                            <span>New Leads</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.qualified"/></strong>
+                            <span>Qualified</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.won"/></strong>
+                            <span>Won</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Track enquiry progress and convert leads into quotations.</p>
+                </div>
+
+                <div class="crm-pro-panel crm-quote-panel" t-on-click="openQuotes">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">🧾</span><h2>Quote Management</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.quotes"/></strong>
+                            <span>Open Quotes</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="fmt(state.revenue)"/></strong>
+                            <span>Revenue</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Create, preview and send professional quotations to clients.</p>
+                </div>
+
+                <div class="crm-pro-panel crm-customer-panel" t-on-click="openContacts">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">👥</span><h2>Customer Management</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.customers"/></strong>
+                            <span>Customers</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">View customer records, company details and communication history.</p>
+                </div>
+
+                <div class="crm-pro-panel crm-product-panel" t-on-click="openProducts">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">📦</span><h2>Product Management</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.products"/></strong>
+                            <span>Products</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Manage product catalogue, pricing, HSN/SAC and brand details.</p>
+                </div>
+
+                <div class="crm-pro-panel crm-user-panel" t-on-click="openUsers">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">👤</span><h2>User Management</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.users"/></strong>
+                            <span>Active Users</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Manage team members, roles and access permissions.</p>
+                </div>
+
+                <div class="crm-pro-panel crm-won-panel" t-on-click="openWon">
+                    <div class="crm-panel-head">
+                        <div><span class="crm-panel-icon">🏆</span><h2>Won Deals</h2></div>
+                        <span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric">
+                            <strong><t t-esc="state.won"/></strong>
+                            <span>Closed Won</span>
+                        </div>
+                        <div class="crm-metric">
+                            <strong><t t-esc="fmt(state.revenue)"/></strong>
+                            <span>Total Value</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Review all successfully closed deals and revenue achieved.</p>
+                </div>
+
+            </div>
+
+            <div class="crm-pro-footer">YantraConnect CRM · Connect. Manage. Grow.</div>
+        </div>
+    </t>
+</templates>

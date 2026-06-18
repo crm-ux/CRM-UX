@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List / Kanban: New opens Lead Creation wizard (no invalid label tags) -->
+    <record id="crm_lead_tree_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.tree.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="js_class">crm_lead_list</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="crm_lead_kanban_wizard_create" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.wizard.create</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="js_class">crm_lead_kanban</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_line_media_wizard_form" model="ir.ui.view">
+        <field name="name">sale.line.media.wizard.form</field>
+        <field name="model">sale.line.media.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add Product Media">
+                <sheet>
+                    <field name="mode" invisible="1"/>
+                    <field name="order_id" invisible="1"/>
+                    <field name="line_ids">
+                        <list editable="bottom">
+                            <field name="product_name" readonly="1" string="Product"/>
+                            <field name="image_ids" widget="many2many_binary"
+                                invisible="parent.mode != 'image'"/>
+                            <field name="x_technical_specs" string="Technical Specs"
+                                invisible="parent.mode != 'specs'"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button name="action_save" string="Save" type="object" class="btn-primary"/>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

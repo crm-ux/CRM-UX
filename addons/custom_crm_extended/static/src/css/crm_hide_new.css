@@ -1,0 +1,46 @@
+.o_dialog .o_form_renderer button.step_current {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+.o_dialog .o_form_renderer button.step_done {
+    background-color: #b7d7ff !important;
+    color: #0b3d91 !important;
+    border: none !important;
+}
+.o_dialog .o_form_renderer button.step_future {
+    background-color: #e0e0e0 !important;
+    color: #888888 !important;
+    border: none !important;
+}
+
+
+/* Hide statusbar on sale order form */
+.o_sale_order .o_statusbar_status {
+    display: none !important;
+}
+
+
+/* Hide statusbar, chatter/logs, sidebar on sale order form */
+.o_sale_order .o_statusbar_status {
+    display: none !important;
+}
+
+/* Hide chatter/message log panel */
+.o_sale_order .o-mail-Thread,
+.o_sale_order .o_message_list,
+.o_sale_order .o-mail-Form-chatter,
+.o_sale_order .o_chatter {
+    display: none !important;
+}
+
+/* Make form full width when chatter hidden */
+.o_sale_order .o_form_view > .o_form_sheet_bg {
+    width: 100% !important;
+}
+
+/* Hide activity buttons in chatter area */
+.o_sale_order .o_activity_btn,
+.o_sale_order .o-mail-ChatterTopbar {
+    display: none !important;
+}

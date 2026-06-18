@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_wizard_form" model="ir.ui.view">
+        <field name="name">crm.lead.wizard.form</field>
+        <field name="model">crm.lead.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Lead Creation">
+                <field name="step" invisible="1"/>
+                <sheet>
+                    <!-- Step indicators -->
+                    <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Lead Info</button>
+                        <button name="action_goto_1" type="object" class="step_done"    invisible="step &lt;= 1">1. Lead Info</button>
+                        <button name="action_goto_1" type="object" class="step_future"  invisible="step &gt;= 1">1. Lead Info</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_2" type="object" class="step_current" invisible="step != 2">2. Contact</button>
+                        <button name="action_goto_2" type="object" class="step_done"    invisible="step &lt;= 2">2. Contact</button>
+                        <button name="action_goto_2" type="object" class="step_future"  invisible="step &gt;= 2">2. Contact</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_3" type="object" class="step_current" invisible="step != 3">3. Classify</button>
+                        <button name="action_goto_3" type="object" class="step_done"    invisible="step &lt;= 3">3. Classify</button>
+                        <button name="action_goto_3" type="object" class="step_future"  invisible="step &gt;= 3">3. Classify</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_4" type="object" class="step_current" invisible="step != 4">4. Revenue</button>
+                        <button name="action_goto_4" type="object" class="step_done"    invisible="step &lt;= 4">4. Revenue</button>
+                        <button name="action_goto_4" type="object" class="step_future"  invisible="step &gt;= 4">4. Revenue</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_5" type="object" class="step_current" invisible="step != 5">5. Assign</button>
+                        <button name="action_goto_5" type="object" class="step_done"    invisible="step &lt;= 5">5. Assign</button>
+                        <button name="action_goto_5" type="object" class="step_future"  invisible="step &gt;= 5">5. Assign</button>
+                    </div>
+
+                    <!-- STEP 1: Lead Info -->
+                    <div invisible="step != 1">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Lead Information</div>
+                        <group col="2">
+                            <field name="company_id" string="Our Company" options="{'no_create': True}"/>
+                            <field name="partner_company_id" string="Company Name"
+                               placeholder="Select or type company name..."
+                               options="{'quick_create': True, 'no_open': False}"/>
+                        </group>
+                        <group col="2">
+                            <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals"/>
+                            <field name="created_by_id" string="Created By" readonly="1"/>
+                        </group>
+                        <group col="2">
+                            <field name="x_customer_type" string="Customer Type"/>
+                            <field name="partner_id" string="Existing Customer"
+                                invisible="x_customer_type not in ['existing_new','existing_existing']"
+                                options="{'no_create': True}"/>
+                        </group>
+                        <group col="2">
+                            <field name="x_requirement_date" string="Date of Requirement"/>
+                            <field name="source_id" string="Lead Source" options="{'no_create': False, 'quick_create': True}"/>
+                        </group>
+                        <group col="2">
+                            <field name="user_id" string="Lead Owner" options="{'no_create': True}"/>
+                            <field name="x_lead_priority" string="Lead Priority"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 2: Contact Details -->
+                    <div invisible="step != 2">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Contact Details</div>
+                        <group col="2">
+                            <field name="contact_name" string="Contact Person" placeholder="Full Name"/>
+                            <field name="function" string="Job Title" placeholder="e.g. Purchase Manager"/>
+                        </group>
+                        <group col="3">
+                            <field name="email_from" string="Email" placeholder="email@example.com"/>
+                            <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX"/>
+                            <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX"/>
+                        </group>
+                        <group col="3">
+                            <field name="city" string="City" placeholder="City"/>
+                            <field name="state_id" string="State" options="{'no_open': True}"/>
+                            <field name="zip" string="ZIP" placeholder="ZIP Code"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 3: Classification -->
+                    <div invisible="step != 3">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Classification</div>
+                        <group col="2">
+                            <field name="x_product_category_ids" string="Product Categories" widget="many2many_tags" options="{'no_create_edit': True}"/>
+                            <field name="x_purchase_timeline" string="Purchase Timeline"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 4: Expected Revenue -->
+                    <div invisible="step != 4">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Expected Revenue</div>
+                        <group col="2">
+                            <field name="expected_revenue" string="Expected Revenue"/>
+                            <field name="probability" string="Probability %"/>
+                        </group>
+                        <group col="2">
+                            <field name="date_deadline" string="Expected Closing"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 5: Assignment + Notes -->
+                    <div invisible="step != 5">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Assignment &amp; Notes</div>
+                        <group col="2">
+                            <field name="x_assign_to_id" string="Assign To" options="{'no_create': True}"/>
+                        </group>
+                        <group col="1">
+                            <field name="description" string="Notes" placeholder="Add notes..."/>
+                        </group>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Back" type="object" name="action_back" class="btn-secondary" invisible="step == 1"/>
+                    <button string="Next" type="object" name="action_next" class="btn-primary" invisible="step == 5"/>
+                    <button string="Save Lead" type="object" name="action_save_lead" class="btn-primary" invisible="step != 5"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_lead_wizard" model="ir.actions.act_window">
+        <field name="name">Lead Creation</field>
+        <field name="res_model">crm.lead.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_step': 1}</field>
+    </record>
+</odoo>
