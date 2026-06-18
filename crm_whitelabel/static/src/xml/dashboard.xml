@@ -8,9 +8,14 @@
                     YANTRACONNECT · CRM
                 </div>
                 <div class="crm-topbar-right">
-                    <div class="crm-topbar-user">
+                    <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
                         <span><t t-esc="state.userName"/></span>
+                        <span class="crm-company-arrow">▾</span>
+                        <div class="crm-user-dropdown" t-if="state.userDropdownOpen">
+                            <div class="crm-user-dropdown-name"><t t-esc="state.userName"/></div>
+                            <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item">🚪 Logout</a>
+                        </div>
                     </div>
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
@@ -22,8 +27,8 @@
                                 <div class="crm-company-dropdown-header">Admin Quick Links</div>
                                 <a href="/odoo/contacts" class="crm-admin-menu-item">👥 Contacts</a>
                                 <a href="/odoo/settings/users" class="crm-admin-menu-item">🏢 Companies</a>
-                                <a href="/odoo/sales" class="crm-admin-menu-item">💰 Sales</a>
                                 <a href="/odoo/action-383" class="crm-admin-menu-item">🧾 Quotations</a>
+                                <a href="/odoo/settings/users" class="crm-admin-menu-item">👥 Users</a>
                             </div>
                         </div>
                     </div>
@@ -47,7 +52,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="/web/session/logout" class="crm-topbar-logout">Logout</a>
+
                 </div>
             </div>
 

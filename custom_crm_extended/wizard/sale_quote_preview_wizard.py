@@ -83,9 +83,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
             rows += (
                 '<tr>'
-                '<td style="text-align:center;">%s</td>'
+                '<td style="text-align:center;white-space:nowrap;">%s</td>'
                 '<td>%s%s</td>'
-                '<td style="text-align:center;">%s</td>'
+                '<td style="text-align:center;white-space:nowrap;">%s</td>'
                 '<td style="text-align:right;" contenteditable="false">%s</td>'
                 '<td style="text-align:right;" contenteditable="false">%s</td>'
                 '<td style="text-align:right;" contenteditable="false">%s</td>'
@@ -136,42 +136,30 @@ class SaleQuotePreviewWizard(models.TransientModel):
         intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
         # INTRO section (header info, before table)
         intro_html = (
-            '<div style="text-align:right;">%s</div>'
-            '<table style="width:100%%;border-collapse:collapse;margin-bottom:8px;border-bottom:1px solid #ddd;">'
-            '<tr>'
-            '<td style="padding:6px 12px;font-weight:bold;"><b>Quotation No:</b> %s</td>'
-            '<td style="padding:6px 12px;font-weight:bold;text-align:right;"><b>Date:</b> %s</td>'
-            '</tr>'
-            '</table>'
-            '<p style="font-size:13px;"><b>To,</b> %s</p>'
-            '<p>%s</p>'
-            '<p>%s</p>'
-            '<p>%s</p>'
-            '<p>%s</p>'
+            '<p style="font-size:13px;margin-top:10px;"><b>To,</b> %s</p>'
+            '<p style="margin:2px 0;">%s</p>'
+            '<p style="margin:2px 0;">%s</p>'
+            '<p style="margin:2px 0;">%s</p>'
             '<br/>'
-            '<p style="font-size:13px;"><b>Subject:</b> Quotation for Products / Services</p>'
+            '<p style="font-size:13px;margin-bottom:10px;"><b>Subject:</b> Quotation for Products / Services</p>'
             '<br/>'
             '<p style="font-size:13px;">Dear Sir,</p>'
             '<p>%s</p>'
         ) % (
-            logo_html,
-            order.name or '',
-            order.date_order.date() if order.date_order else fields.Date.today(),
             order.partner_id.name or '',
             order.partner_id.city or '',
             order.partner_id.email or '',
             order.partner_id.phone or '',
-            order.partner_id.mobile if hasattr(order.partner_id, 'mobile') else '',
             intro_text,
         )
 
         # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
-            '<div style="page-break-before:always;page-break-inside:avoid;padding:20px 0 10px 0;">'
-            '<h3 style="text-align:center;font-size:13px;font-weight:bold;margin:0 0 14px 0;padding:8px 0;border-bottom:1px solid #ddd;">Quotation</h3>'
+            '<div style="page-break-inside:avoid;padding:20px 0 10px 0;">'
+            '<p style="text-align:center;font-size:14px;font-weight:bold;margin:10px 0 8px 0;padding:5px 0;border-top:1px solid #999;border-bottom:1px solid #999;">Quotation</p>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:13px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
-            '<th style="text-align:center;width:35px;">SR No.</th>'
+            '<th style="text-align:center;width:55px;white-space:nowrap;">SR No.</th>'
             '<th style="text-align:left;">Item Description</th>'
             '<th style="text-align:center;">HSN</th>'
             '<th style="text-align:right;">Unit Price</th>'
@@ -239,7 +227,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             img_section = (
                 '<div style="margin-top:20px;">'
                 '<div style="text-align:right;">%s</div>'
-                '<p style="font-size:13px;font-weight:bold;margin:10px 0 6px 0;">Product Images</p>%s'
+                '%s'
                 '</div>'
             ) % (logo_html, img_rows)
 
@@ -349,6 +337,25 @@ class SaleQuotePreviewWizard(models.TransientModel):
         import re
         from markupsafe import Markup
         base_html_str = str(base_html)
+
+        # Strip any old Quotation No/Date table that may exist in stored document_html
+        import re as _re
+        # Remove the old bordered table with Quotation No and Date
+        base_html_str = _re.sub(
+            r'<table[^>]*border-bottom:1px solid #ddd[^>]*>.*?</table>',
+            '', base_html_str, flags=_re.DOTALL
+        )
+        # Remove old logo div at top (text-align:right with img inside)
+        base_html_str = _re.sub(
+            r'<div style="text-align:right;">\s*<img[^>]*logo[^>]*/>\s*</div>',
+            '', base_html_str, flags=_re.DOTALL
+        )
+        # Remove any standalone logo img at start
+        base_html_str = _re.sub(
+            r'^\s*<div[^>]*text-align:right[^>]*>\s*<img[^>]*/>\s*</div>',
+            '', base_html_str, flags=_re.DOTALL
+        )
+
         # Replace Subject line with user-entered subject
         if self.subject:
             base_html_str = re.sub(
@@ -402,9 +409,74 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         '</div>'
                     ) % img_data
             if imgs:
-                img_html = '<div style="margin-top:15px;"><p style="font-size:13px;font-weight:bold;margin-bottom:6px;">Product Images</p><div style="text-align:left;">%s</div></div>' % imgs
+                img_html = '<div style="margin-top:15px;"><div style="text-align:left;">%s</div></div>' % imgs
 
-        table_html = str(self.x_table_html or '')
+        # Always rebuild table_html fresh so Quotation heading is current
+        order = self.order_id
+        gst_on = order.x_gst_included
+        rows = ''
+        for idx2, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
+            part_no = line.x_product_code or line.product_id.default_code or ''
+            note = (line.x_notes if hasattr(line, 'x_notes') and line.x_notes else '')
+            hsn = line.product_id.l10n_in_hsn_code or ''
+            make = line.x_make or ''
+            unit_price = line.price_unit or 0
+            discount_pct = line.discount or 0
+            disc_amount = unit_price * discount_pct / 100
+            after_discount = unit_price - disc_amount
+            qty = line.product_uom_qty or 0
+            amount = line.price_subtotal or 0
+            if discount_pct:
+                disc_str = '(%s%%)=%s' % (int(discount_pct), int(disc_amount))
+            else:
+                disc_str = '-'
+            desc_html = line.x_product_name or line.product_id.name or ''
+            if part_no:
+                desc_html += '<br/><small style="color:#666;">Part No: %s</small>' % part_no
+            if make:
+                desc_html += '<br/><small style="color:#555;">Make: %s</small>' % make
+            if note:
+                desc_html += '<br/><small style="color:#888;font-style:italic;">Note: %s</small>' % note
+            rows += (
+                '<tr>'
+                '<td style="text-align:center;white-space:nowrap;">%s</td>'
+                '<td>%s</td>'
+                '<td style="text-align:center;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '<td style="text-align:right;">%s</td>'
+                '</tr>'
+            ) % (idx2, desc_html, hsn, int(unit_price), disc_str,
+                 int(after_discount), int(qty), int(amount))
+        tax_amount_row = ''
+        table_html = (
+            '<div style="page-break-inside:avoid;padding:8px 0 10px 0;">'
+            '<p style="text-align:center;font-size:14px;font-weight:bold;'
+            'margin:0 0 8px 0;padding:5px 0;'
+            'border-top:1px solid #999;border-bottom:1px solid #999;">Quotation</p>'
+            '<table border="1" cellpadding="6" cellspacing="0" '
+            'style="width:100%%;border-collapse:collapse;font-size:13px;" contenteditable="false">'
+            '<thead><tr style="background:#f0f0f0;">'
+            '<th style="text-align:center;width:50px;white-space:nowrap;">SR No.</th>'
+            '<th style="text-align:left;">Item Description</th>'
+            '<th style="text-align:center;">HSN</th>'
+            '<th style="text-align:right;">Unit Price</th>'
+            '<th style="text-align:right;">Discount</th>'
+            '<th style="text-align:right;">After Discount</th>'
+            '<th style="text-align:right;">Qty</th>'
+            '<th style="text-align:right;">Amount</th>'
+            '</tr></thead>'
+            '<tbody>%s</tbody>'
+            '</table>'
+            '<br/>'
+            '<p style="text-align:right;font-size:13px;"><b>Gross Total Amount:</b> %s</p>'
+            '%s'
+            '<p style="text-align:right;font-size:13px;"><b>Total:</b> %s</p>'
+            '</div>'
+        ) % (rows, int(order.amount_untaxed), tax_amount_row, int(order.amount_total))
+
         terms_html = str(self.x_terms_html or '')
         combined = str(base_html) + img_html + tech_html + table_html + terms_html
 
@@ -538,10 +610,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Images - Page 3
         if self.quote_image_ids:
-            ts_img = doc.add_paragraph()
-            ts_img_run = ts_img.add_run('Product Images')
-            ts_img_run.bold = True
-            ts_img_run.font.size = Pt(11)
+            # Product Images heading removed
             imgs_list = [att for att in self.quote_image_ids if att.datas]
             # 2-column grid using table
             for i in range(0, len(imgs_list), 2):

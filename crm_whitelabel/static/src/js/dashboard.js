@@ -27,11 +27,28 @@ class CrmDashboard extends Component {
             companies: [],
             selectedCompanies: JSON.parse(localStorage.getItem('crm_selected_companies') || JSON.stringify(user.context.allowed_company_ids || [1])),
             companyDropdownOpen: false,
+            userDropdownOpen: false,
             isAdmin: user.userId === 2,
             adminMenuOpen: false,
         });
 
-        onMounted(() => { this.loadStats(); this.loadCompanies(); });
+        onMounted(() => {
+            this.loadStats();
+            this.loadCompanies();
+            // Close dropdowns when clicking outside
+            this._closeDropdowns = (e) => {
+                if (!e.target.closest('.crm-user-dropdown-wrapper')) {
+                    this.state.userDropdownOpen = false;
+                }
+                if (!e.target.closest('.crm-company-multiselect')) {
+                    this.state.companyDropdownOpen = false;
+                }
+                if (!e.target.closest('.crm-admin-multiselect')) {
+                    this.state.adminMenuOpen = false;
+                }
+            };
+            document.addEventListener('click', this._closeDropdowns);
+        });
         useExternalListener(window, "click", (ev) => {
             if (this.state.companyDropdownOpen && !ev.target.closest('.crm-company-multiselect')) {
                 this.state.companyDropdownOpen = false;
@@ -74,8 +91,14 @@ class CrmDashboard extends Component {
         this.loadStats();
     }
 
+    toggleUserDropdown() {
+        this.state.userDropdownOpen = !this.state.userDropdownOpen;
+        this.state.companyDropdownOpen = false;
+    }
+
     toggleCompanyDropdown() {
         this.state.companyDropdownOpen = !this.state.companyDropdownOpen;
+        this.state.userDropdownOpen = false;
     }
 
     isCompanySelected(cid) {

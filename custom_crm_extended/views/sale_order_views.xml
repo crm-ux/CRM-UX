@@ -85,13 +85,24 @@
                 <attribute name="optional">show</attribute>
                 <attribute name="groups">base.group_user</attribute>
             </xpath>
+
+            <!-- Hide Taxes column when Include GST is OFF -->
+            <xpath expr="//field[@name='order_line']//list//field[@name='tax_id']" position="attributes">
+                <attribute name="column_invisible">not parent.x_gst_included</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
+                <field name="x_cost" string="Cost" optional="show"
+                       groups="base.group_system"/>
+                <field name="x_profit" string="Profit" optional="show"
+                       readonly="1" groups="base.group_system"/>
+                <field name="x_profit_pct" string="Margin %" optional="show"
+                       readonly="1" groups="base.group_system"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
-                <field name="x_product_image" string="Product Image" widget="image" optional="show"/>
+                <field name="x_product_image" string="Product Image" widget="image" optional="hide"/>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="PO and Handoff" name="x_po_handoff">

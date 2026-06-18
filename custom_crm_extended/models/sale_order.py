@@ -323,6 +323,38 @@ class SaleOrderLine(models.Model):
     x_product_image = fields.Binary(string='Product Image')
     x_product_image_name = fields.Char(string='Product Image Name')
 
+    # Cost field - visible to admin only (groups restriction in view)
+    x_cost = fields.Float(
+        string='Cost',
+        digits='Product Price',
+        default=0.0,
+        help='Internal cost price. Not shown in quotation PDF.',
+    )
+
+    x_profit = fields.Float(
+        string='Profit',
+        compute='_compute_profit',
+        digits='Product Price',
+        store=True,
+        help='Selling price minus cost price.',
+    )
+
+    x_profit_pct = fields.Float(
+        string='Margin %',
+        compute='_compute_profit',
+        digits=(5, 2),
+        store=True,
+        help='Profit as percentage of selling price.',
+    )
+
+    @api.depends('price_unit', 'x_cost', 'product_uom_qty', 'discount')
+    def _compute_profit(self):
+        for line in self:
+            sell = line.price_unit * (1 - (line.discount or 0) / 100) * (line.product_uom_qty or 1)
+            cost = (line.x_cost or 0) * (line.product_uom_qty or 1)
+            line.x_profit = sell - cost
+            line.x_profit_pct = (line.x_profit / sell * 100) if sell else 0.0
+
     # ------------------------------------------------------------------
     # Flat discount per line (in addition to % discount)
     # ------------------------------------------------------------------

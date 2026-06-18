@@ -554,3 +554,51 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
     background: #eef3fc;
     color: #0b3d91;
 }
+
+/* User dropdown */
+.crm-user-dropdown-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+.crm-user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border: 1px solid #e6e9ef;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(11,61,145,0.15);
+    min-width: 180px;
+    z-index: 1000;
+    padding: 6px;
+    animation: crm-dropdown-fade 0.12s ease-out;
+}
+.crm-user-dropdown-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0b3d91;
+    padding: 6px 10px 8px;
+    border-bottom: 1px solid #f0f2f5;
+    margin-bottom: 4px;
+}
+.crm-user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.12s ease;
+}
+.crm-user-dropdown-item:hover {
+    background: #eef3fc;
+}
+.crm-logout-item {
+    color: #c0392b !important;
+}
+.crm-logout-item:hover {
+    background: #fef0f0 !important;
+}

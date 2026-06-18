@@ -49,13 +49,13 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">0</field>
-        <field name="margin_bottom">5</field>
+        <field name="margin_top">29</field>
+        <field name="margin_bottom">40</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">3</field>
-        <field name="dpi">90</field>
+        <field name="header_spacing">2</field>
+        <field name="dpi">96</field>
     </record>
 
     <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
@@ -69,60 +69,55 @@
     </record>
 <template id="report_sale_quote_preview_wizard">
     <t t-call="web.html_container">
+        <t t-set="comp0" t-value="docs[0].sudo().order_id.company_id"/>
+        <t t-set="cp0"   t-value="comp0.partner_id"/>
+        <t t-set="logo0" t-value="comp0.logo_web"/>
+
+        <!-- HEADER: repeats on every page, top -->
+        <div class="header" style="width:100%;padding:0;margin:0;background:#fff;">
+            <!-- Row 1: Logo only -->
+            <div style="text-align:right;padding:0 0 1px 0;">
+                <t t-if="logo0">
+                    <img t-att-src="'data:image/png;base64,' + (logo0.decode('utf-8') if isinstance(logo0, bytes) else logo0)"
+                        style="height:60px;max-width:200px;object-fit:contain;display:inline-block;"/>
+                </t>
+            </div>
+            <!-- Row 2: Quotation No left, Date right (under logo) -->
+            <div style="width:100%;display:table;border-collapse:collapse;padding:1px 0 2px 0;">
+                <div style="display:table-cell;font-size:10pt;font-family:Arial,sans-serif;color:#222;vertical-align:middle;text-align:left;">
+                    <b>Quotation No:</b>&#160;<t t-esc="docs[0].sudo().quote_name or docs[0].sudo().order_id.name"/>
+                </div>
+                <div style="display:table-cell;font-size:10pt;font-family:Arial,sans-serif;color:#222;vertical-align:middle;text-align:right;">
+                    <b>Date:</b>&#160;<t t-esc="str(docs[0].sudo().order_id.date_order.date()) if docs[0].sudo().order_id.date_order else ''"/>
+                </div>
+            </div>
+            <div style="border-top:2px solid #0096b4;margin:0;padding:0;"></div>
+        </div>
+
+        <!-- FOOTER: repeats on every page, bottom -->
+        <div class="footer" style="width:100%;padding:0;margin:0;">
+            <hr style="border:none;border-top:1.5px solid #444;margin:0 0 3px 0;padding:0;"/>
+            <div style="text-align:center;font-family:Arial,sans-serif;color:#222;line-height:1.5;padding:2px 5mm;">
+                <div style="font-size:10pt;font-weight:bold;"><t t-esc="comp0.name"/></div>
+                <div style="font-size:8pt;">
+                    <t t-if="cp0.street"><t t-esc="cp0.street"/></t>
+                    <t t-if="cp0.street2">, <t t-esc="cp0.street2"/></t>
+                    <t t-if="cp0.city">, <t t-esc="cp0.city"/></t>
+                    <t t-if="cp0.state_id">, <t t-esc="cp0.state_id.name"/></t>
+                    <t t-if="cp0.zip"> - <t t-esc="cp0.zip"/></t>
+                    <t t-if="cp0.country_id">, <t t-esc="cp0.country_id.name"/></t>
+                    <t t-if="comp0.vat"> | GST: <t t-esc="comp0.vat"/></t>
+                    <t t-if="cp0.phone"> | Ph: <t t-esc="cp0.phone"/></t>
+                    <t t-if="cp0.email"> | Email: <t t-esc="cp0.email"/></t>
+                </div>
+            </div>
+        </div>
+
         <main style="width:100%;">
             <t t-foreach="docs" t-as="doc">
-                <t t-set="comp" t-value="doc.sudo().order_id.company_id"/>
-                <t t-set="cp" t-value="comp.partner_id"/>
-                <t t-set="logo" t-value="comp.logo_web"/>
-
-                <!-- HEADER: shown on every page -->
-                <div class="header" style="width:100%;">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                        style="width:100%;border-collapse:collapse;">
-                        <tr>
-                            <td style="font-size:10pt;font-family:Arial,sans-serif;color:#222;vertical-align:middle;">
-                                <b>Quotation No:</b>&#160;<t t-esc="doc.sudo().quote_name or doc.sudo().order_id.name"/>
-                                &#160;&#160;&#160;
-                                <b>Date:</b>&#160;<t t-esc="str(doc.sudo().order_id.date_order.date()) if doc.sudo().order_id.date_order else ''"/>
-                            </td>
-                            <td style="text-align:right;vertical-align:middle;">
-                                <t t-if="logo">
-                                    <img t-att-src="'data:image/png;base64,' + (logo.decode('utf-8') if isinstance(logo, bytes) else logo)"
-                                        style="max-height:65px;max-width:190px;"/>
-                                </t>
-                            </td>
-                        </tr>
-                    </table>
-                    <hr style="border:none;border-top:2px solid #0096b4;margin:4px 0 0 0;"/>
-                </div>
-
                 <!-- BODY -->
-                <div class="article">
+                <div class="article" style="padding-top:1px;">
                     <t t-out="doc.sudo().document_html"/>
-                </div>
-
-                <!-- FOOTER: shown on every page -->
-                <div class="footer">
-                    <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                        style="background-color:#0096b4;width:100%;border-collapse:collapse;">
-                        <tr>
-                            <td bgcolor="#0096b4" align="center"
-                                style="background-color:#0096b4;color:#ffffff;font-family:Arial,sans-serif;padding:5px 0;text-align:center;">
-                                <font color="#ffffff" face="Arial" size="2">
-                                    <b><t t-esc="comp.name"/></b>
-                                </font><br/>
-                                <font color="#ffffff" face="Arial" size="1">
-                                    <t t-if="cp.street"><t t-esc="cp.street"/></t>
-                                    <t t-if="cp.city">, <t t-esc="cp.city"/></t>
-                                    <t t-if="cp.state_id">, <t t-esc="cp.state_id.name"/></t>
-                                    <t t-if="cp.zip"> - <t t-esc="cp.zip"/></t>
-                                    <t t-if="comp.vat"> | GST: <t t-esc="comp.vat"/></t>
-                                    <t t-if="cp.phone"> | Ph: <t t-esc="cp.phone"/></t>
-                                    <t t-if="cp.email"> | Email: <t t-esc="cp.email"/></t>
-                                </font>
-                            </td>
-                        </tr>
-                    </table>
                 </div>
             </t>
         </main>
