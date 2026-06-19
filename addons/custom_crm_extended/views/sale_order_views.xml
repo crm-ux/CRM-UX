@@ -60,6 +60,7 @@
 
             <xpath expr="//field[@name='validity_date']" position="after">
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
+                <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle"/>
             </xpath>
             <xpath expr="//field[@name='name']" position="after">
                 <field name="x_quote_version_label" string="Version" readonly="1" nolabel="1"/>
@@ -95,12 +96,12 @@
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
-                <field name="x_cost" string="Cost" optional="show"
-                       groups="base.group_system"/>
-                <field name="x_profit" string="Profit" optional="show"
-                       readonly="1" groups="base.group_system"/>
-                <field name="x_profit_pct" string="Margin %" optional="show"
-                       readonly="1" groups="base.group_system"/>
+                                <field name="x_cost" string="Cost" optional="hide" groups="base.group_system"
+                       column_invisible="not parent.x_show_cost_profit"/>
+                <field name="x_profit" string="Profit" optional="hide" readonly="1" groups="base.group_system"
+                       column_invisible="not parent.x_show_cost_profit"/>
+                <field name="x_profit_pct" string="Margin %" optional="hide" readonly="1" groups="base.group_system"
+                       column_invisible="not parent.x_show_cost_profit"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
                 <field name="x_product_image" string="Product Image" widget="image" optional="hide"/>
             </xpath>

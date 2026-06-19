@@ -602,3 +602,34 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .crm-logout-item:hover {
     background: #fef0f0 !important;
 }
+
+/* Move user menu to last in systray */
+.o_menu_systray {
+    display: flex;
+    flex-direction: row;
+}
+
+.o_menu_systray .o_user_menu {
+    order: 999;
+}
+
+/* Remove icon from logout */
+.o_user_menu .o_dropdown_item .fa {
+    display: none !important;
+}
+
+.o_user_menu .dropdown-item .fa,
+.o_user_menu .o_menu_item .fa {
+    display: none !important;
+}
+
+/* Move Administrator (user menu) to LAST in systray */
+.o_menu_systray > * { order: 1; }
+.o_menu_systray .o_user_menu { order: 999 !important; }
+
+/* Remove icon from logout menu item */
+.o_user_menu .fa-sign-out,
+.o_user_menu .fa-power-off,
+.o_user_menu i.fa { 
+    display: none !important; 
+}

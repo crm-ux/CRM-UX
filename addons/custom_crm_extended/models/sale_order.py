@@ -323,6 +323,13 @@ class SaleOrderLine(models.Model):
     x_product_image = fields.Binary(string='Product Image')
     x_product_image_name = fields.Char(string='Product Image Name')
 
+    # Toggle to show/hide Cost/Profit/Margin columns (admin only)
+    x_show_cost_profit = fields.Boolean(
+        string='Show Cost / Profit',
+        default=False,
+        help='Toggle to show or hide Cost, Profit and Margin columns. Admin only.',
+    )
+
     # Cost field - visible to admin only (groups restriction in view)
     x_cost = fields.Float(
         string='Cost',
@@ -381,6 +388,7 @@ class SaleOrderLine(models.Model):
         related='order_id.x_gst_included',
         store=False,
     )
+
 
     def _fill_custom_product_fields(self, product):
         categ = product.categ_id
