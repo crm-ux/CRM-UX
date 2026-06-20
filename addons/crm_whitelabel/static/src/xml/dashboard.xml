@@ -136,7 +136,7 @@
                             <span>Open Quotes</span>
                         </div>
                         <div class="crm-metric">
-                            <strong><t t-esc="fmt(state.revenue)"/></strong>
+                            <strong><t t-esc="fmt(state.quoteRevenue)"/></strong>
                             <span>Revenue</span>
                         </div>
                     </div>
@@ -196,7 +196,7 @@
                             <span>Closed Won</span>
                         </div>
                         <div class="crm-metric">
-                            <strong><t t-esc="fmt(state.revenue)"/></strong>
+                            <strong><t t-esc="fmt(state.wonRevenue)"/></strong>
                             <span>Total Value</span>
                         </div>
                     </div>

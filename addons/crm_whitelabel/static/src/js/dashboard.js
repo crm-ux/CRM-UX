@@ -160,7 +160,8 @@ class CrmDashboard extends Component {
                 customers,
                 products,
                 users,
-                revenue
+                quoteRevenue,
+                wonRevenue
             ] = await Promise.all([
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",0],...companyDomain,...userDomain]),
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",1],...companyDomain,...userDomain]),
@@ -170,7 +171,8 @@ class CrmDashboard extends Component {
                 this._count("res.partner", [["customer_rank",">",0]]),
                 this._count("product.template", [["sale_ok","=",true]]),
                 this._count("res.users", [["active","=",true],["share","=",false]]),
-                this._sum("sale.order", "amount_total", [["state","in",["sale","done"]],...companyDomain,...userDomain]),
+                this._sum("sale.order", "amount_total", [...companyDomain,...userDomain]),
+                this._sum("sale.order", "amount_total", [["state","=","sale"],...companyDomain,...userDomain]),
             ]);
 
             const userName = user.name || "User";
@@ -184,7 +186,9 @@ class CrmDashboard extends Component {
                 customers,
                 products,
                 users,
-                revenue,
+                revenue: wonRevenue,
+                quoteRevenue,
+                wonRevenue,
                 userName: userName,
             });
 
