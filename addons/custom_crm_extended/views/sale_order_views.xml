@@ -56,6 +56,12 @@
                 <button name="action_lock_final_quote" string="Lock" type="object"
                         class="btn-secondary"
                         invisible="x_final_quote_locked"/>
+                <button name="action_mark_won" string="Won" type="object"
+                        class="btn-success"
+                        invisible="x_quote_stage == 'won'"/>
+                <button name="action_mark_lost" string="Lost" type="object"
+                        class="btn-danger"
+                        invisible="x_quote_stage == 'lost'"/>
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
@@ -153,4 +159,21 @@
             <td t-if="display_discount" name="td_product_discount"/>
         </xpath>
     </template>
+    <!-- Lost Reason Popup -->
+    <record id="view_sale_order_lost_reason_form" model="ir.ui.view">
+        <field name="name">sale.order.lost.reason.form</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Mark as Lost">
+                <group>
+                    <field name="x_lost_reason" required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_lost" string="Confirm Lost" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
 </odoo>

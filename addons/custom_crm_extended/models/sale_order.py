@@ -199,6 +199,19 @@ class SaleOrder(models.Model):
         copy=False,
     )
 
+    x_lost_reason = fields.Selection(
+        selection=[
+            ('price', 'Price too high'),
+            ('competitor', 'Lost to competitor'),
+            ('no_budget', 'No budget'),
+            ('no_response', 'No response from customer'),
+            ('other', 'Other'),
+        ],
+        string='Lost Reason',
+        tracking=True,
+        copy=False,
+    )
+
     # ==================================================================
     # COMPUTE
     # ==================================================================
@@ -273,6 +286,44 @@ class SaleOrder(models.Model):
         self.message_post(
             body=_('Final quote locked. PO: <b>%s</b>') % (self.x_po_number or '')
         )
+
+    def action_mark_won(self):
+        """Mark quote as Won - requires PO number."""
+        self.ensure_one()
+        if not self.x_po_number:
+            raise UserError(_('Please enter the PO Number before marking this quote as Won.'))
+        self.x_final_quote_locked = True
+        self.x_quote_stage = 'won'
+        self.x_lost_reason = False
+        self.message_post(
+            body=_('Quote marked as <b>Won</b>. PO: <b>%s</b>') % (self.x_po_number or '')
+        )
+
+    def action_mark_lost(self):
+        """Mark quote as Lost - requires a lost reason."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Mark as Lost'),
+            'res_model': 'sale.order',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('custom_crm_extended.view_sale_order_lost_reason_form').id,
+            'target': 'new',
+        }
+
+    def action_confirm_lost(self):
+        """Confirm marking as Lost after reason is selected."""
+        self.ensure_one()
+        if not self.x_lost_reason:
+            raise UserError(_('Please select a Lost Reason.'))
+        self.x_quote_stage = 'lost'
+        self.message_post(
+            body=_('Quote marked as <b>Lost</b>. Reason: %s') % (
+                dict(self._fields['x_lost_reason'].selection).get(self.x_lost_reason, '')
+            )
+        )
+        return {'type': 'ir.actions.act_window_close'}
 
     def action_handoff_to_service(self):
         """Mark as handed off to service team."""

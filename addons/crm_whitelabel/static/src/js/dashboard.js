@@ -167,12 +167,12 @@ class CrmDashboard extends Component {
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",1],...companyDomain,...userDomain]),
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2],...companyDomain,...userDomain]),
                 this._count("sale.order", [["state","in",["draft","sent"]],...companyDomain,...userDomain]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",4],...companyDomain,...userDomain]),
+                this._count("sale.order", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
                 this._count("res.partner", [["customer_rank",">",0]]),
                 this._count("product.template", [["sale_ok","=",true]]),
                 this._count("res.users", [["active","=",true],["share","=",false]]),
                 this._sum("sale.order", "amount_total", [...companyDomain,...userDomain]),
-                this._sum("sale.order", "amount_total", [["state","=","sale"],...companyDomain,...userDomain]),
+                this._sum("sale.order", "amount_total", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
             ]);
 
             const userName = user.name || "User";
