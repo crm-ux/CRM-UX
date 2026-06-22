@@ -858,6 +858,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 doc.add_paragraph(html2plaintext(order.note))
 
 
+
+        # ── Closing signature block ──
+        doc.add_paragraph('')
+        doc.add_paragraph('Thanking You,')
+        doc.add_paragraph('Sincerely,')
+        doc.add_paragraph('')
+        sig_para = doc.add_paragraph()
+        sig_run = sig_para.add_run((order.user_id.name or '') if order.user_id else '')
+        sig_run.bold = True
+        comp_para = doc.add_paragraph()
+        comp_run = comp_para.add_run(order.company_id.name or '')
+        comp_run.bold = True
         # Save
         buf = io.BytesIO()
         doc.save(buf)
