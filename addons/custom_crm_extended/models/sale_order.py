@@ -96,7 +96,7 @@ class SaleOrder(models.Model):
     )
 
     x_amount_after_discount = fields.Monetary(
-        string='Total After Discount',
+        string='Discount Amount',
         compute='_compute_discount_totals',
         store=True,
         currency_field='currency_id',
@@ -350,6 +350,10 @@ class SaleOrder(models.Model):
                         line.write({'tax_ids': [(6, 0, taxes.ids)]})
                 else:
                     line.write({'tax_ids': [(5, 0, 0)]})
+        if 'x_flat_discount_pct' in vals:
+            disc = vals['x_flat_discount_pct'] or 0.0
+            for line in self.order_line.filtered(lambda l: not l.display_type):
+                line.write({'discount': disc})
         return result
 
     def action_apply_overall_discount(self):
