@@ -101,6 +101,12 @@ class SaleOrder(models.Model):
         store=True,
         currency_field='currency_id',
     )
+    x_original_amount = fields.Monetary(
+        string='Original Amount',
+        compute='_compute_discount_totals',
+        store=True,
+        currency_field='currency_id',
+    )
 
     # ------------------------------------------------------------------
     # 4. PO DETAILS  (filled at PO stage, after quote is accepted)
@@ -236,6 +242,7 @@ class SaleOrder(models.Model):
             )
             pct_disc = original * (order.x_flat_discount_pct / 100.0)
             flat_disc = order.x_flat_discount or 0.0
+            order.x_original_amount = original
             order.x_amount_after_discount = pct_disc + flat_disc
     # ==================================================================
     # ACTIONS
