@@ -139,10 +139,7 @@
                 <page string="Discounts" name="x_discounts_tab">
                     <group>
                         <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
-                        <field name="x_flat_discount" string="Flat Discount (Amount)"/>
-                        <field name="x_amount_after_discount" string="Total After Discount" readonly="1"/>
                     </group>
-
                 </page>
             </xpath>
         </field>
@@ -154,14 +151,8 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[hasclass('oe_subtotal_footer')]" position="inside">
-                <div class="oe_subtotal_footer_separator" invisible="not x_flat_discount_pct">
-                    <label string="Overall Discount"/>
-                </div>
-                <span invisible="not x_flat_discount_pct">
-                    <t t-esc="x_flat_discount_pct"/>% = 
-                    <field name="x_flat_discount" readonly="1" nolabel="1"/>
-                </span>
+            <xpath expr="//group[@name='sale_total']" position="before">
+
             </xpath>
         </field>
     </record>

@@ -14,6 +14,29 @@
         </field>
     </record>
 
+    <!-- Manual stage transition buttons -->
+    <record id="crm_lead_form_stage_buttons" model="ir.ui.view">
+        <field name="name">crm.lead.form.stage.buttons</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='stage_id']" position="before">
+                <button name="action_move_to_contacted" string="Contacted" type="object"
+                    invisible="x_stage_sequence != 0 or not active"/>
+                <button name="action_move_to_technical_discussion" string="Technical Discussion" type="object"
+                    invisible="x_stage_sequence not in (0,5) or not active"/>
+                <button name="action_move_to_negotiation" string="Negotiation" type="object"
+                    invisible="x_stage_sequence != 30 or not active"/>
+                <button name="action_move_to_order_expected" string="Order Expected" type="object"
+                    invisible="x_stage_sequence != 40 or not active"/>
+            </xpath>
+            <xpath expr="//field[@name='stage_id']" position="after">
+                <field name="x_stage_sequence" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
     <!-- New button on form → Lead Creation wizard -->
     <record id="crm_lead_form_wizard_create" model="ir.ui.view">
         <field name="name">crm.lead.form.wizard.create</field>

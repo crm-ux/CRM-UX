@@ -288,23 +288,67 @@ class CrmLead(models.Model):
                 self.x_original_owner_id = self.user_id
             self.user_id = self.x_assign_to_id
 
+    # PO fields synced from won quotation
+    x_po_number = fields.Char(string='PO Number', readonly=True, copy=False)
+    x_po_date = fields.Date(string='PO Date', readonly=True, copy=False)
+
     def _get_stage_by_sequence(self, sequence):
         return self.env['crm.stage'].search([('sequence', '=', sequence)], limit=1)
 
+    def action_move_to_contacted(self):
+        stage = self._get_stage_by_sequence(5)
+        if stage:
+            self.stage_id = stage
+
+    def action_move_to_technical_discussion(self):
+        stage = self._get_stage_by_sequence(7)
+        if stage:
+            self.stage_id = stage
+
     def action_move_to_qualified(self):
-        stage = self._get_stage_by_sequence(1)
+        stage = self._get_stage_by_sequence(10)
         if stage:
             self.stage_id = stage
 
     def action_move_to_opportunity(self):
-        stage = self._get_stage_by_sequence(2)
+        stage = self._get_stage_by_sequence(20)
         if stage:
             self.stage_id = stage
 
     def action_move_to_quotes(self):
-        stage = self._get_stage_by_sequence(3)
+        stage = self._get_stage_by_sequence(30)
         if stage:
             self.stage_id = stage
+
+    def action_move_to_negotiation(self):
+        stage = self._get_stage_by_sequence(40)
+        if stage:
+            self.stage_id = stage
+
+    def action_move_to_order_expected(self):
+        stage = self._get_stage_by_sequence(50)
+        if stage:
+            self.stage_id = stage
+
+    def action_move_to_won(self, po_number=False, po_date=False):
+        """Called by sale.order when quote is marked Won - syncs lead stage + PO info."""
+        stage = self._get_stage_by_sequence(90)
+        if stage:
+            self.stage_id = stage
+        if po_number:
+            self.x_po_number = po_number
+        if po_date:
+            self.x_po_date = po_date
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'description' in vals and vals.get('description'):
+            for rec in self:
+                if rec.stage_id and rec.stage_id.sequence <= 5:
+                    tech_stage = rec._get_stage_by_sequence(7)
+                    if tech_stage:
+                        super(CrmLead, rec).write({'stage_id': tech_stage.id})
+        return res
 
     def action_new_quotation(self):
         self.ensure_one()

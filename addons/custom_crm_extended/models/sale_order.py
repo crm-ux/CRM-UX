@@ -107,6 +107,12 @@ class SaleOrder(models.Model):
         store=True,
         currency_field='currency_id',
     )
+    x_net_total = fields.Monetary(
+        string='Net Total',
+        compute='_compute_discount_totals',
+        store=True,
+        currency_field='currency_id',
+    )
 
     # ------------------------------------------------------------------
     # 4. PO DETAILS  (filled at PO stage, after quote is accepted)
@@ -236,15 +242,15 @@ class SaleOrder(models.Model):
                  'order_line.price_unit', 'order_line.product_uom_qty')
     def _compute_discount_totals(self):
         for order in self:
-            # Original price BEFORE any line discount
-            original = sum(
-                line.price_unit * line.product_uom_qty
-                for line in order.order_line.filtered(lambda l: not l.display_type)
-            )
+            # x_original_amount = subtotal after line discounts (before overall discount)
+            original = order.amount_untaxed
             pct_disc = original * (order.x_flat_discount_pct / 100.0)
             flat_disc = order.x_flat_discount or 0.0
             order.x_original_amount = original
+            # x_amount_after_discount = overall discount amount
             order.x_amount_after_discount = pct_disc + flat_disc
+            # x_net_total = final amount after all discounts + tax
+            order.x_net_total = max(0.0, original - pct_disc - flat_disc) + order.amount_tax
     # ==================================================================
     # ACTIONS
     # ==================================================================
@@ -327,16 +333,18 @@ class SaleOrder(models.Model):
 
     @api.onchange('x_flat_discount_pct')
     def _onchange_flat_discount_pct(self):
-        """Auto apply overall discount to all lines when changed."""
-        for line in self.order_line.filtered(lambda l: not l.display_type):
-            line.discount = self.x_flat_discount_pct or 0.0
+        """Trigger recompute of discount totals."""
+        pass
 
     @api.onchange('order_line')
-    def _onchange_order_line_discount(self):
-        """Apply discount to newly added lines."""
-        if self.x_flat_discount_pct:
-            for line in self.order_line.filtered(lambda l: not l.display_type and l.discount != self.x_flat_discount_pct):
-                line.discount = self.x_flat_discount_pct
+    def _onchange_order_line_clear_discount(self):
+        """Clear overall discount when all lines are removed."""
+        active_lines = self.order_line.filtered(lambda l: not l.display_type)
+        if not active_lines:
+            self.x_flat_discount_pct = 0.0
+            self.x_flat_discount = 0.0
+
+
 
     def write(self, vals):
         result = super().write(vals)
@@ -350,10 +358,7 @@ class SaleOrder(models.Model):
                         line.write({'tax_ids': [(6, 0, taxes.ids)]})
                 else:
                     line.write({'tax_ids': [(5, 0, 0)]})
-        if 'x_flat_discount_pct' in vals:
-            disc = vals['x_flat_discount_pct'] or 0.0
-            for line in self.order_line.filtered(lambda l: not l.display_type):
-                line.write({'discount': disc})
+
         return result
 
     def action_apply_overall_discount(self):
@@ -390,6 +395,12 @@ class SaleOrder(models.Model):
         self.message_post(
             body=_('Quote marked as <b>Won</b>. PO: <b>%s</b>') % (self.x_po_number or '')
         )
+        # Sync linked lead stage to Won + copy PO info
+        if self.opportunity_id:
+            self.opportunity_id.action_move_to_won(
+                po_number=self.x_po_number,
+                po_date=self.x_po_date
+            )
 
     def action_mark_lost(self):
         """Mark quote as Lost - requires a lost reason."""
@@ -536,8 +547,7 @@ class SaleOrderLine(models.Model):
     @api.onchange('product_id')
     def _onchange_product_id_apply_discount(self):
         """Apply order-level discount when product is selected."""
-        if self.order_id.x_flat_discount_pct and self.product_id:
-            self.discount = self.order_id.x_flat_discount_pct
+
         # Clear taxes if GST is OFF
         if self.product_id and not self.order_id.x_gst_included:
             self.tax_ids = [(5, 0, 0)]
@@ -547,9 +557,7 @@ class SaleOrderLine(models.Model):
         records = super().create(vals_list)
         for line in records:
             if not line.display_type:
-                # Apply order discount
-                if line.order_id.x_flat_discount_pct:
-                    line.discount = line.order_id.x_flat_discount_pct
+
                 # Clear taxes if GST OFF
                 if not line.order_id.x_gst_included:
                     line.write({'tax_ids': [(5, 0, 0)]})
