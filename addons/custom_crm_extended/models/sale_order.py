@@ -538,6 +538,22 @@ class SaleOrderLine(models.Model):
         """Apply order-level discount when product is selected."""
         if self.order_id.x_flat_discount_pct and self.product_id:
             self.discount = self.order_id.x_flat_discount_pct
+        # Clear taxes if GST is OFF
+        if self.product_id and not self.order_id.x_gst_included:
+            self.tax_ids = [(5, 0, 0)]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for line in records:
+            if not line.display_type:
+                # Apply order discount
+                if line.order_id.x_flat_discount_pct:
+                    line.discount = line.order_id.x_flat_discount_pct
+                # Clear taxes if GST OFF
+                if not line.order_id.x_gst_included:
+                    line.write({'tax_ids': [(5, 0, 0)]})
+        return records
 
     def _fill_custom_product_fields(self, product):
         categ = product.categ_id
