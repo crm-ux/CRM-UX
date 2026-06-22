@@ -292,9 +292,34 @@ class CrmLeadWizard(models.TransientModel):
         #           3) existing customer explicitly chosen (partner_id)
         resolved_partner_id = False
         if self.contact_picker_id:
+            # User selected an existing contact from dropdown
             resolved_partner_id = self.contact_picker_id.id
         elif self.partner_id:
             resolved_partner_id = self.partner_id.id
+        elif self.partner_company_id and self.contact_name:
+            # Check if contact already exists under this company
+            existing_contact = self.env['res.partner'].search([
+                ('parent_id', '=', self.partner_company_id.id),
+                ('name', '=', self.contact_name),
+                ('is_company', '=', False),
+            ], limit=1)
+            if existing_contact:
+                resolved_partner_id = existing_contact.id
+            else:
+                # Create new contact under the company
+                new_contact = self.env['res.partner'].sudo().create({
+                    'name': self.contact_name,
+                    'parent_id': self.partner_company_id.id,
+                    'is_company': False,
+                    'function': self.function or False,
+                    'email': self.email_from or False,
+                    'phone': self.phone or False,
+
+                    'city': self.city or False,
+                    'state_id': self.state_id.id if self.state_id else False,
+                    'zip': self.zip or False,
+                })
+                resolved_partner_id = new_contact.id
         elif self.partner_company_id:
             resolved_partner_id = self.partner_company_id.id
 

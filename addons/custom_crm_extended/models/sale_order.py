@@ -52,7 +52,7 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     x_gst_included = fields.Boolean(
         string='Include GST',
-        default=True,
+        default=False,
         tracking=True,
         help='Toggle to show or hide GST/tax columns on all order lines. '
              'When OFF, tax fields are hidden but not deleted.',

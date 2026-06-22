@@ -68,9 +68,7 @@
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
                 <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle"/>
             </xpath>
-            <xpath expr="//field[@name='name']" position="after">
-                <field name="x_quote_version_label" string="Version" readonly="1" nolabel="1"/>
-            </xpath>
+
             <xpath expr="//field[@name='order_line']//list//field[@name='product_template_id']" position="attributes">
                 <attribute name="column_invisible">1</attribute>
                 <attribute name="optional">hide</attribute>
