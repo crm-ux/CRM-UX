@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crm_lead_won_po_wizard_form" model="ir.ui.view">
+        <field name="name">crm.lead.won.po.wizard.form</field>
+        <field name="model">crm.lead.won.po.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Mark Lead as Won">
+                <group>
+                    <field name="lead_id" invisible="1"/>
+                    <field name="po_number" required="1"/>
+                    <field name="po_date" required="1"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_won" string="Confirm Won" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

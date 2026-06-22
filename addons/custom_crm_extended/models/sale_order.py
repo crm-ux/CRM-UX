@@ -121,6 +121,11 @@ class SaleOrder(models.Model):
     x_invoice_date = fields.Date(string='Invoice Date', tracking=True, copy=False)
     x_sales_order_number = fields.Char(string='Sales Order No', tracking=True, copy=False)
 
+    x_contact_person = fields.Char(
+        string='Contact Person',
+        help='Auto-filled from linked CRM lead contact name',
+    )
+
     x_po_number = fields.Char(
         string='PO Number',
         tracking=True,
@@ -242,15 +247,19 @@ class SaleOrder(models.Model):
                  'order_line.price_unit', 'order_line.product_uom_qty')
     def _compute_discount_totals(self):
         for order in self:
-            # x_original_amount = subtotal after line discounts (before overall discount)
-            original = order.amount_untaxed
-            pct_disc = original * (order.x_flat_discount_pct / 100.0)
+            # Step 1: subtotal after product line discounts
+            subtotal_after_line_disc = order.amount_untaxed
+            # Step 2: apply overall % discount on subtotal
+            pct_disc = subtotal_after_line_disc * (order.x_flat_discount_pct / 100.0)
+            # Step 3: apply flat amount discount
             flat_disc = order.x_flat_discount or 0.0
-            order.x_original_amount = original
-            # x_amount_after_discount = overall discount amount
-            order.x_amount_after_discount = pct_disc + flat_disc
-            # x_net_total = final amount after all discounts + tax
-            order.x_net_total = max(0.0, original - pct_disc - flat_disc) + order.amount_tax
+            # Total discount amount
+            total_disc = pct_disc + flat_disc
+            # Store values
+            order.x_original_amount = subtotal_after_line_disc
+            order.x_amount_after_discount = total_disc
+            # Net total = subtotal - all discounts + tax
+            order.x_net_total = max(0.0, subtotal_after_line_disc - total_disc) + order.amount_tax
     # ==================================================================
     # ACTIONS
     # ==================================================================

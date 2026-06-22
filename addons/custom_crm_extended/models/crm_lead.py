@@ -330,6 +330,30 @@ class CrmLead(models.Model):
         if stage:
             self.stage_id = stage
 
+    def action_open_won_po_wizard(self):
+        """Open PO entry popup before marking lead as Won directly."""
+        self.ensure_one()
+
+        # Block Won if no quotation exists
+        quotation = self.env['sale.order'].search([
+            ('opportunity_id', '=', self.id),
+        ], order='id desc', limit=1)
+
+        if not quotation:
+            raise UserError(_(
+                'Cannot mark as Won without a quotation. \n'
+                'Please create a quotation first using the "New Quotation" button.'
+            ))
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Mark Lead as Won',
+            'res_model': 'crm.lead.won.po.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_lead_id': self.id},
+        }
+
     def action_move_to_won(self, po_number=False, po_date=False):
         """Called by sale.order when quote is marked Won - syncs lead stage + PO info."""
         stage = self._get_stage_by_sequence(90)
@@ -341,7 +365,18 @@ class CrmLead(models.Model):
             self.x_po_date = po_date
 
     def write(self, vals):
+        # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
+        if 'stage_id' in vals and vals.get('stage_id'):
+            new_stage = self.env['crm.stage'].browse(vals['stage_id'])
+            for rec in self:
+                if rec.stage_id and rec.stage_id.sequence > 7 and new_stage.sequence < rec.stage_id.sequence:
+                    raise UserError(_(
+                        'You cannot move this lead back to an earlier stage once it has passed Technical Discussion.'
+                    ))
+
         res = super().write(vals)
+
+        # Auto-move to Technical Discussion when notes are saved (only if still before that stage)
         if 'description' in vals and vals.get('description'):
             for rec in self:
                 if rec.stage_id and rec.stage_id.sequence <= 5:
@@ -352,6 +387,9 @@ class CrmLead(models.Model):
 
     def action_new_quotation(self):
         self.ensure_one()
+        # Moving to Quotes stage signals quotation process has started
+        if self.stage_id and self.stage_id.sequence < 30:
+            self.action_move_to_quotes()
         # Check if quotation already exists for this lead
         existing_quote = self.env['sale.order'].search([
             ('opportunity_id', '=', self.id),
@@ -390,7 +428,11 @@ class CrmLead(models.Model):
             }))
 
         # Find or create partner from lead contact info
-        partner_id = self.partner_id.id if self.partner_id else False
+        # Always use company (parent) partner, not contact child
+        if self.partner_id and self.partner_id.parent_id:
+            partner_id = self.partner_id.parent_id.id
+        else:
+            partner_id = self.partner_id.id if self.partner_id else False
         customer_name = self.partner_name or self.contact_name or self.name
         if not partner_id and customer_name:
             partner = self.env['res.partner'].search(
@@ -420,6 +462,7 @@ class CrmLead(models.Model):
                 'default_order_line': order_lines,
                 'default_user_id': self.user_id.id,
                 'default_company_id': self.company_id.id if self.company_id else self.env.company.id,
+                'default_x_contact_person': self.contact_name or '',
             },
         }
 

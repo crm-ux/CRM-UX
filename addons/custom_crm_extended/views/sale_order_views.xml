@@ -9,6 +9,14 @@
             <xpath expr="//field[@name='state'][@widget='statusbar']" position="replace">
                 <field name="state" widget="statusbar" statusbar_visible="draft"/>
             </xpath>
+            <!-- Remove show_address from Customer field — show only company name -->
+            <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
+                <attribute name="context">{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}</attribute>
+            </xpath>
+            <!-- Contact Person below Customer -->
+            <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="after">
+                <field name="x_contact_person" string="Contact Person" placeholder="e.g. Rahul Sharma"/>
+            </xpath>
 
             <!-- Hide Confirm button (draft state, no id) -->
             <xpath expr="//button[@name='action_confirm'][@data-hotkey='q'][not(@id)]" position="attributes">
@@ -57,7 +65,7 @@
                         class="btn-secondary"
                         invisible="x_final_quote_locked"/>
                 <button name="action_apply_overall_discount" string="Apply" type="object"
-                        class="btn-secondary" title="Apply GST and Discount to lines"/>
+                        class="btn-secondary" title="Apply GST and Discount to lines" invisible="1"/>
                 <button name="action_mark_won" string="Won" type="object"
                         class="btn-success"
                         invisible="x_quote_stage == 'won'"/>
@@ -139,6 +147,7 @@
                 <page string="Discounts" name="x_discounts_tab">
                     <group>
                         <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
+                        <field name="x_flat_discount" string="Flat Discount (Amount)"/>
                     </group>
                 </page>
             </xpath>

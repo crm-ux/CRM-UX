@@ -11,6 +11,8 @@
                             <field name="order_id"/>
                             <field name="seller_name" string="Company Name"/>
                             <field name="buyer_name" string="Party Name"/>
+                            <field name="contact_person" string="Contact Person"/>
+                            <field name="contact_function" string="Job Title"/>
                             <field name="quote_name"/>
                         </group>
                         <group>
@@ -49,7 +51,7 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">30</field>
+        <field name="margin_top">45</field>
         <field name="margin_bottom">35</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>

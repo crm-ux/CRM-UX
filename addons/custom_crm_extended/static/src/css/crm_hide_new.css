@@ -1,3 +1,4 @@
+/* ── Dialog wizard step buttons ── */
 .o_dialog .o_form_renderer button.step_current {
     background-color: #0b3d91 !important;
     color: #ffffff !important;
@@ -14,36 +15,99 @@
     border: none !important;
 }
 
-
-/* Hide statusbar on sale order form */
-.o_sale_order .o_statusbar_status {
-    display: none !important;
-}
-
-
-/* Hide statusbar, chatter/logs, sidebar on sale order form */
-.o_sale_order .o_statusbar_status {
-    display: none !important;
-}
-
-/* Hide chatter/message log panel */
+/* ── Sale order: hide statusbar + chatter ── */
+.o_sale_order .o_statusbar_status { display: none !important; }
 .o_sale_order .o-mail-Thread,
 .o_sale_order .o_message_list,
 .o_sale_order .o-mail-Form-chatter,
-.o_sale_order .o_chatter {
-    display: none !important;
-}
-
-/* Make form full width when chatter hidden */
-.o_sale_order .o_form_view > .o_form_sheet_bg {
-    width: 100% !important;
-}
-
-/* Hide activity buttons in chatter area */
+.o_sale_order .o_chatter { display: none !important; }
+.o_sale_order .o_form_view > .o_form_sheet_bg { width: 100% !important; }
 .o_sale_order .o_activity_btn,
-.o_sale_order .o-mail-ChatterTopbar {
+.o_sale_order .o-mail-ChatterTopbar { display: none !important; }
+
+/* ── GST tax totals ── */
+.o_field_widget[name="x_gst_included"] + * .tax-totals { display: none; }
+
+/* ── CRM: hide Won action button (rainbow) ── */
+button[name="action_set_won_rainbowman"],
+button[name="action_set_won"] { display: none !important; }
+
+/* ── CRM: New Quotation button → brand dark blue ── */
+button[name="action_sale_quotations_new"] {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+    border-color: #0b3d91 !important;
+}
+button[name="action_sale_quotations_new"]:hover {
+    background-color: #082d6e !important;
+    border-color: #082d6e !important;
+}
+
+/* ── CRM: hide chatter/sidebar ── */
+.o_form_view .o-mail-Form-chatter,
+.o_form_view .o-mail-Thread,
+.o_form_view .o_ChatterContainer,
+.o_form_view .o_chatter { display: none !important; }
+.o_form_view .o_form_sheet_bg { width: 100% !important; }
+
+/* ── CRM STAGE BAR: arrow shape, blue family ── */
+.o_statusbar_status {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    background: transparent !important;
+    gap: 2px !important;
+}
+
+/* Non-active stage: subtle blue */
+.o_statusbar_status button.o_arrow_button {
+    font-size: 11px !important;
+    padding: 5px 20px 5px 28px !important;
+    white-space: nowrap !important;
+    background-color: #e8f0fe !important;
+    color: #1a56db !important;
+    border: 1px solid #c5d8fc !important;
+    font-weight: 500 !important;
+    transition: background 0.15s !important;
+}
+
+/* Active/current stage: dark blue */
+.o_statusbar_status button.o_arrow_button.o_arrow_button_current {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+    border-color: #0b3d91 !important;
+    font-weight: 700 !important;
+}
+
+/* Hover on non-active */
+.o_statusbar_status button.o_arrow_button:not(.o_arrow_button_current):hover {
+    background-color: #c5d8fc !important;
+    color: #0b3d91 !important;
+}
+
+/* Arrow pseudo-elements recolor */
+.o_statusbar_status button.o_arrow_button::after {
+    border-left-color: #e8f0fe !important;
+}
+.o_statusbar_status button.o_arrow_button.o_arrow_button_current::after {
+    border-left-color: #0b3d91 !important;
+}
+.o_statusbar_status button.o_arrow_button:not(.o_arrow_button_current):hover::after {
+    border-left-color: #c5d8fc !important;
+}
+.o_statusbar_status button.o_arrow_button::before {
+    border-left-color: #ffffff !important;
+}
+
+/* ── Hide "Order Expected" (ID=10) and "lost" (ID=5) stage pills ── */
+.o_statusbar_status button.o_arrow_button[data-value="10"],
+.o_statusbar_status button.o_arrow_button[data-value="5"] {
     display: none !important;
 }
 
-/* Hide tax totals styling handled by toggle */
-.o_field_widget[name="x_gst_included"] + * .tax-totals { display: none; }
+/* ── Hide "lost" and "Order Expected" pills — all possible positions ── */
+.o_statusbar_status button[data-value="5"],
+.o_statusbar_status button[data-value="10"],
+.o_statusbar_status .o_first.o_arrow_button_current,
+.o_statusbar_status .o-dropdown.o_first {
+    display: none !important;
+}

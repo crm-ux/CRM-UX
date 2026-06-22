@@ -151,7 +151,15 @@ class CrmLeadProductLine(models.Model):
                         vals.setdefault('x_sub_category_id', product.categ_id.id)
                     elif not vals.get('x_category_id'):
                         vals['x_category_id'] = product.categ_id.id
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        # Auto-move lead to Qualified when first product line added
+        for rec in records:
+            lead = self.env['crm.lead'].search([('x_product_line_ids', 'in', [rec.id])], limit=1)
+            if lead and lead.stage_id and lead.stage_id.sequence < 10:
+                qualified_stage = lead._get_stage_by_sequence(10)
+                if qualified_stage:
+                    lead.sudo().write({'stage_id': qualified_stage.id})
+        return records
 
     def write(self, vals):
         res = super().write(vals)

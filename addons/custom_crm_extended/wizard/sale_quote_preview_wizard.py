@@ -12,6 +12,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
     x_gst_included = fields.Boolean(string='Include GST', default=True)
     seller_name = fields.Char(string='Seller / Company Name')
     buyer_name = fields.Char(string='Party Name')
+    contact_person = fields.Char(string='Contact Person')
+    contact_function = fields.Char(string='Job Title / Designation')
     quote_name = fields.Char(string='Quotation No.')
     quote_date = fields.Date(string='Quotation Date')
     valid_until = fields.Date(string='Valid Upto')
@@ -237,6 +239,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'x_gst_included': gst_on,
             'seller_name': order.company_id.name or '',
             'buyer_name': order.partner_id.name or '',
+            'contact_person': order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
+            'contact_function': order.opportunity_id.function if order.opportunity_id else '',
             'quote_name': order.name or '',
             'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
             'valid_until': order.validity_date,
@@ -327,77 +331,57 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def _rebuild_document_html(self):
         from markupsafe import Markup
-        import re as _re
         order = self.order_id
         if not order:
             return
 
-        # ── COMPANY INFO ──────────────────────────────────────────
         comp = order.company_id
-        cp   = comp.partner_id
+        p = order.partner_id
 
-        # ── LOGO ─────────────────────────────────────────────────
+        # ── LOGO ──
         logo_html = ''
         if comp.logo_web:
             b64 = comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/>' % b64
 
-        # ── ADDRESS PARTS ─────────────────────────────────────────
-        addr_parts = [p for p in [
-            cp.street, cp.street2, cp.city,
-            cp.state_id.name if cp.state_id else '',
-            cp.zip, cp.country_id.name if cp.country_id else ''
-        ] if p]
-        addr_line = ', '.join(addr_parts)
-        contact_parts = []
-        if cp.phone: contact_parts.append('Ph: %s' % cp.phone)
-        if cp.email: contact_parts.append('Email: %s' % cp.email)
-        if comp.vat:  contact_parts.append('GST: %s' % comp.vat)
-        contact_line = ' | '.join(contact_parts)
-
-        # ── PRODUCT ROWS ──────────────────────────────────────────
+        # ── PRODUCT ROWS ──
         gst_on = order.x_gst_included
         rows = ''
-        for idx2, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
-            part_no      = line.x_product_code or line.product_id.default_code or ''
-            note         = line.x_notes if hasattr(line, 'x_notes') and line.x_notes else ''
-            hsn          = line.product_id.l10n_in_hsn_code or ''
-            make         = line.x_make or ''
-            unit_price   = line.price_unit or 0
+        for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
+            part_no = line.x_product_code or line.product_id.default_code or ''
+            note = line.x_notes if hasattr(line, 'x_notes') and line.x_notes else ''
+            hsn = line.product_id.l10n_in_hsn_code or ''
+            make = line.x_make or ''
+            unit_price = line.price_unit or 0
             discount_pct = line.discount or 0
-            disc_amount  = unit_price * discount_pct / 100
-            after_disc   = unit_price - disc_amount
-            qty          = line.product_uom_qty or 0
-            amount       = line.price_subtotal or 0
-
+            disc_amount = unit_price * discount_pct / 100
+            after_disc = unit_price - disc_amount
+            qty = line.product_uom_qty or 0
+            amount = line.price_subtotal or 0
             disc_str = '(%s%%)=&#8377;%s' % (int(discount_pct), int(disc_amount)) if discount_pct else '-'
-
             desc = line.x_product_name or line.product_id.name or ''
-            if make:    desc += '<br/><small style="color:#666;">Make: %s</small>' % make
+            if make: desc += '<br/><small style="color:#666;">Make: %s</small>' % make
             if part_no: desc += '<br/><small style="color:#888;">Part No: %s</small>' % part_no
-            if note:    desc += '<br/><small style="color:#999;font-style:italic;">%s</small>' % note
-
+            if note: desc += '<br/><small style="color:#999;font-style:italic;">%s</small>' % note
             rows += (
-                '<tr>'
-                '<td style="text-align:center;padding:6px 4px;white-space:nowrap;">%s</td>'
-                '<td style="padding:6px 8px;">%s</td>'
-                '<td style="text-align:center;padding:6px 4px;">%s</td>'
-                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
-                '<td style="text-align:center;padding:6px 4px;">%s</td>'
-                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
-                '<td style="text-align:center;padding:6px 4px;">%s</td>'
-                '<td style="text-align:right;padding:6px 8px;">&#8377;%s</td>'
-                '</tr>'
-            ) % (idx2, desc, hsn,
-                 int(unit_price), disc_str,
-                 int(after_disc), int(qty), int(amount))
+                '<tr style="background:%s;">' % ('#f9f9f9' if idx % 2 == 0 else '#fff')
+                + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % idx
+                + '<td style="padding:6px 8px;border:1px solid #ddd;">%s</td>' % desc
+                + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % hsn
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td>' % int(unit_price)
+                + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % disc_str
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td>' % int(after_disc)
+                + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % int(qty)
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td>' % int(amount)
+                + '</tr>'
+            )
 
-        # ── TAX ROW ───────────────────────────────────────────────
+        # ── TAX ROW ──
         tax_row = ''
         if gst_on and order.amount_tax:
-            tax_row = '<p style="text-align:right;margin:4px 0;font-size:12px;">Tax: &#8377;%s</p>' % int(order.amount_tax)
+            tax_row = '<p style="text-align:right;margin:4px 0;font-size:12px;">Tax (GST): <b>&#8377;%s</b></p>' % int(order.amount_tax)
 
-        # ── SUBJECT ───────────────────────────────────────────────
+        # ── SUBJECT / INTRO ──
         subject = self.subject or 'Quotation for Products / Services'
         best_offer = self.best_offer_for or ''
         intro_text = self.env["ir.config_parameter"].sudo().get_param(
@@ -405,48 +389,48 @@ class SaleQuotePreviewWizard(models.TransientModel):
             "With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for"
         )
 
-        # ── INTRO PAGE ────────────────────────────────────────────
+        # ── ADDRESS LINES ──
+        addr_parts = [x for x in [
+            p.street or '',
+            p.street2 or '',
+            ('%s %s' % (p.city or '', p.zip or '')).strip(),
+            p.state_id.name if p.state_id else '',
+        ] if x]
+        addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:12px;">%s</p>' % a for a in addr_parts)
+        if p.phone:
+            addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Ph: %s</p>' % p.phone
+        if p.email:
+            addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Email: %s</p>' % p.email
+
+        # ── PAGE 1: INTRO ──
         intro_html = (
-            '<div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.8;color:#222;">'
-
-            # To block
-            '<p style="margin:0 0 2px 0;font-size:13px;"><b>To,</b></p>'
-            '<p style="margin:0 0 2px 0;font-size:13px;">%s</p>'
-            '%s'
-            '%s'
-            '%s'
-
-            '<br/>'
-            '<p style="font-size:13px;margin:8px 0;"><b>Subject:</b> %s</p>'
-            '<br/>'
-            '<p style="font-size:13px;margin:4px 0;">Dear Sir,</p>'
-            '<p style="margin:8px 0;">%s %s</p>'
-            '</div>'
-        ) % (
-            order.partner_id.name or '',
-            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.city) if order.partner_id.city else '',
-            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.email) if order.partner_id.email else '',
-            ('<p style="margin:0 0 2px 0;">%s</p>' % order.partner_id.phone) if order.partner_id.phone else '',
-            subject,
-            intro_text,
-            best_offer + '.' if best_offer else '',
+            '<div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#222;margin-top:8px;">'
+            '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
+            + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
+            + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
+            + ('<p style="margin:0 0 1px 0;font-size:12px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
+            + addr_html
+            + '<br/>'
+            + '<p style="margin:6px 0;"><b>Subject:</b> %s</p>' % subject
+            + '<br/>'
+            + '<p style="margin:4px 0;">Dear Sir,</p>'
+            + '<p style="margin:6px 0;">%s%s</p>' % (intro_text, (' ' + best_offer + '.') if best_offer else '.')
+            + '</div>'
         )
 
-        # ── TECH SPECS ────────────────────────────────────────────
+        # ── TECH SPECS ──
         tech_html = ''
         if self.technical_specs_html:
+            from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
                 '<div style="margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
-                '<p style="font-weight:bold;font-size:13px;margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:4px;">Technical Specifications</p>'
-                '<style>table{width:100%%;border-collapse:collapse;font-size:12px;}'
-                'th{background:#f0f0f0;border:1px solid #bbb;padding:5px 8px;font-weight:bold;}'
-                'td{border:1px solid #bbb;padding:5px 8px;}</style>'
-                '%s'
-                '</div>'
-            ) % styled
+                '<p style="font-weight:bold;font-size:13px;margin:10px 0 6px 0;border-bottom:2px solid #0096b4;padding-bottom:4px;">Technical Specifications</p>'
+                + str(styled)
+                + '</div>'
+            )
 
-        # ── IMAGES ────────────────────────────────────────────────
+        # ── IMAGES ──
         img_html = ''
         if self.quote_image_ids:
             imgs = ''
@@ -461,60 +445,52 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if imgs:
                 img_html = '<div style="margin-top:12px;">%s</div>' % imgs
 
-        # ── QUOTATION TABLE (always new page) ─────────────────────
+        # ── PAGE 2: QUOTATION TABLE (new page) ──
         table_html = (
-            '<div style="page-break-before:always;page-break-inside:avoid;">'
-
-            # Section title
+            '<div style="page-break-before:always;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
-            'margin:16px 0 14px 0;padding:8px 0;'
-            'border-top:2px solid #222;border-bottom:2px solid #222;'
-            'letter-spacing:1px;">QUOTATION</p>'
-
-            # Table
-            '<table style="width:100%%;border-collapse:collapse;font-size:12px;" border="1" cellpadding="0" cellspacing="0">'
+            'margin:16px 0 14px 0;'
+            'letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
+            '<table style="width:100%%;border-collapse:collapse;font-size:12px;">'
             '<thead>'
             '<tr style="background:#2c3e50;color:#fff;">'
-            '<th style="padding:8px 5px;text-align:center;width:45px;">SR No.</th>'
-            '<th style="padding:8px;text-align:left;">Item Description</th>'
-            '<th style="padding:8px 5px;text-align:center;">HSN</th>'
-            '<th style="padding:8px;text-align:right;">Unit Price</th>'
-            '<th style="padding:8px;text-align:center;">Discount</th>'
-            '<th style="padding:8px;text-align:right;">After Disc.</th>'
-            '<th style="padding:8px 5px;text-align:center;">Qty</th>'
-            '<th style="padding:8px;text-align:right;">Amount</th>'
+            '<th style="padding:8px 5px;text-align:center;width:45px;border:1px solid #2c3e50;">SR No.</th>'
+            '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
+            '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
+            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+            '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount</th>'
+            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">After Disc.</th>'
+            '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
             '</tr>'
             '</thead>'
             '<tbody>%s</tbody>'
             '</table>'
-
-            # Totals
-            '<div style="margin-top:12px;text-align:right;font-size:13px;">'
-            '<p style="margin:4px 0;">Gross Total (Before Tax): <b>&#8377;%s</b></p>'
+            '<div style="margin-top:12px;text-align:right;font-size:13px;border-top:1px solid #ccc;padding-top:8px;">'
+            '<p style="margin:4px 0;">Subtotal: <b>&#8377;%s</b></p>'
             '%s'
-            '<p style="margin:4px 0;font-size:14px;border-top:1px solid #333;padding-top:6px;">'
-            'Grand Total: <b>&#8377;%s</b></p>'
+            '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Grand Total: &#8377;%s</p>'
             '</div>'
             '</div>'
         ) % (rows, int(order.amount_untaxed), tax_row, int(order.amount_total))
 
-        # ── TERMS ─────────────────────────────────────────────────
+        # ── TERMS ──
         terms_html = ''
         if order.note:
             terms_html = (
                 '<div style="margin-top:20px;font-family:Arial,sans-serif;font-size:12px;">'
                 '<p style="text-align:center;font-weight:bold;font-size:13px;'
-                'border-bottom:1px solid #ccc;padding-bottom:6px;margin-bottom:10px;">'
+                'border-bottom:2px solid #0096b4;padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
-                '%s'
-                '</div>'
-            ) % str(order.note)
+                + str(order.note)
+                + '</div>'
+            )
 
-        # ── COMBINE ALL ───────────────────────────────────────────
-        full_html = intro_html + img_html + tech_html + table_html + terms_html
-
-        self.document_html = Markup(full_html)
-
+        # ── COMBINE ──
+        full_html = intro_html + tech_html + img_html + table_html + terms_html
+        self.sudo().write({'document_html': Markup(full_html)})
+        import logging
+        logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
 
     def action_add_images(self):
         self.ensure_one()
@@ -550,46 +526,114 @@ class SaleQuotePreviewWizard(models.TransientModel):
         order = self.order_id
         gst_on = order.x_gst_included
 
-        # Logo right aligned
+        # ── Word header repeats on every page ──
+        from docx.oxml import OxmlElement as _OE
+        from docx.oxml.ns import qn as _qn
+        section0 = doc.sections[0]
+        section0.different_first_page_header_footer = False
+        hdr = section0.header
+        hdr.is_linked_to_previous = False
+        # Clear existing header paragraphs
+        for p in hdr.paragraphs:
+            p.clear()
+        # Header table: Logo left, Quotation No + Date right
+        htbl = hdr.add_table(rows=1, cols=2, width=section0.page_width - section0.left_margin - section0.right_margin)
+        htbl.autofit = True
+        # Left cell: Logo
+        lc = htbl.rows[0].cells[0]
+        lp = lc.paragraphs[0]
+        lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
         if order.company_id.logo_web:
-            logo_data = order.company_id.logo_web
-            if isinstance(logo_data, str):
-                logo_data = logo_data.encode()
-            logo_buf = io.BytesIO(base64.b64decode(logo_data))
-            logo_para = doc.add_paragraph()
-            logo_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            run = logo_para.add_run()
-            run.add_picture(logo_buf, width=Inches(1.5))
+            ld = order.company_id.logo_web
+            if isinstance(ld, str): ld = ld.encode()
+            lbuf = io.BytesIO(base64.b64decode(ld))
+            lp.add_run().add_picture(lbuf, width=Inches(1.3))
+        # Right cell: Quotation No + Date
+        rc = htbl.rows[0].cells[1]
+        rp1 = rc.paragraphs[0]
+        rp1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        rr1 = rp1.add_run('Quotation No: %s' % (self.quote_name or order.name or ''))
+        rr1.bold = True
+        rr1.font.size = Pt(9)
+        rp2 = rc.add_paragraph()
+        rp2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        rr2 = rp2.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
+        rr2.font.size = Pt(9)
+        # Blue divider line under header
+        hdiv = hdr.add_paragraph()
+        hpPr = hdiv._p.get_or_add_pPr()
+        hpBdr = _OE('w:pBdr')
+        hbot = _OE('w:bottom')
+        hbot.set(_qn('w:val'), 'single')
+        hbot.set(_qn('w:sz'), '6')
+        hbot.set(_qn('w:space'), '1')
+        hbot.set(_qn('w:color'), '0096b4')
+        hpBdr.append(hbot)
+        hpPr.append(hpBdr)
+
+        # ── Word footer repeats on every page ──
+        ftr = section0.footer
+        ftr.is_linked_to_previous = False
+        cp_f = order.company_id.partner_id
+        addr_f = ', '.join([x for x in [cp_f.street, cp_f.street2, cp_f.city,
+            cp_f.state_id.name if cp_f.state_id else '', cp_f.zip,
+            cp_f.country_id.name if cp_f.country_id else ''] if x])
+        contact_f = ' | '.join([x for x in [
+            'GST: %s' % order.company_id.vat if order.company_id.vat else '',
+            'Ph: %s' % cp_f.phone if cp_f.phone else '',
+            'Email: %s' % cp_f.email if cp_f.email else ''] if x])
+        # Divider above footer
+        fp0 = ftr.paragraphs[0] if ftr.paragraphs else ftr.add_paragraph()
+        fpPr = fp0._p.get_or_add_pPr()
+        fpBdr = _OE('w:pBdr')
+        ftop = _OE('w:top')
+        ftop.set(_qn('w:val'), 'single')
+        ftop.set(_qn('w:sz'), '4')
+        ftop.set(_qn('w:space'), '1')
+        ftop.set(_qn('w:color'), '444444')
+        fpBdr.append(ftop)
+        fpPr.append(fpBdr)
+        fn = ftr.add_paragraph()
+        fn.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        fnr = fn.add_run(order.company_id.name or '')
+        fnr.bold = True
+        fnr.font.size = Pt(9)
+        fa = ftr.add_paragraph()
+        fa.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        far = fa.add_run(addr_f)
+        far.font.size = Pt(8)
+        if contact_f:
+            fc = ftr.add_paragraph()
+            fc.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            fcr = fc.add_run(contact_f)
+            fcr.font.size = Pt(8)
 
         # Quotation No and Date - shaded box like PDF
-        qd_table = doc.add_table(rows=1, cols=2)
-        qd_table.style = 'Table Grid'
-        # Left cell - Quotation No
-        left = qd_table.rows[0].cells[0]
-        left_para = left.paragraphs[0]
-        left_run = left_para.add_run('Quotation No: %s' % (self.quote_name or ''))
-        left_run.bold = True
-        # Right cell - Date
-        right = qd_table.rows[0].cells[1]
-        right_para = right.paragraphs[0]
-        right_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        right_run = right_para.add_run('Date: %s' % str(self.quote_date or ''))
-        right_run.bold = True
-        # Add grey background to both cells
-        for cell in [left, right]:
-            tc = cell._tc
-            tcPr = tc.get_or_add_tcPr()
-            shd = OxmlElement('w:shd')
-            shd.set(qn('w:fill'), 'EAF0FB')
-            shd.set(qn('w:color'), 'auto')
-            shd.set(qn('w:val'), 'clear')
-            tcPr.append(shd)
-        doc.add_paragraph('')
 
-        # To
+        # To block
         to_para = doc.add_paragraph()
-        to_para.add_run('To, ').bold = True
-        to_para.add_run(self.buyer_name or '')
+        to_para.add_run('To,').bold = True
+
+        # Contact person first (if available)
+        if self.contact_person:
+            cp_para = doc.add_paragraph()
+            cp_para.add_run(self.contact_person)
+
+        # Company name bold
+        company_para = doc.add_paragraph()
+        company_run = company_para.add_run(self.buyer_name or '')
+        company_run.bold = True
+        company_run.font.size = Pt(12)
+
+        # Job title
+        if self.contact_function:
+            fn_para = doc.add_paragraph()
+            fn_run = fn_para.add_run(self.contact_function)
+            fn_run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+
+        # City
+        if order.partner_id.city:
+            doc.add_paragraph(order.partner_id.city)
 
         # Email and Phone
         if order.partner_id.email:
@@ -731,14 +775,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Table - on its own page
         doc.add_page_break()
-        if order.company_id.logo_web:
-            logo_data2 = order.company_id.logo_web
-            if isinstance(logo_data2, str):
-                logo_data2 = logo_data2.encode()
-            logo_buf2 = io.BytesIO(base64.b64decode(logo_data2))
-            logo_para2 = doc.add_paragraph()
-            logo_para2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            logo_para2.add_run().add_picture(logo_buf2, width=Inches(1.5))
         quot_heading = doc.add_heading('Quotation', 2)
         quot_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
         headers = ['SR No.', 'Item Description', 'HSN', 'Unit Price', 'Discount', 'After Discount', 'Qty', 'Amount']
@@ -792,14 +828,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Terms & Conditions - flows after Quotation table
         if order.note:
-            if order.company_id.logo_web:
-                logo_data3 = order.company_id.logo_web
-                if isinstance(logo_data3, str):
-                    logo_data3 = logo_data3.encode()
-                logo_buf3b = io.BytesIO(base64.b64decode(logo_data3))
-                logo_para3b = doc.add_paragraph()
-                logo_para3b.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                logo_para3b.add_run().add_picture(logo_buf3b, width=Inches(1.5))
             terms_heading = doc.add_heading('Terms & Conditions', 2)
             terms_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
             try:
@@ -829,37 +857,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 logging.getLogger(__name__).error('Terms render error: %s', e)
                 doc.add_paragraph(html2plaintext(order.note))
 
-            # Footer: selected company's address
-            cp = order.company_id.partner_id
-            addr_parts = [p for p in [cp.street, cp.street2, cp.city,
-                                       cp.state_id.name if cp.state_id else '',
-                                       cp.zip, cp.country_id.name if cp.country_id else ''] if p]
-            addr_line = ', '.join(addr_parts)
-            contact_parts = []
-            if cp.phone:
-                contact_parts.append('Phone: %s' % cp.phone)
-            if cp.email:
-                contact_parts.append('Email: %s' % cp.email)
-            contact_line = ' | '.join(contact_parts)
-
-            doc.add_paragraph('')
-            name_para = doc.add_paragraph()
-            name_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            name_run = name_para.add_run(order.company_id.name or '')
-            name_run.bold = True
-            name_run.font.size = Pt(9)
-
-            if addr_line:
-                addr_para = doc.add_paragraph()
-                addr_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                addr_run = addr_para.add_run(addr_line)
-                addr_run.font.size = Pt(8)
-
-            if contact_line:
-                contact_para = doc.add_paragraph()
-                contact_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                contact_run = contact_para.add_run(contact_line)
-                contact_run.font.size = Pt(8)
 
         # Save
         buf = io.BytesIO()

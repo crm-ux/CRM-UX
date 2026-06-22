@@ -30,6 +30,7 @@
         'views/crm_csv_import_wizard_views.xml',
         'views/sale_line_media_wizard_views.xml',
         'views/crm_lead_wizard_views.xml',
+        'views/crm_lead_won_po_wizard_views.xml',
         'views/product_label_view.xml',
         'views/product_make_view.xml',
     ],
