@@ -105,6 +105,10 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     # 4. PO DETAILS  (filled at PO stage, after quote is accepted)
     # ------------------------------------------------------------------
+    x_invoice_number = fields.Char(string='Invoice No', tracking=True, copy=False)
+    x_invoice_date = fields.Date(string='Invoice Date', tracking=True, copy=False)
+    x_sales_order_number = fields.Char(string='Sales Order No', tracking=True, copy=False)
+
     x_po_number = fields.Char(
         string='PO Number',
         tracking=True,
