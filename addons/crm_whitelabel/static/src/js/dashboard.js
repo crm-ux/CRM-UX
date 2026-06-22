@@ -175,7 +175,7 @@ class CrmDashboard extends Component {
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2],...companyDomain,...userDomain]),
                 this._count("sale.order", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
                 this._count("sale.order", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
-                this._count("res.partner", [["customer_rank",">",0]]),
+                this._count("res.partner", isAdmin ? [["customer_rank",">",0]] : [["customer_rank",">",0],["user_id","=",user.userId]]),
                 this._count("product.template", [["sale_ok","=",true]]),
                 this._count("res.users", [["active","=",true],["share","=",false]]),
                 this._sum("sale.order", "amount_total", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
@@ -225,13 +225,23 @@ class CrmDashboard extends Component {
     openQuotes() {
         const isAdmin = user.userId === 2;
         const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["state","in",["draft","sent"]],["company_id","in",this.state.selectedCompanies],...userFilter];
+        const domain = [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],["company_id","in",this.state.selectedCompanies],...userFilter];
         this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
     }
-    openContacts() { this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain:[["customer_rank",">",0]] }); }
+    openContacts() {
+        const isAdmin = user.userId === 2;
+        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
+        const domain = [["customer_rank",">",0],...userFilter];
+        this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain });
+    }
     openProducts() { this.go({ type:"ir.actions.act_window", name:"Products", res_model:"product.template", views:[[false,"list"],[false,"form"]] }); }
     openUsers() { this.go({ type:"ir.actions.act_window", name:"Users", res_model:"res.users", views:[[false,"list"],[false,"form"]], domain:[["share","=",false]] }); }
-    openWon() { this.go({ type:"ir.actions.act_window", name:"Won Deals", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain:[["x_quote_stage","=","won"],["company_id","in",this.state.selectedCompanies]] }); }
+    openWon() {
+        const isAdmin = user.userId === 2;
+        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
+        const domain = [["x_quote_stage","=","won"],["company_id","in",this.state.selectedCompanies],...userFilter];
+        this.go({ type:"ir.actions.act_window", name:"Won Deals", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
+    }
     openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
     newLead() { this.go(405); }
 }

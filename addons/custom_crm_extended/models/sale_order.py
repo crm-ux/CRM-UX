@@ -229,13 +229,14 @@ class SaleOrder(models.Model):
                  'x_flat_discount', 'x_flat_discount_pct')
     def _compute_discount_totals(self):
         for order in self:
-            base = order.amount_total
-            # Apply flat percentage on untaxed amount
-            pct_disc = order.amount_untaxed * (order.x_flat_discount_pct / 100.0)
-            # Apply flat amount discount
-            flat_disc = order.x_flat_discount
-            order.x_amount_after_discount = max(0.0, base - pct_disc - flat_disc)
-
+            # Original price BEFORE any line discount
+            original = sum(
+                line.price_unit * line.product_uom_qty
+                for line in order.order_line.filtered(lambda l: not l.display_type)
+            )
+            pct_disc = original * (order.x_flat_discount_pct / 100.0)
+            flat_disc = order.x_flat_discount or 0.0
+            order.x_amount_after_discount = pct_disc + flat_disc
     # ==================================================================
     # ACTIONS
     # ==================================================================
@@ -289,6 +290,74 @@ class SaleOrder(models.Model):
         self.x_quote_stage = 'po_received'
         self.message_post(
             body=_('Final quote locked. PO: <b>%s</b>') % (self.x_po_number or '')
+        )
+
+    @api.onchange('x_gst_included')
+    def _onchange_gst_included(self):
+        """Clear taxes when GST OFF, restore default taxes when GST ON."""
+        for line in self.order_line.filtered(lambda l: not l.display_type):
+            if self.x_gst_included:
+                if line.product_id:
+                    taxes = line.product_id.taxes_id.filtered(
+                        lambda t: t.company_id == self.company_id
+                    )
+                    line.update({'tax_ids': taxes})
+            else:
+                line.update({'tax_ids': [(5, 0, 0)]})
+
+    def _apply_gst_to_lines(self):
+        """Apply GST setting to all lines - called on save."""
+        for line in self.order_line.filtered(lambda l: not l.display_type):
+            if self.x_gst_included:
+                if line.product_id and not line.tax_ids:
+                    taxes = line.product_id.taxes_id.filtered(
+                        lambda t: t.company_id == self.company_id
+                    )
+                    line.write({'tax_ids': [(6, 0, taxes.ids)]})
+            else:
+                line.write({'tax_ids': [(5, 0, 0)]})
+
+    @api.onchange('x_flat_discount_pct')
+    def _onchange_flat_discount_pct(self):
+        """Auto apply overall discount to all lines when changed."""
+        for line in self.order_line.filtered(lambda l: not l.display_type):
+            line.discount = self.x_flat_discount_pct or 0.0
+
+    def write(self, vals):
+        result = super().write(vals)
+        if 'x_gst_included' in vals:
+            for line in self.order_line.filtered(lambda l: not l.display_type):
+                if vals['x_gst_included']:
+                    if line.product_id:
+                        taxes = line.product_id.taxes_id.filtered(
+                            lambda t: t.company_id == self.company_id
+                        )
+                        line.write({'tax_ids': [(6, 0, taxes.ids)]})
+                else:
+                    line.write({'tax_ids': [(5, 0, 0)]})
+        return result
+
+    def action_apply_overall_discount(self):
+        """Apply overall discount % to all order lines and handle GST."""
+        self.ensure_one()
+        # Apply discount to all lines
+        if self.x_flat_discount_pct:
+            for line in self.order_line.filtered(lambda l: not l.display_type):
+                line.discount = self.x_flat_discount_pct
+        # Handle GST taxes
+        for line in self.order_line.filtered(lambda l: not l.display_type):
+            if self.x_gst_included:
+                if line.product_id and not line.tax_ids:
+                    line.tax_ids = line.product_id.taxes_id.filtered(
+                        lambda t: t.company_id == self.company_id
+                    )
+            else:
+                line.tax_ids = [(5, 0, 0)]
+        self.message_post(
+            body=_('Applied: Discount <b>%s%%</b>, GST <b>%s</b>') % (
+                self.x_flat_discount_pct,
+                'ON' if self.x_gst_included else 'OFF'
+            )
         )
 
     def action_mark_won(self):

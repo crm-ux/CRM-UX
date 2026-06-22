@@ -44,3 +44,6 @@
 .o_sale_order .o-mail-ChatterTopbar {
     display: none !important;
 }
+
+/* Hide tax totals styling handled by toggle */
+.o_field_widget[name="x_gst_included"] + * .tax-totals { display: none; }
