@@ -232,7 +232,8 @@ class SaleOrder(models.Model):
             order.x_quote_version_label = f'v{order.x_quote_version}'
 
     @api.depends('amount_untaxed', 'amount_total',
-                 'x_flat_discount', 'x_flat_discount_pct')
+                 'x_flat_discount', 'x_flat_discount_pct',
+                 'order_line.price_unit', 'order_line.product_uom_qty')
     def _compute_discount_totals(self):
         for order in self:
             # Original price BEFORE any line discount
@@ -329,6 +330,13 @@ class SaleOrder(models.Model):
         """Auto apply overall discount to all lines when changed."""
         for line in self.order_line.filtered(lambda l: not l.display_type):
             line.discount = self.x_flat_discount_pct or 0.0
+
+    @api.onchange('order_line')
+    def _onchange_order_line_discount(self):
+        """Apply discount to newly added lines."""
+        if self.x_flat_discount_pct:
+            for line in self.order_line.filtered(lambda l: not l.display_type and l.discount != self.x_flat_discount_pct):
+                line.discount = self.x_flat_discount_pct
 
     def write(self, vals):
         result = super().write(vals)
@@ -520,6 +528,12 @@ class SaleOrderLine(models.Model):
         store=False,
     )
 
+
+    @api.onchange('product_id')
+    def _onchange_product_id_apply_discount(self):
+        """Apply order-level discount when product is selected."""
+        if self.order_id.x_flat_discount_pct and self.product_id:
+            self.discount = self.order_id.x_flat_discount_pct
 
     def _fill_custom_product_fields(self, product):
         categ = product.categ_id
