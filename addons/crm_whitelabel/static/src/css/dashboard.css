@@ -7,7 +7,7 @@
 /* Hero */
 .crm-pro-hero {
     background: linear-gradient(135deg, #0b3d91 0%, #1769aa 55%, #2f9fd0 100%);
-    border-radius: 16px;
+    
     padding: 28px 32px;
     color: #fff;
     display: flex;
@@ -633,3 +633,8 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .o_user_menu i.fa { 
     display: none !important; 
 }
+
+/* Remove AI icon */
+.o_menu_systray .o_web_client_action_manager,
+.o_main_navbar .o_menu_brand_icon,
+[class*="fa-robot"], [class*="ai-icon"] { display: none !important; }
