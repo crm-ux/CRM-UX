@@ -290,6 +290,7 @@ class CrmDashboard extends Component {
             target: 'current',
         });
     }
+}
 
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 
