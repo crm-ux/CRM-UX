@@ -678,6 +678,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             gst_run = gst_p.add_run('GST No: %s' % p.vat)
             gst_run.bold = True
 
+        # Blank line after GST
+        doc.add_paragraph('')
         # Email and Phone
         if order.partner_id.email:
             doc.add_paragraph(order.partner_id.email)
