@@ -31,6 +31,8 @@ class CrmDashboard extends Component {
             isAdmin: user.userId === 2,
             adminMenuOpen: false,
             notifCount: 0,
+            notifOpen: false,
+            notifications: [],
         });
 
         onMounted(() => {
@@ -48,6 +50,9 @@ class CrmDashboard extends Component {
                 }
                 if (!e.target.closest('.crm-admin-multiselect')) {
                     this.state.adminMenuOpen = false;
+                }
+                if (!e.target.closest('.crm-notif-wrapper')) {
+                    this.state.notifOpen = false;
                 }
             };
             document.addEventListener('click', this._closeDropdowns);
@@ -96,42 +101,50 @@ class CrmDashboard extends Component {
 
     async loadNotifications() {
         try {
-            const result = await rpc('/web/dataset/call_kw', {
+            const messages = await rpc('/web/dataset/call_kw', {
                 model: 'mail.message',
-                method: 'search_count',
+                method: 'search_read',
                 args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
-                kwargs: {},
+                kwargs: {
+                    fields: ['id', 'record_name', 'body', 'date', 'res_id'],
+                    limit: 20,
+                    order: 'date desc',
+                },
             });
-            this.state.notifCount = result || 0;
+            this.state.notifCount = messages.length;
+            this.state.notifications = messages.map(m => ({
+                id: m.id,
+                res_id: m.res_id,
+                record_name: m.record_name || 'Lead',
+                body_text: m.body ? m.body.replace(/<[^>]+>/g, '') : '',
+                date: m.date,
+            }));
         } catch(e) {
             this.state.notifCount = 0;
+            this.state.notifications = [];
         }
     }
 
-    openNotifications() {
+    toggleNotifications() {
+        this.state.notifOpen = !this.state.notifOpen;
+    }
+
+    openLead(notif) {
+        this.state.notifOpen = false;
         this.actionService.doAction({
             type: 'ir.actions.act_window',
-            name: 'My Notifications',
-            res_model: 'mail.message',
-            view_mode: 'list',
-            views: [[false, 'list']],
-            domain: [
-                ['partner_ids', 'in', [user.partnerId]],
-                ['model', '=', 'crm.lead'],
-            ],
-            context: {
-                'create': false,
-                'edit': false,
-                'delete': false,
-                'no_create': true,
-                'search_default_': 1,
-            },
-            flags: {
-                'action_buttons': false,
-                'search_view': false,
-            },
-            target: 'new',
+            res_model: 'crm.lead',
+            res_id: notif.res_id,
+            view_mode: 'form',
+            views: [[false, 'form']],
+            target: 'current',
         });
+    }
+
+    async markAllRead() {
+        this.state.notifOpen = false;
+        this.state.notifCount = 0;
+        this.state.notifications = [];
     }
 
     toggleUserDropdown() {
