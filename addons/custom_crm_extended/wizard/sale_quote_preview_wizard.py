@@ -537,9 +537,22 @@ class SaleQuotePreviewWizard(models.TransientModel):
         for p in hdr.paragraphs:
             p.clear()
         # Header table: Logo left, Quotation No + Date right
-        htbl = hdr.add_table(rows=1, cols=2, width=section0.page_width - section0.left_margin - section0.right_margin)
-        htbl.autofit = True
-        # Left cell: Logo
+        from docx.shared import Twips
+        tbl_width = section0.page_width - section0.left_margin - section0.right_margin
+        htbl = hdr.add_table(rows=2, cols=2, width=tbl_width)
+        htbl.style = 'Table Grid'
+        # Remove borders
+        from docx.oxml import OxmlElement as _OE2
+        from docx.oxml.ns import qn as _qn2
+        tbl_pr = htbl._tbl.tblPr
+        tbl_borders = _OE2('w:tblBorders')
+        for border_name in ['top','left','bottom','right','insideH','insideV']:
+            b = _OE2('w:%s' % border_name)
+            b.set(_qn2('w:val'), 'none')
+            tbl_borders.append(b)
+        tbl_pr.append(tbl_borders)
+
+        # Row 1: Logo left, Quotation No right
         lc = htbl.rows[0].cells[0]
         lp = lc.paragraphs[0]
         lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
@@ -548,17 +561,23 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if isinstance(ld, str): ld = ld.encode()
             lbuf = io.BytesIO(base64.b64decode(ld))
             lp.add_run().add_picture(lbuf, width=Inches(1.3))
-        # Right cell: Quotation No + Date
+
         rc = htbl.rows[0].cells[1]
         rp1 = rc.paragraphs[0]
         rp1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         rr1 = rp1.add_run('Quotation No: %s' % (self.quote_name or order.name or ''))
         rr1.bold = True
-        rr1.font.size = Pt(9)
-        rp2 = rc.add_paragraph()
+        rr1.font.size = Pt(10)
+
+        # Row 2: empty left, Date right (below logo / below quotation no)
+        lc2 = htbl.rows[1].cells[0]
+        lc2.paragraphs[0].text = ''
+
+        rc2 = htbl.rows[1].cells[1]
+        rp2 = rc2.paragraphs[0]
         rp2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         rr2 = rp2.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
-        rr2.font.size = Pt(9)
+        rr2.font.size = Pt(10)
         # Blue divider line under header
         hdiv = hdr.add_paragraph()
         hpPr = hdiv._p.get_or_add_pPr()
