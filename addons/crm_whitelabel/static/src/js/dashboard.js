@@ -314,3 +314,16 @@ const titleObserver = new MutationObserver(() => {
     }
 });
 titleObserver.observe(document.querySelector('title') || document.head, { subtree: true, childList: true, characterData: true });
+
+// Override favicon
+function setFavicon() {
+    const links = document.querySelectorAll("link[rel*='icon']");
+    links.forEach(l => l.parentNode.removeChild(l));
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/png';
+    link.href = '/crm_whitelabel/static/src/img/favicon.png';
+    document.head.appendChild(link);
+}
+setFavicon();
+new MutationObserver(setFavicon).observe(document.head, { childList: true });
