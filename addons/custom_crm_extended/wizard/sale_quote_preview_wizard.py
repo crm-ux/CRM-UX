@@ -542,7 +542,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Remove all borders
         from docx.oxml import OxmlElement as _OE2
         from docx.oxml.ns import qn as _qn2
-        tbl_pr = htbl._tbl.get_or_add_tblPr()
+        tbl_pr = htbl._tbl.tblPr
+        if tbl_pr is None:
+            from docx.oxml import OxmlElement as _OE3
+            tbl_pr = _OE3('w:tblPr')
+            htbl._tbl.insert(0, tbl_pr)
         tbl_borders = _OE2('w:tblBorders')
         for bn in ['top','left','bottom','right','insideH','insideV']:
             b = _OE2('w:%s' % bn)
