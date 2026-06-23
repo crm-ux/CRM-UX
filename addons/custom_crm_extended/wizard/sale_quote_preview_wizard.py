@@ -556,42 +556,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
         hpBdr.append(hbot)
         hpPr.append(hpBdr)
 
-        # ── Word footer repeats on every page ──
-        ftr = section0.footer
-        ftr.is_linked_to_previous = False
-        cp_f = order.company_id.partner_id
-        addr_f = ', '.join([x for x in [cp_f.street, cp_f.street2, cp_f.city,
-            cp_f.state_id.name if cp_f.state_id else '', cp_f.zip,
-            cp_f.country_id.name if cp_f.country_id else ''] if x])
-        contact_f = ' | '.join([x for x in [
-            'GST: %s' % order.company_id.vat if order.company_id.vat else '',
-            'Ph: %s' % cp_f.phone if cp_f.phone else '',
-            'Email: %s' % cp_f.email if cp_f.email else ''] if x])
-        # Divider above footer
-        fp0 = ftr.paragraphs[0] if ftr.paragraphs else ftr.add_paragraph()
-        fpPr = fp0._p.get_or_add_pPr()
-        fpBdr = _OE('w:pBdr')
-        ftop = _OE('w:top')
-        ftop.set(_qn('w:val'), 'single')
-        ftop.set(_qn('w:sz'), '4')
-        ftop.set(_qn('w:space'), '1')
-        ftop.set(_qn('w:color'), '444444')
-        fpBdr.append(ftop)
-        fpPr.append(fpBdr)
-        fn = ftr.add_paragraph()
-        fn.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        fnr = fn.add_run(order.company_id.name or '')
-        fnr.bold = True
-        fnr.font.size = Pt(9)
-        fa = ftr.add_paragraph()
-        fa.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        far = fa.add_run(addr_f)
-        far.font.size = Pt(8)
-        if contact_f:
-            fc = ftr.add_paragraph()
-            fc.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            fcr = fc.add_run(contact_f)
-            fcr.font.size = Pt(8)
 
         # Quotation No and Date - shaded box like PDF
 
@@ -853,8 +817,30 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 row_data = [str(idx), desc, part_no, hsn, str(qty), str(int(unit_price)), str(int(amount))]
 
             for i, val in enumerate(row_data):
-                row_cells[i].text = val
-                row_cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT if i == 1 else WD_ALIGN_PARAGRAPH.CENTER
+                cell = row_cells[i]
+                if i == 1:
+                    # Item description with bold labels
+                    cell.paragraphs[0].clear()
+                    parts = val.split('\n')
+                    for pi, part in enumerate(parts):
+                        if pi == 0:
+                            p = cell.paragraphs[0]
+                        else:
+                            p = cell.add_paragraph()
+                        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                        if part.startswith('Make:') or part.startswith('Description:'):
+                            label, _, rest = part.partition(':')
+                            r1 = p.add_run(label + ':')
+                            r1.bold = True
+                            r1.font.size = Pt(10)
+                            r2 = p.add_run(rest)
+                            r2.font.size = Pt(10)
+                        else:
+                            r = p.add_run(part)
+                            r.font.size = Pt(10)
+                else:
+                    cell.text = val
+                    cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         # Totals
         doc.add_paragraph('')
