@@ -125,6 +125,12 @@ class SaleOrder(models.Model):
         string='Contact Person',
         help='Auto-filled from linked CRM lead contact name',
     )
+    x_contact_person_id = fields.Many2one(
+        'res.partner',
+        string='Contact Person',
+        domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]",
+        help='Select contact person from customer contacts',
+    )
 
     x_po_number = fields.Char(
         string='PO Number',
