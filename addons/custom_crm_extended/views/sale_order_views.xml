@@ -91,9 +91,7 @@
                 <attribute name="options">{'no_create': True, 'no_open': True, 'show_label_warning': True}</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="after">
-                <field name="product_id" string="Product Name" optional="show" width="200px"
-                       options="{'no_create': True, 'no_open': True}"
-                       context="{'show_code_only': False, 'default_lst_price': price_unit, 'default_uom_id': product_uom_id, 'partner_id': parent.partner_id}"/>
+                <field name="x_product_name" string="Product Name" optional="show" width="200px"/>
                 <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1" width="90px"/>
                 <field name="x_make" string="Make / Brand" optional="show" readonly="1" width="110px"/>
             </xpath>
