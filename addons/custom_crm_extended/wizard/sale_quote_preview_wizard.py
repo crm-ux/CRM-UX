@@ -445,6 +445,32 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if imgs:
                 img_html = '<div style="margin-top:12px;">%s</div>' % imgs
 
+        # ── CHECK DISCOUNT FOR PDF TABLE ──
+        order_lines_pdf = order.order_line.filtered(lambda l: not l.display_type)
+        has_discount_pdf = any(l.discount for l in order_lines_pdf)
+        has_overall_disc = getattr(order, 'x_flat_discount_pct', 0) or 0
+
+        # Build PDF rows
+        rows = ''
+        for idx2, line in enumerate(order_lines_pdf, 1):
+            part_no = line.x_product_code or line.product_id.default_code or ''
+            note = line.x_notes if hasattr(line, 'x_notes') and line.x_notes else ''
+            hsn = line.product_id.l10n_in_hsn_code or ''
+            make = line.x_make or ''
+            unit_price = line.price_unit or 0
+            discount_pct = line.discount or 0
+            qty = int(line.product_uom_qty or 0)
+            amount = line.price_subtotal or 0
+            desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
+            if make: desc += '<br/><b>Make:</b> %s' % make
+            if note: desc += '<br/><b>Description:</b> %s' % note
+            row_bg = '#f9f9f9' if idx2 %% 2 == 0 else '#fff'
+            if has_discount_pdf:
+                disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, disc_str, int(unit_price), qty, int(amount))
+            else:
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, int(unit_price), qty, int(amount))
+
         # ── PAGE 2: QUOTATION TABLE (new page) ──
         # Build headers based on discount
         if has_discount_pdf:
