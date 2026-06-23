@@ -578,7 +578,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
         qlr.font.size = Pt(10)
         qr = qd_table.rows[0].cells[1].paragraphs[0]
         qr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        qrr = qr.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
+        _date = order.date_order.date() if order.date_order else fields.Date.today()
+        _date_str = _date.strftime('%d-%m-%Y')
+        qrr = qr.add_run('Date: %s' % _date_str)
         qrr.font.size = Pt(10)
         qrr.bold = True
         doc.add_paragraph('')
@@ -794,6 +796,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 for cell in table.columns[i].cells:
                     cell.width = _Inches(width)
         hdr_cells = table.rows[0].cells
+        # Set cell margins for padding
+        from docx.oxml import OxmlElement as _OEM
+        from docx.oxml.ns import qn as _qnm
+        def set_cell_margins(cell, top=80, bottom=80, left=100, right=100):
+            tc = cell._tc
+            tcPr = tc.get_or_add_tcPr()
+            tcMar = _OEM('w:tcMar')
+            for side, val in [('top', top), ('bottom', bottom), ('left', left), ('right', right)]:
+                m = _OEM('w:%s' % side)
+                m.set(_qnm('w:w'), str(val))
+                m.set(_qnm('w:type'), 'dxa')
+                tcMar.append(m)
+            tcPr.append(tcMar)
+
         for i, h in enumerate(headers):
             p = hdr_cells[i].paragraphs[0]
             run = p.add_run(h)
@@ -829,6 +845,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
             for i, val in enumerate(row_data):
                 cell = row_cells[i]
+                set_cell_margins(cell)
                 if i == 1:
                     # Item description with bold labels
                     cell.paragraphs[0].clear()
