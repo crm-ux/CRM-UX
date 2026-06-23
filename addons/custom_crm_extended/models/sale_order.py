@@ -649,10 +649,13 @@ class SaleOrderLineExtended(models.Model):
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
-        """Auto-add product internal notes as a note line in quotation."""
-        if self.product_id and self.product_id.description:
-            import re
-            # Strip HTML tags
-            clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
-            if clean_note:
-                self.x_notes = clean_note
+        """Sync product name m2o and internal notes when product_id changes."""
+        if self.product_id:
+            # Sync x_product_name_m2o with product_id
+            self.x_product_name_m2o = self.product_id
+            # Auto-fill internal notes
+            if self.product_id.description:
+                import re
+                clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
+                if clean_note:
+                    self.x_notes = clean_note
