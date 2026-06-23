@@ -130,8 +130,8 @@
                             <field name="x_po_date" string="PO Date"/>
                             <field name="x_po_file" string="PO Document" filename="x_po_filename" widget="binary"/>
                             <field name="x_final_quote_locked" string="Final Quote Locked" readonly="1"/>
-                            <field name="x_sales_order_number" string="Sales Order No"/>
                             <field name="x_uw_po_number" string="UW Purchase Order"/>
+                            <field name="x_sales_order_number" string="Sales Order No"/>
                         </group>
                         <group string="Handoff">
                             <field name="x_assigned_to_service" string="Service Number" options="{'no_create': True}"/>
