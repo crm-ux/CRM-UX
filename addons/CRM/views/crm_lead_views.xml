@@ -85,7 +85,7 @@
             <xpath expr="//field[@name='team_id']" position="after">
                 <field name="source_id"
                        string="Lead Source"
-                       options="{'no_create': True}"
+                       options="{'no_create': False, 'no_open': True}"
                        placeholder="Select lead source..."/>
             </xpath>
 
