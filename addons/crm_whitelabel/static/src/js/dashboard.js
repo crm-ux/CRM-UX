@@ -250,7 +250,6 @@ class CrmDashboard extends Component {
     }
     openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
     newLead() { this.go(405); }
-}
 
     async toggleNotifications() {
         this.state.notifOpen = !this.state.notifOpen;
