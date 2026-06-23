@@ -598,7 +598,7 @@ class SaleOrderLine(models.Model):
         self.x_product_code = product.default_code or ''
         self.x_product_name = product.product_tmpl_id.with_context(lang='en_US').name or product.with_context(lang='en_US').name or ''
         self.x_hsn_code = product.l10n_in_hsn_code or ''
-        self.x_make = product.x_make or ''
+        self.x_make = product.x_make or product.product_tmpl_id.x_make or ''
         self.x_default_price = product.list_price or 0.0
 
     @api.onchange('product_id')
@@ -624,7 +624,7 @@ class SaleOrderLine(models.Model):
                 if not vals.get('x_hsn_code'):
                     vals['x_hsn_code'] = product.l10n_in_hsn_code or ''
                 if not vals.get('x_make'):
-                    vals['x_make'] = product.x_make or ''
+                    vals['x_make'] = product.x_make or product.product_tmpl_id.x_make or ''
                 if not vals.get('x_default_price'):
                     vals['x_default_price'] = product.list_price or 0.0
         return super().create(vals_list)
