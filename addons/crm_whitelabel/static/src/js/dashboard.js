@@ -39,7 +39,6 @@ class CrmDashboard extends Component {
             this.loadStats();
             this.loadCompanies();
             this.loadNotifications();
-            setInterval(() => this.loadNotifications(), 300000);
             // Close dropdowns when clicking outside
             this._closeDropdowns = (e) => {
                 if (!e.target.closest('.crm-user-dropdown-wrapper')) {
