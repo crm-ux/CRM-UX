@@ -305,3 +305,12 @@ class CrmDashboard extends Component {
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 
 export default CrmDashboard;
+
+// Override page title
+document.title = 'YantraConnect CRM';
+const titleObserver = new MutationObserver(() => {
+    if (document.title !== 'YantraConnect CRM') {
+        document.title = 'YantraConnect CRM';
+    }
+});
+titleObserver.observe(document.querySelector('title') || document.head, { subtree: true, childList: true, characterData: true });
