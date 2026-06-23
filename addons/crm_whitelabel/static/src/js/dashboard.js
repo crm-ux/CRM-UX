@@ -38,7 +38,7 @@ class CrmDashboard extends Component {
         onMounted(() => {
             this.loadStats();
             this.loadCompanies();
-            this.loadNotifications();
+
             // Close dropdowns when clicking outside
             this._closeDropdowns = (e) => {
                 if (!e.target.closest('.crm-user-dropdown-wrapper')) {
@@ -99,29 +99,9 @@ class CrmDashboard extends Component {
     }
 
     async loadNotifications() {
-        try {
-            const messages = await rpc('/web/dataset/call_kw', {
-                model: 'mail.message',
-                method: 'search_read',
-                args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
-                kwargs: {
-                    fields: ['id', 'record_name', 'body', 'date', 'res_id'],
-                    limit: 20,
-                    order: 'date desc',
-                },
-            });
-            this.state.notifCount = messages.length;
-            this.state.notifications = messages.map(m => ({
-                id: m.id,
-                res_id: m.res_id,
-                record_name: m.record_name || 'Lead',
-                body_text: m.body ? m.body.replace(/<[^>]+>/g, '') : '',
-                date: m.date,
-            }));
-        } catch(e) {
-            this.state.notifCount = 0;
-            this.state.notifications = [];
-        }
+        // Disabled to prevent server overload
+        this.state.notifCount = 0;
+        this.state.notifications = [];
     }
 
     toggleNotifications() {
