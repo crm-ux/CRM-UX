@@ -638,9 +638,3 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .o_menu_systray .o_web_client_action_manager,
 .o_main_navbar .o_menu_brand_icon,
 [class*="fa-robot"], [class*="ai-icon"] { display: none !important; }
-
-/* Hide Odoo loading text */
-.o_loading_screen .o_loading_message,
-.o_web_loading_screen span { 
-    visibility: hidden !important; 
-}

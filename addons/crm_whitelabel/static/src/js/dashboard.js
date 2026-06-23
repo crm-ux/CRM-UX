@@ -30,15 +30,11 @@ class CrmDashboard extends Component {
             userDropdownOpen: false,
             isAdmin: user.userId === 2,
             adminMenuOpen: false,
-            notifCount: 0,
-            notifOpen: false,
-            notifications: [],
         });
 
         onMounted(() => {
             this.loadStats();
             this.loadCompanies();
-
             // Close dropdowns when clicking outside
             this._closeDropdowns = (e) => {
                 if (!e.target.closest('.crm-user-dropdown-wrapper')) {
@@ -49,9 +45,6 @@ class CrmDashboard extends Component {
                 }
                 if (!e.target.closest('.crm-admin-multiselect')) {
                     this.state.adminMenuOpen = false;
-                }
-                if (!e.target.closest('.crm-notif-wrapper')) {
-                    this.state.notifOpen = false;
                 }
             };
             document.addEventListener('click', this._closeDropdowns);
@@ -96,34 +89,6 @@ class CrmDashboard extends Component {
         }
         localStorage.setItem('crm_selected_companies', JSON.stringify(this.state.selectedCompanies));
         this.loadStats();
-    }
-
-    async loadNotifications() {
-        // Disabled to prevent server overload
-        this.state.notifCount = 0;
-        this.state.notifications = [];
-    }
-
-    toggleNotifications() {
-        this.state.notifOpen = !this.state.notifOpen;
-    }
-
-    openLead(notif) {
-        this.state.notifOpen = false;
-        this.actionService.doAction({
-            type: 'ir.actions.act_window',
-            res_model: 'crm.lead',
-            res_id: notif.res_id,
-            view_mode: 'form',
-            views: [[false, 'form']],
-            target: 'current',
-        });
-    }
-
-    async markAllRead() {
-        this.state.notifOpen = false;
-        this.state.notifCount = 0;
-        this.state.notifications = [];
     }
 
     toggleUserDropdown() {
@@ -284,25 +249,3 @@ class CrmDashboard extends Component {
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 
 export default CrmDashboard;
-
-// Override page title
-document.title = 'YantraConnect CRM';
-const titleObserver = new MutationObserver(() => {
-    if (document.title !== 'YantraConnect CRM') {
-        document.title = 'YantraConnect CRM';
-    }
-});
-titleObserver.observe(document.querySelector('title') || document.head, { subtree: true, childList: true, characterData: true });
-
-// Override favicon
-function setFavicon() {
-    const links = document.querySelectorAll("link[rel*='icon']");
-    links.forEach(l => l.parentNode.removeChild(l));
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/png';
-    link.href = '/crm_whitelabel/static/src/img/favicon.png';
-    document.head.appendChild(link);
-}
-setFavicon();
-new MutationObserver(setFavicon).observe(document.head, { childList: true });

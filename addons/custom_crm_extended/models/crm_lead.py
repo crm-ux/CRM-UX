@@ -365,34 +365,6 @@ class CrmLead(models.Model):
             self.x_po_date = po_date
 
     def write(self, vals):
-        # Notify assigned user when x_assign_to_id changes
-        if 'x_assign_to_id' in vals and vals.get('x_assign_to_id'):
-            new_user = self.env['res.users'].browse(vals['x_assign_to_id'])
-            assigner = self.env.user
-            for rec in self:
-                if rec.x_assign_to_id.id != vals['x_assign_to_id']:
-                    notification_msg = _('%s has assigned you a lead: %s') % (assigner.name, rec.name)
-                    # Send inbox notification (bell icon)
-                    self.env['mail.thread'].sudo()._notify_thread_by_inbox(
-                        self.env['mail.message'].sudo().create({
-                            'model': 'crm.lead',
-                            'res_id': rec.id,
-                            'message_type': 'notification',
-                            'subtype_id': self.env.ref('mail.mt_note').id,
-                            'body': notification_msg,
-                            'author_id': assigner.partner_id.id,
-                            'partner_ids': [new_user.partner_id.id],
-                        }),
-                        recipients_data=[{
-                            'id': new_user.partner_id.id,
-                            'share': False,
-                            'active': True,
-                            'notif': 'inbox',
-                            'type': 'user',
-                            'groups': [],
-                        }],
-                    )
-
         # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
         if 'stage_id' in vals and vals.get('stage_id'):
             new_stage = self.env['crm.stage'].browse(vals['stage_id'])
