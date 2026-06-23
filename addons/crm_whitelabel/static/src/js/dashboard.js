@@ -30,11 +30,14 @@ class CrmDashboard extends Component {
             userDropdownOpen: false,
             isAdmin: user.userId === 2,
             adminMenuOpen: false,
+            notifCount: 0,
         });
 
         onMounted(() => {
             this.loadStats();
             this.loadCompanies();
+            this.loadNotifications();
+            setInterval(() => this.loadNotifications(), 30000);
             // Close dropdowns when clicking outside
             this._closeDropdowns = (e) => {
                 if (!e.target.closest('.crm-user-dropdown-wrapper')) {
@@ -89,6 +92,27 @@ class CrmDashboard extends Component {
         }
         localStorage.setItem('crm_selected_companies', JSON.stringify(this.state.selectedCompanies));
         this.loadStats();
+    }
+
+    async loadNotifications() {
+        try {
+            const result = await rpc('/web/dataset/call_kw', {
+                model: 'mail.notification',
+                method: 'search_count',
+                args: [[['res_partner_id', '=', user.partnerId], ['is_read', '=', false]]],
+                kwargs: {},
+            });
+            this.state.notifCount = result || 0;
+        } catch(e) {
+            this.state.notifCount = 0;
+        }
+    }
+
+    openNotifications() {
+        this.actionService.doAction({
+            type: 'ir.actions.client',
+            tag: 'mail.action_discuss',
+        });
     }
 
     toggleUserDropdown() {
