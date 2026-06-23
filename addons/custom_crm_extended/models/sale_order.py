@@ -582,7 +582,7 @@ class SaleOrderLine(models.Model):
         self.x_category_id = categ.parent_id if categ and categ.parent_id else categ
         self.x_sub_category_id = categ if categ and categ.parent_id else False
         self.x_product_code = product.default_code or ''
-        self.x_product_name = product.name or ''
+        self.x_product_name = product.with_context(lang='en_US').name or ''
         self.x_hsn_code = product.l10n_in_hsn_code or ''
         self.x_make = product.x_make or ''
         self.x_default_price = product.list_price or 0.0
