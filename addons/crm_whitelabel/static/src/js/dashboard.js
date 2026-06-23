@@ -109,9 +109,16 @@ class CrmDashboard extends Component {
     }
 
     openNotifications() {
+        // Open a list of unread notifications for current user
         this.actionService.doAction({
-            type: 'ir.actions.client',
-            tag: 'mail.action_discuss',
+            type: 'ir.actions.act_window',
+            name: 'My Notifications',
+            res_model: 'mail.notification',
+            view_mode: 'list',
+            views: [[false, 'list']],
+            domain: [['res_partner_id', '=', user.partnerId], ['is_read', '=', false]],
+            context: {},
+            target: 'new',
         });
     }
 
