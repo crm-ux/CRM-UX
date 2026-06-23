@@ -119,7 +119,17 @@ class CrmDashboard extends Component {
                 ['partner_ids', 'in', [user.partnerId]],
                 ['model', '=', 'crm.lead'],
             ],
-            context: {},
+            context: {
+                'create': false,
+                'edit': false,
+                'delete': false,
+                'no_create': true,
+                'search_default_': 1,
+            },
+            flags: {
+                'action_buttons': false,
+                'search_view': false,
+            },
             target: 'new',
         });
     }
