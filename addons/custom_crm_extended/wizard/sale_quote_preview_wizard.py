@@ -659,18 +659,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Full address with GST
         p = order.partner_id
-        addr_lines = [x for x in [
-            p.street or '',
-            p.street2 or '',
+        # Street
+        if p.street:
+            doc.add_paragraph(p.street + (', ' + p.street2 if p.street2 else ''))
+        elif p.street2:
+            doc.add_paragraph(p.street2)
+        # City, Zip, State, Country in one line
+        loc_parts = [x for x in [
             ('%s %s' % (p.city or '', p.zip or '')).strip(),
             p.state_id.name if p.state_id else '',
             p.country_id.name if p.country_id else '',
         ] if x]
-        for al in addr_lines:
-            doc.add_paragraph(al)
+        if loc_parts:
+            doc.add_paragraph(', '.join(loc_parts))
+        # GST bold
         if p.vat:
             gst_p = doc.add_paragraph()
-            gst_p.add_run('GST No: %s' % p.vat)
+            gst_run = gst_p.add_run('GST No: %s' % p.vat)
+            gst_run.bold = True
 
         # Email and Phone
         if order.partner_id.email:
