@@ -684,14 +684,12 @@ class SaleOrderLineExtended(models.Model):
 class ResPartnerContactName(models.Model):
     _inherit = 'res.partner'
 
-    @api.model
-    def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None):
-        return super()._name_search(name=name, domain=domain, operator=operator, limit=limit, order=order)
+    def _get_name(self):
+        if self.env.context.get('no_display_parent'):
+            return self.name or ''
+        return super()._get_name()
 
     def name_get(self):
         if self.env.context.get('no_display_parent'):
-            result = []
-            for p in self:
-                result.append((p.id, p.name or ''))
-            return result
+            return [(p.id, p.name or '') for p in self]
         return super().name_get()
