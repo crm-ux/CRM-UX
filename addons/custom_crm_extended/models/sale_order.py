@@ -493,8 +493,9 @@ class SaleOrderLine(models.Model):
                 line.x_product_name = ''
     x_product_name_m2o = fields.Many2one(
         'product.product',
-        string='Product Name Search',
-        store=False,
+        string='Product Name',
+        store=True,
+        ondelete='set null',
     )
     x_hsn_code = fields.Char(string='HSN/SAC')
     x_make = fields.Char(string='Make / Brand')
@@ -659,13 +660,11 @@ class SaleOrderLineExtended(models.Model):
     def _onchange_product_name_m2o(self):
         if self.x_product_name_m2o:
             self.product_id = self.x_product_name_m2o
-            self.x_product_name = self.x_product_name_m2o.with_context(lang='en_US').name
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
         """Sync product name m2o and internal notes when product_id changes."""
         if self.product_id:
-            # Sync x_product_name_m2o with product_id
             self.x_product_name_m2o = self.product_id
             # Auto-fill internal notes
             if self.product_id.description:
