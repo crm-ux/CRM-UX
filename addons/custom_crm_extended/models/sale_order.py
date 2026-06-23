@@ -632,3 +632,14 @@ class SaleOrderLine(models.Model):
     # adjusts price_unit manually if they want it reflected in totals,
     # OR the client confirms they want a computed override (Phase 2).
     # This keeps the module safe and non-breaking for the tax engine.
+
+
+class SaleOrderLineExtended(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.onchange('product_id')
+    def _onchange_product_internal_note(self):
+        """Auto-add product internal notes as a note line in quotation."""
+        if self.product_id and self.product_id.description:
+            # Store internal note in x_notes field
+            self.x_notes = self.product_id.description
