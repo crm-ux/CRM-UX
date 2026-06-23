@@ -120,6 +120,7 @@ class SaleOrder(models.Model):
     x_invoice_number = fields.Char(string='Invoice No', tracking=True, copy=False)
     x_invoice_date = fields.Date(string='Invoice Date', tracking=True, copy=False)
     x_sales_order_number = fields.Char(string='Sales Order No', tracking=True, copy=False)
+    x_uw_po_number = fields.Char(string='UW Purchase Order', tracking=True, copy=False)
 
     x_contact_person = fields.Char(
         string='Contact Person',
