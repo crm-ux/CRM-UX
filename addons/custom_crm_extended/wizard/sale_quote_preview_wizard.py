@@ -781,8 +781,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         else:
             headers = ['SR No.', 'Item Description', 'Part No', 'HSN', 'Qty', 'Unit Price', 'Amount']
 
+        from docx.shared import Inches as _Inches
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
+        # Set column widths
+        if has_discount:
+            col_widths = [0.4, 2.5, 0.8, 0.8, 0.4, 0.9, 0.7, 0.8]
+        else:
+            col_widths = [0.4, 3.0, 0.8, 0.8, 0.4, 0.9, 0.8]
+        for i, width in enumerate(col_widths):
+            if i < len(table.columns):
+                for cell in table.columns[i].cells:
+                    cell.width = _Inches(width)
         hdr_cells = table.rows[0].cells
         for i, h in enumerate(headers):
             p = hdr_cells[i].paragraphs[0]
