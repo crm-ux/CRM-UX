@@ -371,13 +371,26 @@ class CrmLead(models.Model):
             assigner = self.env.user
             for rec in self:
                 if rec.x_assign_to_id.id != vals['x_assign_to_id']:
-                    # Post message in chatter and notify assigned user
-                    rec.message_post(
-                        body=_('<b>%s</b> has assigned this lead to <b>%s</b>') % (
-                            assigner.name, new_user.name),
-                        partner_ids=[new_user.partner_id.id],
-                        message_type='comment',
-                        subtype_xmlid='mail.mt_comment',
+                    notification_msg = _('%s has assigned you a lead: %s') % (assigner.name, rec.name)
+                    # Send inbox notification (bell icon)
+                    self.env['mail.thread'].sudo()._notify_thread_by_inbox(
+                        self.env['mail.message'].sudo().create({
+                            'model': 'crm.lead',
+                            'res_id': rec.id,
+                            'message_type': 'notification',
+                            'subtype_id': self.env.ref('mail.mt_note').id,
+                            'body': notification_msg,
+                            'author_id': assigner.partner_id.id,
+                            'partner_ids': [new_user.partner_id.id],
+                        }),
+                        recipients_data=[{
+                            'id': new_user.partner_id.id,
+                            'share': False,
+                            'active': True,
+                            'notif': 'inbox',
+                            'type': 'user',
+                            'groups': [],
+                        }],
                     )
 
         # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
