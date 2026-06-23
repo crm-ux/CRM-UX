@@ -478,6 +478,11 @@ class SaleOrderLine(models.Model):
     x_sub_category_id = fields.Many2one('product.category', string='Sub Category')
     x_product_code = fields.Char(string='Product ID')
     x_product_name = fields.Char(string='Product Name')
+    x_product_name_m2o = fields.Many2one(
+        'product.product',
+        string='Product Name Search',
+        store=False,
+    )
     x_hsn_code = fields.Char(string='HSN/SAC')
     x_make = fields.Char(string='Make / Brand')
     x_default_price = fields.Float(string='Master Price', digits='Product Price')
@@ -636,6 +641,11 @@ class SaleOrderLine(models.Model):
 
 class SaleOrderLineExtended(models.Model):
     _inherit = 'sale.order.line'
+
+    @api.onchange('x_product_name_m2o')
+    def _onchange_product_name_m2o(self):
+        if self.x_product_name_m2o:
+            self.product_id = self.x_product_name_m2o
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
