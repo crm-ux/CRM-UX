@@ -21,6 +21,7 @@
                                 <a href="/odoo/action-383" class="crm-admin-menu-item">Quotations</a>
                                 <a href="/odoo/settings/users" class="crm-admin-menu-item">Users</a>
                                 <a href="/odoo/inventory/products" class="crm-admin-menu-item">Product Management</a>
+                                <a href="/odoo/utm-sources" class="crm-admin-menu-item">Lead Sources</a>
                             </div>
                         </div>
                     </div>
