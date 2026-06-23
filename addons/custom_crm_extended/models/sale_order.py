@@ -477,7 +477,20 @@ class SaleOrderLine(models.Model):
     x_category_id = fields.Many2one('product.category', string='Category')
     x_sub_category_id = fields.Many2one('product.category', string='Sub Category')
     x_product_code = fields.Char(string='Product ID')
-    x_product_name = fields.Char(string='Product Name')
+    x_product_name = fields.Char(
+        string='Product Name',
+        compute='_compute_x_product_name',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('product_id')
+    def _compute_x_product_name(self):
+        for line in self:
+            if line.product_id:
+                line.x_product_name = line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
+            elif not line.x_product_name:
+                line.x_product_name = ''
     x_product_name_m2o = fields.Many2one(
         'product.product',
         string='Product Name Search',
