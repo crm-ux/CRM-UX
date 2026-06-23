@@ -30,6 +30,9 @@ class CrmDashboard extends Component {
             userDropdownOpen: false,
             isAdmin: user.userId === 2,
             adminMenuOpen: false,
+            notifOpen: false,
+            notifCount: 0,
+            notifications: [],
         });
 
         onMounted(() => {
@@ -45,6 +48,9 @@ class CrmDashboard extends Component {
                 }
                 if (!e.target.closest('.crm-admin-multiselect')) {
                     this.state.adminMenuOpen = false;
+                }
+                if (!e.target.closest('.crm-notif-wrapper')) {
+                    this.state.notifOpen = false;
                 }
             };
             document.addEventListener('click', this._closeDropdowns);
@@ -245,6 +251,46 @@ class CrmDashboard extends Component {
     openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
     newLead() { this.go(405); }
 }
+
+    async toggleNotifications() {
+        this.state.notifOpen = !this.state.notifOpen;
+        if (this.state.notifOpen) {
+            try {
+                const messages = await rpc('/web/dataset/call_kw', {
+                    model: 'mail.message',
+                    method: 'search_read',
+                    args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
+                    kwargs: {
+                        fields: ['id', 'record_name', 'body', 'date', 'res_id'],
+                        limit: 10,
+                        order: 'date desc',
+                    },
+                });
+                this.state.notifCount = messages.length;
+                this.state.notifications = messages.map(m => ({
+                    id: m.id,
+                    res_id: m.res_id,
+                    record_name: m.record_name || 'Lead',
+                    body_text: m.body ? m.body.replace(/<[^>]+>/g, '').substring(0, 80) : '',
+                    date: m.date ? m.date.substring(0, 16) : '',
+                }));
+            } catch(e) {
+                this.state.notifications = [];
+            }
+        }
+    }
+
+    openLead(notif) {
+        this.state.notifOpen = false;
+        this.actionService.doAction({
+            type: 'ir.actions.act_window',
+            res_model: 'crm.lead',
+            res_id: notif.res_id,
+            view_mode: 'form',
+            views: [[false, 'form']],
+            target: 'current',
+        });
+    }
 
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 

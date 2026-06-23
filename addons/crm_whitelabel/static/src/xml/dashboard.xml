@@ -44,6 +44,29 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Bell - click only, no polling -->
+                    <div class="crm-notif-wrapper" style="position:relative;margin-right:12px;display:flex;align-items:center;">
+                        <div t-on-click="toggleNotifications" style="cursor:pointer;display:flex;align-items:center;padding:4px;">
+                            <span style="font-size:20px;color:#fff;">🔔</span>
+                            <span t-if="state.notifCount > 0"
+                                  style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;">
+                                <t t-esc="state.notifCount"/>
+                            </span>
+                        </div>
+                        <div t-if="state.notifOpen" style="position:absolute;top:36px;right:0;width:320px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:9999;max-height:350px;overflow-y:auto;">
+                            <div style="padding:10px 14px;border-bottom:1px solid #eee;font-weight:bold;font-size:13px;color:#333;">Lead Notifications</div>
+                            <t t-if="state.notifications.length === 0">
+                                <div style="padding:16px;text-align:center;color:#888;font-size:13px;">No notifications</div>
+                            </t>
+                            <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
+                                <div t-on-click="() => this.openLead(notif)" style="padding:10px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;">
+                                    <div style="font-size:13px;font-weight:600;color:#0b3d91;"><t t-esc="notif.record_name"/></div>
+                                    <div style="font-size:11px;color:#555;margin-top:2px;"><t t-esc="notif.body_text"/></div>
+                                    <div style="font-size:10px;color:#999;margin-top:3px;"><t t-esc="notif.date"/></div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
                         <span><t t-esc="state.userName"/></span>
