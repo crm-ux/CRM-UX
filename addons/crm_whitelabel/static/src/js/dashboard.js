@@ -38,6 +38,7 @@ class CrmDashboard extends Component {
         onMounted(() => {
             this.loadStats();
             this.loadCompanies();
+            this.loadNotifCount();
             // Close dropdowns when clicking outside
             this._closeDropdowns = (e) => {
                 if (!e.target.closest('.crm-user-dropdown-wrapper')) {
@@ -251,6 +252,29 @@ class CrmDashboard extends Component {
     openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
     newLead() { this.go(405); }
 
+    async loadNotifCount() {
+        try {
+            // Get unread notification IDs from localStorage
+            const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
+            const messages = await rpc('/web/dataset/call_kw', {
+                model: 'mail.message',
+                method: 'search_read',
+                args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
+                kwargs: {
+                    fields: ['id'],
+                    limit: 50,
+                    order: 'date desc',
+                },
+            });
+            const allIds = messages.map(m => m.id);
+            const unreadIds = allIds.filter(id => !readIds.includes(id));
+            this.state.notifCount = unreadIds.length;
+            this._allNotifIds = allIds;
+        } catch(e) {
+            this.state.notifCount = 0;
+        }
+    }
+
     async toggleNotifications() {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
@@ -265,7 +289,10 @@ class CrmDashboard extends Component {
                         order: 'date desc',
                     },
                 });
-                this.state.notifCount = messages.length;
+                // Mark all as read
+                const allIds = messages.map(m => m.id);
+                localStorage.setItem('crm_read_notifs', JSON.stringify(allIds));
+                this.state.notifCount = 0;
                 this.state.notifications = messages.map(m => ({
                     id: m.id,
                     res_id: m.res_id,
