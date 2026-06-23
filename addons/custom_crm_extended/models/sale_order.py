@@ -606,7 +606,7 @@ class SaleOrderLine(models.Model):
                 if not vals.get('x_product_code'):
                     vals['x_product_code'] = product.default_code or ''
                 if not vals.get('x_product_name'):
-                    vals['x_product_name'] = product.name or ''
+                    vals['x_product_name'] = product.with_context(lang='en_US').name or ''
                 if not vals.get('x_hsn_code'):
                     vals['x_hsn_code'] = product.l10n_in_hsn_code or ''
                 if not vals.get('x_make'):
@@ -646,7 +646,7 @@ class SaleOrderLineExtended(models.Model):
     def _onchange_product_name_m2o(self):
         if self.x_product_name_m2o:
             self.product_id = self.x_product_name_m2o
-            self.x_product_name = self.x_product_name_m2o.name
+            self.x_product_name = self.x_product_name_m2o.with_context(lang='en_US').name
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
