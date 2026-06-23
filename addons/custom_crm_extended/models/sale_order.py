@@ -646,6 +646,7 @@ class SaleOrderLineExtended(models.Model):
     def _onchange_product_name_m2o(self):
         if self.x_product_name_m2o:
             self.product_id = self.x_product_name_m2o
+            self.x_product_name = self.x_product_name_m2o.name
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
