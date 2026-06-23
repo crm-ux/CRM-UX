@@ -536,53 +536,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Clear existing header paragraphs
         for p in hdr.paragraphs:
             p.clear()
-        # Header table: Quotation No left + Logo right (row1), Date right (row2)
-        tbl_width = section0.page_width - section0.left_margin - section0.right_margin
-        htbl = hdr.add_table(rows=2, cols=2, width=tbl_width)
-        # Remove all borders
-        from docx.oxml import OxmlElement as _OE2
-        from docx.oxml.ns import qn as _qn2
-        tbl_pr = htbl._tbl.tblPr
-        if tbl_pr is None:
-            from docx.oxml import OxmlElement as _OE3
-            tbl_pr = _OE3('w:tblPr')
-            htbl._tbl.insert(0, tbl_pr)
-        tbl_borders = _OE2('w:tblBorders')
-        for bn in ['top','left','bottom','right','insideH','insideV']:
-            b = _OE2('w:%s' % bn)
-            b.set(_qn2('w:val'), 'none')
-            tbl_borders.append(b)
-        tbl_pr.append(tbl_borders)
-
-        # Row 1 Left: empty (or company name small)
-        lc = htbl.rows[0].cells[0]
-        lp = lc.paragraphs[0]
-        lp.alignment = WD_ALIGN_PARAGRAPH.LEFT
-
-        # Row 1 Right: Logo
-        rc = htbl.rows[0].cells[1]
-        rp1 = rc.paragraphs[0]
-        rp1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        # Header: Logo only on right
+        hdr_para = hdr.paragraphs[0] if hdr.paragraphs else hdr.add_paragraph()
+        hdr_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         if order.company_id.logo_web:
             ld = order.company_id.logo_web
             if isinstance(ld, str): ld = ld.encode()
             lbuf = io.BytesIO(base64.b64decode(ld))
-            rp1.add_run().add_picture(lbuf, width=Inches(1.5))
-
-        # Row 2 Left: Quotation No bold
-        lc2 = htbl.rows[1].cells[0]
-        rp_qno = lc2.paragraphs[0]
-        rp_qno.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        rr_qno = rp_qno.add_run('Quotation No: %s' % (self.quote_name or order.name or ''))
-        rr_qno.bold = True
-        rr_qno.font.size = Pt(10)
-
-        # Row 2 Right: Date
-        rc2 = htbl.rows[1].cells[1]
-        rp2 = rc2.paragraphs[0]
-        rp2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        rr2 = rp2.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
-        rr2.font.size = Pt(10)
+            hdr_para.add_run().add_picture(lbuf, width=Inches(1.5))
         # Blue divider line under header
         hdiv = hdr.add_paragraph()
         hpPr = hdiv._p.get_or_add_pPr()
@@ -633,6 +594,29 @@ class SaleQuotePreviewWizard(models.TransientModel):
             fcr.font.size = Pt(8)
 
         # Quotation No and Date - shaded box like PDF
+
+        # Quotation No and Date before To block
+        qd_table = doc.add_table(rows=1, cols=2)
+        qd_table.style = 'Table Grid'
+        from docx.oxml import OxmlElement as _OE4
+        from docx.oxml.ns import qn as _qn4
+        tbl_pr2 = qd_table._tbl.tblPr
+        tbl_borders2 = _OE4('w:tblBorders')
+        for bn2 in ['top','left','bottom','right','insideH','insideV']:
+            b2 = _OE4('w:%s' % bn2)
+            b2.set(_qn4('w:val'), 'none')
+            tbl_borders2.append(b2)
+        tbl_pr2.append(tbl_borders2)
+        ql = qd_table.rows[0].cells[0].paragraphs[0]
+        ql.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        qlr = ql.add_run('Quotation No: %s' % (self.quote_name or order.name or ''))
+        qlr.bold = True
+        qlr.font.size = Pt(10)
+        qr = qd_table.rows[0].cells[1].paragraphs[0]
+        qr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        qrr = qr.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
+        qrr.font.size = Pt(10)
+        doc.add_paragraph('')
 
         # To block
         to_para = doc.add_paragraph()
