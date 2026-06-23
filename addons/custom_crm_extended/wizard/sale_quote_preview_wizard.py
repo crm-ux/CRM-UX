@@ -580,6 +580,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         qr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         qrr = qr.add_run('Date: %s' % str(order.date_order.date() if order.date_order else fields.Date.today()))
         qrr.font.size = Pt(10)
+        qrr.bold = True
         doc.add_paragraph('')
 
         # To block
