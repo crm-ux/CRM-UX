@@ -643,9 +643,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
             cp_para = doc.add_paragraph()
             cp_para.add_run(self.contact_person)
 
-        # Company name bold
+        # Company name bold - strip HTML
+        import re as _re
+        clean_buyer = _re.sub(r'<[^>]+>', '', self.buyer_name or '').strip()
         company_para = doc.add_paragraph()
-        company_run = company_para.add_run(self.buyer_name or '')
+        company_run = company_para.add_run(clean_buyer)
         company_run.bold = True
         company_run.font.size = Pt(12)
 
@@ -655,16 +657,26 @@ class SaleQuotePreviewWizard(models.TransientModel):
             fn_run = fn_para.add_run(self.contact_function)
             fn_run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
 
-        # City
-        if order.partner_id.city:
-            doc.add_paragraph(order.partner_id.city)
+        # Full address with GST
+        p = order.partner_id
+        addr_lines = [x for x in [
+            p.street or '',
+            p.street2 or '',
+            ('%s %s' % (p.city or '', p.zip or '')).strip(),
+            p.state_id.name if p.state_id else '',
+            p.country_id.name if p.country_id else '',
+        ] if x]
+        for al in addr_lines:
+            doc.add_paragraph(al)
+        if p.vat:
+            gst_p = doc.add_paragraph()
+            gst_p.add_run('GST No: %s' % p.vat)
 
         # Email and Phone
         if order.partner_id.email:
             doc.add_paragraph(order.partner_id.email)
         if order.partner_id.phone:
             doc.add_paragraph(order.partner_id.phone)
-
         # Subject
         subj_para = doc.add_paragraph()
         subj_para.add_run('Subject: ').bold = True
