@@ -641,5 +641,8 @@ class SaleOrderLineExtended(models.Model):
     def _onchange_product_internal_note(self):
         """Auto-add product internal notes as a note line in quotation."""
         if self.product_id and self.product_id.description:
-            # Store internal note in x_notes field
-            self.x_notes = self.product_id.description
+            import re
+            # Strip HTML tags
+            clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
+            if clean_note:
+                self.x_notes = clean_note
