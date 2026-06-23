@@ -15,7 +15,7 @@
             </xpath>
             <!-- Contact Person below Customer -->
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="after">
-                <field name="x_contact_person_id" string="Contact Person" options="{'no_create': True, 'no_open': True}" domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]"/>
+                <field name="x_contact_person_id" string="Contact Person" options="{'no_create': True, 'no_open': True, 'display_name_only': True}" domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]" context="{'show_address': False}"/>
             </xpath>
 
             <!-- Hide Confirm button (draft state, no id) -->
