@@ -130,6 +130,7 @@ class SaleOrder(models.Model):
         string='Contact Person',
         domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]",
         help='Select contact person from customer contacts',
+        context={'show_address': False, 'no_display_parent': True},
     )
 
     x_po_number = fields.Char(
@@ -678,3 +679,13 @@ class SaleOrderLineExtended(models.Model):
                 clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
                 if clean_note:
                     self.x_notes = clean_note
+
+
+class ResPartnerContactName(models.Model):
+    _inherit = 'res.partner'
+
+    def name_get(self):
+        # When context has no_display_parent, show only own name
+        if self.env.context.get('no_display_parent'):
+            return [(p.id, p.name or '') for p in self]
+        return super().name_get()
