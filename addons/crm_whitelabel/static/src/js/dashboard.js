@@ -97,9 +97,9 @@ class CrmDashboard extends Component {
     async loadNotifications() {
         try {
             const result = await rpc('/web/dataset/call_kw', {
-                model: 'mail.notification',
+                model: 'mail.message',
                 method: 'search_count',
-                args: [[['res_partner_id', '=', user.partnerId], ['is_read', '=', false]]],
+                args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
                 kwargs: {},
             });
             this.state.notifCount = result || 0;
@@ -109,14 +109,16 @@ class CrmDashboard extends Component {
     }
 
     openNotifications() {
-        // Open a list of unread notifications for current user
         this.actionService.doAction({
             type: 'ir.actions.act_window',
             name: 'My Notifications',
-            res_model: 'mail.notification',
+            res_model: 'mail.message',
             view_mode: 'list',
             views: [[false, 'list']],
-            domain: [['res_partner_id', '=', user.partnerId], ['is_read', '=', false]],
+            domain: [
+                ['partner_ids', 'in', [user.partnerId]],
+                ['model', '=', 'crm.lead'],
+            ],
             context: {},
             target: 'new',
         });
