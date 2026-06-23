@@ -11,3 +11,4 @@ access_sale_line_media_wizard_line,sale.line.media.wizard.line,model_sale_line_m
 access_sale_order_line_image,sale.order.line.image,model_sale_order_line_image,base.group_user,1,1,1,1
 access_sale_line_media_wizard_image,sale.line.media.wizard.image,model_sale_line_media_wizard_image,base.group_user,1,1,1,1
 access_crm_lead_won_po_wizard,crm.lead.won.po.wizard.user,model_crm_lead_won_po_wizard,base.group_user,1,1,1,1
+access_utm_source_user,utm.source.user,utm.model_utm_source,base.group_user,1,1,1,0
