@@ -713,8 +713,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         pass
                 doc.add_paragraph('')
 
-        # Technical Specs - Page 2
+        # Technical Specs - New Page
         if self.technical_specs_html:
+            doc.add_page_break()
             ts_heading = doc.add_paragraph()
             ts_run = ts_heading.add_run('Technical Specifications')
             ts_run.bold = True
