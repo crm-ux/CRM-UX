@@ -806,7 +806,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         doc.add_page_break()
         quot_heading = doc.add_heading('Quotation', 2)
         quot_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        headers = ['SR No.', 'Item Description', 'HSN', 'Unit Price', 'Discount', 'After Discount', 'Qty', 'Amount']
+
+        order_lines = order.order_line.filtered(lambda l: not l.display_type)
+        has_discount = any(l.discount for l in order_lines)
+        has_overall_discount = getattr(order, 'x_flat_discount_pct', 0) or 0
+
+        if has_discount:
+            headers = ['SR No.', 'Item Description', 'Part No', 'HSN', 'Qty', 'Unit Price', 'Discount %', 'Amount']
+        else:
+            headers = ['SR No.', 'Item Description', 'Part No', 'HSN', 'Qty', 'Unit Price', 'Amount']
 
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
@@ -816,45 +824,53 @@ class SaleQuotePreviewWizard(models.TransientModel):
             run = p.add_run(h)
             run.bold = True
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            # Grey background
             tc = hdr_cells[i]._tc
             tcPr = tc.get_or_add_tcPr()
             shd = OxmlElement('w:shd')
-            shd.set(qn('w:fill'), 'F0F0F0')
+            shd.set(qn('w:fill'), 'D9E1F2')
             shd.set(qn('w:color'), 'auto')
             shd.set(qn('w:val'), 'clear')
             tcPr.append(shd)
 
-        for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
+        for idx, line in enumerate(order_lines, 1):
             row_cells = table.add_row().cells
-            desc = line.x_product_name or line.product_id.name or ''
+            desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             if line.x_make:
                 desc += '\nMake: ' + line.x_make
             if hasattr(line, 'x_notes') and line.x_notes:
-                desc += '\nNote: ' + line.x_notes
+                desc += '\nDescription: ' + line.x_notes
+            part_no = line.x_product_code or line.product_id.default_code or ''
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
             disc_pct = line.discount or 0
-            disc_amt = unit_price * disc_pct / 100
-            after_disc = unit_price - disc_amt
-            qty = line.product_uom_qty or 0
+            qty = int(line.product_uom_qty or 0)
             amount = line.price_subtotal or 0
-            disc_str = '(%s%%)=%s' % (int(disc_pct), int(disc_amt)) if disc_pct else '-'
-            row_data = [str(idx), desc, hsn, str(int(unit_price)), disc_str, str(int(after_disc)), str(int(qty)), str(int(amount))]
+
+            if has_discount:
+                disc_str = '(%s%%)' % int(disc_pct) if disc_pct else '-'
+                row_data = [str(idx), desc, part_no, hsn, str(qty), str(int(unit_price)), disc_str, str(int(amount))]
+            else:
+                row_data = [str(idx), desc, part_no, hsn, str(qty), str(int(unit_price)), str(int(amount))]
 
             for i, val in enumerate(row_data):
                 row_cells[i].text = val
-                row_cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER if i != 1 else WD_ALIGN_PARAGRAPH.LEFT
+                row_cells[i].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.LEFT if i == 1 else WD_ALIGN_PARAGRAPH.CENTER
 
         # Totals
         doc.add_paragraph('')
-        untax_p = doc.add_paragraph('Gross Total Amount: %s' % int(order.amount_untaxed))
-        untax_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        # Tax row removed
-        total_p = doc.add_paragraph('Total: %s' % int(order.amount_total))
+        gross_p = doc.add_paragraph('Gross Total Amount INR: %s' % int(order.amount_untaxed))
+        gross_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        gross_p.runs[0].bold = True
+
+        if has_overall_discount:
+            disc_amt_overall = order.amount_untaxed * has_overall_discount / 100
+            disc_p = doc.add_paragraph('Discount (%s%%): %s' % (int(has_overall_discount), int(disc_amt_overall)))
+            disc_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+        net_total = order.amount_untaxed - (order.amount_untaxed * has_overall_discount / 100) if has_overall_discount else order.amount_untaxed
+        total_p = doc.add_paragraph('Net Total Amount INR: %s' % int(net_total))
         total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         total_p.runs[0].bold = True
-
         # Terms & Conditions - flows after Quotation table
         if order.note:
             terms_heading = doc.add_heading('Terms & Conditions', 2)
