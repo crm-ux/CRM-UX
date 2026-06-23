@@ -446,33 +446,50 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 img_html = '<div style="margin-top:12px;">%s</div>' % imgs
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
+        # Build headers based on discount
+        if has_discount_pdf:
+            th_html = (
+                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
+                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount%%</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
+            )
+        else:
+            th_html = (
+                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
+                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
+            )
+
+        # Overall discount totals
+        totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>&#8377;%s</b></p>' % int(order.amount_untaxed)
+        if has_overall_disc:
+            disc_overall = order.amount_untaxed * has_overall_disc / 100
+            totals_html += '<p style="margin:4px 0;">Discount (%s%%): &#8377;%s</p>' % (int(has_overall_disc), int(disc_overall))
+        net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
+        totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: &#8377;%s</p>' % int(net)
+
         table_html = (
             '<div style="page-break-before:always;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
-            'margin:16px 0 14px 0;'
-            'letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
+            'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:12px;">'
             '<thead>'
-            '<tr style="background:#2c3e50;color:#fff;">'
-            '<th style="padding:8px 5px;text-align:center;width:45px;border:1px solid #2c3e50;">SR No.</th>'
-            '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-            '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
-            '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount</th>'
-            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">After Disc.</th>'
-            '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
-            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
-            '</tr>'
+            '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s</tbody>'
             '</table>'
-            '<div style="margin-top:12px;text-align:right;font-size:13px;border-top:1px solid #ccc;padding-top:8px;">'
-            '<p style="margin:4px 0;">Subtotal: <b>&#8377;%s</b></p>'
-            '%s'
-            '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Grand Total: &#8377;%s</p>'
+            '<div style="margin-top:12px;text-align:right;font-size:13px;border-top:1px solid #ccc;padding-top:8px;">%s</div>'
             '</div>'
-            '</div>'
-        ) % (rows, int(order.amount_untaxed), tax_row, int(order.amount_total))
+        ) % (th_html, rows, totals_html)
 
         # ── TERMS ──
         terms_html = ''
