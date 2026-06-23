@@ -8,14 +8,6 @@
                     YANTRACONNECT · CRM
                 </div>
                 <div class="crm-topbar-right">
-                    <!-- Bell notification icon -->
-                    <div class="crm-notif-wrapper" t-on-click="openNotifications" style="position:relative;cursor:pointer;margin-right:12px;display:flex;align-items:center;">
-                        <span style="font-size:20px;color:#fff;">🔔</span>
-                        <span t-if="state.notifCount > 0"
-                              style="position:absolute;top:-4px;right:-6px;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;">
-                            <t t-esc="state.notifCount"/>
-                        </span>
-                    </div>
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
@@ -52,6 +44,14 @@
                                 </t>
                             </div>
                         </div>
+                    </div>
+                    <!-- Bell notification icon after Companies -->
+                    <div class="crm-notif-wrapper" t-on-click="openNotifications" style="position:relative;cursor:pointer;margin-right:12px;margin-left:8px;display:flex;align-items:center;">
+                        <span style="font-size:20px;color:#fff;">🔔</span>
+                        <span t-if="state.notifCount > 0"
+                              style="position:absolute;top:-4px;right:-6px;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;">
+                            <t t-esc="state.notifCount"/>
+                        </span>
                     </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
