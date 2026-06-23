@@ -692,7 +692,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         doc.add_paragraph('')
         doc.add_paragraph('Dear Sir,')
         best_offer = self.best_offer_for or ''
-        doc.add_paragraph('With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote\nour best offer for %s.' % best_offer)
+        doc.add_paragraph('With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for %s.' % best_offer)
         doc.add_paragraph('')
 
         # Images - Page 3
