@@ -398,7 +398,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         ] if x]
         addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:12px;">%s</p>' % a for a in addr_parts)
         if p.vat:
-            addr_html += '<p style="margin:0 0 1px 0;font-size:12px;font-weight:bold;">GST No: %s</p>' % p.vat
+            addr_html += '<p style="margin:6px 0 1px 0;font-size:12px;font-weight:bold;">GST No: %s</p>' % p.vat
         if p.phone:
             addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Ph: %s</p>' % p.phone
         if p.email:
