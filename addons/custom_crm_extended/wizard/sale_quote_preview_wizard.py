@@ -479,9 +479,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, disc_str, int(unit_price), qty, int(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, int(unit_price), disc_str, int(amount))
             else:
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, int(unit_price), qty, int(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, int(unit_price), int(amount))
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
         # Build headers based on discount
@@ -491,9 +491,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount%%</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount %%</th>'
                 '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
             )
         else:
@@ -502,8 +502,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
                 '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
             )
 
