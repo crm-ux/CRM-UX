@@ -403,9 +403,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
             addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Email: %s</p>' % p.email
 
         # ── PAGE 1: INTRO ──
+        _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
+        _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
             '<div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#222;margin-top:8px;">'
-            '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
+            '<table style="width:100%%;border-collapse:collapse;margin-bottom:12px;">'
+            '<tr>'
+            '<td style="text-align:left;"><b>Quotation No: %s</b></td>'
+            '<td style="text-align:right;"><b>Date: %s</b></td>'
+            '</tr>'
+            '</table>'
+            '<p style="margin:0 0 3px 0;"><b>To,</b></p>') % (self.quote_name or order.name or '', _pdf_date_str) + (
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
             + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
             + ('<p style="margin:0 0 1px 0;font-size:12px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
@@ -464,7 +472,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             if make: desc += '<br/><b>Make:</b> %s' % make
             if note: desc += '<br/><b>Description:</b> %s' % note
-            row_bg = '#f9f9f9' if idx2 %% 2 == 0 else '#fff'
+            row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
                 rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, disc_str, int(unit_price), qty, int(amount))
@@ -530,7 +538,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
             )
 
         # ── COMBINE ──
-        full_html = intro_html + tech_html + img_html + table_html + terms_html
+        # Closing signature
+        closing_html = (
+            '<div style="margin-top:30px;font-family:Arial,sans-serif;font-size:13px;">'
+            '<p style="margin:4px 0;">Thanking You,</p>'
+            '<p style="margin:4px 0;">Sincerely,</p>'
+            '<br/>'
+            '<p style="margin:4px 0;font-weight:bold;">%s</p>'
+            '<p style="margin:4px 0;">%s</p>'
+            '</div>'
+        ) % (order.user_id.name or '', order.company_id.name or '')
+        full_html = intro_html + tech_html + img_html + table_html + terms_html + closing_html
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
         logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
