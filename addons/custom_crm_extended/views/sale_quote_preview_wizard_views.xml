@@ -84,38 +84,11 @@
                         style="height:60px;max-width:200px;object-fit:contain;display:inline-block;"/>
                 </t>
             </div>
-            <!-- Row 2: Quotation No left, Date right (under logo) -->
-            <div style="width:100%;display:table;border-collapse:collapse;padding:1px 0 2px 0;">
-                <div style="display:table-cell;font-size:10pt;font-family:Arial,sans-serif;color:#222;vertical-align:middle;text-align:left;">
-                    <b>Quotation No:</b>&#160;<t t-esc="docs[0].sudo().quote_name or docs[0].sudo().order_id.name"/>
-                </div>
-                <div style="display:table-cell;font-size:10pt;font-family:Arial,sans-serif;color:#222;vertical-align:middle;text-align:right;">
-                    <b>Date:</b>&#160;<t t-esc="str(docs[0].sudo().order_id.date_order.date()) if docs[0].sudo().order_id.date_order else ''"/>
-                </div>
-            </div>
             <div style="border-top:2px solid #0096b4;margin:2px 0 0 0;"></div>
         </div>
 
         <!-- FOOTER: repeats on every page, bottom -->
         <div class="footer" style="width:100%;padding:0;margin:0;">
-            <hr style="border:none;border-top:1.5px solid #444;margin:0 0 3px 0;padding:0;"/>
-            <div style="text-align:center;font-family:Arial,sans-serif;color:#222;line-height:1.6;padding:2px 5mm;">
-                <div style="font-size:11pt;font-weight:bold;"><t t-esc="comp0.name"/></div>
-                <div style="font-size:9pt;">
-                    <t t-if="cp0.street"><t t-esc="cp0.street"/></t>
-                    <t t-if="cp0.street2">, <t t-esc="cp0.street2"/></t>
-                    <t t-if="cp0.city">, <t t-esc="cp0.city"/></t>
-                    <t t-if="cp0.state_id">, <t t-esc="cp0.state_id.name"/></t>
-                    <t t-if="cp0.zip"> - <t t-esc="cp0.zip"/></t>
-                    <t t-if="cp0.country_id">, <t t-esc="cp0.country_id.name"/></t>
-                </div>
-                <div style="font-size:9pt;">
-                    <t t-if="comp0.vat">GST: <t t-esc="comp0.vat"/></t>
-                    <t t-if="cp0.phone"> | Ph: <t t-esc="cp0.phone"/></t>
-                    <t t-if="cp0.email"> | Email: <t t-esc="cp0.email"/></t>
-                </div>
-            </div>
-        </div>
 
         <main style="width:100%;">
             <t t-foreach="docs" t-as="doc">
