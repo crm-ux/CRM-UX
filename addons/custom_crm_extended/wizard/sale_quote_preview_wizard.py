@@ -607,7 +607,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             ld = order.company_id.logo_web
             if isinstance(ld, str): ld = ld.encode()
             lbuf = io.BytesIO(base64.b64decode(ld))
-            hdr_para.add_run().add_picture(lbuf, width=Inches(1.5))
+            hdr_para.add_run().add_picture(lbuf, width=Inches(2.5))
 
 
 
