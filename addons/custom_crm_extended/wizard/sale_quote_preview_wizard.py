@@ -434,7 +434,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
                 '<div style="page-break-before:always;margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
-                '<p style="font-weight:bold;font-size:13px;margin:10px 0 6px 0;border-bottom:2px solid #0096b4;padding-bottom:4px;">Technical Specifications</p>'
+                '<p style="font-weight:bold;font-size:13px;margin:10px 0 16px 0;border-bottom:2px solid #0096b4;padding-bottom:6px;">Technical Specifications</p><br/>'
                 + str(styled)
                 + '</div>'
             )
