@@ -433,7 +433,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
+                '<div style="page-break-before:always;margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
                 '<p style="font-weight:bold;font-size:13px;margin:10px 0 6px 0;border-bottom:2px solid #0096b4;padding-bottom:4px;">Technical Specifications</p>'
                 + str(styled)
                 + '</div>'
@@ -549,7 +549,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p style="margin:4px 0;">%s</p>'
             '</div>'
         ) % (order.user_id.name or '', order.company_id.name or '')
-        full_html = intro_html + tech_html + img_html + table_html + terms_html + closing_html
+        full_html = intro_html + img_html + tech_html + table_html + terms_html + closing_html
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
         logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
