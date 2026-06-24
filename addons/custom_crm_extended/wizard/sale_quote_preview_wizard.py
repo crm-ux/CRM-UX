@@ -409,7 +409,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
-            '<div style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:8px;">'
+            '<div style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
             '<div style="overflow:hidden;margin-bottom:12px;">'
             '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
             '<span style="float:right;font-weight:bold;">Date: %s</span>'
