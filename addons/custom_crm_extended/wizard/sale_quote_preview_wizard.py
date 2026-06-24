@@ -138,15 +138,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
         # INTRO section (header info, before table)
         intro_html = (
-            '<p style="font-size:13px;margin-top:10px;"><b>To,</b></p>'
-            '<p style="font-size:13px;margin:2px 0;">%s</p>'
+            '<p style="font-size:11px;margin-top:10px;"><b>To,</b></p>'
+            '<p style="font-size:11px;margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
             '<p style="margin:2px 0;">%s</p>'
             '<br/>'
-            '<p style="font-size:13px;margin-bottom:10px;"><b>Subject:</b> Quotation for Products / Services</p>'
+            '<p style="font-size:11px;margin-bottom:10px;"><b>Subject:</b> Quotation for Products / Services</p>'
             '<br/>'
-            '<p style="font-size:13px;">Dear Sir,</p>'
+            '<p style="font-size:11px;">Dear Sir,</p>'
             '<p>%s</p>'
         ) % (
             order.partner_id.name or '',
@@ -160,7 +160,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         table_html = (
             '<div style="page-break-inside:avoid;padding:20px 0 10px 0;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;margin:0 0 12px 0;padding:8px 0;border-top:2px solid #333;border-bottom:2px solid #333;">Quotation</p>'
-            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:13px;page-break-inside:avoid;" contenteditable="false">'
+            '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:11px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
             '<th style="text-align:center;width:55px;white-space:nowrap;">SR No.</th>'
             '<th style="text-align:left;">Item Description</th>'
@@ -174,9 +174,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tbody>%s</tbody>'
             '</table>'
             '<br/>'
-            '<p style="text-align:right;font-size:13px;"><b>Gross Total Amount:</b> %s</p>'
+            '<p style="text-align:right;font-size:11px;"><b>Gross Total Amount:</b> %s</p>'
             '%s'
-            '<p style="text-align:right;font-size:13px;"><b>Total:</b> %s</p>'
+            '<p style="text-align:right;font-size:11px;"><b>Total:</b> %s</p>'
             '</div>'
         ) % (
             rows,
@@ -202,8 +202,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         footer_html = ''  # Address shown in sidebar only
         terms_html = (
             '<div style="margin-top:20px;">'
-            '<h3 style="text-align:center;font-size:13px;font-weight:bold;margin:12px 0 10px 0;">Terms &amp; Conditions</h3>'
-            '<div style="font-size:13px;line-height:1.6;">%s</div>'
+            '<h3 style="text-align:center;font-size:11px;font-weight:bold;margin:12px 0 10px 0;">Terms &amp; Conditions</h3>'
+            '<div style="font-size:11px;line-height:1.6;">%s</div>'
             '%s'
             '</div>'
         ) % (terms_content, footer_html)
@@ -312,7 +312,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Style table tags
         html_str = re.sub(
             r'<table(?![^>]*style)[^>]*>',
-            '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;" border="1" cellpadding="6" cellspacing="0">',
+            '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px;" border="1" cellpadding="6" cellspacing="0">',
             html_str
         )
         # Style th tags
@@ -379,7 +379,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # ── TAX ROW ──
         tax_row = ''
         if gst_on and order.amount_tax:
-            tax_row = '<p style="text-align:right;margin:4px 0;font-size:12px;">Tax (GST): <b>&#8377;%s</b></p>' % int(order.amount_tax)
+            tax_row = '<p style="text-align:right;margin:4px 0;font-size:11px;">Tax (GST): <b>&#8377;%s</b></p>' % int(order.amount_tax)
 
         # ── SUBJECT / INTRO ──
         subject = self.subject or 'Quotation for Products / Services'
@@ -396,20 +396,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
             ('%s %s' % (p.city or '', p.zip or '')).strip(),
             p.state_id.name if p.state_id else '',
         ] if x]
-        addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:12px;">%s</p>' % a for a in addr_parts)
+        addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:11px;">%s</p>' % a for a in addr_parts)
         addr_html += '<br/>'
         if p.vat:
-            addr_html += '<p style="margin:6px 0 1px 0;font-size:12px;font-weight:bold;">GST No: %s</p>' % p.vat
+            addr_html += '<p style="margin:6px 0 1px 0;font-size:11px;font-weight:bold;">GST No: %s</p>' % p.vat
         if p.phone:
-            addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Ph: %s</p>' % p.phone
+            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Ph: %s</p>' % p.phone
         if p.email:
-            addr_html += '<p style="margin:0 0 1px 0;font-size:12px;">Email: %s</p>' % p.email
+            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Email: %s</p>' % p.email
 
         # ── PAGE 1: INTRO ──
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
-            '<div style="font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#222;margin-top:8px;">'
+            '<div style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:8px;">'
             '<div style="overflow:hidden;margin-bottom:12px;">'
             '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
             '<span style="float:right;font-weight:bold;">Date: %s</span>'
@@ -420,7 +420,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
             + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
-            + ('<p style="margin:0 0 1px 0;font-size:12px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
+            + ('<p style="margin:0 0 1px 0;font-size:11px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
             + addr_html
             + '<br/>'
             + '<p style="margin:6px 0;"><b>Subject:</b> %s</p>' % subject
@@ -435,8 +435,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="page-break-before:always;margin-top:16px;font-family:Arial,sans-serif;font-size:13px;">'
-                '<p style="font-weight:bold;font-size:13px;margin:10px 0 16px 0;">Technical Specifications</p><br/>'
+                '<div style="page-break-before:always;margin-top:16px;font-family:Arial,sans-serif;font-size:11px;">'
+                '<p style="font-weight:bold;font-size:11px;margin:10px 0 16px 0;">Technical Specifications</p><br/>'
                 + str(styled)
                 + '</div>'
             )
@@ -518,13 +518,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<div style="page-break-before:always;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
-            '<table style="width:100%%;border-collapse:collapse;font-size:12px;">'
+            '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
             '<thead>'
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s</tbody>'
             '</table>'
-            '<div style="margin-top:12px;text-align:right;font-size:13px;border-top:1px solid #ccc;padding-top:8px;">%s</div>'
+            '<div style="margin-top:12px;text-align:right;font-size:11px;border-top:1px solid #ccc;padding-top:8px;">%s</div>'
             '</div>'
         ) % (th_html, rows, totals_html)
 
@@ -532,8 +532,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         terms_html = ''
         if order.note:
             terms_html = (
-                '<div style="margin-top:20px;font-family:Arial,sans-serif;font-size:12px;">'
-                '<p style="text-align:center;font-weight:bold;font-size:13px;'
+                '<div style="margin-top:20px;font-family:Arial,sans-serif;font-size:11px;">'
+                '<p style="text-align:center;font-weight:bold;font-size:11px;'
                 'padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
                 + str(order.note)
@@ -543,7 +543,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # ── COMBINE ──
         # Closing signature
         closing_html = (
-            '<div style="margin-top:30px;font-family:Arial,sans-serif;font-size:13px;">'
+            '<div style="margin-top:30px;font-family:Arial,sans-serif;font-size:11px;">'
             '<p style="margin:4px 0;">Thanking You,</p>'
             '<p style="margin:4px 0;">Sincerely,</p>'
             '<br/>'
@@ -629,13 +629,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         ql.alignment = WD_ALIGN_PARAGRAPH.LEFT
         qlr = ql.add_run('Quotation No: %s' % (self.quote_name or order.name or ''))
         qlr.bold = True
-        qlr.font.size = Pt(10)
+        qlr.font.size = Pt(11)
         qr = qd_table.rows[0].cells[1].paragraphs[0]
         qr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         _date = order.date_order.date() if order.date_order else fields.Date.today()
         _date_str = _date.strftime('%d-%m-%Y')
         qrr = qr.add_run('Date: %s' % _date_str)
-        qrr.font.size = Pt(10)
+        qrr.font.size = Pt(11)
         qrr.bold = True
         doc.add_paragraph('')
 
@@ -654,7 +654,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         company_para = doc.add_paragraph()
         company_run = company_para.add_run(clean_buyer)
         company_run.bold = True
-        company_run.font.size = Pt(12)
+        company_run.font.size = Pt(11)
 
         # Job title
         if self.contact_function:
@@ -724,7 +724,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             ts_heading = doc.add_paragraph()
             ts_run = ts_heading.add_run('Technical Specifications')
             ts_run.bold = True
-            ts_run.font.size = Pt(12)
+            ts_run.font.size = Pt(11)
             # Parse HTML and render BOTH text and tables in order
             try:
                 from bs4 import BeautifulSoup
@@ -914,12 +914,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
                             r1.bold = True
-                            r1.font.size = Pt(10)
+                            r1.font.size = Pt(11)
                             r2 = p.add_run(rest)
-                            r2.font.size = Pt(10)
+                            r2.font.size = Pt(11)
                         else:
                             r = p.add_run(part)
-                            r.font.size = Pt(10)
+                            r.font.size = Pt(11)
                 else:
                     cell.text = val
                     cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
