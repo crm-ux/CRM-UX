@@ -463,6 +463,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_overall_disc = getattr(order, 'x_flat_discount_pct', 0) or 0
 
         # Build PDF rows
+        import logging as _log
+        _log.getLogger(__name__).warning('PDF DEBUG: order=%s lines=%s has_disc=%s discounts=%s', order.id, len(order_lines_pdf), has_discount_pdf, [l.discount for l in order_lines_pdf])
         rows = ''
         for idx2, line in enumerate(order_lines_pdf, 1):
             part_no = line.x_product_code or line.product_id.default_code or ''
