@@ -182,7 +182,7 @@ class CrmDashboard extends Component {
                 this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2],...companyDomain,...userDomain]),
                 this._count("sale.order", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
                 this._count("sale.order", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
-                this._count("res.partner", isAdmin ? [["customer_rank",">",0]] : [["customer_rank",">",0],["user_id","=",user.userId]]),
+                this._count("res.partner", [["customer_rank",">",0]]),
                 this._count("product.template", [["sale_ok","=",true]]),
                 this._count("res.users", [["active","=",true],["share","=",false]]),
                 this._sum("sale.order", "amount_total", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
@@ -236,9 +236,7 @@ class CrmDashboard extends Component {
         this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
     }
     openContacts() {
-        const isAdmin = user.userId === 2;
-        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["customer_rank",">",0],...userFilter];
+        const domain = [["customer_rank",">",0]];
         this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain });
     }
     openProducts() { this.go({ type:"ir.actions.act_window", name:"Products", res_model:"product.template", views:[[false,"list"],[false,"form"]] }); }
