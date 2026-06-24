@@ -608,17 +608,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if isinstance(ld, str): ld = ld.encode()
             lbuf = io.BytesIO(base64.b64decode(ld))
             hdr_para.add_run().add_picture(lbuf, width=Inches(1.5))
-        # Blue divider line under header
-        hdiv = hdr.add_paragraph()
-        hpPr = hdiv._p.get_or_add_pPr()
-        hpBdr = _OE('w:pBdr')
-        hbot = _OE('w:bottom')
-        hbot.set(_qn('w:val'), 'single')
-        hbot.set(_qn('w:sz'), '6')
-        hbot.set(_qn('w:space'), '1')
-        hbot.set(_qn('w:color'), '0096b4')
-        hpBdr.append(hbot)
-        hpPr.append(hpBdr)
+
 
 
         # Quotation No and Date - shaded box like PDF
