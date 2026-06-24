@@ -13,5 +13,5 @@ access_sale_line_media_wizard_image,sale.line.media.wizard.image,model_sale_line
 access_crm_lead_won_po_wizard,crm.lead.won.po.wizard.user,model_crm_lead_won_po_wizard,base.group_user,1,1,1,1
 access_utm_source_user,utm.source.user,utm.model_utm_source,base.group_user,1,0,0,0
 access_utm_source_admin,utm.source.admin,utm.model_utm_source,base.group_system,1,1,1,1
-access_sale_terms_template,sale.terms.template,model_sale_terms_template,base.group_user,1,0,0,0
-access_sale_terms_template_admin,sale.terms.template.admin,model_sale_terms_template,base.group_system,1,1,1,1
+access_sale_terms_condition,sale.terms.condition,model_sale_terms_condition,base.group_user,1,0,0,0
+access_sale_terms_condition_admin,sale.terms.condition.admin,model_sale_terms_condition,base.group_system,1,1,1,1
