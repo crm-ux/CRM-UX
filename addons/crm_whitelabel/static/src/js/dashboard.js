@@ -237,7 +237,8 @@ class CrmDashboard extends Component {
     }
     openContacts() {
         const domain = [["customer_rank",">",0]];
-        this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain });
+        const isAdmin = user.userId === 2;
+        this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain, context: isAdmin ? {} : {"create": false, "delete": false, "edit": false} });
     }
     openProducts() { this.go({ type:"ir.actions.act_window", name:"Products", res_model:"product.template", views:[[false,"list"],[false,"form"]] }); }
     openUsers() { this.go({ type:"ir.actions.act_window", name:"Users", res_model:"res.users", views:[[false,"list"],[false,"form"]], domain:[["share","=",false]] }); }
