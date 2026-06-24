@@ -26,6 +26,7 @@
         'views/crm_lead_product_views.xml',
         'views/sale_order_views.xml',
         'views/sale_quote_preview_wizard_views.xml',
+        'views/sale_terms_template_views.xml',
         'views/crm_refuse_wizard_views.xml',
         'views/crm_csv_import_wizard_views.xml',
         'views/sale_line_media_wizard_views.xml',

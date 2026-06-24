@@ -6,3 +6,5 @@ from . import sale_order_patch
 from . import crm_lead_ext
 from . import product_template
 from . import res_users
+from . import sale_terms
+from . import sale_terms_template
