@@ -88,7 +88,7 @@
         </div>
 
         <!-- FOOTER: repeats on every page, bottom -->
-        <div class="footer" style="width:100%;padding:0;margin:0;">
+        <div class="footer" style="width:100%;padding:0;margin:0;"></div>
 
         <main style="width:100%;">
             <t t-foreach="docs" t-as="doc">
