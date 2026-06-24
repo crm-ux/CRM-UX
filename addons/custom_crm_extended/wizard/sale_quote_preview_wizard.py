@@ -413,7 +413,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<td style="text-align:right;"><b>Date: %s</b></td>'
             '</tr>'
             '</table>'
-            '<p style="margin:0 0 3px 0;"><b>To,</b></p>') % (self.quote_name or order.name or '', _pdf_date_str) + (
+            ) % (self.quote_name or order.name or '', _pdf_date_str)
+        intro_html += (
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
             + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
             + ('<p style="margin:0 0 1px 0;font-size:12px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
