@@ -47,7 +47,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             hsn = line.product_id.l10n_in_hsn_code or ''
             make = line.x_make or ''
             unit_price = line.price_unit or 0
-            discount_pct = line.discount or 0
+            discount_pct = (line.discount or 0) * 100 if (line.discount or 0) <= 1 else (line.discount or 0)
             disc_amount = unit_price * discount_pct / 100
             after_discount = unit_price - disc_amount
             qty = line.product_uom_qty or 0
@@ -463,8 +463,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_overall_disc = getattr(order, 'x_flat_discount_pct', 0) or 0
 
         # Build PDF rows
-        import logging as _log
-        _log.getLogger(__name__).warning('PDF DEBUG: order=%s lines=%s has_disc=%s discounts=%s', order.id, len(order_lines_pdf), has_discount_pdf, [l.discount for l in order_lines_pdf])
         rows = ''
         for idx2, line in enumerate(order_lines_pdf, 1):
             part_no = line.x_product_code or line.product_id.default_code or ''
