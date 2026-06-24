@@ -16,7 +16,7 @@
                             </button>
                             <div class="crm-company-dropdown" t-if="state.adminMenuOpen">
                                 <div class="crm-company-dropdown-header">Admin Quick Links</div>
-                                <a href="/odoo/contacts?customer_rank=1" class="crm-admin-menu-item">Customers</a>
+                                <a t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
                                 <a href="/odoo/companies" class="crm-admin-menu-item">Companies</a>
                                 <a href="/odoo/action-383" class="crm-admin-menu-item">Quotations</a>
                                 <a href="/odoo/settings/users" class="crm-admin-menu-item">Users</a>
