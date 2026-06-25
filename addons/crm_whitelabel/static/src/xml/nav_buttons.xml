@@ -2,6 +2,6 @@
 <templates xml:space="preserve">
     <t t-name="crm_whitelabel.NavButtons">
         <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
-        <button class="btn btn-secondary ms-1" t-on-click="goSettings">Settings</button>
+        <button class="btn btn-secondary ms-1" disabled="1" style="opacity:0.5; cursor:not-allowed;">Settings</button>
     </t>
 </templates>
