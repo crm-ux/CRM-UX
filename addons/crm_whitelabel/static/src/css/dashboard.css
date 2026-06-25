@@ -223,8 +223,9 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
     z-index: 999;
 }
 .crm-topbar-left {
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 0.5px;
+    font-size: 22px;
 }
 .crm-topbar-right {
     display: flex;
