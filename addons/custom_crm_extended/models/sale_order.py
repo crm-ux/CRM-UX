@@ -672,6 +672,17 @@ class SaleOrderLineExtended(models.Model):
                     self.x_notes = clean_note
 
 
+class SaleOrderSettings(models.Model):
+    _inherit = 'sale.order'
+
+    def action_open_settings(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/odoo/settings',
+            'target': 'self',
+        }
+
+
 class ResPartnerContactName(models.Model):
     _inherit = 'res.partner'
 
@@ -685,9 +696,4 @@ class ResPartnerContactName(models.Model):
             return [(p.id, p.name or '') for p in self]
         return super().name_get()
 
-    def action_open_settings(self):
-        return {
-            'type': 'ir.actions.act_url',
-            'url': '/odoo/settings',
-            'target': 'self',
-        }
+
