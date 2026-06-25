@@ -246,3 +246,10 @@
         </div>
     </t>
 </templates>
+
+<template id="NavButtons" xml:space="preserve">
+    <div style="display:flex;align-items:center;gap:6px;">
+        <button t-on-click="goDashboard" style="background:rgba(255,255,255,0.15);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:13px;">🏠 Dashboard</button>
+        <button t-on-click="goSettings" style="background:rgba(255,255,255,0.15);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:13px;">⚙ Settings</button>
+    </div>
+</template>
