@@ -675,6 +675,13 @@ class SaleOrderLineExtended(models.Model):
 class SaleOrderSettings(models.Model):
     _inherit = 'sale.order'
 
+    def action_go_dashboard(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/odoo/action-435',
+            'target': 'self',
+        }
+
     def action_open_settings(self):
         return {
             'type': 'ir.actions.act_url',
