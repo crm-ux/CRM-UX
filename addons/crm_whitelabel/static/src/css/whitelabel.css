@@ -1,14 +1,6 @@
-/* Hide only breadcrumb text links, keep buttons visible */
-.o_breadcrumb .o_breadcrumb_item,
-.o_breadcrumb .o_back_button,
-.o_breadcrumb span,
-.o_breadcrumb a {
-    display: none !important;
-}
-
-/* Hide breadcrumb separator slash */
-.o_breadcrumb ol li.o_breadcrumb_item:last-child,
-.o_breadcrumb .o_breadcrumb_item + .o_breadcrumb_item::before,
-.o_breadcrumb > ol > li:last-child {
+/* Hide entire breadcrumb ol - removes text and slash */
+.o_breadcrumb ol,
+.o_breadcrumb > ol,
+.o_control_panel_breadcrumbs > .o_breadcrumb > ol {
     display: none !important;
 }
