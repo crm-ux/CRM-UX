@@ -684,3 +684,10 @@ class ResPartnerContactName(models.Model):
         if self.env.context.get('no_display_parent'):
             return [(p.id, p.name or '') for p in self]
         return super().name_get()
+
+    def action_open_settings(self):
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/odoo/settings',
+            'target': 'self',
+        }
