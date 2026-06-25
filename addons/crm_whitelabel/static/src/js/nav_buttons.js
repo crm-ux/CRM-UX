@@ -1,7 +1,7 @@
 /** @odoo-module **/
-import { useService } from "@web/core/utils/hooks";
-import { Component } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { Component, onMounted, useEffect } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 class NavButtons extends Component {
     static template = "crm_whitelabel.NavButtons";
@@ -9,22 +9,37 @@ class NavButtons extends Component {
 
     setup() {
         this.action = useService("action");
+        
+        useEffect(() => {
+            this._injectButtons();
+            // Re-inject on route change
+            const observer = new MutationObserver(() => this._injectButtons());
+            observer.observe(document.body, { childList: true, subtree: true });
+            return () => observer.disconnect();
+        });
     }
 
-    goDashboard() {
-        this.action.doAction(435);
-    }
+    _injectButtons() {
+        const container = document.querySelector('.o_control_panel_main_buttons');
+        if (!container) return;
+        if (container.querySelector('.crm-nav-btn')) return;
 
-    goSettings() {
-        window.location.href = '/odoo/settings';
+        const dashBtn = document.createElement('button');
+        dashBtn.className = 'btn btn-secondary crm-nav-btn';
+        dashBtn.textContent = 'Dashboard';
+        dashBtn.onclick = () => this.action.doAction(435);
+
+        const settBtn = document.createElement('button');
+        settBtn.className = 'btn btn-secondary crm-nav-btn';
+        settBtn.textContent = 'Settings';
+        settBtn.onclick = () => { window.location.href = '/odoo/settings'; };
+
+        container.appendChild(dashBtn);
+        container.appendChild(settBtn);
     }
 }
 
-// Only show on non-dashboard pages
-const currentPath = window.location.pathname;
-if (!currentPath.endsWith('/action-435') || currentPath.includes('/action-435/')) {
-    registry.category("systray").add("crm_nav_buttons", {
-        Component: NavButtons,
-        sequence: 1,
-    });
-}
+registry.category("systray").add("crm_nav_buttons", {
+    Component: NavButtons,
+    sequence: 999,
+});
