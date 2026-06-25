@@ -1,22 +1,14 @@
 /** @odoo-module **/
-import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
+import { patch } from "@web/core/utils/patch";
+import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { useService } from "@web/core/utils/hooks";
 
-class NavButtons extends Component {
-    static template = "crm_whitelabel.NavButtons";
-    static props = {};
-
+patch(ControlPanel.prototype, {
     setup() {
+        super.setup(...arguments);
         this.action = useService("action");
-    }
-
+    },
     goDashboard() {
         this.action.doAction(435);
     }
-}
-
-registry.category("systray").add("crm_nav_buttons", {
-    Component: NavButtons,
-    sequence: 999,
 });
