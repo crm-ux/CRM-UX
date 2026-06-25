@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="view_sale_order_list_custom" model="ir.ui.view">
+        <field name="name">sale.order.list.custom.buttons</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="create">true</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_sale_order_with_buttons" model="ir.actions.act_window">
+        <field name="name">Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"search_default_my_sale_order_button": 1}</field>
+        <field name="domain">[["state","in",["draft","sent"]]]</field>
+    </record>
+
     <record id="view_sale_order_form_custom" model="ir.ui.view">
         <field name="name">sale.order.form.custom</field>
         <field name="model">sale.order</field>
