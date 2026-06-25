@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+        if 'note' in fields_list and not res.get('note'):
+            terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+            if terms:
+                items = ''.join('<li>%s</li>' % t.content for t in terms)
+                res['note'] = '<ol>%s</ol>' % items
+            else:
+                res['note'] = ''# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
