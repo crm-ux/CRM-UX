@@ -23,6 +23,9 @@
                         </group>
                     </group>
 
+                    <separator string="Terms &amp; Conditions"/>
+                    <field name="selected_term_ids" widget="many2many_checkboxes" nolabel="1"/>
+                    <button name="action_apply_terms" string="Apply Selected Terms" type="object" class="btn-secondary"/>
                     <separator string="Technical Specifications (optional)"/>
                     <field name="technical_specs_html" widget="html" nolabel="1" placeholder="Add technical specifications here..."/>
                     <separator string="Quote Images (optional)"/>

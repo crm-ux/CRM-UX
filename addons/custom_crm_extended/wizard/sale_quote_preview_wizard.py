@@ -25,6 +25,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
     x_table_html = fields.Html(string='Commercial Table HTML')
     x_terms_html = fields.Html(string='Terms HTML')
     technical_specs_html = fields.Html(string='Technical Specifications')
+    selected_term_ids = fields.Many2many(
+        'sale.terms.condition',
+        'sale_quote_wizard_terms_rel',
+        'wizard_id', 'term_id',
+        string='Terms & Conditions'
+    )
     quote_image_ids = fields.Many2many(
         'ir.attachment', 'sale_quote_wizard_image_rel',
         'wizard_id', 'attachment_id',
@@ -555,6 +561,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
         logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
+
+    def action_apply_terms(self):
+        self.ensure_one()
+        order = self.order_id
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            order.sudo().write({'note': '<ol>%s</ol>' % items})
+        self._rebuild_document_html()
+        return {'type': 'ir.actions.do_nothing'}
 
     def action_add_images(self):
         self.ensure_one()
