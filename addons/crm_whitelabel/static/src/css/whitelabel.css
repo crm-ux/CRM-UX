@@ -1,12 +1,7 @@
-
-/* Hide breadcrumb navigation */
-.o_breadcrumb,
-.o_control_panel_breadcrumbs,
-nav.o_breadcrumb {
-    display: none !important;
-}
-
-/* Hide breadcrumb - keep only buttons */
-.o_breadcrumb {
+/* Hide only breadcrumb text links, keep buttons visible */
+.o_breadcrumb .o_breadcrumb_item,
+.o_breadcrumb .o_back_button,
+.o_breadcrumb span,
+.o_breadcrumb a {
     display: none !important;
 }
