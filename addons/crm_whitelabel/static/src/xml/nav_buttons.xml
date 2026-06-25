@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-name="crm_whitelabel.NavButtons">
-        <button class="btn btn-secondary" t-on-click="goDashboard">Dashboard</button>
-        <button class="btn btn-secondary" t-on-click="goSettings">Settings</button>
+        <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
+        <button class="btn btn-secondary ms-1" t-on-click="goSettings">Settings</button>
     </t>
 </templates>

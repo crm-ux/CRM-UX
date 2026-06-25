@@ -20,10 +20,7 @@ class NavButtons extends Component {
     }
 }
 
-// Guard: only register once
-if (!registry.category("systray").contains("crm_nav_buttons")) {
-    registry.category("systray").add("crm_nav_buttons", {
-        Component: NavButtons,
-        sequence: 999,
-    });
-}
+registry.category("systray").add("crm_nav_buttons", {
+    Component: NavButtons,
+    sequence: 999,
+});
