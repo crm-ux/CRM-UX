@@ -120,7 +120,7 @@
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='discount']" position="attributes">
                 <attribute name="string">Discount %</attribute>
-                <attribute name="widget">percentage</attribute>
+                
                 <attribute name="optional">show</attribute>
                 <attribute name="groups">base.group_user</attribute>
             </xpath>
