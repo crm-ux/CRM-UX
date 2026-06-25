@@ -5,3 +5,8 @@
 nav.o_breadcrumb {
     display: none !important;
 }
+
+/* Hide breadcrumb - keep only buttons */
+.o_breadcrumb {
+    display: none !important;
+}
