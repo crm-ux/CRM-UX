@@ -7,6 +7,10 @@
                 <div class="crm-topbar-left">
                     YANTRACONNECT · CRM
                 </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-left:16px;">
+                    <a href="/odoo/action-435" style="color:#fff;background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:4px;font-size:13px;text-decoration:none;font-weight:500;">🏠 Dashboard</a>
+                    <a href="/odoo/settings" style="color:#fff;background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:4px;font-size:13px;text-decoration:none;font-weight:500;">⚙ Settings</a>
+                </div>
                 <div class="crm-topbar-right">
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">

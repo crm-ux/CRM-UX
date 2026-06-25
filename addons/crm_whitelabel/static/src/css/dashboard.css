@@ -639,3 +639,10 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .o_menu_systray .o_web_client_action_manager,
 .o_main_navbar .o_menu_brand_icon,
 [class*="fa-robot"], [class*="ai-icon"] { display: none !important; }
+
+/* Dashboard and Settings quick buttons */
+.o_control_panel_actions .o_cp_buttons {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
