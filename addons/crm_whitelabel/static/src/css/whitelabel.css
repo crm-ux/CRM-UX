@@ -1,0 +1,7 @@
+
+/* Hide breadcrumb navigation */
+.o_breadcrumb,
+.o_control_panel_breadcrumbs,
+nav.o_breadcrumb {
+    display: none !important;
+}

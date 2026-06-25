@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM White Label Login',
@@ -17,6 +18,8 @@
             'crm_whitelabel/static/src/css/dashboard.css',
             'crm_whitelabel/static/src/css/form_custom.css',
             'crm_whitelabel/static/src/xml/dashboard.xml',
+            'crm_whitelabel/static/src/css/whitelabel.css',
+            'crm_whitelabel/static/src/xml/nav_buttons.xml',
             'crm_whitelabel/static/src/js/dashboard.js',
             'crm_whitelabel/static/src/js/nav_buttons.js',
             'crm_whitelabel/static/src/js/statusbar_override.js',
