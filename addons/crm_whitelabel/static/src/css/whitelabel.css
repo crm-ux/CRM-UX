@@ -5,3 +5,10 @@
 .o_breadcrumb a {
     display: none !important;
 }
+
+/* Hide breadcrumb separator slash */
+.o_breadcrumb ol li.o_breadcrumb_item:last-child,
+.o_breadcrumb .o_breadcrumb_item + .o_breadcrumb_item::before,
+.o_breadcrumb > ol > li:last-child {
+    display: none !important;
+}
