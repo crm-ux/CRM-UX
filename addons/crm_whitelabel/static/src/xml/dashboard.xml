@@ -21,7 +21,7 @@
                                 <a href="/odoo/action-383" class="crm-admin-menu-item">Quotations</a>
                                 <a href="/odoo/settings/users" class="crm-admin-menu-item">Users</a>
                                 <a href="/odoo/inventory/products" class="crm-admin-menu-item">Product Management</a>
-                                <a href="/odoo/action-439" class="crm-admin-menu-item">Terms &amp; Conditions</a>
+                                <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                             </div>
                         </div>
                     </div>

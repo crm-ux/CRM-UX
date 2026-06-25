@@ -235,6 +235,16 @@ class CrmDashboard extends Component {
         const domain = [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],["company_id","in",this.state.selectedCompanies],...userFilter];
         this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
     }
+    openTerms() {
+        this.actionService.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Terms & Conditions',
+            res_model: 'sale.terms.condition',
+            view_mode: 'list,form',
+            views: [[false, 'list'], [false, 'form']],
+        });
+    }
+
     openContacts() {
         const domain = [["customer_rank",">",0]];
         const isAdmin2 = user.userId === 2;
