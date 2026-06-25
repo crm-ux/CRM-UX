@@ -1,15 +1,20 @@
 /** @odoo-module **/
+import { useService } from "@web/core/utils/hooks";
+import { Component, onMounted } from "@odoo/owl";
 import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
 
 class NavButtons extends Component {
     static template = "crm_whitelabel.NavButtons";
     static props = {};
-    
-    goDashboard() {
-        window.location.href = '/odoo/action-435';
+
+    setup() {
+        this.action = useService("action");
     }
-    
+
+    goDashboard() {
+        this.action.doAction(435);
+    }
+
     goSettings() {
         window.location.href = '/odoo/settings';
     }
