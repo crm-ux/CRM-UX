@@ -275,29 +275,16 @@ class SaleOrder(models.Model):
     def action_preview_sale_order(self):
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        # Build terms HTML
-        terms_html = '<div style="padding:8px 0;">'
-        for term in all_terms:
-            terms_html += '''<div style="margin:6px 0;display:flex;align-items:flex-start;">
-                <input type="checkbox" checked="checked" data-term-id="%s" 
-                    style="margin-right:8px;margin-top:3px;width:16px;height:16px;cursor:pointer;"/>
-                <label style="font-size:13px;cursor:pointer;">%s</label>
-            </div>''' % (term.id, term.name)
-        terms_html += '</div>'
-
-        wizard = self.env['sale.quote.preview.wizard'].sudo().create({
-            'order_id': self.id,
-            'selected_term_ids': [(6, 0, all_terms.ids)],
-            'terms_html_widget': terms_html,
-        })
-        wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
             'name': 'Editable Quotation Preview',
             'res_model': 'sale.quote.preview.wizard',
-            'res_id': wizard.id,
             'view_mode': 'form',
             'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+                'default_selected_term_ids': [[6, 0, all_terms.ids]],
+            },
         }
 
 
