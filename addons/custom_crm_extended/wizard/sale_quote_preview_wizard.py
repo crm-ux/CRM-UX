@@ -523,7 +523,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: &#8377;%s</p>' % int(net)
 
         table_html = (
-            ('<div style="page-break-before:always;">' if (self.technical_specs_html or self.quote_image_ids) else '<div style="margin-top:30px;">')
+            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Arial,sans-serif;">'  
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
