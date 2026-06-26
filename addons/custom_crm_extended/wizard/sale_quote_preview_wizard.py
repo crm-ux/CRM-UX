@@ -60,8 +60,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     terms_html_widget = fields.Html(
         string='Terms Selection',
-        compute='_compute_terms_html',
-        store=False,
+        store=True,
     )
 
     @api.depends('selected_term_ids')
