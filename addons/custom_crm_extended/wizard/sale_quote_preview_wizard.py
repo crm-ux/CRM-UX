@@ -931,9 +931,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
             if has_discount:
                 disc_str = '(%s%%)' % int(disc_pct) if disc_pct else '-'
-                row_data = [str(idx), desc, part_no, hsn, str(qty), str(int(unit_price)), disc_str, str(int(amount))]
+                row_data = [str(idx), desc, part_no, hsn, str(qty), _indian_format(unit_price), disc_str, _indian_format(amount)]
             else:
-                row_data = [str(idx), desc, part_no, hsn, str(qty), str(int(unit_price)), str(int(amount))]
+                row_data = [str(idx), desc, part_no, hsn, str(qty), _indian_format(unit_price), _indian_format(amount)]
 
             for i, val in enumerate(row_data):
                 cell = row_cells[i]
