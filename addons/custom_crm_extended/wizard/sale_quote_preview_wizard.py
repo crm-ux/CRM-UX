@@ -968,12 +968,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         def _add_total_row_in_table(tbl, label, value, bold=False):
             row = tbl.add_row()
-            # Merge all cells except last
-            for ci in range(num_cols - 2):
-                row.cells[ci].text = ''
-            row.cells[num_cols - 2].text = label
+            # Merge first cells into one label cell
+            merged_label = row.cells[0]
+            for ci in range(1, num_cols - 1):
+                merged_label = merged_label.merge(row.cells[ci])
+            merged_label.text = label
             row.cells[num_cols - 1].text = '\u20b9' + value
-            p0 = row.cells[num_cols - 2].paragraphs[0]
+            p0 = merged_label.paragraphs[0]
             p1 = row.cells[num_cols - 1].paragraphs[0]
             p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
