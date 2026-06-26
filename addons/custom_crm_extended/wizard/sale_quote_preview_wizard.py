@@ -1,4 +1,22 @@
 # -*- coding: utf-8 -*-
+
+def _indian_format(n):
+    """Format number in Indian style: 1,00,000"""
+    n = int(n)
+    s = str(n)
+    if len(s) <= 3:
+        return s
+    last3 = s[-3:]
+    rest = s[:-3]
+    parts = []
+    while len(rest) > 2:
+        parts.append(rest[-2:])
+        rest = rest[:-2]
+    if rest:
+        parts.append(rest)
+    parts.reverse()
+    return ','.join(parts) + ',' + last3
+
 from odoo import api, fields, models
 from odoo.tools import html2plaintext
 from markupsafe import Markup
@@ -486,9 +504,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, '{:,.0f}'.format(unit_price), disc_str, '{:,.0f}'.format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
             else:
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, '{:,.0f}'.format(unit_price), '{:,.0f}'.format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">&#8377;%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
         # Build headers based on discount
@@ -537,7 +555,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (th_html, rows, "{:,.0f}".format(order.amount_untaxed), "{:,.0f}".format(net), totals_html)
+        ) % (th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
 
         # ── TERMS ──
         terms_html = ''
