@@ -962,21 +962,28 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     cell.text = val
                     cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        # Totals
-        doc.add_paragraph('')
-        gross_p = doc.add_paragraph('Gross Total Amount INR: %s' % int(order.amount_untaxed))
-        gross_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        gross_p.runs[0].bold = True
-
+        # Totals inside table
+        net_total = order.amount_untaxed - (order.amount_untaxed * has_overall_discount / 100) if has_overall_discount else order.amount_untaxed
+        totals_table = doc.add_table(rows=0, cols=2)
+        totals_table.style = 'Table Grid'
+        gr = totals_table.add_row()
+        gr.cells[0].text = 'Gross Total Amount INR:'
+        gr.cells[1].text = '\u20b9' + _indian_format(order.amount_untaxed)
+        gr.cells[0].paragraphs[0].runs[0].bold = True
+        gr.cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        gr.cells[1].paragraphs[0].runs[0].bold = True
         if has_overall_discount:
             disc_amt_overall = order.amount_untaxed * has_overall_discount / 100
-            disc_p = doc.add_paragraph('Discount (%s%%): %s' % (int(has_overall_discount), int(disc_amt_overall)))
-            disc_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-
-        net_total = order.amount_untaxed - (order.amount_untaxed * has_overall_discount / 100) if has_overall_discount else order.amount_untaxed
-        total_p = doc.add_paragraph('Net Total Amount INR: %s' % int(net_total))
-        total_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        total_p.runs[0].bold = True
+            dr = totals_table.add_row()
+            dr.cells[0].text = 'Discount (%s%%):' % int(has_overall_discount)
+            dr.cells[1].text = '\u20b9' + _indian_format(disc_amt_overall)
+            dr.cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        nr = totals_table.add_row()
+        nr.cells[0].text = 'Net Total Amount INR:'
+        nr.cells[1].text = '\u20b9' + _indian_format(net_total)
+        nr.cells[0].paragraphs[0].runs[0].bold = True
+        nr.cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        nr.cells[1].paragraphs[0].runs[0].bold = True
         # Terms & Conditions - flows after Quotation table
         if order.note:
             terms_heading = doc.add_heading('Terms & Conditions', 2)
