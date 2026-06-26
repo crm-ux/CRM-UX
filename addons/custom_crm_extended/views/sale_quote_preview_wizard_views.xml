@@ -54,12 +54,12 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">50</field>
+        <field name="margin_top">25</field>
         <field name="margin_bottom">35</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">25</field>
+        <field name="header_spacing">10</field>
         <field name="dpi">96</field>
     </record>
 
@@ -84,7 +84,7 @@
             <div style="text-align:right;padding:0 0 1px 0;">
                 <t t-if="logo0">
                     <img t-att-src="'data:image/png;base64,' + (logo0.decode('utf-8') if isinstance(logo0, bytes) else logo0)"
-                        style="height:60px;max-width:200px;object-fit:contain;display:inline-block;"/>
+                        style="height:90px;max-width:280px;object-fit:contain;display:inline-block;"/>
                 </t>
             </div>
 
