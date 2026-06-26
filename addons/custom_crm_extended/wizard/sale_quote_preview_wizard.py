@@ -962,32 +962,30 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     cell.text = val
                     cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        # Totals inside table
+        # Totals inside SAME table
         net_total = order.amount_untaxed - (order.amount_untaxed * has_overall_discount / 100) if has_overall_discount else order.amount_untaxed
-        from docx.shared import Inches
-        totals_table = doc.add_table(rows=0, cols=2)
-        totals_table.style = 'Table Grid'
-        totals_table.columns[0].width = Inches(5.5)
-        totals_table.columns[1].width = Inches(1.5)
+        num_cols = len(table.columns)
 
-        def _add_total_row(tbl, label, value, bold=False):
+        def _add_total_row_in_table(tbl, label, value, bold=False):
             row = tbl.add_row()
-            row.cells[0].text = label
-            row.cells[1].text = '\u20b9' + value
-            p0 = row.cells[0].paragraphs[0]
-            p1 = row.cells[1].paragraphs[0]
+            # Merge all cells except last
+            for ci in range(num_cols - 2):
+                row.cells[ci].text = ''
+            row.cells[num_cols - 2].text = label
+            row.cells[num_cols - 1].text = '\u20b9' + value
+            p0 = row.cells[num_cols - 2].paragraphs[0]
+            p1 = row.cells[num_cols - 1].paragraphs[0]
             p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            if bold and p0.runs:
-                p0.runs[0].bold = True
-            if bold and p1.runs:
-                p1.runs[0].bold = True
+            if bold:
+                if p0.runs: p0.runs[0].bold = True
+                if p1.runs: p1.runs[0].bold = True
 
-        _add_total_row(totals_table, 'Gross Total Amount INR:', _indian_format(order.amount_untaxed), bold=True)
+        _add_total_row_in_table(table, 'Gross Total Amount INR:', _indian_format(order.amount_untaxed), bold=True)
         if has_overall_discount:
             disc_amt_overall = order.amount_untaxed * has_overall_discount / 100
-            _add_total_row(totals_table, 'Discount (%s%%):' % int(has_overall_discount), _indian_format(disc_amt_overall))
-        _add_total_row(totals_table, 'Net Total Amount INR:', _indian_format(net_total), bold=True)
+            _add_total_row_in_table(table, 'Discount (%s%%):' % int(has_overall_discount), _indian_format(disc_amt_overall))
+        _add_total_row_in_table(table, 'Net Total Amount INR:', _indian_format(net_total), bold=True)
         # Terms & Conditions - flows after Quotation table
         if order.note:
             terms_heading = doc.add_heading('Terms & Conditions', 2)
