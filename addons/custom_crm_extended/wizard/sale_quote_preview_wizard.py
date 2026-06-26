@@ -435,7 +435,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
-            '<div style="font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
+            '<div style="font-family:Calibri,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
             '<div style="overflow:hidden;margin-bottom:12px;">'
             '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
             '<span style="float:right;font-weight:bold;">Date: %s</span>'
@@ -461,7 +461,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="page-break-before:always;margin-top:16px;font-family:Arial,sans-serif;font-size:11px;">'
+                '<div style="page-break-before:always;margin-top:16px;font-family:Calibri,sans-serif;font-size:11px;">'
                 '<p style="font-weight:bold;font-size:11px;margin:10px 0 16px 0;">Technical Specifications</p><br/>'
                 + str(styled)
                 + '</div>'
@@ -541,7 +541,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: &#8377;%s</p>' % int(net)
 
         table_html = (
-            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Arial,sans-serif;">'  
+            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'  
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
@@ -561,7 +561,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         terms_html = ''
         if order.note:
             terms_html = (
-                '<div style="' + ('page-break-before:always;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Arial,sans-serif;font-size:11px;">'
+                '<div style="' + ('page-break-before:always;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
                 '<p style="text-align:center;font-weight:bold;font-size:11px;'
                 'padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
@@ -572,7 +572,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # ── COMBINE ──
         # Closing signature
         closing_html = (
-            '<div style="margin-top:30px;font-family:Arial,sans-serif;font-size:11px;">'
+            '<div style="margin-top:30px;font-family:Calibri,sans-serif;font-size:11px;">'
             '<p style="margin:4px 0;">Thanking You,</p>'
             '<p style="margin:4px 0;">Sincerely,</p>'
             '<br/>'
@@ -616,6 +616,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         from odoo.tools import html2plaintext
 
         doc = Document()
+        # Set default font Calibri 11 for entire document
+        from docx.oxml.ns import qn as _qn_font
+        style = doc.styles['Normal']
+        style.font.name = 'Calibri'
+        style.font.size = Pt(11)
+        style.element.rPr.rFonts.set(_qn_font('w:eastAsia'), 'Calibri')
+        for s in doc.styles:
+            try:
+                s.font.name = 'Calibri'
+                s.font.size = Pt(11)
+            except:
+                pass
 
         # Page margins
         from docx.oxml import OxmlElement
