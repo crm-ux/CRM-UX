@@ -274,6 +274,7 @@ class SaleOrder(models.Model):
 
     def action_preview_sale_order(self):
         self.ensure_one()
+        all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         return {
             'type': 'ir.actions.act_window',
             'name': 'Editable Quotation Preview',
@@ -282,6 +283,7 @@ class SaleOrder(models.Model):
             'target': 'new',
             'context': {
                 'default_order_id': self.id,
+                'default_selected_term_ids': [(6, 0, all_terms.ids)],
             },
         }
 
