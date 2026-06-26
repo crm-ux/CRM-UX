@@ -530,9 +530,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<thead>'
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
-            '<tbody>%s</tbody>'
+            '<tbody>%s'
+            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;"><b>Gross Total Amount INR: &#8377;%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR: &#8377;%s</b></td></tr>'
+            '</tbody>'
             '</table>'
-            '<div style="margin-top:12px;text-align:right;font-size:11px;border-top:1px solid #ccc;padding-top:8px;">%s</div>'
+            '<div style="display:none;">%s</div>'
             '</div>'
         ) % (th_html, rows, totals_html)
 
