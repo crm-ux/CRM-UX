@@ -55,9 +55,29 @@ class SaleQuotePreviewWizard(models.TransientModel):
         'wizard_id', 'attachment_id',
         string='Quote Images'
     )
-
     @api.model
 
+
+
+    terms_html_widget = fields.Html(
+        string='Terms Selection',
+        compute='_compute_terms_html',
+        store=False,
+    )
+
+    @api.depends('selected_term_ids')
+    def _compute_terms_html(self):
+        for rec in self:
+            all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+            html = '<div class="o_terms_checkboxes">'
+            for term in all_terms:
+                checked = 'checked' if term in rec.selected_term_ids else ''
+                html += '''<div style="margin:4px 0;">
+                    <input type="checkbox" data-term-id="%s" %s style="margin-right:8px;"/>
+                    <label style="font-size:13px;">%s</label>
+                </div>''' % (term.id, checked, term.name)
+            html += '</div>'
+            rec.terms_html_widget = html
 
     @api.model_create_multi
     def create(self, vals_list):
