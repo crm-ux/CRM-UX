@@ -277,8 +277,15 @@ class SaleOrder(models.Model):
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         wizard = self.env['sale.quote.preview.wizard'].sudo().create({
             'order_id': self.id,
-            'selected_term_ids': [(6, 0, all_terms.ids)],
         })
+        self.env.cr.execute(
+            "DELETE FROM sale_quote_wizard_terms_rel WHERE wizard_id = %s", [wizard.id]
+        )
+        self.env.cr.execute(
+            "INSERT INTO sale_quote_wizard_terms_rel (wizard_id, term_id) SELECT %s, id FROM sale_terms_condition WHERE active = true ORDER BY sequence",
+            [wizard.id]
+        )
+        wizard.invalidate_recordset()
         wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
@@ -288,8 +295,6 @@ class SaleOrder(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
-
-
     def action_new_quote_version(self):
         """
         Increment version counter and reset to draft for revision.
