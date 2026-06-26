@@ -312,6 +312,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_save_draft(self):
         self.ensure_one()
+        # Save selected terms to order note
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
+
         order = self.order_id
         if not order:
             return
@@ -655,6 +660,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_download_docx(self):
         self.ensure_one()
+        # Save selected terms to order note
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
+
         import io, base64
         from docx import Document
         from docx.shared import Pt, RGBColor, Inches
@@ -1116,6 +1126,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_send_email(self):
         self.ensure_one()
+        # Save selected terms to order note
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
+
         import base64
         self._rebuild_document_html()
         order = self.order_id
