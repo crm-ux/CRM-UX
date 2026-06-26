@@ -79,10 +79,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
 
 
-    @api.onchange('order_id')
-    def _onchange_set_default_terms(self):
-        all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        self.selected_term_ids = all_terms
+
 
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
