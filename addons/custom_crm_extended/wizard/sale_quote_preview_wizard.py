@@ -48,7 +48,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         'sale_quote_wizard_terms_rel',
         'wizard_id', 'term_id',
         string='Terms & Conditions',
-        default=lambda self: self.env['sale.terms.condition'].search([])
+        default=lambda self: self.env['sale.terms.condition'].search([], order='sequence, id')
     )
     quote_image_ids = fields.Many2many(
         'ir.attachment', 'sale_quote_wizard_image_rel',
