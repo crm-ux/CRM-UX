@@ -22,6 +22,7 @@
             'crm_whitelabel/static/src/xml/nav_buttons.xml',
             'crm_whitelabel/static/src/js/dashboard.js',
             'crm_whitelabel/static/src/js/nav_buttons.js',
+            'crm_whitelabel/static/src/js/terms_checkbox.js',
             'crm_whitelabel/static/src/js/statusbar_override.js',
         ],
     },
