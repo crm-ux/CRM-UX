@@ -289,6 +289,7 @@ class SaleOrder(models.Model):
             'res_id': wizard.id,
             'view_mode': 'form',
             'target': 'new',
+            'flags': {'mode': 'edit'},
         }
 
 
