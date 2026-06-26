@@ -634,6 +634,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         self.action_apply_terms()
         return {'type': 'ir.actions.act_window_close'}
 
+    def action_save_and_close(self):
+        self.ensure_one()
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
+        return {'type': 'ir.actions.act_window_close'}
+
     def action_add_images(self):
         self.ensure_one()
         return {
