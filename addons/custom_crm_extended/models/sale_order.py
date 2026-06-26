@@ -275,16 +275,18 @@ class SaleOrder(models.Model):
     def action_preview_sale_order(self):
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        wizard = self.env['sale.quote.preview.wizard'].sudo().create({
+            'order_id': self.id,
+        })
+        wizard.sudo().write({'selected_term_ids': [(6, 0, all_terms.ids)]})
+        wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
             'name': 'Editable Quotation Preview',
             'res_model': 'sale.quote.preview.wizard',
+            'res_id': wizard.id,
             'view_mode': 'form',
             'target': 'new',
-            'context': {
-                'default_order_id': self.id,
-                'default_selected_term_ids': [(6, 0, all_terms.ids)],
-            },
         }
 
 
