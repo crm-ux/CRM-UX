@@ -523,7 +523,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: &#8377;%s</p>' % int(net)
 
         table_html = (
-            '<div style="page-break-before:always;">'
+            ('<div style="page-break-before:always;">' if (self.technical_specs_html or self.quote_image_ids) else '<div style="margin-top:30px;">')
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
@@ -532,7 +532,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</thead>'
             '<tbody>%s'
             '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Gross Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>&#8377;%s</b></td></tr>'
-            '<tr><td colspan="6" style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:2px solid #333;font-size:13px;"><b>&#8377;%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>&#8377;%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
