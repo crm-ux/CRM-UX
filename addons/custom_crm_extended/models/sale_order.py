@@ -275,10 +275,14 @@ class SaleOrder(models.Model):
     def action_preview_sale_order(self):
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        # Apply all terms to order note by default
+        if all_terms and not self.note:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in all_terms)
+            self.sudo().write({'note': '<ol>%s</ol>' % items})
         wizard = self.env['sale.quote.preview.wizard'].sudo().create({
             'order_id': self.id,
+            'selected_term_ids': [(6, 0, all_terms.ids)],
         })
-        wizard.sudo().write({'selected_term_ids': [(6, 0, all_terms.ids)]})
         wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
