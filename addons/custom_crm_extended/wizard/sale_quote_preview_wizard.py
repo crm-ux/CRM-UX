@@ -206,9 +206,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</div>'
         ) % (
             rows,
-            int(order.amount_untaxed),
+            _indian_format(order.amount_untaxed),
             tax_amount_row,
-            int(order.amount_total),
+            _indian_format(order.amount_total),
         )
 
         # TERMS section
@@ -237,7 +237,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         html = intro_html  # default_get only needs intro for initial preview
 
         _unused = (
-            rows, int(order.amount_untaxed), tax_amount_row, int(order.amount_total), order.note or ''
+            rows, _indian_format(order.amount_untaxed), tax_amount_row, _indian_format(order.amount_total), order.note or ''
         )
 
         # Build tech specs section
