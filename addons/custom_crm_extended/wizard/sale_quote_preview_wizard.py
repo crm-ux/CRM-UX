@@ -226,10 +226,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</tr></thead>'
             '<tbody>%s'
             '<tr><td colspan="5" style="text-align:right;border:none;"><b>Gross Total Amount INR:</b></td>'
-            '<td style="text-align:right;border:1px solid #000;"><b>\u20b9%s</b></td></tr>'
+            '<td style="text-align:right;border:1px solid #000;"><b>%s</b></td></tr>'
             '%s'
             '<tr><td colspan="5" style="text-align:right;border:none;"><b>Net Total Amount INR:</b></td>'
-            '<td style="text-align:right;border:1px solid #000;"><b>\u20b9%s</b></td></tr>'
+            '<td style="text-align:right;border:1px solid #000;"><b>%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '</div>'
@@ -418,7 +418,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             after_disc = unit_price - disc_amount
             qty = line.product_uom_qty or 0
             amount = line.price_subtotal or 0
-            disc_str = '(%s%%)=Rs.%s' % (int(discount_pct), int(disc_amount)) if discount_pct else '-'
+            disc_str = '(%s%%)=%s' % (int(discount_pct), int(disc_amount)) if discount_pct else '-'
             desc = line.x_product_name or line.product_id.name or ''
             if make: desc += '<br/><small style="color:#666;">Make: %s</small>' % make
             if part_no: desc += '<br/><small style="color:#888;">Part No: %s</small>' % part_no
@@ -428,18 +428,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % idx
                 + '<td style="padding:6px 8px;border:1px solid #ddd;">%s</td>' % desc
                 + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % hsn
-                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td>' % int(unit_price)
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td>' % int(unit_price)
                 + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % disc_str
-                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td>' % int(after_disc)
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td>' % int(after_disc)
                 + '<td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td>' % int(qty)
-                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td>' % int(amount)
+                + '<td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td>' % int(amount)
                 + '</tr>'
             )
 
         # ── TAX ROW ──
         tax_row = ''
         if gst_on and order.amount_tax:
-            tax_row = '<p style="text-align:right;margin:4px 0;font-size:11px;">Tax (GST): <b>Rs.%s</b></p>' % int(order.amount_tax)
+            tax_row = '<p style="text-align:right;margin:4px 0;font-size:11px;">Tax (GST): <b>%s</b></p>' % int(order.amount_tax)
 
         # ── SUBJECT / INTRO ──
         subject = self.subject or 'Quotation for Products / Services'
@@ -458,8 +458,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         ] if x]
         addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:11px;">%s</p>' % a for a in addr_parts)
         addr_html += '<br/>'
-        if p.vat:
-            addr_html += '<p style="margin:6px 0 1px 0;font-size:11px;font-weight:bold;">GST No: %s</p>' % p.vat
+
         if p.phone:
             addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Ph: %s</p>' % p.phone
         if p.email:
@@ -538,9 +537,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
             else:
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">Rs.%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), _indian_format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
         # Build headers based on discount
@@ -567,12 +566,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             )
 
         # Overall discount totals
-        totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>Rs.%s</b></p>' % int(order.amount_untaxed)
+        totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>%s</b></p>' % int(order.amount_untaxed)
         if has_overall_disc:
             disc_overall = order.amount_untaxed * has_overall_disc / 100
-            totals_html += '<p style="margin:4px 0;">Discount (%s%%): Rs.%s</p>' % (int(has_overall_disc), int(disc_overall))
+            totals_html += '<p style="margin:4px 0;">Discount (%s%%): %s</p>' % (int(has_overall_disc), int(disc_overall))
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
-        totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: Rs.%s</p>' % int(net)
+        totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'  
@@ -583,8 +582,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s'
-            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Gross Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>Rs.%s</b></td></tr>'
-            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>Rs.%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Gross Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
@@ -1042,7 +1041,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             for ci in range(1, num_cols - 1):
                 merged_label = merged_label.merge(row.cells[ci])
             merged_label.text = label
-            row.cells[num_cols - 1].text = '\u20b9' + value
+            row.cells[num_cols - 1].text = '' + value
             p0 = merged_label.paragraphs[0]
             p1 = row.cells[num_cols - 1].paragraphs[0]
             p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
