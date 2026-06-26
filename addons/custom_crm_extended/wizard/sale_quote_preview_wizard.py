@@ -531,13 +531,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s'
-            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;"><b>Gross Total Amount INR: &#8377;%s</b></td></tr>'
-            '<tr><td colspan="6" style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR: &#8377;%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Gross Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>&#8377;%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:2px solid #333;font-size:13px;"><b>&#8377;%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (th_html, rows, int(order.amount_untaxed), int(net), totals_html)
+        ) % (th_html, rows, "{:,.0f}".format(order.amount_untaxed), "{:,.0f}".format(net), totals_html)
 
         # ── TERMS ──
         terms_html = ''
