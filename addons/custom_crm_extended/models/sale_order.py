@@ -281,6 +281,7 @@ class SaleOrder(models.Model):
             'order_id': self.id,
             'selected_term_ids': [(6, 0, all_terms.ids)],
         })
+        wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
             'name': 'Editable Quotation Preview',
