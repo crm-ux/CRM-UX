@@ -275,11 +275,25 @@ class SaleOrder(models.Model):
     def action_preview_sale_order(self):
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        # Load saved terms from order note, or use all terms for new quote
+        saved_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        if self.note:
+            # Try to match saved terms
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(self.note, 'html.parser')
+            saved_contents = [li.get_text().strip() for li in soup.find_all('li')]
+            if saved_contents:
+                matched = self.env['sale.terms.condition'].search([
+                    ('content', 'in', saved_contents)
+                ], order='sequence, id')
+                if matched:
+                    saved_terms = matched
+
         wizard = self.env['sale.quote.preview.wizard'].with_context(
             default_order_id=self.id
         ).sudo().create({
             'order_id': self.id,
-            'selected_term_ids': [(6, 0, all_terms.ids)],
+            'selected_term_ids': [(6, 0, saved_terms.ids)],
         })
         wizard._rebuild_document_html()
         return {
