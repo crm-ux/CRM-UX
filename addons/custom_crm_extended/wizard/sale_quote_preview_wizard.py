@@ -588,13 +588,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # ── TERMS ──
         terms_html = ''
-        if order.note:
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            note_content = '<ol>%s</ol>' % items
+        elif order.note:
+            note_content = str(order.note)
+        else:
+            note_content = ''
+        if note_content:
             terms_html = (
                 '<div style="' + ('page-break-before:always;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
                 '<p style="text-align:center;font-weight:bold;font-size:11px;'
                 'padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
-                + str(order.note)
+                + note_content
                 + '</div>'
             )
 
@@ -1033,12 +1040,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
             _add_total_row_in_table(table, 'Discount (%s%%):' % int(has_overall_discount), _indian_format(disc_amt_overall))
         _add_total_row_in_table(table, 'Net Total Amount INR:', _indian_format(net_total), bold=True)
         # Terms & Conditions - flows after Quotation table
-        if order.note:
+        if self.selected_term_ids or order.note:
             terms_heading = doc.add_heading('Terms & Conditions', 2)
             terms_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            if self.selected_term_ids:
+                order_note = '<ol>' + ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence')) + '</ol>'
+            else:
+                order_note = str(order.note)
             try:
                 from bs4 import BeautifulSoup
-                soup = BeautifulSoup(str(order.note), 'html.parser')
+                soup = BeautifulSoup(order_note, 'html.parser')
                 lists = soup.find_all(['ol', 'ul'])
                 if lists:
                     for element in soup.children:
