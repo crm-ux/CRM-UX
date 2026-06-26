@@ -55,7 +55,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
         'wizard_id', 'attachment_id',
         string='Quote Images'
     )
-    @api.model
 
 
 
