@@ -569,7 +569,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
             order.sudo().write({'note': '<ol>%s</ol>' % items})
         self._rebuild_document_html()
-        return {'type': 'ir.actions.do_nothing'}
+        return {'type': 'ir.actions.act_window_close'}
 
     def action_add_images(self):
         self.ensure_one()
