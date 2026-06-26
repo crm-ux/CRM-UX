@@ -82,8 +82,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         records = super().create(vals_list)
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         for rec in records:
-            if not rec.selected_term_ids:
-                rec.selected_term_ids = [(6, 0, all_terms.ids)]
+            rec.selected_term_ids = [(6, 0, all_terms.ids)]
         return records
 
     @api.onchange('order_id')
