@@ -537,7 +537,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (th_html, rows, totals_html)
+        ) % (th_html, rows, int(order.amount_untaxed), int(net), totals_html)
 
         # ── TERMS ──
         terms_html = ''
