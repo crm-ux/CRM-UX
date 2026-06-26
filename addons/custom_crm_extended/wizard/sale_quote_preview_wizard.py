@@ -70,7 +70,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             return res
         # Set all terms checked by default
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        res['selected_term_ids'] = [(6, 0, all_terms.ids)]
+        if all_terms:
+            res['selected_term_ids'] = [(6, 0, all_terms.ids)]
 
         gst_on = order.x_gst_included
 
