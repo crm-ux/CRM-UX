@@ -57,6 +57,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
     )
 
     @api.model
+
+    @api.onchange('order_id')
+    def _onchange_set_default_terms(self):
+        all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        self.selected_term_ids = all_terms
+
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         order = self.env['sale.order'].browse(self.env.context.get('default_order_id'))
@@ -65,6 +71,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Set all terms checked by default
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         res['selected_term_ids'] = [(6, 0, all_terms.ids)]
+        res['x_all_term_ids'] = [(6, 0, all_terms.ids)]
 
         gst_on = order.x_gst_included
 
