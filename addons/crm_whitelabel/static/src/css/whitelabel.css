@@ -4,3 +4,9 @@
 .o_control_panel_breadcrumbs > .o_breadcrumb > ol {
     display: none !important;
 }
+
+/* Terms checkboxes visible */
+.o_field_many2many_checkboxes {
+    display: block !important;
+    visibility: visible !important;
+}
