@@ -1183,6 +1183,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         self.ensure_one()
         import logging
         _log = logging.getLogger(__name__)
+        # Save selected terms to order note
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
         # Always rebuild to include technical specs and images
         self._rebuild_document_html()
         _log.warning("PDF HTML length: %s", len(str(self.document_html or '')))
