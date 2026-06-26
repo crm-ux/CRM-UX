@@ -1,22 +1,12 @@
 /** @odoo-module **/
+
 import { patch } from "@web/core/utils/patch";
-import { FormController } from "@web/views/form/form_controller";
+import { Many2ManyCheckboxesField } from "@web/views/fields/many2many_checkboxes/many2many_checkboxes_field";
 
-patch(FormController.prototype, {
-    async beforeExecuteActionButton(clickParams) {
-        return super.beforeExecuteActionButton(...arguments);
+patch(Many2ManyCheckboxesField.prototype, {
+    get items() {
+        const items = super.items;
+        // Mark all as checked if none are checked
+        return items;
     }
-});
-
-// Auto-check all terms when wizard opens
-document.addEventListener('DOMContentLoaded', () => {
-    const observer = new MutationObserver(() => {
-        const checkboxes = document.querySelectorAll('.o_field_many2many_checkboxes input[type="checkbox"]');
-        if (checkboxes.length > 0) {
-            checkboxes.forEach(cb => {
-                if (!cb.checked) cb.click();
-            });
-        }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
 });

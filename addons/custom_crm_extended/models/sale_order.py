@@ -284,6 +284,8 @@ class SaleOrder(models.Model):
             'selected_term_ids': [(6, 0, all_terms.ids)],
         })
         wizard._rebuild_document_html()
+        # Auto apply all terms to order note
+        wizard.action_apply_terms()
         return {
             'type': 'ir.actions.act_window',
             'name': 'Editable Quotation Preview',
