@@ -303,8 +303,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'quote_name': order.name or '',
             'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
             'valid_until': order.x_draft_valid_until or order.validity_date,
-            'subject': 'Quotation for Products / Services',
+            'subject': order.x_draft_subject or 'Quotation for Products / Services',
             'best_offer_for': order.x_draft_best_offer or product_cats,
+            'quote_name': order.x_draft_quote_name or order.name or '',
+            'contact_person': order.x_draft_contact_person or order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
+            'contact_function': order.x_draft_contact_function or (order.opportunity_id.function if order.opportunity_id else ''),
+            'quote_date': order.x_draft_quote_date or (order.date_order.date() if order.date_order else fields.Date.today()),
+            'buyer_name': order.x_draft_buyer_name or order.partner_id.name or '',
             'company_logo': order.company_id.logo_web,
             'document_html': Markup(html),
             'x_table_html': table_html,
@@ -329,6 +334,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'x_draft_gst_included': self.x_gst_included,
             'x_draft_valid_until': self.valid_until,
             'x_draft_term_ids': [(6, 0, self.selected_term_ids.ids)],
+            'x_draft_quote_name': self.quote_name,
+            'x_draft_contact_person': self.contact_person,
+            'x_draft_contact_function': self.contact_function,
+            'x_draft_subject': self.subject,
+            'x_draft_quote_date': self.quote_date,
+            'x_draft_buyer_name': self.buyer_name,
         }
         if hasattr(order, 'x_draft_image_ids'):
             vals['x_draft_image_ids'] = [(6, 0, self.quote_image_ids.ids)]

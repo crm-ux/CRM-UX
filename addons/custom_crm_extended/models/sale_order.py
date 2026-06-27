@@ -206,6 +206,12 @@ class SaleOrder(models.Model):
     )
     x_draft_gst_included = fields.Boolean(string='Draft GST Included', default=True)
     x_draft_valid_until = fields.Date(string='Draft Valid Until')
+    x_draft_quote_name = fields.Char(string='Draft Quotation No')
+    x_draft_contact_person = fields.Char(string='Draft Contact Person')
+    x_draft_contact_function = fields.Char(string='Draft Contact Function')
+    x_draft_subject = fields.Char(string='Draft Subject')
+    x_draft_quote_date = fields.Date(string='Draft Quote Date')
+    x_draft_buyer_name = fields.Char(string='Draft Buyer Name')
 
     # ------------------------------------------------------------------
     # 7. QUOTE STATUS STAGE (beyond default state)
