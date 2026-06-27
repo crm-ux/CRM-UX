@@ -340,15 +340,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if hasattr(order, 'x_draft_image_ids'):
             vals['x_draft_image_ids'] = [(6, 0, self.quote_image_ids.ids)]
         order.sudo().write(vals)
+        # Reopen wizard keeping all state + show notification
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Draft Saved!',
-                'message': 'Your content has been saved. Reopen Preview to continue.',
-                'type': 'success',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.quote.preview.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'flags': {'mode': 'edit'},
+            'context': {
+                'default_order_id': order.id,
+                'show_notification': 'Draft Saved!',
+            },
         }
 
     def action_add_technical_specs(self):
