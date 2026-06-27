@@ -127,3 +127,9 @@ button[name="action_save_lead"] {
     border-color: #1a3d6e !important;
     color: #fff !important;
 }
+
+/* Lead Wizard step headings - blue color and blue bottom border */
+.o_dialog .o_form_view div[style*="font-size:14px"][style*="font-weight:700"] {
+    color: #1a3d6e !important;
+    border-bottom-color: #1a3d6e !important;
+}
