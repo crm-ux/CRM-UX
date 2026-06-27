@@ -89,8 +89,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             return res
         # Restore draft term selection if saved, else default to all terms
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        has_draft = bool(order.x_draft_term_ids)
-        if has_draft:
+        # has_draft: True if any draft field has been saved before
+        has_draft = bool(order.x_draft_term_ids or order.x_draft_quote_name or order.x_draft_best_offer or order.x_draft_tech_specs)
+        if order.x_draft_term_ids:
             res['selected_term_ids'] = [(6, 0, order.x_draft_term_ids.ids)]
         elif all_terms:
             res['selected_term_ids'] = [[6, 0, all_terms.ids]]
