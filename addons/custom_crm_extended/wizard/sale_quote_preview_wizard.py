@@ -87,12 +87,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         order = self.env['sale.order'].browse(self.env.context.get('default_order_id'))
         if not order:
             return res
-        # Set all terms checked by default - always
+        # Restore draft term selection if saved, else default to all terms
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        if all_terms:
+        has_draft = bool(order.x_draft_term_ids)
+        if has_draft:
+            res['selected_term_ids'] = [(6, 0, order.x_draft_term_ids.ids)]
+        elif all_terms:
             res['selected_term_ids'] = [[6, 0, all_terms.ids]]
-
-        gst_on = order.x_gst_included
+        # Use saved draft GST if a draft exists, else fall back to order setting
+        gst_on = order.x_draft_gst_included if has_draft else order.x_gst_included
 
         rows = ''
         for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
@@ -290,15 +293,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '</div>'
             ) % (logo_html, img_rows)
 
-        # Restore draft fields if saved previously
-        draft_terms = getattr(order, 'x_draft_term_ids', False)
-        if draft_terms:
-            res['selected_term_ids'] = [(6, 0, draft_terms.ids)]
-        draft_gst = getattr(order, 'x_draft_gst_included', None)
-        if draft_gst is not None:
-            gst_on = draft_gst
-        draft_valid_until = getattr(order, 'x_draft_valid_until', None)
-        draft_best_offer = getattr(order, 'x_draft_best_offer', None) or product_cats
         res.update({
             'order_id': order.id,
             'x_gst_included': gst_on,
@@ -308,9 +302,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'contact_function': order.opportunity_id.function if order.opportunity_id else '',
             'quote_name': order.name or '',
             'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
-            'valid_until': draft_valid_until or order.validity_date,
+            'valid_until': order.x_draft_valid_until or order.validity_date,
             'subject': 'Quotation for Products / Services',
-            'best_offer_for': draft_best_offer,
+            'best_offer_for': order.x_draft_best_offer or product_cats,
             'company_logo': order.company_id.logo_web,
             'document_html': Markup(html),
             'x_table_html': table_html,
