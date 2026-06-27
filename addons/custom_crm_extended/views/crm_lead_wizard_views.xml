@@ -4,31 +4,31 @@
         <field name="name">crm.lead.wizard.form</field>
         <field name="model">crm.lead.wizard</field>
         <field name="arch" type="xml">
-            <form string="Lead Creation">
+<form string="Lead Creation">
                 <field name="step" invisible="1"/>
                 <field name="is_admin" invisible="1"/>
                 <sheet>
                     <!-- Step indicators -->
                     <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Lead Info</button>
-                        <button name="action_goto_1" type="object" class="step_done"    invisible="step &lt;= 1">1. Lead Info</button>
-                        <button name="action_goto_1" type="object" class="step_future"  invisible="step &gt;= 1">1. Lead Info</button>
-                        <span>&#8594;</span>
+                        <button name="action_goto_1" type="object" class="step_done" invisible="step &lt;= 1">1. Lead Info</button>
+                        <button name="action_goto_1" type="object" class="step_future" invisible="step &gt;= 1">1. Lead Info</button>
+                        <span>→</span>
                         <button name="action_goto_2" type="object" class="step_current" invisible="step != 2">2. Contact</button>
-                        <button name="action_goto_2" type="object" class="step_done"    invisible="step &lt;= 2">2. Contact</button>
-                        <button name="action_goto_2" type="object" class="step_future"  invisible="step &gt;= 2">2. Contact</button>
-                        <span>&#8594;</span>
+                        <button name="action_goto_2" type="object" class="step_done" invisible="step &lt;= 2">2. Contact</button>
+                        <button name="action_goto_2" type="object" class="step_future" invisible="step &gt;= 2">2. Contact</button>
+                        <span>→</span>
                         <button name="action_goto_3" type="object" class="step_current" invisible="step != 3">3. Classify</button>
-                        <button name="action_goto_3" type="object" class="step_done"    invisible="step &lt;= 3">3. Classify</button>
-                        <button name="action_goto_3" type="object" class="step_future"  invisible="step &gt;= 3">3. Classify</button>
-                        <span>&#8594;</span>
+                        <button name="action_goto_3" type="object" class="step_done" invisible="step &lt;= 3">3. Classify</button>
+                        <button name="action_goto_3" type="object" class="step_future" invisible="step &gt;= 3">3. Classify</button>
+                        <span>→</span>
                         <button name="action_goto_4" type="object" class="step_current" invisible="step != 4">4. Revenue</button>
-                        <button name="action_goto_4" type="object" class="step_done"    invisible="step &lt;= 4">4. Revenue</button>
-                        <button name="action_goto_4" type="object" class="step_future"  invisible="step &gt;= 4">4. Revenue</button>
-                        <span>&#8594;</span>
+                        <button name="action_goto_4" type="object" class="step_done" invisible="step &lt;= 4">4. Revenue</button>
+                        <button name="action_goto_4" type="object" class="step_future" invisible="step &gt;= 4">4. Revenue</button>
+                        <span>→</span>
                         <button name="action_goto_5" type="object" class="step_current" invisible="step != 5">5. Assign</button>
-                        <button name="action_goto_5" type="object" class="step_done"    invisible="step &lt;= 5">5. Assign</button>
-                        <button name="action_goto_5" type="object" class="step_future"  invisible="step &gt;= 5">5. Assign</button>
+                        <button name="action_goto_5" type="object" class="step_done" invisible="step &lt;= 5">5. Assign</button>
+                        <button name="action_goto_5" type="object" class="step_future" invisible="step &gt;= 5">5. Assign</button>
                     </div>
 
                     <!-- STEP 1: Lead Info -->
@@ -47,9 +47,7 @@
                         </group>
                         <group col="2">
                             <field name="x_customer_type" string="Customer Type"/>
-                            <field name="partner_id" string="Existing Customer"
-                                invisible="x_customer_type not in ['existing_new','existing_existing']"
-                                options="{'no_create': True}"/>
+                            <field name="partner_id" string="Existing Customer" invisible="x_customer_type not in ['existing_new','existing_existing']" options="{'no_create': True}"/>
                         </group>
                         <group col="2">
                             <field name="x_requirement_date" string="Date of Requirement"/>
@@ -126,7 +124,6 @@
             </form>
         </field>
     </record>
-
     <record id="action_crm_lead_wizard" model="ir.actions.act_window">
         <field name="name">Lead Creation</field>
         <field name="res_model">crm.lead.wizard</field>
