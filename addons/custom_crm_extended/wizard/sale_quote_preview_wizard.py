@@ -922,8 +922,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 doc.add_paragraph(html2plaintext(self.technical_specs_html))
 
 
-        # Table - on its own page
-        doc.add_page_break()
+        # Table - on its own page only if tech specs or images exist
+        if self.technical_specs_html or self.quote_image_ids:
+            doc.add_page_break()
         quot_heading = doc.add_heading('Quotation', 2)
         quot_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
