@@ -587,13 +587,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s'
-            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Gross Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>%s</b></td></tr>'
-            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Net Total Amount INR:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Total Amount:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Discount Amount:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
+        )
+        original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
+        disc_amount_total = original_amount - order.amount_untaxed
+        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), totals_html)
 
         # ── TERMS ──
         terms_html = ''
