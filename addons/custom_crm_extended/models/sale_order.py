@@ -294,6 +294,13 @@ class SaleOrder(models.Model):
         ).sudo().create({
             'order_id': self.id,
             'selected_term_ids': [(6, 0, saved_terms.ids)],
+            'seller_name': self.company_id.name or '',
+            'buyer_name': self.partner_id.name or '',
+            'contact_person': self.x_contact_person or '',
+            'quote_name': self.name or '',
+            'quote_date': self.date_order.date() if self.date_order else fields.Date.today(),
+            'valid_until': self.validity_date,
+            'subject': 'Quotation for Products / Services',
         })
         wizard._rebuild_document_html()
         return {
