@@ -1048,8 +1048,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
             disc_amt_overall = order.amount_untaxed * has_overall_discount / 100
             _add_total_row_in_table(table, 'Discount (%s%%):' % int(has_overall_discount), _indian_format(disc_amt_overall))
         _add_total_row_in_table(table, 'Net Total Amount INR:', _indian_format(net_total), bold=True)
-        # Terms & Conditions - flows after Quotation table
+        # Terms & Conditions - new page if no tech specs or images
         if self.selected_term_ids or order.note:
+            if not (self.technical_specs_html or self.quote_image_ids):
+                doc.add_page_break()
             terms_heading = doc.add_heading('Terms & Conditions', 2)
             terms_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
             if self.selected_term_ids:
