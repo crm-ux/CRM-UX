@@ -211,7 +211,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
-            '<div style="' + ('page-break-before:always;' if (self.technical_specs_html or self.quote_image_ids) else '') + 'padding:40px 0 10px 0;">'
+            '<div style="' + ('page-break-before:always;' if (_tech_clean or self.quote_image_ids) else '') + 'padding:40px 0 10px 0;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;margin:0 0 12px 0;padding:8px 0;border-top:2px solid #333;border-bottom:2px solid #333;">Quotation</p>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:11px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
@@ -490,7 +490,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
         )
         # ── TECH SPECS ──
         tech_html = ''
-        if self.technical_specs_html:
+        # Check if technical specs has actual content (not just empty HTML)
+        _tech_text = self.technical_specs_html or ''
+        import re as _re
+        _tech_clean = _re.sub(r'<[^>]+>', '', str(_tech_text)).strip()
+        if self.technical_specs_html and _tech_clean:
             from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
@@ -574,7 +578,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
         table_html = (
-            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
+            '<div style="' + ('page-break-before:always' if (_tech_clean or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
@@ -601,7 +605,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             note_content = ''
         if note_content:
             terms_html = (
-                '<div style="' + ('page-break-before:always;padding-top:20px;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
+                '<div style="' + ('page-break-before:always;padding-top:20px;' if not (_tech_clean or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
                 '<p style="text-align:center;font-weight:bold;font-size:11px;'
                 'padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
@@ -1051,7 +1055,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _add_total_row_in_table(table, 'Net Total Amount INR:', _indian_format(net_total), bold=True)
         # Terms & Conditions - new page if no tech specs or images
         if self.selected_term_ids or order.note:
-            if not (self.technical_specs_html or self.quote_image_ids):
+            if not (_tech_clean or self.quote_image_ids):
                 doc.add_page_break()
             terms_heading = doc.add_heading('Terms & Conditions', 2)
             terms_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
