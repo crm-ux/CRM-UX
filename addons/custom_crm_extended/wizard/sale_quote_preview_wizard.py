@@ -588,7 +588,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</thead>'
             '<tbody>%s'
             '<tr><td colspan="6" style="text-align:right;border:none;padding:6px 8px;border-top:1px solid #ddd;"><b>Total Amount:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;"><b>%s</b></td></tr>'
-            '<tr><td colspan="6" style="text-align:right;border-top:1px solid #ddd;padding:6px 8px;font-size:13px;"><b>Discount Amount:</b></td><td style="text-align:right;padding:6px 8px;border-top:1px solid #ddd;font-size:13px;"><b>%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;padding:6px 8px;"><b>Discount Amount:</b></td><td style="text-align:right;padding:6px 8px;"><b>%s</b></td></tr>'
+            '<tr><td colspan="6" style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>Net Total Amount:</b></td><td style="text-align:right;border-top:2px solid #333;padding:6px 8px;font-size:13px;"><b>%s</b></td></tr>'
             '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
@@ -596,7 +597,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         )
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
-        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), totals_html)
+        net_total_amount = original_amount - disc_amount_total
+        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
 
         # ── TERMS ──
         terms_html = ''
