@@ -290,6 +290,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 '</div>'
             ) % (logo_html, img_rows)
 
+        # Restore draft fields if saved previously
+        draft_terms = getattr(order, 'x_draft_term_ids', False)
+        if draft_terms:
+            res['selected_term_ids'] = [(6, 0, draft_terms.ids)]
+        draft_gst = getattr(order, 'x_draft_gst_included', None)
+        if draft_gst is not None:
+            gst_on = draft_gst
+        draft_valid_until = getattr(order, 'x_draft_valid_until', None)
+        draft_best_offer = getattr(order, 'x_draft_best_offer', None) or product_cats
         res.update({
             'order_id': order.id,
             'x_gst_included': gst_on,
@@ -299,9 +308,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'contact_function': order.opportunity_id.function if order.opportunity_id else '',
             'quote_name': order.name or '',
             'quote_date': order.date_order.date() if order.date_order else fields.Date.today(),
-            'valid_until': order.validity_date,
+            'valid_until': draft_valid_until or order.validity_date,
             'subject': 'Quotation for Products / Services',
-            'best_offer_for': getattr(order, 'x_draft_best_offer', None) or product_cats,
+            'best_offer_for': draft_best_offer,
             'company_logo': order.company_id.logo_web,
             'document_html': Markup(html),
             'x_table_html': table_html,
@@ -313,17 +322,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_save_draft(self):
         self.ensure_one()
-        # Save selected terms to order note
-        if self.selected_term_ids:
-            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
-            self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
-
         order = self.order_id
         if not order:
             return
+        # Save selected terms to order note
+        if self.selected_term_ids:
+            items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
+            order.sudo().write({'note': '<ol>%s</ol>' % items})
         vals = {
             'x_draft_tech_specs': self.technical_specs_html,
             'x_draft_best_offer': self.best_offer_for,
+            'x_draft_gst_included': self.x_gst_included,
+            'x_draft_valid_until': self.valid_until,
+            'x_draft_term_ids': [(6, 0, self.selected_term_ids.ids)],
         }
         if hasattr(order, 'x_draft_image_ids'):
             vals['x_draft_image_ids'] = [(6, 0, self.quote_image_ids.ids)]

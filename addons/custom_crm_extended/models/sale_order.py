@@ -199,6 +199,13 @@ class SaleOrder(models.Model):
         'order_id', 'attachment_id',
         string='Draft Quote Images'
     )
+    x_draft_term_ids = fields.Many2many(
+        'sale.terms.condition', 'sale_order_draft_term_rel',
+        'order_id', 'term_id',
+        string='Draft Selected Terms'
+    )
+    x_draft_gst_included = fields.Boolean(string='Draft GST Included', default=True)
+    x_draft_valid_until = fields.Date(string='Draft Valid Until')
 
     # ------------------------------------------------------------------
     # 7. QUOTE STATUS STAGE (beyond default state)
