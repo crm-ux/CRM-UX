@@ -598,16 +598,21 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = untaxed - overall_disc_amt
 
         # --- GST tax breakdown ---
+        # Calculate tax per line on net (after overall discount proportion)
         seen_taxes = {}
-        for line in order.order_line.filtered(lambda x: not x.display_type):
-            for tax in line.tax_ids:
-                trate = tax.amount
-                tname = 'GST (%s%%)' % int(trate)
-                if tname not in seen_taxes:
-                    seen_taxes[tname] = trate
+        if gst_on:
+            for line in order.order_line.filtered(lambda x: not x.display_type):
+                line_net = line.price_subtotal
+                # Apply overall discount proportion to each line
+                if overall_disc_pct:
+                    line_net = line_net * (1 - overall_disc_pct / 100)
+                for tax in line.tax_ids:
+                    trate = float(tax.amount)
+                    tname = 'GST (%s%%)' % int(trate)
+                    tax_amt = line_net * trate / 100
+                    seen_taxes[tname] = seen_taxes.get(tname, 0) + tax_amt
 
-        total_tax_rate = sum(seen_taxes.values())
-        total_tax_amt = net * total_tax_rate / 100 if (gst_on and seen_taxes) else 0
+        total_tax_amt = sum(seen_taxes.values()) if gst_on else 0
         grand_total = net + total_tax_amt
 
         # --- Build totals block ---
