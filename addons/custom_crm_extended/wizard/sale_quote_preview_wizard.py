@@ -91,6 +91,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         # has_draft: True if any draft field has been saved before
         has_draft = bool(order.x_draft_term_ids or order.x_draft_quote_name or order.x_draft_best_offer or order.x_draft_tech_specs)
+        import logging
+        _log = logging.getLogger(__name__)
+        _log.warning('DRAFT DEBUG: order=%s has_draft=%s x_draft_quote_name=%s x_draft_valid_until=%s', order.name, has_draft, order.x_draft_quote_name, order.x_draft_valid_until)
         if order.x_draft_term_ids:
             res['selected_term_ids'] = [(6, 0, order.x_draft_term_ids.ids)]
         elif all_terms:

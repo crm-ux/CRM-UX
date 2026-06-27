@@ -302,20 +302,28 @@ class SaleOrder(models.Model):
                 if matched:
                     saved_terms = matched
 
+        # Use draft fields if saved, else use order defaults
+        has_draft = bool(self.x_draft_term_ids or self.x_draft_quote_name or self.x_draft_best_offer or self.x_draft_tech_specs)
+        wizard_vals = {
+            'order_id': self.id,
+            'selected_term_ids': [(6, 0, self.x_draft_term_ids.ids)] if self.x_draft_term_ids else [(6, 0, saved_terms.ids)],
+            'seller_name': self.company_id.name or '',
+            'buyer_name': self.x_draft_buyer_name or self.partner_id.name or '',
+            'contact_person': self.x_draft_contact_person or self.x_contact_person_id.name or self.x_contact_person or '',
+            'contact_function': self.x_draft_contact_function or self.x_contact_person_id.function or '',
+            'quote_name': self.x_draft_quote_name or self.name or '',
+            'quote_date': self.x_draft_quote_date or (self.date_order.date() if self.date_order else fields.Date.today()),
+            'valid_until': self.x_draft_valid_until or self.validity_date,
+            'subject': self.x_draft_subject or 'Quotation for Products / Services',
+            'x_gst_included': self.x_draft_gst_included if has_draft else self.x_gst_included,
+            'best_offer_for': self.x_draft_best_offer or '',
+            'technical_specs_html': self.x_draft_tech_specs or False,
+        }
+        if self.x_draft_image_ids:
+            wizard_vals['quote_image_ids'] = [(6, 0, self.x_draft_image_ids.ids)]
         wizard = self.env['sale.quote.preview.wizard'].with_context(
             default_order_id=self.id
-        ).sudo().create({
-            'order_id': self.id,
-            'selected_term_ids': [(6, 0, saved_terms.ids)],
-            'seller_name': self.company_id.name or '',
-            'buyer_name': self.partner_id.name or '',
-            'contact_person': self.x_contact_person_id.name or self.x_contact_person or '',
-            'contact_function': self.x_contact_person_id.function or '',
-            'quote_name': self.name or '',
-            'quote_date': self.date_order.date() if self.date_order else fields.Date.today(),
-            'valid_until': self.validity_date,
-            'subject': 'Quotation for Products / Services',
-        })
+        ).sudo().create(wizard_vals)
         wizard._rebuild_document_html()
         return {
             'type': 'ir.actions.act_window',
