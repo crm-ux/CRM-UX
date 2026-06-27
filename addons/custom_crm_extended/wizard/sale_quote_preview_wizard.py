@@ -101,7 +101,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             hsn = line.product_id.l10n_in_hsn_code or ''
             make = line.x_make or ''
             unit_price = line.price_unit or 0
-            discount_pct = (line.discount or 0) * 100 if (line.discount or 0) <= 1 else (line.discount or 0)
+            discount_pct = (line.discount or 0)
             disc_amount = unit_price * discount_pct / 100
             after_discount = unit_price - disc_amount
             qty = line.product_uom_qty or 0
@@ -533,7 +533,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             hsn = line.product_id.l10n_in_hsn_code or ''
             make = line.x_make or ''
             unit_price = line.price_unit or 0
-            discount_pct = (line.discount or 0) * 100 if (line.discount or 0) <= 1 else (line.discount or 0)
+            discount_pct = (line.discount or 0)
             qty = int(line.product_uom_qty or 0)
             amount = line.price_subtotal or 0
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
