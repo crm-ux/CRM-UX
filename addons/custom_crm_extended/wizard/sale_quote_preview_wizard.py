@@ -601,7 +601,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             note_content = ''
         if note_content:
             terms_html = (
-                '<div style="' + ('page-break-before:always;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
+                '<div style="' + ('page-break-before:always;padding-top:20px;' if not (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px;') + 'font-family:Calibri,sans-serif;font-size:11px;">'
                 '<p style="text-align:center;font-weight:bold;font-size:11px;'
                 'padding-bottom:6px;margin-bottom:10px;">'
                 'Terms &amp; Conditions</p>'
