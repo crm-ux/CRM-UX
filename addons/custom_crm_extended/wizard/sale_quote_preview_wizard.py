@@ -589,17 +589,40 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
-        col = '7' if has_discount_pdf else '6'
+        col = 7 if has_discount_pdf else 6
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
         net_total_amount = original_amount - disc_amount_total
-        grand_total = net_total_amount + (order.amount_tax if gst_on and order.amount_tax else 0)
+        span = col - 2  # empty left columns
+        # 2-column total rows: empty cols | label | amount
+        def total_row(label, amount, bold=False, bg=''):
+            b = '<b>' if bold else ''
+            be = '</b>' if bold else ''
+            bg_s = 'background:%s;' % bg if bg else ''
+            return (
+                '<tr>'
+                '<td colspan="%s" style="border:none;padding:4px;"></td>'
+                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s">%s%s%s</td>'
+                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s font-weight:%s;">%s</td>'
+                '</tr>'
+            ) % (span, bg_s, b, label, be, bg_s, 'bold' if bold else 'normal', amount)
 
-        gst_row = ''
-        grand_row = ''
+        total_rows_html = total_row('Untaxed Amount:', _indian_format(order.amount_untaxed))
+        if disc_amount_total > 0:
+            total_rows_html += total_row('Discount Amount:', _indian_format(disc_amount_total))
+
         if gst_on and order.amount_tax:
-            gst_row = '<tr><td colspan="%s" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>GST Amount:</b> %s</td></tr>' % (col, _indian_format(order.amount_tax))
-            grand_row = '<tr><td colspan="%s" style="text-align:right;border:2px solid #2c3e50;padding:6px 8px;background:#2c3e50;color:#fff;font-size:13px;"><b>Grand Total Amount INR:</b> %s</td></tr>' % (col, _indian_format(grand_total))
+            seen_taxes = {}
+            for line in order.order_line.filtered(lambda x: not x.display_type):
+                for tax in line.tax_ids:
+                    tname = tax.name or ''
+                    tax_amt = line.price_subtotal * tax.amount / 100
+                    seen_taxes[tname] = seen_taxes.get(tname, 0) + tax_amt
+            for tname, tamt in seen_taxes.items():
+                total_rows_html += total_row('%s:' % tname, _indian_format(tamt))
+            total_rows_html += total_row('Total:', _indian_format(order.amount_total), bold=True, bg='#eaf0fb')
+        else:
+            total_rows_html += total_row('Total:', _indian_format(net_total_amount), bold=True, bg='#eaf0fb')
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
@@ -609,18 +632,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<thead>'
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
-            '<tbody>%s'
-            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Total Amount:</b> %s</td></tr>'
-            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Discount Amount:</b> %s</td></tr>'
-            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;background:#eaf0fb;"><b>Net Total Amount:</b> %s</td></tr>'
-            + gst_row
-            + grand_row
-            + '</tbody>'
+            '<tbody>%s%s</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
         )
-        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
+        table_html = table_html % (th_html, rows, total_rows_html, totals_html)
 
         # ── TERMS ──
         terms_html = ''
