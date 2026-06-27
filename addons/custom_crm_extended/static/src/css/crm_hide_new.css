@@ -119,3 +119,11 @@ button[name="action_save_lead"] {
     border-color: #007bff !important;
     color: #fff !important;
 }
+
+/* Lead Wizard Next and Save Lead button - dark blue like step_current */
+button[name="action_next"],
+button[name="action_save_lead"] {
+    background-color: #1a3d6e !important;
+    border-color: #1a3d6e !important;
+    color: #fff !important;
+}
