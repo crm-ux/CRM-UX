@@ -479,7 +479,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
             + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
-            + ('<p style="margin:0 0 1px 0;font-size:11px;color:#555;">%s</p>' % self.contact_function if self.contact_function else '')
+
             + addr_html
             + '<br/>'
             + '<p style="margin:6px 0;"><b>Subject:</b> %s</p>' % subject
@@ -762,11 +762,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         company_run.bold = True
         company_run.font.size = Pt(11)
 
-        # Job title
-        if self.contact_function:
-            fn_para = doc.add_paragraph()
-            fn_run = fn_para.add_run(self.contact_function)
-            fn_run.font.color.rgb = RGBColor(0x55, 0x55, 0x55)
+
 
         # Full address with GST
         p = order.partner_id
