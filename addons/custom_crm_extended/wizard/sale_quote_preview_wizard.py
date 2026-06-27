@@ -590,50 +590,35 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
         col = 7 if has_discount_pdf else 6
+        # --- Amount calculations ---
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
-        disc_amount_total = original_amount - order.amount_untaxed
-        net_total_amount = original_amount - disc_amount_total
+        untaxed = order.amount_untaxed  # after line discounts
         overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
-        overall_disc_amt = order.amount_untaxed * overall_disc_pct / 100 if overall_disc_pct else 0
-        net_after_overall = order.amount_untaxed - overall_disc_amt
+        overall_disc_amt = untaxed * overall_disc_pct / 100 if overall_disc_pct else 0
+        net = untaxed - overall_disc_amt
 
-        # Totals below table, right-aligned, no border lines
+        # --- GST tax breakdown ---
+        seen_taxes = {}
+        for line in order.order_line.filtered(lambda x: not x.display_type):
+            for tax in line.tax_ids:
+                tname = tax.name or ''
+                if tname not in seen_taxes:
+                    seen_taxes[tname] = tax.amount
+
+        total_tax_rate = sum(seen_taxes.values())
+        total_tax_amt = net * total_tax_rate / 100 if (gst_on and seen_taxes) else 0
+        grand_total = net + total_tax_amt
+
+        # --- Build totals block ---
         totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
-        totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(order.amount_untaxed)
+        totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(untaxed)
         if overall_disc_pct:
-            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%)</p>' % int(overall_disc_pct)
-        if gst_on and order.amount_tax:
-            # Calculate tax on net_after_overall amount
-            tax_rate_total = 0
-            seen_taxes = {}
-            for line in order.order_line.filtered(lambda x: not x.display_type):
-                for tax in line.tax_ids:
-                    tname = tax.name or ''
-                    if tname not in seen_taxes:
-                        seen_taxes[tname] = tax.amount
-                    tax_rate_total += tax.amount if tname not in seen_taxes else 0
-            # Use order.amount_tax directly but adjust for overall discount
-            if overall_disc_pct:
-                # Tax should be on net_after_overall
-                total_tax_rate = sum(seen_taxes.values())
-                for tname, trate in seen_taxes.items():
-                    tax_amt = net_after_overall * trate / 100
-                    totals_below += '<p style="margin:3px 0;">%s: <b>%s</b></p>' % (tname, _indian_format(tax_amt))
-                total_tax_amt = net_after_overall * total_tax_rate / 100
-                grand_total = net_after_overall + total_tax_amt
-            else:
-                seen_taxes2 = {}
-                for line in order.order_line.filtered(lambda x: not x.display_type):
-                    for tax in line.tax_ids:
-                        tname = tax.name or ''
-                        tax_amt = line.price_subtotal * tax.amount / 100
-                        seen_taxes2[tname] = seen_taxes2.get(tname, 0) + tax_amt
-                for tname, tamt in seen_taxes2.items():
-                    totals_below += '<p style="margin:3px 0;">%s: <b>%s</b></p>' % (tname, _indian_format(tamt))
-                grand_total = order.amount_total
-            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(grand_total)
-        else:
-            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(net_after_overall if overall_disc_pct else net_total_amount)
+            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>-%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
+        if gst_on and seen_taxes:
+            for tname, trate in seen_taxes.items():
+                tax_amt = net * trate / 100
+                totals_below += '<p style="margin:3px 0;">%s: <b>%s</b></p>' % (tname, _indian_format(tax_amt))
+        totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(grand_total)
         totals_below += '</div>'
 
         table_html = (
