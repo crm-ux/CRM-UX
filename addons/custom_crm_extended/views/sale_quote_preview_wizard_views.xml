@@ -8,7 +8,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="order_id"/>
+                            <field name="order_id" invisible="1"/>
                             <field name="seller_name" string="Company Name"/>
                             <field name="buyer_name" string="Party Name"/>
                             <field name="contact_person" string="Contact Person"/>
