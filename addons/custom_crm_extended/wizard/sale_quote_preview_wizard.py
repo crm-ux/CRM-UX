@@ -589,6 +589,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
+        col = '7' if has_discount_pdf else '6'
+        original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
+        disc_amount_total = original_amount - order.amount_untaxed
+        net_total_amount = original_amount - disc_amount_total
+        grand_total = net_total_amount + (order.amount_tax if gst_on and order.amount_tax else 0)
+
+        gst_row = ''
+        grand_row = ''
+        if gst_on and order.amount_tax:
+            gst_row = '<tr><td colspan="%s" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>GST Amount:</b> %s</td></tr>' % (col, _indian_format(order.amount_tax))
+            grand_row = '<tr><td colspan="%s" style="text-align:right;border:2px solid #2c3e50;padding:6px 8px;background:#2c3e50;color:#fff;font-size:13px;"><b>Grand Total Amount INR:</b> %s</td></tr>' % (col, _indian_format(grand_total))
+
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
@@ -598,22 +610,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
             '</thead>'
             '<tbody>%s'
-            '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Total Amount:</b> %s</td></tr>'
-            '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Discount Amount:</b> %s</td></tr>'
-            '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:2px solid #2c3e50;padding:6px 8px;background:#eaf0fb;font-size:13px;"><b>Net Total Amount:</b> %s</td></tr>'
-            + ('<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>GST Amount:</b> %s</td></tr>' if gst_on and order.amount_tax else '')
+            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Total Amount:</b> %s</td></tr>'
+            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Discount Amount:</b> %s</td></tr>'
+            '<tr><td colspan="' + col + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;background:#eaf0fb;"><b>Net Total Amount:</b> %s</td></tr>'
+            + gst_row
+            + grand_row
             + '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
         )
-        original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
-        disc_amount_total = original_amount - order.amount_untaxed
-        net_total_amount = original_amount - disc_amount_total
-        if gst_on and order.amount_tax:
-            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), _indian_format(order.amount_tax), totals_html)
-        else:
-            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
+        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
 
         # ── TERMS ──
         terms_html = ''
