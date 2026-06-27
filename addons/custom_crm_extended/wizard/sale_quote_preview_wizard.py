@@ -593,19 +593,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
         net_total_amount = original_amount - disc_amount_total
-        span = col - 2  # empty left columns
-        # 2-column total rows: empty cols | label | amount
+        span = col - 2
+
         def total_row(label, amount, bold=False, bg=''):
             b = '<b>' if bold else ''
             be = '</b>' if bold else ''
             bg_s = 'background:%s;' % bg if bg else ''
+            fw = 'font-weight:bold;' if bold else ''
             return (
                 '<tr>'
-                '<td colspan="%s" style="border:none;padding:4px;"></td>'
-                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s">%s%s%s</td>'
-                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s font-weight:%s;">%s</td>'
+                '<td colspan="%s" style="border:none;padding:3px;"></td>'
+                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s%s">%s%s%s</td>'
+                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s%s">%s</td>'
                 '</tr>'
-            ) % (span, bg_s, b, label, be, bg_s, 'bold' if bold else 'normal', amount)
+            ) % (span, bg_s, fw, b, label, be, bg_s, fw, amount)
 
         total_rows_html = total_row('Untaxed Amount:', _indian_format(order.amount_untaxed))
         if disc_amount_total > 0:
@@ -626,12 +627,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
-            '<p style="text-align:center;font-size:15px;font-weight:bold;'
-            'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
-            '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
-            '<thead>'
-            '<tr style="background:#2c3e50;color:#fff;">%s</tr>'
-            '</thead>'
+            '<p style="text-align:center;font-size:15px;font-weight:bold;margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
+            '<table style="width:100%%;border-collapse:collapse;font-size:11px;table-layout:fixed;">'
+            '<thead><tr style="background:#2c3e50;color:#fff;">%s</tr></thead>'
             '<tbody>%s%s</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
