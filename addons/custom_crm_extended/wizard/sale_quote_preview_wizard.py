@@ -406,7 +406,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/>' % b64
 
         # ── PRODUCT ROWS ──
-        gst_on = order.x_gst_included
+        gst_on = self.x_gst_included if self.x_gst_included is not None else order.x_gst_included
         rows = ''
         for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
             part_no = line.x_product_code or line.product_id.default_code or ''
