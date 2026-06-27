@@ -601,9 +601,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         seen_taxes = {}
         for line in order.order_line.filtered(lambda x: not x.display_type):
             for tax in line.tax_ids:
-                tname = tax.name or ''
+                trate = tax.amount
+                tname = 'GST (%s%%)' % int(trate)
                 if tname not in seen_taxes:
-                    seen_taxes[tname] = tax.amount
+                    seen_taxes[tname] = trate
 
         total_tax_rate = sum(seen_taxes.values())
         total_tax_amt = net * total_tax_rate / 100 if (gst_on and seen_taxes) else 0
