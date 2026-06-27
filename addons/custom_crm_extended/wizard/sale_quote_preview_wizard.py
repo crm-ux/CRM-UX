@@ -575,7 +575,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
         table_html = (
-            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'  
+            '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
+            '<div style="text-align:right;margin-bottom:8px;">%s</div>'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
@@ -589,7 +590,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
+        ) % (logo_html, th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
 
         # ── TERMS ──
         terms_html = ''
