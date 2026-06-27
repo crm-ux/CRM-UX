@@ -593,12 +593,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
         net_total_amount = original_amount - disc_amount_total
+        overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
+        overall_disc_amt = order.amount_untaxed * overall_disc_pct / 100 if overall_disc_pct else 0
+        net_after_overall = order.amount_untaxed - overall_disc_amt
 
         # Totals below table, right-aligned, no border lines
         totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
         totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(order.amount_untaxed)
         if disc_amount_total > 0:
             totals_below += '<p style="margin:3px 0;">Discount Amount: <b>%s</b></p>' % _indian_format(disc_amount_total)
+        if overall_disc_pct:
+            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
         if gst_on and order.amount_tax:
             seen_taxes = {}
             for line in order.order_line.filtered(lambda x: not x.display_type):
@@ -610,7 +615,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 totals_below += '<p style="margin:3px 0;">%s: <b>%s</b></p>' % (tname, _indian_format(tamt))
             totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(order.amount_total)
         else:
-            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(net_total_amount)
+            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(net_after_overall if overall_disc_pct else net_total_amount)
         totals_below += '</div>'
 
         table_html = (
