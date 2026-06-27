@@ -593,25 +593,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
         net_total_amount = original_amount - disc_amount_total
-        span = col - 2
 
-        def total_row(label, amount, bold=False, bg=''):
-            b = '<b>' if bold else ''
-            be = '</b>' if bold else ''
-            bg_s = 'background:%s;' % bg if bg else ''
-            fw = 'font-weight:bold;' if bold else ''
-            return (
-                '<tr>'
-                '<td colspan="%s" style="border:none;padding:3px;"></td>'
-                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s%s">%s%s%s</td>'
-                '<td style="text-align:right;padding:5px 8px;border:1px solid #ddd;%s%s">%s</td>'
-                '</tr>'
-            ) % (span, bg_s, fw, b, label, be, bg_s, fw, amount)
-
-        total_rows_html = total_row('Untaxed Amount:', _indian_format(order.amount_untaxed))
+        # Totals below table, right-aligned, no border lines
+        totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
+        totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(order.amount_untaxed)
         if disc_amount_total > 0:
-            total_rows_html += total_row('Discount Amount:', _indian_format(disc_amount_total))
-
+            totals_below += '<p style="margin:3px 0;">Discount Amount: <b>%s</b></p>' % _indian_format(disc_amount_total)
         if gst_on and order.amount_tax:
             seen_taxes = {}
             for line in order.order_line.filtered(lambda x: not x.display_type):
@@ -620,22 +607,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     tax_amt = line.price_subtotal * tax.amount / 100
                     seen_taxes[tname] = seen_taxes.get(tname, 0) + tax_amt
             for tname, tamt in seen_taxes.items():
-                total_rows_html += total_row('%s:' % tname, _indian_format(tamt))
-            total_rows_html += total_row('Total:', _indian_format(order.amount_total), bold=True, bg='#eaf0fb')
+                totals_below += '<p style="margin:3px 0;">%s: <b>%s</b></p>' % (tname, _indian_format(tamt))
+            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(order.amount_total)
         else:
-            total_rows_html += total_row('Total:', _indian_format(net_total_amount), bold=True, bg='#eaf0fb')
+            totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(net_total_amount)
+        totals_below += '</div>'
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
             '<p style="text-align:center;font-size:15px;font-weight:bold;margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
-            '<table style="width:100%%;border-collapse:collapse;font-size:11px;table-layout:fixed;">'
+            '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
             '<thead><tr style="background:#2c3e50;color:#fff;">%s</tr></thead>'
-            '<tbody>%s%s</tbody>'
+            '<tbody>%s</tbody>'
             '</table>'
+            '%s'
             '<div style="display:none;">%s</div>'
             '</div>'
         )
-        table_html = table_html % (th_html, rows, total_rows_html, totals_html)
+        table_html = table_html % (th_html, rows, totals_below, totals_html)
 
         # ── TERMS ──
         terms_html = ''
