@@ -600,10 +600,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Totals below table, right-aligned, no border lines
         totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
         totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(order.amount_untaxed)
-        if disc_amount_total > 0:
-            totals_below += '<p style="margin:3px 0;">Discount Amount: <b>%s</b></p>' % _indian_format(disc_amount_total)
         if overall_disc_pct:
-            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
+            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%)</p>' % int(overall_disc_pct)
         if gst_on and order.amount_tax:
             seen_taxes = {}
             for line in order.order_line.filtered(lambda x: not x.display_type):
