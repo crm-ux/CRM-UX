@@ -469,12 +469,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
             '<div style="font-family:Calibri,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
+            '<div style="text-align:right;margin-bottom:8px;">%s</div>'
             '<div style="overflow:hidden;margin-bottom:12px;">'
             '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
             '<span style="float:right;font-weight:bold;">Date: %s</span>'
             '</div>'
             '<div style="clear:both;"></div>'
-            ) % (self.quote_name or order.name or '', _pdf_date_str)
+            ) % (logo_html, self.quote_name or order.name or '', _pdf_date_str)
         intro_html += (
             '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
