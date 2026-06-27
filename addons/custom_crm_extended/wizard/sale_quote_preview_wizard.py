@@ -469,13 +469,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
             '<div style="font-family:Calibri,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
-            '<div style="text-align:right;margin-bottom:8px;">%s</div>'
             '<div style="overflow:hidden;margin-bottom:12px;">'
             '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
             '<span style="float:right;font-weight:bold;">Date: %s</span>'
             '</div>'
             '<div style="clear:both;"></div>'
-            ) % (logo_html, self.quote_name or order.name or '', _pdf_date_str)
+            ) % (self.quote_name or order.name or '', _pdf_date_str)
         intro_html += (
             '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
             + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
@@ -576,7 +575,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (self.technical_specs_html or self.quote_image_ids) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
-            '<div style="text-align:right;margin-bottom:8px;">%s</div>'
             '<p style="text-align:center;font-size:15px;font-weight:bold;'
             'margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
@@ -590,7 +588,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
-        ) % (logo_html, th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
+        ) % (th_html, rows, _indian_format(order.amount_untaxed), _indian_format(net), totals_html)
 
         # ── TERMS ──
         terms_html = ''
