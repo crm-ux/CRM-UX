@@ -602,9 +602,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if gst_on and order.amount_tax:
             table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), _indian_format(order.amount_tax), totals_html)
         else:
-            if gst_on and order.amount_tax:
-            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), _indian_format(order.amount_tax), totals_html)
-        else:
             table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
 
         # ── TERMS ──
