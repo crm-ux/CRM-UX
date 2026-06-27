@@ -590,7 +590,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Total Amount:</b> %s</td></tr>'
             '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>Discount Amount:</b> %s</td></tr>'
             '<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:2px solid #2c3e50;padding:6px 8px;background:#eaf0fb;font-size:13px;"><b>Net Total Amount:</b> %s</td></tr>'
-            '</tbody>'
+            + ('<tr><td colspan="' + ('7' if has_discount_pdf else '6') + '" style="text-align:right;border:1px solid #ddd;padding:6px 8px;"><b>GST Amount:</b> %s</td></tr>' if gst_on and order.amount_tax else '')
+            + '</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
@@ -598,7 +599,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         disc_amount_total = original_amount - order.amount_untaxed
         net_total_amount = original_amount - disc_amount_total
-        table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
+        if gst_on and order.amount_tax:
+            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), _indian_format(order.amount_tax), totals_html)
+        else:
+            if gst_on and order.amount_tax:
+            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), _indian_format(order.amount_tax), totals_html)
+        else:
+            table_html = table_html % (th_html, rows, _indian_format(original_amount), _indian_format(disc_amount_total), _indian_format(net_total_amount), totals_html)
 
         # ── TERMS ──
         terms_html = ''
