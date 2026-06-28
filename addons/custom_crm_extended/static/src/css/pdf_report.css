@@ -1,0 +1,15 @@
+/* Remove red/dotted border from PDF header */
+header, .header, div.header {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+header::after, header::before,
+.header::after, .header::before {
+    border: none !important;
+    display: none !important;
+}
