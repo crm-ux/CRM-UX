@@ -656,17 +656,34 @@ class SaleQuotePreviewWizard(models.TransientModel):
             )
 
         # ── COMBINE ──
-        # Closing signature
-        closing_html = (
-            '<div style="margin-top:30px;font-family:Calibri,sans-serif;font-size:11px;">'
-            '<p style="margin:4px 0;">Thanking You,</p>'
-            '<p style="margin:4px 0;">Sincerely,</p>'
-            '<br/>'
-            '<p style="margin:4px 0;font-weight:bold;">%s</p>'
-            '<p style="margin:4px 0;">%s</p>'
-            '</div>'
-        ) % (order.user_id.name or '', order.company_id.name or '')
-        full_html = intro_html + img_html + tech_html + table_html + terms_html + closing_html
+        # Logo for PDF header
+        logo_html_pdf = ''
+        if comp.logo_web:
+            logo_b64 = comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web
+            logo_html_pdf = '<div style="text-align:right;margin-bottom:10px;"><img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/></div>' % logo_b64
+
+        # Closing signature with Regards
+        user = order.user_id
+        user_name = user.name or ''
+        user_job = user.function if hasattr(user, 'function') else ''
+        user_phone = user.partner_id.phone or user.partner_id.mobile or ''
+        user_email = user.partner_id.email or user.email or ''
+        company_name = order.company_id.name or ''
+        closing_html = '<div style="margin-top:30px;font-family:Calibri,sans-serif;font-size:11px;">'
+        closing_html += '<p style="margin:4px 0;">Thanking You,</p>'
+        closing_html += '<p style="margin:4px 0;">Sincerely,</p>'
+        closing_html += '<br/>'
+        closing_html += '<p style="margin:4px 0;font-weight:bold;">%s</p>' % user_name
+        if user_job:
+            closing_html += '<p style="margin:4px 0;">%s</p>' % user_job
+        closing_html += '<p style="margin:4px 0;">%s</p>' % company_name
+        if user_phone:
+            closing_html += '<p style="margin:4px 0;">Ph: %s</p>' % user_phone
+        if user_email:
+            closing_html += '<p style="margin:4px 0;">Email: %s</p>' % user_email
+        closing_html += '</div>'
+
+        full_html = logo_html_pdf + intro_html + img_html + tech_html + table_html + terms_html + closing_html
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
         logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
