@@ -1083,29 +1083,44 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on_d = self.x_gst_included
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
+        # Create a small table for totals alignment
+        totals_tbl = doc.add_table(rows=0, cols=2)
+        totals_tbl.alignment = WD_TABLE_ALIGNMENT.RIGHT if hasattr(WD_TABLE_ALIGNMENT, 'RIGHT') else 2
+        totals_tbl.style = 'Table Grid'
+        # Remove borders
+        from docx.oxml.ns import qn
+        from docx.oxml import OxmlElement
+        def _remove_borders(tbl):
+            tbl_pr = tbl._tbl.get_or_add_tblPr()
+            borders = OxmlElement('w:tblBorders')
+            for side in ['top','left','bottom','right','insideH','insideV']:
+                b = OxmlElement(f'w:{side}')
+                b.set(qn('w:val'), 'none')
+                borders.append(b)
+            tbl_pr.append(borders)
+        _remove_borders(totals_tbl)
+
         def _add_total_para(doc, label, value, bold=False):
-            from docx.oxml.ns import qn
-            from docx.oxml import OxmlElement
-            p = doc.add_paragraph()
-            p.paragraph_format.space_before = Pt(0)
-            p.paragraph_format.space_after = Pt(2)
-            # Add tab stop at right margin for alignment
-            pPr = p._p.get_or_add_pPr()
-            tabs = OxmlElement('w:tabs')
-            tab = OxmlElement('w:tab')
-            tab.set(qn('w:val'), 'right')
-            tab.set(qn('w:pos'), '9360')  # right margin
-            tabs.append(tab)
-            pPr.append(tabs)
-            r1 = p.add_run(label + '\t')
+            row = totals_tbl.add_row()
+            c0, c1 = row.cells[0], row.cells[1]
+            c0.width = Pt(200)
+            c1.width = Pt(80)
+            p0 = c0.paragraphs[0]
+            p1 = c1.paragraphs[0]
+            p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            p0.paragraph_format.space_before = Pt(0)
+            p0.paragraph_format.space_after = Pt(0)
+            p1.paragraph_format.space_before = Pt(0)
+            p1.paragraph_format.space_after = Pt(0)
+            r0 = p0.add_run(label)
+            r0.font.name = 'Calibri'
+            r0.font.size = Pt(11)
+            r0.bold = bold
+            r1 = p1.add_run(value)
             r1.font.name = 'Calibri'
             r1.font.size = Pt(11)
             r1.bold = bold
-            r2 = p.add_run(value)
-            r2.font.name = 'Calibri'
-            r2.font.size = Pt(11)
-            r2.bold = bold
-
         _add_total_para(doc, 'Untaxed Amount:', _indian_format(untaxed))
         if overall_disc_pct_d:
             _add_total_para(doc, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
