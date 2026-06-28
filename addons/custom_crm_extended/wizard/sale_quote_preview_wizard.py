@@ -660,7 +660,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         user = order.user_id
         user_name = user.name or ''
         user_job = user.function if hasattr(user, 'function') else ''
-        user_phone = user.partner_id.phone or user.partner_id.mobile or ''
+        user_phone = user.partner_id.phone or ''
         user_email = user.partner_id.email or user.email or ''
         company_name = order.company_id.name or ''
         closing_html = '<div style="margin-top:30px;font-family:Calibri,sans-serif;font-size:11px;">'
