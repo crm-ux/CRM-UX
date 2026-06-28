@@ -1103,7 +1103,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         tbl_pr.append(tbl_borders)
         # Set table width
         tbl_w = _OE2('w:tblW')
-        tbl_w.set(_qn2('w:w'), '4000')
+        tbl_w.set(_qn2('w:w'), '3200')
         tbl_w.set(_qn2('w:type'), 'dxa')
         tbl_pr.append(tbl_w)
         tbl_el.insert(0, tbl_pr)
@@ -1112,7 +1112,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row = totals_tbl.add_row()
             c0, c1 = row.cells[0], row.cells[1]
             # Set column widths
-            for cell, w in [(c0, 2800), (c1, 1200)]:
+            for cell, w in [(c0, 2000), (c1, 1200)]:
                 tc_pr = cell._tc.get_or_add_tcPr()
                 tc_w = _OE2('w:tcW')
                 tc_w.set(_qn2('w:w'), str(w))
