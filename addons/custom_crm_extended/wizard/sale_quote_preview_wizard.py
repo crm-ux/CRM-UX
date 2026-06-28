@@ -617,7 +617,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
         totals_below += '<p style="margin:3px 0;">Untaxed Amount: <b>%s</b></p>' % _indian_format(untaxed)
         if overall_disc_pct:
-            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>-%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
+            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
         if gst_on and tax_rates:
             totals_below += '<p style="margin:3px 0;">GST (%s%%)</p>' % int(total_tax_rate)
         totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">Total: %s</p>' % _indian_format(grand_total)
