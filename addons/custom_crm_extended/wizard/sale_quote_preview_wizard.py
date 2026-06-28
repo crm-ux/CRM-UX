@@ -1070,7 +1070,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     cell.text = val
                     cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        # Totals inside SAME table - same logic as PDF
+        # Totals below table - simple paragraph format like PDF
         untaxed = order.amount_untaxed
         overall_disc_pct_d = getattr(order, 'x_flat_discount_pct', 0) or 0
         overall_disc_amt_d = untaxed * overall_disc_pct_d / 100 if overall_disc_pct_d else 0
@@ -1083,34 +1083,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on_d = self.x_gst_included
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
-        num_cols = len(table.columns)
+        def _add_total_para(doc, label, value, bold=False):
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            r = p.add_run('%s %s' % (label, value))
+            r.font.name = 'Calibri'
+            r.font.size = Pt(11)
+            r.bold = bold
 
-        def _add_total_row_in_table(tbl, label, value, bold=False):
-            row = tbl.add_row()
-            merged_label = row.cells[0]
-            for ci in range(1, num_cols - 1):
-                merged_label = merged_label.merge(row.cells[ci])
-            merged_label.text = ''
-            row.cells[num_cols - 1].text = ''
-            p0 = merged_label.paragraphs[0]
-            p1 = row.cells[num_cols - 1].paragraphs[0]
-            p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            r0 = p0.add_run(label)
-            r0.font.name = 'Calibri'
-            r0.font.size = Pt(11)
-            r0.bold = bold
-            r1 = p1.add_run(value)
-            r1.font.name = 'Calibri'
-            r1.font.size = Pt(11)
-            r1.bold = bold
-
-        _add_total_row_in_table(table, 'Untaxed Amount:', _indian_format(untaxed))
+        _add_total_para(doc, 'Untaxed Amount:', _indian_format(untaxed))
         if overall_disc_pct_d:
-            _add_total_row_in_table(table, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
+            _add_total_para(doc, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
         if gst_on_d and tax_rates_d:
-            _add_total_row_in_table(table, 'GST (%s%%):' % int(total_tax_rate_d), '')
-        _add_total_row_in_table(table, 'Total Amount:', _indian_format(grand_total_d), bold=True)
+            _add_total_para(doc, 'GST (%s%%):' % int(total_tax_rate_d), '')
+        _add_total_para(doc, 'Total Amount:', _indian_format(grand_total_d), bold=True)
 
         # Terms & Conditions - new page if no tech specs or images
         if self.selected_term_ids or order.note:
