@@ -14,6 +14,7 @@
         <field name="header_line" eval="False"/>
         <field name="header_spacing">5</field>
     </record>
+
     <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
         <field name="name">Edited Quotation PDF</field>
         <field name="model">sale.quote.preview.wizard</field>
@@ -23,22 +24,29 @@
         <field name="print_report_name">'Edited Quotation - %s' % (object.quote_name or '')</field>
         <field name="paperformat_id" ref="paperformat_quote_preview"/>
     </record>
+
     <template id="report_sale_quote_preview_wizard">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="comp" t-value="doc.sudo().order_id.company_id"/>
-                <div class="header" style="width:100%;text-align:right;padding:2mm 0 1mm 0;border:none !important;">
-                    <t t-if="comp.logo_web">
-                        <img t-att-src="'data:image/png;base64,' + (comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web)"
-                             style="max-height:80px;max-width:220px;object-fit:contain;"/>
-                    </t>
-                </div>
-                <main style="width:100%;">
+            <t t-set="comp" t-value="docs[0].sudo().order_id.company_id"/>
+            <style>
+                .header { border: none !important; border-bottom: none !important; border-top: none !important; box-shadow: none !important; background: white !important; }
+                header { border: none !important; border-bottom: none !important; }
+                .o_header_line { display: none !important; }
+                hr { display: none !important; }
+            </style>
+            <div class="header" style="border:none !important;border-bottom:none !important;width:100%;text-align:right;padding:2mm 0 1mm 0;">
+                <t t-if="comp.logo_web">
+                    <img t-att-src="'data:image/png;base64,' + (comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web)"
+                         style="max-height:100px;max-width:250px;object-fit:contain;"/>
+                </t>
+            </div>
+            <main style="width:100%;">
+                <t t-foreach="docs" t-as="doc">
                     <div class="page" style="font-family:Calibri,sans-serif;font-size:11px;">
                         <t t-out="doc.sudo().document_html"/>
                     </div>
-                </main>
-            </t>
+                </t>
+            </main>
         </t>
     </template>
 </odoo>
