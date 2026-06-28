@@ -220,7 +220,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # TABLE section (commercial table + totals) - keep on its own page
         table_html = (
             '<div style="' + ('page-break-before:always;' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else '') + 'padding:40px 0 10px 0;">'
-            '<p style="text-align:center;font-size:15px;font-weight:bold;margin:0 0 12px 0;padding:8px 0;border-top:2px solid #333;border-bottom:2px solid #333;">Quotation</p>'
+            '<p style="text-align:center;font-size:15px;font-weight:bold;margin:0 0 12px 0;padding:8px 0;">Quotation</p>'
             '<table border="1" cellpadding="6" cellspacing="0" style="width:100%%;border-collapse:collapse;font-size:11px;page-break-inside:avoid;" contenteditable="false">'
             '<thead><tr style="background:#f0f0f0;">'
             '<th style="text-align:center;width:55px;white-space:nowrap;">SR No.</th>'
