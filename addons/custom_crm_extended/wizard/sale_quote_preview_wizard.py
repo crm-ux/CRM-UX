@@ -656,12 +656,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             )
 
         # ── COMBINE ──
-        # Logo for PDF header
-        logo_html_pdf = ''
-        if comp.logo_web:
-            logo_b64 = comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web
-            logo_html_pdf = '<div style="text-align:right;margin-bottom:10px;"><img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/></div>' % logo_b64
-
         # Closing signature with Regards
         user = order.user_id
         user_name = user.name or ''
@@ -683,7 +677,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             closing_html += '<p style="margin:4px 0;">Email: %s</p>' % user_email
         closing_html += '</div>'
 
-        full_html = logo_html_pdf + intro_html + img_html + tech_html + table_html + terms_html + closing_html
+        full_html = intro_html + img_html + tech_html + table_html + terms_html + closing_html
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
         logging.getLogger(__name__).warning("REBUILD OK - len:%s has_quotation:%s", len(full_html), 'QUOTATION' in full_html)
