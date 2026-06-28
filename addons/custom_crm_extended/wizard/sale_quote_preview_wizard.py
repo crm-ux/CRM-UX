@@ -1083,57 +1083,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on_d = self.x_gst_included
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
-        # Create 2-col borderless table for totals - label | amount
-        from docx.oxml.ns import qn as _qn2
-        from docx.oxml import OxmlElement as _OE2
-        from docx.shared import Inches
-        totals_tbl = doc.add_table(rows=0, cols=2)
-        totals_tbl.alignment = 2  # RIGHT
-
-        # Remove all borders
-        tbl_el = totals_tbl._tbl
-        tbl_pr = _OE2('w:tblPr')
-        tbl_borders = _OE2('w:tblBorders')
-        for side in ['top','left','bottom','right','insideH','insideV']:
-            b = _OE2('w:%s' % side)
-            b.set(_qn2('w:val'), 'none')
-            b.set(_qn2('w:sz'), '0')
-            b.set(_qn2('w:color'), 'auto')
-            tbl_borders.append(b)
-        tbl_pr.append(tbl_borders)
-        # Set table width
-        tbl_w = _OE2('w:tblW')
-        tbl_w.set(_qn2('w:w'), '3200')
-        tbl_w.set(_qn2('w:type'), 'dxa')
-        tbl_pr.append(tbl_w)
-        tbl_el.insert(0, tbl_pr)
-
         def _add_total_para(doc, label, value, bold=False):
-            row = totals_tbl.add_row()
-            c0, c1 = row.cells[0], row.cells[1]
-            # Set column widths
-            for cell, w in [(c0, 2000), (c1, 1200)]:
-                tc_pr = cell._tc.get_or_add_tcPr()
-                tc_w = _OE2('w:tcW')
-                tc_w.set(_qn2('w:w'), str(w))
-                tc_w.set(_qn2('w:type'), 'dxa')
-                tc_pr.append(tc_w)
-            p0 = c0.paragraphs[0]
-            p1 = c1.paragraphs[0]
-            p0.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            p0.paragraph_format.space_before = Pt(0)
-            p0.paragraph_format.space_after = Pt(1)
-            p1.paragraph_format.space_before = Pt(0)
-            p1.paragraph_format.space_after = Pt(1)
-            r0 = p0.add_run(label)
-            r0.font.name = 'Calibri'
-            r0.font.size = Pt(11)
-            r0.bold = bold
-            r1 = p1.add_run(value)
-            r1.font.name = 'Calibri'
-            r1.font.size = Pt(11)
-            r1.bold = bold
+            p = doc.add_paragraph()
+            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(0)
+            text = '%s %s' % (label, value) if value else label
+            r = p.add_run(text)
+            r.font.name = 'Calibri'
+            r.font.size = Pt(11)
+            r.bold = bold
         _add_total_para(doc, 'Untaxed Amount:', _indian_format(untaxed))
         if overall_disc_pct_d:
             _add_total_para(doc, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
