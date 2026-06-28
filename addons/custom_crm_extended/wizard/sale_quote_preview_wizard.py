@@ -1086,6 +1086,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         def _add_total_para(doc, label, value, bold=False):
             p = doc.add_paragraph()
             p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(0)
             r = p.add_run('%s %s' % (label, value))
             r.font.name = 'Calibri'
             r.font.size = Pt(11)
