@@ -1084,14 +1084,27 @@ class SaleQuotePreviewWizard(models.TransientModel):
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
         def _add_total_para(doc, label, value, bold=False):
+            from docx.oxml.ns import qn
+            from docx.oxml import OxmlElement
             p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             p.paragraph_format.space_before = Pt(0)
-            p.paragraph_format.space_after = Pt(0)
-            r = p.add_run('%s %s' % (label, value))
-            r.font.name = 'Calibri'
-            r.font.size = Pt(11)
-            r.bold = bold
+            p.paragraph_format.space_after = Pt(2)
+            # Add tab stop at right margin for alignment
+            pPr = p._p.get_or_add_pPr()
+            tabs = OxmlElement('w:tabs')
+            tab = OxmlElement('w:tab')
+            tab.set(qn('w:val'), 'right')
+            tab.set(qn('w:pos'), '9360')  # right margin
+            tabs.append(tab)
+            pPr.append(tabs)
+            r1 = p.add_run(label + '\t')
+            r1.font.name = 'Calibri'
+            r1.font.size = Pt(11)
+            r1.bold = bold
+            r2 = p.add_run(value)
+            r2.font.name = 'Calibri'
+            r2.font.size = Pt(11)
+            r2.bold = bold
 
         _add_total_para(doc, 'Untaxed Amount:', _indian_format(untaxed))
         if overall_disc_pct_d:
