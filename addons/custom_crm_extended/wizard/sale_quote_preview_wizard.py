@@ -1091,13 +1091,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
         from docx.oxml.ns import qn
         from docx.oxml import OxmlElement
         def _remove_borders(tbl):
-            tbl_pr = tbl._tbl.get_or_add_tblPr()
+            tbl_pr = OxmlElement('w:tblPr')
             borders = OxmlElement('w:tblBorders')
             for side in ['top','left','bottom','right','insideH','insideV']:
-                b = OxmlElement(f'w:{side}')
+                b = OxmlElement('w:%s' % side)
                 b.set(qn('w:val'), 'none')
+                b.set(qn('w:sz'), '0')
+                b.set(qn('w:space'), '0')
+                b.set(qn('w:color'), 'auto')
                 borders.append(b)
             tbl_pr.append(borders)
+            tbl._tbl.insert(0, tbl_pr)
         _remove_borders(totals_tbl)
 
         def _add_total_para(doc, label, value, bold=False):
