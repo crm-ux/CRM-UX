@@ -1085,7 +1085,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Create a small table for totals alignment
         totals_tbl = doc.add_table(rows=0, cols=2)
-        totals_tbl.alignment = WD_TABLE_ALIGNMENT.RIGHT if hasattr(WD_TABLE_ALIGNMENT, 'RIGHT') else 2
+        totals_tbl.alignment = 2
         totals_tbl.style = 'Table Grid'
         # Remove borders
         from docx.oxml.ns import qn
