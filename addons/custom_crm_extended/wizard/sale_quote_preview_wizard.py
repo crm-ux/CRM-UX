@@ -677,8 +677,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             closing_html += '<p style="margin:4px 0;">Email: %s</p>' % user_email
         closing_html += '</div>'
 
-        # Add CSS to remove link underlines and any borders
-        css_reset = '<style>a{text-decoration:none!important;color:inherit!important;}header,.header{border:none!important;border-top:none!important;border-bottom:none!important;}</style>'
+        css_reset = '<style>a{text-decoration:none!important;color:inherit!important;color:#000!important;}a:link,a:visited,a:hover{text-decoration:none!important;border-bottom:none!important;}header,.header,div.header{border:none!important;border-top:none!important;border-bottom:none!important;box-shadow:none!important;}</style>'
         full_html = css_reset + intro_html + img_html + tech_html + table_html + terms_html + closing_html
         self.sudo().write({'document_html': Markup(full_html)})
         import logging
