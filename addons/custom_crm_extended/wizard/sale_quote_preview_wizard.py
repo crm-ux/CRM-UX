@@ -1194,7 +1194,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 f.write('<html><body>%s</body></html>' % str(html))
                 html_file = f.name
             pdf_file = html_file.replace('.html', '.pdf')
-            subprocess.run(['wkhtmltopdf', '--quiet', html_file, pdf_file], check=True)
+            subprocess.run(['wkhtmltopdf', '--quiet', '--no-header-line', '--no-footer-line', '--margin-top', '10', '--margin-bottom', '10', '--margin-left', '10', '--margin-right', '10', html_file, pdf_file], check=True)
             with open(pdf_file, 'rb') as f:
                 pdf_content = f.read()
             os.unlink(html_file)
