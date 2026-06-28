@@ -7,12 +7,12 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">30</field>
+        <field name="margin_top">25</field>
         <field name="margin_bottom">10</field>
         <field name="margin_left">10</field>
         <field name="margin_right">10</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">10</field>
+        <field name="header_spacing">5</field>
     </record>
     <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
         <field name="name">Edited Quotation PDF</field>
@@ -27,10 +27,10 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="doc">
                 <t t-set="comp" t-value="doc.sudo().order_id.company_id"/>
-                <div class="header" style="width:100%;text-align:right;padding:2mm 0 2mm 0;border:none !important;border-bottom:none !important;">
+                <div class="header" style="width:100%;text-align:right;padding:2mm 0 1mm 0;border:none !important;">
                     <t t-if="comp.logo_web">
                         <img t-att-src="'data:image/png;base64,' + (comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web)"
-                             style="max-height:60px;max-width:180px;object-fit:contain;"/>
+                             style="max-height:80px;max-width:220px;object-fit:contain;"/>
                     </t>
                 </div>
                 <main style="width:100%;">
