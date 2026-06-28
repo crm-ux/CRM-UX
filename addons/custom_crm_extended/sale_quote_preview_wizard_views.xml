@@ -7,14 +7,13 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">25</field>
-        <field name="margin_bottom">15</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">20</field>
+        <field name="header_spacing">0</field>
     </record>
-
     <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
         <field name="name">Edited Quotation PDF</field>
         <field name="model">sale.quote.preview.wizard</field>
@@ -24,25 +23,23 @@
         <field name="print_report_name">'Edited Quotation - %s' % (object.quote_name or '')</field>
         <field name="paperformat_id" ref="paperformat_quote_preview"/>
     </record>
-
-<template id="report_sale_quote_preview_wizard">
-    <t t-call="web.html_container">
-        <t t-call="web.external_layout">
-            <t t-set="o" t-value="docs[0].sudo()"/>
-        </t>
-        <style>
-            * { font-family: Calibri, sans-serif !important; font-size: 11px !important; }
-            .header { display: none !important; }
-            header { display: none !important; }
-            .o_header_line { display: none !important; }
-        </style>
-        <main style="width:100%;font-family:Calibri,sans-serif;font-size:11px;">
-            <t t-foreach="docs" t-as="doc">
-                <div class="page" style="font-family:Calibri,sans-serif;font-size:11px;">
-                    <t t-out="doc.sudo().document_html"/>
-                </div>
-            </t>
-        </main>
-    </t>
-</template>
+    <template id="report_sale_quote_preview_wizard">
+        <html>
+            <head>
+                <meta charset="utf-8"/>
+                <style>
+                    * { font-family: Calibri, sans-serif !important; font-size: 11px !important; }
+                    body { margin: 0; padding: 0; }
+                    @page { margin: 10mm; }
+                </style>
+            </head>
+            <body>
+                <t t-foreach="docs" t-as="doc">
+                    <div style="font-family:Calibri,sans-serif;font-size:11px;">
+                        <t t-out="doc.sudo().document_html"/>
+                    </div>
+                </t>
+            </body>
+        </html>
+    </template>
 </odoo>
