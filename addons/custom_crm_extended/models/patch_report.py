@@ -8,9 +8,10 @@ class IrActionsReportPatch(models.Model):
         logo_html = ''
         try:
             company = self.env.company
-            if company.logo_web:
-                logo_b64 = company.logo_web.decode('utf-8') if isinstance(company.logo_web, bytes) else company.logo_web
-                logo_html = '<img src="data:image/png;base64,' + logo_b64 + '" style="height:80px;max-width:220px;object-fit:contain;object-position:right;display:block;margin-left:auto;"/>'
+            # Use logo_web for high quality
+            if company.logo:
+                logo_b64 = company.logo.decode('utf-8') if isinstance(company.logo, bytes) else company.logo
+                logo_html = '<img src="data:image/png;base64,' + logo_b64 + '" style="height:90px;max-width:240px;object-fit:contain;object-position:right;display:block;margin-left:auto;image-rendering:high-quality;"/>'
         except Exception:
             pass
 
@@ -19,10 +20,15 @@ class IrActionsReportPatch(models.Model):
             '<style>'
             'body{margin:0;padding:3mm 8mm 2mm 8mm;}'
             'header,div.header,.header{border:none!important;border-top:none!important;border-bottom:none!important;box-shadow:none!important;}'
+            'img{-webkit-print-color-adjust:exact;print-color-adjust:exact;}'
             '</style></head><body>'
             '<div style="width:100%;text-align:right;">' + logo_html + '</div>'
             '</body></html>'
         )
+
+        # Add DPI settings for better quality
+        if specific_paperformat_args is None:
+            specific_paperformat_args = {}
 
         return super()._run_wkhtmltopdf(
             bodies, report_ref=report_ref,
