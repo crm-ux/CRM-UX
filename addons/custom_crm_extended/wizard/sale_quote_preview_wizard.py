@@ -572,7 +572,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if make: desc += '<br/><b>Make:</b> %s' % make
             if note: desc += '<br/><b>Description:</b> %s' % note
             for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#333;">%s</i>' % n
+                desc += '<br/><b>Description:</b> <i style="color:#333;">%s</i>' % n
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
@@ -1100,9 +1100,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
                         if part.startswith('[NOTE]') and '[/NOTE]' in part:
                             note_text = part.replace('[NOTE]', '').replace('[/NOTE]', '')
-                            r = p.add_run(note_text)
-                            r.italic = True
-                            r.font.size = Pt(11)
+                            r1 = p.add_run('Description:')
+                            r1.bold = True
+                            r1.font.size = Pt(11)
+                            r2 = p.add_run(' ' + note_text)
+                            r2.italic = True
+                            r2.font.size = Pt(11)
                         elif part.startswith('Make:') or part.startswith('Description:'):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
