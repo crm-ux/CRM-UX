@@ -1067,7 +1067,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if line.x_make:
                 desc += '\nMake: ' + line.x_make
             if hasattr(line, 'x_notes') and line.x_notes:
-                desc += '\nDescription: ' + line.x_notes
+                clean_note = (line.x_notes or '').replace('&nbsp;', ' ').strip()
+                if clean_note:
+                    desc += '\nDescription: ' + clean_note
             for n in docx_note_map.get(line.id, []):
                 desc += '\n[NOTE]' + n + '[/NOTE]'
             part_no = line.x_product_code or line.product_id.default_code or ''
