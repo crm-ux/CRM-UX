@@ -539,13 +539,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 img_html = '<div style="margin-top:12px;">%s</div>' % imgs
 
         # ── CHECK DISCOUNT FOR PDF TABLE ──
-        order_lines_pdf = order.order_line.filtered(lambda l: not l.display_type)
+        order_lines_pdf = order.order_line.filtered(lambda l: not l.display_type or l.display_type == 'note')
         has_discount_pdf = any(l.discount for l in order_lines_pdf)
         has_overall_disc = getattr(order, 'x_flat_discount_pct', 0) or 0
 
         # Build PDF rows
         rows = ''
-        for idx2, line in enumerate(order_lines_pdf, 1):
+        idx2 = 0
+        for line in order_lines_pdf:
+            if line.display_type == 'note':
+                note_text = line.name or ''
+                rows += '<tr><td colspan="%s" style="padding:6px 8px;border:1px solid #ddd;font-style:italic;">%s</td></tr>' % (8 if has_discount_pdf else 7, note_text)
+                continue
+            idx2 += 1
             part_no = line.x_product_code or line.product_id.default_code or ''
             note = line.x_notes if hasattr(line, 'x_notes') and line.x_notes else ''
             hsn = line.product_id.l10n_in_hsn_code or ''
