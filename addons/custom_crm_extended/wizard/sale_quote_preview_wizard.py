@@ -546,12 +546,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Build PDF rows
         rows = ''
         idx2 = 0
+        # Collect notes per product line
+        note_map = {}
+        prev_product_line = None
         for line in order_lines_pdf:
             if line.display_type in ('line_note', 'note'):
-                note_text = line.name or ''
-                col = 8 if has_discount_pdf else 7
-                rows += '<tr><td colspan="%s" style="padding:4px 8px;border:1px solid #ddd;font-style:italic;color:#333;">%s</td></tr>' % (col, note_text)
-                continue
+                if prev_product_line is not None:
+                    note_map.setdefault(prev_product_line, []).append(line.name or '')
+            else:
+                prev_product_line = line.id
+
+        for line in order_lines_pdf:
             if line.display_type:
                 continue
             idx2 += 1
@@ -566,6 +571,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             if make: desc += '<br/><b>Make:</b> %s' % make
             if note: desc += '<br/><b>Description:</b> %s' % note
+            for n in note_map.get(line.id, []):
+                desc += '<br/><i style="color:#555;">%s</i>' % n
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
