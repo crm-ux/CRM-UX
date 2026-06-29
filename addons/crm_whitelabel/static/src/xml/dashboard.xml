@@ -2,12 +2,28 @@
 <templates>
     <t t-name="crm_whitelabel.Dashboard">
         <div class="crm-pro-dashboard">
-            <!-- Top bar -->
             <div class="crm-topbar">
                 <div class="crm-topbar-left">
-                    YANTRACONNECT · CRM
+                    <t t-if="state.companyLogo">
+                        <img t-att-src="state.companyLogo" style="height:32px;object-fit:contain;margin-right:10px;"/>
+                    </t>
+                    <span class="crm-company-name"><t t-esc="state.companyName || 'CRM'"/></span>
                 </div>
-
+                <div class="crm-search-wrapper" t-if="state.isAdmin">
+                    <span class="crm-search-icon">🔍</span>
+                    <input type="text" class="crm-search-input" placeholder="Search internal users..." t-on-input="onSearchInput"/>
+                    <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
+                        <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
+                            <div class="crm-search-item" t-on-click="() => this.openTaskDialog(u)">
+                                <div class="crm-search-avatar"><t t-esc="u.name[0].toUpperCase()"/></div>
+                                <div>
+                                    <div class="crm-search-name"><t t-esc="u.name"/></div>
+                                    <div class="crm-search-email"><t t-esc="u.email"/></div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
                 <div class="crm-topbar-right">
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
@@ -21,7 +37,7 @@
                                 <a href="/odoo/companies" class="crm-admin-menu-item">Companies</a>
                                 <a href="/odoo/action-383" class="crm-admin-menu-item">Quotations</a>
                                 <a href="/odoo/settings/users" class="crm-admin-menu-item">Users</a>
-                                <a href="/odoo/inventory/products" class="crm-admin-menu-item">Product Management</a>
+                                <a href="/odoo/inventory/products" class="crm-admin-menu-item">Products</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                             </div>
                         </div>
@@ -36,9 +52,7 @@
                                 <div class="crm-company-dropdown-header">Select Companies</div>
                                 <t t-foreach="state.companies" t-as="co" t-key="co.id">
                                     <label class="crm-company-option" t-att-class="isCompanySelected(co.id) ? 'selected' : ''">
-                                        <input type="checkbox"
-                                               t-att-checked="isCompanySelected(co.id)"
-                                               t-on-change="() => this.toggleCompany(co.id)"/>
+                                        <input type="checkbox" t-att-checked="isCompanySelected(co.id)" t-on-change="() => this.toggleCompany(co.id)"/>
                                         <span class="crm-co-badge"><t t-esc="co.name[0].toUpperCase()"/></span>
                                         <span class="crm-co-name"><t t-esc="co.name"/></span>
                                     </label>
@@ -46,25 +60,19 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Bell - click only, no polling -->
                     <div class="crm-notif-wrapper" style="position:relative;margin-right:12px;display:flex;align-items:center;">
-                        <div t-on-click="toggleNotifications" style="cursor:pointer;display:flex;align-items:center;padding:4px;">
+                        <div t-on-click="toggleNotifications" style="cursor:pointer;padding:4px;">
                             <span style="font-size:20px;color:#fff;">🔔</span>
-                            <span t-if="state.notifCount > 0"
-                                  style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;">
-                                <t t-esc="state.notifCount"/>
-                            </span>
+                            <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
                         </div>
                         <div t-if="state.notifOpen" style="position:absolute;top:36px;right:0;width:320px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:9999;max-height:350px;overflow-y:auto;">
-                            <div style="padding:10px 14px;border-bottom:1px solid #eee;font-weight:bold;font-size:13px;color:#333;">Lead Notifications</div>
-                            <t t-if="state.notifications.length === 0">
-                                <div style="padding:16px;text-align:center;color:#888;font-size:13px;">No notifications</div>
-                            </t>
+                            <div style="padding:10px 14px;border-bottom:1px solid #eee;font-weight:bold;font-size:13px;">Notifications</div>
+                            <t t-if="state.notifications.length === 0"><div style="padding:16px;text-align:center;color:#888;font-size:13px;">No notifications</div></t>
                             <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
                                 <div t-on-click="() => this.openLead(notif)" style="padding:10px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;">
                                     <div style="font-size:13px;font-weight:600;color:#0b3d91;"><t t-esc="notif.record_name"/></div>
-                                    <div style="font-size:11px;color:#555;margin-top:2px;"><t t-esc="notif.body_text"/></div>
-                                    <div style="font-size:10px;color:#999;margin-top:3px;"><t t-esc="notif.date"/></div>
+                                    <div style="font-size:11px;color:#555;"><t t-esc="notif.body_text"/></div>
+                                    <div style="font-size:10px;color:#999;"><t t-esc="notif.date"/></div>
                                 </div>
                             </t>
                         </div>
@@ -78,31 +86,82 @@
                             <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item">Logout</a>
                         </div>
                     </div>
-
                 </div>
             </div>
-
-            <!-- Hero -->
+            <!-- HERO -->
             <div class="crm-pro-hero">
                 <div class="crm-pro-hero-left">
-                    <h1>Welcome back, <t t-esc="state.userName"/></h1>
-                    <div class="crm-hero-revenue" style="display:flex;gap:24px;flex-wrap:wrap;">
-                        <div>
-                            <span class="crm-rev-label">Confirmed Revenue</span>
-                            <span class="crm-rev-amount"><t t-esc="fmt(state.wonRevenue)"/></span>
-                        </div>
-                        <div>
-                            <span class="crm-rev-label">Expected Revenue</span>
-                            <span class="crm-rev-amount"><t t-esc="fmt(state.quoteRevenue)"/></span>
-                        </div>
+                    <div class="crm-greeting"><t t-esc="state.greeting"/>,</div>
+                    <h1><t t-esc="state.userName"/>!</h1>
+                    <p>Here's an overview of your business performance and important updates for today.</p>
+                    <div class="crm-hero-date">
+                        <span>📅 <t t-esc="state.todayDate"/></span>
                     </div>
                 </div>
                 <div class="crm-pro-hero-right">
-                    <button class="crm-primary-btn" t-on-click="newLead">+ New Lead</button>
+                    <div class="crm-action-buttons">
+                        <button class="crm-action-btn crm-action-lead" t-on-click="newLead">
+                            <span class="crm-action-icon">👤</span>
+                            <div>
+                                <div class="crm-action-title">+ Create Lead</div>
+                                <div class="crm-action-sub">Add new lead to pipeline</div>
+                            </div>
+                            <span>›</span>
+                        </button>
+                        <button class="crm-action-btn crm-action-quote" t-on-click="newQuote">
+                            <span class="crm-action-icon">📄</span>
+                            <div>
+                                <div class="crm-action-title">+ Create Quote</div>
+                                <div class="crm-action-sub">Create new quotation</div>
+                            </div>
+                            <span>›</span>
+                        </button>
+                        <button class="crm-action-btn crm-action-service" disabled="disabled">
+                            <span class="crm-action-icon">🎧</span>
+                            <div>
+                                <div class="crm-action-title">+ Create Service Ticket</div>
+                                <div class="crm-action-sub">Coming soon</div>
+                            </div>
+                            <span>›</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <!-- Pipeline Strip -->
+            <!-- STATS BAR -->
+            <div class="crm-stats-bar">
+                <div class="crm-stat-item">
+                    <div class="crm-stat-icon" style="background:#e8f5e9;">₹</div>
+                    <div>
+                        <div class="crm-stat-label">TODAY'S REVENUE</div>
+                        <div class="crm-stat-value"><t t-esc="fmt(state.todayRevenue)"/></div>
+                    </div>
+                </div>
+                <div class="crm-stat-divider"/>
+                <div class="crm-stat-item">
+                    <div class="crm-stat-icon" style="background:#e3f2fd;">📊</div>
+                    <div>
+                        <div class="crm-stat-label">MONTHLY SALES</div>
+                        <div class="crm-stat-value"><t t-esc="fmt(state.wonRevenue)"/></div>
+                    </div>
+                </div>
+                <div class="crm-stat-divider"/>
+                <div class="crm-stat-item">
+                    <div class="crm-stat-icon" style="background:#f3e5f5;">📋</div>
+                    <div>
+                        <div class="crm-stat-label">PENDING QUOTATIONS</div>
+                        <div class="crm-stat-value"><t t-esc="state.quotes"/></div>
+                    </div>
+                </div>
+                <div class="crm-stat-divider"/>
+                <div class="crm-stat-item">
+                    <div class="crm-stat-icon" style="background:#fff8e1;">🏆</div>
+                    <div>
+                        <div class="crm-stat-label">WON QUOTES</div>
+                        <div class="crm-stat-value"><t t-esc="state.won"/></div>
+                    </div>
+                </div>
+            </div>
+            <!-- PIPELINE -->
             <div class="crm-pipeline-strip">
                 <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
                     <div class="crm-pipe-num"><t t-esc="state.leads"/></div>
@@ -129,117 +188,83 @@
                     <div class="crm-pipe-lbl">Won</div>
                 </div>
             </div>
-
-            <!-- Management Grid -->
+            <!-- CARDS -->
             <div class="crm-pro-grid">
-
                 <div class="crm-pro-panel crm-lead-panel" t-on-click="openLeads">
-                    <div class="crm-panel-head">
-                        <div><h2>Lead Management</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>Lead Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.leads"/></strong>
-                            <span>New Leads</span>
-                        </div>
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.qualified"/></strong>
-                            <span>Qualified</span>
-                        </div>
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.opportunity"/></strong>
-                            <span>Opportunity</span>
-                        </div>
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.won"/></strong>
-                            <span>Won</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.leads"/></strong><span>New Leads</span></div>
+                        <div class="crm-metric"><strong><t t-esc="state.qualified"/></strong><span>Qualified</span></div>
+                        <div class="crm-metric"><strong><t t-esc="state.opportunity"/></strong><span>Opportunity</span></div>
+                        <div class="crm-metric"><strong><t t-esc="state.won"/></strong><span>Won</span></div>
                     </div>
                     <p class="crm-panel-note">Track enquiry progress and convert leads into quotations.</p>
                 </div>
-
                 <div class="crm-pro-panel crm-quote-panel" t-on-click="openQuotes">
-                    <div class="crm-panel-head">
-                        <div><h2>Quote Management</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>Quote Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.quotes"/></strong>
-                            <span>Open Quotes</span>
-                        </div>
-                        <div class="crm-metric">
-                            <strong><t t-esc="fmt(state.quoteRevenue)"/></strong>
-                            <span>Revenue</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.quotes"/></strong><span>Open Quotes</span></div>
+                        <div class="crm-metric"><strong><t t-esc="fmt(state.quoteRevenue)"/></strong><span>Revenue</span></div>
                     </div>
                     <p class="crm-panel-note">Create, preview and send professional quotations to clients.</p>
                 </div>
-
                 <div class="crm-pro-panel crm-customer-panel" t-on-click="openContacts">
-                    <div class="crm-panel-head">
-                        <div><h2>Customer Management</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>Customer Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.customers"/></strong>
-                            <span>Customers</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.customers"/></strong><span>Customers</span></div>
                     </div>
                     <p class="crm-panel-note">View customer records, company details and communication history.</p>
                 </div>
-
                 <div class="crm-pro-panel crm-product-panel" t-on-click="openProducts">
-                    <div class="crm-panel-head">
-                        <div><h2>Product Management</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>Product Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.products"/></strong>
-                            <span>Products</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.products"/></strong><span>Products</span></div>
                     </div>
                     <p class="crm-panel-note">Manage product catalogue, pricing, HSN/SAC and brand details.</p>
                 </div>
-
                 <div class="crm-pro-panel crm-user-panel" t-on-click="openUsers">
-                    <div class="crm-panel-head">
-                        <div><h2>User Management</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>User Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.users"/></strong>
-                            <span>Active Users</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.users"/></strong><span>Active Users</span></div>
                     </div>
                     <p class="crm-panel-note">Manage team members, roles and access permissions.</p>
                 </div>
-
                 <div class="crm-pro-panel crm-won-panel" t-on-click="openWon">
-                    <div class="crm-panel-head">
-                        <div><h2>Won Deals</h2></div>
-                        <span class="crm-panel-arrow">›</span>
-                    </div>
+                    <div class="crm-panel-head"><div><h2>Won Deals</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric">
-                            <strong><t t-esc="state.won"/></strong>
-                            <span>Closed Won</span>
-                        </div>
-                        <div class="crm-metric">
-                            <strong><t t-esc="fmt(state.wonRevenue)"/></strong>
-                            <span>Total Value</span>
-                        </div>
+                        <div class="crm-metric"><strong><t t-esc="state.won"/></strong><span>Closed Won</span></div>
+                        <div class="crm-metric"><strong><t t-esc="fmt(state.wonRevenue)"/></strong><span>Total Value</span></div>
                     </div>
                     <p class="crm-panel-note">Review all successfully closed deals and revenue achieved.</p>
                 </div>
-
             </div>
-
-            <div class="crm-pro-footer">YantraConnect CRM · Connect. Manage. Grow.</div>
+            <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
+            <!-- TASK DIALOG -->
+            <div class="crm-task-overlay" t-if="state.taskDialogOpen" t-on-click="closeTaskDialog">
+                <div class="crm-task-dialog" t-on-click.stop="">
+                    <div class="crm-task-header">
+                        <h3>Assign Task / Note</h3>
+                        <button t-on-click="closeTaskDialog" class="crm-task-close">✕</button>
+                    </div>
+                    <div class="crm-task-user" t-if="state.selectedUser">
+                        <div class="crm-task-avatar"><t t-esc="state.selectedUser.name[0].toUpperCase()"/></div>
+                        <div>
+                            <div class="crm-task-uname"><t t-esc="state.selectedUser.name"/></div>
+                            <div class="crm-task-uemail"><t t-esc="state.selectedUser.email"/></div>
+                        </div>
+                    </div>
+                    <div class="crm-task-body">
+                        <label>Task Title</label>
+                        <input type="text" class="crm-task-input" placeholder="Enter task title..." t-on-input="(e) => { this.state.taskTitle = e.target.value; }"/>
+                        <label>Note / Work Details</label>
+                        <textarea class="crm-task-textarea" placeholder="Add notes or work details..." t-on-input="(e) => { this.state.taskNote = e.target.value; }"></textarea>
+                    </div>
+                    <div class="crm-task-footer">
+                        <button class="crm-task-cancel-btn" t-on-click="closeTaskDialog">Cancel</button>
+                        <button class="crm-task-submit-btn" t-on-click="assignTask">Assign Task</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </t>
     <t t-name="crm_whitelabel.NavButtons">

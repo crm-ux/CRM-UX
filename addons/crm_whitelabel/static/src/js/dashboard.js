@@ -1,333 +1,174 @@
 /** @odoo-module **/
-
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, onMounted, useState, useExternalListener } from "@odoo/owl";
+import { Component, onMounted, useState } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
 
 class CrmDashboard extends Component {
     static template = "crm_whitelabel.Dashboard";
-
     setup() {
         this.actionService = useService("action");
-
         this.state = useState({
-            open_leads: 0,
-            leads: 0,
-            qualified: 0,
-            opportunity: 0,
-            won: 0,
-            customers: 0,
-            quotes: 0,
-            products: 0,
-            users: 0,
-            revenue: 0,
+            leads: 0, qualified: 0, opportunity: 0, won: 0,
+            customers: 0, quotes: 0, products: 0, users: 0,
+            quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
-            companies: [],
-            selectedCompanies: [1, 2, 3],
-            companyDropdownOpen: false,
-            userDropdownOpen: false,
+            companyName: "", companyLogo: "", heroImage: "",
+            greeting: "", todayDate: "",
+            companies: [], selectedCompanies: [],
+            companyDropdownOpen: false, userDropdownOpen: false,
             isAdmin: user.userId === 2,
-            adminMenuOpen: false,
-            notifOpen: false,
-            notifCount: 0,
-            notifications: [],
+            adminMenuOpen: false, notifOpen: false,
+            notifCount: 0, notifications: [],
+            searchQuery: "", searchResults: [], searchOpen: false,
+            taskDialogOpen: false, selectedUser: null,
+            taskNote: "", taskTitle: "",
         });
-
         onMounted(() => {
             this.loadStats();
             this.loadCompanies();
             this.loadNotifCount();
-            // Close dropdowns when clicking outside
-            this._closeDropdowns = (e) => {
-                if (!e.target.closest('.crm-user-dropdown-wrapper')) {
-                    this.state.userDropdownOpen = false;
-                }
-                if (!e.target.closest('.crm-company-multiselect')) {
-                    this.state.companyDropdownOpen = false;
-                }
-                if (!e.target.closest('.crm-admin-multiselect')) {
-                    this.state.adminMenuOpen = false;
-                }
-                if (!e.target.closest('.crm-notif-wrapper')) {
-                    this.state.notifOpen = false;
-                }
-            };
-            document.addEventListener('click', this._closeDropdowns);
-        });
-        useExternalListener(window, "click", (ev) => {
-            if (this.state.companyDropdownOpen && !ev.target.closest('.crm-company-multiselect')) {
-                this.state.companyDropdownOpen = false;
-            }
-            if (this.state.adminMenuOpen && !ev.target.closest('.crm-admin-multiselect')) {
-                this.state.adminMenuOpen = false;
-            }
+            this.loadCompanyInfo();
+            this.setGreeting();
+            this.setDate();
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.crm-user-dropdown-wrapper')) this.state.userDropdownOpen = false;
+                if (!e.target.closest('.crm-company-multiselect')) this.state.companyDropdownOpen = false;
+                if (!e.target.closest('.crm-admin-multiselect')) this.state.adminMenuOpen = false;
+                if (!e.target.closest('.crm-notif-wrapper')) this.state.notifOpen = false;
+                if (!e.target.closest('.crm-search-wrapper')) this.state.searchOpen = false;
+            });
         });
     }
-
-    toggleAdminMenu() {
-        this.state.adminMenuOpen = !this.state.adminMenuOpen;
+    setGreeting() {
+        const h = new Date().getHours();
+        this.state.greeting = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
     }
-
+    setDate() {
+        this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
+    async loadCompanyInfo() {
+        try {
+            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name","logo_web"], limit:1 } });
+            if (res && res[0]) {
+                this.state.companyName = res[0].name || "";
+                if (res[0].logo_web) this.state.companyLogo = "data:image/png;base64," + res[0].logo_web;
+            }
+        } catch(e) {}
+    }
+    toggleAdminMenu() { this.state.adminMenuOpen = !this.state.adminMenuOpen; }
+    toggleUserDropdown() { this.state.userDropdownOpen = !this.state.userDropdownOpen; this.state.companyDropdownOpen = false; }
+    toggleCompanyDropdown() { this.state.companyDropdownOpen = !this.state.companyDropdownOpen; this.state.userDropdownOpen = false; }
     async loadCompanies() {
         try {
-            const res = await rpc("/web/dataset/call_kw", {
-                model: "res.company",
-                method: "search_read",
-                args: [[]],
-                kwargs: { fields: ["id", "name"], limit: 20 },
-            });
+            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name"], limit:20 } });
             this.state.companies = res || [];
-            // Keep currentCompany from localStorage, don't override it
-        } catch(e) {
-            this.state.companies = [];
-        }
+            this.state.selectedCompanies = (res || []).map(c => c.id);
+        } catch(e) { this.state.companies = []; }
     }
-
     toggleCompany(cid) {
         const idx = this.state.selectedCompanies.indexOf(cid);
-        if (idx === -1) {
-            this.state.selectedCompanies.push(cid);
-        } else {
-            if (this.state.selectedCompanies.length > 1) {
-                this.state.selectedCompanies.splice(idx, 1);
-            }
-        }
-        localStorage.setItem('crm_selected_companies', JSON.stringify(this.state.selectedCompanies));
+        if (idx === -1) this.state.selectedCompanies.push(cid);
+        else if (this.state.selectedCompanies.length > 1) this.state.selectedCompanies.splice(idx, 1);
         this.loadStats();
     }
-
-    toggleUserDropdown() {
-        this.state.userDropdownOpen = !this.state.userDropdownOpen;
-        this.state.companyDropdownOpen = false;
-    }
-
-    toggleCompanyDropdown() {
-        this.state.companyDropdownOpen = !this.state.companyDropdownOpen;
-        this.state.userDropdownOpen = false;
-    }
-
-    isCompanySelected(cid) {
-        return this.state.selectedCompanies.includes(cid);
-    }
-
-    get selectedCompanyInitial() {
-        const selected = this.state.companies.filter(c => this.state.selectedCompanies.includes(c.id));
-        if (selected.length === 0) return "?";
-        if (selected.length === 1) return selected[0].name[0].toUpperCase();
-        return selected.length;
-    }
-
+    isCompanySelected(cid) { return this.state.selectedCompanies.includes(cid); }
     get selectedCompanyLabel() {
-        const names = this.state.companies
-            .filter(c => this.state.selectedCompanies.includes(c.id))
-            .map(c => c.name);
+        const names = this.state.companies.filter(c => this.state.selectedCompanies.includes(c.id)).map(c => c.name);
         if (names.length === 0) return "Select Company";
         if (names.length === 1) return names[0];
         return names.length + " Companies";
     }
-
-    async _count(model, domain = []) {
-        return await rpc("/web/dataset/call_kw", {
-            model: model,
-            method: "search_count",
-            args: [domain],
-            kwargs: {},
-        });
+    async _count(model, domain=[]) {
+        return await rpc("/web/dataset/call_kw", { model, method:"search_count", args:[domain], kwargs:{} });
     }
-
-    async _sum(model, field, domain = []) {
+    async _sum(model, field, domain=[]) {
         try {
-            const res = await rpc("/web/dataset/call_kw", {
-                model: model,
-                method: "read_group",
-                args: [domain, [field], []],
-                kwargs: {},
-            });
+            const res = await rpc("/web/dataset/call_kw", { model, method:"read_group", args:[domain,[field],[]], kwargs:{} });
             return res[0] ? (res[0][field] || 0) : 0;
-        } catch(e) {
-            return 0;
-        }
+        } catch(e) { return 0; }
     }
-
     async loadStats() {
         try {
-            // Get ALL company ids from API
-            const companyRes = await rpc("/web/dataset/call_kw", {
-                model: "res.company",
-                method: "search_read",
-                args: [[], ["id"]],
-                kwargs: {limit: 100},
-            });
-            const allCids = companyRes.map(c => c.id);
-            const activeCids = this.state.selectedCompanies.length ? this.state.selectedCompanies : allCids;
-            const companyDomain = [["company_id","in",activeCids]];
+            const activeCids = this.state.selectedCompanies;
+            const cd = activeCids.length ? [["company_id","in",activeCids]] : [];
             const isAdmin = user.userId === 2;
-            const userDomain = isAdmin ? [] : [["user_id","=",user.userId]];
-            const [
-                leads,
-                qualified,
-                opp,
-                quotes,
-                won,
-                customers,
-                products,
-                users,
-                quoteRevenue,
-                wonRevenue
-            ] = await Promise.all([
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",0],...companyDomain,...userDomain]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",1],...companyDomain,...userDomain]),
-                this._count("crm.lead", [["active","=",true],["x_stage_sequence","=",2],...companyDomain,...userDomain]),
-                this._count("sale.order", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
-                this._count("sale.order", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
-                this._count("res.partner", [["customer_rank",">",0]]),
-                this._count("product.template", [["sale_ok","=",true]]),
-                this._count("res.users", [["active","=",true],["share","=",false]]),
-                this._sum("sale.order", "amount_total", [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...companyDomain,...userDomain]),
-                this._sum("sale.order", "amount_total", [["x_quote_stage","=","won"],...companyDomain,...userDomain]),
+            const ud = isAdmin ? [] : [["user_id","=",user.userId]];
+            const todayStr = new Date().toISOString().split('T')[0];
+            const [leads,qualified,opp,quotes,won,customers,products,users,quoteRevenue,wonRevenue,todayRevenue] = await Promise.all([
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",1],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",2],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","won"],...cd,...ud]),
+                this._count("res.partner",[["customer_rank",">",0]]),
+                this._count("product.template",[["sale_ok","=",true]]),
+                this._count("res.users",[["active","=",true],["share","=",false]]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...cd,...ud]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...cd,...ud]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
             ]);
-
-            const userName = user.name || "User";
-            Object.assign(this.state, {
-                leads,
-                qualified,
-                opportunity: opp,
-                open_leads: leads,
-                quotes,
-                won,
-                customers,
-                products,
-                users,
-                revenue: wonRevenue,
-                quoteRevenue: quoteRevenue,
-                wonRevenue,
-                userName: userName,
-            });
-
-        } catch (e) {
-            console.log("Dashboard error:", e);
-        }
+            Object.assign(this.state, { leads, qualified, opportunity:opp, quotes, won, customers, products, users, quoteRevenue, wonRevenue, todayRevenue });
+        } catch(e) { console.log("Dashboard error:", e); }
     }
-
     fmt(n) {
         if (!n) return "₹0";
-        if (n >= 10000000) return "₹" + (n / 10000000).toFixed(1) + "Cr";
-        if (n >= 100000) return "₹" + (n / 100000).toFixed(1) + "L";
-        if (n >= 1000) return "₹" + (n / 1000).toFixed(1) + "K";
+        if (n >= 10000000) return "₹" + (n/10000000).toFixed(1) + "Cr";
+        if (n >= 100000) return "₹" + (n/100000).toFixed(1) + "L";
+        if (n >= 1000) return "₹" + (n/1000).toFixed(1) + "K";
         return "₹" + Math.round(n);
     }
-
-    go(action) {
-        this.actionService.doAction(action);
-    }
-
-    openLeads() {
-        const isAdmin = user.userId === 2;
-        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["active","=",true],["company_id","in",this.state.selectedCompanies],...userFilter];
-        this.go({ type:"ir.actions.act_window", name:"Leads", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain });
-    }
-    openQuotes() {
-        const isAdmin = user.userId === 2;
-        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],["company_id","in",this.state.selectedCompanies],...userFilter];
-        this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
-    }
-    openTerms() {
-        this.actionService.doAction({
-            type: 'ir.actions.act_window',
-            name: 'Terms & Conditions',
-            res_model: 'sale.terms.condition',
-            view_mode: 'list,form',
-            views: [[false, 'list'], [false, 'form']],
-        });
-    }
-
-    openContacts() {
-        const domain = [["customer_rank",">",0]];
-        const isAdmin2 = user.userId === 2;
-        this.go({ type:"ir.actions.act_window", name:"Customers", res_model:"res.partner", views:[[false,"list"],[false,"form"]], domain, context: isAdmin2 ? {"default_customer_rank": 1} : {"create": false} });
-    }
-    openProducts() { this.go({ type:"ir.actions.act_window", name:"Products", res_model:"product.template", views:[[false,"list"],[false,"form"]] }); }
-    openUsers() { this.go({ type:"ir.actions.act_window", name:"Users", res_model:"res.users", views:[[false,"list"],[false,"form"]], domain:[["share","=",false]] }); }
-    openWon() {
-        const isAdmin = user.userId === 2;
-        const userFilter = isAdmin ? [] : [["user_id","=",user.userId]];
-        const domain = [["x_quote_stage","=","won"],["company_id","in",this.state.selectedCompanies],...userFilter];
-        this.go({ type:"ir.actions.act_window", name:"Won Deals", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain });
-    }
-    openStage(ev) { const seq = parseInt(ev.currentTarget.dataset.seq || 0); this.go({ type:"ir.actions.act_window", name:"Pipeline", res_model:"crm.lead", views:[[false,"list"],[false,"form"]], domain:[["active","=",true],["x_stage_sequence","=",seq]] }); }
+    go(action) { this.actionService.doAction(action); }
+    openLeads() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud]}); }
+    openQuotes() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud]}); }
+    openTerms() { this.actionService.doAction({type:'ir.actions.act_window',name:'Terms & Conditions',res_model:'sale.terms.condition',view_mode:'list,form',views:[[false,'list'],[false,'form']]}); }
+    openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
+    openProducts() { this.go({type:"ir.actions.act_window",name:"Products",res_model:"product.template",views:[[false,"list"],[false,"form"]]}); }
+    openUsers() { this.go({type:"ir.actions.act_window",name:"Users",res_model:"res.users",views:[[false,"list"],[false,"form"]],domain:[["share","=",false]]}); }
+    openWon() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud]}); }
+    openStage(ev) { const seq=parseInt(ev.currentTarget.dataset.seq||0); this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_stage_sequence","=",seq]]}); }
     newLead() { this.go(405); }
-
+    newQuote() { this.go({type:"ir.actions.act_window",name:"New Quotation",res_model:"sale.order",views:[[false,"form"]],target:"current"}); }
+    async onSearchInput(ev) {
+        const q = ev.target.value;
+        this.state.searchQuery = q;
+        if (q.length < 2) { this.state.searchResults = []; this.state.searchOpen = false; return; }
+        try {
+            const res = await rpc("/web/dataset/call_kw", { model:"res.users", method:"search_read", args:[[["active","=",true],["share","=",false],["name","ilike",q]]], kwargs:{ fields:["id","name","email"], limit:10 } });
+            this.state.searchResults = res || [];
+            this.state.searchOpen = true;
+        } catch(e) { this.state.searchResults = []; }
+    }
+    openTaskDialog(u) { this.state.selectedUser = u; this.state.taskTitle = ""; this.state.taskNote = ""; this.state.taskDialogOpen = true; this.state.searchOpen = false; this.state.searchQuery = ""; }
+    closeTaskDialog() { this.state.taskDialogOpen = false; this.state.selectedUser = null; }
+    async assignTask() {
+        if (!this.state.taskTitle) { alert("Please enter a task title"); return; }
+        try {
+            await rpc("/web/dataset/call_kw", { model:"mail.activity", method:"create", args:[{ res_model:"res.users", res_id:this.state.selectedUser.id, activity_type_id:4, summary:this.state.taskTitle, note:this.state.taskNote, user_id:this.state.selectedUser.id }], kwargs:{} });
+            alert("Task assigned to " + this.state.selectedUser.name);
+            this.closeTaskDialog();
+        } catch(e) { alert("Note: " + e.message); }
+    }
     async loadNotifCount() {
         try {
-            // Get unread notification IDs from localStorage
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
-            const messages = await rpc('/web/dataset/call_kw', {
-                model: 'mail.message',
-                method: 'search_read',
-                args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
-                kwargs: {
-                    fields: ['id'],
-                    limit: 50,
-                    order: 'date desc',
-                },
-            });
-            const allIds = messages.map(m => m.id);
-            const unreadIds = allIds.filter(id => !readIds.includes(id));
-            this.state.notifCount = unreadIds.length;
-            this._allNotifIds = allIds;
-        } catch(e) {
-            this.state.notifCount = 0;
-        }
+            const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','=','crm.lead']]], kwargs:{ fields:['id'], limit:50, order:'date desc' } });
+            this.state.notifCount = messages.map(m=>m.id).filter(id=>!readIds.includes(id)).length;
+        } catch(e) { this.state.notifCount = 0; }
     }
-
     async toggleNotifications() {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
-                const messages = await rpc('/web/dataset/call_kw', {
-                    model: 'mail.message',
-                    method: 'search_read',
-                    args: [[['partner_ids', 'in', [user.partnerId]], ['model', '=', 'crm.lead']]],
-                    kwargs: {
-                        fields: ['id', 'record_name', 'body', 'date', 'res_id'],
-                        limit: 10,
-                        order: 'date desc',
-                    },
-                });
-                // Mark all as read
-                const allIds = messages.map(m => m.id);
-                localStorage.setItem('crm_read_notifs', JSON.stringify(allIds));
+                const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','=','crm.lead']]], kwargs:{ fields:['id','record_name','body','date','res_id'], limit:10, order:'date desc' } });
+                localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m=>m.id)));
                 this.state.notifCount = 0;
-                this.state.notifications = messages.map(m => ({
-                    id: m.id,
-                    res_id: m.res_id,
-                    record_name: m.record_name || 'Lead',
-                    body_text: m.body ? m.body.replace(/<[^>]+>/g, '').substring(0, 80) : '',
-                    date: m.date ? m.date.substring(0, 16) : '',
-                }));
-            } catch(e) {
-                this.state.notifications = [];
-            }
+                this.state.notifications = messages.map(m => ({ id:m.id, res_id:m.res_id, record_name:m.record_name||'Lead', body_text:m.body?m.body.replace(/<[^>]+>/g,'').substring(0,80):'', date:m.date?m.date.substring(0,16):'' }));
+            } catch(e) { this.state.notifications = []; }
         }
     }
-
-    openLead(notif) {
-        this.state.notifOpen = false;
-        this.actionService.doAction({
-            type: 'ir.actions.act_window',
-            res_model: 'crm.lead',
-            res_id: notif.res_id,
-            view_mode: 'form',
-            views: [[false, 'form']],
-            target: 'current',
-        });
-    }
+    openLead(notif) { this.state.notifOpen=false; this.actionService.doAction({type:'ir.actions.act_window',res_model:'crm.lead',res_id:notif.res_id,view_mode:'form',views:[[false,'form']],target:'current'}); }
 }
-
 registry.category("actions").add("crm_dashboard", CrmDashboard);
-
 export default CrmDashboard;
