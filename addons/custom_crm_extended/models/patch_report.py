@@ -10,16 +10,17 @@ class IrActionsReportPatch(models.Model):
             company = self.env.company
             if company.logo_web:
                 logo_b64 = company.logo_web.decode('utf-8') if isinstance(company.logo_web, bytes) else company.logo_web
-                logo_html = '<img src="data:image/png;base64,' + logo_b64 + '" style="max-height:80px;max-width:200px;object-fit:contain;float:right;"/>'
+                logo_html = '<img src="data:image/png;base64,' + logo_b64 + '" style="height:80px;max-width:220px;object-fit:contain;object-position:right;display:block;margin-left:auto;"/>'
         except Exception:
             pass
 
         custom_header = (
             '<!DOCTYPE html><html><head><meta charset="utf-8"/>'
-            '<style>body{margin:0;padding:2mm 5mm 1mm 5mm;}'
-            'header,div.header,.header{border:none!important;border-top:none!important;border-bottom:none!important;}'
+            '<style>'
+            'body{margin:0;padding:3mm 8mm 2mm 8mm;}'
+            'header,div.header,.header{border:none!important;border-top:none!important;border-bottom:none!important;box-shadow:none!important;}'
             '</style></head><body>'
-            '<div style="width:100%;overflow:hidden;">' + logo_html + '</div>'
+            '<div style="width:100%;text-align:right;">' + logo_html + '</div>'
             '</body></html>'
         )
 
