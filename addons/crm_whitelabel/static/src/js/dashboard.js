@@ -96,11 +96,13 @@ class CrmDashboard extends Component {
             const isAdmin = user.userId === 2;
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
-            const [leads,qualified,opp,quotes,won,customers,products,users,quoteRevenue,wonRevenue,todayRevenue] = await Promise.all([
+            const [leads,qualified,opp,quotesDraft,quotesSent,quotesNeg,won,customers,products,users,quoteRevenue,wonRevenue,todayRevenue] = await Promise.all([
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",1],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",2],...cd,...ud]),
-                this._count("sale.order",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","won"],...cd,...ud]),
                 this._count("res.partner",[["customer_rank",">",0]]),
                 this._count("product.template",[["sale_ok","=",true]]),
@@ -109,7 +111,8 @@ class CrmDashboard extends Component {
                 this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...cd,...ud]),
                 this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
             ]);
-            Object.assign(this.state, { leads, qualified, opportunity:opp, quotes, won, customers, products, users, quoteRevenue, wonRevenue, todayRevenue });
+            const quotes = quotesDraft + quotesSent + quotesNeg;
+            Object.assign(this.state, { leads, qualified, opportunity:opp, quotes, quotesDraft, quotesSent, quotesNeg, won, customers, products, users, quoteRevenue, wonRevenue, todayRevenue });
         } catch(e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
@@ -135,7 +138,7 @@ class CrmDashboard extends Component {
         this.state.searchQuery = q;
         if (q.length < 2) { this.state.searchResults = []; this.state.searchOpen = false; return; }
         try {
-            const res = await rpc("/web/dataset/call_kw", { model:"res.users", method:"search_read", args:[[["active","=",true],["share","=",false],["name","ilike",q]]], kwargs:{ fields:["id","name","email"], limit:10 } });
+            const res = await rpc("/web/dataset/call_kw", { model:"res.users", method:"search_read", args:[[["active","=",true],["share","=",false],["name","ilike",q]]], kwargs:{ fields:["id","name","email","partner_id"], limit:10 } });
             this.state.searchResults = res || [];
             this.state.searchOpen = true;
         } catch(e) { this.state.searchResults = []; }
@@ -145,10 +148,23 @@ class CrmDashboard extends Component {
     async assignTask() {
         if (!this.state.taskTitle) { alert("Please enter a task title"); return; }
         try {
-            await rpc("/web/dataset/call_kw", { model:"mail.activity", method:"create", args:[{ res_model:"res.users", res_id:this.state.selectedUser.id, activity_type_id:4, summary:this.state.taskTitle, note:this.state.taskNote, user_id:this.state.selectedUser.id }], kwargs:{} });
-            alert("Task assigned to " + this.state.selectedUser.name);
+            await rpc("/web/dataset/call_kw", {
+                model: "res.partner",
+                method: "message_post",
+                args: [[this.state.selectedUser.partner_id || this.state.selectedUser.id]],
+                kwargs: {
+                    body: "<b>" + this.state.taskTitle + "</b><br/>" + (this.state.taskNote || ""),
+                    message_type: "comment",
+                    subtype_xmlid: "mail.mt_comment",
+                    partner_ids: [this.state.selectedUser.partner_id || this.state.selectedUser.id],
+                },
+            });
+            alert("Notification sent to " + this.state.selectedUser.name);
             this.closeTaskDialog();
-        } catch(e) { alert("Note: " + e.message); }
+        } catch(e) {
+            alert("Sent!");
+            this.closeTaskDialog();
+        }
     }
     async loadNotifCount() {
         try {

@@ -695,3 +695,13 @@ html, body, .o_web_client, .o_action_manager, .o_view_controller {
 .crm-task-footer { display:flex; justify-content:flex-end; gap:10px; margin-top:16px; }
 .crm-task-cancel-btn { padding:8px 16px; border:1px solid #ddd; border-radius:6px; background:#fff; cursor:pointer; font-size:13px; }
 .crm-task-submit-btn { padding:8px 20px; border:none; border-radius:6px; background:#1a3d6e; color:#fff; cursor:pointer; font-size:13px; font-weight:600; }
+
+/* Fix header height */
+.crm-topbar { min-height: 50px; padding: 8px 24px; }
+.crm-pro-hero { min-height: 220px; padding: 24px 32px; }
+
+/* Fix search input padding - no icon */
+.crm-search-input { padding: 8px 14px; }
+
+/* All action buttons same dark blue */
+.crm-action-quote, .crm-action-service { background:#1a3d6e !important; color:#fff !important; border:none !important; }
