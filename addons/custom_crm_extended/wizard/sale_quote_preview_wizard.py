@@ -620,7 +620,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
         if gst_on and tax_rates:
             totals_below += '<p style="margin:3px 0;">GST (%s%%)</p>' % int(total_tax_rate)
-        final_label = 'Final Discount Amount:' if (overall_disc_pct or (gst_on and tax_rates)) else 'Final Total Amount:'
+        final_label = 'Final Discount Amount:' if overall_disc_pct else 'Final Total Amount:'
         totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">%s %s</p>' % (final_label, _indian_format(grand_total))
         totals_below += '</div>'
 
@@ -1111,7 +1111,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             _add_total_para(doc, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
         if gst_on_d and tax_rates_d:
             _add_total_para(doc, 'GST (%s%%):' % int(total_tax_rate_d), '')
-        final_label_d = 'Final Discount Amount:' if (overall_disc_pct_d or (gst_on_d and tax_rates_d)) else 'Final Total Amount:'
+        final_label_d = 'Final Discount Amount:' if overall_disc_pct_d else 'Final Total Amount:'
         _add_total_para(doc, final_label_d, _indian_format(grand_total_d), bold=True)
 
         # Terms & Conditions - new page if no tech specs or images
