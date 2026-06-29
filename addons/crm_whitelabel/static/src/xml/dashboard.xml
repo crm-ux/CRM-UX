@@ -123,7 +123,6 @@
             <!-- STATS BAR -->
             <div class="crm-stats-bar">
                 <div class="crm-stat-item">
-                    <div class="crm-stat-icon" style="background:#e8f5e9;">₹</div>
                     <div>
                         <div class="crm-stat-label">TODAY'S REVENUE</div>
                         <div class="crm-stat-value"><t t-esc="fmt(state.todayRevenue)"/></div>
@@ -131,7 +130,6 @@
                 </div>
                 <div class="crm-stat-divider"/>
                 <div class="crm-stat-item">
-                    <div class="crm-stat-icon" style="background:#e3f2fd;">📊</div>
                     <div>
                         <div class="crm-stat-label">MONTHLY SALES</div>
                         <div class="crm-stat-value"><t t-esc="fmt(state.wonRevenue)"/></div>
@@ -139,7 +137,6 @@
                 </div>
                 <div class="crm-stat-divider"/>
                 <div class="crm-stat-item">
-                    <div class="crm-stat-icon" style="background:#f3e5f5;">📋</div>
                     <div>
                         <div class="crm-stat-label">PENDING QUOTATIONS</div>
                         <div class="crm-stat-value"><t t-esc="state.quotes"/></div>
@@ -147,7 +144,6 @@
                 </div>
                 <div class="crm-stat-divider"/>
                 <div class="crm-stat-item">
-                    <div class="crm-stat-icon" style="background:#fff8e1;">🏆</div>
                     <div>
                         <div class="crm-stat-label">WON QUOTES</div>
                         <div class="crm-stat-value"><t t-esc="state.won"/></div>
