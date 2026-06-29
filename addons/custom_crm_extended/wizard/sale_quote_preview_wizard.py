@@ -1003,6 +1003,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         quot_heading = doc.add_heading('Quotation', 2)
         quot_heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
+        # Build note map for DOCX
+        docx_note_map = {}
+        prev_line_id = None
+        for l in order.order_line:
+            if l.display_type in ('line_note', 'note'):
+                if prev_line_id:
+                    docx_note_map.setdefault(prev_line_id, []).append(l.name or '')
+            else:
+                prev_line_id = l.id
         order_lines = order.order_line.filtered(lambda l: not l.display_type)
         has_discount = any(l.discount for l in order_lines)
         has_overall_discount = getattr(order, 'x_flat_discount_pct', 0) or 0
@@ -1059,6 +1068,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '\nMake: ' + line.x_make
             if hasattr(line, 'x_notes') and line.x_notes:
                 desc += '\nDescription: ' + line.x_notes
+            for n in docx_note_map.get(line.id, []):
+                desc += '\n' + n
             part_no = line.x_product_code or line.product_id.default_code or ''
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
