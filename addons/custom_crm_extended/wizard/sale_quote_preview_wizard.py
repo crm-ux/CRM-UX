@@ -547,9 +547,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
         rows = ''
         idx2 = 0
         for line in order_lines_pdf:
-            if line.display_type == 'note':
+            if line.display_type in ('line_note', 'note'):
                 note_text = line.name or ''
-                rows += '<tr><td colspan="%s" style="padding:6px 8px;border:1px solid #ddd;font-style:italic;">%s</td></tr>' % (8 if has_discount_pdf else 7, note_text)
+                col = 8 if has_discount_pdf else 7
+                rows += '<tr><td colspan="%s" style="padding:4px 8px;border:1px solid #ddd;font-style:italic;color:#333;">%s</td></tr>' % (col, note_text)
+                continue
+            if line.display_type:
                 continue
             idx2 += 1
             part_no = line.x_product_code or line.product_id.default_code or ''
