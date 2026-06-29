@@ -4,9 +4,6 @@
         <div class="crm-pro-dashboard">
             <div class="crm-topbar">
                 <div class="crm-topbar-left">
-                    <t t-if="state.companyLogo">
-                        <img t-att-src="state.companyLogo" style="height:32px;object-fit:contain;margin-right:10px;"/>
-                    </t>
                     <span class="crm-company-name"><t t-esc="state.companyName || 'CRM'"/></span>
                 </div>
                 <div class="crm-search-wrapper" t-if="state.isAdmin">

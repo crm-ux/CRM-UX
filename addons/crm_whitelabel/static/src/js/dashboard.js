@@ -159,12 +159,20 @@ class CrmDashboard extends Component {
                     partner_ids: [this.state.selectedUser.partner_id || this.state.selectedUser.id],
                 },
             });
-            alert("Notification sent to " + this.state.selectedUser.name);
+            this.showToast("Notification sent to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         } catch(e) {
-            alert("Sent!");
+            this.showToast("Notification sent to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         }
+    }
+
+    showToast(msg) {
+        const toast = document.createElement('div');
+        toast.innerText = msg;
+        toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1a3d6e;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
     }
     async loadNotifCount() {
         try {
