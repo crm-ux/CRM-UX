@@ -153,27 +153,47 @@
             <!-- PIPELINE -->
             <div class="crm-pipeline-strip">
                 <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
-                    <div class="crm-pipe-num"><t t-esc="state.leads"/></div>
-                    <div class="crm-pipe-lbl">Leads</div>
+                    <div class="crm-pipe-num"><t t-esc="state.stageLead"/></div>
+                    <div class="crm-pipe-lbl">Lead</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="1">
-                    <div class="crm-pipe-num"><t t-esc="state.qualified"/></div>
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="5">
+                    <div class="crm-pipe-num"><t t-esc="state.stageContacted"/></div>
+                    <div class="crm-pipe-lbl">Contacted</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="7">
+                    <div class="crm-pipe-num"><t t-esc="state.stageTechDisc"/></div>
+                    <div class="crm-pipe-lbl">Tech. Discussion</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c4" t-on-click="openStage" data-seq="10">
+                    <div class="crm-pipe-num"><t t-esc="state.stageQualified"/></div>
                     <div class="crm-pipe-lbl">Qualified</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="2">
-                    <div class="crm-pipe-num"><t t-esc="state.opportunity"/></div>
+                <div class="crm-pipe-item crm-pipe-c5" t-on-click="openStage" data-seq="20">
+                    <div class="crm-pipe-num"><t t-esc="state.stageOpportunity"/></div>
                     <div class="crm-pipe-lbl">Opportunity</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c4" t-on-click="openQuotes">
-                    <div class="crm-pipe-num"><t t-esc="state.quotes"/></div>
+                <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="30">
+                    <div class="crm-pipe-num"><t t-esc="state.stageQuotes"/></div>
                     <div class="crm-pipe-lbl">Quotes</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="40">
+                    <div class="crm-pipe-num"><t t-esc="state.stageNegotiation"/></div>
+                    <div class="crm-pipe-lbl">Negotiation</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="50">
+                    <div class="crm-pipe-num"><t t-esc="state.stageOrderExp"/></div>
+                    <div class="crm-pipe-lbl">Order Expected</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-item crm-pipe-c5" t-on-click="openWon">
-                    <div class="crm-pipe-num"><t t-esc="state.won"/></div>
+                    <div class="crm-pipe-num"><t t-esc="state.stageWon"/></div>
                     <div class="crm-pipe-lbl">Won</div>
                 </div>
             </div>

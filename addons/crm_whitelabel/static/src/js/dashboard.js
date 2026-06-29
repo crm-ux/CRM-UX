@@ -11,6 +11,9 @@ class CrmDashboard extends Component {
         this.actionService = useService("action");
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
+            stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0,
+            stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
+            quotesDraft:0, quotesSent:0, quotesNeg:0,
             customers: 0, quotes: 0, products: 0, users: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
@@ -96,10 +99,21 @@ class CrmDashboard extends Component {
             const isAdmin = user.userId === 2;
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
-            const [leads,qualified,opp,quotesDraft,quotesSent,quotesNeg,won,customers,products,users,quoteRevenue,wonRevenue,todayRevenue] = await Promise.all([
+            const [
+                stageLead, stageContacted, stageTechDisc, stageQualified,
+                stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
+                quotesDraft, quotesSent, quotesNeg, won,
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue
+            ] = await Promise.all([
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",1],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",2],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",5],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",7],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",10],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",20],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",30],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",40],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",50],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",90],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...cd,...ud]),
@@ -112,7 +126,16 @@ class CrmDashboard extends Component {
                 this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
             ]);
             const quotes = quotesDraft + quotesSent + quotesNeg;
-            Object.assign(this.state, { leads, qualified, opportunity:opp, quotes, quotesDraft, quotesSent, quotesNeg, won, customers, products, users, quoteRevenue, wonRevenue, todayRevenue });
+            const leads = stageLead;
+            const qualified = stageQualified;
+            const opp = stageOpportunity;
+            Object.assign(this.state, {
+                leads, qualified, opportunity:opp,
+                stageLead, stageContacted, stageTechDisc, stageQualified,
+                stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
+                quotes, quotesDraft, quotesSent, quotesNeg, won,
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue
+            });
         } catch(e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
