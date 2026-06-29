@@ -1069,7 +1069,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if hasattr(line, 'x_notes') and line.x_notes:
                 desc += '\nDescription: ' + line.x_notes
             for n in docx_note_map.get(line.id, []):
-                desc += '\n' + n
+                desc += '\n[NOTE]' + n + '[/NOTE]'
             part_no = line.x_product_code or line.product_id.default_code or ''
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
@@ -1096,7 +1096,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         else:
                             p = cell.add_paragraph()
                         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                        if part.startswith('Make:') or part.startswith('Description:'):
+                        if part.startswith('[NOTE]') and '[/NOTE]' in part:
+                            note_text = part.replace('[NOTE]', '').replace('[/NOTE]', '')
+                            r = p.add_run(note_text)
+                            r.italic = True
+                            r.font.size = Pt(11)
+                            r.font.color.rgb = None
+                        elif part.startswith('Make:') or part.startswith('Description:'):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
                             r1.bold = True
