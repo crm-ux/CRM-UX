@@ -1098,10 +1098,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
                         if part.startswith('[NOTE]') and '[/NOTE]' in part:
                             note_text = part.replace('[NOTE]', '').replace('[/NOTE]', '')
-                            r = p.add_run(note_text)
-                            r.italic = True
-                            r.font.size = Pt(11)
-                            r.font.color.rgb = None
+                            r1 = p.add_run('Description:')
+                            r1.bold = True
+                            r1.font.size = Pt(11)
+                            r2 = p.add_run(' ' + note_text)
+                            r2.italic = True
+                            r2.font.size = Pt(11)
                         elif part.startswith('Make:') or part.startswith('Description:'):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
