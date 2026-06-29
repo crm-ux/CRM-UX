@@ -8,3 +8,4 @@ from . import product_template
 from . import res_users
 from . import sale_terms
 from . import patch_report
+from . import patch_partner
