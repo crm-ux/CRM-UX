@@ -572,7 +572,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if make: desc += '<br/><b>Make:</b> %s' % make
             if note: desc += '<br/><b>Description:</b> %s' % note
             for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#555;">%s</i>' % n
+                desc += '<br/><b>Description:</b> <i style="color:#333;">%s</i>' % n
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
