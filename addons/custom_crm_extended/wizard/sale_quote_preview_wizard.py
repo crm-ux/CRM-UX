@@ -539,7 +539,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 img_html = '<div style="margin-top:12px;">%s</div>' % imgs
 
         # ── CHECK DISCOUNT FOR PDF TABLE ──
-        order_lines_pdf = order.order_line.filtered(lambda l: not l.display_type or l.display_type == 'line_note')
+        order_lines_pdf = order.order_line
         has_discount_pdf = any(l.discount for l in order_lines_pdf)
         has_overall_disc = getattr(order, 'x_flat_discount_pct', 0) or 0
 
