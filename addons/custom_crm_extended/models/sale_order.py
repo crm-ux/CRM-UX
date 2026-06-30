@@ -450,12 +450,15 @@ class SaleOrder(models.Model):
         return result
 
     def action_move_to_negotiation(self):
-        """Move quote stage to Negotiation. Admin can move any quote, user only their own."""
+        """Move quote stage to Negotiation. Admin can move any quote, user only their own. Unlocks the quote, clears PO so it must be re-entered."""
         self.ensure_one()
         if self.env.user.id != 2 and self.user_id.id != self.env.user.id:
             raise UserError(_('You can only move your own quotes to Negotiation.'))
         self.x_quote_stage = 'negotiation'
-        self.message_post(body=_('Quote moved back to <b>Negotiation</b>.'))
+        self.x_final_quote_locked = False
+        self.x_po_number = False
+        self.x_po_date = False
+        self.message_post(body=_('Quote moved back to <b>Negotiation</b>, unlocked, and PO number cleared.'))
         if self.opportunity_id:
             self.opportunity_id.action_move_to_negotiation_sync()
 
