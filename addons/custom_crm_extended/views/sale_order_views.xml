@@ -207,6 +207,23 @@
             <td t-if="display_discount" name="td_product_discount"/>
         </xpath>
     </template>
+    <!-- Won PO Popup -->
+    <record id="view_sale_order_won_po_form" model="ir.ui.view">
+        <field name="name">sale.order.won.po.form</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <form string="Enter Purchase Order">
+                <group>
+                    <field name="x_po_number" string="PO Number" required="1"/>
+                    <field name="x_po_date" string="PO Date"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_won" string="OK" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
     <!-- Lost Reason Popup -->
     <record id="view_sale_order_lost_reason_form" model="ir.ui.view">
         <field name="name">sale.order.lost.reason.form</field>

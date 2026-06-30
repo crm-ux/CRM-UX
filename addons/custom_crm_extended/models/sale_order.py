@@ -463,17 +463,37 @@ class SaleOrder(models.Model):
             self.opportunity_id.action_move_to_negotiation_sync()
 
     def action_mark_won(self):
-        """Mark quote as Won - requires PO number."""
+        """Mark quote as Won - opens PO entry popup if PO number missing, else confirms directly."""
+        self.ensure_one()
+        if not self.x_po_number:
+            return {
+                'type': 'ir.actions.act_window',
+                'name': _('Enter Purchase Order'),
+                'res_model': 'sale.order',
+                'res_id': self.id,
+                'view_mode': 'form',
+                'view_id': self.env.ref('custom_crm_extended.view_sale_order_won_po_form').id,
+                'target': 'new',
+            }
+        return self._confirm_won()
+
+    def action_confirm_won(self):
+        """Called from the PO popup form - validates PO number then confirms Won."""
         self.ensure_one()
         if not self.x_po_number:
             raise UserError(_('Please enter the PO Number before marking this quote as Won.'))
+        self._confirm_won()
+        return {'type': 'ir.actions.act_window_close'}
+
+    def _confirm_won(self):
+        """Internal: apply Won stage, lock quote, sync lead."""
+        self.ensure_one()
         self.x_final_quote_locked = True
         self.x_quote_stage = 'won'
         self.x_lost_reason = False
         self.message_post(
             body=_('Quote marked as <b>Won</b>. PO: <b>%s</b>') % (self.x_po_number or '')
         )
-        # Sync linked lead stage to Won + copy PO info
         if self.opportunity_id:
             self.opportunity_id.action_move_to_won(
                 po_number=self.x_po_number,
