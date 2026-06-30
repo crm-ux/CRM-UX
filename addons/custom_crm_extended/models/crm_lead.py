@@ -318,7 +318,7 @@ class CrmLead(models.Model):
     def action_move_to_quotes(self):
         stage = self._get_stage_by_sequence(30)
         if stage:
-            self.stage_id = stage
+            self.with_context(bypass_stage_lock=True).stage_id = stage
 
     def action_move_to_negotiation(self):
         stage = self._get_stage_by_sequence(40)
@@ -386,7 +386,7 @@ class CrmLead(models.Model):
                         'You cannot move this lead back to an earlier stage once it has passed Technical Discussion.'
                     ))
             # Block manually setting Quotes/Negotiation/Won stages - must go through the quote action buttons
-            if new_stage.sequence in (30, 40, 90):
+            if new_stage.sequence in (40, 90):
                 raise UserError(_(
                     'The "%s" stage can only be reached automatically when a quotation is Sent, '
                     'moved to Negotiation, or marked Won. Please use the quote buttons instead.'
