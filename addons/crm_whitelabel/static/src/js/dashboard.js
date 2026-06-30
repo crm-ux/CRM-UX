@@ -180,21 +180,38 @@ class CrmDashboard extends Component {
     async assignTask() {
         if (!this.state.taskTitle) { alert("Please enter a task title"); return; }
         try {
+            // Create a proper Odoo Activity (To-Do) assigned to the user - shows in their Activities menu + sends notification
+            await rpc("/web/dataset/call_kw", {
+                model: "mail.activity",
+                method: "create",
+                args: [{
+                    res_model: "res.users",
+                    res_id: this.state.selectedUser.id,
+                    activity_type_id: 1,
+                    summary: this.state.taskTitle,
+                    note: this.state.taskNote || "",
+                    user_id: this.state.selectedUser.id,
+                    date_deadline: new Date().toISOString().split('T')[0],
+                }],
+                kwargs: {},
+            });
+            // Also post a direct notification message so it appears in the dashboard bell
             await rpc("/web/dataset/call_kw", {
                 model: "res.partner",
                 method: "message_post",
                 args: [[this.state.selectedUser.partner_id || this.state.selectedUser.id]],
                 kwargs: {
-                    body: "<b>" + this.state.taskTitle + "</b><br/>" + (this.state.taskNote || ""),
+                    body: "<b>New Task: " + this.state.taskTitle + "</b><br/>" + (this.state.taskNote || ""),
                     message_type: "comment",
                     subtype_xmlid: "mail.mt_comment",
                     partner_ids: [this.state.selectedUser.partner_id || this.state.selectedUser.id],
                 },
             });
-            this.showToast("Notification sent to " + this.state.selectedUser.name);
+            this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         } catch(e) {
-            this.showToast("Notification sent to " + this.state.selectedUser.name);
+            console.log("Assign task error:", e);
+            this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         }
     }
@@ -209,7 +226,7 @@ class CrmDashboard extends Component {
     async loadNotifCount() {
         try {
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
-            const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','=','crm.lead']]], kwargs:{ fields:['id'], limit:50, order:'date desc' } });
+            const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','in',['crm.lead','res.partner']]]], kwargs:{ fields:['id'], limit:50, order:'date desc' } });
             this.state.notifCount = messages.map(m=>m.id).filter(id=>!readIds.includes(id)).length;
         } catch(e) { this.state.notifCount = 0; }
     }
@@ -217,7 +234,7 @@ class CrmDashboard extends Component {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
-                const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','=','crm.lead']]], kwargs:{ fields:['id','record_name','body','date','res_id'], limit:10, order:'date desc' } });
+                const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','in',['crm.lead','res.partner']]]], kwargs:{ fields:['id','record_name','body','date','res_id','model'], limit:10, order:'date desc' } });
                 localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m=>m.id)));
                 this.state.notifCount = 0;
                 this.state.notifications = messages.map(m => ({ id:m.id, res_id:m.res_id, record_name:m.record_name||'Lead', body_text:m.body?m.body.replace(/<[^>]+>/g,'').substring(0,80):'', date:m.date?m.date.substring(0,16):'' }));
