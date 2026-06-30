@@ -155,12 +155,6 @@ class CrmDashboard extends Component {
     openWon() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
-        // For Quotes/Negotiation/Won stages, open sale.order list instead so clicking a row opens the quote directly
-        if (seq === 30 || seq === 40 || seq === 90) {
-            const stageMap = { 30: 'sent', 40: 'negotiation', 90: 'won' };
-            this.go({ type:"ir.actions.act_window", name:"Quotations", res_model:"sale.order", views:[[false,"list"],[false,"form"]], domain:[["x_quote_stage","in",seq===30?["draft","sent"]:[stageMap[seq]]]] });
-            return;
-        }
         this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_stage_sequence","=",seq]]});
     }
     newLead() { this.go(405); }
