@@ -385,6 +385,12 @@ class CrmLead(models.Model):
                     raise UserError(_(
                         'You cannot move this lead back to an earlier stage once it has passed Technical Discussion.'
                     ))
+            # Block manually setting Quotes/Negotiation/Won stages - must go through the quote action buttons
+            if new_stage.sequence in (30, 40, 90):
+                raise UserError(_(
+                    'The "%s" stage can only be reached automatically when a quotation is Sent, '
+                    'moved to Negotiation, or marked Won. Please use the quote buttons instead.'
+                ) % new_stage.name)
 
         res = super().write(vals)
 
