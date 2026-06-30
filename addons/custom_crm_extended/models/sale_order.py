@@ -218,12 +218,12 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     x_quote_stage = fields.Selection(
         selection=[
-            ('draft',     'Draft'),
-            ('prepared',  'Quote Prepared'),
-            ('sent',      'Quote Sent'),
+            ('draft',       'New'),
+            ('sent',        'Sent'),
+            ('negotiation', 'Negotiation'),
             ('po_received', 'PO Received'),
-            ('won',       'Won'),
-            ('lost',      'Lost'),
+            ('won',         'Won'),
+            ('lost',        'Lost'),
         ],
         string='Quote Stage',
         default='draft',
@@ -437,6 +437,23 @@ class SaleOrder(models.Model):
                 'ON' if self.x_gst_included else 'OFF'
             )
         )
+
+    def action_quotation_send(self):
+        """Override default send action to mark stage as Sent."""
+        self.ensure_one()
+        result = super().action_quotation_send()
+        if self.x_quote_stage == 'draft':
+            self.x_quote_stage = 'sent'
+            self.message_post(body=_('Quote marked as <b>Sent</b>.'))
+        return result
+
+    def action_move_to_negotiation(self):
+        """Move quote stage to Negotiation. Admin can move any quote, user only their own."""
+        self.ensure_one()
+        if self.env.user.id != 2 and self.user_id.id != self.env.user.id:
+            raise UserError(_('You can only move your own quotes to Negotiation.'))
+        self.x_quote_stage = 'negotiation'
+        self.message_post(body=_('Quote moved back to <b>Negotiation</b>.'))
 
     def action_mark_won(self):
         """Mark quote as Won - requires PO number."""

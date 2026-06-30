@@ -91,6 +91,9 @@
                 <button name="action_mark_lost" string="Lost" type="object"
                         class="btn-danger"
                         invisible="x_quote_stage == 'lost'"/>
+                <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
+                        class="btn-warning"
+                        invisible="x_quote_stage != 'won'"/>
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
