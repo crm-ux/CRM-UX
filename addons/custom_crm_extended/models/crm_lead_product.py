@@ -163,17 +163,24 @@ class CrmLeadProductLine(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'product_id' in vals or 'x_product_name_m2o' in vals or 'x_product_template_id' in vals:
+        if not self.env.context.get('_syncing_product_fields') and ('product_id' in vals or 'x_product_name_m2o' in vals or 'x_product_template_id' in vals):
             for rec in self:
                 product = rec.product_id or rec.x_product_name_m2o or rec.x_product_template_id.product_variant_id
                 if product:
-                    super(type(rec), rec).write({
+                    sync_vals = {
                         'product_id': product.id,
                         'x_product_name_m2o': product.id,
                         'x_product_template_id': product.product_tmpl_id.id,
                         'x_product_code': product.default_code or '',
                         'x_product_name': product.name or '',
-                    })
+                    }
+                    # Only write if values actually differ, to avoid unnecessary writes/loops
+                    if (rec.product_id.id != sync_vals['product_id'] or
+                        rec.x_product_name_m2o.id != sync_vals['x_product_name_m2o'] or
+                        rec.x_product_template_id.id != sync_vals['x_product_template_id'] or
+                        rec.x_product_code != sync_vals['x_product_code'] or
+                        rec.x_product_name != sync_vals['x_product_name']):
+                        rec.with_context(_syncing_product_fields=True).write(sync_vals)
         return res
 
     @api.onchange('x_category_id')
