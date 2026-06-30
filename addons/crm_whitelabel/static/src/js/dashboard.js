@@ -148,6 +148,12 @@ class CrmDashboard extends Component {
     go(action) { this.actionService.doAction(action); }
     openLeads() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openQuotes() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    openQuoteStage(stage) {
+        const ud = user.userId===2?[]:[["user_id","=",user.userId]];
+        const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[];
+        const labels = {draft:"Quote", sent:"Sent", negotiation:"Negotiation", won:"Won"};
+        this.go({type:"ir.actions.act_window",name:labels[stage]+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}});
+    }
     openTerms() { this.actionService.doAction({type:'ir.actions.act_window',name:'Terms & Conditions',res_model:'sale.terms.condition',view_mode:'list,form',views:[[false,'list'],[false,'form']]}); }
     openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
     openProducts() { this.go({type:"ir.actions.act_window",name:"Products",res_model:"product.template",views:[[false,"list"],[false,"form"]]}); }
