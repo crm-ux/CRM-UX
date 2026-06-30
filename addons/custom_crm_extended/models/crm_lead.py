@@ -358,15 +358,27 @@ class CrmLead(models.Model):
         """Called by sale.order when quote is marked Won - syncs lead stage + PO info."""
         stage = self._get_stage_by_sequence(90)
         if stage:
-            self.stage_id = stage
+            self.with_context(bypass_stage_lock=True).stage_id = stage
         if po_number:
             self.x_po_number = po_number
         if po_date:
             self.x_po_date = po_date
 
+    def action_move_to_negotiation_sync(self):
+        """Called by sale.order when quote is moved to Negotiation - syncs lead stage."""
+        stage = self._get_stage_by_sequence(40)
+        if stage:
+            self.with_context(bypass_stage_lock=True).stage_id = stage
+
+    def action_move_to_sent_sync(self):
+        """Called by sale.order when quote is sent - keeps lead in Quotes stage."""
+        stage = self._get_stage_by_sequence(30)
+        if stage and (not self.stage_id or self.stage_id.sequence < 30):
+            self.with_context(bypass_stage_lock=True).stage_id = stage
+
     def write(self, vals):
         # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
-        if 'stage_id' in vals and vals.get('stage_id'):
+        if 'stage_id' in vals and vals.get('stage_id') and not self.env.context.get('bypass_stage_lock'):
             new_stage = self.env['crm.stage'].browse(vals['stage_id'])
             for rec in self:
                 if rec.stage_id and rec.stage_id.sequence > 7 and new_stage.sequence < rec.stage_id.sequence:

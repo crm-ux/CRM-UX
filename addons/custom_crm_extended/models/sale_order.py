@@ -445,6 +445,8 @@ class SaleOrder(models.Model):
         if self.x_quote_stage == 'draft':
             self.x_quote_stage = 'sent'
             self.message_post(body=_('Quote marked as <b>Sent</b>.'))
+            if self.opportunity_id:
+                self.opportunity_id.action_move_to_sent_sync()
         return result
 
     def action_move_to_negotiation(self):
@@ -454,6 +456,8 @@ class SaleOrder(models.Model):
             raise UserError(_('You can only move your own quotes to Negotiation.'))
         self.x_quote_stage = 'negotiation'
         self.message_post(body=_('Quote moved back to <b>Negotiation</b>.'))
+        if self.opportunity_id:
+            self.opportunity_id.action_move_to_negotiation_sync()
 
     def action_mark_won(self):
         """Mark quote as Won - requires PO number."""
