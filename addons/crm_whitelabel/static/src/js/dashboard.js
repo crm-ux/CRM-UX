@@ -13,7 +13,7 @@ class CrmDashboard extends Component {
             leads: 0, qualified: 0, opportunity: 0, won: 0,
             stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0,
             stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
-            quotesDraft:0, quotesSent:0, quotesNeg:0,
+            quotesDraft:0, quotesSent:0, quotesNeg:0, exhibitionContacts:0,
             customers: 0, quotes: 0, products: 0, users: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
@@ -129,7 +129,12 @@ class CrmDashboard extends Component {
             const leads = stageLead;
             const qualified = stageQualified;
             const opp = stageOpportunity;
-            Object.assign(this.state, {
+            // Exhibition contacts count
+            let exhibitionContacts = 0;
+            try {
+                exhibitionContacts = await this._count("exhibition.contact", []);
+            } catch(e) {}
+            Object.assign(this.state, { exhibitionContacts,
                 leads, qualified, opportunity:opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
@@ -172,6 +177,7 @@ class CrmDashboard extends Component {
         }
     }
     newLead() { this.go(405); }
+    openExhibition() { this.go({type:"ir.actions.act_window",name:"Exhibition Contacts",res_model:"exhibition.contact",views:[[false,"list"],[false,"form"]]}); }
     newQuote() { this.go({type:"ir.actions.act_window",name:"New Quotation",res_model:"sale.order",views:[[false,"form"]],target:"current"}); }
     async onSearchInput(ev) {
         const q = ev.target.value;
