@@ -10,6 +10,11 @@
         'views/exhibition_contact_views.xml',
         'views/exhibition_contact_menu.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'exhibition_contacts/static/src/css/exhibition.css',
+        ],
+    },
     'installable': True,
     'application': False,
 }

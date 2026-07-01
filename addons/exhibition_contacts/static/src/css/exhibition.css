@@ -1,0 +1,14 @@
+/* Exhibition Contacts - Mobile Responsive */
+@media (max-width: 768px) {
+    .o_form_sheet .row .col-6 {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    .o_field_image img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    .o_group {
+        grid-template-columns: 1fr !important;
+    }
+}
