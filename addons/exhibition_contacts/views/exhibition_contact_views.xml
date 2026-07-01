@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_exhibition_contact_form" model="ir.ui.view">
+        <field name="name">exhibition.contact.form</field>
+        <field name="model">exhibition.contact</field>
+        <field name="arch" type="xml">
+            <form string="Exhibition Contact">
+                <header>
+                    <button name="action_scan_card" string="Scan Visiting Card" type="object" class="btn-primary" invisible="visiting_card == False"/>
+                    <button name="action_check_duplicate" string="Check Duplicates" type="object" class="btn-warning"/>
+                    <button name="action_convert_to_lead" string="Convert to Lead" type="object" class="btn-success" invisible="crm_lead_id"/>
+                    <button name="action_convert_to_lead" string="View Lead" type="object" class="btn-secondary" invisible="not crm_lead_id"/>
+                    <field name="x_status" widget="statusbar" statusbar_visible="new,contacted,converted"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <group>
+                        <group string="Contact Info">
+                            <field name="contact_name"/>
+                            <field name="company_name"/>
+                            <field name="designation"/>
+                            <field name="exhibition_name"/>
+                            <field name="exhibition_date"/>
+                        </group>
+                        <group string="Visiting Card">
+                            <field name="visiting_card" widget="image" options="{'size': [300, 200]}"/>
+                            <field name="visiting_card_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Phone Numbers">
+                            <field name="phone_ids">
+                                <list editable="bottom">
+                                    <field name="phone"/>
+                                    <field name="phone_type"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Email Addresses">
+                            <field name="email_ids">
+                                <list editable="bottom">
+                                    <field name="email"/>
+                                    <field name="email_type"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Address">
+                            <group>
+                                <field name="address"/>
+                                <field name="city"/>
+                                <field name="x_state"/>
+                                <field name="country"/>
+                                <field name="website"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Add notes about this contact..."/>
+                        </page>
+                    </notebook>
+                    <group invisible="not crm_lead_id">
+                        <field name="crm_lead_id" string="Converted to CRM Lead" readonly="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_exhibition_contact_list" model="ir.ui.view">
+        <field name="name">exhibition.contact.list</field>
+        <field name="model">exhibition.contact</field>
+        <field name="arch" type="xml">
+            <list string="Exhibition Contacts">
+                <field name="contact_name"/>
+                <field name="company_name"/>
+                <field name="designation"/>
+                <field name="exhibition_name"/>
+                <field name="exhibition_date"/>
+                <field name="x_status"/>
+                <field name="crm_lead_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_exhibition_contact_search" model="ir.ui.view">
+        <field name="name">exhibition.contact.search</field>
+        <field name="model">exhibition.contact</field>
+        <field name="arch" type="xml">
+            <search string="Search Exhibition Contacts">
+                <field name="contact_name"/>
+                <field name="company_name"/>
+                <field name="exhibition_name"/>
+                <filter string="New" name="filter_new" domain="[('x_status','=','new')]"/>
+                <filter string="Contacted" name="filter_contacted" domain="[('x_status','=','contacted')]"/>
+                <filter string="Converted" name="filter_converted" domain="[('x_status','=','converted')]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_exhibition_contact" model="ir.actions.act_window">
+        <field name="name">Exhibition Contacts</field>
+        <field name="res_model">exhibition.contact</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_exhibition_contact_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add your first exhibition contact!
+            </p>
+        </field>
+    </record>
+</odoo>

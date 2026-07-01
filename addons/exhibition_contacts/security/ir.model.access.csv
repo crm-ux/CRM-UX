@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_exhibition_contact,exhibition.contact,model_exhibition_contact,,1,1,1,1
+access_exhibition_contact_phone,exhibition.contact.phone,model_exhibition_contact_phone,,1,1,1,1
+access_exhibition_contact_email,exhibition.contact.email,model_exhibition_contact_email,,1,1,1,1

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_exhibition_root"
+              name="Exhibition Contacts"
+              sequence="50"
+              web_icon="exhibition_contacts,static/src/img/icon.png"/>
+
+    <menuitem id="menu_exhibition_contacts"
+              name="Contacts"
+              parent="menu_exhibition_root"
+              action="action_exhibition_contact"
+              sequence="10"/>
+</odoo>
