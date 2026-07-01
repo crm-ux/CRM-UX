@@ -145,7 +145,7 @@ class CrmDashboard extends Component {
         if (n >= 1000) return "₹" + (n/1000).toFixed(1) + "K";
         return "₹" + Math.round(n);
     }
-    go(action) { this.actionService.doAction(action); }
+    go(action) { this.actionService.doAction(action, {clearBreadcrumbs: true}); }
     openLeads() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openQuotes() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openQuoteStage(stage) {
@@ -161,7 +161,15 @@ class CrmDashboard extends Component {
     openWon() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
-        this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_stage_sequence","=",seq]]});
+        if (seq >= 30) {
+            // For Quotes/Negotiation/Won stages, open linked sale.order so clicking opens the quote directly
+            const stageMap = {30:'draft', 40:'negotiation', 90:'won'};
+            const qStage = stageMap[seq];
+            const domain = qStage ? [["x_quote_stage","=",qStage]] : [["x_quote_stage","not in",["lost"]]];
+            this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:domain,context:{allowed_company_ids:this.state.selectedCompanies}});
+        } else {
+            this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_stage_sequence","=",seq]]});
+        }
     }
     newLead() { this.go(405); }
     newQuote() { this.go({type:"ir.actions.act_window",name:"New Quotation",res_model:"sale.order",views:[[false,"form"]],target:"current"}); }
