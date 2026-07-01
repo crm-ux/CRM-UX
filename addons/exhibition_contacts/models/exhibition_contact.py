@@ -163,76 +163,105 @@ class ExhibitionContact(models.Model):
     def _parse_card_text(self, text):
         result = {'phones': [], 'emails': []}
         lines = [l.strip() for l in text.split('\n') if l.strip()]
-        # Extract emails
+
+        # 1. Emails - most reliable
         emails = re.findall(r'[\w.+-]+@[\w-]+\.[\w.]+', text)
         result['emails'] = list(set(emails))
-        # Extract phones - find each number separately per line
+
+        # 2. Phones per line
         cleaned_phones = []
-        seen = set()
-        for line in text.split('\n'):
-            line = line.strip()
-            # Find all phone-like patterns in this line
-            line_phones = re.findall(r'(?:\+91[\s\-]?)?[6-9]\d{9}|(?:\+\d{1,3}[\s\-]?)?\d{10}', line)
-            for p in line_phones:
-                digits = re.sub(r'[^\d]', '', p)
-                if len(digits) == 10:
-                    # Indian mobile - store as-is without country code
-                    formatted = digits
-                elif len(digits) == 12 and digits.startswith('91'):
-                    # +91 prefix - remove country code
-                    formatted = digits[2:]
-                elif len(digits) >= 10:
-                    formatted = digits
-                else:
-                    continue
-                if formatted not in seen and len(formatted) >= 10:
-                    seen.add(formatted)
-                    cleaned_phones.append(formatted)
-        result['phones'] = cleaned_phones[:5]
-        # Extract website
-        websites = re.findall(r'(?:www\.|https?://)[^\s]+', text, re.IGNORECASE)
-        if websites:
-            result['website'] = websites[0]
-        # First non-email, non-phone line is likely the name
+        seen_phones = set()
         for line in lines:
-            if not re.search(r'[@\d+]', line) and len(line.split()) <= 4 and len(line) > 3:
+            found = re.findall(r'(?<!\d)(?:\+91[\s\-]?)?[6-9]\d{9}(?!\d)|(?<!\d)\d{10}(?!\d)', line)
+            for p in found:
+                digits = re.sub(r'[^\d]', '', p)
+                if digits.startswith('91') and len(digits) == 12:
+                    digits = digits[2:]
+                if len(digits) == 10 and digits not in seen_phones:
+                    seen_phones.add(digits)
+                    cleaned_phones.append(digits)
+        result['phones'] = cleaned_phones[:5]
+
+        # 3. Website
+        websites = re.findall(r'(?:www\.[\w.-]+|https?://[\w./-]+)', text, re.IGNORECASE)
+        if websites:
+            result['website'] = websites[0].rstrip('.,')
+
+        # 4. Company name - has business keywords
+        company_keywords = ['pvt', 'ltd', 'llp', 'inc', 'corp', 'technologies', 'technology',
+                           'solutions', 'services', 'industries', 'enterprises', 'group',
+                           'international', 'systems', 'consultancy', 'trading', 'exports',
+                           'imports', 'manufacturing', 'pharma', 'chemicals', 'labs',
+                           'laboratory', 'associates', 'co.', '& co', 'company']
+        for line in lines:
+            if any(k in line.lower() for k in company_keywords) and len(line) > 3:
+                result['company'] = line
+                break
+
+        # 5. Designation - has job keywords
+        designation_keywords = ['director', 'manager', 'ceo', 'cto', 'cfo', 'engineer',
+                               'executive', 'officer', 'president', 'founder', 'partner',
+                               'consultant', 'analyst', 'developer', 'designer', 'head',
+                               'lead', 'senior', 'junior', 'associate', 'assistant',
+                               'proprietor', 'owner', 'md', 'gm', 'vp', 'avp',
+                               'sales', 'marketing', 'accounts', 'purchase', 'hr', 'admin']
+        for line in lines:
+            if any(k in line.lower() for k in designation_keywords) and len(line) < 60:
+                result['designation'] = line
+                break
+
+        # 6. Person name - short, title case, not company/designation/email/phone
+        skip_lines = {result.get('company', ''), result.get('designation', '')}
+        name_prefixes = ['mr', 'mrs', 'ms', 'dr', 'prof', 'er', 'ca', 'cs', 'adv', 'shri']
+        for line in lines:
+            if line in skip_lines or not line:
+                continue
+            if '@' in line or re.search(r'\d', line):
+                continue
+            if len(line) < 3 or len(line) > 50:
+                continue
+            words = line.split()
+            if len(words) < 1 or len(words) > 5:
+                continue
+            first_word = words[0].lower().rstrip('.')
+            if first_word in name_prefixes:
                 result['name'] = line
                 break
-        # Address - collect lines that look like address (after name/company, before email/phone)
-        address_keywords = [
-            'street', 'road', 'nagar', 'floor', 'sector', 'plot', 'area', 'near', 'opp',
-            'dist', 'pin', 'phase', 'block', 'colony', 'town', 'village', 'taluka',
-            'industrial', 'estate', 'building', 'tower', 'complex', 'layout', 'extension',
-            'circle', 'cross', 'main', 'lane', 'avenue', 'chowk', 'bazaar', 'market',
-            'no.', 'no,', 'shop', 'office', 'unit', 'flat', 'apartment', 'survey',
-        ]
-        # Also detect lines with pin codes (6 digits) or city/state patterns
+            if all(w[0].isupper() for w in words if len(w) > 1):
+                if not any(k in line.lower() for k in company_keywords + designation_keywords):
+                    result['name'] = line
+                    break
+
+        # 7. Address lines
+        address_keywords = ['street', 'road', 'nagar', 'floor', 'sector', 'plot', 'area',
+                           'near', 'opp', 'dist', 'pin', 'phase', 'block', 'colony',
+                           'industrial', 'estate', 'building', 'tower', 'complex', 'survey',
+                           'shop', 'office', 'unit', 'flat', 'apartment', 'lane', 'taluka',
+                           'chowk', 'bazaar', 'market', 'circle', 'cross', 'main', 'village']
+        skip_addr = {result.get('company',''), result.get('designation',''), result.get('name','')}
         addr_lines = []
         for line in lines:
-            line_lower = line.lower()
-            # Skip lines with email or phone
+            if line in skip_addr or not line:
+                continue
             if '@' in line or re.search(r'\d{10}', line):
                 continue
-            # Skip very short lines
-            if len(line) < 5:
-                continue
-            # Include if has address keyword OR has 6-digit pincode
+            line_lower = line.lower()
             if any(k in line_lower for k in address_keywords) or re.search(r'\b\d{6}\b', line):
                 addr_lines.append(line)
-            # Include lines between 15-80 chars that aren't name/company/designation
-            elif 15 <= len(line) <= 80 and not any(k in line_lower for k in ['pvt', 'ltd', 'inc', 'llp', 'technologies', 'solutions', 'services']):
-                # Check if it looks like address (has digits or commas)
-                if re.search(r'\d', line) or ',' in line:
-                    addr_lines.append(line)
         if addr_lines:
             result['address'] = '\n'.join(addr_lines[:5])
-        # Extract city from pincode line
-        pincode_line = next((l for l in lines if re.search(r'\b\d{6}\b', l)), None)
-        if pincode_line:
-            city_match = re.sub(r'\d{6}', '', pincode_line).strip().strip('-,').strip()
-            if city_match:
-                result['city'] = city_match
+
+        # 8. City from pincode
+        for line in lines:
+            pincode = re.search(r'\b(\d{6})\b', line)
+            if pincode:
+                city = re.sub(r'\d{6}', '', line).strip().strip('-, ')
+                if city and len(city) > 2:
+                    result['city'] = city
+                break
+
         return result
+
 
     def action_convert_to_lead(self):
         self.ensure_one()

@@ -256,7 +256,7 @@
                     <p class="crm-panel-note">Review all successfully closed deals and revenue achieved.</p>
                 </div>
                 <div class="crm-pro-panel" style="border-left:4px solid #ff6b35;" t-on-click="openExhibition">
-                    <div class="crm-panel-head"><div><h2>Exhibition Contacts</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-panel-head"><div><h2>Customer Database</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
                         <div class="crm-metric"><strong><t t-esc="state.exhibitionContacts"/></strong><span>Total Contacts</span></div>
                     </div>

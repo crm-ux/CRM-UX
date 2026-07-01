@@ -1,5 +1,5 @@
 {
-    'name': 'Exhibition Contacts',
+    'name': 'Customer Database',
     'version': '1.0',
     'summary': 'Manage exhibition/visitor contacts with card scanning',
     'category': 'CRM',
