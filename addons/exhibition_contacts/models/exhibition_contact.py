@@ -103,6 +103,29 @@ class ExhibitionContact(models.Model):
                     }
                 }
 
+    @api.constrains('contact_name', 'company_name')
+    def _check_duplicate_contact(self):
+        for rec in self:
+            if rec.contact_name and rec.company_name:
+                duplicate = self.search([
+                    ('contact_name', '=ilike', rec.contact_name),
+                    ('company_name', '=ilike', rec.company_name),
+                    ('id', '!=', rec.id),
+                ], limit=1)
+                if duplicate:
+                    raise UserError(
+                        _('Contact "%s" from company "%s" already exists. Duplicate entry not allowed.') % (rec.contact_name, rec.company_name)
+                    )
+            elif rec.contact_name:
+                duplicate = self.search([
+                    ('contact_name', '=ilike', rec.contact_name),
+                    ('id', '!=', rec.id),
+                ], limit=1)
+                if duplicate:
+                    raise UserError(
+                        _('Contact "%s" already exists. Duplicate entry not allowed.') % rec.contact_name
+                    )
+
     def action_scan_card(self):
         self.ensure_one()
         if not self.visiting_card:
