@@ -143,34 +143,28 @@ class ExhibitionContact(models.Model):
         # Extract emails
         emails = re.findall(r'[\w.+-]+@[\w-]+\.[\w.]+', text)
         result['emails'] = list(set(emails))
-        # Extract phones - clean and format
-        raw_phones = re.findall(r'[\+]?[\d][\d\s\-().]{8,}[\d]', text)
+        # Extract phones - find each number separately per line
         cleaned_phones = []
         seen = set()
-        for p in raw_phones:
-            # Remove all non-digit chars except leading +
-            clean = re.sub(r'[^\d+]', '', p)
-            # Remove leading zeros after country code
-            if clean.startswith('+'):
-                digits = re.sub(r'[^\d]', '', clean)
-                if len(digits) >= 10:
-                    formatted = '+' + digits
-                    if formatted not in seen:
-                        seen.add(formatted)
-                        cleaned_phones.append(formatted)
-            else:
-                digits = re.sub(r'[^\d]', '', clean)
-                # If 10 digits, assume Indian mobile
+        for line in text.split('\n'):
+            line = line.strip()
+            # Find all phone-like patterns in this line
+            line_phones = re.findall(r'(?:\+91[\s\-]?)?[6-9]\d{9}|(?:\+\d{1,3}[\s\-]?)?\d{10}', line)
+            for p in line_phones:
+                digits = re.sub(r'[^\d]', '', p)
                 if len(digits) == 10:
-                    formatted = '+91' + digits
-                    if formatted not in seen:
-                        seen.add(formatted)
-                        cleaned_phones.append(formatted)
-                elif len(digits) > 10:
-                    formatted = '+' + digits
-                    if formatted not in seen:
-                        seen.add(formatted)
-                        cleaned_phones.append(formatted)
+                    # Indian mobile - store as-is without country code
+                    formatted = digits
+                elif len(digits) == 12 and digits.startswith('91'):
+                    # +91 prefix - remove country code
+                    formatted = digits[2:]
+                elif len(digits) >= 10:
+                    formatted = digits
+                else:
+                    continue
+                if formatted not in seen and len(formatted) >= 10:
+                    seen.add(formatted)
+                    cleaned_phones.append(formatted)
         result['phones'] = cleaned_phones[:5]
         # Extract website
         websites = re.findall(r'(?:www\.|https?://)[^\s]+', text, re.IGNORECASE)
