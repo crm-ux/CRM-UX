@@ -236,18 +236,24 @@ class ExhibitionContact(models.Model):
         emails = re.findall(r'[\w.+-]+@[\w-]+\.[\w.]+', text)
         result['emails'] = list(set(emails))
 
-        # 2. Phones per line
+        # 2. Phones - flexible pattern for all formats
         cleaned_phones = []
         seen_phones = set()
-        for line in lines:
-            found = re.findall(r'(?<!\d)(?:\+91[\s\-]?)?[6-9]\d{9}(?!\d)|(?<!\d)\d{10}(?!\d)', line)
-            for p in found:
-                digits = re.sub(r'[^\d]', '', p)
-                if digits.startswith('91') and len(digits) == 12:
-                    digits = digits[2:]
-                if len(digits) == 10 and digits not in seen_phones:
-                    seen_phones.add(digits)
-                    cleaned_phones.append(digits)
+        # Match any number-like sequence with optional +, spaces, dashes, brackets
+        phone_pattern = re.findall(r'[\+]?[\d][\d\s\-\.\(\)]{7,}[\d]', text)
+        for p in phone_pattern:
+            digits = re.sub(r'[^\d]', '', p)
+            # Remove leading country codes
+            if digits.startswith('0091'):
+                digits = digits[4:]
+            elif digits.startswith('91') and len(digits) == 12:
+                digits = digits[2:]
+            elif digits.startswith('0') and len(digits) == 11:
+                digits = digits[1:]
+            # Accept 7-15 digit numbers
+            if 7 <= len(digits) <= 15 and digits not in seen_phones:
+                seen_phones.add(digits)
+                cleaned_phones.append(digits)
         result['phones'] = cleaned_phones[:5]
 
         # 3. Website
