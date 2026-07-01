@@ -63,7 +63,30 @@ class ExhibitionContact(models.Model):
     @api.onchange('visiting_card')
     def _onchange_visiting_card(self):
         if self.visiting_card:
-            self.action_scan_card()
+            try:
+                import pytesseract
+                from PIL import Image
+                import io
+                img_data = base64.b64decode(self.visiting_card)
+                img = Image.open(io.BytesIO(img_data))
+                text = pytesseract.image_to_string(img)
+                parsed = self._parse_card_text(text)
+                # Clear and refill all fields on re-upload
+                self.contact_name = parsed.get('name', '') or self.contact_name
+                self.company_name = parsed.get('company', '') or self.company_name
+                self.designation = parsed.get('designation', '') or self.designation
+                self.address = parsed.get('address', '') or self.address
+                self.website = parsed.get('website', '') or self.website
+                # Reset and refill phones
+                self.phone_ids = [(5, 0, 0)]
+                for phone in parsed.get('phones', []):
+                    self.phone_ids = [(0, 0, {'phone': phone, 'phone_type': 'mobile'})]
+                # Reset and refill emails
+                self.email_ids = [(5, 0, 0)]
+                for email in parsed.get('emails', []):
+                    self.email_ids = [(0, 0, {'email': email, 'email_type': 'work'})]
+            except Exception as e:
+                _logger.warning("Auto scan failed: %s", str(e))
 
     @api.onchange('company_name')
     def _onchange_company_name(self):
