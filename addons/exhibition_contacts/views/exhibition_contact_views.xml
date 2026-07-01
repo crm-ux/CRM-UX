@@ -32,7 +32,7 @@
                     </group>
                     <div class="row mt-2">
                         <div class="col-6">
-                            <label class="o_form_label">Phone Numbers</label>
+                            <b>Phone Numbers</b>
                             <field name="phone_ids" nolabel="1">
                                 <list editable="bottom">
                                     <field name="phone_type" width="100px"/>
@@ -41,7 +41,7 @@
                             </field>
                         </div>
                         <div class="col-6">
-                            <label class="o_form_label">Email Addresses</label>
+                            <b>Email Addresses</b>
                             <field name="email_ids" nolabel="1">
                                 <list editable="bottom">
                                     <field name="email_type" width="100px"/>
