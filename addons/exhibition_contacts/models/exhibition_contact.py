@@ -60,16 +60,25 @@ class ExhibitionContact(models.Model):
         ('converted', 'Converted'),
     ], string='Status', default='new', tracking=True)
 
-    @api.constrains('company_name')
-    def _check_duplicate_company(self):
-        for rec in self:
-            if rec.company_name:
-                duplicates = self.search([
-                    ('company_name', '=ilike', rec.company_name),
-                    ('id', '!=', rec.id),
-                ])
-                if duplicates:
-                    _logger.warning("Duplicate company found: %s", rec.company_name)
+    @api.onchange('visiting_card')
+    def _onchange_visiting_card(self):
+        if self.visiting_card:
+            self.action_scan_card()
+
+    @api.onchange('company_name')
+    def _onchange_company_name(self):
+        if self.company_name:
+            duplicates = self.search([
+                ('company_name', '=ilike', self.company_name),
+                ('id', '!=', self._origin.id if self._origin else False),
+            ])
+            if duplicates:
+                return {
+                    'warning': {
+                        'title': 'Duplicate Company Found!',
+                        'message': 'Company "%s" already exists with %d contact(s). Please check before saving.' % (self.company_name, len(duplicates)),
+                    }
+                }
 
     def action_scan_card(self):
         self.ensure_one()
@@ -99,15 +108,7 @@ class ExhibitionContact(models.Model):
             for email in parsed.get('emails', []):
                 if email not in self.email_ids.mapped('email'):
                     self.email_ids = [(0, 0, {'email': email, 'email_type': 'work'})]
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Card Scanned'),
-                    'message': _('Data extracted successfully. Please review and save.'),
-                    'type': 'success',
-                }
-            }
+            return True
         except ImportError:
             raise UserError(_('Tesseract OCR is not installed. Please install pytesseract and tesseract-ocr.'))
         except Exception as e:
