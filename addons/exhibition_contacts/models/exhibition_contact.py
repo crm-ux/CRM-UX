@@ -62,31 +62,99 @@ class ExhibitionContact(models.Model):
 
     @api.onchange('visiting_card')
     def _onchange_visiting_card(self):
-        if self.visiting_card:
-            try:
-                import pytesseract
-                from PIL import Image
-                import io
-                img_data = base64.b64decode(self.visiting_card)
-                img = Image.open(io.BytesIO(img_data))
-                text = pytesseract.image_to_string(img)
-                parsed = self._parse_card_text(text)
-                # Clear and refill all fields on re-upload
-                self.contact_name = parsed.get('name', '') or self.contact_name
-                self.company_name = parsed.get('company', '') or self.company_name
-                self.designation = parsed.get('designation', '') or self.designation
-                self.address = parsed.get('address', '') or self.address
-                self.website = parsed.get('website', '') or self.website
-                # Reset and refill phones
-                self.phone_ids = [(5, 0, 0)]
-                for phone in parsed.get('phones', []):
-                    self.phone_ids = [(0, 0, {'phone': phone, 'phone_type': 'mobile'})]
-                # Reset and refill emails
-                self.email_ids = [(5, 0, 0)]
-                for email in parsed.get('emails', []):
-                    self.email_ids = [(0, 0, {'email': email, 'email_type': 'work'})]
-            except Exception as e:
-                _logger.warning("Auto scan failed: %s", str(e))
+        if not self.visiting_card:
+            return
+        try:
+            import io
+            import numpy as np
+            import cv2
+            from pyzbar import pyzbar
+            import pytesseract
+            from PIL import Image
+
+            img_data = base64.b64decode(self.visiting_card)
+            img = Image.open(io.BytesIO(img_data))
+            parsed = {}
+
+            # Step 1: QR code scan first
+            img_cv = cv2.imdecode(np.frombuffer(img_data, np.uint8), cv2.IMREAD_COLOR)
+            qr_codes = pyzbar.decode(img_cv)
+            if qr_codes:
+                qr_text = qr_codes[0].data.decode('utf-8', errors='ignore')
+                _logger.warning("QR found: %s", qr_text)
+                parsed = self._parse_qr_data(qr_text)
+
+            # Step 2: OCR - always run to supplement QR
+            ocr_text = pytesseract.image_to_string(img)
+            _logger.warning("OCR text: %s", ocr_text)
+            ocr = self._parse_card_text(ocr_text)
+
+            # Merge: QR priority, OCR fills gaps
+            for k in ['name', 'company', 'designation', 'address', 'city', 'website']:
+                if not parsed.get(k):
+                    parsed[k] = ocr.get(k, '')
+            if not parsed.get('phones'):
+                parsed['phones'] = ocr.get('phones', [])
+            if not parsed.get('emails'):
+                parsed['emails'] = ocr.get('emails', [])
+
+            # Set fields
+            if parsed.get('name'):
+                self.contact_name = parsed['name']
+            if parsed.get('company'):
+                self.company_name = parsed['company']
+            if parsed.get('designation'):
+                self.designation = parsed['designation']
+            if parsed.get('address'):
+                self.address = parsed['address']
+            if parsed.get('city'):
+                self.city = parsed['city']
+            if parsed.get('website'):
+                self.website = parsed['website']
+
+            self.phone_ids = [(5, 0, 0)]
+            for phone in parsed.get('phones', []):
+                self.phone_ids = [(0, 0, {'phone': phone, 'phone_type': 'mobile'})]
+
+            self.email_ids = [(5, 0, 0)]
+            for email in parsed.get('emails', []):
+                self.email_ids = [(0, 0, {'email': email, 'email_type': 'work'})]
+
+        except Exception as e:
+            _logger.warning("Auto scan failed: %s", str(e))
+
+    def _parse_qr_data(self, qr_text):
+        result = {'phones': [], 'emails': []}
+        if not qr_text:
+            return result
+        if 'BEGIN:VCARD' in qr_text.upper():
+            for line in qr_text.split('\n'):
+                line = line.strip()
+                ul = line.upper()
+                if ul.startswith('FN:'):
+                    result['name'] = line[3:].strip()
+                elif ul.startswith('ORG:'):
+                    result['company'] = line[4:].strip()
+                elif ul.startswith('TITLE:'):
+                    result['designation'] = line[6:].strip()
+                elif 'TEL' in ul and ':' in line:
+                    phone = line.split(':')[-1].strip()
+                    digits = re.sub(r'[^\d]', '', phone)
+                    if digits.startswith('91') and len(digits) == 12:
+                        digits = digits[2:]
+                    if len(digits) >= 10:
+                        result['phones'].append(digits[-10:])
+                elif 'EMAIL' in ul and ':' in line:
+                    email = line.split(':')[-1].strip()
+                    if '@' in email:
+                        result['emails'].append(email)
+                elif ul.startswith('URL:'):
+                    result['website'] = line[4:].strip()
+                elif ul.startswith('ADR:'):
+                    result['address'] = line[4:].replace(';', ' ').strip()
+        else:
+            result = self._parse_card_text(qr_text)
+        return result
 
     @api.onchange('company_name')
     def _onchange_company_name(self):
