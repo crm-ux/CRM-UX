@@ -318,7 +318,7 @@ class CrmLead(models.Model):
     def action_move_to_quotes(self):
         stage = self._get_stage_by_sequence(30)
         if stage:
-            self.with_context(bypass_stage_lock=True).stage_id = stage
+            self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
 
     def action_move_to_negotiation(self):
         stage = self._get_stage_by_sequence(40)
