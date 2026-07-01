@@ -198,11 +198,40 @@ class ExhibitionContact(models.Model):
             if not re.search(r'[@\d+]', line) and len(line.split()) <= 4 and len(line) > 3:
                 result['name'] = line
                 break
-        # Address lines
-        address_keywords = ['street', 'road', 'nagar', 'floor', 'sector', 'plot', 'area', 'near', 'opp', 'dist']
-        addr_lines = [l for l in lines if any(k in l.lower() for k in address_keywords)]
+        # Address - collect lines that look like address (after name/company, before email/phone)
+        address_keywords = [
+            'street', 'road', 'nagar', 'floor', 'sector', 'plot', 'area', 'near', 'opp',
+            'dist', 'pin', 'phase', 'block', 'colony', 'town', 'village', 'taluka',
+            'industrial', 'estate', 'building', 'tower', 'complex', 'layout', 'extension',
+            'circle', 'cross', 'main', 'lane', 'avenue', 'chowk', 'bazaar', 'market',
+            'no.', 'no,', 'shop', 'office', 'unit', 'flat', 'apartment', 'survey',
+        ]
+        # Also detect lines with pin codes (6 digits) or city/state patterns
+        addr_lines = []
+        for line in lines:
+            line_lower = line.lower()
+            # Skip lines with email or phone
+            if '@' in line or re.search(r'\d{10}', line):
+                continue
+            # Skip very short lines
+            if len(line) < 5:
+                continue
+            # Include if has address keyword OR has 6-digit pincode
+            if any(k in line_lower for k in address_keywords) or re.search(r'\b\d{6}\b', line):
+                addr_lines.append(line)
+            # Include lines between 15-80 chars that aren't name/company/designation
+            elif 15 <= len(line) <= 80 and not any(k in line_lower for k in ['pvt', 'ltd', 'inc', 'llp', 'technologies', 'solutions', 'services']):
+                # Check if it looks like address (has digits or commas)
+                if re.search(r'\d', line) or ',' in line:
+                    addr_lines.append(line)
         if addr_lines:
-            result['address'] = '\n'.join(addr_lines)
+            result['address'] = '\n'.join(addr_lines[:5])
+        # Extract city from pincode line
+        pincode_line = next((l for l in lines if re.search(r'\b\d{6}\b', l)), None)
+        if pincode_line:
+            city_match = re.sub(r'\d{6}', '', pincode_line).strip().strip('-,').strip()
+            if city_match:
+                result['city'] = city_match
         return result
 
     def action_convert_to_lead(self):
