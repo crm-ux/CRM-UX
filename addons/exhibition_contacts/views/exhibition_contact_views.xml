@@ -27,22 +27,26 @@
                             <field name="crm_lead_id" readonly="1" invisible="not crm_lead_id"/>
                         </group>
                     </group>
-                    <group string="Phone Numbers">
-                        <field name="phone_ids" nolabel="1">
-                            <list editable="bottom">
-                                <field name="phone_type"/>
-                                <field name="phone" placeholder="+91 XXXXX XXXXX"/>
-                            </list>
-                        </field>
-                    </group>
-                    <group string="Email Addresses">
-                        <field name="email_ids" nolabel="1">
-                            <list editable="bottom">
-                                <field name="email_type"/>
-                                <field name="email" placeholder="email@company.com"/>
-                            </list>
-                        </field>
-                    </group>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <label class="o_form_label">Phone Numbers</label>
+                            <field name="phone_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="phone_type" width="100px"/>
+                                    <field name="phone" placeholder="+91 9999999999"/>
+                                </list>
+                            </field>
+                        </div>
+                        <div class="col-6">
+                            <label class="o_form_label">Email Addresses</label>
+                            <field name="email_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="email_type" width="100px"/>
+                                    <field name="email" placeholder="email@company.com"/>
+                                </list>
+                            </field>
+                        </div>
+                    </div>
                     <group string="Address">
                         <group>
                             <field name="address" placeholder="Street Address"/>

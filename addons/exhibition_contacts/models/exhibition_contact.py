@@ -143,9 +143,35 @@ class ExhibitionContact(models.Model):
         # Extract emails
         emails = re.findall(r'[\w.+-]+@[\w-]+\.[\w.]+', text)
         result['emails'] = list(set(emails))
-        # Extract phones
-        phones = re.findall(r'[\+]?[\d][\d\s\-().]{8,}[\d]', text)
-        result['phones'] = [re.sub(r'\s+', '', p) for p in phones[:5]]
+        # Extract phones - clean and format
+        raw_phones = re.findall(r'[\+]?[\d][\d\s\-().]{8,}[\d]', text)
+        cleaned_phones = []
+        seen = set()
+        for p in raw_phones:
+            # Remove all non-digit chars except leading +
+            clean = re.sub(r'[^\d+]', '', p)
+            # Remove leading zeros after country code
+            if clean.startswith('+'):
+                digits = re.sub(r'[^\d]', '', clean)
+                if len(digits) >= 10:
+                    formatted = '+' + digits
+                    if formatted not in seen:
+                        seen.add(formatted)
+                        cleaned_phones.append(formatted)
+            else:
+                digits = re.sub(r'[^\d]', '', clean)
+                # If 10 digits, assume Indian mobile
+                if len(digits) == 10:
+                    formatted = '+91' + digits
+                    if formatted not in seen:
+                        seen.add(formatted)
+                        cleaned_phones.append(formatted)
+                elif len(digits) > 10:
+                    formatted = '+' + digits
+                    if formatted not in seen:
+                        seen.add(formatted)
+                        cleaned_phones.append(formatted)
+        result['phones'] = cleaned_phones[:5]
         # Extract website
         websites = re.findall(r'(?:www\.|https?://)[^\s]+', text, re.IGNORECASE)
         if websites:
