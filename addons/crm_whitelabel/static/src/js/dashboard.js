@@ -53,12 +53,33 @@ class CrmDashboard extends Component {
     }
     async loadCompanyInfo() {
         try {
-            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name","logo_web"], limit:1 } });
-            if (res && res[0]) {
-                this.state.companyName = res[0].name || "";
+            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name","logo_web"], limit:20 } });
+            if (res && res.length > 0) {
+                // Store all companies for dynamic name
+                this.state._allCompanies = res;
+                this._updateCompanyDisplay();
+                // Logo from first company
                 if (res[0].logo_web) this.state.companyLogo = "data:image/png;base64," + res[0].logo_web;
             }
         } catch(e) {}
+    }
+
+    _updateCompanyDisplay() {
+        const all = this.state._allCompanies || [];
+        const selected = this.state.selectedCompanies || [];
+        if (!all.length) return;
+        if (selected.length === 0 || selected.length === all.length) {
+            // All selected - show first company name
+            this.state.companyName = all[0].name || "";
+        } else if (selected.length === 1) {
+            // One selected - show that company name
+            const found = all.find(c => c.id === selected[0]);
+            this.state.companyName = found ? found.name : all[0].name;
+        } else {
+            // Multiple selected - show first selected company name
+            const found = all.find(c => c.id === selected[0]);
+            this.state.companyName = found ? found.name : all[0].name;
+        }
     }
     toggleAdminMenu() { this.state.adminMenuOpen = !this.state.adminMenuOpen; }
     toggleUserDropdown() { this.state.userDropdownOpen = !this.state.userDropdownOpen; this.state.companyDropdownOpen = false; }
@@ -74,6 +95,7 @@ class CrmDashboard extends Component {
         const idx = this.state.selectedCompanies.indexOf(cid);
         if (idx === -1) this.state.selectedCompanies.push(cid);
         else if (this.state.selectedCompanies.length > 1) this.state.selectedCompanies.splice(idx, 1);
+        this._updateCompanyDisplay();
         this.loadStats();
     }
     isCompanySelected(cid) { return this.state.selectedCompanies.includes(cid); }
