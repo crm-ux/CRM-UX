@@ -13,9 +13,12 @@
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
+        <!-- Force favicon refresh -->
+        <xpath expr="//head" position="inside">
+            <link rel="shortcut icon" type="image/x-icon" href="/web/static/img/favicon.ico?v=2"/>
+        </xpath>
     </template>
 
-    <!-- Hide website navbar on login page -->
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
         <xpath expr="//nav" position="attributes">
             <attribute name="style">display:none !important;</attribute>
