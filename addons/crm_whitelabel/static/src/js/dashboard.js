@@ -21,7 +21,7 @@ class CrmDashboard extends Component {
             greeting: "", todayDate: "",
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
-            isAdmin: user.userId === 2,
+            isAdmin: false,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false,
@@ -29,7 +29,9 @@ class CrmDashboard extends Component {
             taskNote: "", taskTitle: "",
         });
         onMounted(() => {
-            this.loadStats();
+            this.checkAdminStatus().then(() => {
+                this.loadStats();
+            });
             this.loadCompanies();
             this.loadNotifCount();
             this.loadCompanyInfo();
@@ -50,6 +52,20 @@ class CrmDashboard extends Component {
     }
     setDate() {
         this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
+
+    async checkAdminStatus() {
+        try {
+            const res = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "has_group",
+                args: ["base.group_system"],
+                kwargs: {},
+            });
+            this.state.isAdmin = res || user.userId === 2;
+        } catch(e) {
+            this.state.isAdmin = user.userId === 2;
+        }
     }
     async loadCompanyInfo() {
         try {
@@ -118,7 +134,7 @@ class CrmDashboard extends Component {
         try {
             const activeCids = this.state.selectedCompanies;
             const cd = activeCids.length ? [["company_id","in",activeCids]] : [];
-            const isAdmin = user.userId === 2;
+            const isAdmin = this.state.isAdmin;
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
             const [
@@ -173,10 +189,10 @@ class CrmDashboard extends Component {
         return "₹" + Math.round(n);
     }
     go(action) { this.actionService.doAction(action, {clearBreadcrumbs: true}); }
-    openLeads() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
-    openQuotes() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    openLeads() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    openQuotes() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openQuoteStage(stage) {
-        const ud = user.userId===2?[]:[["user_id","=",user.userId]];
+        const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]];
         const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[];
         const labels = {draft:"Quote", sent:"Sent", negotiation:"Negotiation", won:"Won"};
         this.go({type:"ir.actions.act_window",name:labels[stage]+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}});
@@ -185,7 +201,7 @@ class CrmDashboard extends Component {
     openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
     openProducts() { this.go({type:"ir.actions.act_window",name:"Products",res_model:"product.template",views:[[false,"list"],[false,"form"]]}); }
     openUsers() { this.go({type:"ir.actions.act_window",name:"Users",res_model:"res.users",views:[[false,"list"],[false,"form"]],domain:[["share","=",false]]}); }
-    openWon() { const ud = user.userId===2?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    openWon() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
         if (seq >= 30) {
