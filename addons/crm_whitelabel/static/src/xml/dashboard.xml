@@ -30,10 +30,10 @@
                             <div class="crm-company-dropdown" t-if="state.adminMenuOpen">
                                 <div class="crm-company-dropdown-header">Admin Quick Links</div>
                                 <a t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
-                                <a href="/odoo/companies" class="crm-admin-menu-item">Companies</a>
-                                <a href="/odoo/action-383" class="crm-admin-menu-item">Quotations</a>
-                                <a href="/odoo/settings/users" class="crm-admin-menu-item">Users</a>
-                                <a href="/odoo/inventory/products" class="crm-admin-menu-item">Products</a>
+                                <a href="/app/companies" class="crm-admin-menu-item">Companies</a>
+                                <a href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
+                                <a href="/app/settings/users" class="crm-admin-menu-item">Users</a>
+                                <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                             </div>
                         </div>
