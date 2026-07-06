@@ -60,11 +60,11 @@ class CrmDashboard extends Component {
             const res = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
                 method: "read",
-                args: [[user.userId], ["groups_id"]],
+                args: [[user.userId], ["group_ids"]],
                 kwargs: {},
             });
             if (res && res[0]) {
-                const groups = res[0].groups_id || [];
+                const groups = res[0].group_ids || [];
                 // Group IDs for Administrator: 4 (Role/Admin), 32 (Administrator)
                 this.state.isAdmin = groups.includes(4) || groups.includes(32) || user.userId === 2 || user.userId === 11;
             } else {
