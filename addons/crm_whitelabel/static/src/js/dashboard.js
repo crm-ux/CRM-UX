@@ -192,7 +192,8 @@ class CrmDashboard extends Component {
         const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]];
         const cd = this.state.isAdmin?[]:(this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]);
         const labels = {draft:"Quote", sent:"Sent", negotiation:"Negotiation", order_expected:"Order Expected", won:"Won"};
-        this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}});
+        const cancelFilter = stage === 'won' ? [] : [["state","!=","cancel"]];
+        this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...cancelFilter,...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}});
     }
     openTerms() { this.actionService.doAction({type:'ir.actions.act_window',name:'Terms & Conditions',res_model:'sale.terms.condition',view_mode:'list,form',views:[[false,'list'],[false,'form']]}); }
     openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
