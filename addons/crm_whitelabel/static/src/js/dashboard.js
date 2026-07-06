@@ -127,8 +127,8 @@ class CrmDashboard extends Component {
     async loadStats() {
         try {
             const activeCids = this.state.selectedCompanies;
-            const cd = activeCids.length ? [["company_id","in",activeCids]] : [];
             const isAdmin = this.state.isAdmin;
+            const cd = isAdmin ? [] : (activeCids.length ? [["company_id","in",activeCids]] : []);
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
             const [
