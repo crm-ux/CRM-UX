@@ -1,20 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="login_custom" name="CRM Login Branding"
-              inherit_id="web.login" priority="20">
-
-        <!-- SAFE branding (no form break) -->
+    <template id="login_custom" name="CRM Login Branding" inherit_id="web.login" priority="20">
         <xpath expr="//form" position="before">
             <div class="text-center mb-4">
-                <div style="width:60px;height:60px;background:#1A56DB;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;">
-                    <span style="color:white;font-size:26px;font-weight:800;">C</span>
+                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;">
+                    <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
-                <div style="font-size:24px;font-weight:800;color:#1A56DB;">CRM Pro</div>
-                <div style="font-size:12px;color:#64748B;margin-top:2px;">
-                    Sales and Lead Management
-                </div>
+                <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
+                <div style="font-size:12px;color:#64748B;margin-top:2px;">Sales and Lead Management</div>
             </div>
         </xpath>
-
+        <xpath expr="//button[@type='submit']" position="attributes">
+            <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
+        </xpath>
     </template>
 </odoo>

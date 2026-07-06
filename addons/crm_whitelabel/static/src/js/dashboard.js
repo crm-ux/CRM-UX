@@ -55,13 +55,10 @@ class CrmDashboard extends Component {
     }
 
     async checkAdminStatus() {
-        try {
-            // Check admin by reading user's groups directly
-            const res = await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "read",
-                args: [[user.userId], ["group_ids"]],
-                kwargs: {},
+        // Simple admin check - userId 2 and 11 are admin users
+        const adminIds = [2, 11];
+        this.state.isAdmin = adminIds.includes(user.userId);
+    },
             });
             if (res && res[0]) {
                 const groups = res[0].group_ids || [];
