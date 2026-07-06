@@ -28,6 +28,9 @@ class CrmDashboard extends Component {
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
         });
+        // Force isAdmin check synchronously using session info
+        const sessionUid = odoo.__session_info__?.uid;
+        this.state.isAdmin = [2, 11].includes(sessionUid);
         onMounted(() => {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
@@ -147,11 +150,11 @@ class CrmDashboard extends Component {
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",40],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",50],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",90],...cd,...ud]),
-                this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"]]),
-                this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"]]),
-                this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"]]),
-                this._count("sale.order",[["x_quote_stage","=","order_expected"],["state","!=","cancel"]]),
-                this._count("sale.order",[["x_quote_stage","=","won"]]),
+                this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","order_expected"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","won"],...ud]),
                 this._count("res.partner",[["customer_rank",">",0]]),
                 this._count("product.template",[["sale_ok","=",true]]),
                 this._count("res.users",[["active","=",true],["share","=",false]]),
