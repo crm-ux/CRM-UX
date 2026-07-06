@@ -378,14 +378,16 @@ class CrmLead(models.Model):
 
     def write(self, vals):
         # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
-        if 'stage_id' in vals and vals.get('stage_id') and not self.env.context.get('bypass_stage_lock'):
+        # Admin (uid=2 or uid=11) can bypass all restrictions
+        is_admin = self.env.user.id in (2, 11) or self.env.user.has_group('base.group_system')
+        if 'stage_id' in vals and vals.get('stage_id') and not self.env.context.get('bypass_stage_lock') and not is_admin:
             new_stage = self.env['crm.stage'].browse(vals['stage_id'])
             for rec in self:
                 if rec.stage_id and rec.stage_id.sequence > 7 and new_stage.sequence < rec.stage_id.sequence:
                     raise UserError(_(
                         'You cannot move this lead back to an earlier stage once it has passed Technical Discussion.'
                     ))
-            # Block manually setting Quotes/Negotiation/Won stages - must go through the quote action buttons
+            # Block manually setting Negotiation/Won stages - must go through the quote action buttons
             if new_stage.sequence in (40, 90):
                 raise UserError(_(
                     'The "%s" stage can only be reached automatically when a quotation is Sent, '
