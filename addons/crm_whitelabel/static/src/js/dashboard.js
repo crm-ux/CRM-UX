@@ -58,20 +58,9 @@ class CrmDashboard extends Component {
         // Simple admin check - userId 2 and 11 are admin users
         const adminIds = [2, 11];
         this.state.isAdmin = adminIds.includes(user.userId);
-    },
-            });
-            if (res && res[0]) {
-                const groups = res[0].group_ids || [];
-                // Group IDs for Administrator: 4 (Role/Admin), 32 (Administrator)
-                this.state.isAdmin = groups.includes(4) || groups.includes(32) || user.userId === 2 || user.userId === 11;
-            } else {
-                this.state.isAdmin = user.userId === 2 || user.userId === 11;
-            }
-        } catch(e) {
-            this.state.isAdmin = user.userId === 2 || user.userId === 11;
-        }
     }
-    async loadCompanyInfo() {
+
+        async loadCompanyInfo() {
         try {
             const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name","logo_web"], limit:20 } });
             if (res && res.length > 0) {
