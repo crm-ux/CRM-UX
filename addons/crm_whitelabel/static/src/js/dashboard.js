@@ -21,7 +21,7 @@ class CrmDashboard extends Component {
             greeting: "", todayDate: "",
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
-            isAdmin: false,
+            isAdmin: [2, 11].includes(user.userId),
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false,
