@@ -21,7 +21,7 @@ class CrmDashboard extends Component {
             greeting: "", todayDate: "",
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
-            isAdmin: [2, 11].includes(user.userId),
+            isAdmin: user.isAdmin || [2, 11].includes(user.userId),
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false,
@@ -59,9 +59,7 @@ class CrmDashboard extends Component {
     }
 
     async checkAdminStatus() {
-        // Simple admin check - userId 2 and 11 are admin users
-        const adminIds = [2, 11];
-        this.state.isAdmin = adminIds.includes(user.userId);
+        this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
     }
 
         async loadCompanyInfo() {
