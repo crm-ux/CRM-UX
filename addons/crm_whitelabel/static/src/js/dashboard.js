@@ -202,14 +202,19 @@ class CrmDashboard extends Component {
     openWon() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
+        const ud = this.state.isAdmin ? [] : [["user_id","=",user.userId]];
         if (seq >= 30) {
-            // For Quotes/Negotiation/Won stages, open linked sale.order so clicking opens the quote directly
-            const stageMap = {30:'draft', 40:'negotiation', 90:'won'};
+            const stageMap = {30:'draft', 35:'sent', 40:'negotiation', 50:'order_expected', 90:'won'};
             const qStage = stageMap[seq];
-            const domain = qStage ? [["x_quote_stage","=",qStage]] : [["x_quote_stage","not in",["lost"]]];
-            this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:domain,context:{allowed_company_ids:this.state.selectedCompanies}});
+            if (qStage) {
+                this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",
+                    views:[[false,"list"],[false,"form"]],
+                    domain:[["x_quote_stage","=",qStage],["state","!=","cancel"],["opportunity_id","!=",false],...ud]});
+            }
         } else {
-            this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_stage_sequence","=",seq]]});
+            this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",
+                views:[[false,"list"],[false,"form"]],
+                domain:[["active","=",true],["x_stage_sequence","=",seq],...ud]});
         }
     }
     newLead() { this.go(405); }
