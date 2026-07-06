@@ -1,4 +1,4 @@
-from odoo import models, api
+from odoo import models, api, fields
 
 class ResPartnerPatch(models.Model):
     _inherit = 'res.partner'
