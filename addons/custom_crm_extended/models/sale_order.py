@@ -222,7 +222,6 @@ class SaleOrder(models.Model):
             ('sent',           'Sent'),
             ('negotiation',    'Negotiation'),
             ('order_expected', 'Order Expected'),
-            ('po_received',    'PO Received'),
             ('won',            'Won'),
             ('lost',           'Lost'),
         ],
