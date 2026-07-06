@@ -137,42 +137,24 @@ class CrmDashboard extends Component {
     }
     async loadStats() {
         try {
-            const activeCids = this.state.selectedCompanies;
             const isAdmin = this.state.isAdmin;
-            const cd = [];
-            const ud = isAdmin ? [] : [["user_id","=",user.userId]];
-            const todayStr = new Date().toISOString().split('T')[0];
-            const [
-                stageLead, stageContacted, stageTechDisc, stageQualified,
-                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
-                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
-                exhibitionContacts,
-            ] = await Promise.all([
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",5],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",7],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",10],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",20],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",30],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",35],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",40],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",50],...cd,...ud]),
-                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",90],...cd,...ud]),
-                this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...ud]),
-                this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...ud]),
-                this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...ud]),
-                this._count("sale.order",[["x_quote_stage","=","order_expected"],["state","!=","cancel"],...ud]),
-                this._count("sale.order",[["x_quote_stage","=","won"],...ud]),
-                this._count("res.partner",[["customer_rank",">",0]]),
-                this._count("product.template",[["sale_ok","=",true]]),
-                this._count("res.users",[["active","=",true],["share","=",false]]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...cd,...ud]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...cd,...ud]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
-                this._count("exhibition.contact",[]),
-            ]);
+            // Single RPC call for all stats
+            const s = await rpc("/web/dataset/call_kw", {
+                model: "crm.lead", method: "get_dashboard_stats",
+                args: [user.userId, isAdmin], kwargs: {}
+            });
+            const lc = s.lead_counts || {}, qc = s.quote_counts || {};
+            const stageLead = lc[0]||0, stageContacted = lc[5]||0, stageTechDisc = lc[7]||0;
+            const stageQualified = lc[10]||0, stageOpportunity = lc[20]||0, stageQuotes = lc[30]||0;
+            const stageSent = lc[35]||0, stageNegotiation = lc[40]||0, stageOrderExp = lc[50]||0;
+            const stageWon = lc[90]||0;
+            const quotesDraft = qc['draft']||0, quotesSent = qc['sent']||0;
+            const quotesNeg = qc['negotiation']||0, quotesOrderExp = qc['order_expected']||0;
+            const won = qc['won']||0;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
+            const customers = s.customers||0, products = s.products||0, users = s.users||0;
+            const quoteRevenue = s.quote_revenue||0, wonRevenue = s.won_revenue||0;
+            const todayRevenue = s.today_revenue||0, exhibitionContacts = s.exhibition||0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
             Object.assign(this.state, { exhibitionContacts,
                 leads, qualified, opportunity:opp,

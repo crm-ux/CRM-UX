@@ -847,3 +847,65 @@ class ResPartnerContactName(models.Model):
         return super().name_get()
 
 
+
+
+class DashboardStats(models.Model):
+    _inherit = 'crm.lead'
+
+    @api.model
+    def get_dashboard_stats(self, user_id, is_admin):
+        """Return all dashboard stats in a single DB round-trip."""
+        uid = user_id
+        cr = self.env.cr
+
+        # Lead stage counts
+        lead_domain = [('active', '=', True)]
+        if not is_admin:
+            lead_domain.append(('user_id', '=', uid))
+        leads = self.env['crm.lead'].read_group(
+            lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
+        lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
+
+        # Quote stage counts
+        quote_domain = [('state', '!=', 'cancel')]
+        if not is_admin:
+            quote_domain.append(('user_id', '=', uid))
+        quotes = self.env['sale.order'].read_group(
+            quote_domain, ['x_quote_stage'], ['x_quote_stage'])
+        quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
+
+        # Revenue
+        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')])
+        won_revenue = sum(won_orders.mapped('amount_total'))
+
+        pending_orders = self.env['sale.order'].search([
+            ('x_quote_stage', 'not in', ['won', 'lost']),
+            ('state', '!=', 'cancel')
+        ])
+        quote_revenue = sum(pending_orders.mapped('amount_total'))
+
+        from datetime import date
+        today = date.today().strftime('%Y-%m-%d')
+        today_orders = self.env['sale.order'].search([
+            ('x_quote_stage', '=', 'won'),
+            ('date_order', '>=', today + ' 00:00:00')
+        ])
+        today_revenue = sum(today_orders.mapped('amount_total'))
+
+        # Other counts
+        customers = self.env['res.partner'].search_count([('customer_rank', '>', 0)])
+        products = self.env['product.template'].search_count([('sale_ok', '=', True)])
+        users = self.env['res.users'].search_count([('active', '=', True), ('share', '=', False)])
+        exhibition = self.env['exhibition.contact'].search_count([])
+
+        return {
+            'lead_counts': lead_counts,
+            'quote_counts': quote_counts,
+            'won_revenue': won_revenue,
+            'quote_revenue': quote_revenue,
+            'today_revenue': today_revenue,
+            'customers': customers,
+            'products': products,
+            'users': users,
+            'exhibition': exhibition,
+        }
