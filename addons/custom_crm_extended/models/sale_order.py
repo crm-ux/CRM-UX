@@ -473,6 +473,28 @@ class SaleOrder(models.Model):
         if self.opportunity_id:
             self.opportunity_id.action_move_to_negotiation_sync()
 
+    def action_admin_move_back(self):
+        self.ensure_one()
+        stage_order = ['draft', 'sent', 'negotiation', 'order_expected', 'won']
+        current = self.x_quote_stage
+        if current in stage_order:
+            idx = stage_order.index(current)
+            if idx > 0:
+                prev_stage = stage_order[idx - 1]
+                self.x_quote_stage = prev_stage
+                self.x_final_quote_locked = False
+                self.message_post(body=_('Quote moved back to <b>%s</b> by admin.') % prev_stage.title())
+                if self.opportunity_id:
+                    sync_map = {
+                        'draft': 30, 'sent': 35, 'negotiation': 40,
+                        'order_expected': 50, 'won': 90
+                    }
+                    seq = sync_map.get(prev_stage)
+                    if seq:
+                        stage = self.opportunity_id._get_stage_by_sequence(seq)
+                        if stage:
+                            self.opportunity_id.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
+
     def action_move_to_order_expected(self):
         self.ensure_one()
         if self.env.user.id != 2 and self.user_id.id != self.env.user.id:

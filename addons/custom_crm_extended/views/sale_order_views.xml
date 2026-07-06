@@ -99,6 +99,9 @@
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
+                <button name="action_admin_move_back" string="↩ Move Back" type="object"
+                        class="btn-secondary"
+                        groups="base.group_system"/>
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
