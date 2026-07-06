@@ -142,31 +142,36 @@ class CrmDashboard extends Component {
             const cd = [];
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
-            // Optimized: 3 grouped calls instead of 20 separate calls
-            const [leadGroups, quoteGroups, misc] = await Promise.all([
-                this._groupCount("crm.lead","x_stage_sequence",[["active","=",true],...ud]),
-                this._groupCount("sale.order","x_quote_stage",[["state","!=","cancel"],...ud]),
-                Promise.all([
+            const [
+                stageLead, stageContacted, stageTechDisc, stageQualified,
+                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
+                quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                exhibitionContacts,
+            ] = await Promise.all([
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",5],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",7],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",10],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",20],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",30],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",35],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",40],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",50],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",90],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","order_expected"],["state","!=","cancel"],...ud]),
+                this._count("sale.order",[["x_quote_stage","=","won"],...ud]),
                 this._count("res.partner",[["customer_rank",">",0]]),
                 this._count("product.template",[["sale_ok","=",true]]),
                 this._count("res.users",[["active","=",true],["share","=",false]]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...ud]),
-                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"]]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...cd,...ud]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...cd,...ud]),
+                this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
                 this._count("exhibition.contact",[]),
-            ])]);
-            const [customers, products, users, quoteRevenue, wonRevenue, todayRevenue, exhibitionContacts] = misc;
-            // Extract lead stage counts from grouped result (keys are strings)
-            const g = leadGroups;
-            const stageLead = g['0']||g[0]||0, stageContacted = g['5']||g[5]||0, stageTechDisc = g['7']||g[7]||0;
-            const stageQualified = g['10']||g[10]||0, stageOpportunity = g['20']||g[20]||0, stageQuotes = g['30']||g[30]||0;
-            const stageSent = g['35']||g[35]||0, stageNegotiation = g['40']||g[40]||0, stageOrderExp = g['50']||g[50]||0;
-            const stageWon = g['90']||g[90]||0;
-            // Extract quote stage counts from grouped result
-            const q = quoteGroups;
-            const quotesDraft = q['draft']||0, quotesSent = q['sent']||0;
-            const quotesNeg = q['negotiation']||0, quotesOrderExp = q['order_expected']||0;
-            const won = q['won']||0;
+            ]);
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
             Object.assign(this.state, { exhibitionContacts,
