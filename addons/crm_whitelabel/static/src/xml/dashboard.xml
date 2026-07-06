@@ -189,6 +189,11 @@
                     <div class="crm-pipe-lbl">Quotes</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="35">
+                    <div class="crm-pipe-num"><t t-esc="state.stageSent"/></div>
+                    <div class="crm-pipe-lbl">Sent</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="40">
                     <div class="crm-pipe-num"><t t-esc="state.stageNegotiation"/></div>
                     <div class="crm-pipe-lbl">Negotiation</div>

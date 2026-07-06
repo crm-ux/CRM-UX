@@ -11,7 +11,7 @@ class CrmDashboard extends Component {
         this.actionService = useService("action");
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
-            stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0,
+            stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0, stageSent:0,
             stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
             quotesDraft:0, quotesSent:0, quotesNeg:0, quotesOrderExp:0, exhibitionContacts:0,
             customers: 0, quotes: 0, products: 0, users: 0,
@@ -133,7 +133,7 @@ class CrmDashboard extends Component {
             const todayStr = new Date().toISOString().split('T')[0];
             const [
                 stageLead, stageContacted, stageTechDisc, stageQualified,
-                stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
+                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue
             ] = await Promise.all([
@@ -143,6 +143,7 @@ class CrmDashboard extends Component {
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",10],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",20],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",30],...cd,...ud]),
+                this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",35],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",40],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",50],...cd,...ud]),
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",90],...cd,...ud]),
@@ -170,7 +171,7 @@ class CrmDashboard extends Component {
             Object.assign(this.state, { exhibitionContacts,
                 leads, qualified, opportunity:opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
-                stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
+                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue
             });

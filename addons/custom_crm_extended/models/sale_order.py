@@ -442,7 +442,7 @@ class SaleOrder(models.Model):
         """Override default send action to mark stage as Sent."""
         self.ensure_one()
         result = super().action_quotation_send()
-        if self.x_quote_stage == 'draft':
+        if self.x_quote_stage in ('draft', 'new'):
             self.x_quote_stage = 'sent'
             self.message_post(body=_('Quote marked as <b>Sent</b>.'))
             if self.opportunity_id:
