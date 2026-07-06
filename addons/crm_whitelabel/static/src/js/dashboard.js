@@ -128,7 +128,7 @@ class CrmDashboard extends Component {
         try {
             const activeCids = this.state.selectedCompanies;
             const isAdmin = this.state.isAdmin;
-            const cd = isAdmin ? [] : (activeCids.length ? [["company_id","in",activeCids]] : []);
+            const cd = [];
             const ud = isAdmin ? [] : [["user_id","=",user.userId]];
             const todayStr = new Date().toISOString().split('T')[0];
             const [
