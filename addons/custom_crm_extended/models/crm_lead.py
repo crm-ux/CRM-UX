@@ -377,10 +377,12 @@ class CrmLead(models.Model):
             self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
 
     def action_move_to_sent_sync(self):
-        """Called by sale.order when quote is sent - keeps lead in Quotes stage."""
-        stage = self._get_stage_by_sequence(30)
-        if stage and (not self.stage_id or self.stage_id.sequence < 30):
-            self.with_context(bypass_stage_lock=True).stage_id = stage
+        """Called by sale.order when quote is sent - moves lead to Sent stage (seq 35)."""
+        stage = self._get_stage_by_sequence(35)
+        if not stage:
+            stage = self._get_stage_by_sequence(30)
+        if stage and (not self.stage_id or self.stage_id.sequence < 35):
+            self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
 
     def write(self, vals):
         # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
