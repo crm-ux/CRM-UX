@@ -233,6 +233,15 @@
 
 
 
+                <div class="crm-pro-panel" style="border-left:4px solid #6366f1;">
+                    <div class="crm-panel-head"><div><h2>This Month Reminders</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric"><strong>—</strong><span>Upcoming Events</span></div>
+                        <div class="crm-metric"><strong>—</strong><span>Meetings</span></div>
+                        <div class="crm-metric"><strong>—</strong><span>Targets</span></div>
+                    </div>
+                    <p class="crm-panel-note">Upcoming events, meetings and monthly targets.</p>
+                </div>
                 <div class="crm-pro-panel" style="border-left:4px solid #ff6b35;" t-on-click="openExhibition">
                     <div class="crm-panel-head"><div><h2>Customer Database</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
