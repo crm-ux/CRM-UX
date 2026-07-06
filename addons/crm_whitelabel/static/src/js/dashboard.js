@@ -22,6 +22,7 @@ class CrmDashboard extends Component {
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
             isAdmin: user.isAdmin || [2, 11].includes(user.userId),
+            loading: true,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false,
@@ -161,7 +162,8 @@ class CrmDashboard extends Component {
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
-                customers, products, users, quoteRevenue, wonRevenue, todayRevenue
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                loading: false
             });
         } catch(e) { console.log("Dashboard error:", e); }
     }
