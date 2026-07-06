@@ -156,12 +156,12 @@ class CrmDashboard extends Component {
                 this._count("exhibition.contact",[]),
             ])]);
             const [customers, products, users, quoteRevenue, wonRevenue, todayRevenue, exhibitionContacts] = misc;
-            // Extract lead stage counts from grouped result
+            // Extract lead stage counts from grouped result (keys are strings)
             const g = leadGroups;
-            const stageLead = g[0]||0, stageContacted = g[5]||0, stageTechDisc = g[7]||0;
-            const stageQualified = g[10]||0, stageOpportunity = g[20]||0, stageQuotes = g[30]||0;
-            const stageSent = g[35]||0, stageNegotiation = g[40]||0, stageOrderExp = g[50]||0;
-            const stageWon = g[90]||0;
+            const stageLead = g['0']||g[0]||0, stageContacted = g['5']||g[5]||0, stageTechDisc = g['7']||g[7]||0;
+            const stageQualified = g['10']||g[10]||0, stageOpportunity = g['20']||g[20]||0, stageQuotes = g['30']||g[30]||0;
+            const stageSent = g['35']||g[35]||0, stageNegotiation = g['40']||g[40]||0, stageOrderExp = g['50']||g[50]||0;
+            const stageWon = g['90']||g[90]||0;
             // Extract quote stage counts from grouped result
             const q = quoteGroups;
             const quotesDraft = q['draft']||0, quotesSent = q['sent']||0;
