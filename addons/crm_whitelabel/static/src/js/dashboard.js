@@ -56,21 +56,13 @@ class CrmDashboard extends Component {
 
     async checkAdminStatus() {
         try {
-            // Check if user has Administrator group
             const res = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
                 method: "has_group",
-                args: ["base.group_system"],
+                args: [user.userId, "base.group_system"],
                 kwargs: {},
             });
-            // Also check by group name for custom admin groups
-            const res2 = await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "has_group",
-                args: ["base.group_erp_manager"],
-                kwargs: {},
-            });
-            this.state.isAdmin = res || res2 || user.userId === 2 || user.userId === 11;
+            this.state.isAdmin = res || user.userId === 2 || user.userId === 11;
         } catch(e) {
             this.state.isAdmin = user.userId === 2 || user.userId === 11;
         }
