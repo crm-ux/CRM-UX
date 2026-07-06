@@ -27,4 +27,11 @@
             <attribute name="style">display:none !important;</attribute>
         </xpath>
     </template>
-</odoo>
+
+    <!-- Override website favicon -->
+    <template id="crm_website_favicon" inherit_id="website.layout" priority="99">
+        <xpath expr="//t[@t-set='x_icon']" position="replace">
+            <t t-set="x_icon" t-value="'/web/static/img/favicon.ico?v=5'"/>
+        </xpath>
+    </template>
+</odoo><!-- This is already in the file, just keeping reference -->
