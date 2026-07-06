@@ -370,6 +370,12 @@ class CrmLead(models.Model):
         if stage:
             self.with_context(bypass_stage_lock=True).stage_id = stage
 
+    def action_move_to_order_expected_sync(self):
+        """Called by sale.order when quote moves to Order Expected - syncs lead stage."""
+        stage = self._get_stage_by_sequence(50)
+        if stage:
+            self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
+
     def action_move_to_sent_sync(self):
         """Called by sale.order when quote is sent - keeps lead in Quotes stage."""
         stage = self._get_stage_by_sequence(30)
@@ -518,8 +524,3 @@ class ResPartnerRestrict(models.Model):
         return super().create(vals_list)
 
 
-    def action_move_to_order_expected_sync(self):
-        """Called by sale.order when quote moves to Order Expected - syncs lead stage."""
-        stage = self._get_stage_by_sequence(50)
-        if stage:
-            self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
