@@ -15,9 +15,9 @@
         </xpath>
     </template>
 
-    <!-- Hide website top menu on login page -->
-    <template id="hide_website_nav" inherit_id="website.layout" priority="99">
-        <xpath expr="//header" position="attributes">
+    <!-- Hide website navbar on login page -->
+    <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
+        <xpath expr="//nav" position="attributes">
             <attribute name="style">display:none !important;</attribute>
         </xpath>
     </template>
