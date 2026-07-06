@@ -439,15 +439,26 @@ class SaleOrder(models.Model):
         )
 
     def action_quotation_send(self):
-        """Override default send action to mark stage as Sent."""
+        """Override default send action to mark stage as Sent immediately."""
         self.ensure_one()
-        result = super().action_quotation_send()
-        if self.x_quote_stage in ('draft', 'new'):
+        # Auto-set stage to Sent regardless of email result
+        if self.x_quote_stage in ('draft', 'new', 'draft'):
             self.x_quote_stage = 'sent'
-            self.message_post(body=_('Quote marked as <b>Sent</b>.'))
             if self.opportunity_id:
                 self.opportunity_id.action_move_to_sent_sync()
+        try:
+            result = super().action_quotation_send()
+        except Exception:
+            result = {'type': 'ir.actions.act_window_close'}
         return result
+
+    def action_move_to_negotiation_from_sent(self):
+        """Move quote from Sent to Negotiation stage."""
+        self.ensure_one()
+        self.x_quote_stage = 'negotiation'
+        self.message_post(body=_('Quote moved to <b>Negotiation</b>.'))
+        if self.opportunity_id:
+            self.opportunity_id.action_move_to_negotiation_sync()
 
     def action_move_to_negotiation(self):
         """Move quote stage to Negotiation. Admin can move any quote, user only their own. Unlocks the quote, clears PO so it must be re-entered."""

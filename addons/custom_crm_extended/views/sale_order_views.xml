@@ -79,21 +79,23 @@
                 <button name="action_print_custom_pdf" string="Print" type="object" class="btn-secondary"/>
                 <button name="action_quotation_send" string="Send" type="object"
                         context="{'validate_analytic': True, 'check_document_layout': True}"
-                        class="btn-secondary"/>
+                        class="btn-secondary"
+                        invisible="x_quote_stage not in ['draft','new']"/>
+                <button name="action_move_to_negotiation_from_sent" string="Negotiation" type="object"
+                        class="btn-info"
+                        invisible="x_quote_stage != 'sent'"/>
+                <button name="action_move_to_order_expected" string="Order Expected" type="object"
+                        class="btn-info"
+                        invisible="x_quote_stage != 'negotiation'"/>
                 <button name="action_lock_final_quote" string="Lock" type="object"
                         class="btn-secondary"
                         invisible="x_final_quote_locked"/>
-                <button name="action_apply_overall_discount" string="Apply" type="object"
-                        class="btn-secondary" title="Apply GST and Discount to lines" invisible="1"/>
                 <button name="action_mark_won" string="Won" type="object"
                         class="btn-success"
                         invisible="x_quote_stage == 'won'"/>
                 <button name="action_mark_lost" string="Lost" type="object"
                         class="btn-danger"
                         invisible="x_quote_stage == 'lost'"/>
-                <button name="action_move_to_order_expected" string="Order Expected" type="object"
-                        class="btn-info"
-                        invisible="x_quote_stage != 'negotiation'"/>
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
