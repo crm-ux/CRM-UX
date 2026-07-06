@@ -91,6 +91,9 @@
                 <button name="action_mark_lost" string="Lost" type="object"
                         class="btn-danger"
                         invisible="x_quote_stage == 'lost'"/>
+                <button name="action_move_to_order_expected" string="Order Expected" type="object"
+                        class="btn-info"
+                        invisible="x_quote_stage != 'negotiation'"/>
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>

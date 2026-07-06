@@ -218,12 +218,13 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     x_quote_stage = fields.Selection(
         selection=[
-            ('draft',       'New'),
-            ('sent',        'Sent'),
-            ('negotiation', 'Negotiation'),
-            ('po_received', 'PO Received'),
-            ('won',         'Won'),
-            ('lost',        'Lost'),
+            ('draft',          'New'),
+            ('sent',           'Sent'),
+            ('negotiation',    'Negotiation'),
+            ('order_expected', 'Order Expected'),
+            ('po_received',    'PO Received'),
+            ('won',            'Won'),
+            ('lost',           'Lost'),
         ],
         string='Quote Stage',
         default='draft',
@@ -461,6 +462,15 @@ class SaleOrder(models.Model):
         self.message_post(body=_('Quote moved back to <b>Negotiation</b>, unlocked, and PO number cleared.'))
         if self.opportunity_id:
             self.opportunity_id.action_move_to_negotiation_sync()
+
+    def action_move_to_order_expected(self):
+        self.ensure_one()
+        if self.env.user.id != 2 and self.user_id.id != self.env.user.id:
+            raise UserError(_('You can only move your own quotes.'))
+        self.x_quote_stage = 'order_expected'
+        self.message_post(body=_('Quote moved to <b>Order Expected</b>.'))
+        if self.opportunity_id:
+            self.opportunity_id.action_move_to_order_expected_sync()
 
     def action_mark_won(self):
         """Mark quote as Won - opens PO entry popup if PO number missing, else confirms directly."""

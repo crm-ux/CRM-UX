@@ -222,6 +222,7 @@
                         <div class="crm-metric" style="cursor:pointer;" t-on-click="() => this.openQuoteStage('draft')"><strong><t t-esc="state.quotesDraft"/></strong><span>Quote</span></div>
                         <div class="crm-metric" style="cursor:pointer;" t-on-click="() => this.openQuoteStage('sent')"><strong><t t-esc="state.quotesSent"/></strong><span>Sent</span></div>
                         <div class="crm-metric" style="cursor:pointer;" t-on-click="() => this.openQuoteStage('negotiation')"><strong><t t-esc="state.quotesNeg"/></strong><span>Negotiation</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click="() => this.openQuoteStage('order_expected')"><strong><t t-esc="state.quotesOrderExp"/></strong><span>Order Expected</span></div>
                         <div class="crm-metric" style="cursor:pointer;" t-on-click="() => this.openQuoteStage('won')"><strong><t t-esc="state.won"/></strong><span>Won</span></div>
                     </div>
                     <p class="crm-panel-note">Create, preview and send professional quotations to clients.</p>

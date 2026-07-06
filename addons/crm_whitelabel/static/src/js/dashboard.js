@@ -13,7 +13,7 @@ class CrmDashboard extends Component {
             leads: 0, qualified: 0, opportunity: 0, won: 0,
             stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0,
             stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
-            quotesDraft:0, quotesSent:0, quotesNeg:0, exhibitionContacts:0,
+            quotesDraft:0, quotesSent:0, quotesNeg:0, quotesOrderExp:0, exhibitionContacts:0,
             customers: 0, quotes: 0, products: 0, users: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
@@ -133,7 +133,7 @@ class CrmDashboard extends Component {
             const [
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
-                quotesDraft, quotesSent, quotesNeg, won,
+                quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue
             ] = await Promise.all([
                 this._count("crm.lead",[["active","=",true],["x_stage_sequence","=",0],...cd,...ud]),
@@ -148,6 +148,7 @@ class CrmDashboard extends Component {
                 this._count("sale.order",[["x_quote_stage","=","draft"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","sent"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","negotiation"],["state","!=","cancel"],...cd,...ud]),
+                this._count("sale.order",[["x_quote_stage","=","order_expected"],["state","!=","cancel"],...cd,...ud]),
                 this._count("sale.order",[["x_quote_stage","=","won"],...cd,...ud]),
                 this._count("res.partner",[["customer_rank",">",0]]),
                 this._count("product.template",[["sale_ok","=",true]]),
@@ -156,7 +157,7 @@ class CrmDashboard extends Component {
                 this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],...cd,...ud]),
                 this._sum("sale.order","amount_total",[["x_quote_stage","=","won"],["date_order",">=",todayStr+" 00:00:00"],...cd]),
             ]);
-            const quotes = quotesDraft + quotesSent + quotesNeg;
+            const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const leads = stageLead;
             const qualified = stageQualified;
             const opp = stageOpportunity;
@@ -169,7 +170,7 @@ class CrmDashboard extends Component {
                 leads, qualified, opportunity:opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, won,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue
             });
         } catch(e) { console.log("Dashboard error:", e); }
