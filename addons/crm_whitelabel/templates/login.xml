@@ -15,23 +15,9 @@
         </xpath>
     </template>
 
-    <!-- Set favicon for login page -->
-    <template id="login_favicon" inherit_id="web.login_layout" priority="99">
-        <xpath expr="//link[@rel='shortcut icon']" position="attributes">
-            <attribute name="href">/web/static/img/favicon.ico?v=3</attribute>
-        </xpath>
-    </template>
-
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
         <xpath expr="//nav" position="attributes">
             <attribute name="style">display:none !important;</attribute>
         </xpath>
     </template>
-
-    <!-- Override website favicon -->
-    <template id="crm_website_favicon" inherit_id="website.layout" priority="99">
-        <xpath expr="//t[@t-set='x_icon']" position="replace">
-            <t t-set="x_icon" t-value="'/web/static/img/favicon.ico?v=5'"/>
-        </xpath>
-    </template>
-</odoo><!-- This is already in the file, just keeping reference -->
+</odoo>
