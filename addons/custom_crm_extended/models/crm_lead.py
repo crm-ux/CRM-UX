@@ -517,3 +517,9 @@ class ResPartnerRestrict(models.Model):
                     raise UserError('Only Admin and Dhruvil Shah can create new companies.')
         return super().create(vals_list)
 
+
+    def action_move_to_order_expected_sync(self):
+        """Called by sale.order when quote moves to Order Expected - syncs lead stage."""
+        stage = self._get_stage_by_sequence(50)
+        if stage:
+            self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
