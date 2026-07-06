@@ -12,6 +12,10 @@
         </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
+            <attribute name="onclick">this.innerHTML='&lt;span style=&quot;display:inline-block;width:16px;height:16px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:crm-spin 0.7s linear infinite;vertical-align:middle;&quot;&gt;&lt;/span&gt; Signing in...';this.disabled=true;this.form.submit();</attribute>
+        </xpath>
+        <xpath expr="//form" position="inside">
+            <style>@keyframes crm-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
         </xpath>
     </template>
 
