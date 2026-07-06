@@ -35,7 +35,7 @@
                                 <a href="/app/settings/users" class="crm-admin-menu-item">Users</a>
                                 <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
-                                <a href="/app/action-ir.action_sequence_form" class="crm-admin-menu-item">Quote Series</a>
+                                <a href="/app/action-29" class="crm-admin-menu-item">Quote Series</a>
                             </div>
                         </div>
                     </div>
