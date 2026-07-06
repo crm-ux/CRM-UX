@@ -216,6 +216,16 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     # 7. QUOTE STATUS STAGE (beyond default state)
     # ------------------------------------------------------------------
+    x_quote_type = fields.Selection([
+        ('lead', 'Lead Quote'),
+        ('direct', 'Direct Quote'),
+    ], string='Quote Type', compute='_compute_quote_type', store=True)
+
+    @api.depends('opportunity_id')
+    def _compute_quote_type(self):
+        for rec in self:
+            rec.x_quote_type = 'lead' if rec.opportunity_id else 'direct'
+
     x_quote_stage = fields.Selection(
         selection=[
             ('draft',          'New'),
