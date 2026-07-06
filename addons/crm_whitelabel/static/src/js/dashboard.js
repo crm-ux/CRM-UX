@@ -59,8 +59,9 @@ class CrmDashboard extends Component {
             const res = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
                 method: "has_group",
-                args: [user.userId, "base.group_system"],
+                args: ["base.group_system"],
                 kwargs: {},
+                context: { active_id: user.userId },
             });
             this.state.isAdmin = res || user.userId === 2 || user.userId === 11;
         } catch(e) {
