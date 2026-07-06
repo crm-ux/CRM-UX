@@ -26,6 +26,7 @@
             'crm_whitelabel/static/src/js/statusbar_override.js',
         ],
     },
+    'controllers': ['controllers/main.py'],
     'installable': True,
     'auto_install': False,
     'license': 'LGPL-3',
