@@ -30,9 +30,10 @@ class CrmDashboard extends Component {
         });
         onMounted(() => {
             this.checkAdminStatus().then(() => {
-                this.loadStats();
+                this.loadCompanies().then(() => {
+                    this.loadStats();
+                });
             });
-            this.loadCompanies();
             this.loadNotifCount();
             this.loadCompanyInfo();
             this.setGreeting();
