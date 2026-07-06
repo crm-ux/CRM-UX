@@ -2,12 +2,12 @@
 <odoo>
     <template id="login_custom" name="CRM Login Branding" inherit_id="web.login" priority="20">
         <xpath expr="//div[@id='oe_structure_login_top']" position="after">
-            <div class="text-center mb-4">
-                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;">
+            <div class="text-center" style="padding-top:30px;margin-bottom:20px;">
+                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
                     <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
                 <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
-                <div style="font-size:12px;color:#64748B;margin-top:2px;">Sales and Lead Management</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
             </div>
         </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
