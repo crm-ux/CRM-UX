@@ -10,3 +10,15 @@ class ResPartnerPatch(models.Model):
                 result.append((partner.id, partner.name or ''))
             return result
         return super().name_get()
+
+
+class ResUsersNotificationPatch(models.Model):
+    _inherit = 'res.users'
+
+    notification_type = fields.Selection(
+        selection_add=[],
+        selection=[
+            ('email', 'By Email'),
+            ('inbox', 'In System'),
+        ]
+    )
