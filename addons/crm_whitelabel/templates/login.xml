@@ -14,4 +14,11 @@
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
     </template>
+
+    <!-- Hide website top menu on login page -->
+    <template id="hide_website_nav" inherit_id="website.layout" priority="99">
+        <xpath expr="//header" position="attributes">
+            <attribute name="style">display:none !important;</attribute>
+        </xpath>
+    </template>
 </odoo>
