@@ -211,16 +211,7 @@
             </div>
             <!-- CARDS -->
             <div class="crm-pro-grid">
-                <div class="crm-pro-panel crm-lead-panel" t-on-click="openLeads">
-                    <div class="crm-panel-head"><div><h2>Lead Management</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.leads"/></strong><span>New Leads</span></div>
-                        <div class="crm-metric"><strong><t t-esc="state.qualified"/></strong><span>Qualified</span></div>
-                        <div class="crm-metric"><strong><t t-esc="state.opportunity"/></strong><span>Opportunity</span></div>
-                        <div class="crm-metric"><strong><t t-esc="state.won"/></strong><span>Won</span></div>
-                    </div>
-                    <p class="crm-panel-note">Track enquiry progress and convert leads into quotations.</p>
-                </div>
+
                 <div class="crm-pro-panel crm-quote-panel">
                     <div class="crm-panel-head" t-on-click="openQuotes" style="cursor:pointer;"><div><h2>Quote Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -239,28 +230,9 @@
                     </div>
                     <p class="crm-panel-note">View customer records, company details and communication history.</p>
                 </div>
-                <div class="crm-pro-panel crm-product-panel" t-on-click="openProducts">
-                    <div class="crm-panel-head"><div><h2>Product Management</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.products"/></strong><span>Products</span></div>
-                    </div>
-                    <p class="crm-panel-note">Manage product catalogue, pricing, HSN/SAC and brand details.</p>
-                </div>
-                <div class="crm-pro-panel crm-user-panel" t-on-click="openUsers">
-                    <div class="crm-panel-head"><div><h2>User Management</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.users"/></strong><span>Active Users</span></div>
-                    </div>
-                    <p class="crm-panel-note">Manage team members, roles and access permissions.</p>
-                </div>
-                <div class="crm-pro-panel crm-won-panel" t-on-click="openWon">
-                    <div class="crm-panel-head"><div><h2>Won Deals</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.won"/></strong><span>Closed Won</span></div>
-                        <div class="crm-metric"><strong><t t-esc="fmt(state.wonRevenue)"/></strong><span>Total Value</span></div>
-                    </div>
-                    <p class="crm-panel-note">Review all successfully closed deals and revenue achieved.</p>
-                </div>
+
+
+
                 <div class="crm-pro-panel" style="border-left:4px solid #ff6b35;" t-on-click="openExhibition">
                     <div class="crm-panel-head"><div><h2>Customer Database</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
