@@ -7,6 +7,18 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
+class ExhibitionCategory(models.Model):
+    _name = 'exhibition.category'
+    _description = 'Exhibition Contact Category'
+
+    name = fields.Char(string='Category Name', required=True)
+    color = fields.Integer(string='Color')
+
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)', 'Category name must be unique!')
+    ]
+
+
 class ExhibitionContactPhone(models.Model):
     _name = 'exhibition.contact.phone'
     _description = 'Exhibition Contact Phone'
@@ -47,13 +59,7 @@ class ExhibitionContact(models.Model):
     x_state = fields.Char(string='State')
     country = fields.Char(string='Country')
     notes = fields.Text(string='Notes')
-    category = fields.Selection([
-        ('prospect', 'Prospect'),
-        ('customer', 'Customer'),
-        ('vendor', 'Vendor'),
-        ('partner', 'Partner'),
-        ('other', 'Other'),
-    ], string='Category', default='prospect')
+    category_id = fields.Many2one('exhibition.category', string='Category')
     exhibition_name = fields.Char(string='Exhibition / Event Name')
     exhibition_date = fields.Date(string='Exhibition Date', default=fields.Date.today)
     phone_ids = fields.One2many('exhibition.contact.phone', 'contact_id', string='Phone Numbers')

@@ -11,3 +11,15 @@
               action="action_exhibition_contact"
               sequence="10"/>
 </odoo>
+
+    <record id="action_exhibition_category" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">exhibition.category</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_exhibition_category"
+              name="Categories"
+              parent="menu_exhibition_root"
+              action="action_exhibition_category"
+              sequence="20"/>

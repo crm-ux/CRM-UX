@@ -25,7 +25,7 @@
                             <field name="website" placeholder="www.example.com"/>
                         </group>
                         <group>
-                            <field name="category"/>
+                            <field name="category_id"/>
                             <field name="exhibition_name" placeholder="Exhibition / Event Name"/>
                             <field name="exhibition_date"/>
                             <field name="crm_lead_id" readonly="1" invisible="not crm_lead_id"/>
