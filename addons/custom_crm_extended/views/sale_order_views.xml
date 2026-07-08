@@ -34,7 +34,8 @@
             </xpath>
             <!-- Contact Person below Customer -->
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="after">
-                <field name="x_contact_person_id" string="Contact Person" options="{'no_create': True, 'no_open': True}" domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]" context="{'show_address': False, 'no_display_parent': True, 'partner_display_name_hide_company': True}"/>
+                <field name="x_contact_person_id" string="Contact Person" options="{'no_create': False, 'no_open': True}" domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]" context="{'show_address': False, 'no_display_parent': True, 'partner_display_name_hide_company': True, 'default_parent_id': partner_id, 'default_is_company': False}" groups="base.group_system"/>
+                <field name="x_contact_person_id" string="Contact Person" options="{'no_create': True, 'no_open': True}" domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]" context="{'show_address': False, 'no_display_parent': True, 'partner_display_name_hide_company': True}" groups="!base.group_system"/>
             </xpath>
 
             <!-- Hide Confirm button (draft state, no id) -->
@@ -99,14 +100,14 @@
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
-                <button name="action_admin_move_back" string="◀ Previous Stage" type="object"
+                <button name="action_admin_move_back" string="Previous Stage" type="object"
                         class="btn-secondary"
-                        groups="base.group_system"/>
+                        />
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
-                <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle"/>
+                <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle" groups="base.group_system"/>
             </xpath>
 
             <xpath expr="//field[@name='order_line']//list//field[@name='product_template_id']" position="attributes">
@@ -143,11 +144,11 @@
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
-                                <field name="x_cost" string="Cost" optional="hide" groups="base.group_system"
+                                <field name="x_cost" string="Cost" optional="hide" 
                        column_invisible="not parent.x_show_cost_profit"/>
-                <field name="x_profit" string="Profit" optional="hide" readonly="1" groups="base.group_system"
+                <field name="x_profit" string="Profit" optional="hide" readonly="1" 
                        column_invisible="not parent.x_show_cost_profit"/>
-                <field name="x_profit_pct" string="Margin %" optional="hide" readonly="1" groups="base.group_system"
+                <field name="x_profit_pct" string="Margin %" optional="hide" readonly="1" 
                        column_invisible="not parent.x_show_cost_profit"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
                 <field name="x_product_image" string="Product Image" widget="image" optional="hide"/>

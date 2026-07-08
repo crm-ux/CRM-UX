@@ -133,3 +133,50 @@ button[name="action_save_lead"] {
     color: #1a3d6e !important;
     border-bottom-color: #1a3d6e !important;
 }
+
+/* ── Brand color: replace default Odoo purple with brand navy ── */
+.btn-primary {
+    background-color: #104a91 !important;
+    border-color: #104a91 !important;
+    color: #ffffff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #0C3868 !important;
+    border-color: #0C3868 !important;
+    color: #ffffff !important;
+}
+
+/* ── Brand color: New button (breadcrumb create button) ── */
+.o_form_button_create,
+.o_list_button_add,
+.o_control_panel .btn-primary {
+    background-color: #104a91 !important;
+    border-color: #104a91 !important;
+    color: #ffffff !important;
+}
+.o_form_button_create:hover,
+.o_list_button_add:hover,
+.o_control_panel .btn-primary:hover {
+    background-color: #0C3868 !important;
+    border-color: #0C3868 !important;
+    color: #ffffff !important;
+}
+
+/* ── Always show Save/Cancel buttons, even when no changes made ── */
+.o_form_status_indicator_buttons.invisible {
+    visibility: visible !important;
+}
+
+/* ── Save button (form status indicator) → brand color ── */
+.o_form_status_indicator_buttons .o_form_button_save {
+    background-color: #104a91 !important;
+    border-color: #104a91 !important;
+    color: #ffffff !important;
+}
+.o_form_status_indicator_buttons .o_form_button_save:hover {
+    background-color: #0C3868 !important;
+    border-color: #0C3868 !important;
+    color: #ffffff !important;
+}

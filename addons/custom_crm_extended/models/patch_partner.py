@@ -3,18 +3,16 @@ from odoo import models, api, fields
 class ResPartnerPatch(models.Model):
     _inherit = 'res.partner'
 
-    def name_get(self):
-        if self.env.context.get('partner_display_name_hide_company'):
-            result = []
-            for partner in self:
-                result.append((partner.id, partner.name or ''))
-            return result
-        return super().name_get()
-
+    @api.depends_context('partner_display_name_hide_company')
+    def _compute_display_name(self):
+        hide_company = self.env.context.get('partner_display_name_hide_company')
+        if not hide_company:
+            return super()._compute_display_name()
+        for partner in self:
+            partner.display_name = partner.name or ''
 
 class ResUsersNotificationPatch(models.Model):
     _inherit = 'res.users'
-
     notification_type = fields.Selection(
         selection_add=[],
         selection=[
