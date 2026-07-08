@@ -47,6 +47,13 @@ class ExhibitionContact(models.Model):
     x_state = fields.Char(string='State')
     country = fields.Char(string='Country')
     notes = fields.Text(string='Notes')
+    category = fields.Selection([
+        ('prospect', 'Prospect'),
+        ('customer', 'Customer'),
+        ('vendor', 'Vendor'),
+        ('partner', 'Partner'),
+        ('other', 'Other'),
+    ], string='Category', default='prospect')
     exhibition_name = fields.Char(string='Exhibition / Event Name')
     exhibition_date = fields.Date(string='Exhibition Date', default=fields.Date.today)
     phone_ids = fields.One2many('exhibition.contact.phone', 'contact_id', string='Phone Numbers')
