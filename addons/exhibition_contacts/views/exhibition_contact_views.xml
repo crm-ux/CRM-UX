@@ -76,6 +76,7 @@
             <list string="Exhibition Contacts">
                 <field name="contact_name"/>
                 <field name="company_name"/>
+                <field name="category_id"/>
                 <field name="designation"/>
                 <field name="exhibition_name"/>
                 <field name="exhibition_date"/>
@@ -92,7 +93,11 @@
                 <field name="contact_name"/>
                 <field name="company_name"/>
                 <field name="exhibition_name"/>
+                <field name="category_id"/>
                 <filter string="Converted" name="filter_converted" domain="[('crm_lead_id','!=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_category" context="{'group_by':'category_id'}"/>
+                </group>
                 <filter string="Not Converted" name="filter_not_converted" domain="[('crm_lead_id','=',False)]"/>
             </search>
         </field>
