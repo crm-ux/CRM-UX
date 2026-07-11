@@ -15,8 +15,9 @@
         <field name="name">exhibition.category.list</field>
         <field name="model">exhibition.category</field>
         <field name="arch" type="xml">
-            <list string="Categories">
+            <list string="Categories" editable="bottom">
                 <field name="name"/>
+                <button name="action_delete_category" string="" type="object" icon="fa-trash" class="btn-danger btn-sm" title="Delete"/>
             </list>
         </field>
     </record>
