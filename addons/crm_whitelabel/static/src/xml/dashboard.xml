@@ -41,6 +41,7 @@
                                 <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                                 <a t-on-click="openQuoteSeries" class="crm-admin-menu-item" style="cursor:pointer;">Quote Series</a>
+                                <a t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
                             </div>
                         </div>
                     </div>

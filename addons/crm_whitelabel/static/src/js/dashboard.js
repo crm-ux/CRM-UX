@@ -184,7 +184,9 @@ class CrmDashboard extends Component {
         const cancelFilter = stage === 'won' ? [] : [["state","!=","cancel"]];
         this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...cancelFilter,...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies,group_by:["x_quote_type"]}});
     }
+    openContactCategories() { this.go({type:"ir.actions.act_window",name:"Contact Categories",res_model:"exhibition.category",views:[[false,"list"],[false,"form"]]}); }
     openQuoteSeries() { this.go({type:"ir.actions.act_window",name:"Quote Series",res_model:"ir.sequence",views:[[false,"list"],[false,"form"]],domain:[["code","=","sale.order"]],context:{active_test:false}}); }
+    openContactCategories() { this.go({type:"ir.actions.act_window",name:"Contact Categories",res_model:"exhibition.category",views:[[false,"list"],[false,"form"]]}); }
     openQuoteSeries() { this.go({type:"ir.actions.act_window",name:"Quote Series",res_model:"ir.sequence",views:[[false,"list"],[false,"form"]],domain:[["code","=","sale.order"]],context:{active_test:false}}); }
     openTerms() { this.actionService.doAction({type:'ir.actions.act_window',name:'Terms & Conditions',res_model:'sale.terms.condition',view_mode:'list,form',views:[[false,'list'],[false,'form']]}); }
     openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
