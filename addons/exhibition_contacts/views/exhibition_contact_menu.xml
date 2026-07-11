@@ -11,6 +11,30 @@
               action="action_exhibition_contact"
               sequence="10"/>
 
+    <record id="view_exhibition_category_list" model="ir.ui.view">
+        <field name="name">exhibition.category.list</field>
+        <field name="model">exhibition.category</field>
+        <field name="arch" type="xml">
+            <list string="Categories" editable="bottom">
+                <field name="name"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_exhibition_category_form" model="ir.ui.view">
+        <field name="name">exhibition.category.form</field>
+        <field name="model">exhibition.category</field>
+        <field name="arch" type="xml">
+            <form string="Category">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
     <record id="action_exhibition_category" model="ir.actions.act_window">
         <field name="name">Categories</field>
         <field name="res_model">exhibition.category</field>
