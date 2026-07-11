@@ -15,7 +15,7 @@
         <field name="name">exhibition.category.list</field>
         <field name="model">exhibition.category</field>
         <field name="arch" type="xml">
-            <list string="Categories" editable="bottom">
+            <list string="Categories">
                 <field name="name"/>
             </list>
         </field>
