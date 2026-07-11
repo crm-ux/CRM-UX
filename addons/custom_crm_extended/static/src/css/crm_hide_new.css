@@ -180,3 +180,8 @@ button[name="action_save_lead"] {
     border-color: #0C3868 !important;
     color: #ffffff !important;
 }
+
+/* ── Hide top breadcrumb Save/Cancel on sale.order forms only (moved into header button row instead) ── */
+.o_sale_order .o_form_status_indicator_buttons {
+    display: none !important;
+}

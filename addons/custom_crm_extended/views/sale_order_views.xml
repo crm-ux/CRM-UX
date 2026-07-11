@@ -103,6 +103,8 @@
                 <button name="action_admin_move_back" string="Previous Stage" type="object"
                         class="btn-secondary"
                         />
+                <button special="save" string="Save" type="object" class="btn-primary"/>
+                <button special="cancel" string="Cancel" type="object" class="btn-secondary"/>
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
@@ -114,7 +116,7 @@
                 <attribute name="column_invisible">1</attribute>
                 <attribute name="optional">hide</attribute>
             </xpath>
-            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="attributes">
+<xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="attributes">
                 <attribute name="string">Product ID</attribute>
                 <attribute name="optional">show</attribute>
                 <attribute name="width">110px</attribute>
@@ -141,6 +143,9 @@
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="attributes">
                 <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="attributes">
+                <attribute name="column_invisible">not parent.x_gst_included</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
@@ -180,9 +185,9 @@
                     <field name="x_internal_remarks" nolabel="1" placeholder="Notes visible to sales team only..."/>
                 </page>
                 <page string="Discounts" name="x_discounts_tab">
-                    <group>
-                        <field name="x_flat_discount_pct" string="Overall Discount (%)"/>
-                        <field name="x_flat_discount" string="Flat Discount (Amount)"/>
+                    <group col="1">
+                        <field name="x_flat_discount_pct" string="Overall Discount %" class="o_row" style="white-space:nowrap;"/>
+                        <field name="x_flat_discount" string="Flat Discount (Amount)" style="white-space:nowrap;"/>
                     </group>
                 </page>
             </xpath>

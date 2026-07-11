@@ -35,6 +35,7 @@
         'views/crm_lead_won_po_wizard_views.xml',
         'views/product_label_view.xml',
         'views/product_make_view.xml',
+        'views/res_users_signature_views.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -44,6 +45,7 @@
             'custom_crm_extended/static/src/js/crm_lead_form_view.js',
             'custom_crm_extended/static/src/js/crm_kanban_override.js',
             'custom_crm_extended/static/src/js/crm_new_button.js',
+            'custom_crm_extended/static/src/js/sale_order_save_toast.js',
         ],
     },
     'installable': True,

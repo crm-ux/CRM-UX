@@ -29,6 +29,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     order_id = fields.Many2one('sale.order', string='Quotation', required=True, readonly=True)
     x_gst_included = fields.Boolean(string='Include GST', default=True)
+    signature_photo = fields.Binary(string='Signature Photo')
     seller_name = fields.Char(string='Seller / Company Name')
     buyer_name = fields.Char(string='Party Name')
     contact_person = fields.Char(string='Contact Person')
@@ -99,7 +100,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         elif all_terms:
             res['selected_term_ids'] = [[6, 0, all_terms.ids]]
         # Use saved draft GST if a draft exists, else fall back to order setting
-        gst_on = order.x_draft_gst_included if has_draft else order.x_gst_included
+        gst_on = order.x_gst_included
 
         rows = ''
         for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
@@ -300,6 +301,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         res.update({
             'order_id': order.id,
             'x_gst_included': gst_on,
+            'signature_photo': order.x_draft_signature_photo or (order.user_id.x_signature_card if order.user_id else False),
             'seller_name': order.company_id.name or '',
             'buyer_name': order.x_draft_buyer_name or order.partner_id.name or '',
             'contact_person': order.x_draft_contact_person or order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
@@ -339,7 +341,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'x_draft_subject': self.subject,
             'x_draft_quote_date': self.quote_date,
             'x_draft_buyer_name': self.buyer_name,
+            'x_draft_signature_photo': self.signature_photo,
         }
+        import logging
+        logging.getLogger(__name__).warning('SAVE_DRAFT_DEBUG: order_id=%s signature_photo present=%s len=%s', order.id, bool(self.signature_photo), len(self.signature_photo) if self.signature_photo else 0)
+        order.sudo().write(vals)
+        self.env.cr.execute("SELECT (x_draft_signature_photo IS NOT NULL) FROM sale_order WHERE id = %s", (order.id,))
+        raw_result = self.env.cr.fetchone()
+        logging.getLogger(__name__).warning('SAVE_DRAFT_DEBUG_RAW_SQL: order_id=%s raw_has_val=%s', order.id, raw_result)
         if hasattr(order, 'x_draft_image_ids'):
             vals['x_draft_image_ids'] = [(6, 0, self.quote_image_ids.ids)]
         order.sudo().write(vals)
@@ -424,7 +433,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/>' % b64
 
         # ── PRODUCT ROWS ──
-        gst_on = self.x_gst_included if self.x_gst_included is not None else order.x_gst_included
+        gst_on = order.x_gst_included
         rows = ''
         for idx, line in enumerate(order.order_line.filtered(lambda l: not l.display_type), 1):
             part_no = line.x_product_code or line.product_id.default_code or ''
@@ -612,7 +621,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
-        col = 7 if has_discount_pdf else 6
+        col = 8 if has_discount_pdf else 7
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         untaxed = order.amount_untaxed
         overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
@@ -629,16 +638,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Grand total = net + GST on net
         grand_total = net + (net * total_tax_rate / 100) if (gst_on and tax_rates) else net
 
-        # Totals below table
-        totals_below = '<div style="margin-top:8px;text-align:right;font-size:11px;font-family:Calibri,sans-serif;">'
-        totals_below += '<p style="margin:3px 0;">Total Amount: <b>%s</b></p>' % _indian_format(untaxed)
+        # Totals as closing rows inside the table, all styled consistently (plain, no bold/background)
+        totals_rows = ''
         if overall_disc_pct:
-            totals_below += '<p style="margin:3px 0;">Overall Discount (%s%%): <b>%s</b></p>' % (int(overall_disc_pct), _indian_format(overall_disc_amt))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, int(overall_disc_pct), _indian_format(overall_disc_amt))
         if gst_on and tax_rates:
-            totals_below += '<p style="margin:3px 0;">GST (%s%%)</p>' % int(total_tax_rate)
-        final_label = 'Final Discount Amount:' if overall_disc_pct else 'Final Total Amount:'
-        totals_below += '<p style="margin:3px 0;font-size:13px;font-weight:bold;">%s %s</p>' % (final_label, _indian_format(grand_total))
-        totals_below += '</div>'
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">GST (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;"></td></tr>' % (col - 1, int(total_tax_rate))
+        final_label = 'Final Discount Amount' if overall_disc_pct else 'Total Amount'
+        totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
@@ -647,11 +654,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<thead><tr style="background:#2c3e50;color:#fff;">%s</tr></thead>'
             '<tbody>%s</tbody>'
             '</table>'
-            '%s'
             '<div style="display:none;">%s</div>'
             '</div>'
         )
-        table_html = table_html % (th_html, rows, totals_below, totals_html)
+        table_html = table_html % (th_html, rows + totals_rows, totals_html)
 
         # ── TERMS ──
         terms_html = ''
@@ -681,17 +687,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
         user_email = user.partner_id.email or user.email or ''
         company_name = order.company_id.name or ''
         closing_html = '<div style="margin-top:30px;font-family:Calibri,sans-serif;font-size:11px;">'
-        closing_html += '<p style="margin:4px 0;">Thanking You,</p>'
-        closing_html += '<p style="margin:4px 0;">Sincerely,</p>'
-        closing_html += '<br/>'
-        closing_html += '<p style="margin:4px 0;font-weight:bold;">%s</p>' % user_name
-        if user_job:
-            closing_html += '<p style="margin:4px 0;">%s</p>' % user_job
-        closing_html += '<p style="margin:4px 0;">%s</p>' % company_name
-        if user_phone:
-            closing_html += '<p style="margin:4px 0;">Ph: %s</p>' % user_phone
-        if user_email:
-            closing_html += '<p style="margin:4px 0;">Email: %s</p>' % user_email
+        closing_html += '<p style="margin:4px 0;">We trust the above offer meets your requirements. Should you require any further clarification or assistance, please do not hesitate to contact us. We look forward to a long and mutually beneficial association.</p>'
+        closing_html += '<p style="margin:12px 0 4px 0;">Thanking you and assuring you of our best services at all times.</p>'
+        closing_html += '<p style="margin:12px 0 4px 0;"><b>Regards,</b></p>'
+        if self.signature_photo:
+            sig_b64 = self.signature_photo if isinstance(self.signature_photo, str) else self.signature_photo.decode()
+            closing_html += '<img src="data:image/jpeg;base64,%s" style="max-width:350px;max-height:180px;display:block;margin-bottom:8px;"/>' % sig_b64
         closing_html += '</div>'
 
         css_reset = '<style>a{text-decoration:none!important;color:inherit!important;color:#000!important;}a:link,a:visited,a:hover{text-decoration:none!important;border-bottom:none!important;}header,.header,div.header{border:none!important;border-top:none!important;border-bottom:none!important;box-shadow:none!important;}</style>'
@@ -1133,23 +1134,31 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on_d = self.x_gst_included
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
-        def _add_total_para(doc, label, value, bold=False):
-            p = doc.add_paragraph()
-            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            p.paragraph_format.space_before = Pt(0)
-            p.paragraph_format.space_after = Pt(0)
-            text = '%s %s' % (label, value) if value else label
-            r = p.add_run(text)
-            r.font.name = 'Calibri'
-            r.font.size = Pt(11)
-            r.bold = bold
-        _add_total_para(doc, 'Total Amount:', _indian_format(untaxed))
+        def _add_total_row(label, value):
+            ncols = len(headers)
+            row_cells = table.add_row().cells
+            merged = row_cells[0]
+            for i in range(1, ncols - 1):
+                merged = merged.merge(row_cells[i])
+            mp = merged.paragraphs[0]
+            mp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            mr = mp.add_run(label)
+            mr.bold = True
+            mr.font.name = 'Calibri'
+            mr.font.size = Pt(11)
+            val_cell = row_cells[ncols - 1]
+            vp = val_cell.paragraphs[0]
+            vp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            vr = vp.add_run(str(value))
+            vr.bold = True
+            vr.font.name = 'Calibri'
+            vr.font.size = Pt(11)
         if overall_disc_pct_d:
-            _add_total_para(doc, 'Overall Discount (%s%%):' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
+            _add_total_row('Overall Discount (%s%%)' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
         if gst_on_d and tax_rates_d:
-            _add_total_para(doc, 'GST (%s%%):' % int(total_tax_rate_d), '')
-        final_label_d = 'Final Discount Amount:' if overall_disc_pct_d else 'Final Total Amount:'
-        _add_total_para(doc, final_label_d, _indian_format(grand_total_d), bold=True)
+            _add_total_row('GST (%s%%)' % int(total_tax_rate_d), '')
+        final_label_d = 'Final Discount Amount' if overall_disc_pct_d else 'Total Amount'
+        _add_total_row(final_label_d, _indian_format(grand_total_d))
 
         # Terms & Conditions - new page if no tech specs or images
         if self.selected_term_ids or order.note:
@@ -1190,17 +1199,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
 
 
-        # ── Closing signature block ──
+        # ── Closing signature block (matches PDF) ──
         doc.add_paragraph('')
-        doc.add_paragraph('Thanking You,')
-        doc.add_paragraph('Sincerely,')
-        doc.add_paragraph('')
-        sig_para = doc.add_paragraph()
-        sig_run = sig_para.add_run((order.user_id.name or '') if order.user_id else '')
-        sig_run.bold = True
-        comp_para = doc.add_paragraph()
-        comp_run = comp_para.add_run(order.company_id.name or '')
-        comp_run.bold = True
+        doc.add_paragraph('We trust the above offer meets your requirements. Should you require any further clarification or assistance, please do not hesitate to contact us. We look forward to a long and mutually beneficial association.')
+        doc.add_paragraph('Thanking you and assuring you of our best services at all times.')
+        regards_p = doc.add_paragraph()
+        regards_run = regards_p.add_run('Regards,')
+        regards_run.bold = True
+        if self.signature_photo:
+            from docx.shared import Inches
+            sig_data = self.signature_photo if isinstance(self.signature_photo, bytes) else self.signature_photo.encode() if isinstance(self.signature_photo, str) else self.signature_photo
+            sig_bytes = base64.b64decode(sig_data)
+            doc.add_picture(io.BytesIO(sig_bytes), width=Inches(3.6))
         # Save
         buf = io.BytesIO()
         doc.save(buf)

@@ -11,6 +11,7 @@
                             <field name="order_id" invisible="1"/>
                             <field name="seller_name" string="Company Name"/>
                             <field name="buyer_name" string="Party Name"/>
+                            <field name="signature_photo" widget="image" string="Signature Photo" options="{'size': [150, 150]}"/>
                             <field name="contact_person" string="Contact Person"/>
                             <field name="contact_function" string="Job Title"/>
                             <field name="quote_name"/>

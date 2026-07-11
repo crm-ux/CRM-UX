@@ -103,6 +103,11 @@ class SaleOrder(models.Model):
         store=True,
         currency_field='currency_id',
     )
+    x_discount_label = fields.Char(
+        string='Overall Discount Label',
+        compute='_compute_discount_totals',
+        store=True,
+    )
 
     # ------------------------------------------------------------------
     # 4. PO DETAILS  (filled at PO stage, after quote is accepted)
@@ -193,6 +198,7 @@ class SaleOrder(models.Model):
 
     # Draft fields for quotation wizard
     x_draft_tech_specs = fields.Html(string='Draft Technical Specs')
+    x_draft_signature_photo = fields.Binary(string='Draft Signature Photo')
     x_draft_best_offer = fields.Char(string='Draft Best Offer For')
     x_draft_image_ids = fields.Many2many(
         'ir.attachment', 'sale_order_draft_image_rel',
@@ -232,6 +238,7 @@ class SaleOrder(models.Model):
             ('sent',           'Sent'),
             ('negotiation',    'Negotiation'),
             ('order_expected', 'Order Expected'),
+            ('po_received',    'PO Received'),
             ('won',            'Won'),
             ('lost',           'Lost'),
         ],
@@ -265,7 +272,8 @@ class SaleOrder(models.Model):
 
     @api.depends('amount_untaxed', 'amount_total',
                  'x_flat_discount', 'x_flat_discount_pct',
-                 'order_line.price_unit', 'order_line.product_uom_qty')
+                 'order_line.price_unit', 'order_line.product_uom_qty',
+                 'order_line.tax_ids', 'x_gst_included')
     def _compute_discount_totals(self):
         for order in self:
             # Step 1: subtotal after product line discounts
@@ -279,8 +287,19 @@ class SaleOrder(models.Model):
             # Store values
             order.x_original_amount = subtotal_after_line_disc
             order.x_amount_after_discount = total_disc
-            # Net total = subtotal - all discounts + tax
-            order.x_net_total = max(0.0, subtotal_after_line_disc - total_disc) + order.amount_tax
+            # Net after all discounts (before tax)
+            net_after_discount = max(0.0, subtotal_after_line_disc - total_disc)
+            # Recompute tax on the DISCOUNTED net, not on the raw pre-discount subtotal,
+            # so this matches the PDF/DOCX quotation logic exactly.
+            tax_rates = set()
+            for line in order.order_line.filtered(lambda l: not l.display_type):
+                for tax in line.tax_ids:
+                    tax_rates.add(tax.amount)
+            total_tax_rate = sum(tax_rates)
+            tax_on_net = net_after_discount * total_tax_rate / 100.0 if (order.x_gst_included and tax_rates) else 0.0
+            # Net total = discounted subtotal + tax computed on that discounted amount
+            order.x_net_total = net_after_discount + tax_on_net
+            order.x_discount_label = 'Overall Discount (%s%%)' % (int(order.x_flat_discount_pct) if order.x_flat_discount_pct == int(order.x_flat_discount_pct) else order.x_flat_discount_pct)
     # ==================================================================
     # ACTIONS
     # ==================================================================
@@ -328,6 +347,7 @@ class SaleOrder(models.Model):
             'x_gst_included': self.x_draft_gst_included if has_draft else self.x_gst_included,
             'best_offer_for': self.x_draft_best_offer or '',
             'technical_specs_html': self.x_draft_tech_specs or False,
+            'signature_photo': self.x_draft_signature_photo or (self.user_id.x_signature_card if self.user_id else False),
         }
         if self.x_draft_image_ids:
             wizard_vals['quote_image_ids'] = [(6, 0, self.x_draft_image_ids.ids)]
@@ -410,6 +430,15 @@ class SaleOrder(models.Model):
 
 
 
+    @api.depends_context('lang')
+    @api.depends('order_line.price_subtotal', 'currency_id', 'company_id', 'payment_term_id')
+    def _compute_tax_totals(self):
+        super()._compute_tax_totals()
+        for order in self:
+            if order.tax_totals and order.tax_totals.get('subtotals'):
+                for subtotal in order.tax_totals['subtotals']:
+                    if subtotal.get('name') == 'Untaxed Amount':
+                        subtotal['name'] = 'Total Amount'
     def write(self, vals):
         result = super().write(vals)
         if 'x_gst_included' in vals:
@@ -813,6 +842,10 @@ class SaleOrderLineExtended(models.Model):
                 clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
                 if clean_note:
                     self.x_notes = clean_note
+            # Keep line taxes consistent with the order's own GST toggle,
+            # regardless of the product's own default tax configuration.
+            if self.order_id and not self.order_id.x_gst_included:
+                self.tax_ids = [(5, 0, 0)]
 
 
 class SaleOrderSettings(models.Model):

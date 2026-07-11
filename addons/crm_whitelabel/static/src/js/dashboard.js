@@ -194,19 +194,9 @@ class CrmDashboard extends Component {
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
         const ud = this.state.isAdmin ? [] : [["user_id","=",user.userId]];
-        if (seq >= 30) {
-            const stageMap = {30:'draft', 35:'sent', 40:'negotiation', 50:'order_expected', 90:'won'};
-            const qStage = stageMap[seq];
-            if (qStage) {
-                this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",
-                    views:[[false,"list"],[false,"form"]],
-                    domain:[["x_quote_stage","=",qStage],["state","!=","cancel"],["opportunity_id","!=",false],...ud]});
-            }
-        } else {
-            this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",
-                views:[[false,"list"],[false,"form"]],
-                domain:[["active","=",true],["x_stage_sequence","=",seq],...ud]});
-        }
+        this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",
+            views:[[false,"list"],[false,"form"]],
+            domain:[["active","=",true],["x_stage_sequence","=",seq],...ud]});
     }
     newLead() { this.go(405); }
     openExhibition() { this.go({type:"ir.actions.act_window",name:"Exhibition Contacts",res_model:"exhibition.contact",views:[[false,"list"],[false,"form"]]}); }

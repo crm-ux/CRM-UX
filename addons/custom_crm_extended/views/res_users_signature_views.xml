@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_form_signature_card" model="ir.ui.view">
+        <field name="name">res.users.form.signature.card</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Quotation Signature Card" name="signature_card_page">
+                    <group>
+                        <field name="x_signature_card" widget="image" options="{'size': [350, 200]}"/>
+                    </group>
+                    <p class="text-muted">
+                        Upload the business card / signature image to appear at the bottom of quotations sent by this user.
+                    </p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
