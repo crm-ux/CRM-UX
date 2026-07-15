@@ -1,10 +1,9 @@
 /** @odoo-module **/
-import { Component, useState, useRef, onMounted } from "@odoo/owl";
+import { Component, useRef, onMounted } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
-import { registry } from "@web/core/registry";
-import { useService } from "@web/core/utils/hooks";
 import { ImageField } from "@web/views/fields/image/image_field";
 import { patch } from "@web/core/utils/patch";
+import { useService } from "@web/core/utils/hooks";
 
 class ImageCropperDialog extends Component {
     static template = "exhibition_contacts.ImageCropperDialog";
@@ -18,7 +17,6 @@ class ImageCropperDialog extends Component {
     }
 
     async initCropper() {
-        // Load Cropper.js from CDN
         if (!window.Cropper) {
             await this.loadScript("https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js");
             await this.loadCSS("https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css");
@@ -52,8 +50,18 @@ class ImageCropperDialog extends Component {
 
     rotateLeft() { this.cropper && this.cropper.rotate(-90); }
     rotateRight() { this.cropper && this.cropper.rotate(90); }
-    flipH() { this.cropper && this.cropper.scaleX(-this.cropper.getData().scaleX || -1); }
-    flipV() { this.cropper && this.cropper.scaleY(-this.cropper.getData().scaleY || -1); }
+    flipH() { 
+        if (this.cropper) {
+            const data = this.cropper.getData();
+            this.cropper.scaleX(data.scaleX === -1 ? 1 : -1);
+        }
+    }
+    flipV() {
+        if (this.cropper) {
+            const data = this.cropper.getData();
+            this.cropper.scaleY(data.scaleY === -1 ? 1 : -1);
+        }
+    }
     reset() { this.cropper && this.cropper.reset(); }
 
     save() {
@@ -66,27 +74,24 @@ class ImageCropperDialog extends Component {
     }
 }
 
-ImageCropperDialog.template = "exhibition_contacts.ImageCropperDialog";
-
 patch(ImageField.prototype, {
     setup() {
         super.setup(...arguments);
-        this.dialog = useService("dialog");
+        this.dialogService = useService("dialog");
     },
 
-    onFileChange(ev) {
-        const file = ev.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const src = e.target.result;
-            this.dialog.add(ImageCropperDialog, {
-                src: src,
-                onSave: (base64) => {
-                    this.props.record.update({ [this.props.name]: base64 });
-                },
-            });
-        };
-        reader.readAsDataURL(file);
+    async onFileUploaded(info) {
+        // Only intercept for visiting_card field
+        if (this.props.name !== "visiting_card") {
+            return super.onFileUploaded(...arguments);
+        }
+        const { data } = info;
+        const src = `data:image/jpeg;base64,${data}`;
+        this.dialogService.add(ImageCropperDialog, {
+            src,
+            onSave: (base64) => {
+                this.props.record.update({ [this.props.name]: base64 });
+            },
+        });
     }
 });
