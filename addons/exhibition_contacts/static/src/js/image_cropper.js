@@ -1,5 +1,5 @@
 /** @odoo-module **/
-import { Component, useRef, onMounted } from "@odoo/owl";
+import { Component, useRef, onMounted, onPatched, useEffect } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { ImageField } from "@web/views/fields/image/image_field";
 import { patch } from "@web/core/utils/patch";
@@ -21,54 +21,25 @@ class ImageCropperDialog extends Component {
             await this.loadScript("https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js");
             await this.loadCSS("https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css");
         }
-        const img = this.cropperRef.el;
-        this.cropper = new window.Cropper(img, {
-            aspectRatio: NaN,
-            viewMode: 1,
-            autoCropArea: 1,
+        this.cropper = new window.Cropper(this.cropperRef.el, {
+            aspectRatio: NaN, viewMode: 1, autoCropArea: 1,
         });
     }
 
     loadScript(src) {
-        return new Promise((resolve) => {
-            const script = document.createElement("script");
-            script.src = src;
-            script.onload = resolve;
-            document.head.appendChild(script);
-        });
+        return new Promise((r) => { const s = document.createElement("script"); s.src = src; s.onload = r; document.head.appendChild(s); });
     }
-
     loadCSS(href) {
-        return new Promise((resolve) => {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = href;
-            link.onload = resolve;
-            document.head.appendChild(link);
-        });
+        return new Promise((r) => { const l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; l.onload = r; document.head.appendChild(l); });
     }
-
     rotateLeft() { this.cropper && this.cropper.rotate(-90); }
     rotateRight() { this.cropper && this.cropper.rotate(90); }
-    flipH() { 
-        if (this.cropper) {
-            const data = this.cropper.getData();
-            this.cropper.scaleX(data.scaleX === -1 ? 1 : -1);
-        }
-    }
-    flipV() {
-        if (this.cropper) {
-            const data = this.cropper.getData();
-            this.cropper.scaleY(data.scaleY === -1 ? 1 : -1);
-        }
-    }
+    flipH() { if (this.cropper) { const d = this.cropper.getData(); this.cropper.scaleX(d.scaleX === -1 ? 1 : -1); } }
+    flipV() { if (this.cropper) { const d = this.cropper.getData(); this.cropper.scaleY(d.scaleY === -1 ? 1 : -1); } }
     reset() { this.cropper && this.cropper.reset(); }
-
     save() {
         if (!this.cropper) return;
-        const canvas = this.cropper.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200 });
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
-        const base64 = dataUrl.split(",")[1];
+        const base64 = this.cropper.getCroppedCanvas({ maxWidth: 1200, maxHeight: 1200 }).toDataURL("image/jpeg", 0.85).split(",")[1];
         this.props.onSave(base64);
         this.props.close();
     }
@@ -78,15 +49,29 @@ patch(ImageField.prototype, {
     setup() {
         super.setup(...arguments);
         this.dialogService = useService("dialog");
+        // Make image clickable to open file picker
+        useEffect(
+            (el) => {
+                if (!el || this.props.name !== "visiting_card") return;
+                const img = el.querySelector("img");
+                const uploader = el.querySelector(".o_image_uploader_container");
+                const clickHandler = () => {
+                    const input = el.querySelector("input[type=file]");
+                    if (input) input.click();
+                };
+                if (img) { img.style.cursor = "pointer"; img.addEventListener("click", clickHandler); }
+                if (uploader) { uploader.style.opacity = "1"; }
+                return () => { if (img) img.removeEventListener("click", clickHandler); };
+            },
+            () => [document.querySelector(`[name="${this.props.name}"]`)]
+        );
     },
 
     async onFileUploaded(info) {
-        // Only intercept for visiting_card field
         if (this.props.name !== "visiting_card") {
             return super.onFileUploaded(...arguments);
         }
-        const { data } = info;
-        const src = `data:image/jpeg;base64,${data}`;
+        const src = `data:image/jpeg;base64,${info.data}`;
         this.dialogService.add(ImageCropperDialog, {
             src,
             onSave: (base64) => {
