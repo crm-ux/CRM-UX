@@ -12,3 +12,24 @@
         grid-template-columns: 1fr !important;
     }
 }
+
+/* Make visiting card image clickable */
+.o_field_widget[name="visiting_card"] .o_field_image {
+    cursor: pointer !important;
+    position: relative;
+}
+.o_field_widget[name="visiting_card"] .o_field_image:hover::after {
+    content: "📷 Click to upload";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(26,61,110,0.75);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    font-size: 13px;
+}
+.o_field_widget[name="visiting_card"] .o_field_image img {
+    cursor: pointer !important;
+}
