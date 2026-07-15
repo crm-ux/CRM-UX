@@ -13,6 +13,8 @@
     'assets': {
         'web.assets_backend': [
             'exhibition_contacts/static/src/css/exhibition.css',
+            'exhibition_contacts/static/src/xml/image_cropper.xml',
+            'exhibition_contacts/static/src/js/image_cropper.js',
         ],
     },
     'installable': True,

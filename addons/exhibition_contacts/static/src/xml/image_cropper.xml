@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="exhibition_contacts.ImageCropperDialog">
+        <Dialog title="'Crop &amp; Rotate Image'" size="'xl'">
+            <div class="o_cropper_container" style="max-height:60vh;overflow:hidden;">
+                <img t-ref="cropperImg" t-att-src="props.src" style="max-width:100%;display:block;"/>
+            </div>
+            <t t-set-slot="footer">
+                <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-secondary" t-on-click="rotateLeft" title="Rotate Left">
+                        <i class="fa fa-rotate-left"/> -90°
+                    </button>
+                    <button class="btn btn-secondary" t-on-click="rotateRight" title="Rotate Right">
+                        <i class="fa fa-rotate-right"/> +90°
+                    </button>
+                    <button class="btn btn-secondary" t-on-click="flipH" title="Flip Horizontal">
+                        <i class="fa fa-arrows-h"/> Flip H
+                    </button>
+                    <button class="btn btn-secondary" t-on-click="flipV" title="Flip Vertical">
+                        <i class="fa fa-arrows-v"/> Flip V
+                    </button>
+                    <button class="btn btn-secondary" t-on-click="reset">Reset</button>
+                    <button class="btn btn-primary ms-auto" t-on-click="save">
+                        <i class="fa fa-check"/> Save
+                    </button>
+                    <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+                </div>
+            </t>
+        </Dialog>
+    </t>
+</templates>
