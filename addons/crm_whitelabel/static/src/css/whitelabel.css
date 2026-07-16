@@ -10,3 +10,12 @@
     display: block !important;
     visibility: visible !important;
 }
+
+/* Hide default Odoo empty state messages in quotations */
+.o_view_nocontent .o_nocontent_help p:has-text,
+.o_sale_order .o_view_nocontent_smiling_face,
+.o_view_nocontent_smiling_face { display: none !important; }
+.o_nocontent_help { display: none !important; }
+
+/* Hide Odoo default empty state promo message in quotations */
+.o_nocontent_help { display: none !important; }
