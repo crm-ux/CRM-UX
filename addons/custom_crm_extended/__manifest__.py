@@ -36,6 +36,7 @@
         'views/product_label_view.xml',
         'views/product_make_view.xml',
         'views/res_users_signature_views.xml',
+        'views/res_company_signature_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

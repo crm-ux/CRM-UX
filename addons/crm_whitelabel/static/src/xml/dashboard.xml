@@ -110,10 +110,10 @@
                             </div>
                             <span>›</span>
                         </button>
-                        <button class="crm-action-btn crm-action-lead" t-on-click="newQuote">
+                        <button class="crm-action-btn crm-action-lead" disabled="disabled" style="opacity:0.6;cursor:not-allowed;">
                             <div>
                                 <div class="crm-action-title">+ Create Quote</div>
-                                <div class="crm-action-sub">Create new quotation</div>
+                                <div class="crm-action-sub">Coming soon</div>
                             </div>
                             <span>›</span>
                         </button>

@@ -19,6 +19,10 @@ class ResPartnerPatch(models.Model):
         for partner in self:
             partner.display_name = partner.name or ''
 
+class ResCompanyDefaultCard(models.Model):
+    _inherit = 'res.company'
+    x_default_signature_card = fields.Binary(string='Default Quotation Signature Card')
+
 class ResUsersNotificationPatch(models.Model):
     _inherit = 'res.users'
     x_signature_card = fields.Binary(string='Quotation Signature Card')

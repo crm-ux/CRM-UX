@@ -232,6 +232,7 @@ class CrmLeadWizard(models.TransientModel):
         # Validate current step
         if self.step == 1:
             self.e1_name = False
+            self.e2_contact = False
         elif self.step == 2:
             if not self.email_from and not self.phone and not self.x_mobile:
                 self.e2_contact = True

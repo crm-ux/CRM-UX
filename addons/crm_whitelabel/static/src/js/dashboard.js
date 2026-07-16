@@ -182,7 +182,7 @@ class CrmDashboard extends Component {
         const cd = this.state.isAdmin?[]:(this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]);
         const labels = {draft:"Quote", sent:"Sent", negotiation:"Negotiation", order_expected:"Order Expected", won:"Won"};
         const cancelFilter = stage === 'won' ? [] : [["state","!=","cancel"]];
-        this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...cancelFilter,...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies,group_by:["x_quote_type"]}});
+        this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...cancelFilter,...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies,group_by:["x_quote_type"],create:false},create:false});
     }
     openContactCategories() { this.go({type:"ir.actions.act_window",name:"Contact Categories",res_model:"exhibition.category",views:[[false,"list"],[false,"form"]]}); }
     openQuoteSeries() { this.go({type:"ir.actions.act_window",name:"Quote Series",res_model:"ir.sequence",views:[[false,"list"],[false,"form"]],domain:[["code","=","sale.order"]],context:{active_test:false}}); }

@@ -314,6 +314,11 @@ class SaleOrder(models.Model):
             ('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')
         ], limit=1).report_action(wizard)
 
+    def _get_default_signature_card(self):
+        """Return the company-level default signature card, used when neither
+        a manual signature upload nor the salesperson's own profile picture
+        is available. Uploaded via Settings > Companies."""
+        return self.company_id.x_default_signature_card or False
     def action_preview_sale_order(self):
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
@@ -347,7 +352,7 @@ class SaleOrder(models.Model):
             'x_gst_included': self.x_draft_gst_included if has_draft else self.x_gst_included,
             'best_offer_for': self.x_draft_best_offer or '',
             'technical_specs_html': self.x_draft_tech_specs or False,
-            'signature_photo': self.x_draft_signature_photo or (self.user_id.x_signature_card if self.user_id else False),
+            'signature_photo': self.x_draft_signature_photo or (self.user_id.x_signature_card if self.user_id else False) or self._get_default_signature_card(),
         }
         if self.x_draft_image_ids:
             wizard_vals['quote_image_ids'] = [(6, 0, self.x_draft_image_ids.ids)]

@@ -56,3 +56,16 @@
         </field>
     </record>
 </odoo>
+
+    <!-- Add Customer column to lead list view -->
+    <record id="crm_lead_list_add_partner" model="ir.ui.view">
+        <field name="name">crm.lead.list.add.partner</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="partner_id" position="attributes">
+                <attribute name="optional">show</attribute>
+                <attribute name="column_invisible">False</attribute>
+            </field>
+        </field>
+    </record>

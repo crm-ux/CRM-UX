@@ -301,7 +301,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         res.update({
             'order_id': order.id,
             'x_gst_included': gst_on,
-            'signature_photo': order.x_draft_signature_photo or (order.user_id.x_signature_card if order.user_id else False),
+            'signature_photo': order.x_draft_signature_photo or (order.user_id.x_signature_card if order.user_id else False) or order._get_default_signature_card(),
             'seller_name': order.company_id.name or '',
             'buyer_name': order.x_draft_buyer_name or order.partner_id.name or '',
             'contact_person': order.x_draft_contact_person or order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
@@ -578,16 +578,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
             qty = int(line.product_uom_qty or 0)
             amount = line.price_subtotal or 0
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
+            if part_no: desc += '<br/><b>Part No:</b> %s' % part_no
+            extra_name_lines = [l.strip() for l in (line.name or '').split('\n')[1:] if l.strip()]
+            if extra_name_lines:
+                desc += '<br/><b>Description:</b> %s' % '<br/>'.join(extra_name_lines)
             if make: desc += '<br/><b>Make:</b> %s' % make
-            if note: desc += '<br/><b>Description:</b> %s' % note
             for n in note_map.get(line.id, []):
-                desc += '<br/><b>Description:</b> <i style="color:#333;">%s</i>' % n
+                desc += '<br/><i style="color:#333;">%s</i>' % n
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             if has_discount_pdf:
                 disc_str = '%s%%' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
             else:
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, part_no, hsn, qty, _indian_format(unit_price), _indian_format(amount))
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
         # Build headers based on discount
@@ -595,7 +598,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             th_html = (
                 '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
                 '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
                 '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
@@ -606,7 +608,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             th_html = (
                 '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
                 '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Part No</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
                 '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
                 '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
@@ -621,7 +622,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
-        col = 8 if has_discount_pdf else 7
+        col = 7 if has_discount_pdf else 6
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         untaxed = order.amount_untaxed
         overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
@@ -1018,18 +1019,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_overall_discount = getattr(order, 'x_flat_discount_pct', 0) or 0
 
         if has_discount:
-            headers = ['SR No.', 'Item Description', 'Part No', 'HSN', 'Qty', 'Unit Price', 'Discount %', 'Amount']
+            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Discount %', 'Amount']
         else:
-            headers = ['SR No.', 'Item Description', 'Part No', 'HSN', 'Qty', 'Unit Price', 'Amount']
+            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Amount']
 
         from docx.shared import Inches as _Inches
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
         # Set column widths
         if has_discount:
-            col_widths = [0.4, 2.5, 0.8, 0.8, 0.4, 0.9, 0.7, 0.8]
+            col_widths = [0.4, 3.3, 0.8, 0.4, 0.9, 0.7, 0.8]
         else:
-            col_widths = [0.4, 3.0, 0.8, 0.8, 0.4, 0.9, 0.8]
+            col_widths = [0.4, 3.8, 0.8, 0.4, 0.9, 0.8]
         for i, width in enumerate(col_widths):
             if i < len(table.columns):
                 for cell in table.columns[i].cells:
@@ -1065,15 +1066,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
         for idx, line in enumerate(order_lines, 1):
             row_cells = table.add_row().cells
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
+            part_no = line.x_product_code or line.product_id.default_code or ''
+            if part_no:
+                desc += '\nPart No: ' + part_no
+            extra_name_lines_d = [l.strip() for l in (line.name or '').split('\n')[1:] if l.strip()]
+            if extra_name_lines_d:
+                desc += '\nDescription: ' + '\n'.join(extra_name_lines_d)
             if line.x_make:
                 desc += '\nMake: ' + line.x_make
-            if hasattr(line, 'x_notes') and line.x_notes:
-                clean_note = (line.x_notes or '').replace('&nbsp;', ' ').strip()
-                if clean_note:
-                    desc += '\nDescription: ' + clean_note
             for n in docx_note_map.get(line.id, []):
-                desc += '\n[NOTE]' + n + '[/NOTE]'
-            part_no = line.x_product_code or line.product_id.default_code or ''
+                desc += '\n' + n
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
             disc_pct = line.discount or 0
@@ -1082,9 +1084,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
             if has_discount:
                 disc_str = '(%s%%)' % int(disc_pct) if disc_pct else '-'
-                row_data = [str(idx), desc, part_no, hsn, str(qty), _indian_format(unit_price), disc_str, _indian_format(amount)]
+                row_data = [str(idx), desc, hsn, str(qty), _indian_format(unit_price), disc_str, _indian_format(amount)]
             else:
-                row_data = [str(idx), desc, part_no, hsn, str(qty), _indian_format(unit_price), _indian_format(amount)]
+                row_data = [str(idx), desc, hsn, str(qty), _indian_format(unit_price), _indian_format(amount)]
 
             for i, val in enumerate(row_data):
                 cell = row_cells[i]
@@ -1107,7 +1109,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             r2 = p.add_run(' ' + note_text)
                             r2.italic = True
                             r2.font.size = Pt(11)
-                        elif part.startswith('Make:') or part.startswith('Description:'):
+                        elif part.startswith('Make:') or part.startswith('Description:') or part.startswith('Part No:'):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
                             r1.bold = True
