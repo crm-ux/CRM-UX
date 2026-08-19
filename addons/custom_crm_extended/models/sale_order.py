@@ -891,21 +891,28 @@ class DashboardStats(models.Model):
     _inherit = 'crm.lead'
 
     @api.model
-    def get_dashboard_stats(self, user_id, is_admin):
+    def get_dashboard_stats(self, user_id, is_admin, company_ids=None):
         """Return all dashboard stats in a single DB round-trip."""
         uid = user_id
         cr = self.env.cr
 
+        company_filter = [('company_id', 'in', company_ids)] if company_ids else []
+        shared_company_filter = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)] if company_ids else []
+
         # Lead stage counts
-        lead_domain = [('active', '=', True)]
+        lead_domain = [('active', '=', True)] + company_filter
         if not is_admin:
             lead_domain.append(('user_id', '=', uid))
         leads = self.env['crm.lead'].read_group(
             lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
+        # Lead priority counts
+        priority_groups = self.env['crm.lead'].read_group(
+            lead_domain, ['x_lead_priority'], ['x_lead_priority'])
+        priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
 
         # Quote stage counts
-        quote_domain = [('state', '!=', 'cancel')]
+        quote_domain = [('state', '!=', 'cancel')] + company_filter
         if not is_admin:
             quote_domain.append(('user_id', '=', uid))
         quotes = self.env['sale.order'].read_group(
@@ -913,13 +920,13 @@ class DashboardStats(models.Model):
         quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
 
         # Revenue
-        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')])
+        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')] + company_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
         pending_orders = self.env['sale.order'].search([
             ('x_quote_stage', 'not in', ['won', 'lost']),
             ('state', '!=', 'cancel')
-        ])
+        ] + company_filter)
         quote_revenue = sum(pending_orders.mapped('amount_total'))
 
         from datetime import date
@@ -927,14 +934,28 @@ class DashboardStats(models.Model):
         today_orders = self.env['sale.order'].search([
             ('x_quote_stage', '=', 'won'),
             ('date_order', '>=', today + ' 00:00:00')
-        ])
+        ] + company_filter)
         today_revenue = sum(today_orders.mapped('amount_total'))
 
         # Other counts
-        customers = self.env['res.partner'].search_count([('customer_rank', '>', 0)])
-        products = self.env['product.template'].search_count([('sale_ok', '=', True)])
+        customers = self.env['res.partner'].search_count([('customer_rank', '>', 0)] + shared_company_filter)
+        products = self.env['product.template'].search_count([('sale_ok', '=', True)] + shared_company_filter)
         users = self.env['res.users'].search_count([('active', '=', True), ('share', '=', False)])
         exhibition = self.env['exhibition.contact'].search_count([])
+        from datetime import datetime
+        import calendar as _calendar
+        now = datetime.now()
+        month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_day = _calendar.monthrange(now.year, now.month)[1]
+        month_end = now.replace(day=last_day, hour=23, minute=59, second=59, microsecond=0)
+        meetings_this_month = self.env['calendar.event'].search_count([
+            ('start', '>=', month_start.strftime('%Y-%m-%d %H:%M:%S')),
+            ('start', '<=', month_end.strftime('%Y-%m-%d %H:%M:%S')),
+        ])
+        upcoming_events = self.env['calendar.event'].search_count([
+            ('start', '>=', now.strftime('%Y-%m-%d %H:%M:%S')),
+            ('start', '<=', month_end.strftime('%Y-%m-%d %H:%M:%S')),
+        ])
 
         return {
             'lead_counts': lead_counts,
@@ -946,4 +967,7 @@ class DashboardStats(models.Model):
             'products': products,
             'users': users,
             'exhibition': exhibition,
+            'priority_counts': priority_counts,
+            'meetings_this_month': meetings_this_month,
+            'upcoming_events': upcoming_events,
         }

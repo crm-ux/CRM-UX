@@ -10,8 +10,12 @@ import { KanbanController } from "@web/views/kanban/kanban_controller";
 
 const WIZARD_ACTION = "custom_crm_extended.action_crm_lead_wizard";
 
-async function openLeadWizard(env) {
-    await env.services.action.doAction(WIZARD_ACTION);
+async function openLeadWizard(env, ctx) {
+    const additionalContext = {};
+    if (ctx && ctx.default_x_lead_priority) {
+        additionalContext.default_x_lead_priority = ctx.default_x_lead_priority;
+    }
+    await env.services.action.doAction(WIZARD_ACTION, { additionalContext });
 }
 
 export class CrmLeadFormController extends FormController {
@@ -26,7 +30,7 @@ export class CrmLeadFormController extends FormController {
                     return;
                 }
             }
-            await openLeadWizard(this.env);
+            await openLeadWizard(this.env, this.props.context);
             return;
         }
         return super.create(...arguments);
@@ -36,7 +40,7 @@ export class CrmLeadFormController extends FormController {
 export class CrmLeadListController extends ListController {
     async createRecord() {
         if (this.props.resModel === "crm.lead") {
-            await openLeadWizard(this.env);
+            await openLeadWizard(this.env, this.props.context);
             return;
         }
         return super.createRecord(...arguments);
@@ -44,7 +48,7 @@ export class CrmLeadListController extends ListController {
 
     async openNewRecord() {
         if (this.props.resModel === "crm.lead") {
-            await openLeadWizard(this.env);
+            await openLeadWizard(this.env, this.props.context);
             return;
         }
         return super.openNewRecord(...arguments);
@@ -54,7 +58,7 @@ export class CrmLeadListController extends ListController {
 export class CrmLeadKanbanController extends KanbanController {
     async createRecord() {
         if (this.props.resModel === "crm.lead") {
-            await openLeadWizard(this.env);
+            await openLeadWizard(this.env, this.props.context);
             return;
         }
         return super.createRecord(...arguments);
@@ -62,7 +66,7 @@ export class CrmLeadKanbanController extends KanbanController {
 
     async openNewRecord() {
         if (this.props.resModel === "crm.lead") {
-            await openLeadWizard(this.env);
+            await openLeadWizard(this.env, this.props.context);
             return;
         }
         return super.openNewRecord(...arguments);

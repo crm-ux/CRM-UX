@@ -256,6 +256,15 @@
                     </div>
                     <p class="crm-panel-note">Manage exhibition and visitor contacts with card scanning.</p>
                 </div>
+                <div class="crm-pro-panel" style="border-left:4px solid #22c55e;">
+                    <div class="crm-panel-head"><div><h2>Lead Priority</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('high')"><strong><t t-esc="state.priorityHigh"/></strong><span>High</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('medium')"><strong><t t-esc="state.priorityMedium"/></strong><span>Medium</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('low')"><strong><t t-esc="state.priorityLow"/></strong><span>Low</span></div>
+                    </div>
+                    <p class="crm-panel-note">Leads grouped by priority level.</p>
+                </div>
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
             <!-- TASK DIALOG -->

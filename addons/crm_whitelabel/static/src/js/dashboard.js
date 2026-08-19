@@ -9,11 +9,14 @@ class CrmDashboard extends Component {
     static template = "crm_whitelabel.Dashboard";
     setup() {
         this.actionService = useService("action");
+        this.ormService = useService("orm");
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
             stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0, stageSent:0,
             stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
             quotesDraft:0, quotesSent:0, quotesNeg:0, quotesOrderExp:0, exhibitionContacts:0,
+            priorityLow:0, priorityMedium:0, priorityHigh:0,
+            meetingsThisMonth:0, upcomingEvents:0,
             customers: 0, quotes: 0, products: 0, users: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
@@ -142,7 +145,7 @@ class CrmDashboard extends Component {
             // Single RPC call for all stats
             const s = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead", method: "get_dashboard_stats",
-                args: [user.userId, isAdmin], kwargs: {}
+                args: [user.userId, isAdmin, this.state.selectedCompanies], kwargs: {}
             });
             const lc = s.lead_counts || {}, qc = s.quote_counts || {};
             const stageLead = lc[0]||0, stageContacted = lc[5]||0, stageTechDisc = lc[7]||0;
@@ -156,8 +159,11 @@ class CrmDashboard extends Component {
             const customers = s.customers||0, products = s.products||0, users = s.users||0;
             const quoteRevenue = s.quote_revenue||0, wonRevenue = s.won_revenue||0;
             const todayRevenue = s.today_revenue||0, exhibitionContacts = s.exhibition||0;
+            const pc = s.priority_counts || {};
+            const priorityLow = pc['low']||0, priorityMedium = pc['medium']||0, priorityHigh = pc['high']||0;
+            const meetingsThisMonth = s.meetings_this_month||0, upcomingEvents = s.upcoming_events||0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
-            Object.assign(this.state, { exhibitionContacts,
+            Object.assign(this.state, { exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
                 leads, qualified, opportunity:opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
@@ -200,8 +206,16 @@ class CrmDashboard extends Component {
             views:[[false,"list"],[false,"form"]],
             domain:[["active","=",true],["x_stage_sequence","=",seq],...ud]});
     }
-    newLead() { this.go(405); }
+    async newLead() {
+        const selected = this.state.selectedCompanies;
+        const companyId = (selected && selected.length === 1) ? selected[0] : user.activeCompanies[0].id;
+        const wizardId = await this.ormService.create("crm.lead.wizard", [{company_id: companyId, step: 1}]);
+        this.go({type:"ir.actions.act_window",res_model:"crm.lead.wizard",res_id:wizardId[0],views:[[false,"form"]],target:"new",name:"Lead Creation"});
+    }
     openExhibition() { this.go({type:"ir.actions.act_window",name:"Exhibition Contacts",res_model:"exhibition.contact",views:[[false,"list"],[false,"form"]]}); }
+    openMeetings() { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59); const fmt = (d) => d.toISOString().slice(0,19).replace('T',' '); this.go({type:"ir.actions.act_window",name:"Meetings This Month",res_model:"calendar.event",views:[[false,"list"],[false,"form"],[false,"calendar"]],domain:[["start",">=",fmt(start)],["start","<=",fmt(end)]]}); }
+    openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59); const fmt = (d) => d.toISOString().slice(0,19).replace('T',' '); this.go({type:"ir.actions.act_window",name:"Upcoming Events",res_model:"calendar.event",views:[[false,"list"],[false,"form"],[false,"calendar"]],domain:[["start",">=",fmt(now)],["start","<=",fmt(end)]]}); }
+    openLeadPriorityFilter(level) { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const labels = {high:"High",medium:"Medium",low:"Low"}; this.go({type:"ir.actions.act_window",name:(labels[level]||level)+" Priority Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_lead_priority","=",level],...ud],context:{default_x_lead_priority:level}}); }
     newQuote() { this.go({type:"ir.actions.act_window",name:"New Quotation",res_model:"sale.order",views:[[false,"form"]],target:"current"}); }
     async onSearchInput(ev) {
         const q = ev.target.value;

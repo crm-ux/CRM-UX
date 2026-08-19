@@ -13,7 +13,9 @@ class CrmLeadWizard(models.TransientModel):
 
     # Step 1
     company_id = fields.Many2one("res.company", string="Our Company",
-        default=lambda self: self.env.company, domain="[(1, '=', 1)]")
+        default=lambda self: self.env['res.company'].browse(
+            self.env.context.get('allowed_company_ids', [self.env.company.id])[0]
+        ), domain="[(1, '=', 1)]")
     name = fields.Char(string="Lead Name")
     partner_name = fields.Char(string="Company Name")
     @api.model
@@ -53,7 +55,7 @@ class CrmLeadWizard(models.TransientModel):
         default=lambda self: self.env.user, domain=[("share", "=", False)])
     x_lead_priority = fields.Selection([
         ("high", "High"), ("medium", "Medium"), ("low", "Low"),
-    ], string="Lead Priority", default="medium")
+    ], string="Lead Priority", default=lambda self: self.env.context.get('default_x_lead_priority', 'medium'))
 
     # Step 2
     contact_name = fields.Char(string="Contact Person")
@@ -231,6 +233,9 @@ class CrmLeadWizard(models.TransientModel):
     def action_next(self):
         # Validate current step
         if self.step == 1:
+            if not self.name:
+                self.e1_name = True
+                return self._reopen()
             self.e1_name = False
             self.e2_contact = False
         elif self.step == 2:
