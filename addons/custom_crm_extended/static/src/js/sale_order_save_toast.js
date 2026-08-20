@@ -13,11 +13,22 @@ patch(FormController.prototype, {
             const reorderToolbar = () => {
                 const container = document.querySelector(".o_control_panel_breadcrumbs");
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
-                const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-                if (container && breadcrumb && statusIndicator) {
-                    if (breadcrumb.previousElementSibling !== statusIndicator) {
-                        container.insertBefore(breadcrumb, statusIndicator.nextSibling);
-                    }
+                const mainButtons = document.querySelector(".o_control_panel_breadcrumbs > .o_control_panel_main_buttons");
+                if (!container || !breadcrumb || !mainButtons) {
+                    return;
+                }
+                const statusBarButtons = Array.from(document.querySelectorAll(".o_form_statusbar button"));
+                const saveBtn = statusBarButtons.find((b) => b.textContent.trim() === "Save");
+                const cancelBtn = statusBarButtons.find((b) => b.textContent.trim() === "Cancel");
+                if (saveBtn && saveBtn.parentElement !== container) {
+                    container.insertBefore(saveBtn, mainButtons.nextSibling);
+                }
+                if (cancelBtn && cancelBtn.parentElement !== container) {
+                    container.insertBefore(cancelBtn, breadcrumb);
+                }
+                if (breadcrumb.previousElementSibling !== cancelBtn && breadcrumb.previousElementSibling !== saveBtn) {
+                    const ref = cancelBtn || saveBtn;
+                    if (ref) container.insertBefore(breadcrumb, ref.nextSibling);
                 }
             };
             onMounted(() => {
@@ -48,11 +59,31 @@ patch(FormController.prototype, {
     },
     async discard() {
         if (this.props.resModel === SALE_ORDER_MODEL) {
-            const result = await super.discard(...arguments);
+            const breadcrumbs = this.env.config?.breadcrumbs || [];
+            if (breadcrumbs.length > 1) {
+                const result = await super.discard(...arguments);
+                this.env.services.notification.add("Operation cancelled.", {
+                    type: "warning",
+                });
+                return result;
+            }
+            try {
+                await this.actionService.doAction(
+                    {
+                        type: "ir.actions.act_window",
+                        name: "Quotations",
+                        res_model: "sale.order",
+                        views: [[false, "list"], [false, "form"]],
+                    },
+                    { clearBreadcrumbs: true }
+                );
+            } catch (e) {
+                console.error("Cancel redirect failed:", e);
+            }
             this.env.services.notification.add("Operation cancelled.", {
                 type: "warning",
             });
-            return result;
+            return;
         }
         return super.discard(...arguments);
     },

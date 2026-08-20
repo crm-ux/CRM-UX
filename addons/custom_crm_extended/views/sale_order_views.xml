@@ -91,6 +91,9 @@
                 <button name="action_lock_final_quote" string="Lock" type="object"
                         class="btn-secondary"
                         invisible="x_final_quote_locked"/>
+                <button name="action_admin_move_back" string="Previous Stage" type="object"
+                        class="btn-secondary"
+                        />
                 <button name="action_mark_won" string="Won" type="object"
                         class="btn-success"
                         invisible="x_quote_stage == 'won'"/>
@@ -100,9 +103,6 @@
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
-                <button name="action_admin_move_back" string="Previous Stage" type="object"
-                        class="btn-secondary"
-                        />
                 <button special="save" string="Save" type="object" class="btn-primary"/>
                 <button special="cancel" string="Cancel" type="object" class="btn-secondary"/>
             </xpath>
