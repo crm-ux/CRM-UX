@@ -66,3 +66,40 @@
     cursor: pointer !important;
     opacity: 1 !important;
 }
+
+/* ===== Save/Cancel button order - Save on right (modern convention) ===== */
+.o_form_status_indicator_buttons,
+.o_form_statusbar {
+  display: flex !important;
+}
+.o_form_button_save {
+  order: 1;
+}
+.o_form_button_cancel {
+  order: 2;
+}
+
+
+/* ===== Vertical alignment fix for moved breadcrumb+gear (Lead/Quote forms) ===== */
+body.o_action_menu_last .o_control_panel_breadcrumbs {
+  align-items: center !important;
+}
+body.o_action_menu_last .o_control_panel_breadcrumbs > .o_breadcrumb {
+  align-self: center !important;
+  flex-direction: row !important;
+}
+body.o_action_menu_last .o_control_panel_breadcrumbs > .o_breadcrumb .o_last_breadcrumb_item {
+  align-self: center !important;
+}
+
+/* ===== Remove auto-margin gap between Cancel and breadcrumb (Lead/Quote forms) ===== */
+body.o_action_menu_last .o_control_panel_breadcrumbs > .me-auto {
+  margin-inline-end: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* ===== Remove auto-margin gap between Cancel and breadcrumb (Lead/Quote forms) ===== */
+body.o_action_menu_last .o_control_panel_breadcrumbs > .me-auto {
+  margin-inline-end: 0 !important;
+  margin-right: 0 !important;
+}
