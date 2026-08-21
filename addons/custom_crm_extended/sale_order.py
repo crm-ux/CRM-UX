@@ -27,22 +27,15 @@ class SaleOrder(models.Model):
     """
     _inherit = 'sale.order'
 
-    @api.multi
     def action_cancel_and_close(self):
-        """Cancel the quotation and close the form."""
+        """Cancel the quotation and return to previous view."""
         self.ensure_one()
-        _logger.info(
-            "=== CANCEL‑AND‑CLOSE STARTED for sale.order %s (state=%s)",
-            self.id, self.state
-        )
-        # Directly set the state to “cancel”. This is what the
-        # standard `action_cancel` does internally.
-        self.write({'state': 'cancel'})
-        _logger.info(
-            "=== CANCEL‑AND‑CLOSE SUCCESS – state now %s", self.state
-        )
-        # Close the form and go back to the previous view.
+        _logger.info("=== CANCEL-AND-CLOSE for sale.order %s (state=%s)", self.id, self.state)
+        # Use Odoo's proper cancel method — handles procurements, stock, etc.
+        self.action_cancel()
+        _logger.info("=== CANCEL-AND-CLOSE SUCCESS — state now %s", self.state)
         return {'type': 'ir.actions.act_window_close'}
+
 
     # ------------------------------------------------------------------
     # 1. GST TOGGLE  (With GST / Without GST)
