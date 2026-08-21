@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="action_cancel_and_close" model="ir.actions.server">
-        <field name="name">Cancel quotation &amp; close</field>
-        <!-- sale.order model -->
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="state">code</field>
-        <field name="code">
-            # `records` is the current sale.order recordset (the opened form)
-            records.sudo().write({'state': 'cancel'})
-            # Return the standard close‑window action
-            action = {'type': 'ir.actions.act_window_close'}
-        </field>
-    </record>
     <record id="view_sale_order_form_custom" model="ir.ui.view">
         <field name="name">sale.order.form.custom</field>
         <field name="model">sale.order</field>
