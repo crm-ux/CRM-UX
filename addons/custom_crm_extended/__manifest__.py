@@ -19,12 +19,12 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/sale_order_views.xml',
         'data/crm_data.xml',
         'views/utm_source_views.xml',
         'views/crm_lead_views.xml',
         'views/crm_lead_create_views.xml',
         'views/crm_lead_product_views.xml',
-        'views/sale_order_views.xml',
         'views/sale_quote_preview_wizard_views.xml',
         'sale_quote_preview_wizard_views.xml',
         'views/sale_terms_template_views.xml',
