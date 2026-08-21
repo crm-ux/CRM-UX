@@ -12,11 +12,11 @@ class CrmDashboard extends Component {
         this.ormService = useService("orm");
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
-            stageLead:0, stageContacted:0, stageTechDisc:0, stageQualified:0, stageSent:0,
-            stageOpportunity:0, stageQuotes:0, stageNegotiation:0, stageOrderExp:0, stageWon:0,
-            quotesDraft:0, quotesSent:0, quotesNeg:0, quotesOrderExp:0, exhibitionContacts:0,
-            priorityLow:0, priorityMedium:0, priorityHigh:0,
-            meetingsThisMonth:0, upcomingEvents:0,
+            stageLead: 0, stageContacted: 0, stageTechDisc: 0, stageQualified: 0, stageSent: 0,
+            stageOpportunity: 0, stageQuotes: 0, stageNegotiation: 0, stageOrderExp: 0, stageWon: 0,
+            quotesDraft: 0, quotesSent: 0, quotesNeg: 0, quotesOrderExp: 0, exhibitionContacts: 0,
+            priorityLow: 0, priorityMedium: 0, priorityHigh: 0,
+            meetingsThisMonth: 0, upcomingEvents: 0,
             customers: 0, quotes: 0, products: 0, users: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
@@ -59,16 +59,16 @@ class CrmDashboard extends Component {
         this.state.greeting = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
     }
     setDate() {
-        this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
     }
 
-        async loadCompanyInfo() {
+    async loadCompanyInfo() {
         try {
-            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name","logo_web"], limit:20 } });
+            const res = await rpc("/web/dataset/call_kw", { model: "res.company", method: "search_read", args: [[]], kwargs: { fields: ["id", "name", "logo_web"], limit: 20 } });
             if (res && res.length > 0) {
                 // Store all companies for dynamic name
                 this.state._allCompanies = res;
@@ -76,7 +76,7 @@ class CrmDashboard extends Component {
                 // Logo from first company
                 if (res[0].logo_web) this.state.companyLogo = "data:image/png;base64," + res[0].logo_web;
             }
-        } catch(e) {}
+        } catch (e) { }
     }
 
     _updateCompanyDisplay() {
@@ -101,10 +101,10 @@ class CrmDashboard extends Component {
     toggleCompanyDropdown() { this.state.companyDropdownOpen = !this.state.companyDropdownOpen; this.state.userDropdownOpen = false; }
     async loadCompanies() {
         try {
-            const res = await rpc("/web/dataset/call_kw", { model:"res.company", method:"search_read", args:[[]], kwargs:{ fields:["id","name"], limit:20 } });
+            const res = await rpc("/web/dataset/call_kw", { model: "res.company", method: "search_read", args: [[]], kwargs: { fields: ["id", "name"], limit: 20 } });
             this.state.companies = res || [];
             this.state.selectedCompanies = (res || []).map(c => c.id);
-        } catch(e) { this.state.companies = []; }
+        } catch (e) { this.state.companies = []; }
     }
     toggleCompany(cid) {
         const idx = this.state.selectedCompanies.indexOf(cid);
@@ -120,24 +120,24 @@ class CrmDashboard extends Component {
         if (names.length === 1) return names[0];
         return names.length + " Companies";
     }
-    async _count(model, domain=[]) {
+    async _count(model, domain = []) {
         try {
-            return await rpc("/web/dataset/call_kw", { model, method:"search_count", args:[domain], kwargs:{} });
-        } catch(e) { return 0; }
+            return await rpc("/web/dataset/call_kw", { model, method: "search_count", args: [domain], kwargs: {} });
+        } catch (e) { return 0; }
     }
-    async _sum(model, field, domain=[]) {
+    async _sum(model, field, domain = []) {
         try {
-            const res = await rpc("/web/dataset/call_kw", { model, method:"read_group", args:[domain,[field],[]], kwargs:{} });
+            const res = await rpc("/web/dataset/call_kw", { model, method: "read_group", args: [domain, [field], []], kwargs: {} });
             return res[0] ? (res[0][field] || 0) : 0;
-        } catch(e) { return 0; }
+        } catch (e) { return 0; }
     }
-    async _groupCount(model, groupField, domain=[]) {
+    async _groupCount(model, groupField, domain = []) {
         try {
-            const res = await rpc("/web/dataset/call_kw", { model, method:"read_group", args:[domain,["id"],[groupField]], kwargs:{lazy:false} });
+            const res = await rpc("/web/dataset/call_kw", { model, method: "read_group", args: [domain, ["id"], [groupField]], kwargs: { lazy: false } });
             const result = {};
             res.forEach(r => { result[r[groupField]] = r.id_count || 0; });
             return result;
-        } catch(e) { return {}; }
+        } catch (e) { return {}; }
     }
     async loadStats() {
         try {
@@ -148,84 +148,87 @@ class CrmDashboard extends Component {
                 args: [user.userId, isAdmin, this.state.selectedCompanies], kwargs: {}
             });
             const lc = s.lead_counts || {}, qc = s.quote_counts || {};
-            const stageLead = lc[0]||0, stageContacted = lc[5]||0, stageTechDisc = lc[7]||0;
-            const stageQualified = lc[10]||0, stageOpportunity = lc[20]||0, stageQuotes = lc[30]||0;
-            const stageSent = lc[35]||0, stageNegotiation = lc[40]||0, stageOrderExp = lc[50]||0;
-            const stageWon = lc[90]||0;
-            const quotesDraft = qc['draft']||0, quotesSent = qc['sent']||0;
-            const quotesNeg = qc['negotiation']||0, quotesOrderExp = qc['order_expected']||0;
-            const won = qc['won']||0;
+            const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
+            const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0, stageQuotes = lc[30] || 0;
+            const stageSent = lc[35] || 0, stageNegotiation = lc[40] || 0, stageOrderExp = lc[50] || 0;
+            const stageWon = lc[90] || 0;
+            const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
+            const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
+            const won = qc['won'] || 0;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
-            const customers = s.customers||0, products = s.products||0, users = s.users||0;
-            const quoteRevenue = s.quote_revenue||0, wonRevenue = s.won_revenue||0;
-            const todayRevenue = s.today_revenue||0, exhibitionContacts = s.exhibition||0;
+            const customers = s.customers || 0, products = s.products || 0, users = s.users || 0;
+            const quoteRevenue = s.quote_revenue || 0, wonRevenue = s.won_revenue || 0;
+            const todayRevenue = s.today_revenue || 0, exhibitionContacts = s.exhibition || 0;
             const pc = s.priority_counts || {};
-            const priorityLow = pc['low']||0, priorityMedium = pc['medium']||0, priorityHigh = pc['high']||0;
-            const meetingsThisMonth = s.meetings_this_month||0, upcomingEvents = s.upcoming_events||0;
+            const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
+            const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
-            Object.assign(this.state, { exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
-                leads, qualified, opportunity:opp,
+            Object.assign(this.state, {
+                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
+                leads, qualified, opportunity: opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 loading: false
             });
-        } catch(e) { console.log("Dashboard error:", e); }
+        } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
         if (!n) return "₹0";
-        if (n >= 10000000) return "₹" + (n/10000000).toFixed(1) + "Cr";
-        if (n >= 100000) return "₹" + (n/100000).toFixed(1) + "L";
-        if (n >= 1000) return "₹" + (n/1000).toFixed(1) + "K";
+        if (n >= 10000000) return "₹" + (n / 10000000).toFixed(1) + "Cr";
+        if (n >= 100000) return "₹" + (n / 100000).toFixed(1) + "L";
+        if (n >= 1000) return "₹" + (n / 1000).toFixed(1) + "K";
         return "₹" + Math.round(n);
     }
-    go(action) { this.actionService.doAction(action, {clearBreadcrumbs: true}); }
-    openLeads() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
-    openQuotes() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","not in",["won","lost"]],["state","!=","cancel"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
+    openLeads() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
+    openQuotes() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "not in", ["won", "lost"]], ["state", "!=", "cancel"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openQuoteStage(stage) {
-        const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]];
-        const cd = this.state.isAdmin?[]:(this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]);
-        const labels = {draft:"Quote", sent:"Sent", negotiation:"Negotiation", order_expected:"Order Expected", won:"Won"};
-        const cancelFilter = stage === 'won' ? [] : [["state","!=","cancel"]];
-        this.go({type:"ir.actions.act_window",name:(labels[stage]||stage)+" Quotations",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=",stage],...cancelFilter,...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies,group_by:["x_quote_type"],create:false},create:false});
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        const cd = this.state.isAdmin ? [] : (this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []);
+        const labels = { draft: "Quote", sent: "Sent", negotiation: "Negotiation", order_expected: "Order Expected", won: "Won" };
+        const cancelFilter = stage === 'won' ? [] : [["state", "!=", "cancel"]];
+        this.go({ type: "ir.actions.act_window", name: (labels[stage] || stage) + " Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", stage], ...cancelFilter, ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies, group_by: ["x_quote_type"], create: false }, create: false });
     }
-    openContactCategories() { this.go({type:"ir.actions.act_window",name:"Contact Categories",res_model:"exhibition.category",views:[[false,"list"],[false,"form"]]}); }
-    openQuoteSeries() { this.go({type:"ir.actions.act_window",name:"Quote Series",res_model:"ir.sequence",views:[[false,"list"],[false,"form"]],domain:[["code","=","sale.order"]],context:{active_test:false}}); }
-    openContactCategories() { this.go({type:"ir.actions.act_window",name:"Contact Categories",res_model:"exhibition.category",views:[[false,"list"],[false,"form"]]}); }
-    openQuoteSeries() { this.go({type:"ir.actions.act_window",name:"Quote Series",res_model:"ir.sequence",views:[[false,"list"],[false,"form"]],domain:[["code","=","sale.order"]],context:{active_test:false}}); }
-    openTerms() { this.actionService.doAction({type:'ir.actions.act_window',name:'Terms & Conditions',res_model:'sale.terms.condition',view_mode:'list,form',views:[[false,'list'],[false,'form']]}); }
-    openContacts() { this.go({type:"ir.actions.act_window",name:"Customers",res_model:"res.partner",views:[[false,"list"],[false,"form"]],domain:[["customer_rank",">",0]]}); }
-    openProducts() { this.go({type:"ir.actions.act_window",name:"Products",res_model:"product.template",views:[[false,"list"],[false,"form"]]}); }
-    openUsers() { this.go({type:"ir.actions.act_window",name:"Users",res_model:"res.users",views:[[false,"list"],[false,"form"]],domain:[["share","=",false]]}); }
-    openWon() { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const cd = this.state.selectedCompanies.length?[["company_id","in",this.state.selectedCompanies]]:[]; this.go({type:"ir.actions.act_window",name:"Won Deals",res_model:"sale.order",views:[[false,"list"],[false,"form"]],domain:[["x_quote_stage","=","won"],...ud,...cd],context:{allowed_company_ids:this.state.selectedCompanies}}); }
+    openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
+    openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
+    openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
+    openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
+    openTerms() { this.actionService.doAction({ type: 'ir.actions.act_window', name: 'Terms & Conditions', res_model: 'sale.terms.condition', view_mode: 'list,form', views: [[false, 'list'], [false, 'form']] }); }
+    openContacts() { this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] }); }
+    openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
+    openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
+    openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
-        const ud = this.state.isAdmin ? [] : [["user_id","=",user.userId]];
-        this.go({type:"ir.actions.act_window",name:"Pipeline",res_model:"crm.lead",
-            views:[[false,"list"],[false,"form"]],
-            domain:[["active","=",true],["x_stage_sequence","=",seq],...ud]});
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        this.go({
+            type: "ir.actions.act_window", name: "Pipeline", res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ["x_stage_sequence", "=", seq], ...ud]
+        });
     }
     async newLead() {
         const selected = this.state.selectedCompanies;
         const companyId = (selected && selected.length === 1) ? selected[0] : user.activeCompanies[0].id;
-        const wizardId = await this.ormService.create("crm.lead.wizard", [{company_id: companyId, step: 1}]);
-        this.go({type:"ir.actions.act_window",res_model:"crm.lead.wizard",res_id:wizardId[0],views:[[false,"form"]],target:"new",name:"Lead Creation"});
+        const wizardId = await this.ormService.create("crm.lead.wizard", [{ company_id: companyId, step: 1 }]);
+        this.go({ type: "ir.actions.act_window", res_model: "crm.lead.wizard", res_id: wizardId[0], views: [[false, "form"]], target: "new", name: "Lead Creation" });
     }
-    openExhibition() { this.go({type:"ir.actions.act_window",name:"Exhibition Contacts",res_model:"exhibition.contact",views:[[false,"list"],[false,"form"]]}); }
-    openMeetings() { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59); const fmt = (d) => d.toISOString().slice(0,19).replace('T',' '); this.go({type:"ir.actions.act_window",name:"Meetings This Month",res_model:"calendar.event",views:[[false,"list"],[false,"form"],[false,"calendar"]],domain:[["start",">=",fmt(start)],["start","<=",fmt(end)]]}); }
-    openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth()+1, 0, 23,59,59); const fmt = (d) => d.toISOString().slice(0,19).replace('T',' '); this.go({type:"ir.actions.act_window",name:"Upcoming Events",res_model:"calendar.event",views:[[false,"list"],[false,"form"],[false,"calendar"]],domain:[["start",">=",fmt(now)],["start","<=",fmt(end)]]}); }
-    openLeadPriorityFilter(level) { const ud = this.state.isAdmin?[]:[["user_id","=",user.userId]]; const labels = {high:"High",medium:"Medium",low:"Low"}; this.go({type:"ir.actions.act_window",name:(labels[level]||level)+" Priority Leads",res_model:"crm.lead",views:[[false,"list"],[false,"form"]],domain:[["active","=",true],["x_lead_priority","=",level],...ud],context:{default_x_lead_priority:level}}); }
-    newQuote() { this.go({type:"ir.actions.act_window",name:"New Quotation",res_model:"sale.order",views:[[false,"form"]],target:"current"}); }
+    openExhibition() { this.go({ type: "ir.actions.act_window", name: "Exhibition Contacts", res_model: "exhibition.contact", views: [[false, "list"], [false, "form"]] }); }
+    openMeetings() { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Meetings This Month", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(start)], ["start", "<=", fmt(end)]] }); }
+    openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Upcoming Events", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(now)], ["start", "<=", fmt(end)]] }); }
+    openLeadPriorityFilter(level) { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const labels = { high: "High", medium: "Medium", low: "Low" }; this.go({ type: "ir.actions.act_window", name: (labels[level] || level) + " Priority Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ["x_lead_priority", "=", level], ...ud], context: { default_x_lead_priority: level } }); }
+    newQuote() { this.go({ type: "ir.actions.act_window", name: "New Quotation", res_model: "sale.order", views: [[false, "form"]], target: "current" }); }
     async onSearchInput(ev) {
         const q = ev.target.value;
         this.state.searchQuery = q;
         if (q.length < 2) { this.state.searchResults = []; this.state.searchOpen = false; return; }
         try {
-            const res = await rpc("/web/dataset/call_kw", { model:"res.users", method:"search_read", args:[[["active","=",true],["share","=",false],["name","ilike",q]]], kwargs:{ fields:["id","name","email","partner_id"], limit:10 } });
+            const res = await rpc("/web/dataset/call_kw", { model: "res.users", method: "search_read", args: [[["active", "=", true], ["share", "=", false], ["name", "ilike", q]]], kwargs: { fields: ["id", "name", "email", "partner_id"], limit: 10 } });
             this.state.searchResults = res || [];
             this.state.searchOpen = true;
-        } catch(e) { this.state.searchResults = []; }
+        } catch (e) { this.state.searchResults = []; }
     }
     openTaskDialog(u) { this.state.selectedUser = u; this.state.taskTitle = ""; this.state.taskNote = ""; this.state.taskDialogOpen = true; this.state.searchOpen = false; this.state.searchQuery = ""; }
     closeTaskDialog() { this.state.taskDialogOpen = false; this.state.selectedUser = null; }
@@ -261,7 +264,7 @@ class CrmDashboard extends Component {
             });
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
-        } catch(e) {
+        } catch (e) {
             console.log("Assign task error:", e);
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
@@ -278,22 +281,22 @@ class CrmDashboard extends Component {
     async loadNotifCount() {
         try {
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
-            const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','in',['crm.lead','res.partner']]]], kwargs:{ fields:['id'], limit:50, order:'date desc' } });
-            this.state.notifCount = messages.map(m=>m.id).filter(id=>!readIds.includes(id)).length;
-        } catch(e) { this.state.notifCount = 0; }
+            const messages = await rpc('/web/dataset/call_kw', { model: 'mail.message', method: 'search_read', args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner']]]], kwargs: { fields: ['id'], limit: 50, order: 'date desc' } });
+            this.state.notifCount = messages.map(m => m.id).filter(id => !readIds.includes(id)).length;
+        } catch (e) { this.state.notifCount = 0; }
     }
     async toggleNotifications() {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
-                const messages = await rpc('/web/dataset/call_kw', { model:'mail.message', method:'search_read', args:[[['partner_ids','in',[user.partnerId]],['model','in',['crm.lead','res.partner']]]], kwargs:{ fields:['id','record_name','body','date','res_id','model'], limit:10, order:'date desc' } });
-                localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m=>m.id)));
+                const messages = await rpc('/web/dataset/call_kw', { model: 'mail.message', method: 'search_read', args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner']]]], kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model'], limit: 10, order: 'date desc' } });
+                localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m => m.id)));
                 this.state.notifCount = 0;
-                this.state.notifications = messages.map(m => ({ id:m.id, res_id:m.res_id, record_name:m.record_name||'Lead', body_text:m.body?m.body.replace(/<[^>]+>/g,'').substring(0,80):'', date:m.date?m.date.substring(0,16):'' }));
-            } catch(e) { this.state.notifications = []; }
+                this.state.notifications = messages.map(m => ({ id: m.id, res_id: m.res_id, record_name: m.record_name || 'Lead', body_text: m.body ? m.body.replace(/<[^>]+>/g, '').substring(0, 80) : '', date: m.date ? m.date.substring(0, 16) : '' }));
+            } catch (e) { this.state.notifications = []; }
         }
     }
-    openLead(notif) { this.state.notifOpen=false; this.actionService.doAction({type:'ir.actions.act_window',res_model:'crm.lead',res_id:notif.res_id,view_mode:'form',views:[[false,'form']],target:'current'}); }
+    openLead(notif) { this.state.notifOpen = false; this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' }); }
 }
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 export default CrmDashboard;
