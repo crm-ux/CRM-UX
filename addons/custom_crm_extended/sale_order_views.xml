@@ -49,7 +49,9 @@
                 <button name="action_lock_final_quote" string="Lock" type="object" class="btn-secondary" invisible="x_final_quote_locked"/>
 
                 <!-- **NEW – functional Cancel button** -->
-                <button name="action_cancel_and_close" string="Cancel" type="object" class="btn btn-secondary" attrs="{'invisible':[('state','!=','draft')]}"/>
+                <button name="action_cancel_and_close" string="Cancel" type="object" 
+        class="btn btn-secondary" 
+        invisible="state != 'draft'"/>
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="after">
