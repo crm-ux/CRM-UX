@@ -27,6 +27,7 @@ class SaleOrder(models.Model):
     """
     _inherit = 'sale.order'
 
+    @api.multi
     def action_cancel_and_close(self):
         """Cancel the quotation and return to previous view."""
         self.ensure_one()
