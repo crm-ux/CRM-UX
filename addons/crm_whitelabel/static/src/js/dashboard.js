@@ -56,7 +56,7 @@ class CrmDashboard extends Component {
     }
     setGreeting() {
         const h = new Date().getHours();
-        this.state.greeting = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
+        this.state.greeting = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon hello" : "Good Evening";
     }
     setDate() {
         this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
