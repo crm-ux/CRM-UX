@@ -25,6 +25,21 @@ class SaleOrder(models.Model):
     """
     _inherit = 'sale.order'
 
+    @api.multi
+    def action_cancel_and_close(self):
+        """Cancel the quotation and close the form.
+        1️⃣ Calls the standard `action_cancel` to apply all
+           Odoo‑native cancellation logic (state change, messages,
+           workflow, etc.).
+        2️⃣ Returns an `ir.actions.act_window_close` action, which tells
+           the web client to close the current form and go back to the
+           previous view (list, kanban, etc.).
+        """
+        # Run the built‑in cancellation routine
+        self.action_cancel()
+        # Tell the client to close the modal/form
+        return {'type': 'ir.actions.act_window_close'}
+
     # ------------------------------------------------------------------
     # 1. GST TOGGLE  (With GST / Without GST)
     # ------------------------------------------------------------------
