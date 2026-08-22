@@ -6,6 +6,45 @@ import { FormController } from "@web/views/form/form_controller";
 const SALE_ORDER_MODEL = "sale.order";
 
 patch(FormController.prototype, {
+    // setup() {
+    //     super.setup();
+    //     if (this.props.resModel === SALE_ORDER_MODEL) {
+    //         let observer = null;
+    //         const reorderToolbar = () => {
+    //             const container = document.querySelector(".o_control_panel_breadcrumbs");
+    //             const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+    //             const mainButtons = document.querySelector(".o_control_panel_breadcrumbs > .o_control_panel_main_buttons");
+    //             if (!container || !breadcrumb || !mainButtons) {
+    //                 return;
+    //             }
+    //             const statusBarButtons = Array.from(document.querySelectorAll(".o_form_statusbar button"));
+    //             const saveBtn = statusBarButtons.find((b) => b.textContent.trim() === "Save");
+    //             const cancelBtn = statusBarButtons.find((b) => b.textContent.trim() === "Cancel");
+    //             if (saveBtn && saveBtn.parentElement !== container) {
+    //                 container.insertBefore(saveBtn, mainButtons.nextSibling);
+    //             }
+    //             if (cancelBtn && cancelBtn.parentElement !== container) {
+    //                 container.insertBefore(cancelBtn, breadcrumb);
+    //             }
+    //             if (breadcrumb.previousElementSibling !== cancelBtn && breadcrumb.previousElementSibling !== saveBtn) {
+    //                 const ref = cancelBtn || saveBtn;
+    //                 if (ref) container.insertBefore(breadcrumb, ref.nextSibling);
+    //             }
+    //         };
+    //         onMounted(() => {
+    //             reorderToolbar();
+    //             const panel = document.querySelector(".o_control_panel_breadcrumbs");
+    //             if (panel) {
+    //                 observer = new MutationObserver(() => reorderToolbar());
+    //                 observer.observe(panel, { childList: true, subtree: true });
+    //             }
+    //         });
+    //         onWillUnmount(() => {
+    //             if (observer) observer.disconnect();
+    //         });
+    //     }
+    // },
+
     setup() {
         super.setup();
         if (this.props.resModel === SALE_ORDER_MODEL) {
@@ -17,19 +56,27 @@ patch(FormController.prototype, {
                 if (!container || !breadcrumb || !mainButtons) {
                     return;
                 }
-                const statusBarButtons = Array.from(document.querySelectorAll(".o_form_statusbar button"));
-                const saveBtn = statusBarButtons.find((b) => b.textContent.trim() === "Save");
-                const cancelBtn = statusBarButtons.find((b) => b.textContent.trim() === "Cancel");
-                if (saveBtn && saveBtn.parentElement !== container) {
-                    container.insertBefore(saveBtn, mainButtons.nextSibling);
+                if (container.querySelector(".o_custom_top_save_cancel")) {
+                    return;
                 }
-                if (cancelBtn && cancelBtn.parentElement !== container) {
-                    container.insertBefore(cancelBtn, breadcrumb);
-                }
-                if (breadcrumb.previousElementSibling !== cancelBtn && breadcrumb.previousElementSibling !== saveBtn) {
-                    const ref = cancelBtn || saveBtn;
-                    if (ref) container.insertBefore(breadcrumb, ref.nextSibling);
-                }
+                const wrapper = document.createElement("div");
+                wrapper.className = "o_custom_top_save_cancel d-flex gap-1";
+
+                const saveBtn = document.createElement("button");
+                saveBtn.type = "button";
+                saveBtn.className = "btn btn-primary";
+                saveBtn.innerHTML = "<span>Save</span>";
+                saveBtn.addEventListener("click", () => this.saveButtonClicked());
+
+                const cancelBtn = document.createElement("button");
+                cancelBtn.type = "button";
+                cancelBtn.className = "btn btn-secondary";
+                cancelBtn.innerHTML = "<span>Cancel</span>";
+                cancelBtn.addEventListener("click", () => this.discard());
+
+                wrapper.appendChild(saveBtn);
+                wrapper.appendChild(cancelBtn);
+                container.insertBefore(wrapper, mainButtons.nextSibling);
             };
             onMounted(() => {
                 reorderToolbar();
