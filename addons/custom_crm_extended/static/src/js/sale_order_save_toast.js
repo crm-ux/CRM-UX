@@ -20,6 +20,24 @@ patch(FormController.prototype, {
                 const statusBarButtons = Array.from(document.querySelectorAll(".o_form_statusbar button"));
                 const saveBtn = statusBarButtons.find((b) => b.textContent.trim() === "Save");
                 const cancelBtn = statusBarButtons.find((b) => b.textContent.trim() === "Cancel");
+
+                if (cancelBtn && !cancelBtn.dataset.customBound) {
+                    cancelBtn.dataset.customBound = "true";
+                    cancelBtn.addEventListener("click", (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        this.discard();
+                    });
+                }
+                if (saveBtn && !saveBtn.dataset.customBound) {
+                    saveBtn.dataset.customBound = "true";
+                    saveBtn.addEventListener("click", (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        this.saveButtonClicked();
+                    });
+                }
+
                 if (saveBtn && saveBtn.parentElement !== container) {
                     container.insertBefore(saveBtn, mainButtons.nextSibling);
                 }
