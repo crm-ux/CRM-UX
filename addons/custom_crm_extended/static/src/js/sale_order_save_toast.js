@@ -75,15 +75,49 @@ patch(FormController.prototype, {
         }
         return super.saveButtonClicked(...arguments);
     },
+    // async discard() {
+    //     if (this.props.resModel === SALE_ORDER_MODEL) {
+    //         const breadcrumbs = this.env.config?.breadcrumbs || [];
+    //         if (breadcrumbs.length > 1) {
+    //             const result = await super.discard(...arguments);
+    //             this.env.services.notification.add("Operation cancelled.", {
+    //                 type: "warning",
+    //             });
+    //             return result;
+    //         }
+    //         try {
+    //             await this.actionService.doAction(
+    //                 {
+    //                     type: "ir.actions.act_window",
+    //                     name: "Quotations",
+    //                     res_model: "sale.order",
+    //                     views: [[false, "list"], [false, "form"]],
+    //                 },
+    //                 { clearBreadcrumbs: true }
+    //             );
+    //         } catch (e) {
+    //             console.error("Cancel redirect failed:", e);
+    //         }
+    //         this.env.services.notification.add("Operation cancelled.", {
+    //             type: "warning",
+    //         });
+    //         return;
+    //     }
+    //     return super.discard(...arguments);
+    // },
     async discard() {
         if (this.props.resModel === SALE_ORDER_MODEL) {
+            await this.model.root.discard();
             const breadcrumbs = this.env.config?.breadcrumbs || [];
             if (breadcrumbs.length > 1) {
-                const result = await super.discard(...arguments);
-                this.env.services.notification.add("Operation cancelled.", {
-                    type: "warning",
-                });
-                return result;
+                const prev = breadcrumbs[breadcrumbs.length - 2];
+                if (prev && prev.jsId) {
+                    this.actionService.restore(prev.jsId);
+                    this.env.services.notification.add("Operation cancelled.", {
+                        type: "warning",
+                    });
+                    return;
+                }
             }
             try {
                 await this.actionService.doAction(
