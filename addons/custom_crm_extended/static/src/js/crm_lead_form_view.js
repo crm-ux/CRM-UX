@@ -47,6 +47,7 @@ export class CrmLeadFormController extends FormController {
                     }
                     if (!productTabLink.classList.contains('active')) {
                         productTabLink.click();
+                        productTabLink.dispatchEvent(new Event('click', { bubbles: true }));
                     }
                 }
             };
