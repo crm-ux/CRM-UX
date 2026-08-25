@@ -42,6 +42,7 @@ export class CrmLeadFormController extends FormController {
                 const navTabs = document.querySelector('.nav-tabs');
                 if (productTab && navTabs && navTabs.firstElementChild !== productTab) {
                     navTabs.insertBefore(productTab, navTabs.firstChild);
+                    productTab.click();
                 }
             };
 
