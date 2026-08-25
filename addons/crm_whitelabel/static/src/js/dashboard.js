@@ -10,6 +10,7 @@ class CrmDashboard extends Component {
     setup() {
         this.actionService = useService("action");
         this.ormService = useService("orm");
+
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
             stageLead: 0, stageContacted: 0, stageTechDisc: 0, stageQualified: 0, stageSent: 0,
