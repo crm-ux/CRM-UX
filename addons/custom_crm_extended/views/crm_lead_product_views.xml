@@ -8,7 +8,7 @@
 
               <field name="arch" type="xml">
 
-                     <xpath expr="//notebook" position="=inside">
+                     <xpath expr="//notebook" position="inside">
                             <page string="Product Interest" name="x_product_lines" >
 
                                    <div class="mb-2">
