@@ -8,7 +8,7 @@
 
               <field name="arch" type="xml">
 
-                     <xpath expr="//notebook" position="inside">
+                     <xpath expr="//notebook/page[1]" position="before">
                             <page string="Product Interest" name="x_product_lines" >
 
                                    <div class="mb-2">
@@ -91,11 +91,6 @@
                                    </field>
 
                             </page>
-
-                     </xpath>
-       <xpath expr="//page[@name='x_product_lines']" position="after">
-       <xpath expr="//page[@name='internal_notes']" position="move"/>
-</xpath>
               </field>
        </record>
 </odoo>
