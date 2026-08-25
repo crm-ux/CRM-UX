@@ -103,7 +103,9 @@ class CrmDashboard extends Component {
         try {
             const res = await rpc("/web/dataset/call_kw", { model: "res.company", method: "search_read", args: [[]], kwargs: { fields: ["id", "name"], limit: 20 } });
             this.state.companies = res || [];
-            this.state.selectedCompanies = (res || []).map(c => c.id);
+            const activeIds = (user.activeCompanies || []).map(c => c.id);
+            this.state.selectedCompanies = activeIds.length ? activeIds : (res || []).map(c => c.id);
+            this._updateCompanyDisplay();
         } catch (e) { this.state.companies = []; }
     }
     toggleCompany(cid) {
