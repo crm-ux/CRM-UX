@@ -91,6 +91,7 @@
                                    </field>
 
                             </page>
+                     </xpath>
               </field>
        </record>
 </odoo>

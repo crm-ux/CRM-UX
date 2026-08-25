@@ -38,13 +38,19 @@ export class CrmLeadFormController extends FormController {
             };
 
             const reorderTabs = () => {
-                const productTab = document.querySelector('a[name="x_product_lines"]')?.parentElement;
+                const productTabLink = document.querySelector('a[name="x_product_lines"]');
+                const productTab = productTabLink?.parentElement;
                 const navTabs = document.querySelector('.nav-tabs');
-                if (productTab && navTabs && navTabs.firstElementChild !== productTab) {
-                    navTabs.insertBefore(productTab, navTabs.firstChild);
-                    productTab.click();
+                if (productTab && navTabs) {
+                    if (navTabs.firstElementChild !== productTab) {
+                        navTabs.insertBefore(productTab, navTabs.firstChild);
+                    }
+                    if (!productTabLink.classList.contains('active')) {
+                        productTabLink.click();
+                    }
                 }
             };
+
 
             onMounted(() => {
                 reorderToolbar();
