@@ -36,11 +36,22 @@ export class CrmLeadFormController extends FormController {
                     }
                 }
             };
+
+            const reorderTabs = () => {
+                const productTab = document.querySelector('a[name="x_product_lines"]')?.parentElement;
+                const navTabs = document.querySelector('.nav-tabs');
+                if (productTab && navTabs && navTabs.firstElementChild !== productTab) {
+                    navTabs.insertBefore(productTab, navTabs.firstChild);
+                }
+            };
+
             onMounted(() => {
                 reorderToolbar();
+                reorderTabs();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
                 if (panel) {
                     observer = new MutationObserver(() => reorderToolbar());
+                    reorderTabs();
                     observer.observe(panel, { childList: true, subtree: true });
                 }
             });
@@ -91,7 +102,7 @@ export class CrmLeadFormController extends FormController {
                 confirmLabel: _t("Discard"),
                 cancelLabel: _t("Stay Here"),
                 confirm: goBack,
-                cancel: () => {},
+                cancel: () => { },
             });
             return;
         }
