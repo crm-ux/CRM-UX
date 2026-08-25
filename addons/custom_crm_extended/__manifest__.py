@@ -48,9 +48,9 @@
             'custom_crm_extended/static/src/js/crm_new_button.js',
             'custom_crm_extended/static/src/js/sale_order_save_toast.js',
         ],
-        'web.assets_frontend': [
-            'custom_crm_extended/static/src/css/crm_hide_new.css',
-        ],
+        # 'web.assets_frontend': [
+        #     'custom_crm_extended/static/src/css/crm_hide_new.css',
+        # ],
     },
     'installable': True,
     'application': False,

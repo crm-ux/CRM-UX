@@ -4,11 +4,13 @@
     color: #ffffff !important;
     border: none !important;
 }
+
 .o_dialog .o_form_renderer button.step_done {
     background-color: #b7d7ff !important;
     color: #0b3d91 !important;
-    border: none !important;
+    border: none !important
 }
+
 .o_dialog .o_form_renderer button.step_future {
     background-color: #e0e0e0 !important;
     color: #888888 !important;
@@ -16,21 +18,36 @@
 }
 
 /* ── Sale order: hide statusbar + chatter ── */
-.o_sale_order .o_statusbar_status { display: none !important; }
+.o_sale_order .o_statusbar_status {
+    display: none !important;
+}
+
 .o_sale_order .o-mail-Thread,
 .o_sale_order .o_message_list,
 .o_sale_order .o-mail-Form-chatter,
-.o_sale_order .o_chatter { display: none !important; }
-.o_sale_order .o_form_view > .o_form_sheet_bg { width: 100% !important; }
+.o_sale_order .o_chatter {
+    display: none !important;
+}
+
+.o_sale_order .o_form_view>.o_form_sheet_bg {
+    width: 100% !important;
+}
+
 .o_sale_order .o_activity_btn,
-.o_sale_order .o-mail-ChatterTopbar { display: none !important; }
+.o_sale_order .o-mail-ChatterTopbar {
+    display: none !important;
+}
 
 /* ── GST tax totals ── */
-.o_field_widget[name="x_gst_included"] + * .tax-totals { display: none; }
+.o_field_widget[name="x_gst_included"]+* .tax-totals {
+    display: none;
+}
 
 /* ── CRM: hide Won action button (rainbow) ── */
 button[name="action_set_won_rainbowman"],
-button[name="action_set_won"] { display: none !important; }
+button[name="action_set_won"] {
+    display: none !important;
+}
 
 /* ── CRM: New Quotation button → brand dark blue ── */
 button[name="action_sale_quotations_new"] {
@@ -38,6 +55,7 @@ button[name="action_sale_quotations_new"] {
     color: #ffffff !important;
     border-color: #0b3d91 !important;
 }
+
 button[name="action_sale_quotations_new"]:hover {
     background-color: #082d6e !important;
     border-color: #082d6e !important;
@@ -47,8 +65,13 @@ button[name="action_sale_quotations_new"]:hover {
 .o_form_view .o-mail-Form-chatter,
 .o_form_view .o-mail-Thread,
 .o_form_view .o_ChatterContainer,
-.o_form_view .o_chatter { display: none !important; }
-.o_form_view .o_form_sheet_bg { width: 100% !important; }
+.o_form_view .o_chatter {
+    display: none !important;
+}
+
+.o_form_view .o_form_sheet_bg {
+    width: 100% !important;
+}
 
 /* ── CRM STAGE BAR: arrow shape, blue family ── */
 .o_statusbar_status {
@@ -88,12 +111,15 @@ button[name="action_sale_quotations_new"]:hover {
 .o_statusbar_status button.o_arrow_button::after {
     border-left-color: #e8f0fe !important;
 }
+
 .o_statusbar_status button.o_arrow_button.o_arrow_button_current::after {
     border-left-color: #0b3d91 !important;
 }
+
 .o_statusbar_status button.o_arrow_button:not(.o_arrow_button_current):hover::after {
     border-left-color: #c5d8fc !important;
 }
+
 .o_statusbar_status button.o_arrow_button::before {
     border-left-color: #ffffff !important;
 }
@@ -140,6 +166,7 @@ button[name="action_save_lead"] {
     border-color: #104a91 !important;
     color: #ffffff !important;
 }
+
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active {
@@ -156,6 +183,7 @@ button[name="action_save_lead"] {
     border-color: #104a91 !important;
     color: #ffffff !important;
 }
+
 .o_form_button_create:hover,
 .o_list_button_add:hover,
 .o_control_panel .btn-primary:hover {
@@ -175,6 +203,7 @@ button[name="action_save_lead"] {
     border-color: #104a91 !important;
     color: #ffffff !important;
 }
+
 .o_form_status_indicator_buttons .o_form_button_save:hover {
     background-color: #0C3868 !important;
     border-color: #0C3868 !important;
