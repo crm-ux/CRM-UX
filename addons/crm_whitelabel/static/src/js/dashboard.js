@@ -114,6 +114,14 @@ class CrmDashboard extends Component {
         if (idx === -1) this.state.selectedCompanies.push(cid);
         else if (this.state.selectedCompanies.length > 1) this.state.selectedCompanies.splice(idx, 1);
         this._updateCompanyDisplay();
+        try {
+            user.activateCompanies(this.state.selectedCompanies, {
+                includeChildCompanies: false,
+                reload: false,
+            });
+        } catch (e) {
+            console.error("activateCompanies failed:", e);
+        }
         this.loadStats();
     }
     isCompanySelected(cid) { return this.state.selectedCompanies.includes(cid); }

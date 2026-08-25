@@ -108,6 +108,7 @@
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
+                <field name="company_id" string="Company" readonly="1" force_save="1"/>
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
                 <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle" groups="base.group_system"/>
             </xpath>
