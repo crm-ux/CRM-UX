@@ -8,8 +8,8 @@
 
               <field name="arch" type="xml">
 
-                     <xpath expr="//page[1]" position="before">
-                            <page string="Product Interest" name="x_product_lines">
+                     <xpath expr="//notebook" position="before">
+                            <page string="Product Interest" name="x_product_lines" >
 
                                    <div class="mb-2">
                                           <button name="action_import_products_csv"
@@ -93,7 +93,9 @@
                             </page>
 
                      </xpath>
-
+       <xpath expr="//page[@name='x_product_lines']" position="after">
+       <xpath expr="//page[@name='internal_notes']" position="move"/>
+</xpath>
               </field>
        </record>
 </odoo>
