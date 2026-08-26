@@ -102,9 +102,11 @@ class EquipmentMasterWizard(models.TransientModel):
             "name": _("Equipment Master Creation"),
             "res_model": self._name,
             "res_id": self.id,
+            "view_id": self.env.ref("custom_crm_extended.equipment_master_wizard_form").id,
             "view_mode": "form",
             "target": "new",
         }
+
 
     def action_save_equipment(self):
         self.ensure_one()
