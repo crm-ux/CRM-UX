@@ -222,18 +222,17 @@ class CrmDashboard extends Component {
     }
 
     async openEquipmentMaster() {
-        try {
-            const action = await rpc("/web/dataset/call_kw", {
-                model: "ir.actions.act_window",
-                method: "for_xml_id",
-                args: ["custom_crm_extended.action_equipment_master_wizard"],
-                kwargs: {},
-            });
-            this.go(action);
-        } catch (e) {
-            this.go({ type: "ir.actions.act_window", name: "Equipment Master Creation", res_model: "equipment.master.wizard", views: [[false, "form"]], target: "new" });
-        }
+        const wizardId = await this.ormService.create("equipment.master.wizard", [{ step: 1 }]);
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Equipment Master Creation",
+            res_model: "equipment.master.wizard",
+            res_id: wizardId[0],
+            views: [[false, "form"]],
+            target: "new",
+        });
     }
+
 
 
     async newLead() {
