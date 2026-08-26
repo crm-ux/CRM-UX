@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Equipment Master Form View -->
+    <record id="view_equipment_master_form" model="ir.ui.view">
+        <field name="name">equipment.master.form</field>
+        <field name="model">equipment.master</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Master">
+                <header>
+                    <field name="equipment_status" widget="statusbar" statusbar_visible="active,under_repair,inactive"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="equipment_id" readonly="1"/>
+                        </h1>
+                        <h2>
+                            <field name="name" placeholder="Equipment Name"/>
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group string="Basic Information">
+                            <field name="category_id"/>
+                            <field name="manufacturer"/>
+                            <field name="model_number"/>
+                            <field name="serial_number"/>
+                            <field name="part_number"/>
+                            <field name="child_part_no"/>
+                            <field name="criticality"/>
+                        </group>
+                        <group string="Customer Location &amp; Contact">
+                            <field name="partner_id"/>
+                            <field name="site_name"/>
+                            <field name="building"/>
+                            <field name="floor"/>
+                            <field name="department"/>
+                            <field name="room_number"/>
+                            <field name="contact_person"/>
+                            <field name="contact_number"/>
+                            <field name="email"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Maintenance &amp; Contract" name="maintenance_tab">
+                            <group>
+                                <group string="Dates &amp; Contract">
+                                    <field name="installation_date"/>
+                                    <field name="warranty_start_date"/>
+                                    <field name="warranty_end_date"/>
+                                    <field name="service_contract"/>
+                                </group>
+                                <group string="Maintenance Status">
+                                    <field name="running_status"/>
+                                    <field name="last_preventive_maintenance"/>
+                                    <field name="next_preventive_maintenance"/>
+                                    <field name="last_breakdown_date"/>
+                                    <field name="calibration_due_date"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Specs &amp; Remarks" name="specs_tab">
+                            <group>
+                                <field name="firmware_version"/>
+                                <field name="address"/>
+                                <field name="accessories"/>
+                                <field name="remarks"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Equipment Master List/Tree View -->
+    <record id="view_equipment_master_tree" model="ir.ui.view">
+        <field name="name">equipment.master.tree</field>
+        <field name="model">equipment.master</field>
+        <field name="arch" type="xml">
+            <list string="Equipment Master">
+                <field name="equipment_id"/>
+                <field name="name"/>
+                <field name="category_id"/>
+                <field name="manufacturer"/>
+                <field name="model_number"/>
+                <field name="serial_number"/>
+                <field name="partner_id"/>
+                <field name="site_name"/>
+                <field name="equipment_status" widget="badge" decoration-success="equipment_status == 'active'" decoration-warning="equipment_status == 'under_repair'" decoration-danger="equipment_status == 'inactive'"/>
+                <field name="running_status"/>
+                <field name="criticality"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Equipment Master Search View -->
+    <record id="view_equipment_master_search" model="ir.ui.view">
+        <field name="name">equipment.master.search</field>
+        <field name="model">equipment.master</field>
+        <field name="arch" type="xml">
+            <search string="Equipment Master">
+                <field name="equipment_id"/>
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="partner_id"/>
+                <filter string="Active" name="active" domain="[('equipment_status', '=', 'active')]"/>
+                <filter string="Under Repair" name="under_repair" domain="[('equipment_status', '=', 'under_repair')]"/>
+                <filter string="Running" name="running" domain="[('running_status', '=', 'running')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'equipment_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_equipment_master" model="ir.actions.act_window">
+        <field name="name">Equipment Master</field>
+        <field name="res_model">equipment.master</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Equipment Master record!
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem id="menu_equipment_master_root"
+              name="Equipment Master"
+              action="action_equipment_master"
+              sequence="25"/>
+</odoo>

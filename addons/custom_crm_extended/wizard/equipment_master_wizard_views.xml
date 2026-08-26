@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="equipment_master_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.master.wizard.form</field>
+        <field name="model">equipment.master.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Master Creation">
+                <field name="step" invisible="1"/>
+                <sheet>
+                    <!-- Step indicators bar -->
+                    <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="step_done"    invisible="step &lt;= 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="step_future"  invisible="step &gt;= 1">1. Equipment Info</button>
+                        <span>&#8594;</span>
+
+                        <button name="action_goto_2" type="object" class="step_current" invisible="step != 2">2. Location &amp; Contact</button>
+                        <button name="action_goto_2" type="object" class="step_done"    invisible="step &lt;= 2">2. Location &amp; Contact</button>
+                        <button name="action_goto_2" type="object" class="step_future"  invisible="step &gt;= 2">2. Location &amp; Contact</button>
+                        <span>&#8594;</span>
+
+                        <button name="action_goto_3" type="object" class="step_current" invisible="step != 3">3. Maintenance</button>
+                        <button name="action_goto_3" type="object" class="step_done"    invisible="step &lt;= 3">3. Maintenance</button>
+                        <button name="action_goto_3" type="object" class="step_future"  invisible="step &gt;= 3">3. Maintenance</button>
+                        <span>&#8594;</span>
+
+                        <button name="action_goto_4" type="object" class="step_current" invisible="step != 4">4. Specs &amp; Remarks</button>
+                        <button name="action_goto_4" type="object" class="step_done"    invisible="step &lt;= 4">4. Specs &amp; Remarks</button>
+                        <button name="action_goto_4" type="object" class="step_future"  invisible="step &gt;= 4">4. Specs &amp; Remarks</button>
+                    </div>
+
+                    <!-- STEP 1: Equipment Info -->
+                    <div invisible="step != 1">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
+                        <group col="2">
+                            <field name="equipment_id" string="Equipment ID" readonly="1"/>
+                            <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
+                        </group>
+                        <group col="2">
+                            <field name="category_id" string="Equipment Category" options="{'no_create': False, 'quick_create': True}"/>
+                            <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
+                        </group>
+                        <group col="2">
+                            <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="serial_number" string="Serial Number" placeholder="e.g. TSV336RLGF-123456"/>
+                        </group>
+                        <group col="2">
+                            <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="child_part_no" string="Child Part No" placeholder="e.g. 09.2005, 09.1003"/>
+                        </group>
+                        <group col="2">
+                            <field name="equipment_status" string="Equipment Status"/>
+                            <field name="criticality" string="Criticality"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 2: Location & Contact -->
+                    <div invisible="step != 2">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Location &amp; Contact Details</div>
+                        <group col="2">
+                            <field name="partner_id" string="Customer Name" options="{'no_create': True}"/>
+                            <field name="site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
+                        </group>
+                        <group col="2">
+                            <field name="building" string="Building" placeholder="e.g. Production Block"/>
+                            <field name="floor" string="Floor" placeholder="e.g. Ground Floor"/>
+                        </group>
+                        <group col="2">
+                            <field name="department" string="Department" placeholder="e.g. QC Laboratory"/>
+                            <field name="room_number" string="Room Number" placeholder="e.g. Lab-102"/>
+                        </group>
+                        <group col="2">
+                            <field name="contact_person" string="Contact Person" placeholder="e.g. John Patel"/>
+                            <field name="contact_number" string="Contact Number" placeholder="e.g. +91-9876543119"/>
+                        </group>
+                        <group col="2">
+                            <field name="email" string="Email" placeholder="e.g. john@example.com"/>
+                            <field name="address" string="Address" placeholder="Complete address..."/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 3: Maintenance & Contract -->
+                    <div invisible="step != 3">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Maintenance &amp; Contract</div>
+                        <group col="2">
+                            <field name="installation_date" string="Installation Date"/>
+                            <field name="service_contract" string="Service Contract"/>
+                        </group>
+                        <group col="2">
+                            <field name="warranty_start_date" string="Warranty Start Date"/>
+                            <field name="warranty_end_date" string="Warranty End Date"/>
+                        </group>
+                        <group col="2">
+                            <field name="last_preventive_maintenance" string="Last PM Date"/>
+                            <field name="next_preventive_maintenance" string="Next PM Date"/>
+                        </group>
+                        <group col="2">
+                            <field name="last_breakdown_date" string="Last Breakdown Date"/>
+                            <field name="calibration_due_date" string="Calibration Due Date"/>
+                        </group>
+                        <group col="2">
+                            <field name="running_status" string="Current Running Status"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 4: Specs & Remarks -->
+                    <div invisible="step != 4">
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Technical Specs &amp; Remarks</div>
+                        <group col="2">
+                            <field name="firmware_version" string="Software/Firmware Version" placeholder="e.g. v2.4.1"/>
+                        </group>
+                        <group col="1">
+                            <field name="accessories" string="Accessories" placeholder="e.g. Temperature Probe, Data Logger"/>
+                            <field name="remarks" string="Remarks" placeholder="Additional information..."/>
+                        </group>
+                    </div>
+                </sheet>
+
+                <footer>
+                    <button name="action_back" string="Back" type="object" class="btn-secondary" invisible="step &lt;= 1"/>
+                    <button name="action_next" string="Next" type="object" class="btn-primary" invisible="step &gt;= 4"/>
+                    <button name="action_save_equipment" string="Save Equipment" type="object" class="btn-primary" invisible="step != 4"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equipment_master_wizard" model="ir.actions.act_window">
+        <field name="name">Equipment Master Creation</field>
+        <field name="res_model">equipment.master.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
