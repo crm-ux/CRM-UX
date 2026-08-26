@@ -186,12 +186,13 @@ class CrmDashboard extends Component {
         } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
-        if (!n) return "â‚¹0";
-        if (n >= 10000000) return "â‚¹" + (n / 10000000).toFixed(1) + "Cr";
-        if (n >= 100000) return "â‚¹" + (n / 100000).toFixed(1) + "L";
-        if (n >= 1000) return "â‚¹" + (n / 1000).toFixed(1) + "K";
-        return "â‚¹" + Math.round(n);
+        if (!n) return "\u20B90";
+        if (n >= 10000000) return "\u20B9" + (n / 10000000).toFixed(1) + "Cr";
+        if (n >= 100000) return "\u20B9" + (n / 100000).toFixed(1) + "L";
+        if (n >= 1000) return "\u20B9" + (n / 1000).toFixed(1) + "K";
+        return "\u20B9" + n.toLocaleString('en-IN');
     }
+
     go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
     openLeads() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openQuotes() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "not in", ["won", "lost"]], ["state", "!=", "cancel"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
