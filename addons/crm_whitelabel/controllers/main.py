@@ -14,10 +14,17 @@ class PersistentHome(Home):
         if request.session.uid:
             return request.redirect('/app/action-435')
         return super(PersistentHome, self).index(s_action=s_action, **kw)
-    @http.route('/web/login', type='http', auth="none")
+    @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
+        # If user is ALREADY logged in, send them straight to Dashboard
+        if request.session.uid and not redirect:
+            return request.redirect('/app/action-435')
+        
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
+        
+        # Set 90-day persistent session cookie
         if request and request.session and request.session.uid and response:
             response.set_cookie('session_id', request.session.sid, max_age=90 * 24 * 60 * 60, httponly=True)
+            
         return response
 
