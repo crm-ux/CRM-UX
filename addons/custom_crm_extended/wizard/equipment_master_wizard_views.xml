@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="equipment_master_wizard_form" model="ir.ui.view">
         <field name="name">equipment.master.wizard.form</field>
@@ -31,7 +31,7 @@
 
                     <!-- STEP 1: Equipment Info -->
                     <div invisible="step != 1">
-                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
+                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
                         <group col="2">
                             <field name="equipment_id" string="Equipment ID" readonly="1"/>
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
@@ -56,7 +56,7 @@
 
                     <!-- STEP 2: Location & Contact -->
                     <div invisible="step != 2">
-                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Location &amp; Contact Details</div>
+                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Location &amp; Contact Details</div>
                         <group col="2">
                             <field name="partner_id" string="Customer Name" options="{'no_create': True}"/>
                             <field name="site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
@@ -81,7 +81,7 @@
 
                     <!-- STEP 3: Maintenance & Contract -->
                     <div invisible="step != 3">
-                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Maintenance &amp; Contract</div>
+                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Maintenance &amp; Contract</div>
                         <group col="2">
                             <field name="installation_date" string="Installation Date"/>
                             <field name="service_contract" string="Service Contract"/>
@@ -105,7 +105,7 @@
 
                     <!-- STEP 4: Specs & Remarks -->
                     <div invisible="step != 4">
-                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Technical Specs &amp; Remarks</div>
+                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Technical Specs &amp; Remarks</div>
                         <group col="2">
                             <field name="firmware_version" string="Software/Firmware Version" placeholder="e.g. v2.4.1"/>
                         </group>
