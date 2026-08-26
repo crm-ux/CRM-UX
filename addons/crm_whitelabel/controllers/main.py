@@ -1,6 +1,6 @@
 from odoo import http
 from odoo.http import request
-odoo.addons.web.controllers.session import Session
+from odoo.addons.web.controllers.session import Session
 
 class CrmWhitelabelController(http.Controller):
     
