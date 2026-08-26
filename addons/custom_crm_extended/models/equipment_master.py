@@ -15,7 +15,7 @@ class EquipmentMaster(models.Model):
 
     # Step 1: Equipment Info
     # equipment_id = fields.Char(string='Equipment ID', required=True, copy=False, default=lambda self: _('New'), tracking=True)
-    equipment_id = fields.Char(string='Equipment ID', required=True, tracking=True)
+    equipment_id = fields.Char(string='Equipment ID', required="step == 4", tracking=True)
     name = fields.Char(string='Equipment Name', tracking=True)
     category_id = fields.Many2one('equipment.category', string='Equipment Category', tracking=True)
     manufacturer = fields.Char(string='Manufacturer', tracking=True)
