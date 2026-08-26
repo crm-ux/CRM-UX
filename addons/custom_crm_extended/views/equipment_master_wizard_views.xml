@@ -30,11 +30,11 @@
                     <div invisible="step != 1">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
                         <group col="2">
-                            <field name="equipment_id" string="Equipment ID" readonly="1"/>
+                            <field name="equipment_id" string="Equipment ID"/>
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
                         </group>
                         <group col="2">
-                            <field name="category_id" string="Equipment Category" options="{'no_create': False, 'quick_create': True}"/>
+                            <field name="category_id" string="Equipment Category" placeholder="Refrigerator"/>
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
                         <group col="2">
