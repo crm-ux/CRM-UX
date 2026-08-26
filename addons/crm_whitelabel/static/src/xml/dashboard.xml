@@ -238,9 +238,6 @@
                     </div>
                     <p class="crm-panel-note">View customer records, company details and communication history.</p>
                 </div>
-
-
-
                 <div class="crm-pro-panel" style="border-left:4px solid #6366f1;">
                     <div class="crm-panel-head"><div><h2>This Month Reminders</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -265,6 +262,16 @@
                         <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('low')"><strong><t t-esc="state.priorityLow"/></strong><span>Low</span></div>
                     </div>
                     <p class="crm-panel-note">Leads grouped by priority level.</p>
+                </div>
+                <div class="crm-pro-panel" style="border-left:4px solid #3b82f6; cursor:pointer;" t-on-click="() => this.openEquipmentList([], 'All Equipment')">
+                    <div class="crm-panel-head"><div><h2>Equipment Master</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')"><strong><t t-esc="state.equipmentTotal"/></strong><span>Total</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')"><strong><t t-esc="state.equipmentActive"/></strong><span>Active</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')"><strong><t t-esc="state.equipmentRepair"/></strong><span>Repair</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['running_status','=','stopped']], 'Stopped Equipment')"><strong><t t-esc="state.equipmentStopped"/></strong><span>Stopped</span></div>
+                    </div>
+                    <p class="crm-panel-note">Equipment tracking &amp; maintenance overview.</p>
                 </div>
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>

@@ -19,6 +19,7 @@ class CrmDashboard extends Component {
             priorityLow: 0, priorityMedium: 0, priorityHigh: 0,
             meetingsThisMonth: 0, upcomingEvents: 0,
             customers: 0, quotes: 0, products: 0, users: 0,
+            equipmentTotal: 0, equipmentActive: 0, equipmentRepair: 0, equipmentStopped: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
@@ -183,6 +184,17 @@ class CrmDashboard extends Component {
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 loading: false
             });
+            let equipmentTotal = 0, equipmentActive = 0, equipmentRepair = 0, equipmentStopped = 0;
+            try {
+                const [eqTot, eqAct, eqRep, eqStop] = await Promise.all([
+                    this.ormService.searchCount("equipment.master", []),
+                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "active"]]),
+                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "under_repair"]]),
+                    this.ormService.searchCount("equipment.master", [["running_status", "=", "stopped"]]),
+                ]);
+                equipmentTotal = eqTot; equipmentActive = eqAct; equipmentRepair = eqRep; equipmentStopped = eqStop;
+            } catch (err) { }
+
         } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
@@ -222,6 +234,16 @@ class CrmDashboard extends Component {
         });
     }
 
+    openEquipmentList(domain = [], name = "Equipment Master") {
+        this.go({
+            type: "ir.actions.act_window",
+            name: name,
+            res_model: "equipment.master",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+        });
+    }
+
     async openEquipmentMaster() {
         const wizardId = await this.ormService.create("equipment.master.wizard", [{ name: "New Equipment", step: 1 }]);
         this.go({
@@ -233,8 +255,6 @@ class CrmDashboard extends Component {
             target: "new",
         });
     }
-
-
 
     async newLead() {
         const selected = this.state.selectedCompanies;
