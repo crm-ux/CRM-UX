@@ -1,4 +1,4 @@
-/** @odoo-module **/
+﻿/** @odoo-module **/
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { Component, onMounted, useState } from "@odoo/owl";
@@ -186,11 +186,11 @@ class CrmDashboard extends Component {
         } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
-        if (!n) return "₹0";
-        if (n >= 10000000) return "₹" + (n / 10000000).toFixed(1) + "Cr";
-        if (n >= 100000) return "₹" + (n / 100000).toFixed(1) + "L";
-        if (n >= 1000) return "₹" + (n / 1000).toFixed(1) + "K";
-        return "₹" + Math.round(n);
+        if (!n) return "â‚¹0";
+        if (n >= 10000000) return "â‚¹" + (n / 10000000).toFixed(1) + "Cr";
+        if (n >= 100000) return "â‚¹" + (n / 100000).toFixed(1) + "L";
+        if (n >= 1000) return "â‚¹" + (n / 1000).toFixed(1) + "K";
+        return "â‚¹" + Math.round(n);
     }
     go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
     openLeads() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
@@ -210,7 +210,7 @@ class CrmDashboard extends Component {
     openContacts() { this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] }); }
     openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
-    openEquipmentMaster() { this.go({ type: "ir.actions.act_window", name: "Equipment Master", res_model: "equipment.master", views: [[false, "list"], [false, "form"]] }); }
+    openEquipmentMaster() { this.go({ type: "ir.actions.act_window", name: "Equipment Master Creation", res_model: "equipment.master.wizard", views: [[false, "form"]], target: "new" }); }
     openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
@@ -312,3 +312,4 @@ class CrmDashboard extends Component {
 }
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 export default CrmDashboard;
+
