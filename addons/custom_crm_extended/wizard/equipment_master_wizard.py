@@ -9,7 +9,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
     # Step 1: Equipment Info
     equipment_id = fields.Char(string="Equipment ID", default=lambda self: _("New"))
-    name = fields.Char(string="Equipment Name", required=True)
+    name = fields.Char(string="Equipment Name")
     category_id = fields.Many2one("equipment.category", string="Equipment Category")
     manufacturer = fields.Char(string="Manufacturer")
     model_number = fields.Char(string="Model Number")
