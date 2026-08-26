@@ -3,36 +3,32 @@
     <record id="equipment_master_wizard_form" model="ir.ui.view">
         <field name="name">equipment.master.wizard.form</field>
         <field name="model">equipment.master.wizard</field>
-        <field name="priority">1</field>
         <field name="arch" type="xml">
             <form string="Equipment Master Creation">
                 <field name="step" invisible="1"/>
                 <sheet>
-                    <!-- Step indicators bar -->
+                    <!-- Step indicators -->
                     <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                        <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Equipment Info</button>
-                        <button name="action_goto_1" type="object" class="step_done"    invisible="step &lt;= 1">1. Equipment Info</button>
-                        <button name="action_goto_1" type="object" class="step_future"  invisible="step &gt;= 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="btn step_current" invisible="step != 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="btn step_done" invisible="step &lt;= 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="btn step_future" invisible="step &gt;= 1">1. Equipment Info</button>
                         <span>&#8594;</span>
-
-                        <button name="action_goto_2" type="object" class="step_current" invisible="step != 2">2. Location &amp; Contact</button>
-                        <button name="action_goto_2" type="object" class="step_done"    invisible="step &lt;= 2">2. Location &amp; Contact</button>
-                        <button name="action_goto_2" type="object" class="step_future"  invisible="step &gt;= 2">2. Location &amp; Contact</button>
+                        <button name="action_goto_2" type="object" class="btn step_current" invisible="step != 2">2. Contact</button>
+                        <button name="action_goto_2" type="object" class="btn step_done" invisible="step &lt;= 2">2. Contact</button>
+                        <button name="action_goto_2" type="object" class="btn step_future" invisible="step &gt;= 2">2. Contact</button>
                         <span>&#8594;</span>
-
-                        <button name="action_goto_3" type="object" class="step_current" invisible="step != 3">3. Maintenance</button>
-                        <button name="action_goto_3" type="object" class="step_done"    invisible="step &lt;= 3">3. Maintenance</button>
-                        <button name="action_goto_3" type="object" class="step_future"  invisible="step &gt;= 3">3. Maintenance</button>
+                        <button name="action_goto_3" type="object" class="btn step_current" invisible="step != 3">3. Maintenance</button>
+                        <button name="action_goto_3" type="object" class="btn step_done" invisible="step &lt;= 3">3. Maintenance</button>
+                        <button name="action_goto_3" type="object" class="btn step_future" invisible="step &gt;= 3">3. Maintenance</button>
                         <span>&#8594;</span>
-
-                        <button name="action_goto_4" type="object" class="step_current" invisible="step != 4">4. Specs &amp; Remarks</button>
-                        <button name="action_goto_4" type="object" class="step_done"    invisible="step &lt;= 4">4. Specs &amp; Remarks</button>
-                        <button name="action_goto_4" type="object" class="step_future"  invisible="step &gt;= 4">4. Specs &amp; Remarks</button>
+                        <button name="action_goto_4" type="object" class="btn step_current" invisible="step != 4">4. Specs</button>
+                        <button name="action_goto_4" type="object" class="btn step_done" invisible="step &lt;= 4">4. Specs</button>
+                        <button name="action_goto_4" type="object" class="step_future" invisible="step &gt;= 4">4. Specs</button>
                     </div>
 
                     <!-- STEP 1: Equipment Info -->
                     <div invisible="step != 1">
-                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
                         <group col="2">
                             <field name="equipment_id" string="Equipment ID" readonly="1"/>
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
@@ -55,9 +51,9 @@
                         </group>
                     </div>
 
-                    <!-- STEP 2: Location & Contact -->
+                    <!-- STEP 2: Contact Details -->
                     <div invisible="step != 2">
-                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Location &amp; Contact Details</div>
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Contact Details</div>
                         <group col="2">
                             <field name="partner_id" string="Customer Name" options="{'no_create': True}"/>
                             <field name="site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
@@ -82,7 +78,7 @@
 
                     <!-- STEP 3: Maintenance & Contract -->
                     <div invisible="step != 3">
-                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Maintenance &amp; Contract</div>
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Maintenance &amp; Contract</div>
                         <group col="2">
                             <field name="installation_date" string="Installation Date"/>
                             <field name="service_contract" string="Service Contract"/>
@@ -104,9 +100,9 @@
                         </group>
                     </div>
 
-                    <!-- STEP 4: Specs & Remarks -->
+                    <!-- STEP 4: Technical Specs & Remarks -->
                     <div invisible="step != 4">
-                        <div style="font-size:14px;font-weight:700;color:#1a3d6e;border-bottom:2px solid #1a3d6e;padding-bottom:4px;margin-bottom:16px;">Technical Specs &amp; Remarks</div>
+                        <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Technical Specs &amp; Remarks</div>
                         <group col="2">
                             <field name="firmware_version" string="Software/Firmware Version" placeholder="e.g. v2.4.1"/>
                         </group>
@@ -116,21 +112,20 @@
                         </group>
                     </div>
                 </sheet>
-
                 <footer>
-                    <button name="action_back" string="Back" type="object" class="btn-secondary" invisible="step &lt;= 1"/>
-                    <button name="action_next" string="Next" type="object" class="btn-primary" invisible="step &gt;= 4"/>
-                    <button name="action_save_equipment" string="Save Equipment" type="object" class="btn-primary" invisible="step != 4"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button string="Back" type="object" name="action_back" class="btn btn-secondary" invisible="step == 1"/>
+                    <button string="Next" type="object" name="action_next" class="btn btn-primary" invisible="step == 4"/>
+                    <button string="Save Equipment" type="object" name="action_save_equipment" class="btn btn-primary" invisible="step != 4"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
-
     <record id="action_equipment_master_wizard" model="ir.actions.act_window">
         <field name="name">Equipment Master Creation</field>
         <field name="res_model">equipment.master.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="context">{'default_step': 1}</field>
     </record>
 </odoo>
