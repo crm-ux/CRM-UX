@@ -35,6 +35,8 @@
         'views/crm_lead_won_po_wizard_views.xml',
         'views/product_label_view.xml',
         'views/product_make_view.xml',
+        'views/equipment_master_views.xml',
+        'wizard/equipment_master_wizard_views.xml',
         'views/res_users_signature_views.xml',
         'views/res_company_signature_views.xml',
     ],
