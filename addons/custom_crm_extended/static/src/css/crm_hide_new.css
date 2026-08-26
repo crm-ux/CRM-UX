@@ -216,6 +216,7 @@ button[name="action_save_lead"] {
 }
 
 /* Hide Odoo burger menu icon */
+.o_frontend_to_backend_nav,
 .o_navbar_apps_menu,
 .o_menu_toggle,
 .o_main_navbar .o_menu_toggle,
