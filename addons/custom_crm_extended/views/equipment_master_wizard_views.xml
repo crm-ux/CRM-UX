@@ -3,6 +3,7 @@
     <record id="equipment_master_wizard_form" model="ir.ui.view">
         <field name="name">equipment.master.wizard.form</field>
         <field name="model">equipment.master.wizard</field>
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <form string="Equipment Master Creation">
                 <field name="step" invisible="1"/>
