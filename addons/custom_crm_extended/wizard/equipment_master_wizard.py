@@ -5,7 +5,7 @@ class EquipmentMasterWizard(models.TransientModel):
     _name = "equipment.master.wizard"
     _description = "Equipment Master Creation Wizard"
 
-    step = fields.Integer(default=1)
+    step = fields.Integer(string="Step", default=1)
 
     # Step 1: Equipment Info
     equipment_id = fields.Char(string="Equipment ID", default=lambda self: _("New"))

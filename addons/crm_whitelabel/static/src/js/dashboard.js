@@ -223,32 +223,16 @@ class CrmDashboard extends Component {
     }
 
     async openEquipmentMaster() {
-        try {
-            const wizardId = await this.ormService.create("equipment.master.wizard", [{ name: "New Equipment", step: 1 }]);
-            let viewId = false;
-            try {
-                const res = await this.ormService.searchRead(
-                    "ir.model.data",
-                    [["module", "=", "custom_crm_extended"], ["name", "=", "equipment_master_wizard_form"]],
-                    ["res_id"]
-                );
-                if (res && res.length > 0) {
-                    viewId = res[0].res_id;
-                }
-            } catch (e) { }
-
-            const action = {
-                type: "ir.actions.act_window",
-                name: "Equipment Master Creation",
-                res_model: "equipment.master.wizard",
-                res_id: wizardId[0],
-                views: viewId ? [[viewId, "form"]] : [[false, "form"]],
-                target: "new",
-            };
-            this.go(action);
-        } catch (e) {
-            console.error(e);
-        }
+        const wizardId = await this.ormService.create("equipment.master.wizard", [{ name: "New Equipment", step: 1 }]);
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Equipment Master Creation",
+            res_model: "equipment.master.wizard",
+            res_id: wizardId[0],
+            views: [[false, "form"]],
+            target: "new",
+            context: { default_step: 1 },
+        });
     }
 
     async newLead() {
