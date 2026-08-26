@@ -15,3 +15,6 @@ access_utm_source_user,utm.source.user,utm.model_utm_source,base.group_user,1,0,
 access_utm_source_admin,utm.source.admin,utm.model_utm_source,base.group_system,1,1,1,1
 access_sale_terms_condition,sale.terms.condition,model_sale_terms_condition,base.group_user,1,0,0,0
 access_sale_terms_condition_admin,sale.terms.condition.admin,model_sale_terms_condition,base.group_system,1,1,1,1
+access_equipment_master_user,equipment.master.user,model_equipment_master,base.group_user,1,1,1,1
+access_equipment_category_user,equipment.category.user,model_equipment_category,base.group_user,1,1,1,1
+access_equipment_master_wizard_user,equipment.master.wizard.user,model_equipment_master_wizard,base.group_user,1,1,1,1
