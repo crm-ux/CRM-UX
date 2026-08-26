@@ -223,7 +223,7 @@ class CrmDashboard extends Component {
     }
 
     async openEquipmentMaster() {
-        const wizardId = await this.ormService.create("equipment.master.wizard", [{ step: 1 }]);
+        const wizardId = await this.ormService.create("equipment.master.wizard", [{ name: "New Equipment", step: 1 }]);
         this.go({
             type: "ir.actions.act_window",
             name: "Equipment Master Creation",
