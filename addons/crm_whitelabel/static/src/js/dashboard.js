@@ -210,7 +210,6 @@ class CrmDashboard extends Component {
     openContacts() { this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] }); }
     openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
-    openEquipmentMaster() { this.go("custom_crm_extended.action_equipment_master_wizard"); }
     openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openStage(ev) {
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
@@ -221,6 +220,22 @@ class CrmDashboard extends Component {
             domain: [["active", "=", true], ["x_stage_sequence", "=", seq], ...ud]
         });
     }
+
+    async openEquipmentMaster() {
+        try {
+            const action = await rpc("/web/dataset/call_kw", {
+                model: "ir.actions.act_window",
+                method: "for_xml_id",
+                args: ["custom_crm_extended.action_equipment_master_wizard"],
+                kwargs: {},
+            });
+            this.go(action);
+        } catch (e) {
+            this.go({ type: "ir.actions.act_window", name: "Equipment Master Creation", res_model: "equipment.master.wizard", views: [[false, "form"]], target: "new" });
+        }
+    }
+
+
     async newLead() {
         const selected = this.state.selectedCompanies;
         const companyId = (selected && selected.length === 1) ? selected[0] : user.activeCompanies[0].id;
