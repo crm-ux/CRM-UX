@@ -14,7 +14,8 @@ class EquipmentMaster(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     # Step 1: Equipment Info
-    equipment_id = fields.Char(string='Equipment ID', required=True, copy=False, default=lambda self: _('New'), tracking=True)
+    # equipment_id = fields.Char(string='Equipment ID', required=True, copy=False, default=lambda self: _('New'), tracking=True)
+    equipment_id = fields.Char(string='Equipment ID', tracking=True)
     name = fields.Char(string='Equipment Name', required=True, tracking=True)
     category_id = fields.Many2one('equipment.category', string='Equipment Category', tracking=True)
     manufacturer = fields.Char(string='Manufacturer', tracking=True)
@@ -71,7 +72,7 @@ class EquipmentMaster(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if not vals.get('equipment_id') or vals['equipment_id'] == _('New'):
-                vals['equipment_id'] = self.env['ir.sequence'].next_by_code('equipment.master') or _('New')
+        # for vals in vals_list:
+        #     if not vals.get('equipment_id') or vals['equipment_id'] == _('New'):
+        #         vals['equipment_id'] = self.env['ir.sequence'].next_by_code('equipment.master') or _('New')
         return super().create(vals_list)
