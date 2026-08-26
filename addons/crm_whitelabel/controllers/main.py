@@ -9,12 +9,15 @@ class CrmWhitelabelController(http.Controller):
         return request.redirect('/web/static/img/favicon.ico', code=301)
     
 class PersistentHome(Home):
+    @http.route('/', type='http', auth="none")
+    def index(self, s_action=None, **kw):
+        if request.session.uid:
+            return request.redirect('/app/action-435')
+        return super(PersistentHome, self).index(s_action=s_action, **kw)
     @http.route('/web/login', type='http', auth="none")
     def web_login(self, redirect=None, **kw):
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
         if request and request.session and request.session.uid and response:
-            # Set session_id cookie max-age to 90 days (7,776,000 seconds)
             response.set_cookie('session_id', request.session.sid, max_age=90 * 24 * 60 * 60, httponly=True)
         return response
-
 
