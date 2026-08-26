@@ -214,3 +214,11 @@ button[name="action_save_lead"] {
 .o_sale_order .o_form_status_indicator_buttons {
     display: none !important;
 }
+
+/* Hide Odoo burger menu icon */
+.o_navbar_apps_menu,
+.o_menu_toggle,
+.o_main_navbar .o_menu_toggle,
+.o_home_menu {
+    display: none !important;
+}
