@@ -87,7 +87,7 @@
             <list string="Equipment Master">
                 <field name="equipment_id"/>
                 <field name="name"/>
-                <field name="category_id"/>
+                <field name="equipment_category"/>
                 <field name="manufacturer"/>
                 <field name="model_number"/>
                 <field name="serial_number"/>
@@ -114,7 +114,7 @@
                 <filter string="Under Repair" name="under_repair" domain="[('equipment_status', '=', 'under_repair')]"/>
                 <filter string="Running" name="running" domain="[('running_status', '=', 'running')]"/>
                 <group>
-                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by': 'equipment_category'}"/>
                     <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'equipment_status'}"/>
                 </group>
