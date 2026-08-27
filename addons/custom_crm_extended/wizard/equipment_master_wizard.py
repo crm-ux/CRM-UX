@@ -113,7 +113,7 @@ class EquipmentMasterWizard(models.TransientModel):
         equipment = self.env["equipment.master"].create({
             "equipment_id": self.equipment_id,
             "name": self.name,
-            "category_id": self.category_id.id,
+            "category_id": self.category_id,
             "manufacturer": self.manufacturer,
             "model_number": self.model_number,
             "serial_number": self.serial_number,
