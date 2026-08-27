@@ -185,7 +185,7 @@ class EquipmentMasterWizard(models.TransientModel):
         if self.partner_id:
             p = self.partner_id
             
-            # Fetch contact person, phone, email directly from selected record
+            # Fetch contact person, phone, email
             if p.is_company:
                 primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
                 if primary_contact:
@@ -201,9 +201,13 @@ class EquipmentMasterWizard(models.TransientModel):
                 self.contact_number = p.phone or p.mobile or ""
                 self.email = p.email or ""
 
-            # Format address directly from selected record
+            # Format address
             addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
             self.address = ", ".join([str(a) for a in addr_parts if a])
 
-            # Standard Odoo department/function
-            self.department = p.function or ""
+            # Auto-fill location fields
+            self.site_name = getattr(p, 'x_site_name', False) or ""
+            self.building = getattr(p, 'x_building', False) or ""
+            self.floor = getattr(p, 'x_floor', False) or ""
+            self.department = getattr(p, 'x_department', False) or p.function or ""
+            self.room_number = getattr(p, 'x_room_number', False) or ""
