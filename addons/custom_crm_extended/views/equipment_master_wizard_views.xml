@@ -34,7 +34,7 @@
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
                         </group>
                         <group>
-                            <field name="category_id" string="Equipment Category" placeholder="Refrigerator" options="{'no_create': True, 'no_create_edit': True}"/>                            
+                            <field name="category_id" string="Equipment Category" placeholder="Select Refrigerator Category..." options="{'no_create': True, 'no_create_edit': True}"/>                            
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
                         <group>
