@@ -11,14 +11,15 @@ export class EquipmentFormController extends FormController {
         if (this.props.resModel === "equipment.master") {
             let observer = null;
             const reorderToolbar = () => {
-                const container = document.querySelector(".o_control_panel_breadcrumbs");
-                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                const dashboardBtn = document.querySelector(".o_control_panel_breadcrumbs > button.ms-1");
+                const mainButtons = document.querySelector(".o_control_panel_breadcrumbs > .o_control_panel_main_buttons");
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-                if (container && breadcrumb && statusIndicator) {
-                    if (statusIndicator.nextElementSibling !== breadcrumb) {
-                        statusIndicator.style.order = "-1";
-                    }
-                }
+                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+
+                if (dashboardBtn) dashboardBtn.style.order = "1";
+                if (mainButtons) mainButtons.style.order = "2";
+                if (statusIndicator) statusIndicator.style.order = "3";
+                if (breadcrumb) breadcrumb.style.order = "4";
             };
 
             onMounted(() => {
