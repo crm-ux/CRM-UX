@@ -40,6 +40,7 @@
             'custom_crm_extended/static/src/js/crm_lead_form_view.js',
             'custom_crm_extended/static/src/js/crm_kanban_override.js',
             'custom_crm_extended/static/src/js/crm_new_button.js',
+            'custom_crm_extended/static/src/js/equipment_form_view.js',
         ],
     },
     'installable': True,

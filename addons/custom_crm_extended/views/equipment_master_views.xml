@@ -5,7 +5,7 @@
         <field name="name">equipment.master.form</field>
         <field name="model">equipment.master</field>
         <field name="arch" type="xml">
-            <form string="Equipment Master">
+            <form string="Equipment Master" js_class="crm_lead_form">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_create_service_ticket" type="object" class="oe_stat_button" icon="fa-wrench">
