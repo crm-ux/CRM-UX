@@ -76,3 +76,18 @@ class EquipmentMaster(models.Model):
         #     if not vals.get('equipment_id') or vals['equipment_id'] == _('New'):
         #         vals['equipment_id'] = self.env['ir.sequence'].next_by_code('equipment.master') or _('New')
         return super().create(vals_list)
+
+    def action_create_service_ticket(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Create Service Ticket'),
+            'res_model': 'crm.lead',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_name': f"Service Ticket - {self.name}",
+                'default_partner_id': self.partner_id.id if self.partner_id else False,
+            }
+        }
+

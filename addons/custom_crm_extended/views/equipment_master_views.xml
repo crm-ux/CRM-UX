@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Equipment Master">
                 <header>
-                    <button name="action_create_service_ticket" string="Create Service Ticket" type="object" class="oe_highlight"/>
+                    <button name="action_create_service_ticket" string="Create Service Ticket" type="object" class="btn-primary"/>
                     <field name="equipment_status" widget="statusbar" statusbar_visible="active,under_repair,inactive"/>
                 </header>
                 <sheet>
@@ -16,44 +16,54 @@
                         <h1>
                             <field name="name" placeholder="e.g. Genpure Refrigerator"/>
                         </h1>
-                        <h3>
-                            <field name="equipment_id" placeholder="Equipment ID"/>
-                        </h3>
+                        <h2 class="d-flex align-items-center gap-2">
+                            <span class="text-muted fs-6">Equipment ID:</span>
+                            <field name="equipment_id" placeholder="e.g. LT000123" class="oe_inline"/>
+                        </h2>
                     </div>
 
-                    <group col="2">
-                        <group string="Basic Details">
+                    <group>
+                        <group name="left_details">
+                            <field name="partner_id" string="Customer"/>
+                            <field name="contact_person" string="Contact Person"/>
+                            <field name="email" string="Email" widget="email"/>
+                            <field name="contact_number" string="Phone" widget="phone"/>
+                        </group>
+                        <group name="right_details">
                             <field name="category_id" string="Category"/>
                             <field name="manufacturer" string="Manufacturer"/>
                             <field name="model_number" string="Model Number"/>
                             <field name="serial_number" string="Serial Number"/>
-                            <field name="part_number" string="Part Number"/>
-                            <field name="child_part_no" string="Child Part No"/>
                             <field name="criticality" string="Criticality"/>
-                        </group>
-                        <group string="Customer &amp; Location">
-                            <field name="partner_id" string="Customer"/>
-                            <field name="contact_person" string="Contact Person"/>
-                            <field name="contact_number" string="Contact Number"/>
-                            <field name="email" string="Email"/>
-                            <field name="site_name" string="Site Name"/>
-                            <field name="building" string="Building"/>
-                            <field name="floor" string="Floor"/>
-                            <field name="department" string="Department"/>
-                            <field name="room_number" string="Room Number"/>
                         </group>
                     </group>
 
                     <notebook>
+                        <page string="Location &amp; Contact" name="location_tab">
+                            <group>
+                                <group string="Location Details">
+                                    <field name="site_name" string="Site Name"/>
+                                    <field name="building" string="Building"/>
+                                    <field name="floor" string="Floor"/>
+                                    <field name="department" string="Department"/>
+                                    <field name="room_number" string="Room Number"/>
+                                </group>
+                                <group string="Address Details">
+                                    <field name="address" string="Full Address"/>
+                                    <field name="part_number" string="Part Number"/>
+                                    <field name="child_part_no" string="Child Part No"/>
+                                </group>
+                            </group>
+                        </page>
                         <page string="Maintenance &amp; Contract" name="maintenance_tab">
-                            <group col="2">
-                                <group string="Contract Details">
+                            <group>
+                                <group string="Contract Dates">
                                     <field name="installation_date"/>
                                     <field name="warranty_start_date"/>
                                     <field name="warranty_end_date"/>
                                     <field name="service_contract"/>
                                 </group>
-                                <group string="Preventive Maintenance">
+                                <group string="Maintenance Status">
                                     <field name="running_status"/>
                                     <field name="last_preventive_maintenance"/>
                                     <field name="next_preventive_maintenance"/>
@@ -65,7 +75,6 @@
                         <page string="Specs &amp; Remarks" name="specs_tab">
                             <group>
                                 <field name="firmware_version"/>
-                                <field name="address"/>
                                 <field name="accessories"/>
                                 <field name="remarks"/>
                             </group>
