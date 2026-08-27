@@ -83,25 +83,41 @@ class EquipmentMasterWizard(models.TransientModel):
             self.step -= 1
         return self._reopen_self()
 
-    def action_goto_1(self):
+       def action_goto_1(self):
         self.ensure_one()
         self.step = 1
         return self._reopen_self()
 
     def action_goto_2(self):
         self.ensure_one()
+        if not self.equipment_id:
+            self.step = 1
+            self.e1_id = True
+            return self._reopen_self()
+        self.e1_id = False
         self.step = 2
         return self._reopen_self()
 
     def action_goto_3(self):
         self.ensure_one()
+        if not self.equipment_id:
+            self.step = 1
+            self.e1_id = True
+            return self._reopen_self()
+        self.e1_id = False
         self.step = 3
         return self._reopen_self()
 
     def action_goto_4(self):
         self.ensure_one()
+        if not self.equipment_id:
+            self.step = 1
+            self.e1_id = True
+            return self._reopen_self()
+        self.e1_id = False
         self.step = 4
         return self._reopen_self()
+
 
     def _reopen_self(self):
         return {
