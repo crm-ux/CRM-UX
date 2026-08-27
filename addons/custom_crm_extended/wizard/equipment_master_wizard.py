@@ -180,7 +180,7 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "current",
         }
 
-        @api.onchange("partner_id")
+    @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if self.partner_id:
             p = self.partner_id
@@ -205,9 +205,5 @@ class EquipmentMasterWizard(models.TransientModel):
             addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
             self.address = ", ".join([str(a) for a in addr_parts if a])
 
-            # Fetch location fields strictly from selected record
-            self.site_name = getattr(p, 'x_site_name', False) or ""
-            self.building = getattr(p, 'x_building', False) or ""
-            self.floor = getattr(p, 'x_floor', False) or ""
-            self.department = getattr(p, 'x_department', False) or p.function or ""
-            self.room_number = getattr(p, 'x_room_number', False) or ""
+            # Standard Odoo department/function
+            self.department = p.function or ""
