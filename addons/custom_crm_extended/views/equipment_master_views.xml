@@ -35,7 +35,7 @@
                             <field name="part_number"/>
                             <field name="child_part_no"/>
                             <field name="criticality"/>
-                            <field name="equipment_status" widget="badge" decoration-success="equipment_status == 'active'" decoration-warning="equipment_status == 'under_repair'" decoration-danger="equipment_status == 'inactive'"/>
+                            <field name="equipment_status" widget="selection"/>
                         </group>
                         <group string="Customer Location &amp; Contact">
                             <field name="partner_id"/>
