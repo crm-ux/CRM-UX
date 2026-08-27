@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
-                <page string="Location Details" name="location_details">
+                <page string="Location Details" name="location_details" invisible="0">
                     <group>
                         <group string="Site &amp; Building">
                             <field name="x_site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
