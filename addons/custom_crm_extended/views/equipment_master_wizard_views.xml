@@ -43,7 +43,7 @@
                         </group>
                         <group>
                             <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
-                            <field name="serial_number" string="Serial Number" placeholder="e.g. TSV336RLGF-123456"/>
+                            <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
                         <group>
                             <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
