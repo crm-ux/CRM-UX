@@ -35,7 +35,7 @@
                             <field name="part_number"/>
                             <field name="child_part_no"/>
                             <field name="criticality"/>
-                            <field name="equipment_status" widget="selection"/>
+                            <field name="equipment_status" string="Equipment Status"/>
                         </group>
                         <group string="Customer Location &amp; Contact">
                             <field name="partner_id"/>
