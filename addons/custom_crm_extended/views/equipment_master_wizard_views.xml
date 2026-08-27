@@ -26,6 +26,10 @@
                         <button name="action_goto_4" type="object" class="step_future" invisible="step &gt;= 4">4. Specs</button>
                     </div>
 
+                    <div class="alert alert-danger" role="alert" invisible="not e1_id" style="margin-bottom:12px;padding:8px 12px;font-size:13px;">
+                        <strong>Required:</strong> Please enter Equipment ID before proceeding.
+                    </div>
+
                     <!-- STEP 1: Equipment Info -->
                     <div invisible="step != 1">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>

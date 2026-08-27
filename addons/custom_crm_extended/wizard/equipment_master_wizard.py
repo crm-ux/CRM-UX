@@ -8,6 +8,7 @@ class EquipmentMasterWizard(models.TransientModel):
     step = fields.Integer(string="Step", default=1)
 
     # Step 1: Equipment Info
+    e1_id = fields.Boolean(default=False)
     equipment_id  = fields.Char(string="Equipment ID")
     name = fields.Char(string="Equipment Name")
     category_id = fields.Char(string='Equipment Category')
@@ -66,9 +67,15 @@ class EquipmentMasterWizard(models.TransientModel):
     # Navigation Actions
     def action_next(self):
         self.ensure_one()
+        if self.step == 1:
+            if not self.equipment_id:
+                self.e1_id = True
+                return self._reopen_self()
+            self.e1_id = False
         if self.step < 4:
             self.step += 1
         return self._reopen_self()
+
 
     def action_back(self):
         self.ensure_one()
@@ -110,8 +117,12 @@ class EquipmentMasterWizard(models.TransientModel):
 
     def action_save_equipment(self):
         self.ensure_one()
+        if not self.equipment_id:
+            self.step = 1
+            self.e1_id = True
+            return self._reopen_self()
         equipment = self.env["equipment.master"].create({
-            "equipment_id ": self.equipment_id ,
+            "equipment_id": self.equipment_id,
             "name": self.name,
             "category_id": self.category_id,
             "manufacturer": self.manufacturer,
@@ -152,3 +163,4 @@ class EquipmentMasterWizard(models.TransientModel):
             "view_mode": "form",
             "target": "current",
         }
+
