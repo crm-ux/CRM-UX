@@ -5,7 +5,7 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='function']" position="after">
+            <xpath expr="//div[hasclass('o_address_format')]" position="after">
                 <field name="x_site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
                 <field name="x_building" string="Building" placeholder="e.g. Production Block"/>
                 <field name="x_floor" string="Floor" placeholder="e.g. Ground Floor"/>
