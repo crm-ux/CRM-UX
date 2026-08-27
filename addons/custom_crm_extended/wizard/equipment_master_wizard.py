@@ -111,7 +111,7 @@ class EquipmentMasterWizard(models.TransientModel):
     def action_save_equipment(self):
         self.ensure_one()
         equipment = self.env["equipment.master"].create({
-            "equipment_id": self.equipment_code,
+            "equipment_code": self.equipment_code,
             "name": self.name,
             "category_id": self.category_id.id if self.category_id else False,
             "manufacturer": self.manufacturer,
