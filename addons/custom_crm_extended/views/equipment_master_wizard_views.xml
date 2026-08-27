@@ -34,7 +34,7 @@
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
                         </group>
                         <group>
-                            <field name="category_id" string="Equipment Category" placeholder="e.g. Refrigerator"/>
+                            <field name="category_id" string="Equipment Category" widget="char" placeholder="e.g. Refrigerator"/>
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
                         <group>
