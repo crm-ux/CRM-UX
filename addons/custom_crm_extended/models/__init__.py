@@ -10,3 +10,4 @@ from . import sale_terms
 from . import patch_report
 from . import patch_partner
 from . import equipment_master
+from . import res_partner
