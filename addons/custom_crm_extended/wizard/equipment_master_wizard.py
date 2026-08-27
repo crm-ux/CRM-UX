@@ -83,7 +83,7 @@ class EquipmentMasterWizard(models.TransientModel):
             self.step -= 1
         return self._reopen_self()
 
-       def action_goto_1(self):
+    def action_goto_1(self):
         self.ensure_one()
         self.step = 1
         return self._reopen_self()
