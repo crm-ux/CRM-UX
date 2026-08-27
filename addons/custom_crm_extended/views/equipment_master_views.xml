@@ -87,7 +87,7 @@
             <list string="Equipment Master">
                 <field name="equipment_id"/>
                 <field name="name"/>
-                <field name="equipment_category"/>
+                <field name="category_id"/>
                 <field name="manufacturer"/>
                 <field name="model_number"/>
                 <field name="serial_number"/>
