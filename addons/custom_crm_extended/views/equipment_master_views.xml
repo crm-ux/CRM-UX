@@ -16,48 +16,38 @@
                         <h1>
                             <field name="name" placeholder="e.g. Genpure Refrigerator"/>
                         </h1>
-                        <h2 class="d-flex align-items-center gap-2">
-                            <span class="text-muted fs-6">Equipment ID:</span>
-                            <field name="equipment_id" placeholder="e.g. LT000123" class="oe_inline"/>
+                        <h2>
+                            <field name="equipment_id" placeholder="Equipment ID"/>
                         </h2>
                     </div>
 
                     <group>
-                        <group name="left_details">
-                            <field name="partner_id" string="Customer"/>
-                            <field name="contact_person" string="Contact Person"/>
-                            <field name="email" string="Email" widget="email"/>
-                            <field name="contact_number" string="Phone" widget="phone"/>
+                        <group string="Basic Information">
+                            <field name="category_id"/>
+                            <field name="manufacturer"/>
+                            <field name="model_number"/>
+                            <field name="serial_number"/>
+                            <field name="part_number"/>
+                            <field name="child_part_no"/>
+                            <field name="criticality"/>
                         </group>
-                        <group name="right_details">
-                            <field name="category_id" string="Category"/>
-                            <field name="manufacturer" string="Manufacturer"/>
-                            <field name="model_number" string="Model Number"/>
-                            <field name="serial_number" string="Serial Number"/>
-                            <field name="criticality" string="Criticality"/>
+                        <group string="Customer Location &amp; Contact">
+                            <field name="partner_id"/>
+                            <field name="contact_person"/>
+                            <field name="contact_number"/>
+                            <field name="email"/>
+                            <field name="site_name"/>
+                            <field name="building"/>
+                            <field name="floor"/>
+                            <field name="department"/>
+                            <field name="room_number"/>
                         </group>
                     </group>
 
                     <notebook>
-                        <page string="Location &amp; Contact" name="location_tab">
-                            <group>
-                                <group string="Location Details">
-                                    <field name="site_name" string="Site Name"/>
-                                    <field name="building" string="Building"/>
-                                    <field name="floor" string="Floor"/>
-                                    <field name="department" string="Department"/>
-                                    <field name="room_number" string="Room Number"/>
-                                </group>
-                                <group string="Address Details">
-                                    <field name="address" string="Full Address"/>
-                                    <field name="part_number" string="Part Number"/>
-                                    <field name="child_part_no" string="Child Part No"/>
-                                </group>
-                            </group>
-                        </page>
                         <page string="Maintenance &amp; Contract" name="maintenance_tab">
                             <group>
-                                <group string="Contract Dates">
+                                <group string="Dates &amp; Contract">
                                     <field name="installation_date"/>
                                     <field name="warranty_start_date"/>
                                     <field name="warranty_end_date"/>
@@ -75,17 +65,13 @@
                         <page string="Specs &amp; Remarks" name="specs_tab">
                             <group>
                                 <field name="firmware_version"/>
+                                <field name="address"/>
                                 <field name="accessories"/>
                                 <field name="remarks"/>
                             </group>
                         </page>
                     </notebook>
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
             </form>
         </field>
     </record>
