@@ -8,7 +8,7 @@ class EquipmentMasterWizard(models.TransientModel):
     step = fields.Integer(string="Step", default=1)
 
     # Step 1: Equipment Info
-    equipment_category  = fields.Char(string="Equipment Category")
+    equipment_id  = fields.Char(string="Equipment Category")
     name = fields.Char(string="Equipment Name")
     category_id = fields.Char(string="Equipment Category")
     manufacturer = fields.Char(string="Manufacturer")
@@ -111,7 +111,7 @@ class EquipmentMasterWizard(models.TransientModel):
     def action_save_equipment(self):
         self.ensure_one()
         equipment = self.env["equipment.master"].create({
-            "equipment_category ": self.equipment_category ,
+            "equipment_id ": self.equipment_id ,
             "name": self.name,
             "equipment_category ": self.equipment_category ,
             "manufacturer": self.manufacturer,
