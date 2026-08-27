@@ -114,7 +114,7 @@
                 <filter string="Under Repair" name="under_repair" domain="[('equipment_status', '=', 'under_repair')]"/>
                 <filter string="Running" name="running" domain="[('running_status', '=', 'running')]"/>
                 <group>
-                    <filter string="Category" name="group_category" context="{'group_by': 'equipment_category'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by': 'category_id'}"/>
                     <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'equipment_status'}"/>
                 </group>
