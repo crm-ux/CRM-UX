@@ -25,8 +25,15 @@ export class EquipmentFormController extends FormController {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
                 if (panel) {
-                    observer = new MutationObserver(() => reorderToolbar());
-                    observer.observe(panel, { childList: true, subtree: true });
+                    observer = new MutationObserver((mutations) => {
+                        for (const mutation of mutations) {
+                            if (mutation.type === "childList") {
+                                reorderToolbar();
+                                break;
+                            }
+                        }
+                    });
+                    observer.observe(panel, { childList: true });
                 }
             });
 
