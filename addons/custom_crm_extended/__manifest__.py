@@ -51,6 +51,7 @@
             'custom_crm_extended/static/src/js/crm_kanban_override.js',
             'custom_crm_extended/static/src/js/crm_new_button.js',
             'custom_crm_extended/static/src/js/sale_order_save_toast.js',
+            'custom_crm_extended/static/src/js/equipement_form.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
