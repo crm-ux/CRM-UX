@@ -15,8 +15,8 @@ export class EquipmentFormController extends FormController {
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
                 if (container && breadcrumb && statusIndicator) {
-                    if (breadcrumb.previousElementSibling !== statusIndicator) {
-                        container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                    if (statusIndicator.nextElementSibling !== breadcrumb) {
+                        container.insertBefore(statusIndicator, breadcrumb);
                     }
                 }
             };
