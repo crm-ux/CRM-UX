@@ -29,23 +29,23 @@
                     <!-- STEP 1: Equipment Info -->
                     <div invisible="step != 1">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
-                        <group col="2">
+                        <group>
                             <field name="equipment_id" string="Equipment ID" widget="char" placeholder="e.g. LT000123"/>
                             <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
                         </group>
-                        <group col="2">
+                        <group>
                             <field name="category_id" string="Equipment Category" options="{'no_create': True, 'no_create_edit': True}"/>                            
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
-                        <group col="2">
+                        <group>
                             <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
                             <field name="serial_number" string="Serial Number" placeholder="e.g. TSV336RLGF-123456"/>
                         </group>
-                        <group col="2">
+                        <group>
                             <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
                             <field name="child_part_no" string="Child Part No" placeholder="e.g. 09.2005, 09.1003"/>
                         </group>
-                        <group col="2">
+                        <group>
                             <field name="equipment_status" string="Equipment Status"/>
                             <field name="criticality" string="Criticality"/>
                         </group>
