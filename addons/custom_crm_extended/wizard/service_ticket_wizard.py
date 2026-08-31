@@ -48,8 +48,8 @@ class ServiceTicketWizard(models.TransientModel):
     root_cause = fields.Text(string='Root Cause')
     corrective_action = fields.Text(string='Corrective Action')
     spare_parts_used = fields.Char(string='Spare Parts Used')
-    service_start_time = fields.Char(string='Service Start Time', placeholder='e.g. 10:45 AM')
-    service_end_time = fields.Char(string='Service End Time', placeholder='e.g. 01:30 PM')
+    service_start_time = fields.Char(string='Service Start Time')
+    service_end_time = fields.Char(string='Service End Time')
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
 

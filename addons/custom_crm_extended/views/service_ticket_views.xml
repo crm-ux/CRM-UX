@@ -115,7 +115,7 @@
                 <filter string="Closed" name="closed" domain="[('ticket_status', '=', 'closed')]"/>
                 <separator/>
                 <filter string="High Priority" name="high_priority" domain="[('priority', '=', 'high')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'ticket_status'}"/>
                     <filter string="Engineer" name="group_engineer" context="{'group_by': 'engineer_id'}"/>
@@ -124,6 +124,7 @@
             </search>
         </field>
     </record>
+
 
 
     <!-- Action -->
