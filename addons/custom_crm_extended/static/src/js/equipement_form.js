@@ -9,7 +9,6 @@ export class EquipmentFormController extends FormController {
     setup() {
         super.setup();
         if (this.props.resModel === "equipment.master") {
-            let observer = null;
             const reorderToolbar = () => {
                 const container = document.querySelector(".o_control_panel_breadcrumbs");
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
@@ -23,22 +22,42 @@ export class EquipmentFormController extends FormController {
 
             onMounted(() => {
                 reorderToolbar();
-                const panel = document.querySelector(".o_control_panel_breadcrumbs");
-                if (panel) {
-                    observer = new MutationObserver((mutations) => {
-                        for (const mutation of mutations) {
-                            if (mutation.type === "childList") {
-                                reorderToolbar();
-                                break;
-                            }
-                        }
-                    });
-                    observer.observe(panel, { childList: true });
-                }
+
+                // Universal prevention of focus/navigation auto-scroll for ALL fields (current & future)
+                const scrollContainers = [
+                    document.querySelector(".o_content"),
+                    document.querySelector(".o_form_sheet_bg"),
+                    document.querySelector(".o_form_view")
+                ].filter(Boolean);
+
+                this._preventAutoScroll = (ev) => {
+                    // Check if focused element is any form field, dropdown, input, or select
+                    if (ev.target.closest(".o_field_widget") || ev.target.closest(".o_input") || ev.target.closest(".o_select_menu")) {
+                        const savedPositions = scrollContainers.map(el => ({ el, top: el.scrollTop }));
+
+                        // Lock scroll position across animation frames
+                        requestAnimationFrame(() => {
+                            savedPositions.forEach(({ el, top }) => {
+                                if (el.scrollTop !== top) {
+                                    el.scrollTop = top;
+                                }
+                            });
+                        });
+                    }
+                };
+
+                document.addEventListener("focusin", this._preventAutoScroll, true);
+                document.addEventListener("keydown", (ev) => {
+                    if (ev.key === "ArrowDown" || ev.key === "ArrowUp" || ev.key === "Enter") {
+                        this._preventAutoScroll(ev);
+                    }
+                }, true);
             });
 
             onWillUnmount(() => {
-                if (observer) observer.disconnect();
+                if (this._preventAutoScroll) {
+                    document.removeEventListener("focusin", this._preventAutoScroll, true);
+                }
             });
         }
     }
