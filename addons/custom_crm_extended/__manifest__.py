@@ -40,11 +40,10 @@
         'views/equipment_master_wizard_views.xml',
         'views/res_partner_views.xml',
         'views/res_users_signature_views.xml',
-        'views/res_company_signature_views.xml'
+        'views/res_company_signature_views.xml',
         'data/service_ticket_data.xml',
         'views/service_ticket_views.xml',
         'views/service_ticket_wizard_views.xml',
-
     ],
     'assets': {
         'web.assets_backend': [
