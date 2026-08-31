@@ -238,3 +238,14 @@ button[name="action_save_lead"] {
 .o_form_view .o_form_sheet_bg {
     overflow: visible !important;
 }
+
+/* Dynamic viewport-based popup & padding */
+.o_select_menu_menu {
+    max-height: min(35vh, 200px) !important;
+    overflow-y: auto !important;
+}
+
+.o_form_sheet {
+    min-height: calc(100vh - 180px) !important;
+    padding-bottom: clamp(60px, 15vh, 140px) !important;
+}
