@@ -182,6 +182,7 @@ class CrmDashboard extends Component {
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 loading: false
             });
 
@@ -200,19 +201,6 @@ class CrmDashboard extends Component {
             } catch (err) {
                 console.log("Equipment count error:", err);
             }
-
-            Object.assign(this.state, {
-                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
-                leads, qualified, opportunity: opp,
-                stageLead, stageContacted, stageTechDisc, stageQualified,
-                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
-                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
-                equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
-                loading: false
-            });
-
-
         } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
@@ -250,6 +238,10 @@ class CrmDashboard extends Component {
             views: [[false, "list"], [false, "form"]],
             domain: [["active", "=", true], ["x_stage_sequence", "=", seq], ...ud]
         });
+    }
+
+    openEquipment() {
+        this.openEquipmentList([], "All Equipment");
     }
 
     openEquipmentList(domain = [], name = "Equipment Master") {
