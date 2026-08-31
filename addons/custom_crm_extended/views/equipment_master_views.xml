@@ -33,8 +33,8 @@
                             <field name="serial_number"/>
                             <field name="part_number"/>
                             <field name="child_part_no"/>
-                            <field name="criticality" widget="radio" options="{'horizontal': true}"/>
-                            <field name="equipment_status" widget="radio" options="{'horizontal': true}" string="Equipment Status"/>
+                            <field name="criticality" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="equipment_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean" string="Equipment Status"/>
 
                         </group>
                         <group string="Customer Location &amp; Contact">
@@ -60,7 +60,7 @@
                                     <field name="service_contract"/>
                                 </group>
                                 <group string="Maintenance Status">
-                                    <field name="running_status" widget="radio" options="{'horizontal': true}"/>
+                                    <field name="running_status" widget="radio" class="custom_radio_clean" options="{'horizontal': true}"/>
                                     <field name="last_preventive_maintenance"/>
                                     <field name="next_preventive_maintenance"/>
                                     <field name="last_breakdown_date"/>
@@ -133,8 +133,5 @@
     </record>
 
     <!-- Menu Item -->
-    <menuitem id="menu_equipment_master_root"
-              name="Equipment Master"
-              action="action_equipment_master"
-              sequence="25"/>
+    <menuitem id="menu_equipment_master_root" name="Equipment Master" action="action_equipment_master" sequence="25"/>
 </odoo>
