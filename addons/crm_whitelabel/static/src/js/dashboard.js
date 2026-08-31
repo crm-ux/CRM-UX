@@ -175,17 +175,6 @@ class CrmDashboard extends Component {
             const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
             const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
-            Object.assign(this.state, {
-                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
-                leads, qualified, opportunity: opp,
-                stageLead, stageContacted, stageTechDisc, stageQualified,
-                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
-                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
-                equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
-                loading: false
-            });
-
             let equipmentTotal = 0, equipmentActive = 0, equipmentInactive = 0, equipmentRepair = 0;
             try {
                 const [eqTot, eqAct, eqInact, eqRep] = await Promise.all([
@@ -201,6 +190,18 @@ class CrmDashboard extends Component {
             } catch (err) {
                 console.log("Equipment count error:", err);
             }
+
+            Object.assign(this.state, {
+                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
+                leads, qualified, opportunity: opp,
+                stageLead, stageContacted, stageTechDisc, stageQualified,
+                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
+                loading: false
+            });
+
         } catch (e) { console.log("Dashboard error:", e); }
     }
     fmt(n) {
