@@ -208,7 +208,7 @@ class CrmDashboard extends Component {
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
-                equipmentTotal, equipmentActive, equipmentRepair, equipmentStopped,
+                equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 loading: false
             });
 
