@@ -25,7 +25,6 @@
                         </h2>
                     </div>
 
-
                     <group>
                         <group string="Basic Information">
                             <field name="category_id"/>
@@ -34,8 +33,8 @@
                             <field name="serial_number"/>
                             <field name="part_number"/>
                             <field name="child_part_no"/>
-                            <field name="criticality"/>
-                            <field name="equipment_status" string="Equipment Status"/>
+                            <field name="criticality" widget="selection"/>
+                            <field name="equipment_status" widget="selection" string="Equipment Status"/>
                         </group>
                         <group string="Customer Location &amp; Contact">
                             <field name="partner_id"/>
@@ -60,7 +59,7 @@
                                     <field name="service_contract"/>
                                 </group>
                                 <group string="Maintenance Status">
-                                    <field name="running_status"/>
+                                    <field name="running_status" widget="selection"/>
                                     <field name="last_preventive_maintenance"/>
                                     <field name="next_preventive_maintenance"/>
                                     <field name="last_breakdown_date"/>
