@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_service_ticket_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.wizard.form</field>
+        <field name="model">service.ticket.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Service Ticket Creation">
+                <field name="step" invisible="1"/>
+
+                <!-- Wizard Progress Indicator -->
+                <div class="o_wizard_step_indicator mb-3 text-center">
+                    <span invisible="step != 1" class="badge bg-primary px-3 py-2">1. Equipment Info</span>
+                    <span invisible="step == 1" class="badge bg-secondary text-muted px-3 py-2">1. Equipment Info</span>
+                    <span class="mx-2 text-muted">→</span>
+                    <span invisible="step != 2" class="badge bg-primary px-3 py-2">2. Complaint</span>
+                    <span invisible="step == 2" class="badge bg-secondary text-muted px-3 py-2">2. Complaint</span>
+                    <span class="mx-2 text-muted">→</span>
+                    <span invisible="step != 3" class="badge bg-primary px-3 py-2">3. Assignment</span>
+                    <span invisible="step == 3" class="badge bg-secondary text-muted px-3 py-2">3. Assignment</span>
+                    <span class="mx-2 text-muted">→</span>
+                    <span invisible="step != 4" class="badge bg-primary px-3 py-2">4. Resolution</span>
+                    <span invisible="step == 4" class="badge bg-secondary text-muted px-3 py-2">4. Resolution</span>
+                </div>
+
+                <!-- STEP 1: Equipment & Customer Info -->
+                <div invisible="step != 1">
+                    <h4 class="text-primary mb-3">Ticket &amp; Customer Information</h4>
+                    <group>
+                        <group>
+                            <field name="ticket_datetime"/>
+                            <field name="partner_id" placeholder="Select Customer..."/>
+                            <field name="equipment_id" placeholder="Select Equipment (Optional)..."/>
+                            <field name="site_name" placeholder="e.g. Plant / Hospital"/>
+                            <field name="contact_person" placeholder="e.g. Responsible person"/>
+                            <field name="contact_number" placeholder="e.g. Phone number"/>
+                            <field name="email" placeholder="e.g. customer@email.com"/>
+                        </group>
+                        <group string="Equipment Specifications">
+                            <field name="model_number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="serial_number" placeholder="e.g. 336RLGF12345"/>
+                            <field name="part_number" placeholder="e.g. TSV336RLGF"/>
+                        </group>
+                    </group>
+                </div>
+
+                <!-- STEP 2: Complaint Details -->
+                <div invisible="step != 2">
+                    <h4 class="text-primary mb-3">Complaint Details</h4>
+                    <group>
+                        <field name="complaint_type" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                        <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                        <field name="complaint_description" placeholder="Describe the problem reported by the customer..."/>
+                    </group>
+                </div>
+
+                <!-- STEP 3: Assignment & Schedule -->
+                <div invisible="step != 3">
+                    <h4 class="text-primary mb-3">Engineer Assignment &amp; Schedule</h4>
+                    <group>
+                        <group>
+                            <field name="engineer_id" placeholder="Select Field Engineer..."/>
+                            <field name="engineer_contact" placeholder="Phone number"/>
+                            <field name="engineer_email" placeholder="Email address"/>
+                        </group>
+                        <group>
+                            <field name="visit_date"/>
+                            <field name="ticket_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                        </group>
+                    </group>
+                </div>
+
+                <!-- STEP 4: Resolution & Sign-off -->
+                <div invisible="step != 4">
+                    <h4 class="text-primary mb-3">Resolution &amp; Sign-off</h4>
+                    <group>
+                        <group string="Action Taken">
+                            <field name="root_cause" placeholder="e.g. Compressor failure"/>
+                            <field name="corrective_action" placeholder="e.g. Compressor replaced"/>
+                            <field name="spare_parts_used" placeholder="e.g. Compressor Kit"/>
+                        </group>
+                        <group string="Timings &amp; Signatures">
+                            <field name="service_start_time" placeholder="e.g. 10:45 AM"/>
+                            <field name="service_end_time" placeholder="e.g. 01:30 PM"/>
+                            <field name="customer_signature" widget="image"/>
+                            <field name="engineer_signature" widget="image"/>
+                        </group>
+                    </group>
+                </div>
+
+                <!-- Footer Navigation -->
+                <footer>
+                    <button string="Back" type="object" name="action_prev_step" class="btn-secondary" invisible="step == 1"/>
+                    <button string="Next" type="object" name="action_next_step" class="btn-primary" invisible="step == 4"/>
+                    <button string="Create Ticket" type="object" name="action_save_ticket" class="btn-primary" invisible="step != 4"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_service_ticket_wizard" model="ir.actions.act_window">
+        <field name="name">Create Service Ticket</field>
+        <field name="res_model">service.ticket.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

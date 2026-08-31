@@ -11,3 +11,4 @@ from . import patch_report
 from . import patch_partner
 from . import equipment_master
 from . import res_partner
+from . import service_ticket

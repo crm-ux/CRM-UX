@@ -41,6 +41,10 @@
         'views/res_partner_views.xml',
         'views/res_users_signature_views.xml',
         'views/res_company_signature_views.xml'
+        'data/service_ticket_data.xml',
+        'views/service_ticket_views.xml',
+        'views/service_ticket_wizard_views.xml',
+
     ],
     'assets': {
         'web.assets_backend': [
@@ -52,6 +56,8 @@
             'custom_crm_extended/static/src/js/crm_new_button.js',
             'custom_crm_extended/static/src/js/sale_order_save_toast.js',
             'custom_crm_extended/static/src/js/equipement_form.js',
+            'custom_crm_extended/static/src/js/service_ticket_form.js',
+
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
