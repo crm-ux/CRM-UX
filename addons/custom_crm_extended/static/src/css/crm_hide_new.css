@@ -223,3 +223,18 @@ button[name="action_save_lead"] {
 .o_home_menu {
     display: none !important;
 }
+
+/* Fix header scrollbar and auto-scroll jump */
+.o_control_panel,
+.o_control_panel_main,
+.o_control_panel_breadcrumbs {
+    overflow: visible !important;
+}
+
+.o_form_view {
+    overflow-y: auto !important;
+}
+
+.o_form_view .o_form_sheet_bg {
+    overflow: visible !important;
+}
