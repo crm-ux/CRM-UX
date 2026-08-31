@@ -249,3 +249,39 @@ button[name="action_save_lead"] {
     min-height: calc(100vh - 180px) !important;
     padding-bottom: clamp(60px, 15vh, 140px) !important;
 }
+
+/* Minimal Pill Styling for Radio Fields */
+.o_field_radio.o_horizontal {
+    display: inline-flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+.o_field_radio.o_horizontal .form-check {
+    padding: 3px 10px 3px 26px !important;
+    margin: 0 !important;
+    border-radius: 16px !important;
+    background-color: #f3f4f6 !important;
+    border: 1px solid #e5e7eb !important;
+    transition: all 0.2s ease-in-out !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+}
+
+.o_field_radio.o_horizontal .form-check:hover {
+    background-color: #e5e7eb !important;
+}
+
+/* Highlighted Active / Selected State */
+.o_field_radio.o_horizontal .form-check:has(.form-check-input:checked) {
+    background-color: #e8f5e9 !important;
+    border-color: #a5d6a7 !important;
+    color: #2e7d32 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.o_field_radio.o_horizontal .form-check-input:checked {
+    background-color: #2e7d32 !important;
+    border-color: #2e7d32 !important;
+}
