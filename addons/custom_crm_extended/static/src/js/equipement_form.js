@@ -4,6 +4,8 @@ import { onMounted, onWillUnmount } from "@odoo/owl";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { _t } from "@web/core/l10n/translation";
 
 export class EquipmentFormController extends FormController {
     setup() {
@@ -34,6 +36,39 @@ export class EquipmentFormController extends FormController {
                 if (observer) observer.disconnect();
             });
         }
+    }
+
+    async discard() {
+        if (this.props.resModel === "equipment.master") {
+            const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
+            const goBack = async () => {
+                await this.model.root.discard();
+                const breadcrumbs = this.env.config?.breadcrumbs || [];
+                if (breadcrumbs.length > 1) {
+                    const prev = breadcrumbs[breadcrumbs.length - 2];
+                    if (prev && prev.jsId) {
+                        this.actionService.restore(prev.jsId);
+                        return;
+                    }
+                }
+                this.actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
+            };
+
+            if (isDirty) {
+                this.dialogService.add(ConfirmationDialog, {
+                    title: _t("Discard changes?"),
+                    body: _t("The changes you made will be lost. Do you want to discard them and go back?"),
+                    confirmLabel: _t("Discard"),
+                    cancelLabel: _t("Stay Here"),
+                    confirm: goBack,
+                    cancel: () => { },
+                });
+                return;
+            }
+            await goBack();
+            return;
+        }
+        return super.discard(...arguments);
     }
 }
 
