@@ -279,7 +279,7 @@ button[name="action_save_lead"] {
 
 /* Radio circle outline - clear visible gray */
 .custom_radio_clean.o_field_radio .o_radio_input {
-    border: 2px solid #555555 !important;
+    border: 1px solid #555555 !important;
     background-color: #ffffff !important;
     cursor: pointer !important;
 }
