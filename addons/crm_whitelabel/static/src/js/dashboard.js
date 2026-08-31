@@ -184,6 +184,7 @@ class CrmDashboard extends Component {
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 loading: false
             });
+
             let equipmentTotal = 0, equipmentActive = 0, equipmentRepair = 0, equipmentStopped = 0;
             try {
                 const [eqTot, eqAct, eqRep, eqStop] = await Promise.all([
@@ -192,8 +193,25 @@ class CrmDashboard extends Component {
                     this.ormService.searchCount("equipment.master", [["equipment_status", "=", "under_repair"]]),
                     this.ormService.searchCount("equipment.master", [["running_status", "=", "stopped"]]),
                 ]);
-                equipmentTotal = eqTot; equipmentActive = eqAct; equipmentRepair = eqRep; equipmentStopped = eqStop;
-            } catch (err) { }
+                equipmentTotal = eqTot;
+                equipmentActive = eqAct;
+                equipmentRepair = eqRep;
+                equipmentStopped = eqStop;
+            } catch (err) {
+                console.log("Equipment count error:", err);
+            }
+
+            Object.assign(this.state, {
+                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
+                leads, qualified, opportunity: opp,
+                stageLead, stageContacted, stageTechDisc, stageQualified,
+                stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
+                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                equipmentTotal, equipmentActive, equipmentRepair, equipmentStopped,
+                loading: false
+            });
+
 
         } catch (e) { console.log("Dashboard error:", e); }
     }
