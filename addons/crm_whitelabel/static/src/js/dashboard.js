@@ -267,6 +267,19 @@ class CrmDashboard extends Component {
         });
     }
 
+    async newServiceTicket() {
+        const wizardId = await this.ormService.create("service.ticket.wizard", [{ step: 1 }]);
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Service Ticket Creation",
+            res_model: "service.ticket.wizard",
+            res_id: wizardId[0],
+            views: [[false, "form"]],
+            target: "new",
+        });
+    }
+
+
     async newLead() {
         const selected = this.state.selectedCompanies;
         const companyId = (selected && selected.length === 1) ? selected[0] : user.activeCompanies[0].id;
