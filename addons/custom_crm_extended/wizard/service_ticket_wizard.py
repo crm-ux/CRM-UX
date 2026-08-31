@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 
 class ServiceTicketWizard(models.TransientModel):
     _name = 'service.ticket.wizard'
@@ -8,8 +9,8 @@ class ServiceTicketWizard(models.TransientModel):
     step = fields.Integer(string='Step', default=1)
     
     # Step 1: Ticket & Equipment Info
-    ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now, required=True)
-    partner_id = fields.Many2one('res.partner', string='Customer Name', required=True)
+    ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
+    partner_id = fields.Many2one('res.partner', string='Customer Name')
     equipment_id = fields.Many2one('equipment.master', string='Equipment')
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')
@@ -25,13 +26,13 @@ class ServiceTicketWizard(models.TransientModel):
         ('amc', 'AMC'),
         ('pm', 'PM'),
         ('free_call', 'Free Call')
-    ], string='Complaint Type', default='breakdown', required=True)
-    complaint_description = fields.Text(string='Complaint Description', required=True)
+    ], string='Complaint Type', default='breakdown')
+    complaint_description = fields.Text(string='Complaint Description')
     priority = fields.Selection([
         ('high', 'High'),
         ('medium', 'Medium'),
         ('low', 'Low')
-    ], string='Priority', default='medium', required=True)
+    ], string='Priority', default='medium')
 
     # Step 3: Engineer Assignment & Schedule
     engineer_id = fields.Many2one('res.users', string='Assigned Engineer')
@@ -42,7 +43,7 @@ class ServiceTicketWizard(models.TransientModel):
         ('open', 'Open'),
         ('ongoing', 'On Going'),
         ('closed', 'Closed')
-    ], string='Ticket Status', default='open', required=True)
+    ], string='Ticket Status', default='open')
 
     # Step 4: Resolution & Sign-off
     root_cause = fields.Text(string='Root Cause')
@@ -82,6 +83,10 @@ class ServiceTicketWizard(models.TransientModel):
 
     def action_next_step(self):
         self.ensure_one()
+        if self.step == 1 and not self.partner_id:
+            raise ValidationError(_('Please select a Customer Name before proceeding.'))
+        if self.step == 2 and not self.complaint_description:
+            raise ValidationError(_('Please provide a Complaint Description.'))
         self.step += 1
         return {
             'type': 'ir.actions.act_window',
@@ -104,8 +109,13 @@ class ServiceTicketWizard(models.TransientModel):
 
     def action_save_ticket(self):
         self.ensure_one()
+        if not self.partner_id:
+            raise ValidationError(_('Customer Name is required.'))
+        if not self.complaint_description:
+            raise ValidationError(_('Complaint Description is required.'))
+
         ticket_vals = {
-            'ticket_datetime': self.ticket_datetime,
+            'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
             'partner_id': self.partner_id.id,
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
             'site_name': self.site_name,
@@ -115,14 +125,14 @@ class ServiceTicketWizard(models.TransientModel):
             'model_number': self.model_number,
             'serial_number': self.serial_number,
             'part_number': self.part_number,
-            'complaint_type': self.complaint_type,
+            'complaint_type': self.complaint_type or 'breakdown',
             'complaint_description': self.complaint_description,
-            'priority': self.priority,
+            'priority': self.priority or 'medium',
             'engineer_id': self.engineer_id.id if self.engineer_id else False,
             'engineer_contact': self.engineer_contact,
             'engineer_email': self.engineer_email,
             'visit_date': self.visit_date,
-            'ticket_status': self.ticket_status,
+            'ticket_status': self.ticket_status or 'open',
             'root_cause': self.root_cause,
             'corrective_action': self.corrective_action,
             'spare_parts_used': self.spare_parts_used,
