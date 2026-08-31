@@ -185,18 +185,18 @@ class CrmDashboard extends Component {
                 loading: false
             });
 
-            let equipmentTotal = 0, equipmentActive = 0, equipmentRepair = 0, equipmentStopped = 0;
+            let equipmentTotal = 0, equipmentActive = 0, equipmentInactive = 0, equipmentRepair = 0;
             try {
-                const [eqTot, eqAct, eqRep, eqStop] = await Promise.all([
+                const [eqTot, eqAct, eqInact, eqRep] = await Promise.all([
                     this.ormService.searchCount("equipment.master", []),
                     this.ormService.searchCount("equipment.master", [["equipment_status", "=", "active"]]),
+                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "inactive"]]),
                     this.ormService.searchCount("equipment.master", [["equipment_status", "=", "under_repair"]]),
-                    this.ormService.searchCount("equipment.master", [["running_status", "=", "stopped"]]),
                 ]);
                 equipmentTotal = eqTot;
                 equipmentActive = eqAct;
+                equipmentInactive = eqInact;
                 equipmentRepair = eqRep;
-                equipmentStopped = eqStop;
             } catch (err) {
                 console.log("Equipment count error:", err);
             }
