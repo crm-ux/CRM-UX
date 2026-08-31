@@ -75,6 +75,45 @@ class ServiceTicketWizard(models.TransientModel):
             self.serial_number = eq.serial_number
             self.part_number = eq.part_number
 
+    def action_goto_1(self):
+        self.ensure_one()
+        self.step = 1
+        return self._reopen_wizard()
+
+    def action_goto_2(self):
+        self.ensure_one()
+        if not self.partner_id:
+            raise ValidationError(_('Please select a Customer Name before proceeding.'))
+        self.step = 2
+        return self._reopen_wizard()
+
+    def action_goto_3(self):
+        self.ensure_one()
+        if not self.partner_id:
+            raise ValidationError(_('Please select a Customer Name before proceeding.'))
+        if not self.complaint_description:
+            raise ValidationError(_('Please provide a Complaint Description.'))
+        self.step = 3
+        return self._reopen_wizard()
+
+    def action_goto_4(self):
+        self.ensure_one()
+        if not self.partner_id:
+            raise ValidationError(_('Please select a Customer Name before proceeding.'))
+        if not self.complaint_description:
+            raise ValidationError(_('Please provide a Complaint Description.'))
+        self.step = 4
+        return self._reopen_wizard()
+
+    def _reopen_wizard(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.wizard',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
     @api.onchange('engineer_id')
     def _onchange_engineer_id(self):
         if self.engineer_id:
