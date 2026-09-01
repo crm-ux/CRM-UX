@@ -82,11 +82,11 @@
     </record>
 
     <!-- Service Ticket List/Tree View -->
-    <record id="view_service_ticket_tree" model="ir.ui.view">
+    <record id="" model="ir.ui.view">
         <field name="name">service.ticket.tree</field>
         <field name="model">service.ticket</field>
         <field name="arch" type="xml">
-            <list string="Service Tickets" decoration-danger="priority == 'high'" decoration-info="ticket_status == 'open'" decoration-warning="ticket_status == 'ongoing'" decoration-success="ticket_status == 'closed'">
+            <list string="Service Tickets">
                 <field name="ticket_id" string="Ticket ID"/>
                 <field name="ticket_datetime"/>
                 <field name="partner_id"/>
