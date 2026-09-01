@@ -314,7 +314,7 @@ button[name="action_save_lead"] {
 }
 
 /* Center and give proper viewport margin to Wizard Dialog so dropdowns never hit screen edges */
-.o_dialog .modal-dialog {
+/* .o_dialog .modal-dialog {
     margin-top: 3vh !important;
     max-height: 94vh !important;
 }
@@ -326,4 +326,4 @@ button[name="action_save_lead"] {
 .o_dialog .modal-body {
     overflow-y: auto !important;
     padding-bottom: 60px !important;
-}
+} */
