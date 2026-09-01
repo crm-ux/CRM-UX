@@ -6,93 +6,114 @@
         <field name="arch" type="xml">
             <form string="Service Ticket Creation">
                 <field name="step" invisible="1"/>
+                <sheet>
+                    <!-- Step indicators matching Equipment Master Wizard -->
+                    <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button name="action_goto_1" type="object" class="btn step_current" invisible="step != 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="btn step_done" invisible="step &lt;= 1">1. Equipment Info</button>
+                        <button name="action_goto_1" type="object" class="btn step_future" invisible="step &gt;= 1">1. Equipment Info</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_2" type="object" class="btn step_current" invisible="step != 2">2. Complaint</button>
+                        <button name="action_goto_2" type="object" class="btn step_done" invisible="step &lt;= 2">2. Complaint</button>
+                        <button name="action_goto_2" type="object" class="btn step_future" invisible="step &gt;= 2">2. Complaint</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_3" type="object" class="btn step_current" invisible="step != 3">3. Assignment</button>
+                        <button name="action_goto_3" type="object" class="btn step_done" invisible="step &lt;= 3">3. Assignment</button>
+                        <button name="action_goto_3" type="object" class="btn step_future" invisible="step &gt;= 3">3. Assignment</button>
+                        <span>&#8594;</span>
+                        <button name="action_goto_4" type="object" class="btn step_current" invisible="step != 4">4. Resolution</button>
+                        <button name="action_goto_4" type="object" class="btn step_done" invisible="step &lt;= 4">4. Resolution</button>
+                        <button name="action_goto_4" type="object" class="btn step_future" invisible="step &gt;= 4">4. Resolution</button>
+                    </div>
 
-                <!-- Wizard Progress Indicator -->
-                <div class="o_wizard_step_indicator mb-3 text-center">
-                    <span invisible="step != 1" class="badge bg-primary px-3 py-2">1. Equipment Info</span>
-                    <span invisible="step == 1" class="badge bg-secondary text-muted px-3 py-2">1. Equipment Info</span>
-                    <span class="mx-2 text-muted">→</span>
-                    <span invisible="step != 2" class="badge bg-primary px-3 py-2">2. Complaint</span>
-                    <span invisible="step == 2" class="badge bg-secondary text-muted px-3 py-2">2. Complaint</span>
-                    <span class="mx-2 text-muted">→</span>
-                    <span invisible="step != 3" class="badge bg-primary px-3 py-2">3. Assignment</span>
-                    <span invisible="step == 3" class="badge bg-secondary text-muted px-3 py-2">3. Assignment</span>
-                    <span class="mx-2 text-muted">→</span>
-                    <span invisible="step != 4" class="badge bg-primary px-3 py-2">4. Resolution</span>
-                    <span invisible="step == 4" class="badge bg-secondary text-muted px-3 py-2">4. Resolution</span>
-                </div>
-
-                <!-- STEP 1: Equipment & Customer Info -->
-                <div invisible="step != 1">
-                    <h4 class="text-primary mb-3">Ticket &amp; Customer Information</h4>
-                    <group>
+                    <!-- STEP 1: Equipment Info & Customer Info -->
+                    <div invisible="step != 1">
+                        <!-- Section 1: Ticket & Customer Information -->
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Ticket &amp; Customer Information</div>
                         <group>
-                            <field name="partner_id" placeholder="Select Customer..."/>
-                            <field name="equipment_id" placeholder="Select Equipment (Optional)..."/>
-                            <field name="site_name" placeholder="e.g. Plant / Hospital"/>
-                            <field name="contact_person" placeholder="e.g. Responsible person"/>
-                            <field name="contact_number" placeholder="e.g. Phone number"/>
-                            <field name="email" placeholder="e.g. customer@email.com"/>
-                            <field name="ticket_datetime"/>
-                        </group>
-                        <group string="Equipment Specifications">
-                            <field name="model_number" placeholder="e.g. TSV336RLGF"/>
-                            <field name="serial_number" placeholder="e.g. 336RLGF12345"/>
-                            <field name="part_number" placeholder="e.g. TSV336RLGF"/>
-                        </group>
-                    </group>
-                </div>
-
-                <!-- STEP 2: Complaint Details -->
-                <div invisible="step != 2">
-                    <h4 class="text-primary mb-3">Complaint Details</h4>
-                    <group>
-                        <field name="complaint_type" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
-                        <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
-                        <field name="complaint_description" placeholder="Describe the problem reported by the customer..."/>
-                    </group>
-                </div>
-
-                <!-- STEP 3: Assignment & Schedule -->
-                <div invisible="step != 3">
-                    <h4 class="text-primary mb-3">Engineer Assignment &amp; Schedule</h4>
-                    <group>
-                        <group>
-                            <field name="engineer_id" placeholder="Select Field Engineer..."/>
-                            <field name="engineer_contact" placeholder="Phone number"/>
-                            <field name="engineer_email" placeholder="Email address"/>
+                            <field name="partner_id" string="Customer Name" placeholder="Select Customer..."/>
+                            <field name="equipment_id" string="Equipment" placeholder="Select Equipment (Optional)..."/>
                         </group>
                         <group>
-                            <field name="visit_date"/>
-                            <field name="ticket_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="site_name" string="Site Name" placeholder="e.g. Plant / Hospital"/>
+                            <field name="contact_person" string="Contact Person" placeholder="e.g. Responsible person"/>
                         </group>
-                    </group>
-                </div>
+                        <group>
+                            <field name="contact_number" string="Contact Number" placeholder="e.g. Phone number"/>
+                            <field name="email" string="Customer Email" placeholder="e.g. customer@email.com"/>
+                        </group>
+                        <group>
+                            <field name="ticket_datetime" string="Ticket Date &amp; Time"/>
+                        </group>
 
-                <!-- STEP 4: Resolution & Sign-off -->
-                <div invisible="step != 4">
-                    <h4 class="text-primary mb-3">Resolution &amp; Sign-off</h4>
-                    <group>
-                        <group string="Action Taken">
-                            <field name="root_cause" placeholder="e.g. Compressor failure"/>
-                            <field name="corrective_action" placeholder="e.g. Compressor replaced"/>
-                            <field name="spare_parts_used" placeholder="e.g. Compressor Kit"/>
+                        <!-- Section 2: Equipment Specifications (Below Section 1) -->
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Equipment Specifications</div>
+                        <group>
+                            <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
-                        <group string="Timings &amp; Signatures">
-                            <field name="service_start_time" placeholder="e.g. 10:45 AM"/>
-                            <field name="service_end_time" placeholder="e.g. 01:30 PM"/>
-                            <field name="customer_signature" widget="image"/>
-                            <field name="engineer_signature" widget="image"/>
+                        <group>
+                            <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
                         </group>
-                    </group>
-                </div>
+                    </div>
+
+                    <!-- STEP 2: Complaint Details -->
+                    <div invisible="step != 2">
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Complaint Details</div>
+                        <group>
+                            <field name="complaint_type" string="Complaint Type" widget="radio" class="custom_radio_clean"/>
+                            <field name="priority" string="Priority" widget="radio" class="custom_radio_clean"/>
+                        </group>
+                        <group>
+                            <field name="complaint_description" string="Complaint Description" placeholder="Describe the problem reported by the customer..."/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 3: Assignment & Schedule -->
+                    <div invisible="step != 3">
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Engineer Assignment &amp; Schedule</div>
+                        <group>
+                            <field name="engineer_id" string="Assigned Engineer" placeholder="Select Field Engineer..."/>
+                            <field name="engineer_contact" string="Engineer Contact" placeholder="Phone number"/>
+                        </group>
+                        <group>
+                            <field name="engineer_email" string="Engineer Email" placeholder="Email address"/>
+                            <field name="visit_date" string="Visit Date"/>
+                        </group>
+                        <group>
+                            <field name="ticket_status" string="Ticket Status" widget="radio" class="custom_radio_clean"/>
+                        </group>
+                    </div>
+
+                    <!-- STEP 4: Resolution & Sign-off -->
+                    <div invisible="step != 4">
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Action Taken</div>
+                        <group>
+                            <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure"/>
+                            <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced"/>
+                        </group>
+                        <group>
+                            <field name="spare_parts_used" string="Spare Parts Used" placeholder="e.g. Compressor Kit"/>
+                        </group>
+
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Timings &amp; Signatures</div>
+                        <group>
+                            <field name="service_start_time" string="Service Start Time" placeholder="e.g. 10:45 AM"/>
+                            <field name="service_end_time" string="Service End Time" placeholder="e.g. 01:30 PM"/>
+                        </group>
+                        <group>
+                            <field name="customer_signature" string="Customer Signature" widget="image"/>
+                            <field name="engineer_signature" string="Engineer Signature" widget="image"/>
+                        </group>
+                    </div>
+                </sheet>
 
                 <!-- Footer Navigation -->
                 <footer>
-                    <button string="Back" type="object" name="action_prev_step" class="btn-secondary" invisible="step == 1"/>
-                    <button string="Next" type="object" name="action_next_step" class="btn-primary" invisible="step == 4"/>
-                    <button string="Create Ticket" type="object" name="action_save_ticket" class="btn-primary" invisible="step != 4"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button string="Back" type="object" name="action_prev_step" class="btn btn-secondary" invisible="step == 1"/>
+                    <button string="Next" type="object" name="action_next_step" class="btn btn-primary" invisible="step == 4"/>
+                    <button string="Create Ticket" type="object" name="action_save_ticket" class="btn btn-primary" invisible="step != 4"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
@@ -103,5 +124,6 @@
         <field name="res_model">service.ticket.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
+        <field name="context">{'default_step': 1}</field>
     </record>
 </odoo>
