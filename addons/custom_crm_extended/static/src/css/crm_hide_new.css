@@ -266,7 +266,7 @@ button[name="action_save_lead"] {
     cursor: pointer !important;
 }
 
-/* Custom Clean Radio Styling for Equipment Master */
+/* Custom Clean Radio Styling for Equipment Master & Service Tickets */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .custom_radio_clean.o_field_radio .form-check,
 .custom_radio_clean.o_field_radio .o_radio_item:hover,
@@ -275,6 +275,31 @@ button[name="action_save_lead"] {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/* Radio circle outline - clear visible 1px gray ring */
+.custom_radio_clean.o_field_radio .o_radio_input {
+    border: 1px solid #555555 !important;
+    background-color: #ffffff !important;
+    cursor: pointer !important;
+}
+
+/* Selected Radio - Dark Blue matching Save/New buttons (#0C3868) */
+.custom_radio_clean.o_field_radio .o_radio_input:checked {
+    background-color: #0C3868 !important;
+    border-color: #0C3868 !important;
+}
+
+/* Selected label text in Dark Blue (#0C3868) */
+.custom_radio_clean.o_field_radio .form-check:has(.o_radio_input:checked) label,
+.custom_radio_clean.o_field_radio .o_radio_input:checked+label {
+    color: #0C3868 !important;
+    font-weight: 700 !important;
+}
+
+/* Unselected label text - dark readable text */
+.custom_radio_clean.o_field_radio label {
+    color: #333333 !important;
 }
 
 /* Center and give proper viewport margin to Wizard Dialog so dropdowns never hit screen edges */
