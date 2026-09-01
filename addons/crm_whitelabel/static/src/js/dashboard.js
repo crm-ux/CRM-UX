@@ -222,6 +222,9 @@ class CrmDashboard extends Component {
             });
 
         } catch (e) { console.log("Dashboard error:", e); }
+        finally {
+            this.state.loading = false;
+        }
     }
     fmt(n) {
         if (!n) return "\u20B90";
