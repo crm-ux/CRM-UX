@@ -276,19 +276,3 @@ button[name="action_save_lead"] {
     border: none !important;
     box-shadow: none !important;
 }
-
-/* Allow floating dropdown popovers to overflow dialog without clipping */
-.o_dialog .modal-content,
-.o_dialog .modal-body,
-.o_dialog .o_dialog_container {
-    overflow: visible !important;
-}
-
-/* Ensure autocomplete popup is positioned above modal overlay and has clean scroll */
-.o-autocomplete--dropdown-menu,
-.o_popover,
-.ui-autocomplete {
-    z-index: 10005 !important;
-    max-height: 260px !important;
-    overflow-y: auto !important;
-}
