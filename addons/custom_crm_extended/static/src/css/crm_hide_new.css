@@ -277,14 +277,15 @@ button[name="action_save_lead"] {
     box-shadow: none !important;
 }
 
-/* Ensure Many2one dropdown autocomplete list in Dialogs opens DOWNWARDS and is never cut off */
-.o_dialog .dropdown-menu.show,
-.o_dialog .ui-autocomplete,
-.o_dialog .o-autocomplete--dropdown-menu {
-    top: 100% !important;
-    bottom: auto !important;
-    max-height: 250px !important;
+/* Responsive dynamic clearance so Many2one dropdowns open downwards cleanly */
+.o_dialog .modal-body {
+    min-height: min(50vh, 450px) !important;
+}
+
+/* Dynamic auto-scaling autocomplete list with native scroll */
+.o-autocomplete--dropdown-menu,
+.ui-autocomplete {
+    max-height: min(40vh, 280px) !important;
     overflow-y: auto !important;
-    z-index: 1055 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    z-index: 10005 !important;
 }
