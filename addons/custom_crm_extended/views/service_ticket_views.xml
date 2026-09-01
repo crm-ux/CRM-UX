@@ -8,9 +8,9 @@
             <form string="Service Ticket" js_class="service_ticket_form">
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only" string="Ticket Number"/>
+                        <label for="ticket_id" class="oe_edit_only" string="Ticket ID"/>
                         <h1>
-                            <field name="name" readonly="1"/>
+                            <field name="ticket_id" placeholder="e.g. ST-2026-001"/>
                         </h1>
                     </div>
 
@@ -87,7 +87,7 @@
         <field name="model">service.ticket</field>
         <field name="arch" type="xml">
             <list string="Service Tickets" decoration-danger="priority == 'high'" decoration-info="ticket_status == 'open'" decoration-warning="ticket_status == 'ongoing'" decoration-success="ticket_status == 'closed'">
-                <field name="name"/>
+                <field name="ticket_id" string="Ticket ID"/>
                 <field name="ticket_datetime"/>
                 <field name="partner_id"/>
                 <field name="equipment_id"/>
@@ -106,7 +106,7 @@
         <field name="model">service.ticket</field>
         <field name="arch" type="xml">
             <search string="Service Tickets">
-                <field name="name"/>
+                <field name="ticket_id" string="Ticket ID"/>
                 <field name="partner_id"/>
                 <field name="equipment_id"/>
                 <field name="engineer_id"/>

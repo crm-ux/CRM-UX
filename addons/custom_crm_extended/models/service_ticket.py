@@ -5,9 +5,11 @@ class ServiceTicket(models.Model):
     _name = 'service.ticket'
     _description = 'Service Ticket'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_name = 'ticket_id'
     _order = 'id desc'
 
     name = fields.Char(string='Ticket Number', required=True, copy=False, readonly=True, default=lambda self: _('New'))
+    ticket_id = fields.Char(string='Ticket ID', required=True, copy=False, tracking=True)
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now, required=True, tracking=True)
     
     # Equipment & Customer Linkage

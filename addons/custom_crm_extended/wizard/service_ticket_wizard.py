@@ -9,6 +9,7 @@ class ServiceTicketWizard(models.TransientModel):
     step = fields.Integer(string='Step', default=1)
     
     # Step 1: Ticket & Equipment Info
+    ticket_id = fields.Char(string='Ticket ID')
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
     partner_id = fields.Many2one('res.partner', string='Customer Name')
     equipment_id = fields.Many2one('equipment.master', string='Equipment')
@@ -154,6 +155,7 @@ class ServiceTicketWizard(models.TransientModel):
             raise ValidationError(_('Complaint Description is required.'))
 
         ticket_vals = {
+            'ticket_id': self.ticket_id,
             'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
             'partner_id': self.partner_id.id,
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
