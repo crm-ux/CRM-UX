@@ -3,18 +3,19 @@ from odoo.http import request, root, SessionExpiredException
 from odoo.addons.web.controllers.home import Home
 
 # 90 Days in Seconds
-SESSION_90_DAYS = 90 * 24 * 60 * 60
+# 1 Year in Seconds (365 Days)
+SESSION_1_YEAR = 365 * 24 * 60 * 60
 
 # Override Server-side Session Lifetime on Disk
 if hasattr(root, 'session_store'):
-    root.session_store.session_timeout = SESSION_90_DAYS
+    root.session_store.session_timeout = SESSION_1_YEAR
 
-# Patch FutureResponse.set_cookie to enforce 90 days on all session_id cookies
+# Patch FutureResponse.set_cookie to enforce 1 year on all session_id cookies
 orig_set_cookie = http.FutureResponse.set_cookie
 
 def persistent_set_cookie(self, key, value='', max_age=None, expires=None, path='/', domain=None, secure=False, httponly=False, samesite=None, cookie_type='required'):
     if key == 'session_id':
-        max_age = SESSION_90_DAYS
+        max_age = SESSION_1_YEAR
         expires = None
     return orig_set_cookie(self, key, value=value, max_age=max_age, expires=expires, path=path, domain=domain, secure=secure, httponly=httponly, samesite=samesite, cookie_type=cookie_type)
 
@@ -41,8 +42,7 @@ class PersistentHome(Home):
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
         
-        # Enforce 90 days on login response
+        # Enforce 1 year on login response
         if request and request.session and request.session.uid and response:
-            response.set_cookie('session_id', request.session.sid, max_age=SESSION_90_DAYS, httponly=True)
-            
-        return response
+            response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
+
