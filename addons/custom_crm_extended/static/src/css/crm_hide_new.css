@@ -250,26 +250,24 @@ button[name="action_save_lead"] {
     padding-bottom: clamp(60px, 15vh, 140px) !important;
 }
 
-/* Clean Dynamic Radio Styling (Both Vertical and Horizontal) */
+/* Clean Dynamic Radio Styling */
 .custom_radio_clean.o_field_radio,
 .o_field_radio.custom_radio_clean {
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: clamp(0.5rem, 1.2vw, 1.25rem) !important;
-    /* Dynamic gap between radio options */
+    gap: clamp(1rem, 2vw, 1.75rem) !important;
+    /* Dynamic space between different options */
     align-items: center !important;
 }
 
-/* Individual Radio Option Container */
+/* Individual Radio Option: Circle tightly paired with its Text */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .custom_radio_clean.o_field_radio .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: clamp(0.35rem, 0.6vw, 0.6rem) !important;
-    /* Dynamic gap between circle and its text */
-    margin-right: clamp(0.5rem, 1vw, 1rem) !important;
-    /* Dynamic safety right margin */
-    margin-bottom: 0 !important;
+    gap: 0.35rem !important;
+    /* Tight spacing between Circle and its text */
+    margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
     border: none !important;
@@ -299,11 +297,11 @@ button[name="action_save_lead"] {
     font-weight: 700 !important;
 }
 
-/* Unselected label text - dark readable text */
+/* Unselected label text - tight next to circle, never overlapping */
 .custom_radio_clean.o_field_radio label {
     color: #333333 !important;
     margin: 0 !important;
-    padding-left: clamp(0.25rem, 0.4vw, 0.5rem) !important;
+    padding: 0 !important;
     cursor: pointer !important;
     white-space: nowrap !important;
 }
