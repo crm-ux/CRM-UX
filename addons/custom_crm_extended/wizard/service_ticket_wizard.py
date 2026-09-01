@@ -147,8 +147,15 @@ class ServiceTicketWizard(models.TransientModel):
     @api.onchange('engineer_id')
     def _onchange_engineer_id(self):
         if self.engineer_id:
-            self.engineer_contact = self.engineer_id.phone or self.engineer_id.mobile
-            self.engineer_email = self.engineer_id.email
+            partner = self.engineer_id.partner_id
+            phone = self.engineer_id.phone or (partner.phone if partner else False) or (partner.mobile if partner else False)
+            email = self.engineer_id.email or (partner.email if partner else False)
+            self.engineer_contact = phone or False
+            self.engineer_email = email or False
+        else:
+            self.engineer_contact = False
+            self.engineer_email = False
+
 
     def action_next_step(self):
         self.ensure_one()
