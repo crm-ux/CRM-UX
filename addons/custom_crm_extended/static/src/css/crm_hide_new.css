@@ -296,3 +296,24 @@ button[name="action_save_lead"] {
     color: #0C3868 !important;
     font-weight: 700 !important;
 }
+
+/* Single line compact textareas matching standard inputs */
+.o_dialog textarea,
+.o_dialog .o_field_text textarea,
+.o_dialog textarea.o_input {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    line-height: 24px !important;
+    resize: none !important;
+    overflow-y: hidden !important;
+}
+
+.o_dialog textarea:focus,
+.o_dialog .o_field_text textarea:focus,
+.o_dialog textarea.o_input:focus {
+    min-height: 28px !important;
+    height: auto !important;
+    overflow-y: auto !important;
+}
