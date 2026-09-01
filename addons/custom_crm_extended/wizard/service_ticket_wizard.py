@@ -58,10 +58,7 @@ class ServiceTicketWizard(models.TransientModel):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
-            # Check equipments belonging to this customer
             equipments = self.env['equipment.master'].search([('partner_id', '=', self.partner_id.id)])
-            
-            # If customer has EXACTLY 1 equipment -> AUTO-FILL everything!
             if len(equipments) == 1:
                 eq = equipments[0]
                 self.equipment_id = eq
@@ -73,21 +70,20 @@ class ServiceTicketWizard(models.TransientModel):
                 self.serial_number = eq.serial_number
                 self.part_number = eq.part_number
             else:
-                # If multiple equipments or already selected equipment doesn't belong to this customer
                 if self.equipment_id and self.equipment_id.partner_id != self.partner_id:
                     self.equipment_id = False
                     self.model_number = False
                     self.serial_number = False
                     self.part_number = False
                 
-                # Fetch default contact info from customer record
                 self.contact_person = self.partner_id.name
-                self.contact_number = self.partner_id.phone or self.partner_id.mobile
-                self.email = self.partner_id.email
-                self.site_name = getattr(self.partner_id, 'x_site_name', False)
+                self.contact_number = getattr(self.partner_id, 'phone', False) or getattr(self.partner_id, 'mobile', False) or False
+                self.email = getattr(self.partner_id, 'email', False) or False
+                self.site_name = getattr(self.partner_id, 'x_site_name', False) or False
             
             return {'domain': {'equipment_id': [('partner_id', '=', self.partner_id.id)]}}
         return {'domain': {'equipment_id': []}}
+
 
     @api.onchange('equipment_id')
     def _onchange_equipment_id(self):

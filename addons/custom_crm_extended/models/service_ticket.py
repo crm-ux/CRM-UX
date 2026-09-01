@@ -90,9 +90,9 @@ class ServiceTicket(models.Model):
                     self.serial_number = False
                     self.part_number = False
                 self.contact_person = self.partner_id.name
-                self.contact_number = self.partner_id.phone or self.partner_id.mobile
-                self.email = self.partner_id.email
-                self.site_name = getattr(self.partner_id, 'x_site_name', False)
+                self.contact_number = getattr(self.partner_id, 'phone', False) or getattr(self.partner_id, 'mobile', False) or False
+                self.email = getattr(self.partner_id, 'email', False) or False
+                self.site_name = getattr(self.partner_id, 'x_site_name', False) or False
             return {'domain': {'equipment_id': [('partner_id', '=', self.partner_id.id)]}}
         return {'domain': {'equipment_id': []}}
 
