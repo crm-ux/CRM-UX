@@ -331,7 +331,7 @@ button[name="action_save_lead"] {
 /* Automatically constrain autocomplete dropdowns when screen space is limited */
 .o-autocomplete--dropdown-menu,
 .ui-autocomplete {
-    max-height: min(240px, 35vh) !important;
+    max-height: clamp(160px, 24vh, 190px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
