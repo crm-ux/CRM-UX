@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import re
 from odoo import models, fields, api, _
+
 
 class ServiceTicket(models.Model):
     _name = 'service.ticket'
@@ -72,10 +74,24 @@ class ServiceTicket(models.Model):
     def copy(self, default=None):
         default = dict(default or {})
         if 'ticket_id' not in default:
-            default['ticket_id'] = _("%s (Copy)") % (self.ticket_id or '')
+            orig_id = self.ticket_id or ''
+            match = re.search(r'^(.*?)(\d+)$', orig_id)
+            if match:
+                prefix = match.group(1)
+                num_str = match.group(2)
+                num_len = len(num_str)
+                next_num = int(num_str) + 1
+                new_id = f"{prefix}{str(next_num).zfill(num_len)}"
+                while self.search_count([('ticket_id', '=', new_id)]):
+                    next_num += 1
+                    new_id = f"{prefix}{str(next_num).zfill(num_len)}"
+                default['ticket_id'] = new_id
+            else:
+                default['ticket_id'] = f"{orig_id}-1"
         if 'name' not in default:
             default['name'] = default['ticket_id']
         return super(ServiceTicket, self).copy(default)
+
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
