@@ -273,6 +273,31 @@
                     </div>
                     <p class="crm-panel-note">Equipment tracking &amp; maintenance overview.</p>
                 </div>
+                <div class="crm-pro-panel" style="border-left:4px solid #10b981;">
+                    <div class="crm-panel-head" t-on-click="openServiceTickets" style="cursor:pointer;">
+                        <div><h2>Service Tickets</h2></div>
+                        <span class="crm-panel-arrow">➔</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([], 'All Service Tickets')">
+                            <strong><t t-esc="state.ticketTotal"/></strong>
+                            <span>Total</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','open']], 'Open Tickets')">
+                            <strong><t t-esc="state.ticketOpen"/></strong>
+                            <span>Open</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','ongoing']], 'On Going Tickets')">
+                            <strong><t t-esc="state.ticketOngoing"/></strong>
+                            <span>On Going</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','closed']], 'Closed Tickets')">
+                            <strong><t t-esc="state.ticketClosed"/></strong>
+                            <span>Closed</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Service requests, complaints &amp; breakdown tracking overview.</p>
+                </div>
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
             <!-- TASK DIALOG -->

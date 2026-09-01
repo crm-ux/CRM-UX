@@ -21,6 +21,7 @@ class CrmDashboard extends Component {
             customers: 0, quotes: 0, products: 0, users: 0,
             equipmentTotal: 0, equipmentActive: 0, equipmentRepair: 0, equipmentStopped: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
+            ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
             greeting: "", todayDate: "",
@@ -191,6 +192,23 @@ class CrmDashboard extends Component {
                 console.log("Equipment count error:", err);
             }
 
+            let ticketTotal = 0, ticketOpen = 0, ticketOngoing = 0, ticketClosed = 0;
+            try {
+                const [tTot, tOp, tOn, tCl] = await Promise.all([
+                    this.ormService.searchCount("service.ticket", []),
+                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "open"]]),
+                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "ongoing"]]),
+                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "closed"]]),
+                ]);
+                ticketTotal = tTot;
+                ticketOpen = tOp;
+                ticketOngoing = tOn;
+                ticketClosed = tCl;
+            } catch (err) {
+                console.log("Service Ticket count error:", err);
+            }
+
+
             Object.assign(this.state, {
                 exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
                 leads, qualified, opportunity: opp,
@@ -199,6 +217,7 @@ class CrmDashboard extends Component {
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
+                ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 loading: false
             });
 
@@ -279,6 +298,18 @@ class CrmDashboard extends Component {
         });
     }
 
+    openServiceTickets() {
+        this.openServiceTicketList([], "All Service Tickets");
+    }
+    openServiceTicketList(domain = [], name = "Service Tickets") {
+        this.go({
+            type: "ir.actions.act_window",
+            name: name,
+            res_model: "service.ticket",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+        });
+    }
 
     async newLead() {
         const selected = this.state.selectedCompanies;
