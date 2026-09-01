@@ -276,7 +276,6 @@
                 <div class="crm-pro-panel" style="border-left:4px solid #10b981;">
                     <div class="crm-panel-head" t-on-click="openServiceTickets" style="cursor:pointer;">
                         <div><h2>Service Tickets</h2></div>
-                        <span class="crm-panel-arrow">➔</span>
                     </div>
                     <div class="crm-metrics">
                         <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([], 'All Service Tickets')">
