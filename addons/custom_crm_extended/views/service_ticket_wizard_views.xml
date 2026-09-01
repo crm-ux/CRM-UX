@@ -95,10 +95,10 @@
                             <field name="spare_parts_used" string="Spare Parts Used" placeholder="e.g. Compressor Kit"/>
                         </group>
 
-                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Timings &amp; Signatures</div>
+                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Timings</div>
                         <group>
-                            <field name="service_start_time" string="Service Start Time" placeholder="e.g. 10:45 AM"/>
-                            <field name="service_end_time" string="Service End Time" placeholder="e.g. 01:30 PM"/>
+                            <field name="service_start_time" string="Service Start Time" string="Service Start Time"/>
+                            <field name="service_end_time" string="Service End Time" string="Service Start Time"/>
                         </group>
                         <!-- <group>
                             <field name="customer_signature" string="Customer Signature" widget="image"/>

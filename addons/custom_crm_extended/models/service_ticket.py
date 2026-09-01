@@ -50,8 +50,8 @@ class ServiceTicket(models.Model):
     root_cause = fields.Text(string='Root Cause')
     corrective_action = fields.Text(string='Corrective Action')
     spare_parts_used = fields.Char(string='Spare Parts Used')
-    service_start_time = fields.Char(string='Service Start Time')
-    service_end_time = fields.Char(string='Service End Time')
+    service_start_time = fields.Datetime(string='Service Start Time')
+    service_end_time = fields.Datetime(string='Service End Time')
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
     
