@@ -136,6 +136,7 @@ class ServiceTicketWizard(models.TransientModel):
 
     def _reopen_wizard(self):
         return {
+            'name': _('Service Ticket Creation'),
             'type': 'ir.actions.act_window',
             'res_model': 'service.ticket.wizard',
             'res_id': self.id,
