@@ -284,12 +284,9 @@ button[name="action_save_lead"] {
     field-sizing: content !important;
     min-height: 1lh !important;
     height: auto !important;
-    padding-top: 1px !important;
-    padding-bottom: 2px !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding: 0 !important;
     margin: 0 !important;
-    line-height: 1.25 !important;
+    line-height: inherit !important;
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;
@@ -297,10 +294,4 @@ button[name="action_save_lead"] {
     background: transparent !important;
     resize: none !important;
     overflow-y: hidden !important;
-}
-
-/* Align the label vertically with text */
-.o_dialog .o_form_view .o_inner_group .o_cell {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
 }

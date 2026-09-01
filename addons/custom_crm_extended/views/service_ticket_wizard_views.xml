@@ -92,8 +92,6 @@
                         <group>
                             <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure" rows="1"/>
                             <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced" rows="1"/>
-                        </group>
-                        <group>
                             <field name="spare_parts_used" string="Spare Parts Used" placeholder="e.g. Compressor Kit"/>
                         </group>
 
