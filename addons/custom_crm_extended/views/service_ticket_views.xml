@@ -82,7 +82,7 @@
     </record>
 
     <!-- Service Ticket List/Tree View -->
-    <record id="" model="ir.ui.view">
+    <record id="view_service_ticket_tree" model="ir.ui.view">
         <field name="name">service.ticket.tree</field>
         <field name="model">service.ticket</field>
         <field name="arch" type="xml">
