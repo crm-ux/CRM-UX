@@ -1,6 +1,13 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import request, root
 from odoo.addons.web.controllers.home import Home
+
+# 90 Days in Seconds
+SESSION_90_DAYS = 90 * 24 * 60 * 60
+
+# Override Server-side Session Lifetime on Disk
+if hasattr(root, 'session_store'):
+    root.session_store.session_timeout = SESSION_90_DAYS
 
 class CrmWhitelabelController(http.Controller):
     
@@ -14,6 +21,7 @@ class PersistentHome(Home):
         if request.session.uid:
             return request.redirect('/app/action-435')
         return super(PersistentHome, self).index(s_action=s_action, **kw)
+
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
         # If user is ALREADY logged in, send them straight to Dashboard
@@ -22,9 +30,8 @@ class PersistentHome(Home):
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
         
-        # Set 90-day persistent session cookie
+        # Set 90-day persistent session cookie in browser
         if request and request.session and request.session.uid and response:
-            response.set_cookie('session_id', request.session.sid, max_age=90 * 24 * 60 * 60, httponly=True)
+            response.set_cookie('session_id', request.session.sid, max_age=SESSION_90_DAYS, httponly=True)
             
         return response
-
