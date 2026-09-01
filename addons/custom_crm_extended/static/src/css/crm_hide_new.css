@@ -261,7 +261,7 @@ button[name="action_save_lead"] {
 /* Space BETWEEN different options (e.g. between High and Medium) */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .o_field_radio.custom_radio_clean .o_radio_item {
-    margin-right: clamp(4rem, 3vw, 2.2rem) !important;
+    margin-right: clamp(2rem, 3vw, 2.2rem) !important;
     margin-bottom: 4px !important;
     padding: 0 !important;
     display: inline-block !important;
