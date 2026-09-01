@@ -64,7 +64,7 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Signatures" name="signatures_tab">
+                        <!-- <page string="Signatures" name="signatures_tab">
                             <group>
                                 <group string="Customer Sign-off">
                                     <field name="customer_signature" widget="image"/>
@@ -73,7 +73,7 @@
                                     <field name="engineer_signature" widget="image"/>
                                 </group>
                             </group>
-                        </page>
+                        </page> -->
                     </notebook>
                 </sheet>
                 <chatter/>

@@ -52,8 +52,8 @@ class ServiceTicketWizard(models.TransientModel):
     spare_parts_used = fields.Char(string='Spare Parts Used')
     service_start_time = fields.Char(string='Service Start Time')
     service_end_time = fields.Char(string='Service End Time')
-    customer_signature = fields.Binary(string='Customer Signature')
-    engineer_signature = fields.Binary(string='Engineer Signature')
+    # customer_signature = fields.Binary(string='Customer Signature')
+    # engineer_signature = fields.Binary(string='Engineer Signature')
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -197,8 +197,8 @@ class ServiceTicketWizard(models.TransientModel):
             'spare_parts_used': self.spare_parts_used,
             'service_start_time': self.service_start_time,
             'service_end_time': self.service_end_time,
-            'customer_signature': self.customer_signature,
-            'engineer_signature': self.engineer_signature,
+            # 'customer_signature': self.customer_signature,
+            # 'engineer_signature': self.engineer_signature,
         }
         ticket = self.env['service.ticket'].create(ticket_vals)
         return {

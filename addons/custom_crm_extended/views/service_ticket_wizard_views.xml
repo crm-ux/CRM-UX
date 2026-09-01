@@ -102,10 +102,10 @@
                             <field name="service_start_time" string="Service Start Time" placeholder="e.g. 10:45 AM"/>
                             <field name="service_end_time" string="Service End Time" placeholder="e.g. 01:30 PM"/>
                         </group>
-                        <group>
+                        <!-- <group>
                             <field name="customer_signature" string="Customer Signature" widget="image"/>
                             <field name="engineer_signature" string="Engineer Signature" widget="image"/>
-                        </group>
+                        </group> -->
                     </div>
                 </sheet>
 
