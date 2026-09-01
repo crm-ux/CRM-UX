@@ -250,23 +250,25 @@ button[name="action_save_lead"] {
     padding-bottom: clamp(60px, 15vh, 140px) !important;
 }
 
-/* Clean Dynamic Radio Styling */
+/* Radio Group: Spacious dynamic gap between different options (Black line / Yellow zone) */
 .custom_radio_clean.o_field_radio,
 .o_field_radio.custom_radio_clean {
-    display: flex !important;
+    display: inline-flex !important;
     flex-wrap: wrap !important;
-    gap: clamp(1rem, 2vw, 1.75rem) !important;
-    /* Dynamic space between different options */
+    gap: clamp(1.2rem, 3vw, 2.2rem) !important;
+    /* Spacious gap between options */
     align-items: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-/* Individual Radio Option: Circle tightly paired with its Text */
+/* Individual Option: Circle and text sitting tightly together (Red zone fixed) */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .custom_radio_clean.o_field_radio .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.35rem !important;
-    /* Tight spacing between Circle and its text */
+    gap: 4px !important;
+    /* Tight 4px between circle and word */
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
@@ -275,33 +277,43 @@ button[name="action_save_lead"] {
     cursor: pointer !important;
 }
 
-/* Radio circle outline - crisp visible 1px gray ring */
-.custom_radio_clean.o_field_radio .o_radio_input {
+/* Radio circle - crisp 1px gray outline */
+.custom_radio_clean.o_field_radio .o_radio_input,
+.custom_radio_clean.o_field_radio input[type="radio"] {
+    margin: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
     border: 1px solid #555555 !important;
     background-color: #ffffff !important;
     cursor: pointer !important;
-    margin: 0 !important;
     flex-shrink: 0 !important;
+    width: 14px !important;
+    height: 14px !important;
 }
 
 /* Selected Radio - Dark Blue (#0C3868) */
-.custom_radio_clean.o_field_radio .o_radio_input:checked {
+.custom_radio_clean.o_field_radio .o_radio_input:checked,
+.custom_radio_clean.o_field_radio input[type="radio"]:checked {
     background-color: #0C3868 !important;
     border-color: #0C3868 !important;
 }
 
 /* Selected label text in Dark Blue (#0C3868) */
 .custom_radio_clean.o_field_radio .form-check:has(.o_radio_input:checked) label,
-.custom_radio_clean.o_field_radio .o_radio_input:checked+label {
+.custom_radio_clean.o_field_radio .o_radio_input:checked+label,
+.custom_radio_clean.o_field_radio input[type="radio"]:checked+label {
     color: #0C3868 !important;
     font-weight: 700 !important;
 }
 
-/* Unselected label text - tight next to circle, never overlapping */
-.custom_radio_clean.o_field_radio label {
+/* Unselected label text - zero extra padding so it sits tightly next to circle */
+.custom_radio_clean.o_field_radio label,
+.custom_radio_clean.o_field_radio .form-check-label {
     color: #333333 !important;
     margin: 0 !important;
+    margin-left: 0 !important;
     padding: 0 !important;
+    padding-left: 0 !important;
     cursor: pointer !important;
     white-space: nowrap !important;
 }
