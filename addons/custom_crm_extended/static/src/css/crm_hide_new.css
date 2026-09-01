@@ -266,7 +266,7 @@ button[name="action_save_lead"] {
 .custom_radio_clean .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: clamp(0.3rem, 0.4vw, 0.5rem) !important;
+    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
