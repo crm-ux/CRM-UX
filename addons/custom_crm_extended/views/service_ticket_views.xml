@@ -17,9 +17,9 @@
                     <group>
                         <group string="Ticket Information">
                             <field name="ticket_datetime"/>
-                            <field name="complaint_type" widget="radio" class="custom_radio_clean"/>
-                            <field name="priority" widget="radio" class="custom_radio_clean"/>
-                            <field name="ticket_status" widget="radio" class="custom_radio_clean"/>
+                            <field name="complaint_type" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="ticket_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                         <group string="Customer Information">
                             <field name="partner_id"/>
