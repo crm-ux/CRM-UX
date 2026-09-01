@@ -69,6 +69,14 @@ class ServiceTicket(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('service.ticket.seq') or _('New')
         return super(ServiceTicket, self).create(vals_list)
 
+    def copy(self, default=None):
+        default = dict(default or {})
+        if 'ticket_id' not in default:
+            default['ticket_id'] = _("%s (Copy)") % (self.ticket_id or '')
+        if 'name' not in default:
+            default['name'] = default['ticket_id']
+        return super(ServiceTicket, self).copy(default)
+
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
