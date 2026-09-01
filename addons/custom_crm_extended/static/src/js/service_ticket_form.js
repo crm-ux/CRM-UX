@@ -17,9 +17,16 @@ export class ServiceTicketFormController extends FormController {
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
                 if (container && breadcrumb && statusIndicator) {
+                    // 1. Move breadcrumb (ID + Gear) right after buttons
                     if (breadcrumb.previousElementSibling !== statusIndicator) {
                         container.insertBefore(breadcrumb, statusIndicator.nextSibling);
                     }
+                    // 2. Remove flex-grow and margin gap in JS directly
+                    statusIndicator.style.setProperty("margin-right", "16px", "important");
+                    statusIndicator.style.setProperty("flex-grow", "0", "important");
+                    statusIndicator.style.setProperty("width", "auto", "important");
+                    breadcrumb.style.setProperty("margin-left", "0", "important");
+                    breadcrumb.style.setProperty("flex-grow", "0", "important");
                 }
             };
 
