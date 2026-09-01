@@ -114,11 +114,12 @@ class ServiceTicket(models.Model):
     def _onchange_engineer_id(self):
         if self.engineer_id:
             partner = self.engineer_id.partner_id
-            phone = self.engineer_id.phone or (partner.phone if partner else False) or (partner.mobile if partner else False)
-            email = self.engineer_id.email or (partner.email if partner else False)
+            phone = getattr(self.engineer_id, 'phone', False) or (getattr(partner, 'phone', False) if partner else False) or (getattr(partner, 'mobile', False) if partner else False)
+            email = getattr(self.engineer_id, 'email', False) or (getattr(partner, 'email', False) if partner else False)
             self.engineer_contact = phone or False
             self.engineer_email = email or False
         else:
             self.engineer_contact = False
             self.engineer_email = False
+
 
