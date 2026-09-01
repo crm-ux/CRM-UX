@@ -250,31 +250,25 @@ button[name="action_save_lead"] {
     padding-bottom: clamp(60px, 15vh, 140px) !important;
 }
 
-/* Radio Fields - High Visibility Outline & Dark Blue Selected */
-.o_field_radio.o_horizontal {
-    display: inline-flex !important;
-    gap: 18px !important;
-    align-items: center !important;
+/* Custom Clean Vertical Radio Styling for Equipment Master & Service Tickets */
+.custom_radio_clean.o_field_radio {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
 }
 
-.o_field_radio.o_horizontal .form-check {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin: 0 !important;
-    padding-left: 0 !important;
-    cursor: pointer !important;
-}
-
-/* Custom Clean Radio Styling for Equipment Master & Service Tickets */
 .custom_radio_clean.o_field_radio .o_radio_item,
-.custom_radio_clean.o_field_radio .form-check,
-.custom_radio_clean.o_field_radio .o_radio_item:hover,
-.custom_radio_clean.o_field_radio .form-check:hover {
+.custom_radio_clean.o_field_radio .form-check {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
+    cursor: pointer !important;
 }
 
 /* Radio circle outline - clear visible 1px gray ring */
@@ -282,6 +276,7 @@ button[name="action_save_lead"] {
     border: 1px solid #555555 !important;
     background-color: #ffffff !important;
     cursor: pointer !important;
+    margin: 0 !important;
 }
 
 /* Selected Radio - Dark Blue matching Save/New buttons (#0C3868) */
@@ -300,7 +295,10 @@ button[name="action_save_lead"] {
 /* Unselected label text - dark readable text */
 .custom_radio_clean.o_field_radio label {
     color: #333333 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
 }
+
 
 /* Center and give proper viewport margin to Wizard Dialog so dropdowns never hit screen edges */
 .o_dialog .modal-dialog {
