@@ -261,8 +261,7 @@ button[name="action_save_lead"] {
 /* Space BETWEEN different options (e.g. between High and Medium) */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .o_field_radio.custom_radio_clean .o_radio_item {
-    margin-right: clamp(1.2rem, 3vw, 2.2rem) !important;
-    /* Forces visible separation between options */
+    margin-right: clamp(1.5rem, 3vw, 2.2rem) !important;
     margin-bottom: 4px !important;
     padding: 0 !important;
     display: inline-block !important;
@@ -273,8 +272,7 @@ button[name="action_save_lead"] {
 .o_field_radio.custom_radio_clean .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 5px !important;
-    /* Space between circle and its own label */
+    gap: clamp(0.3rem, 0.35vw, 0.4rem) !important;
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
