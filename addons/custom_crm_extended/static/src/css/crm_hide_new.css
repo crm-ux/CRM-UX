@@ -250,36 +250,43 @@ button[name="action_save_lead"] {
     padding-bottom: clamp(60px, 15vh, 140px) !important;
 }
 
-/* Custom Clean Vertical Radio Styling for Equipment Master & Service Tickets */
-.custom_radio_clean.o_field_radio {
+/* Clean Dynamic Radio Styling (Both Vertical and Horizontal) */
+.custom_radio_clean.o_field_radio,
+.o_field_radio.custom_radio_clean {
     display: flex !important;
-    flex-direction: column !important;
-    gap: 8px !important;
+    flex-wrap: wrap !important;
+    gap: clamp(0.5rem, 1.2vw, 1.25rem) !important;
+    /* Dynamic gap between radio options */
+    align-items: center !important;
 }
 
+/* Individual Radio Option Container */
 .custom_radio_clean.o_field_radio .o_radio_item,
 .custom_radio_clean.o_field_radio .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 8px !important;
-    margin: 0 !important;
+    gap: clamp(0.35rem, 0.6vw, 0.6rem) !important;
+    /* Dynamic gap between circle and its text */
+    margin-right: clamp(0.5rem, 1vw, 1rem) !important;
+    /* Dynamic safety right margin */
+    margin-bottom: 0 !important;
     padding: 0 !important;
     background: transparent !important;
-    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     cursor: pointer !important;
 }
 
-/* Radio circle outline - clear visible 1px gray ring */
+/* Radio circle outline - crisp visible 1px gray ring */
 .custom_radio_clean.o_field_radio .o_radio_input {
     border: 1px solid #555555 !important;
     background-color: #ffffff !important;
     cursor: pointer !important;
     margin: 0 !important;
+    flex-shrink: 0 !important;
 }
 
-/* Selected Radio - Dark Blue matching Save/New buttons (#0C3868) */
+/* Selected Radio - Dark Blue (#0C3868) */
 .custom_radio_clean.o_field_radio .o_radio_input:checked {
     background-color: #0C3868 !important;
     border-color: #0C3868 !important;
@@ -296,9 +303,10 @@ button[name="action_save_lead"] {
 .custom_radio_clean.o_field_radio label {
     color: #333333 !important;
     margin: 0 !important;
+    padding-left: clamp(0.25rem, 0.4vw, 0.5rem) !important;
     cursor: pointer !important;
+    white-space: nowrap !important;
 }
-
 
 /* Center and give proper viewport margin to Wizard Dialog so dropdowns never hit screen edges */
 .o_dialog .modal-dialog {
