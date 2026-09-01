@@ -66,7 +66,7 @@
                             <field name="priority" string="Priority" widget="radio" class="custom_radio_clean"/>
                         </group>
                         <group>
-                            <field name="complaint_description" string="Complaint Description" placeholder="Describe the problem reported by the customer..." rows="1"/>
+                            <field name="complaint_description" string="Complaint Description" placeholder="Describe the problem reported by the customer..." />
                         </group>
                     </div>
 
@@ -90,8 +90,8 @@
                     <div invisible="step != 4">
                         <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Action Taken</div>
                         <group>
-                            <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure" rows="1"/>
-                            <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced" rows="1"/>
+                            <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure" />
+                            <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced" />
                             <field name="spare_parts_used" string="Spare Parts Used" placeholder="e.g. Compressor Kit"/>
                         </group>
 
