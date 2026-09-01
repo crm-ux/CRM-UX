@@ -257,8 +257,7 @@ button[name="action_save_lead"] {
     display: inline-flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
-    gap: clamp(1.2rem, 2.5vw, 2.2rem) !important;
-    /* Forces visible separation between options */
+    gap: clamp(0.75rem, 2.5vw, 2.2rem) !important;
 }
 
 /* 2. Single Combined Rule for each Radio item (No conflicts, No strikethrough) */
@@ -268,7 +267,6 @@ button[name="action_save_lead"] {
     display: inline-flex !important;
     align-items: center !important;
     gap: clamp(0.3rem, 0.4vw, 0.5rem) !important;
-    /* Space between circle and its text */
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
