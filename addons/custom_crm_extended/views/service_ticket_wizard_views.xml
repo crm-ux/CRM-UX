@@ -62,8 +62,8 @@
                     <div invisible="step != 2">
                         <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Complaint Details</div>
                         <group>
-                            <field name="complaint_type" string="Complaint Type" widget="radio" class="custom_radio_clean"/>
-                            <field name="priority" string="Priority" widget="radio" class="custom_radio_clean"/>
+                            <field name="complaint_type" string="Complaint Type" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="priority" string="Priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                         <group>
                             <field name="complaint_description" string="Complaint Description" placeholder="Describe the problem reported by the customer..." />
@@ -82,7 +82,7 @@
                             <field name="visit_date" string="Visit Date"/>
                         </group>
                         <group>
-                            <field name="ticket_status" string="Ticket Status" widget="radio" class="custom_radio_clean"/>
+                            <field name="ticket_status" string="Ticket Status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                     </div>
 
