@@ -272,7 +272,7 @@ button[name="action_save_lead"] {
 .o_field_radio.custom_radio_clean .form-check {
     display: inline-flex !important;
     align-items: center !important;
-    gap: clamp(0.25rem, 0.35vw, 0.4rem) !important;
+    gap: clamp(0.5rem, 0.35vw, 0.4rem) !important;
     margin: 0 !important;
     padding: 0 !important;
     background: transparent !important;
