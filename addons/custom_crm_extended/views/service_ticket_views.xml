@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <sheet>
+                    <div class="oe_button_box" name="button_box"/>
                     <div class="oe_title">
                         <label for="ticket_id" class="oe_edit_only" string="Ticket ID"/>
                         <h1>
