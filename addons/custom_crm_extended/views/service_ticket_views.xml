@@ -48,14 +48,14 @@
                     <notebook>
                         <page string="Complaint Details" name="complaint_tab">
                             <group>
-                                <field name="complaint_description"/>
+                                <field name="complaint_description" string="Complaint Description" placeholder="Describe the problem reported by the customer..." rows="1"/>
                             </group>
                         </page>
                         <page string="Resolution &amp; Spares" name="resolution_tab">
                             <group>
                                 <group string="Action Taken">
-                                    <field name="root_cause"/>
-                                    <field name="corrective_action"/>
+                                    <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure" rows="1"/>
+                                    <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced" rows="1"/>
                                     <field name="spare_parts_used"/>
                                 </group>
                                 <group string="Service Timings">
