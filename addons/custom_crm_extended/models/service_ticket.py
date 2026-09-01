@@ -72,10 +72,30 @@ class ServiceTicket(models.Model):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
-            if self.equipment_id and self.equipment_id.partner_id != self.partner_id:
-                self.equipment_id = False
+            equipments = self.env['equipment.master'].search([('partner_id', '=', self.partner_id.id)])
+            if len(equipments) == 1:
+                eq = equipments[0]
+                self.equipment_id = eq
+                self.site_name = eq.site_name
+                self.contact_person = eq.contact_person
+                self.contact_number = eq.contact_number
+                self.email = eq.email
+                self.model_number = eq.model_number
+                self.serial_number = eq.serial_number
+                self.part_number = eq.part_number
+            else:
+                if self.equipment_id and self.equipment_id.partner_id != self.partner_id:
+                    self.equipment_id = False
+                    self.model_number = False
+                    self.serial_number = False
+                    self.part_number = False
+                self.contact_person = self.partner_id.name
+                self.contact_number = self.partner_id.phone or self.partner_id.mobile
+                self.email = self.partner_id.email
+                self.site_name = getattr(self.partner_id, 'x_site_name', False)
             return {'domain': {'equipment_id': [('partner_id', '=', self.partner_id.id)]}}
         return {'domain': {'equipment_id': []}}
+
 
     @api.onchange('equipment_id')
     def _onchange_equipment_id(self):
