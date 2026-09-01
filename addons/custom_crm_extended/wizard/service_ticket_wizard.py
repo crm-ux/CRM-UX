@@ -83,26 +83,28 @@ class ServiceTicketWizard(models.TransientModel):
 
     def action_goto_2(self):
         self.ensure_one()
+        if not self.ticket_id:
+            raise ValidationError(_('Please enter Ticket ID before proceeding.'))
         if not self.partner_id:
-            raise ValidationError(_('Please select a Customer Name before proceeding.'))
+            raise ValidationError(_('Please select Customer Name before proceeding.'))
         self.step = 2
         return self._reopen_wizard()
 
     def action_goto_3(self):
         self.ensure_one()
+        if not self.ticket_id:
+            raise ValidationError(_('Please enter Ticket ID before proceeding.'))
         if not self.partner_id:
-            raise ValidationError(_('Please select a Customer Name before proceeding.'))
-        if not self.complaint_description:
-            raise ValidationError(_('Please provide a Complaint Description.'))
+            raise ValidationError(_('Please select Customer Name before proceeding.'))
         self.step = 3
         return self._reopen_wizard()
 
     def action_goto_4(self):
         self.ensure_one()
+        if not self.ticket_id:
+            raise ValidationError(_('Please enter Ticket ID before proceeding.'))
         if not self.partner_id:
-            raise ValidationError(_('Please select a Customer Name before proceeding.'))
-        if not self.complaint_description:
-            raise ValidationError(_('Please provide a Complaint Description.'))
+            raise ValidationError(_('Please select Customer Name before proceeding.'))
         self.step = 4
         return self._reopen_wizard()
 
@@ -123,36 +125,25 @@ class ServiceTicketWizard(models.TransientModel):
 
     def action_next_step(self):
         self.ensure_one()
-        if self.step == 1 and not self.partner_id:
-            raise ValidationError(_('Please select a Customer Name before proceeding.'))
-        if self.step == 2 and not self.complaint_description:
-            raise ValidationError(_('Please provide a Complaint Description.'))
+        if self.step == 1:
+            if not self.ticket_id:
+                raise ValidationError(_('Please enter Ticket ID before proceeding.'))
+            if not self.partner_id:
+                raise ValidationError(_('Please select Customer Name before proceeding.'))
         self.step += 1
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-        }
+        return self._reopen_wizard()
 
     def action_prev_step(self):
         self.ensure_one()
         self.step -= 1
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.wizard',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'target': 'new',
-        }
+        return self._reopen_wizard()
 
     def action_save_ticket(self):
         self.ensure_one()
+        if not self.ticket_id:
+            raise ValidationError(_('Ticket ID is required.'))
         if not self.partner_id:
             raise ValidationError(_('Customer Name is required.'))
-        if not self.complaint_description:
-            raise ValidationError(_('Complaint Description is required.'))
 
         ticket_vals = {
             'ticket_id': self.ticket_id,

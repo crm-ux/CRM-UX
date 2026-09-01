@@ -31,14 +31,15 @@ class ServiceTicket(models.Model):
         ('amc', 'AMC'),
         ('pm', 'PM'),
         ('free_call', 'Free Call')
-    ], string='Complaint Type', default='breakdown', required=True, tracking=True)
-    complaint_description = fields.Text(string='Complaint Description', required=True, tracking=True)
+    ], string='Complaint Type', default='breakdown', tracking=True)
+    complaint_description = fields.Text(string='Complaint Description', tracking=True)
     priority = fields.Selection([
         ('high', 'High'),
         ('medium', 'Medium'),
         ('low', 'Low')
-    ], string='Priority', default='medium', required=True, tracking=True)
-    
+    ], string='Priority', default='medium', tracking=True)
+
+
     # Assignment & Schedule
     engineer_id = fields.Many2one('res.users', string='Assigned Engineer', tracking=True)
     engineer_contact = fields.Char(string='Engineer Contact')
@@ -59,7 +60,7 @@ class ServiceTicket(models.Model):
         ('open', 'Open'),
         ('ongoing', 'On Going'),
         ('closed', 'Closed')
-    ], string='Ticket Status', default='open', required=True, tracking=True)
+    ], string='Ticket Status', default='open', tracking=True)
 
     @api.model_create_multi
     def create(self, vals_list):
