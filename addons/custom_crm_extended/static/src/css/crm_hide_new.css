@@ -342,3 +342,18 @@ button[name="action_save_lead"] {
 .o_dialog #btn_crm_dashboard_nav {
     display: none !important;
 }
+
+/* Force search bar dropdowns in modal dialogs to open downwards below the input */
+.o_dialog .o_search_bar_menu,
+.modal-dialog .o_search_bar_menu,
+.o_dialog .o-dropdown--menu {
+    top: 100% !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin-top: clamp(0.2rem, 0.4vh, 0.35rem) !important;
+}
+
+/* Ensure search bar dropdown stays within dialog boundaries */
+.o_dialog .o_control_panel .o_search_bar {
+    position: relative !important;
+}
