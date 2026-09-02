@@ -112,8 +112,3 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_form_statusbar button.btn-success {
   margin-left: auto !important;
 }
-
-/* Hide close 'X' button in Record Not Found alert dialogs so only [ OK ] is available */
-.o_dialog .modal-header .btn-close {
-  display: none !important;
-}
