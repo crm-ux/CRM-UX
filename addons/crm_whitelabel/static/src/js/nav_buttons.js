@@ -35,7 +35,7 @@ patch(notificationService, {
                                     <h1 style="font-size:2rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; letter-spacing:-0.03em;">
                                         Oops! Record Not Found
                                     </h1>
-                                    <p style="color:#64748b; font-size:0.95rem; max-width:440px; margin-bottom:2rem; line-height:1.6;">
+                                    <p style="color:#334155; font-size:clamp(0.95rem, 1.4vw, 1.05rem); font-weight:500; max-width:440px; margin-bottom:2rem; line-height:1.6;">
                                         We couldn't find the record you requested. It might have been deleted or the link is incorrect.
                                     </p>
                                     <div style="display:flex; gap:12px; align-items:center;">
