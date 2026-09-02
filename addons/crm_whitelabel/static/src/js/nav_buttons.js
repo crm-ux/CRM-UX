@@ -39,7 +39,7 @@ patch(notificationService, {
                                         We couldn't find the record you requested. It might have been deleted or the link is incorrect.
                                     </p>
                                     <div style="display:flex; gap:clamp(0.75rem, 1.5vw, 1.25rem); align-items:center; justify-content:center; flex-wrap:wrap;">
-                                        <button id="btn_crm_goback" style="background:#ffffff; color:#334155; border:1px solid #cbd5e1; padding:clamp(0.6rem, 1.2vh, 0.75rem) clamp(1.2rem, 2vw, 1.6rem); font-size:clamp(0.85rem, 1.2vw, 0.95rem); font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+                                        <button id="btn_crm_goback" style="background:#ffffff; color:#334155; border:2px solid #cbd5e1; padding:clamp(0.6rem, 1.2vh, 0.75rem) clamp(1.2rem, 2vw, 1.6rem); font-size:clamp(0.85rem, 1.2vw, 0.95rem); font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
                                             Go Back
                                         </button>
                                         <button id="btn_crm_dashboard" style="background:#0284c7; color:#ffffff; border:none; padding:clamp(0.6rem, 1.2vh, 0.75rem) clamp(1.4rem, 2.2vw, 1.8rem); font-size:clamp(0.85rem, 1.2vw, 0.95rem); font-weight:600; border-radius:8px; cursor:pointer; box-shadow:0 2px 8px rgba(2,132,199,0.3); transition:all 0.2s;">
