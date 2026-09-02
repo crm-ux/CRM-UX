@@ -6,6 +6,37 @@ import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { ListController } from "@web/views/list/list_controller";
+import { patch } from "@web/core/utils/patch";
+
+const EQUIPMENT_MODEL = "equipment.master";
+const WIZARD_ACTION = "custom_crm_extended.action_equipment_master_wizard";
+
+async function openEquipmentWizard(env) {
+    await env.services.action.doAction(WIZARD_ACTION);
+}
+
+// 1. Intercept "New" button in List View
+patch(ListController.prototype, {
+    async openNewRecord() {
+        if (this.model?.root?.resModel === EQUIPMENT_MODEL || this.props?.resModel === EQUIPMENT_MODEL) {
+            await openEquipmentWizard(this.env);
+            return;
+        }
+        return super.openNewRecord(...arguments);
+    },
+});
+
+// 2. Intercept "New" button in Detail Form View
+patch(FormController.prototype, {
+    async create() {
+        if (this.props?.resModel === EQUIPMENT_MODEL || this.model?.root?.resModel === EQUIPMENT_MODEL) {
+            await openEquipmentWizard(this.env);
+            return;
+        }
+        return super.create(...arguments);
+    },
+});
 
 export class EquipmentFormController extends FormController {
     setup() {
