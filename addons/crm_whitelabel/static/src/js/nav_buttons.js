@@ -27,14 +27,12 @@ patch(notificationService, {
                         const match = path.match(/\/app\/([a-zA-Z0-9._]+)\//);
                         const model = match ? match[1] : null;
 
-                        if (model) {
-                            env.services.action.doAction({
-                                type: "ir.actions.act_window",
-                                res_model: model,
-                                views: [[false, "list"], [false, "form"]],
-                            }, { clearBreadcrumbs: true });
+                        if (model && !model.startsWith("action-")) {
+                            // Directly load the entity's clean list view
+                            window.location.replace(`/app/${model}`);
                         } else {
-                            env.services.action.doAction(435, { clearBreadcrumbs: true });
+                            // Fallback to Dashboard
+                            window.location.replace("/app/action-435");
                         }
                     };
 
