@@ -12,13 +12,29 @@ import { patch } from "@web/core/utils/patch";
 const EQUIPMENT_MODEL = "equipment.master";
 const WIZARD_ACTION = "custom_crm_extended.action_equipment_master_wizard";
 
+async function openEquipmentWizard(env) {
+    await env.services.action.doAction(WIZARD_ACTION);
+}
+
 // 1. Intercept "New" button in List View
 patch(ListController.prototype, {
+    async createRecord() {
+        if (
+            this.model?.root?.resModel === EQUIPMENT_MODEL ||
+            this.props?.resModel === EQUIPMENT_MODEL
+        ) {
+            await openEquipmentWizard(this.env);
+            return;
+        }
+        return super.createRecord(...arguments);
+    },
     async openNewRecord() {
-        const model = this.props?.resModel || this.model?.root?.resModel;
-        if (model === EQUIPMENT_MODEL) {
-            const actionService = this.actionService || this.env.services.action;
-            return actionService.doAction(WIZARD_ACTION);
+        if (
+            this.model?.root?.resModel === EQUIPMENT_MODEL ||
+            this.props?.resModel === EQUIPMENT_MODEL
+        ) {
+            await openEquipmentWizard(this.env);
+            return;
         }
         return super.openNewRecord(...arguments);
     },
@@ -27,10 +43,21 @@ patch(ListController.prototype, {
 // 2. Intercept "New" button in Detail Form View
 patch(FormController.prototype, {
     async create() {
-        const model = this.props?.resModel || this.model?.root?.resModel;
-        if (model === EQUIPMENT_MODEL) {
-            const actionService = this.actionService || this.env.services.action;
-            return actionService.doAction(WIZARD_ACTION);
+        if (
+            this.props?.resModel === EQUIPMENT_MODEL ||
+            this.model?.root?.resModel === EQUIPMENT_MODEL
+        ) {
+            const dirty = await this.model?.root?.isDirty?.();
+            if (dirty) {
+                const saved = await this.model.root.save({
+                    onError: this.onSaveError?.bind(this),
+                });
+                if (!saved) {
+                    return;
+                }
+            }
+            await openEquipmentWizard(this.env);
+            return;
         }
         return super.create(...arguments);
     },
