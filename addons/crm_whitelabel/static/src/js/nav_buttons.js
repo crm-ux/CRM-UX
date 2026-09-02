@@ -5,43 +5,44 @@ import { FormController } from "@web/views/form/form_controller";
 import { useService } from "@web/core/utils/hooks";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { registry } from "@web/core/registry";
+impimport { notificationService } from "@web/core/notifications/notification_service";
 
-// Centralized Handler for ALL Models: Default & Custom Entities
-function missingRecordErrorHandler(env, error) {
-    const errorString = JSON.stringify(error || {});
-    const errorName = error?.data?.name || error?.exceptionName || error?.cause?.data?.name || "";
-    const errorMsg = error?.message || error?.data?.message || error?.cause?.message || "";
+// Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
+patch(notificationService, {
+    start(env) {
+        const originalNotification = super.start(...arguments);
+        return {
+            ...originalNotification,
+            add(message, options = {}) {
+                const msgStr = (typeof message === "string" ? message : (message?.toString() || "")).toLowerCase();
 
-    // Detect any MissingRecord / Non-existent ID error globally
-    if (errorName.includes("MissingError") ||
-        errorMsg.includes("cannot be found") ||
-        errorMsg.includes("does not exist") ||
-        errorString.includes("cannot be found") ||
-        errorString.includes("MissingError")) {
+                // Detect Missing Record error across ALL models
+                if (msgStr.includes("cannot be found") ||
+                    msgStr.includes("might have been deleted") ||
+                    msgStr.includes("missingerror") ||
+                    msgStr.includes("does not exist")) {
 
-        const dialogService = env.services.dialog;
-        if (dialogService) {
-            dialogService.add(ConfirmationDialog, {
-                title: _t("Record Not Found"),
-                body: _t("The requested record does not exist or may have been deleted."),
-                confirmLabel: _t("OK"),
-                confirm: () => {
-                    if (window.history.length > 1) {
-                        window.history.back();
-                    } else {
-                        env.services.action.doAction(435, { clearBreadcrumbs: true });
-                    }
-                },
-                cancel: () => { },
-            });
-        }
-        return true; // Stop Odoo from showing red toast & blank screen
+                    env.services.dialog.add(ConfirmationDialog, {
+                        title: _t("Record Not Found"),
+                        body: _t("The requested record does not exist or has been deleted."),
+                        confirmLabel: _t("OK"),
+                        confirm: () => {
+                            if (window.history.length > 1) {
+                                window.history.back();
+                            } else {
+                                env.services.action.doAction(435, { clearBreadcrumbs: true });
+                            }
+                        },
+                        cancel: () => { },
+                    });
+                    return () => { }; // Suppress standard red toast notification
+                }
+
+                return originalNotification.add(message, options);
+            }
+        };
     }
-}
-
-// Add with high priority (sequence: 0) to execute before default Odoo handlers
-registry.category("error_handlers").add("missing_record_handler", missingRecordErrorHandler, { sequence: 0 });
+});
 
 patch(ControlPanel.prototype, {
     setup() {
