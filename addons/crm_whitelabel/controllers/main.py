@@ -21,6 +21,7 @@ def persistent_set_cookie(self, key, value='', max_age=None, expires=None, path=
 
 http.FutureResponse.set_cookie = persistent_set_cookie
 
+
 class CrmWhitelabelController(http.Controller):
     
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, multilang=False, sitemap=False, readonly=True)
