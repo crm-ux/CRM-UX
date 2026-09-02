@@ -9,33 +9,39 @@ import { registry } from "@web/core/registry";
 
 // Centralized Handler for ALL Models: Default & Custom Entities
 function missingRecordErrorHandler(env, error) {
-    const errorName = error?.data?.name || "";
-    const errorMsg = error?.message || error?.data?.message || "";
+    const errorString = JSON.stringify(error || {});
+    const errorName = error?.data?.name || error?.exceptionName || error?.cause?.data?.name || "";
+    const errorMsg = error?.message || error?.data?.message || error?.cause?.message || "";
 
     // Detect any MissingRecord / Non-existent ID error globally
-    if (errorName === "odoo.exceptions.MissingError" ||
-        errorMsg.includes("MissingError") ||
+    if (errorName.includes("MissingError") ||
         errorMsg.includes("cannot be found") ||
-        errorMsg.includes("does not exist")) {
+        errorMsg.includes("does not exist") ||
+        errorString.includes("cannot be found") ||
+        errorString.includes("MissingError")) {
 
-        env.services.dialog.add(ConfirmationDialog, {
-            title: _t("Record Not Found"),
-            body: _t("The requested record does not exist or may have been deleted."),
-            confirmLabel: _t("OK"),
-            confirm: () => {
-                if (window.history.length > 1) {
-                    window.history.back();
-                } else {
-                    env.services.action.doAction(435, { clearBreadcrumbs: true });
-                }
-            },
-            cancel: () => { },
-        });
-        return true; // Stop unhandled exception from leaving a blank white page
+        const dialogService = env.services.dialog;
+        if (dialogService) {
+            dialogService.add(ConfirmationDialog, {
+                title: _t("Record Not Found"),
+                body: _t("The requested record does not exist or may have been deleted."),
+                confirmLabel: _t("OK"),
+                confirm: () => {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        env.services.action.doAction(435, { clearBreadcrumbs: true });
+                    }
+                },
+                cancel: () => { },
+            });
+        }
+        return true; // Stop Odoo from showing red toast & blank screen
     }
 }
 
-registry.category("error_handlers").add("missing_record_handler", missingRecordErrorHandler);
+// Add with high priority (sequence: 0) to execute before default Odoo handlers
+registry.category("error_handlers").add("missing_record_handler", missingRecordErrorHandler, { sequence: 0 });
 
 patch(ControlPanel.prototype, {
     setup() {
