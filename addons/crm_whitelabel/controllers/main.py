@@ -28,18 +28,16 @@ class CrmWhitelabelController(http.Controller):
         return request.redirect('/web/static/img/favicon.ico', code=301)
     
 class PersistentHome(Home):
-    @http.route('/', type='http', auth="public")
+    @http.route('/', type='http', auth="none")
     def index(self, s_action=None, **kw):
         if request.session.uid:
             return request.redirect('/app/action-435')
-        return request.redirect('/web/login')
+        return super(PersistentHome, self).index(s_action=s_action, **kw)
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
-        # If user is ALREADY logged in, immediately redirect to target or Dashboard (Prevents Blank Page)
-        if request.session.uid:
-            target = redirect or '/app/action-435'
-            return request.redirect(target)
+        if request.session.uid and not redirect:
+            return request.redirect('/app/action-435')
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
 
