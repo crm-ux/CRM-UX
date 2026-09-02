@@ -22,12 +22,22 @@ patch(notificationService, {
                     msgStr.includes("missingerror") ||
                     msgStr.includes("does not exist")) {
                     const safeExit = () => {
-                        if (window.history.length > 1) {
-                            window.history.back();
+                        // If path has a model like /app/res.partner/895 -> extract res.partner
+                        const path = window.location.pathname || "";
+                        const match = path.match(/\/app\/([a-zA-Z0-9._]+)\//);
+                        const model = match ? match[1] : null;
+
+                        if (model) {
+                            env.services.action.doAction({
+                                type: "ir.actions.act_window",
+                                res_model: model,
+                                views: [[false, "list"], [false, "form"]],
+                            }, { clearBreadcrumbs: true });
                         } else {
                             env.services.action.doAction(435, { clearBreadcrumbs: true });
                         }
                     };
+
                     env.services.dialog.add(AlertDialog, {
                         title: _t("Record Not Found"),
                         body: _t("The requested record does not exist or has been deleted."),
@@ -36,6 +46,7 @@ patch(notificationService, {
                     }, {
                         onClose: safeExit,
                     });
+
                     return () => { }; // Suppress standard red toast notification
                 }
 
