@@ -5,7 +5,7 @@ import { FormController } from "@web/views/form/form_controller";
 import { useService } from "@web/core/utils/hooks";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-impimport { notificationService } from "@web/core/notifications/notification_service";
+import { notificationService } from "@web/core/notifications/notification_service";
 
 // Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
 patch(notificationService, {
@@ -21,19 +21,20 @@ patch(notificationService, {
                     msgStr.includes("might have been deleted") ||
                     msgStr.includes("missingerror") ||
                     msgStr.includes("does not exist")) {
-
-                    env.services.dialog.add(ConfirmationDialog, {
+                    const safeExit = () => {
+                        if (window.history.length > 1) {
+                            window.history.back();
+                        } else {
+                            env.services.action.doAction(435, { clearBreadcrumbs: true });
+                        }
+                    };
+                    env.services.dialog.add(AlertDialog, {
                         title: _t("Record Not Found"),
                         body: _t("The requested record does not exist or has been deleted."),
                         confirmLabel: _t("OK"),
-                        confirm: () => {
-                            if (window.history.length > 1) {
-                                window.history.back();
-                            } else {
-                                env.services.action.doAction(435, { clearBreadcrumbs: true });
-                            }
-                        },
-                        cancel: () => { },
+                        confirm: safeExit,
+                    }, {
+                        onClose: safeExit,
                     });
                     return () => { }; // Suppress standard red toast notification
                 }
