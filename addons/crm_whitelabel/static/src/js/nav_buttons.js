@@ -5,6 +5,37 @@ import { FormController } from "@web/views/form/form_controller";
 import { useService } from "@web/core/utils/hooks";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { registry } from "@web/core/registry";
+
+// Centralized Handler for ALL Models: Default & Custom Entities
+function missingRecordErrorHandler(env, error) {
+    const errorName = error?.data?.name || "";
+    const errorMsg = error?.message || error?.data?.message || "";
+
+    // Detect any MissingRecord / Non-existent ID error globally
+    if (errorName === "odoo.exceptions.MissingError" ||
+        errorMsg.includes("MissingError") ||
+        errorMsg.includes("cannot be found") ||
+        errorMsg.includes("does not exist")) {
+
+        env.services.dialog.add(ConfirmationDialog, {
+            title: _t("Record Not Found"),
+            body: _t("The requested record does not exist or may have been deleted."),
+            confirmLabel: _t("OK"),
+            confirm: () => {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    env.services.action.doAction(435, { clearBreadcrumbs: true });
+                }
+            },
+            cancel: () => { },
+        });
+        return true; // Stop unhandled exception from leaving a blank white page
+    }
+}
+
+registry.category("error_handlers").add("missing_record_handler", missingRecordErrorHandler);
 
 patch(ControlPanel.prototype, {
     setup() {
