@@ -29,7 +29,7 @@ patch(notificationService, {
                         if (targetContainer) {
                             targetContainer.innerHTML = `
                                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; width:100%; text-align:center; padding:2rem; font-family:inherit;">
-                                    <div style="display:inline-block; padding:5px 14px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; border-radius:20px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:1.25rem; border:1px solid #dbeafe;">
+                                    <div style="font-size:clamp(2rem, 5vw, 3.5rem); font-weight:900; line-height:1; letter-spacing:0.04em; background:linear-gradient(135deg, #0284c7 0%, #38bdf8 60%, #0369a1 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:1.25rem; user-select:none; text-transform:uppercase;">
                                         404 NOT FOUND
                                     </div>
                                     <h1 style="font-size:2rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; letter-spacing:-0.03em;">
