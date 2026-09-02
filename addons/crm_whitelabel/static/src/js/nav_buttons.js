@@ -23,26 +23,26 @@ patch(notificationService, {
                     msgStr.includes("missingerror") ||
                     msgStr.includes("does not exist")) {
 
-                    // Remove blank container and render beautiful clean 404 Card in-page
+                    // Remove blank container and render Design 2: Enterprise Minimalist
                     setTimeout(() => {
                         const targetContainer = document.querySelector(".o_action_manager") || document.body;
                         if (targetContainer) {
                             targetContainer.innerHTML = `
                                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; width:100%; text-align:center; padding:2rem; font-family:inherit;">
-                                    <div style="width:72px; height:72px; border-radius:50%; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:32px; margin-bottom:1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                                        🔍
+                                    <div style="display:inline-block; padding:5px 14px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; border-radius:20px; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:1.25rem; border:1px solid #dbeafe;">
+                                        404 NOT FOUND
                                     </div>
-                                    <h2 style="font-size:1.6rem; font-weight:700; color:#1e293b; margin-bottom:0.5rem;">
-                                        Record Not Found
-                                    </h2>
-                                    <p style="color:#64748b; font-size:0.95rem; max-width:440px; margin-bottom:1.75rem; line-height:1.5;">
-                                        The requested record does not exist or may have been deleted.
+                                    <h1 style="font-size:2rem; font-weight:800; color:#0f172a; margin-bottom:0.5rem; letter-spacing:-0.03em;">
+                                        Oops! Record Not Found
+                                    </h1>
+                                    <p style="color:#64748b; font-size:0.95rem; max-width:440px; margin-bottom:2rem; line-height:1.6;">
+                                        We couldn't find the record you requested. It might have been deleted or the link is incorrect.
                                     </p>
                                     <div style="display:flex; gap:12px; align-items:center;">
-                                        <button id="btn_crm_goback" style="background:#f8fafc; color:#334155; border:1px solid #cbd5e1; padding:10px 22px; font-size:14px; font-weight:600; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;">
+                                        <button id="btn_crm_goback" style="background:#ffffff; color:#334155; border:1px solid #cbd5e1; padding:10px 22px; font-size:13.5px; font-weight:600; border-radius:8px; cursor:pointer; transition:all 0.2s; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
                                             Go Back
                                         </button>
-                                        <button id="btn_crm_dashboard" style="background:#0284c7; color:#ffffff; border:none; padding:10px 24px; font-size:14px; font-weight:600; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(2,132,199,0.25); transition:all 0.2s;">
+                                        <button id="btn_crm_dashboard" style="background:#0284c7; color:#ffffff; border:none; padding:10px 24px; font-size:13.5px; font-weight:600; border-radius:8px; cursor:pointer; box-shadow:0 2px 8px rgba(2,132,199,0.3); transition:all 0.2s;">
                                             Dashboard
                                         </button>
                                     </div>
