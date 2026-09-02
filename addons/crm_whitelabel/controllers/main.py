@@ -1,8 +1,11 @@
 from odoo import http
-from odoo.http import request
+from odoo.http import request, root
 from odoo.addons.web.controllers.home import Home
 
 SESSION_1_YEAR = 365 * 24 * 60 * 60
+
+if hasattr(root, 'session_store') and root.session_store:
+    root.session_store.session_timeout = SESSION_1_YEAR
 
 class CrmWhitelabelController(http.Controller):
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, multilang=False, sitemap=False, readonly=True)
@@ -23,10 +26,11 @@ class PersistentHome(Home):
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
         
-        if request and request.session and request.session.uid and response:
+        if request and request.session and request.session.uid:
             try:
-                response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
+                request.future_response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
             except Exception:
                 pass
                 
         return response
+
