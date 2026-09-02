@@ -36,12 +36,13 @@ class PersistentHome(Home):
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
-        # If user is ALREADY logged in, send them straight to Dashboard
-        if request.session.uid and not redirect:
-            return request.redirect('/app/action-435')
+        # If user is ALREADY logged in, immediately redirect to target or Dashboard (Prevents Blank Page)
+        if request.session.uid:
+            target = redirect or '/app/action-435'
+            return request.redirect(target)
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
-        
+
         # Enforce 1 year on login response
         if request and request.session and request.session.uid and response:
             response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
