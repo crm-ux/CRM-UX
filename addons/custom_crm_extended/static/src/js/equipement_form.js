@@ -12,16 +12,13 @@ import { patch } from "@web/core/utils/patch";
 const EQUIPMENT_MODEL = "equipment.master";
 const WIZARD_ACTION = "custom_crm_extended.action_equipment_master_wizard";
 
-async function openEquipmentWizard(env) {
-    await env.services.action.doAction(WIZARD_ACTION);
-}
-
 // 1. Intercept "New" button in List View
 patch(ListController.prototype, {
     async openNewRecord() {
-        if (this.model?.root?.resModel === EQUIPMENT_MODEL || this.props?.resModel === EQUIPMENT_MODEL) {
-            await openEquipmentWizard(this.env);
-            return;
+        const model = this.props?.resModel || this.model?.root?.resModel;
+        if (model === EQUIPMENT_MODEL) {
+            const actionService = this.actionService || this.env.services.action;
+            return actionService.doAction(WIZARD_ACTION);
         }
         return super.openNewRecord(...arguments);
     },
@@ -30,9 +27,10 @@ patch(ListController.prototype, {
 // 2. Intercept "New" button in Detail Form View
 patch(FormController.prototype, {
     async create() {
-        if (this.props?.resModel === EQUIPMENT_MODEL || this.model?.root?.resModel === EQUIPMENT_MODEL) {
-            await openEquipmentWizard(this.env);
-            return;
+        const model = this.props?.resModel || this.model?.root?.resModel;
+        if (model === EQUIPMENT_MODEL) {
+            const actionService = this.actionService || this.env.services.action;
+            return actionService.doAction(WIZARD_ACTION);
         }
         return super.create(...arguments);
     },
