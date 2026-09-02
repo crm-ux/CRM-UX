@@ -21,7 +21,7 @@
                             <field name="equipment_id" placeholder="e.g. LT000123"/>
                         </h1>
                         <h2>
-                            <field name="name" placeholder="e.g. Genpure Refrigerator"/>
+                            <field name="name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                         </h2>
                     </div>
 

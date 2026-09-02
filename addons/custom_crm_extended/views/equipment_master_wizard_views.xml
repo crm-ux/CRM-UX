@@ -35,7 +35,7 @@
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Equipment Information</div>
                         <group>
                             <field name="equipment_id" string="Equipment ID" placeholder="e.g. LT000123"/>
-                            <field name="name" string="Equipment Name" placeholder="e.g. Genpure Refrigerator"/>
+                            <field name="name" string="Equipment Name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
                             <field name="category_id" string="Equipment Category" placeholder="e.g. Refrigerator"/>

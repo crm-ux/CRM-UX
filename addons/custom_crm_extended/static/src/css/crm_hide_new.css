@@ -334,3 +334,11 @@ button[name="action_save_lead"] {
     overflow-y: auto !important;
     overflow-x: hidden !important;
 }
+
+/* Prevent dashboard button from appearing inside modal dialogs and search popups */
+.modal-dialog .o_control_panel_breadcrumbs button,
+.modal-dialog #btn_crm_dashboard_nav,
+.o_dialog .o_control_panel_breadcrumbs button,
+.o_dialog #btn_crm_dashboard_nav {
+    display: none !important;
+}
