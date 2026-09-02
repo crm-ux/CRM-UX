@@ -343,17 +343,20 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-/* Force search bar dropdowns in modal dialogs to open downwards below the input */
+/* Fix Odoo Popper inline style on search menu inside modal popups */
 .o_dialog .o_search_bar_menu,
-.modal-dialog .o_search_bar_menu,
-.o_dialog .o-dropdown--menu {
-    top: 100% !important;
+.modal .o_search_bar_menu,
+div.o_search_bar_menu.dropdown-menu {
+    position: absolute !important;
+    top: calc(100% + clamp(0.2rem, 0.5vh, 0.4rem)) !important;
     bottom: auto !important;
     transform: none !important;
-    margin-top: clamp(0.2rem, 0.4vh, 0.35rem) !important;
+    max-height: clamp(14rem, 30vh, 18rem) !important;
+    box-shadow: 0 clamp(0.25rem, 0.8vh, 0.5rem) clamp(0.75rem, 1.5vw, 1.25rem) rgba(0, 0, 0, 0.15) !important;
+    z-index: 1080 !important;
 }
 
-/* Ensure search bar dropdown stays within dialog boundaries */
-.o_dialog .o_control_panel .o_search_bar {
+.o_dialog .o_control_panel .o_search_bar,
+.modal .o_control_panel .o_search_bar {
     position: relative !important;
 }
