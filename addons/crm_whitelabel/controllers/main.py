@@ -4,6 +4,16 @@ from odoo.addons.web.controllers.home import Home
 
 SESSION_1_YEAR = 365 * 24 * 60 * 60
 
+if hasattr(root, 'session_store') and root.session_store:
+    root.session_store.session_timeout = SESSION_1_YEAR
+
+if request.session.uid:
+    try:
+        request.future_response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
+        if hasattr(response, 'set_cookie'):
+            response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
+    except Exception:
+        pass
 
 class CrmWhitelabelController(http.Controller):
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, multilang=False, sitemap=False, readonly=True)
