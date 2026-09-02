@@ -28,7 +28,7 @@ patch(notificationService, {
                         const targetContainer = document.querySelector(".o_action_manager") || document.body;
                         if (targetContainer) {
                             targetContainer.innerHTML = `
-                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; width:100%; text-align:center; padding:2rem; font-family:inherit; background:radial-gradient(circle at 50% 0%, #e0f2fe 0%, #f8fafc 55%, #ffffff 100%);">
+                                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:80vh; width:100%; text-align:center; padding:clamp(1.5rem, 4vh, 3rem); font-family:inherit; background-color:#f8fafc; background-image:radial-gradient(#cbd5e1 clamp(0.06rem, 0.1vw, 0.08rem), transparent clamp(0.06rem, 0.1vw, 0.08rem)); background-size:clamp(1.2rem, 2vw, 1.6rem) clamp(1.2rem, 2vw, 1.6rem);">
                                     <div style="font-size:clamp(2rem, 5vw, 3.5rem); font-weight:900; line-height:1; letter-spacing:0.04em; background:linear-gradient(135deg, #0284c7 0%, #38bdf8 60%, #0369a1 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:1.25rem; user-select:none; text-transform:uppercase;">
                                         404 NOT FOUND
                                     </div>
