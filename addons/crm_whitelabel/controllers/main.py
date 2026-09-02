@@ -28,12 +28,11 @@ class CrmWhitelabelController(http.Controller):
         return request.redirect('/web/static/img/favicon.ico', code=301)
     
 class PersistentHome(Home):
-    @http.route('/', type='http', auth="none")
+    @http.route('/', type='http', auth="public")
     def index(self, s_action=None, **kw):
         if request.session.uid:
             return request.redirect('/app/action-435')
         return request.redirect('/web/login')
-
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
