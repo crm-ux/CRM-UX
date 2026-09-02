@@ -10,7 +10,7 @@ class EquipmentMasterWizard(models.TransientModel):
     # Step 1: Equipment Info
     e1_id = fields.Boolean(default=False)
     equipment_id  = fields.Char(string="Equipment ID")
-    name = fields.Char(string="Equipment Name")
+    name = fields.Many2one("product.template", string="Equipment Name")
     category_id = fields.Char(string='Equipment Category')
     manufacturer = fields.Char(string="Manufacturer")
     model_number = fields.Char(string="Model Number")
@@ -63,6 +63,15 @@ class EquipmentMasterWizard(models.TransientModel):
     firmware_version = fields.Char(string="Software/Firmware Version")
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
+
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name:
+            self.category_id = self.name.categ_id.display_name if self.name.categ_id else ''
+            self.manufacturer = getattr(self.name, 'x_make', '') or ''
+        else:
+            self.category_id = ''
+            self.manufacturer = ''
 
     # Navigation Actions
     def action_next(self):
@@ -139,7 +148,7 @@ class EquipmentMasterWizard(models.TransientModel):
             return self._reopen_self()
         equipment = self.env["equipment.master"].create({
             "equipment_id": self.equipment_id,
-            "name": self.name,
+            "name": self.name.id if self.name else False,
             "category_id": self.category_id,
             "manufacturer": self.manufacturer,
             "model_number": self.model_number,

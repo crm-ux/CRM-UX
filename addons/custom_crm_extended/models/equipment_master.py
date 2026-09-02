@@ -16,7 +16,7 @@ class EquipmentMaster(models.Model):
     # Step 1: Equipment Info
     # equipment_id = fields.Char(string='Equipment ID', required=True, copy=False, default=lambda self: _('New'), tracking=True)
     equipment_id  = fields.Char(string='Equipment ID', required=True, tracking=True)
-    name = fields.Char(string='Equipment Name', tracking=True)
+    name = fields.Many2one('product.template', string='Equipment Name', tracking=True)
     category_id = fields.Char(string='Equipment Category', tracking=True)
     manufacturer = fields.Char(string='Manufacturer', tracking=True)
     model_number = fields.Char(string='Model Number', tracking=True)
@@ -69,6 +69,15 @@ class EquipmentMaster(models.Model):
     firmware_version = fields.Char(string='Software/Firmware Version')
     accessories = fields.Text(string='Accessories')
     remarks = fields.Text(string='Remarks')
+
+    @api.onchange('name')
+    def _onchange_name(self):
+        if self.name:
+            self.category_id = self.name.categ_id.display_name if self.name.categ_id else ''
+            self.manufacturer = getattr(self.name, 'x_make', '') or ''
+        else:
+            self.category_id = ''
+            self.manufacturer = ''
 
     @api.model_create_multi
     def create(self, vals_list):
