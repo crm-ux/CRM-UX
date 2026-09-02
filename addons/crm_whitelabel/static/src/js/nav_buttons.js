@@ -40,10 +40,10 @@ patch(notificationService, {
                                     </p>
                                     <div style="display:flex; gap:12px; align-items:center;">
                                         <button id="btn_crm_goback" style="background:#f8fafc; color:#334155; border:1px solid #cbd5e1; padding:10px 22px; font-size:14px; font-weight:600; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;">
-                                            ⬅ Go Back
+                                            Go Back
                                         </button>
                                         <button id="btn_crm_dashboard" style="background:#0284c7; color:#ffffff; border:none; padding:10px 24px; font-size:14px; font-weight:600; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(2,132,199,0.25); transition:all 0.2s;">
-                                            🏠 Dashboard
+                                            Dashboard
                                         </button>
                                     </div>
                                 </div>
