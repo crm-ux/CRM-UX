@@ -4,6 +4,9 @@ from odoo.addons.web.controllers.home import Home
 
 SESSION_1_YEAR = 365 * 24 * 60 * 60
 
+if hasattr(http, 'SESSION_LIFETIME'):
+    http.SESSION_LIFETIME = SESSION_1_YEAR
+
 if hasattr(root, 'session_store') and root.session_store:
     root.session_store.session_timeout = SESSION_1_YEAR
 
