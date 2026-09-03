@@ -343,7 +343,7 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-/* Fix search bar menu in modal: full content height, no inner scrollbar */
+/* Force search bar menu in modal to open BELOW the search input */
 .o_search_bar_menu.dropdown-menu {
     max-height: 80vh !important;
     overflow-y: visible !important;
@@ -351,7 +351,9 @@ button[name="action_save_lead"] {
     z-index: 1080 !important;
 }
 
-/* Ensure modal header has enough headroom so Popper opens downward */
-.o_dialog .modal-dialog {
-    margin-top: clamp(4rem, 8vh, 6rem) !important;
+/* When popper calculates it to top, push it below the search bar */
+.o_search_bar_menu[data-popper-placement^="top"],
+.dropdown-menu.o_search_bar_menu[data-popper-placement^="top"] {
+    top: auto !important;
+    margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
