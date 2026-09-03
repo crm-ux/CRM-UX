@@ -139,7 +139,6 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "new",
         }
 
-
     def action_save_equipment(self):
         self.ensure_one()
         if not self.equipment_id:
@@ -220,3 +219,23 @@ class EquipmentMasterWizard(models.TransientModel):
             self.floor = getattr(p, 'x_floor', False) or ""
             self.department = getattr(p, 'x_department', False) or p.function or ""
             self.room_number = getattr(p, 'x_room_number', False) or ""
+
+
+        @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        ICP = self.env['ir.config_parameter'].sudo()
+        if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
+            prefix = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
+            pad = int(ICP.get_param('crm.equipment_id_padding', 4))
+            next_num = int(ICP.get_param('crm.equipment_id_next', 1))
+            suffix = ICP.get_param('crm.equipment_id_suffix', '')
+            res['equipment_id'] = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+
+        if ICP.get_param('crm.serial_number_auto', 'True') == 'True':
+            prefix = ICP.get_param('crm.serial_number_prefix', 'SN-')
+            pad = int(ICP.get_param('crm.serial_number_padding', 4))
+            next_num = int(ICP.get_param('crm.serial_number_next', 1))
+            suffix = ICP.get_param('crm.serial_number_suffix', '')
+            res['serial_number'] = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+        return res

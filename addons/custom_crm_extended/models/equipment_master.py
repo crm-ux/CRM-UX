@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class EquipmentCategory(models.Model):
     _name = 'equipment.category'
@@ -13,8 +14,12 @@ class EquipmentMaster(models.Model):
     _description = 'Equipment Master for Service Tickets'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
+    _sql_constraints = [
+        ('equipment_id_uniq', 'unique(equipment_id)', 'The Equipment ID must be unique! This ID is already assigned to another equipment.'),
+        ('serial_number_uniq', 'unique(serial_number)', 'The Serial Number must be unique! This Serial Number already exists in the system.'),
+    ]
+
     # Step 1: Equipment Info
-    # equipment_id = fields.Char(string='Equipment ID', required=True, copy=False, default=lambda self: _('New'), tracking=True)
     equipment_id  = fields.Char(string='Equipment ID', required=True, tracking=True)
     name = fields.Many2one('product.template', string='Equipment Name', tracking=True)
     category_id = fields.Char(string='Equipment Category', tracking=True)
@@ -70,6 +75,28 @@ class EquipmentMaster(models.Model):
     accessories = fields.Text(string='Accessories')
     remarks = fields.Text(string='Remarks')
 
+    @api.constrains('equipment_id')
+    def _check_unique_equipment_id(self):
+        for rec in self:
+            if rec.equipment_id:
+                duplicate = self.search([
+                    ('equipment_id', '=', rec.equipment_id.strip()),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % rec.equipment_id)
+
+    @api.constrains('serial_number')
+    def _check_unique_serial_number(self):
+        for rec in self:
+            if rec.serial_number:
+                duplicate = self.search([
+                    ('serial_number', '=', rec.serial_number.strip()),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % rec.serial_number)
+
     @api.onchange('name')
     def _onchange_name(self):
         if self.name:
@@ -78,13 +105,6 @@ class EquipmentMaster(models.Model):
         else:
             self.category_id = ''
             self.manufacturer = ''
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        # for vals in vals_list:
-        #     if not vals.get('equipment_id') or vals['equipment_id'] == _('New'):
-        #         vals['equipment_id'] = self.env['ir.sequence'].next_by_code('equipment.master') or _('New')
-        return super().create(vals_list)
 
     def action_create_service_ticket(self):
         self.ensure_one()
@@ -95,8 +115,7 @@ class EquipmentMaster(models.Model):
             'view_mode': 'form',
             'target': 'current',
             'context': {
-                'default_name': f"Service Ticket - {self.name}",
+                'default_name': f"Service Ticket - {self.name.name if self.name else ''}",
                 'default_partner_id': self.partner_id.id if self.partner_id else False,
             }
         }
-
