@@ -106,9 +106,12 @@ class EquipmentMaster(models.Model):
         if self.name:
             self.category_id = self.name.categ_id.display_name if self.name.categ_id else ''
             self.manufacturer = getattr(self.name, 'x_make', '') or ''
+            self.part_number = getattr(self.name, 'default_code', '') or ''
         else:
             self.category_id = ''
             self.manufacturer = ''
+            self.part_number = ''
+
 
     def action_create_service_ticket(self):
         self.ensure_one()
