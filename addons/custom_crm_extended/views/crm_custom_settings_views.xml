@@ -11,9 +11,6 @@
                         <h1 style="font-size:clamp(1.4rem, 2.2vw, 1.8rem); font-weight:700; color:#0f172a;">
                             CRM System Settings
                         </h1>
-                        <p class="text-muted" style="font-size:clamp(0.85rem, 1.2vw, 0.95rem); margin-bottom:clamp(1rem, 2vh, 1.5rem);">
-                            Manage your system numbering formats, auto-increment rules, and global configurations.
-                        </p>
                     </div>
 
                     <div>
@@ -35,7 +32,7 @@
                                         Equipment Master
                                     </h3>
                                 </div>
-                                                                <div class="p-3 border rounded-3 bg-white shadow-sm" style="min-height:clamp(12rem, 24vh, 16rem);">
+                                <div class="p-3 border rounded-3 bg-white shadow-sm" style="min-height:clamp(12rem, 24vh, 16rem);">
                                     <!-- 1. Equipment ID Setting -->
                                     <div class="pb-3 mb-3 border-bottom">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
