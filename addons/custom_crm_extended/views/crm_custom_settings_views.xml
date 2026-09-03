@@ -52,7 +52,7 @@
                                                     <field name="equipment_id_prefix" placeholder="e.g. EQ-"/>
                                                 </div>
                                                 <div class="col-4">
-                                                    <label for="equipment_id_next" class="text-muted small mb-1">Next Number</label>
+                                                    <label for="equipment_id_next" class="text-muted small mb-1">Number</label>
                                                     <field name="equipment_id_next"/>
                                                 </div>
                                                 <div class="col-4">
@@ -88,7 +88,7 @@
                                                     <field name="serial_number_prefix" placeholder="e.g. SN-"/>
                                                 </div>
                                                 <div class="col-4">
-                                                    <label for="serial_number_next" class="text-muted small mb-1">Next Number</label>
+                                                    <label for="serial_number_next" class="text-muted small mb-1">Number</label>
                                                     <field name="serial_number_next"/>
                                                 </div>
                                                 <div class="col-4">
