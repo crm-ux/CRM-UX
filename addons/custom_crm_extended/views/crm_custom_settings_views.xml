@@ -38,7 +38,7 @@
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div class="d-flex align-items-center">
                                                 <i class="fa fa-tag me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0284c7;">Equipment ID</strong>
+                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Equipment ID</strong>
                                             </div>
                                             <div class="form-check form-switch mb-0">
                                                 <field name="equipment_id_auto" widget="boolean_toggle"/>
@@ -74,7 +74,7 @@
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div class="d-flex align-items-center">
                                                 <i class="fa fa-barcode me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0284c7;">Serial Number</strong>
+                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Serial Number</strong>
                                             </div>
                                             <div class="form-check form-switch mb-0">
                                                 <field name="serial_number_auto" widget="boolean_toggle"/>
@@ -88,7 +88,7 @@
                                                     <field name="serial_number_prefix" placeholder="e.g. SN-"/>
                                                 </div>
                                                 <div class="col-4">
-                                                    <label for="serial_number_next" class="text-muted small mb-1">Number</label>
+                                                    <label for="serial_number_next" class="text-muted small mb-1"> Number</label>
                                                     <field name="serial_number_next"/>
                                                 </div>
                                                 <div class="col-4">
