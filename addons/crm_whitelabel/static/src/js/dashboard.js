@@ -179,13 +179,16 @@ class CrmDashboard extends Component {
             const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
             const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
+            const eqCompDomain = this.state.selectedCompanies.length
+                ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+                : [];
             let equipmentTotal = 0, equipmentActive = 0, equipmentInactive = 0, equipmentRepair = 0;
             try {
                 const [eqTot, eqAct, eqInact, eqRep] = await Promise.all([
-                    this.ormService.searchCount("equipment.master", []),
-                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "active"]]),
-                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "inactive"]]),
-                    this.ormService.searchCount("equipment.master", [["equipment_status", "=", "under_repair"]]),
+                    this.ormService.searchCount("equipment.master", eqCompDomain),
+                    this.ormService.searchCount("equipment.master", [...eqCompDomain, ["equipment_status", "=", "active"]]),
+                    this.ormService.searchCount("equipment.master", [...eqCompDomain, ["equipment_status", "=", "inactive"]]),
+                    this.ormService.searchCount("equipment.master", [...eqCompDomain, ["equipment_status", "=", "under_repair"]]),
                 ]);
                 equipmentTotal = eqTot;
                 equipmentActive = eqAct;
@@ -195,13 +198,16 @@ class CrmDashboard extends Component {
                 console.log("Equipment count error:", err);
             }
 
+            const tckCompDomain = this.state.selectedCompanies.length
+                ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+                : [];
             let ticketTotal = 0, ticketOpen = 0, ticketOngoing = 0, ticketClosed = 0;
             try {
                 const [tTot, tOp, tOn, tCl] = await Promise.all([
-                    this.ormService.searchCount("service.ticket", []),
-                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "open"]]),
-                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "ongoing"]]),
-                    this.ormService.searchCount("service.ticket", [["ticket_status", "=", "closed"]]),
+                    this.ormService.searchCount("service.ticket", tckCompDomain),
+                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "open"]]),
+                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "ongoing"]]),
+                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "closed"]]),
                 ]);
                 ticketTotal = tTot;
                 ticketOpen = tOp;
@@ -271,12 +277,16 @@ class CrmDashboard extends Component {
     }
 
     openEquipmentList(domain = [], name = "Equipment Master") {
+        const eqCompDomain = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: name,
             res_model: "equipment.master",
             views: [[false, "list"], [false, "form"]],
-            domain: domain,
+            domain: [...eqCompDomain, ...domain],
+            context: { allowed_company_ids: this.state.selectedCompanies },
         });
     }
 
@@ -308,12 +318,16 @@ class CrmDashboard extends Component {
         this.openServiceTicketList([], "All Service Tickets");
     }
     openServiceTicketList(domain = [], name = "Service Tickets") {
+        const tckCompDomain = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: name,
             res_model: "service.ticket",
             views: [[false, "list"], [false, "form"]],
-            domain: domain,
+            domain: [...tckCompDomain, ...domain],
+            context: { allowed_company_ids: this.state.selectedCompanies },
         });
     }
 

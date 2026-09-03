@@ -20,6 +20,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'security/multi_company_rules.xml',
         'data/crm_data.xml',
         'views/utm_source_views.xml',
         'views/crm_lead_views.xml',
