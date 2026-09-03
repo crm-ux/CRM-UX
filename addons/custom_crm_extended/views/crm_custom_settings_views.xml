@@ -35,11 +35,40 @@
                                         Equipment Master
                                     </h3>
                                 </div>
-                                <div class="p-4 border rounded-3 bg-light" style="min-height:clamp(10rem, 20vh, 14rem);">
-                                    <p class="text-muted mb-0" style="font-size:clamp(0.85rem, 1vw, 0.92rem); line-height:1.6;">
-                                        <!-- Equipment Master fields will be placed here -->
-                                        Configure auto-incrementing numbering rules and formats for Equipment Master records.
-                                    </p>
+                                                                <div class="p-3 border rounded-3 bg-white shadow-sm" style="min-height:clamp(12rem, 24vh, 16rem);">
+                                    <!-- 1. Equipment ID Setting -->
+                                    <div class="pb-3 mb-3 border-bottom">
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa fa-tag me-2 text-primary"></i>
+                                                <strong style="font-size:clamp(0.88rem, 1.1vw, 0.95rem); color:#0f172a;">Equipment ID</strong>
+                                            </div>
+                                            <div class="form-check form-switch mb-0">
+                                                <field name="equipment_id_auto" widget="boolean_toggle"/>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 mt-2" invisible="not equipment_id_auto">
+                                            <label for="equipment_id_prefix" class="text-muted small mb-0" style="min-width:clamp(4rem, 6vw, 5rem);">Prefix:</label>
+                                            <field name="equipment_id_prefix" placeholder="e.g. EQ" class="form-control form-control-sm" style="max-width:clamp(8rem, 12vw, 10rem);"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Serial Number Setting -->
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa fa-barcode me-2 text-primary"></i>
+                                                <strong style="font-size:clamp(0.88rem, 1.1vw, 0.95rem); color:#0f172a;">Serial Number</strong>
+                                            </div>
+                                            <div class="form-check form-switch mb-0">
+                                                <field name="serial_number_auto" widget="boolean_toggle"/>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 mt-2" invisible="not serial_number_auto">
+                                            <label for="serial_number_prefix" class="text-muted small mb-0" style="min-width:clamp(4rem, 6vw, 5rem);">Prefix:</label>
+                                            <field name="serial_number_prefix" placeholder="e.g. SN" class="form-control form-control-sm" style="max-width:clamp(8rem, 12vw, 10rem);"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
