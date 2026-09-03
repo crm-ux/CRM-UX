@@ -76,7 +76,7 @@ class EquipmentMasterWizard(models.TransientModel):
             self.category_id = ''
             self.manufacturer = ''
 
-        # Navigation Actions
+    # Navigation Actions
     def action_next(self):
         self.ensure_one()
         if self.step == 1:
@@ -107,36 +107,34 @@ class EquipmentMasterWizard(models.TransientModel):
         self.step = 1
         return self._reopen_self()
 
+    def _check_step_1_uniqueness(self):
+        if not self.equipment_id:
+            raise ValidationError(_("Please enter Equipment ID before proceeding."))
+        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+        if dup_eq:
+            raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
+        if self.serial_number:
+            dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+            if dup_sn:
+                raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+
     def action_goto_2(self):
         self.ensure_one()
-        if not self.equipment_id:
-            self.step = 1
-            self.e1_id = True
-            return self._reopen_self()
-        self.e1_id = False
+        self._check_step_1_uniqueness()
         self.step = 2
         return self._reopen_self()
 
     def action_goto_3(self):
         self.ensure_one()
-        if not self.equipment_id:
-            self.step = 1
-            self.e1_id = True
-            return self._reopen_self()
-        self.e1_id = False
+        self._check_step_1_uniqueness()
         self.step = 3
         return self._reopen_self()
 
     def action_goto_4(self):
         self.ensure_one()
-        if not self.equipment_id:
-            self.step = 1
-            self.e1_id = True
-            return self._reopen_self()
-        self.e1_id = False
+        self._check_step_1_uniqueness()
         self.step = 4
         return self._reopen_self()
-
 
     def _reopen_self(self):
         return {
