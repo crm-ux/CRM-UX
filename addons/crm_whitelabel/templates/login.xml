@@ -25,11 +25,14 @@
         </xpath>
     </template>
 
-     <!-- Global Custom Favicon -->
+    <!-- Global Custom Favicon & Mobile Touch Icons -->
     <template id="custom_favicon" inherit_id="web.layout" priority="99">
         <xpath expr="//link[@rel='shortcut icon']" position="replace">
             <link rel="shortcut icon" href="/crm_whitelabel/static/src/img/favicon.png" type="image/png"/>
             <link rel="icon" href="/crm_whitelabel/static/src/img/favicon.png" type="image/png"/>
+            <link rel="apple-touch-icon" href="/crm_whitelabel/static/src/img/favicon.png"/>
+            <link rel="apple-touch-icon" sizes="180x180" href="/crm_whitelabel/static/src/img/favicon.png"/>
         </xpath>
     </template>
+
 </odoo>
