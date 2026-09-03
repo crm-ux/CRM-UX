@@ -98,7 +98,7 @@
                 </div>
             </div>
             <!-- HERO -->
-            <div class="crm-pro-hero">
+            <div class="crm-pro-hero flex-column flex-md-row">
                 <div class="crm-pro-hero-left">
                     <div class="crm-greeting"><t t-esc="state.greeting"/>,</div>
                     <h1><t t-esc="state.userName"/>!</h1>
