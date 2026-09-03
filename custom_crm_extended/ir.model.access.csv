@@ -13,3 +13,6 @@ access_sale_line_media_wizard_image,sale.line.media.wizard.image,model_sale_line
 
 access_service_ticket_user,service.ticket.user,model_service_ticket,base.group_user,1,1,1,1
 access_service_ticket_wizard_user,service.ticket.wizard.user,model_service_ticket_wizard,base.group_user,1,1,1,1
+
+access_crm_custom_settings_user,crm.custom.settings.user,model_crm_custom_settings,base.group_user,1,1,1,1
+access_crm_custom_settings_admin,crm.custom.settings.admin,model_crm_custom_settings,base.group_system,1,1,1,1
