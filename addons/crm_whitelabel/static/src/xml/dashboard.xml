@@ -66,19 +66,8 @@
                     </div>
                     <div class="crm-notif-wrapper" style="position:relative;margin-right:12px;display:flex;align-items:center;height:32px;">
                         <div t-on-click="toggleNotifications" style="cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;position:relative;">
-                            <i class="fa fa-bell" style="font-size:18px;color:#ffffff;line-height:1;"></i>
+                            <span style="font-size:18px;line-height:1;display:inline-block;transform:translateY(-2px);">🔔</span>
                             <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
-                        </div>
-                        <div t-if="state.notifOpen" style="position:absolute;top:36px;right:0;width:320px;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:9999;max-height:350px;overflow-y:auto;">
-                            <div style="padding:10px 14px;border-bottom:1px solid #eee;font-weight:bold;font-size:13px;">Notifications</div>
-                            <t t-if="state.notifications.length === 0"><div style="padding:16px;text-align:center;color:#888;font-size:13px;">No notifications</div></t>
-                            <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
-                                <div t-on-click="() => this.openLead(notif)" style="padding:10px 14px;border-bottom:1px solid #f5f5f5;cursor:pointer;">
-                                    <div style="font-size:13px;font-weight:600;color:#0b3d91;"><t t-esc="notif.record_name"/></div>
-                                    <div style="font-size:11px;color:#555;"><t t-esc="notif.body_text"/></div>
-                                    <div style="font-size:10px;color:#999;"><t t-esc="notif.date"/></div>
-                                </div>
-                            </t>
                         </div>
                     </div>
                     <div class="crm-settings-btn-wrapper" t-if="state.isAdmin" style="margin-right:12px;display:flex;align-items:center;height:32px;">
