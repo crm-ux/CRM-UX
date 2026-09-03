@@ -23,6 +23,14 @@ class CrmCustomSettings(models.TransientModel):
     serial_number_suffix = fields.Char(string='Suffix', default='')
     serial_number_preview = fields.Char(string='Preview', compute='_compute_serial_number_preview')
 
+    # --- 3. Service Ticket ID Settings ---
+    ticket_id_auto = fields.Boolean(string='Auto-generate Ticket ID', default=True)
+    ticket_id_prefix = fields.Char(string='Prefix', default='TCK-')
+    ticket_id_padding = fields.Integer(string='Digits (Padding)', default=4)
+    ticket_id_next = fields.Integer(string='Next Number', default=1)
+    ticket_id_suffix = fields.Char(string='Suffix', default='')
+    ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
+
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
     def _compute_equipment_id_preview(self):
         for rec in self:
@@ -41,6 +49,15 @@ class CrmCustomSettings(models.TransientModel):
             suffix = rec.serial_number_suffix or ''
             rec.serial_number_preview = f"{prefix}{num_str}{suffix}"
 
+    @api.depends('ticket_id_prefix', 'ticket_id_padding', 'ticket_id_next', 'ticket_id_suffix')
+    def _compute_ticket_id_preview(self):
+        for rec in self:
+            pad = max(1, rec.ticket_id_padding or 4)
+            num_str = str(rec.ticket_id_next or 1).zfill(pad)
+            prefix = rec.ticket_id_prefix or ''
+            suffix = rec.ticket_id_suffix or ''
+            rec.ticket_id_preview = f"{prefix}{num_str}{suffix}"
+
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
@@ -57,6 +74,13 @@ class CrmCustomSettings(models.TransientModel):
         res['serial_number_padding'] = int(ICP.get_param('crm.serial_number_padding', 4))
         res['serial_number_next'] = int(ICP.get_param('crm.serial_number_next', 1))
         res['serial_number_suffix'] = ICP.get_param('crm.serial_number_suffix', '')
+
+        res['ticket_id_auto'] = ICP.get_param('crm.ticket_id_auto', 'True') == 'True'
+        res['ticket_id_prefix'] = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
+        res['ticket_id_padding'] = int(ICP.get_param('crm.ticket_id_padding', 4))
+        res['ticket_id_next'] = int(ICP.get_param('crm.ticket_id_next', 1))
+        res['ticket_id_suffix'] = ICP.get_param('crm.ticket_id_suffix', '')
+
         return res
 
     def action_save_settings(self):
@@ -73,6 +97,13 @@ class CrmCustomSettings(models.TransientModel):
         ICP.set_param('crm.serial_number_padding', str(self.serial_number_padding or 4))
         ICP.set_param('crm.serial_number_next', str(self.serial_number_next or 1))
         ICP.set_param('crm.serial_number_suffix', self.serial_number_suffix or '')
+
+        ICP.set_param('crm.ticket_id_auto', str(self.ticket_id_auto))
+        ICP.set_param('crm.ticket_id_prefix', self.ticket_id_prefix or '')
+        ICP.set_param('crm.ticket_id_padding', str(self.ticket_id_padding or 4))
+        ICP.set_param('crm.ticket_id_next', str(self.ticket_id_next or 1))
+        ICP.set_param('crm.ticket_id_suffix', self.ticket_id_suffix or '')
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -83,3 +114,4 @@ class CrmCustomSettings(models.TransientModel):
                 'sticky': False,
             }
         }
+        

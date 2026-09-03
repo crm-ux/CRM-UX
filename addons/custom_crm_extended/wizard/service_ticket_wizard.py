@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -7,7 +7,7 @@ class ServiceTicketWizard(models.TransientModel):
     _description = 'Create Service Ticket Wizard'
 
     step = fields.Integer(string='Step', default=1)
-    
+
     # Step 1: Ticket & Equipment Info
     ticket_id = fields.Char(string='Ticket ID')
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
@@ -54,6 +54,26 @@ class ServiceTicketWizard(models.TransientModel):
     service_end_time = fields.Datetime(string='Service End Time')
     # customer_signature = fields.Binary(string='Customer Signature')
     # engineer_signature = fields.Binary(string='Engineer Signature')
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        ICP = self.env['ir.config_parameter'].sudo()
+        Ticket = self.env['service.ticket'].sudo()
+
+        if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
+            prefix = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
+            pad = int(ICP.get_param('crm.ticket_id_padding', 4))
+            next_num = int(ICP.get_param('crm.ticket_id_next', 1))
+            suffix = ICP.get_param('crm.ticket_id_suffix', '')
+
+            gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+            while Ticket.search_count([('ticket_id', '=', gen_id)]) > 0:
+                next_num += 1
+                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+
+            res['ticket_id'] = gen_id
+        return res
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -196,6 +216,13 @@ class ServiceTicketWizard(models.TransientModel):
             # 'engineer_signature': self.engineer_signature,
         }
         ticket = self.env['service.ticket'].create(ticket_vals)
+
+        # Increment Ticket ID counter in settings
+        ICP = self.env['ir.config_parameter'].sudo()
+        if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
+            current_next = int(ICP.get_param('crm.ticket_id_next', 1))
+            ICP.set_param('crm.ticket_id_next', str(current_next + 1))
+
         return {
             'type': 'ir.actions.act_window',
             'name': _('Service Ticket'),
