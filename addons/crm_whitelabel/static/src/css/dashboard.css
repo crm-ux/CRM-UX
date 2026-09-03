@@ -1312,3 +1312,35 @@ body {
         color: #94a3b8 !important;
     }
 }
+
+@media (max-width: 768px) {
+    .crm-stats-bar {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+        padding: 14px !important;
+        margin-top: -10px !important;
+    }
+
+    .crm-stat-divider {
+        display: none !important;
+    }
+
+    .crm-stat-item {
+        padding: 10px 14px !important;
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Put Monthly Sales as the full-width banner at the TOP on mobile only */
+    .crm-stat-item.crm-stat-monthly {
+        order: -1 !important;
+        grid-column: 1 / -1 !important;
+        background: #f1f5f9 !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 14px 18px !important;
+    }
+}
