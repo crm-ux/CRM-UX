@@ -16,47 +16,51 @@
                         </p>
                     </div>
 
-                    <div class="o_settings_container">
-                        <!-- MAIN SECTION HEADER: Auto Number -->
-                        <div class="d-flex align-items-center pb-2 mb-4" style="border-bottom:2px solid #e2e8f0;">
+                    <div>
+                        <!-- MAIN TITLE: Auto Number Configuration -->
+                        <div class="d-flex align-items-center pb-2 mb-4" style="border-bottom:2px solid #e2e8f0; width:100%;">
                             <i class="fa fa-sort-numeric-asc me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
                             <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
                                 Auto Number Configuration
                             </h2>
                         </div>
 
-                        <!-- SECTION 1: Equipment Master -->
-                        <div class="mb-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fa fa-cogs me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#475569;"></i>
-                                <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
-                                    Equipment Master
-                                </h3>
+                        <!-- 2 SECTIONS IN ONE ROW (50% / 50%) -->
+                        <div class="row g-4" style="width:100%; margin:0;">
+                            <!-- SECTION 1: Equipment Master (Left) -->
+                            <div class="col-12 col-lg-6 ps-0 pe-lg-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-cogs me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
+                                    <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
+                                        Equipment Master
+                                    </h3>
+                                </div>
+                                <div class="p-4 border rounded-3 bg-light" style="min-height:clamp(10rem, 20vh, 14rem);">
+                                    <p class="text-muted mb-0" style="font-size:clamp(0.85rem, 1vw, 0.92rem); line-height:1.6;">
+                                        <!-- Equipment Master fields will be placed here -->
+                                        Configure auto-incrementing numbering rules and formats for Equipment Master records.
+                                    </p>
+                                </div>
                             </div>
-                            <div class="p-3 border rounded-3 bg-light">
-                                <p class="text-muted mb-0" style="font-size:clamp(0.82rem, 1vw, 0.9rem); line-height:1.6;">
-                                    <!-- Equipment Master auto-number fields will go here -->
-                                    Configure auto-incrementing numbering rules and formats for Equipment Master records.
-                                </p>
-                            </div>
-                        </div>
 
-                        <!-- SECTION 2: Service Ticket -->
-                        <div class="mb-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fa fa-wrench me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#475569;"></i>
-                                <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
-                                    Service Ticket
-                                </h3>
-                            </div>
-                            <div class="p-3 border rounded-3 bg-light">
-                                <p class="text-muted mb-0" style="font-size:clamp(0.82rem, 1vw, 0.9rem); line-height:1.6;">
-                                    <!-- Service Ticket auto-number fields will go here -->
-                                    Configure auto-incrementing numbering rules and formats for Service Ticket records.
-                                </p>
+                            <!-- SECTION 2: Service Ticket (Right) -->
+                            <div class="col-12 col-lg-6 pe-0 ps-lg-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-wrench me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
+                                    <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
+                                        Service Ticket
+                                    </h3>
+                                </div>
+                                <div class="p-4 border rounded-3 bg-light" style="min-height:clamp(10rem, 20vh, 14rem);">
+                                    <p class="text-muted mb-0" style="font-size:clamp(0.85rem, 1vw, 0.92rem); line-height:1.6;">
+                                        <!-- Service Ticket fields will be placed here -->
+                                        Configure auto-incrementing numbering rules and formats for Service Ticket records.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </sheet>
             </form>
         </field>
