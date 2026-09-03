@@ -343,20 +343,15 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-/* Force search bar menu in wizard modal to open strictly below search input without scrollbar */
-.modal-dialog .o_search_bar_menu.dropdown-menu,
-.o_dialog .o_search_bar_menu.dropdown-menu,
-div.o_search_bar_menu.dropdown-menu {
-    top: 100% !important;
-    bottom: auto !important;
-    transform: none !important;
-    max-height: none !important;
-    overflow: visible !important;
+/* Fix search bar menu in modal: full content height, no inner scrollbar */
+.o_search_bar_menu.dropdown-menu {
+    max-height: 80vh !important;
+    overflow-y: visible !important;
     box-shadow: 0 clamp(0.25rem, 0.8vh, 0.5rem) clamp(0.75rem, 1.5vw, 1.25rem) rgba(0, 0, 0, 0.15) !important;
     z-index: 1080 !important;
 }
 
-.modal-dialog .o_control_panel .o_search_bar,
-.o_dialog .o_control_panel .o_search_bar {
-    position: relative !important;
+/* Ensure modal header has enough headroom so Popper opens downward */
+.o_dialog .modal-dialog {
+    margin-top: clamp(4rem, 8vh, 6rem) !important;
 }
