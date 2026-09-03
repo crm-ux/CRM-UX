@@ -1314,12 +1314,68 @@ body {
 }
 
 @media (max-width: 768px) {
+
+    /* 1. Stop scrollbar on stages - full width stack */
+    .crm-pipeline-strip {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        overflow: visible !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        gap: clamp(0.35rem, 0.8vh, 0.5rem) !important;
+        padding: clamp(0.75rem, 1.5vh, 1rem) clamp(0.85rem, 2vw, 1.1rem) !important;
+        box-sizing: border-box !important;
+    }
+
+    .crm-pipe-item {
+        flex: none !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        text-align: left !important;
+        padding: clamp(0.6rem, 1.2vh, 0.85rem) clamp(0.85rem, 2vw, 1.1rem) !important;
+        border-top: none !important;
+        border-left: clamp(0.2rem, 0.4vw, 0.25rem) solid transparent !important;
+        background: #f8fafc !important;
+        border-radius: clamp(0.4rem, 0.8vw, 0.5rem) !important;
+        box-sizing: border-box !important;
+    }
+
+    .crm-pipe-num {
+        font-size: clamp(1.2rem, 2.5vw, 1.4rem) !important;
+        font-weight: 700 !important;
+        order: 2 !important;
+    }
+
+    .crm-pipe-lbl {
+        font-size: clamp(0.8rem, 1.5vw, 0.875rem) !important;
+        font-weight: 600 !important;
+        color: #334155 !important;
+        margin: 0 !important;
+        order: 1 !important;
+    }
+
+    .crm-pipe-sep {
+        display: block !important;
+        text-align: center !important;
+        transform: rotate(90deg) !important;
+        color: #cbd5e1 !important;
+        font-size: clamp(0.8rem, 1.5vw, 0.9rem) !important;
+        line-height: 1 !important;
+        margin: clamp(0.1rem, 0.2vh, 0.2rem) 0 !important;
+    }
+
+    /* 2. Stats bar: 2-column grid with dynamic spacing */
     .crm-stats-bar {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
-        gap: 10px !important;
-        padding: 14px !important;
-        margin-top: -10px !important;
+        gap: clamp(0.5rem, 1.2vw, 0.75rem) !important;
+        padding: clamp(0.75rem, 1.5vw, 1rem) !important;
+        margin-top: calc(-1 * clamp(0.5rem, 1vh, 0.75rem)) !important;
+        box-sizing: border-box !important;
     }
 
     .crm-stat-divider {
@@ -1327,20 +1383,29 @@ body {
     }
 
     .crm-stat-item {
-        padding: 10px 14px !important;
+        padding: clamp(0.6rem, 1.2vh, 0.85rem) clamp(0.75rem, 1.5vw, 1rem) !important;
         background: #f8fafc !important;
         border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
+        border-radius: clamp(0.45rem, 0.8vw, 0.55rem) !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* Put Monthly Sales as the full-width banner at the TOP on mobile only */
+    /* 3. Monthly Sales: Centered full-width banner at TOP */
     .crm-stat-item.crm-stat-monthly {
         order: -1 !important;
         grid-column: 1 / -1 !important;
         background: #f1f5f9 !important;
         border: 1px solid #cbd5e1 !important;
-        padding: 14px 18px !important;
+        padding: clamp(0.85rem, 1.5vh, 1.15rem) clamp(1rem, 2vw, 1.25rem) !important;
+        text-align: center !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .crm-stat-item.crm-stat-monthly>div {
+        text-align: center !important;
+        width: 100% !important;
     }
 }
