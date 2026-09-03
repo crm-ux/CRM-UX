@@ -51,20 +51,13 @@
                     </group>
 
                     <notebook>
-                        <page string="Maintenance &amp; Contract" name="maintenance_tab">
+                        <page string="Warranty &amp; Contract" name="warranty_tab">
                             <group>
-                                <group string="Dates &amp; Contract">
+                                <group string="Installation &amp; Warranty">
                                     <field name="installation_date"/>
                                     <field name="warranty_start_date"/>
                                     <field name="warranty_end_date"/>
                                     <field name="service_contract"/>
-                                </group>
-                                <group string="Maintenance Status">
-                                    <field name="running_status" widget="radio" class="custom_radio_clean" options="{'horizontal': true}"/>
-                                    <field name="last_preventive_maintenance"/>
-                                    <field name="next_preventive_maintenance"/>
-                                    <field name="last_breakdown_date"/>
-                                    <field name="calibration_due_date"/>
                                 </group>
                             </group>
                         </page>

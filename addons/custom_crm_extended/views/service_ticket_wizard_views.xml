@@ -88,8 +88,8 @@
                 <!-- Footer Navigation -->
                 <footer>
                     <button string="Back" type="object" name="action_prev_step" class="btn btn-secondary" invisible="step == 1"/>
-                    <button string="Next" type="object" name="action_next_step" class="btn btn-primary" invisible="step == 4"/>
-                    <button string="Create Ticket" type="object" name="action_save_ticket" class="btn btn-primary" invisible="step != 4"/>
+                    <button string="Next" type="object" name="action_next_step" class="btn btn-primary" invisible="step == 3"/>
+                    <button string="Create Ticket" type="object" name="action_save_ticket" class="btn btn-primary" invisible="step != 3"/>
                     <button string="Cancel" class="btn btn-secondary" special="cancel"/>
                 </footer>
             </form>
