@@ -224,15 +224,15 @@ class EquipmentMasterWizard(models.TransientModel):
                 primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
                 if primary_contact:
                     self.contact_person = primary_contact.name or ""
-                    self.contact_number = primary_contact.phone or primary_contact.mobile or p.phone or p.mobile or ""
+                    self.contact_number = primary_contact.phone or getattr(primary_contact, 'mobile', False) or p.phone or getattr(p, 'mobile', False) or ""
                     self.email = primary_contact.email or p.email or ""
                 else:
                     self.contact_person = p.name or ""
-                    self.contact_number = p.phone or p.mobile or ""
+                    self.contact_number = p.phone or getattr(p, 'mobile', False) or ""
                     self.email = p.email or ""
             else:
                 self.contact_person = p.name or ""
-                self.contact_number = p.phone or p.mobile or ""
+                self.contact_number = p.phone or getattr(p, 'mobile', False) or ""
                 self.email = p.email or ""
 
             # Format address
