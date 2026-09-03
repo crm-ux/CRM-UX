@@ -64,6 +64,16 @@ class CrmDashboard extends Component {
     setDate() {
         this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
+    openSettings() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Settings",
+            res_model: "res.config.settings",
+            views: [[false, "form"]],
+            target: "current",
+            context: { module: "crm" },
+        });
+    }
 
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);

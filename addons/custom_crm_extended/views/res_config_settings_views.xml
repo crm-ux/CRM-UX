@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_numbering" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.numbering</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="50"/>
+        <field name="inherit_id" ref="crm.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='crm']" position="inside">
+                <block title="Numbering Master &amp; Auto-Increment" name="numbering_master_setting_block">
+                    <setting title="Configure Auto-Increment Numbering" help="Customize multi-segment numbering for Service Tickets, Equipment ID, Serial Numbers, etc.">
+                        <div class="mt8">
+                            <button name="%(custom_crm_extended.action_custom_numbering_master)d" 
+                                    string="Configure Numbering Sequences" 
+                                    type="action" 
+                                    class="btn-link" 
+                                    icon="fa-arrow-right"/>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

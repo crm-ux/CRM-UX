@@ -81,6 +81,11 @@
                             </t>
                         </div>
                     </div>
+                    <div class="crm-settings-btn-wrapper" t-if="state.isAdmin" style="margin-right:12px;display:flex;align-items:center;">
+                        <div t-on-click="openSettings" title="Settings" style="cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                            <i class="fa fa-cog" style="font-size:20px;color:#ffffff;line-height:1;"></i>
+                        </div>
+                    </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
                         <span><t t-esc="state.userName"/></span>
