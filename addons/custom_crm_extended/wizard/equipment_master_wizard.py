@@ -251,17 +251,34 @@ class EquipmentMasterWizard(models.TransientModel):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         ICP = self.env['ir.config_parameter'].sudo()
+        Equipment = self.env['equipment.master'].sudo()
+
+        # 1. Collision-Free Equipment ID
         if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
             prefix = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
             pad = int(ICP.get_param('crm.equipment_id_padding', 4))
             next_num = int(ICP.get_param('crm.equipment_id_next', 1))
             suffix = ICP.get_param('crm.equipment_id_suffix', '')
-            res['equipment_id'] = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
 
+            gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+            while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
+                next_num += 1
+                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+
+            res['equipment_id'] = gen_id
+
+        # 2. Collision-Free Serial Number
         if ICP.get_param('crm.serial_number_auto', 'True') == 'True':
             prefix = ICP.get_param('crm.serial_number_prefix', 'SN-')
             pad = int(ICP.get_param('crm.serial_number_padding', 4))
             next_num = int(ICP.get_param('crm.serial_number_next', 1))
             suffix = ICP.get_param('crm.serial_number_suffix', '')
-            res['serial_number'] = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+
+            gen_sn = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+            while Equipment.search_count([('serial_number', '=', gen_sn)]) > 0:
+                next_num += 1
+                gen_sn = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+
+            res['serial_number'] = gen_sn
+
         return res
