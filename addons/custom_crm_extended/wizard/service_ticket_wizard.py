@@ -121,15 +121,6 @@ class ServiceTicketWizard(models.TransientModel):
         self.step = 3
         return self._reopen_wizard()
 
-    def action_goto_4(self):
-        self.ensure_one()
-        if not self.ticket_id:
-            raise ValidationError(_('Please enter Ticket ID before proceeding.'))
-        if not self.partner_id:
-            raise ValidationError(_('Please select Customer Name before proceeding.'))
-        self.step = 4
-        return self._reopen_wizard()
-
     def _reopen_wizard(self):
         return {
             'name': _('Service Ticket Creation'),
@@ -159,8 +150,10 @@ class ServiceTicketWizard(models.TransientModel):
                 raise ValidationError(_('Please enter Ticket ID before proceeding.'))
             if not self.partner_id:
                 raise ValidationError(_('Please select Customer Name before proceeding.'))
-        self.step += 1
+        if self.step < 3:
+            self.step += 1
         return self._reopen_wizard()
+
 
     def action_prev_step(self):
         self.ensure_one()

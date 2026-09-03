@@ -20,10 +20,6 @@
                         <button name="action_goto_3" type="object" class="btn step_current" invisible="step != 3">3. Assignment</button>
                         <button name="action_goto_3" type="object" class="btn step_done" invisible="step &lt;= 3">3. Assignment</button>
                         <button name="action_goto_3" type="object" class="btn step_future" invisible="step &gt;= 3">3. Assignment</button>
-                        <span>&#8594;</span>
-                        <button name="action_goto_4" type="object" class="btn step_current" invisible="step != 4">4. Resolution</button>
-                        <button name="action_goto_4" type="object" class="btn step_done" invisible="step &lt;= 4">4. Resolution</button>
-                        <button name="action_goto_4" type="object" class="btn step_future" invisible="step &gt;= 4">4. Resolution</button>
                     </div>
 
                     <!-- STEP 1: Equipment Info & Customer Info -->
@@ -86,26 +82,6 @@
                         <group>
                             <field name="ticket_status" string="Ticket Status"/>
                         </group>
-                    </div>
-
-                    <!-- STEP 4: Resolution & Sign-off -->
-                    <div invisible="step != 4">
-                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Action Taken</div>
-                        <group>
-                            <field name="root_cause" string="Root Cause" placeholder="e.g. Compressor failure" />
-                            <field name="corrective_action" string="Corrective Action" placeholder="e.g. Compressor replaced" />
-                            <field name="spare_parts_used" string="Spare Parts Used" placeholder="e.g. Compressor Kit"/>
-                        </group>
-
-                        <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Timings</div>
-                        <group>
-                            <field name="service_start_time" string="Service Start Time"/>
-                            <field name="service_end_time" string="Service End Time"/>
-                        </group>
-                        <!-- <group>
-                            <field name="customer_signature" string="Customer Signature" widget="image"/>
-                            <field name="engineer_signature" string="Engineer Signature" widget="image"/>
-                        </group> -->
                     </div>
                 </sheet>
 
