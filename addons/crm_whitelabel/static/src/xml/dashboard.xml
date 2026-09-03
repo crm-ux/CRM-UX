@@ -134,39 +134,35 @@
                 </div>
             </div>
             <!-- STATS BAR -->
-            <div class="crm-stats-bar">
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openLeads">
-                    <div>
-                        <div class="crm-stat-label">TOTAL LEADS</div>
-                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp + state.stageWon"/></div>
+            <div class="crm-stats-bar p-3">
+                <!-- 1. Top Wide Monthly Sales Banner -->
+                <div class="row m-0 mb-3 w-100">
+                    <div class="col-12 p-3 bg-light rounded text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center border">
+                        <div class="crm-stat-label mb-1 mb-md-0" style="letter-spacing:1px; font-weight:700;">MONTHLY SALES</div>
+                        <div class="crm-stat-value fs-3 fw-bold text-primary">&#x20B9;<t t-esc="fmt(state.wonRevenue)"/></div>
                     </div>
                 </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item">
-                    <div>
-                        <div class="crm-stat-label">TODAY'S REVENUE</div>
-                        <div class="crm-stat-value"><t t-esc="fmt(state.todayRevenue)"/></div>
+
+                <!-- 2. Operational 2x2 Grid -->
+                <div class="row g-2 g-md-3 m-0 w-100">
+                    <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white" style="cursor:pointer;" t-on-click="openLeads">
+                        <div class="crm-stat-label mb-1">TOTAL LEADS</div>
+                        <div class="crm-stat-value fs-4 fw-bold"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp + state.stageWon"/></div>
                     </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item">
-                    <div>
-                        <div class="crm-stat-label">MONTHLY SALES</div>
-                        <div class="crm-stat-value"><t t-esc="fmt(state.wonRevenue)"/></div>
+
+                    <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white" style="cursor:pointer;" t-on-click="openQuotes">
+                        <div class="crm-stat-label mb-1">PENDING QUOTES</div>
+                        <div class="crm-stat-value fs-4 fw-bold"><t t-esc="state.quotes"/></div>
                     </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openQuotes">
-                    <div>
-                        <div class="crm-stat-label">PENDING QUOTATIONS</div>
-                        <div class="crm-stat-value"><t t-esc="state.quotes"/></div>
+
+                    <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white">
+                        <div class="crm-stat-label mb-1">TODAY'S REVENUE</div>
+                        <div class="crm-stat-value fs-4 fw-bold">&#x20B9;<t t-esc="fmt(state.todayRevenue)"/></div>
                     </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openWon">
-                    <div>
-                        <div class="crm-stat-label">WON QUOTES</div>
-                        <div class="crm-stat-value"><t t-esc="state.won"/></div>
+
+                    <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white" style="cursor:pointer;" t-on-click="openWon">
+                        <div class="crm-stat-label mb-1">WON DEALS</div>
+                        <div class="crm-stat-value fs-4 fw-bold"><t t-esc="state.won"/></div>
                     </div>
                 </div>
             </div>
