@@ -139,7 +139,7 @@
                 <div class="row m-0 mb-3 w-100">
                     <div class="col-12 p-3 bg-light rounded text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center border">
                         <div class="crm-stat-label mb-1 mb-md-0" style="letter-spacing:1px; font-weight:700;">MONTHLY SALES</div>
-                        <div class="crm-stat-value fs-3 fw-bold text-primary">&#x20B9;<t t-esc="fmt(state.wonRevenue)"/></div>
+                        <div class="crm-stat-value fs-3 fw-bold text-primary"><t t-esc="fmt(state.wonRevenue)"/></div>
                     </div>
                 </div>
 
@@ -157,7 +157,7 @@
 
                     <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white">
                         <div class="crm-stat-label mb-1">TODAY'S REVENUE</div>
-                        <div class="crm-stat-value fs-4 fw-bold">&#x20B9;<t t-esc="fmt(state.todayRevenue)"/></div>
+                        <div class="crm-stat-value fs-4 fw-bold"><t t-esc="fmt(state.todayRevenue)"/></div>
                     </div>
 
                     <div class="col-6 col-md-3 crm-stat-item p-3 border rounded bg-white" style="cursor:pointer;" t-on-click="openWon">
