@@ -64,15 +64,26 @@
                             </div>
                         </div>
                     </div>
-                    <div class="crm-notif-wrapper" style="position:relative;margin-right:12px;display:flex;align-items:center;height:32px;">
-                        <div t-on-click="toggleNotifications" style="cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;position:relative;">
-                            <span style="font-size:18px;line-height:1;display:inline-block;transform:translateY(-2px);">🔔</span>
-                            <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:10px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
+                    <div class="crm-notif-wrapper" style="position:relative;margin-right:clamp(0.2rem, 0.4vw, 0.45rem);display:flex;align-items:center;height:clamp(1.8rem, 3.5vh, 2.2rem);">
+                        <div t-on-click="toggleNotifications" style="cursor:pointer;width:clamp(1.8rem, 3.5vh, 2.2rem);height:clamp(1.8rem, 3.5vh, 2.2rem);display:flex;align-items:center;justify-content:center;position:relative;">
+                            <span style="font-size:clamp(1rem, 1.3vw, 1.2rem);line-height:1;display:inline-block;transform:translateY(-0.12rem);">🔔</span>
+                            <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:clamp(0.55rem, 0.75vw, 0.65rem);width:clamp(0.9rem, 1.2vw, 1.1rem);height:clamp(0.9rem, 1.2vw, 1.1rem);display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
+                        </div>
+                        <div t-if="state.notifOpen" style="position:absolute;top:clamp(2.2rem, 4vh, 2.6rem);right:0;width:clamp(18rem, 24vw, 22rem);background:#fff;border-radius:clamp(0.4rem, 0.6vw, 0.6rem);box-shadow:0 clamp(0.25rem, 0.5vh, 0.4rem) clamp(1rem, 1.5vw, 1.5rem) rgba(0,0,0,0.15);z-index:9999;max-height:clamp(18rem, 40vh, 24rem);overflow-y:auto;">
+                            <div style="padding:clamp(0.5rem, 1vh, 0.75rem) clamp(0.75rem, 1.2vw, 1rem);border-bottom:1px solid #eee;font-weight:bold;font-size:clamp(0.8rem, 1vw, 0.875rem);">Notifications</div>
+                            <t t-if="state.notifications.length === 0"><div style="padding:clamp(0.8rem, 1.5vh, 1.2rem);text-align:center;color:#888;font-size:clamp(0.8rem, 1vw, 0.875rem);">No notifications</div></t>
+                            <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
+                                <div t-on-click="() => this.openLead(notif)" style="padding:clamp(0.5rem, 1vh, 0.75rem) clamp(0.75rem, 1.2vw, 1rem);border-bottom:1px solid #f5f5f5;cursor:pointer;">
+                                    <div style="font-size:clamp(0.8rem, 1vw, 0.875rem);font-weight:600;color:#0b3d91;"><t t-esc="notif.record_name"/></div>
+                                    <div style="font-size:clamp(0.65rem, 0.8vw, 0.72rem);color:#555;"><t t-esc="notif.body_text"/></div>
+                                    <div style="font-size:clamp(0.6rem, 0.75vw, 0.68rem);color:#999;"><t t-esc="notif.date"/></div>
+                                </div>
+                            </t>
                         </div>
                     </div>
-                    <div class="crm-settings-btn-wrapper" t-if="state.isAdmin" style="margin-right:12px;display:flex;align-items:center;height:32px;">
-                        <div t-on-click="openSettings" title="Settings" style="cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                            <i class="fa fa-cog" style="font-size:18px;color:#ffffff;line-height:1;"></i>
+                    <div class="crm-settings-btn-wrapper" t-if="state.isAdmin" style="margin-right:clamp(0.6rem, 1vw, 0.85rem);display:flex;align-items:center;height:clamp(1.8rem, 3.5vh, 2.2rem);">
+                        <div t-on-click="openSettings" title="Settings" style="cursor:pointer;width:clamp(1.8rem, 3.5vh, 2.2rem);height:clamp(1.8rem, 3.5vh, 2.2rem);display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                            <i class="fa fa-cog" style="font-size:clamp(1rem, 1.3vw, 1.2rem);color:#ffffff;line-height:1;"></i>
                         </div>
                     </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
