@@ -37,7 +37,7 @@
                                     <div class="pb-4 mb-4 border-bottom">
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-tag me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                                <i class="fa fa-tag me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                                 <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Equipment ID</strong>
                                             </div>
                                             <div class="form-check form-switch mb-0">
@@ -45,22 +45,13 @@
                                             </div>
                                         </div>
 
-                                        <div invisible="not equipment_id_auto">
-                                            <div class="row g-2 mb-3">
-                                                <div class="col-4">
-                                                    <label for="equipment_id_prefix" class="text-muted small mb-1">Prefix</label>
-                                                    <field name="equipment_id_prefix" placeholder="e.g. EQ-"/>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label for="equipment_id_next" class="text-muted small mb-1">Number</label>
-                                                    <field name="equipment_id_next"/>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label for="equipment_id_suffix" class="text-muted small mb-1">Suffix</label>
-                                                    <field name="equipment_id_suffix" placeholder="e.g. -IND"/>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border">
+                                        <div invisible="not equipment_id_auto" class="mt-2">
+                                            <group col="3" class="mb-2">
+                                                <field name="equipment_id_prefix" string="Prefix" placeholder="e.g. EQ-"/>
+                                                <field name="equipment_id_next" string="Number"/>
+                                                <field name="equipment_id_suffix" string="Suffix" placeholder="e.g. -IND"/>
+                                            </group>
+                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
                                                 <span class="text-muted small">Live Sample:</span>
                                                 <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
                                                     <field name="equipment_id_preview" readonly="1"/>
@@ -73,7 +64,7 @@
                                     <div>
                                         <div class="d-flex align-items-center justify-content-between mb-3">
                                             <div class="d-flex align-items-center">
-                                                <i class="fa fa-barcode me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                                <i class="fa fa-barcode me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                                 <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Serial Number</strong>
                                             </div>
                                             <div class="form-check form-switch mb-0">
@@ -81,22 +72,13 @@
                                             </div>
                                         </div>
 
-                                        <div invisible="not serial_number_auto">
-                                            <div class="row g-2 mb-3">
-                                                <div class="col-4">
-                                                    <label for="serial_number_prefix" class="text-muted small mb-1">Prefix</label>
-                                                    <field name="serial_number_prefix" placeholder="e.g. SN-"/>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label for="serial_number_next" class="text-muted small mb-1"> Number</label>
-                                                    <field name="serial_number_next"/>
-                                                </div>
-                                                <div class="col-4">
-                                                    <label for="serial_number_suffix" class="text-muted small mb-1">Suffix</label>
-                                                    <field name="serial_number_suffix" placeholder="e.g. -2026"/>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border">
+                                        <div invisible="not serial_number_auto" class="mt-2">
+                                            <group col="3" class="mb-2">
+                                                <field name="serial_number_prefix" string="Prefix" placeholder="e.g. SN-"/>
+                                                <field name="serial_number_next" string="Number"/>
+                                                <field name="serial_number_suffix" string="Suffix" placeholder="e.g. -2026"/>
+                                            </group>
+                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
                                                 <span class="text-muted small">Live Sample:</span>
                                                 <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
                                                     <field name="serial_number_preview" readonly="1"/>
@@ -107,7 +89,7 @@
 
                                     <!-- Save Button -->
                                     <div class="mt-4 pt-3 border-top text-end">
-                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-primary btn-sm px-3"/>
+                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
                                     </div>
                                 </div>
                             </div>
