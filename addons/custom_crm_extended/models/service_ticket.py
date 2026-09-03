@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 from odoo import models, fields, api, _
-
+from odoo.exceptions import ValidationError
 
 class ServiceTicket(models.Model):
     _name = 'service.ticket'
@@ -146,4 +146,17 @@ class ServiceTicket(models.Model):
             self.engineer_contact = False
             self.engineer_email = False
 
+    _sql_constraints = [
+        ('ticket_id_uniq', 'unique(ticket_id)', 'The Ticket ID must be unique! This Ticket ID is already assigned to another ticket.'),
+    ]
 
+    @api.constrains('ticket_id')
+    def _check_unique_ticket_id(self):
+        for rec in self:
+            if rec.ticket_id:
+                duplicate = self.search([
+                    ('ticket_id', '=', rec.ticket_id.strip()),
+                    ('id', '!=', rec.id)
+                ], limit=1)
+                if duplicate:
+                    raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % rec.ticket_id)
