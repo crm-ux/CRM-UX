@@ -24,4 +24,11 @@
             <attribute name="style">display:none !important;</attribute>
         </xpath>
     </template>
+
+     <!-- Global Custom Favicon -->
+    <template id="custom_favicon" inherit_id="web.layout" priority="99">
+        <xpath expr="//link[@rel='shortcut icon']" position="replace">
+            <link rel="shortcut icon" href="/crm_whitelabel/static/src/img/favicon.ico" type="image/x-icon"/>
+        </xpath>
+    </template>
 </odoo>
