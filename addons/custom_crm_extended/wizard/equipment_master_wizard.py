@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 
 class EquipmentMasterWizard(models.TransientModel):
@@ -221,7 +221,7 @@ class EquipmentMasterWizard(models.TransientModel):
             self.room_number = getattr(p, 'x_room_number', False) or ""
 
 
-        @api.model
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         ICP = self.env['ir.config_parameter'].sudo()
