@@ -174,6 +174,9 @@ class ServiceTicketWizard(models.TransientModel):
             dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
             if dup_ticket:
                 raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
+        if self.step < 3:
+            self.step += 1
+        return self._reopen_wizard()
 
     def action_prev_step(self):
         self.ensure_one()
