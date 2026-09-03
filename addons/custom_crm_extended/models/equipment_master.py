@@ -63,6 +63,14 @@ class EquipmentMaster(models.Model):
         ('warranty', 'Warranty'),
         ('none', 'None'),
     ], string='Service Contract', default='amc', tracking=True)
+    last_preventive_maintenance = fields.Date(string='Last PM Date')
+    next_preventive_maintenance = fields.Date(string='Next PM Date')
+    last_breakdown_date = fields.Date(string='Last Breakdown Date')
+    calibration_due_date = fields.Date(string='Calibration Due Date')
+    running_status = fields.Selection([
+        ('running', 'Running'),
+        ('stopped', 'Stopped'),
+    ], string='Current Running Status', default='running', tracking=True)
 
     # Step 4: Specs & Remarks
     firmware_version = fields.Char(string='Software/Firmware Version')
