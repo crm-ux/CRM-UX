@@ -170,10 +170,10 @@ class ServiceTicketWizard(models.TransientModel):
                 raise ValidationError(_('Please enter Ticket ID before proceeding.'))
             if not self.partner_id:
                 raise ValidationError(_('Please select Customer Name before proceeding.'))
-        if self.step < 3:
-            self.step += 1
-        return self._reopen_wizard()
-
+            # Check unique Ticket ID
+            dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
+            if dup_ticket:
+                raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
 
     def action_prev_step(self):
         self.ensure_one()
@@ -184,8 +184,10 @@ class ServiceTicketWizard(models.TransientModel):
         self.ensure_one()
         if not self.ticket_id:
             raise ValidationError(_('Ticket ID is required.'))
-        if not self.partner_id:
-            raise ValidationError(_('Customer Name is required.'))
+        # Check unique Ticket ID
+        dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
+        if dup_ticket:
+            raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % self.ticket_id)
 
         ticket_vals = {
             'ticket_id': self.ticket_id,

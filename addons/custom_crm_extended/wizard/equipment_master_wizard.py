@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 class EquipmentMasterWizard(models.TransientModel):
     _name = "equipment.master.wizard"
@@ -75,18 +76,25 @@ class EquipmentMasterWizard(models.TransientModel):
             self.category_id = ''
             self.manufacturer = ''
 
-    # Navigation Actions
+        # Navigation Actions
     def action_next(self):
         self.ensure_one()
         if self.step == 1:
             if not self.equipment_id:
-                self.e1_id = True
-                return self._reopen_self()
-            self.e1_id = False
+                raise ValidationError(_("Please enter Equipment ID before proceeding."))
+            # Check unique Equipment ID
+            dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+            if dup_eq:
+                raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
+            # Check unique Serial Number
+            if self.serial_number:
+                dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+                if dup_sn:
+                    raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+
         if self.step < 4:
             self.step += 1
         return self._reopen_self()
-
 
     def action_back(self):
         self.ensure_one()
@@ -144,9 +152,17 @@ class EquipmentMasterWizard(models.TransientModel):
     def action_save_equipment(self):
         self.ensure_one()
         if not self.equipment_id:
-            self.step = 1
-            self.e1_id = True
-            return self._reopen_self()
+            raise ValidationError(_("Please enter Equipment ID before saving."))
+
+        # Final uniqueness check
+        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+        if dup_eq:
+            raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
+        if self.serial_number:
+            dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+            if dup_sn:
+                raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+
         equipment = self.env["equipment.master"].create({
             "equipment_id": self.equipment_id,
             "name": self.name.id if self.name else False,
@@ -174,15 +190,21 @@ class EquipmentMasterWizard(models.TransientModel):
             "warranty_start_date": self.warranty_start_date,
             "warranty_end_date": self.warranty_end_date,
             "service_contract": self.service_contract,
-            "last_preventive_maintenance": self.last_preventive_maintenance,
-            "next_preventive_maintenance": self.next_preventive_maintenance,
-            "last_breakdown_date": self.last_breakdown_date,
-            "calibration_due_date": self.calibration_due_date,
-            "running_status": self.running_status,
             "firmware_version": self.firmware_version,
             "accessories": self.accessories,
             "remarks": self.remarks,
         })
+
+        # Increment settings counter for next equipment
+        ICP = self.env['ir.config_parameter'].sudo()
+        if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
+            current_next = int(ICP.get_param('crm.equipment_id_next', 1))
+            ICP.set_param('crm.equipment_id_next', str(current_next + 1))
+
+        if ICP.get_param('crm.serial_number_auto', 'True') == 'True':
+            current_next_sn = int(ICP.get_param('crm.serial_number_next', 1))
+            ICP.set_param('crm.serial_number_next', str(current_next_sn + 1))
+
         return {
             "type": "ir.actions.act_window",
             "name": equipment.name,
