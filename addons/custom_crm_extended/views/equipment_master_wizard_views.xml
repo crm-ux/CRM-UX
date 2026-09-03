@@ -46,7 +46,6 @@
                             <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
                         <group>
-                        <group>
                             <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
                             <field name="child_part_no" string="Child Part No" placeholder="e.g. 09.2005, 09.1003"/>
                             <field name="invoice_number" string="Invoice No" placeholder="e.g. INV/2026/001"/>
