@@ -17,6 +17,8 @@ class EquipmentMasterWizard(models.TransientModel):
     serial_number = fields.Char(string="Serial Number")
     part_number = fields.Char(string="Part Number")
     child_part_no = fields.Char(string="Child Part No")
+    invoice_number = fields.Char(string="Invoice No")
+    invoice_date = fields.Date(string="Invoice Date")
     equipment_status = fields.Selection([
         ("active", "Active"),
         ("inactive", "Inactive"),
@@ -154,6 +156,8 @@ class EquipmentMasterWizard(models.TransientModel):
             "serial_number": self.serial_number,
             "part_number": self.part_number,
             "child_part_no": self.child_part_no,
+            "invoice_number": self.invoice_number,
+            "invoice_date": self.invoice_date,
             "equipment_status": self.equipment_status,
             "criticality": self.criticality,
             "partner_id": self.partner_id.id if self.partner_id else False,

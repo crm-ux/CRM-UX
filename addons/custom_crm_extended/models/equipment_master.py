@@ -28,6 +28,8 @@ class EquipmentMaster(models.Model):
     serial_number = fields.Char(string='Serial Number', tracking=True)
     part_number = fields.Char(string='Part Number', tracking=True)
     child_part_no = fields.Char(string='Child Part No', tracking=True)
+    invoice_number = fields.Char(string='Invoice No', tracking=True)
+    invoice_date = fields.Date(string='Invoice Date', tracking=True)
     equipment_status = fields.Selection([
         ('active', 'Active'),
         ('inactive', 'Inactive'),

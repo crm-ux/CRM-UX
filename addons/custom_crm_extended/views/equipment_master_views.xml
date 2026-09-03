@@ -33,9 +33,10 @@
                             <field name="serial_number"/>
                             <field name="part_number"/>
                             <field name="child_part_no"/>
+                            <field name="invoice_number" string="Invoice No"/>
+                            <field name="invoice_date" string="Invoice Date"/>
                             <field name="criticality" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                             <field name="equipment_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean" string="Equipment Status"/>
-
                         </group>
                         <group string="Customer Location &amp; Contact">
                             <field name="partner_id"/>
