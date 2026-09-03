@@ -32,7 +32,7 @@
 
                     <!-- STEP 1: Equipment Info -->
                     <div invisible="step != 1">
-                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#875A7B; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #875A7B; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Equipment Information</div>
+                    <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Equipment Information</div>
                         <group>
                             <field name="equipment_id" string="Equipment ID" placeholder="e.g. LT000123"/>
                             <field name="name" string="Equipment Name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
@@ -57,7 +57,7 @@
 
                     <!-- STEP 2: Contact Details -->
                     <div invisible="step != 2">
-                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#875A7B; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #875A7B; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Contact Details</div>
+                    <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Contact Details</div>
                         <group col="2">
                             <field name="partner_id" string="Customer Name" options="{'no_create': True}"/>
                             <field name="site_name" string="Site Name" placeholder="e.g. Ahmedabad Plant"/>
@@ -82,7 +82,7 @@
 
                     <!-- STEP 3: Warranty & Contract -->
                     <div invisible="step != 3">
-                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#875A7B; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #875A7B; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Warranty &amp; Contract</div>
+                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Warranty &amp; Contract</div>
                         <group col="2">
                             <field name="installation_date" string="Installation Date"/>
                             <field name="service_contract" string="Service Contract"/>
@@ -95,7 +95,7 @@
 
                     <!-- STEP 4: Technical Specs & Remarks -->
                     <div invisible="step != 4">
-                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#875A7B; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #875A7B; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Technical Specs &amp; Remarks</div>
+                        <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Technical Specs &amp; Remarks</div>
                         <group col="2">
                             <field name="firmware_version" string="Software/Firmware Version" placeholder="e.g. v2.4.1"/>
                         </group>
