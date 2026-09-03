@@ -30,6 +30,7 @@ class EquipmentMasterWizard(models.TransientModel):
         ("medium", "Medium"),
         ("low", "Low"),
     ], string="Criticality", default="medium")
+    company_id = fields.Many2one("res.company", string="Company", default=lambda self: self.env.company)
 
     # Step 2: Location & Contact    
     partner_id = fields.Many2one("res.partner", string="Customer Name")
@@ -174,6 +175,7 @@ class EquipmentMasterWizard(models.TransientModel):
             "invoice_date": self.invoice_date,
             "equipment_status": self.equipment_status,
             "criticality": self.criticality,
+            "company_id": self.company_id.id if self.company_id else False,
             "partner_id": self.partner_id.id if self.partner_id else False,
             "site_name": self.site_name,
             "building": self.building,

@@ -37,6 +37,7 @@
                             <field name="model_number"/>
                             <field name="serial_number"/>
                             <field name="part_number"/>
+                            <field name="company_id" options="{'no_create': True}" placeholder="Leave empty for all companies"/>
                         </group>
                         <group string="Assignment &amp; Schedule">
                             <field name="engineer_id"/>

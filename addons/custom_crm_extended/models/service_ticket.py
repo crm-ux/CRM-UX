@@ -13,7 +13,8 @@ class ServiceTicket(models.Model):
     name = fields.Char(string='Ticket Number', required=True, copy=False, readonly=True, default=lambda self: _('New'))
     ticket_id = fields.Char(string='Ticket ID', required=True, copy=False, tracking=True)
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now, required=True, tracking=True)
-    
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, tracking=True)
+
     # Equipment & Customer Linkage
     equipment_id = fields.Many2one('equipment.master', string='Equipment', tracking=True)
     partner_id = fields.Many2one('res.partner', string='Customer Name', required=True, tracking=True)

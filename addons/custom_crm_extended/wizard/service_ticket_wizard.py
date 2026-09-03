@@ -20,6 +20,7 @@ class ServiceTicketWizard(models.TransientModel):
     model_number = fields.Char(string='Model Number')
     serial_number = fields.Char(string='Serial Number')
     part_number = fields.Char(string='Part Number')
+    company_id = fields.Many2one("res.company", string="Company", default=lambda self: self.env.company)
 
     # Step 2: Complaint Details
     complaint_type = fields.Selection([
@@ -199,11 +200,12 @@ class ServiceTicketWizard(models.TransientModel):
             'ticket_id': self.ticket_id,
             'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
             'partner_id': self.partner_id.id,
+            "company_id": self.company_id.id if self.company_id else False,
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
             'site_name': self.site_name,
             'contact_person': self.contact_person,
             'contact_number': self.contact_number,
-            'email': self.email,
+            'email': self.email,    
             'model_number': self.model_number,
             'serial_number': self.serial_number,
             'part_number': self.part_number,

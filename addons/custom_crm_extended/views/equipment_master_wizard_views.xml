@@ -54,6 +54,7 @@
                         <group>
                             <field name="equipment_status" string="Equipment Status"/>
                             <field name="criticality" string="Criticality"/>
+                            <field name="company_id" string="Company" options="{'no_create': True}" placeholder="Leave empty for all companies"/>
                         </group>
                     </div>
 
