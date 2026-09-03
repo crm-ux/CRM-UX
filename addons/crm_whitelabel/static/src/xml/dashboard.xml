@@ -32,7 +32,7 @@
                                 <span class="crm-company-toggle-text">Quick Access</span>
                                 <span class="crm-company-arrow">▾</span>
                             </button>
-                            <div class="crm-company-dropdown" t-if="state.adminMenuOpen">
+                            <div class="crm-company-dropdown dropdown-menu-start" style="left:0 !important; right:auto !important; max-width:calc(100vw - 2rem);" t-if="state.adminMenuOpen">
                                 <div class="crm-company-dropdown-header">Admin Quick Links</div>
                                 <a t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
                                 <a href="/app/companies" class="crm-admin-menu-item">Companies</a>
@@ -103,27 +103,27 @@
                     <div class="crm-greeting"><t t-esc="state.greeting"/>,</div>
                     <h1><t t-esc="state.userName"/>!</h1>
                     <p>Here's an overview of your business performance and important updates for today.</p>
-                    <div class="crm-hero-date">
+                    <div class="crm-hero-date mb-3 mb-md-0">
                         <span>📅 <t t-esc="state.todayDate"/></span>
                     </div>
                 </div>
-                <div class="crm-pro-hero-right">
-                    <div class="crm-action-buttons">
-                        <button class="crm-action-btn crm-action-lead" t-on-click="newLead">
+                <div class="crm-pro-hero-right w-100 w-md-auto">
+                    <div class="crm-action-buttons w-100">
+                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="newLead">
                             <div>
                                 <div class="crm-action-title">+ Create Lead</div>
                                 <div class="crm-action-sub">Add new lead to pipeline</div>
                             </div>
                             <span>›</span>
                         </button>
-                        <button class="crm-action-btn crm-action-lead" disabled="disabled" style="opacity:0.6;cursor:not-allowed;">
+                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" disabled="disabled" style="opacity:0.6;cursor:not-allowed;">
                             <div>
                                 <div class="crm-action-title">+ Create Quote</div>
                                 <div class="crm-action-sub">Coming soon</div>
                             </div>
                             <span>›</span>
                         </button>
-                        <button class="crm-action-btn crm-action-lead" t-on-click="newServiceTicket">
+                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="newServiceTicket">
                             <div>
                                 <div class="crm-action-title">+ Create Service Ticket</div>
                                 <div class="crm-action-sub">Log a service request</div>
