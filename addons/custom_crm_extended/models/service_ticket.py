@@ -59,11 +59,29 @@ class ServiceTicket(models.Model):
     engineer_signature = fields.Binary(string='Engineer Signature')
     
     # Status
+        # Status (5 Stages)
     ticket_status = fields.Selection([
-        ('open', 'Open'),
-        ('ongoing', 'On Going'),
-        ('closed', 'Closed')
-    ], string='Ticket Status', default='open', tracking=True)
+        ('new', 'New'),
+        ('contacted', 'Contacted'),
+        ('ongoing', 'Ongoing'),
+        ('pending', 'Pending'),
+        ('closed', 'Close')
+    ], string='Ticket Status', default='new', tracking=True)
+
+    def action_move_to_contacted(self):
+        self.write({'ticket_status': 'contacted'})
+
+    def action_move_to_ongoing(self):
+        self.write({'ticket_status': 'ongoing'})
+
+    def action_move_to_pending(self):
+        self.write({'ticket_status': 'pending'})
+
+    def action_move_to_closed(self):
+        self.write({'ticket_status': 'closed'})
+
+    def action_reopen(self):
+        self.write({'ticket_status': 'new'})
 
     @api.model_create_multi
     def create(self, vals_list):
