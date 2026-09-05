@@ -1251,68 +1251,7 @@ body {
     }
 }
 
-/* ===== Pipeline strip - mobile vertical stack ===== */
-@media (max-width: 600px) {
-    .crm-pipeline-strip {
-        flex-direction: column;
-        align-items: stretch;
-        overflow-x: hidden;
-        gap: 8px;
-        padding: 16px;
-    }
-
-    .crm-pipe-item {
-        flex: none;
-        width: 100%;
-        min-width: 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        text-align: left;
-        padding: 12px 16px;
-        border-top: none;
-        border-left: 4px solid transparent;
-        background: #f8f9fa;
-    }
-
-    .crm-pipe-c1 {
-        border-left-color: #4facfe;
-    }
-
-    .crm-pipe-c2 {
-        border-left-color: #a18cd1;
-    }
-
-    .crm-pipe-c3 {
-        border-left-color: #f093fb;
-    }
-
-    .crm-pipe-c4 {
-        border-left-color: #fda085;
-    }
-
-    .crm-pipe-c5 {
-        border-left-color: #43e97b;
-    }
-
-    .crm-pipe-num {
-        font-size: 22px;
-    }
-
-    .crm-pipe-lbl {
-        font-size: 13px;
-        margin-top: 0;
-    }
-
-    .crm-pipe-sep {
-        display: block !important;
-        text-align: center;
-        transform: rotate(90deg);
-        /* Rotates the arrow → to point down ↓ */
-        color: #94a3b8 !important;
-    }
-}
-
+/* ===== Pipeline strip & stats - mobile / tablet vertical stack ===== */
 @media (max-width: 768px) {
 
     /* 1. Stop scrollbar on stages - full width vertical stack with NO scrollbar */
@@ -1339,33 +1278,14 @@ body {
         justify-content: space-between !important;
         text-align: left !important;
         padding: clamp(0.6rem, 1.2vh, 0.85rem) clamp(0.85rem, 2vw, 1.1rem) !important;
-        /* PRESERVE THE COLORFUL STAGE TOP BORDER */
-        border-top-width: clamp(0.2rem, 0.4vw, 0.25rem) !important;
-        border-top-style: solid !important;
+        /* TOP BORDER ONLY - Inherits the exact same colors from web view classes (.crm-pipe-c1 to c5) */
+        border-top: clamp(0.2rem, 0.4vw, 0.25rem) solid !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: none !important;
         background: #f8fafc !important;
         border-radius: clamp(0.4rem, 0.8vw, 0.5rem) !important;
         box-sizing: border-box !important;
-    }
-
-    /* All 5 Stage Colors explicitly active on mobile */
-    .crm-pipe-c1 {
-        border-top-color: #4facfe !important;
-    }
-
-    .crm-pipe-c2 {
-        border-top-color: #a18cd1 !important;
-    }
-
-    .crm-pipe-c3 {
-        border-top-color: #f093fb !important;
-    }
-
-    .crm-pipe-c4 {
-        border-top-color: #fda085 !important;
-    }
-
-    .crm-pipe-c5 {
-        border-top-color: #43e97b !important;
     }
 
     .crm-pipe-num {
