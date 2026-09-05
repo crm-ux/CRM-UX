@@ -20,10 +20,14 @@ class ResPartnerPatch(models.Model):
             return super()._compute_display_name()
 
         # If only hide_company is requested
-        if hide_company and not show_serial:
-            for partner in self:
-                partner.display_name = partner.name or ''
-            return
+        for partner in self:
+            base_name = partner.name or ''
+            last6 = partner_serial_map.get(partner.id)
+            if last6:
+                partner.display_name = f"{base_name} ...{last6}"
+            else:
+                partner.display_name = base_name
+
 
         # When show_equipment_serial is requested (for Service Ticket wizard/views)
         Equip = self.env['equipment.master'].sudo()
