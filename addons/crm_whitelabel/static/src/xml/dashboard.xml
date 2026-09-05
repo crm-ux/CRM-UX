@@ -11,7 +11,7 @@
                 <div class="crm-topbar-left">
                     <span class="crm-company-name"><t t-esc="state.companyName || 'CRM'"/></span>
                 </div>
-                <div class="crm-search-wrapper" t-if="state.isAdmin">
+                <div class="crm-search-wrapper d-none d-md-block" t-if="state.isAdmin">
                     <input type="text" class="crm-search-input" placeholder="Search internal users..." t-on-input="onSearchInput"/>
                     <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
                         <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
@@ -25,7 +25,7 @@
                         </t>
                     </div>
                 </div>
-                <div class="crm-topbar-right">
+                <div class="crm-topbar-right d-flex flex-wrap align-items-center">
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
@@ -88,7 +88,7 @@
                     </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
-                        <span><t t-esc="state.userName"/></span>
+                        <span class="d-none d-md-inline"><t t-esc="state.userName"/></span>
                         <span class="crm-company-arrow">▾</span>
                         <div class="crm-user-dropdown" t-if="state.userDropdownOpen">
                             <div class="crm-user-dropdown-name"><t t-esc="state.userName"/></div>
