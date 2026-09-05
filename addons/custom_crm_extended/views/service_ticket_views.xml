@@ -7,20 +7,26 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <header>
-                    <!-- Action buttons on Left: show one by one -->
-                    <button name="action_move_to_contacted" string="Contacted" type="object"
+                    <!-- Left: Next Action Button (one by one) -->
+                    <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'new'"/>
-                    <button name="action_move_to_ongoing" string="Ongoing" type="object"
+                    <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'contacted'"/>
-                    <button name="action_move_to_pending" string="Pending" type="object"
+                    <button name="action_move_to_pending" string="Pending" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'ongoing'"/>
-                    <button name="action_move_to_closed" string="Close" type="object"
+                    <button name="action_move_to_ongoing" string="Resume Ongoing" type="object" class="btn btn-secondary"
+                        invisible="ticket_status != 'pending'"/>
+                    <button name="action_move_to_closed" string="Close" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
-                    <button name="action_reopen" string="Reopen" type="object"
+                    <button name="action_reopen" string="Reopen" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'closed'"/>
 
-                    <!-- Current stage on Right: shows ONLY the current active stage in green! -->
-                    <field name="ticket_status" widget="statusbar"/>
+                    <!-- Right: Single Current Stage Badge (exact match to Lead view!) -->
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="badge" style="background-color:#28a745;color:white;font-size:13px;font-weight:600;padding:8px 22px;border-radius:6px;min-width:130px;text-align:center;">
+                            <field name="ticket_status" readonly="1" nolabel="1"/>
+                        </span>
+                    </div>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>
