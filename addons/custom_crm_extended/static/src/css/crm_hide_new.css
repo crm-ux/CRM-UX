@@ -379,7 +379,8 @@ div[name="ticket_status"] button.o_arrow_button_current {
     opacity: 1 !important;
 }
 
-div[name="ticket_status"] button.o_arrow_button_current::before,
-div[name="ticket_status"] button.o_arrow_button_current::after {
-    display: none !important;
+div[name="ticket_status"].o_statusbar_status button.o_arrow_button.o_arrow_button_current {
+    background-color: #28A745 !important;
+    border: 2px solid #28A745 !important;
+    border-color: #28A745 !important;
 }
