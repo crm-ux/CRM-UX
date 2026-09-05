@@ -558,13 +558,14 @@ body,
 
 .crm-company-dropdown {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + clamp(8px, 1.2vh, 12px));
     right: 0;
     background: white;
     border: 1px solid #e6e9ef;
     border-radius: 12px;
     box-shadow: 0 12px 32px rgba(11, 61, 145, 0.16);
-    width: 280px;
+    width: clamp(260px, 85vw, 300px);
+    max-width: calc(100vw - clamp(16px, 4vw, 28px));
     z-index: 1000;
     padding: 10px;
     animation: crm-dropdown-fade 0.12s ease-out;
@@ -573,37 +574,79 @@ body,
 .crm-company-dropdown::before {
     content: "";
     position: absolute;
-    top: calc(-1 * clamp(5px, 0.8vh, 7px));
-    width: clamp(10px, 1.5vw, 13px);
-    height: clamp(10px, 1.5vw, 13px);
-    background: #ffffff;
+    top: -6px;
+    right: clamp(16px, 4vw, 24px);
+    width: 12px;
+    height: 12px;
+    background: white;
     border-left: 1px solid #e6e9ef;
     border-top: 1px solid #e6e9ef;
     transform: rotate(45deg);
     z-index: 1001;
 }
 
-/* Quick Access: Arrow dynamically centered under Quick Access button */
+/* Quick Access: Arrow centered under button */
+.crm-admin-multiselect .crm-company-dropdown {
+    left: 0;
+    right: auto;
+}
+
 .crm-admin-multiselect .crm-company-dropdown::before {
-    left: clamp(20px, 15%, 36px);
+    left: clamp(28px, 6vw, 42px);
     right: auto;
 }
 
-/* 3 Companies: Arrow dynamically centered under 3 Companies button */
+/* 3 Companies dropdown: Align right under button, arrow dynamically aligned */
+.crm-company-multiselect .crm-company-dropdown {
+    right: 0;
+    left: auto;
+}
+
 .crm-company-multiselect .crm-company-dropdown::before {
-    left: clamp(24px, 20%, 48px);
-    right: auto;
+    right: clamp(24px, 5vw, 38px);
+    left: auto;
 }
 
-/* User Profile: Arrow dynamically placed on right */
+/* Notifications popover: clean dropdown styling */
+.crm-notif-dropdown {
+    position: absolute;
+    top: calc(100% + clamp(8px, 1.2vh, 12px));
+    right: 0;
+    width: clamp(18rem, 24vw, 22rem);
+    max-width: calc(100vw - clamp(16px, 4vw, 24px));
+    background: #fff;
+    border: 1px solid #e6e9ef;
+    border-radius: clamp(0.5rem, 0.8vw, 0.75rem);
+    box-shadow: 0 12px 32px rgba(11, 61, 145, 0.16);
+    z-index: 9999;
+    max-height: clamp(18rem, 40vh, 24rem);
+    overflow-y: auto;
+    animation: crm-dropdown-fade 0.12s ease-out;
+}
+
+.crm-notif-dropdown::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: clamp(10px, 2vw, 16px);
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-left: 1px solid #e6e9ef;
+    border-top: 1px solid #e6e9ef;
+    transform: rotate(45deg);
+    z-index: 1001;
+}
+
+/* User profile dropdown arrow */
 .crm-user-dropdown::before {
     content: "";
     position: absolute;
-    top: calc(-1 * clamp(5px, 0.8vh, 7px));
-    right: clamp(12px, 10%, 20px);
-    width: clamp(10px, 1.5vw, 13px);
-    height: clamp(10px, 1.5vw, 13px);
-    background: #ffffff;
+    top: -6px;
+    right: clamp(14px, 3vw, 20px);
+    width: 12px;
+    height: 12px;
+    background: white;
     border-left: 1px solid #e6e9ef;
     border-top: 1px solid #e6e9ef;
     transform: rotate(45deg);
@@ -1280,7 +1323,7 @@ body {
 
 @media (max-width: 768px) {
 
-    /* 1. Prevent mobile horizontal screen breakout */
+    /* 1. Prevent page width from exceeding mobile screen */
     html,
     body,
     .o_action_manager,
@@ -1312,11 +1355,56 @@ body {
     }
 
     .crm-company-dropdown,
+    .crm-notif-dropdown,
     .crm-user-dropdown {
         z-index: 99999 !important;
         position: absolute !important;
-        max-width: calc(100vw - 24px) !important;
+        max-width: calc(100vw - clamp(16px, 4vw, 24px)) !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Mobile: align Quick Access dropdown to start of topbar */
+    .crm-admin-multiselect .crm-company-dropdown {
+        left: 0 !important;
+        right: auto !important;
+    }
+
+    .crm-admin-multiselect .crm-company-dropdown::before {
+        left: clamp(24px, 6vw, 36px) !important;
+        right: auto !important;
+    }
+
+    /* Mobile: 3 Companies align right with screen padding */
+    .crm-company-multiselect .crm-company-dropdown {
         right: 0 !important;
+        left: auto !important;
+    }
+
+    .crm-company-multiselect .crm-company-dropdown::before {
+        right: clamp(20px, 5vw, 32px) !important;
+        left: auto !important;
+    }
+
+    /* Mobile: Notification popover stays fully in screen */
+    .crm-notif-dropdown {
+        right: 0 !important;
+        left: auto !important;
+        width: clamp(16rem, 85vw, 22rem) !important;
+    }
+
+    .crm-notif-dropdown::before {
+        right: clamp(10px, 2.5vw, 16px) !important;
+        left: auto !important;
+    }
+
+    /* Mobile: User dropdown */
+    .crm-user-dropdown {
+        right: 0 !important;
+        left: auto !important;
+    }
+
+    .crm-user-dropdown::before {
+        right: clamp(12px, 3vw, 18px) !important;
         left: auto !important;
     }
 
@@ -1333,57 +1421,6 @@ body {
         overflow: hidden !important;
         text-overflow: ellipsis !important;
         max-width: 80% !important;
-    }
-
-    /* Dynamic Mobile Dropdowns: fluid width & auto-clamped left alignment */
-    .crm-admin-multiselect .crm-company-dropdown,
-    .crm-company-multiselect .crm-company-dropdown {
-        position: absolute !important;
-        top: calc(100% + clamp(6px, 1vh, 10px)) !important;
-        left: 0 !important;
-        right: auto !important;
-        width: clamp(260px, 85vw, 320px) !important;
-        max-width: calc(100vw - clamp(16px, 4vw, 28px)) !important;
-        box-sizing: border-box !important;
-        padding: clamp(8px, 1.5vw, 12px) clamp(10px, 2vw, 14px) !important;
-        z-index: 99999 !important;
-        border-radius: clamp(8px, 1.5vw, 12px) !important;
-    }
-
-    /* User Profile: Dynamic Right Alignment */
-    .crm-user-dropdown {
-        position: absolute !important;
-        top: calc(100% + clamp(6px, 1vh, 10px)) !important;
-        right: 0 !important;
-        left: auto !important;
-        min-width: clamp(160px, 45vw, 200px) !important;
-        z-index: 99999 !important;
-        border-radius: clamp(8px, 1.5vw, 10px) !important;
-    }
-
-    /* Dynamic Company Options: prevent text & checkbox overflow */
-    .crm-company-dropdown-header {
-        font-size: clamp(10px, 2.2vw, 11px) !important;
-        padding: clamp(2px, 0.5vh, 4px) clamp(4px, 1vw, 8px) clamp(6px, 1vh, 8px) !important;
-    }
-
-    .crm-company-option {
-        padding: clamp(6px, 1vh, 8px) clamp(6px, 1.5vw, 10px) !important;
-        font-size: clamp(11.5px, 2.8vw, 13px) !important;
-        gap: clamp(6px, 1.5vw, 10px) !important;
-        min-height: auto !important;
-    }
-
-    .crm-company-option .crm-co-badge {
-        width: clamp(26px, 6vw, 32px) !important;
-        height: clamp(26px, 6vw, 32px) !important;
-        min-width: clamp(26px, 6vw, 32px) !important;
-        font-size: clamp(10px, 2.2vw, 12px) !important;
-    }
-
-    .crm-company-option .crm-co-name {
-        font-size: clamp(11.5px, 2.8vw, 13px) !important;
-        line-height: 1.25 !important;
     }
 
     /* Completely hide desktop search on mobile */
@@ -1463,7 +1500,8 @@ body {
         gap: 10px !important;
     }
 
-    /* 5. Pipeline strip - full width vertical stack with NO scrollbar */
+
+    /* 1. Stop scrollbar on stages - full width vertical stack with NO scrollbar */
     .crm-pipeline-strip {
         flex-direction: column !important;
         align-items: stretch !important;
@@ -1487,6 +1525,7 @@ body {
         justify-content: space-between !important;
         text-align: left !important;
         padding: clamp(0.6rem, 1.2vh, 0.85rem) clamp(0.85rem, 2vw, 1.1rem) !important;
+        /* TOP BORDER ONLY - Keeps the exact border-top-color from web classes (.crm-pipe-c1 to c5) */
         border-top-width: clamp(0.25rem, 0.5vw, 0.3rem) !important;
         border-top-style: solid !important;
         border-left: none !important;
@@ -1521,7 +1560,7 @@ body {
         margin: clamp(0.1rem, 0.2vh, 0.2rem) 0 !important;
     }
 
-    /* 6. Stats bar: 2-column grid with dynamic spacing */
+    /* 2. Stats bar: 2-column grid with dynamic spacing */
     .crm-stats-bar {
         display: grid !important;
         grid-template-columns: repeat(2, 1fr) !important;
@@ -1544,7 +1583,7 @@ body {
         box-sizing: border-box !important;
     }
 
-    /* 7. Monthly Sales: Centered full-width banner at TOP */
+    /* 3. Monthly Sales: Centered full-width banner at TOP */
     .crm-stat-item.crm-stat-monthly {
         order: -1 !important;
         grid-column: 1 / -1 !important;

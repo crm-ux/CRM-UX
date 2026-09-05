@@ -11,7 +11,7 @@
                 <div class="crm-topbar-left">
                     <span class="crm-company-name"><t t-esc="state.companyName || 'CRM'"/></span>
                 </div>
-                <div class="crm-search-wrapper d-none d-md-block" t-if="state.isAdmin">
+                <div class="crm-search-wrapper" t-if="state.isAdmin">
                     <input type="text" class="crm-search-input" placeholder="Search internal users..." t-on-input="onSearchInput"/>
                     <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
                         <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
@@ -25,14 +25,14 @@
                         </t>
                     </div>
                 </div>
-                <div class="crm-topbar-right d-flex flex-wrap align-items-center">
+                <div class="crm-topbar-right">
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
                                 <span class="crm-company-toggle-text">Quick Access</span>
                                 <span class="crm-company-arrow">▾</span>
                             </button>
-                            <div class="crm-company-dropdown dropdown-menu-start" style="left:0 !important; right:auto !important; max-width:calc(100vw - 2rem);" t-if="state.adminMenuOpen">
+                            <div class="crm-company-dropdown dropdown-menu-start" t-if="state.adminMenuOpen">
                                 <div class="crm-company-dropdown-header">Admin Quick Links</div>
                                 <a t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
                                 <a href="/app/companies" class="crm-admin-menu-item">Companies</a>
@@ -69,7 +69,7 @@
                             <span style="font-size:clamp(1rem, 1.3vw, 1.2rem);line-height:1;display:inline-block;transform:translateY(-0.12rem);">🔔</span>
                             <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:clamp(0.55rem, 0.75vw, 0.65rem);width:clamp(0.9rem, 1.2vw, 1.1rem);height:clamp(0.9rem, 1.2vw, 1.1rem);display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
                         </div>
-                        <div t-if="state.notifOpen" style="position:absolute;top:clamp(2.2rem, 4vh, 2.6rem);right:0;width:clamp(18rem, 24vw, 22rem);background:#fff;border-radius:clamp(0.4rem, 0.6vw, 0.6rem);box-shadow:0 clamp(0.25rem, 0.5vh, 0.4rem) clamp(1rem, 1.5vw, 1.5rem) rgba(0,0,0,0.15);z-index:9999;max-height:clamp(18rem, 40vh, 24rem);overflow-y:auto;">
+                        <div class="crm-notif-dropdown" t-if="state.notifOpen">
                             <div style="padding:clamp(0.5rem, 1vh, 0.75rem) clamp(0.75rem, 1.2vw, 1rem);border-bottom:1px solid #eee;font-weight:bold;font-size:clamp(0.8rem, 1vw, 0.875rem);">Notifications</div>
                             <t t-if="state.notifications.length === 0"><div style="padding:clamp(0.8rem, 1.5vh, 1.2rem);text-align:center;color:#888;font-size:clamp(0.8rem, 1vw, 0.875rem);">No notifications</div></t>
                             <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
@@ -88,7 +88,7 @@
                     </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
                         <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
-                        <span class="d-none d-md-inline"><t t-esc="state.userName"/></span>
+                        <span><t t-esc="state.userName"/></span>
                         <span class="crm-company-arrow">▾</span>
                         <div class="crm-user-dropdown" t-if="state.userDropdownOpen">
                             <div class="crm-user-dropdown-name"><t t-esc="state.userName"/></div>
@@ -138,7 +138,7 @@
                 <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openLeads">
                     <div>
                         <div class="crm-stat-label">TOTAL LEADS</div>
-                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp"/></div>
+                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp + state.stageWon"/></div>
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
