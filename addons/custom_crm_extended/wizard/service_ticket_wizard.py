@@ -11,7 +11,7 @@ class ServiceTicketWizard(models.TransientModel):
     # Step 1: Ticket & Equipment Info
     ticket_id = fields.Char(string='Ticket ID')
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
-    partner_id = fields.Many2one('res.partner', string='Customer Name')
+    partner_id = fields.Many2one('res.partner', string='Customer Name', context={'show_equipment_serial': True})
     equipment_id = fields.Many2one('equipment.master', string='Equipment')
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')
