@@ -20,10 +20,6 @@
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
                     <button name="action_reopen" string="Reopen" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'closed'"/>
-
-                    <!-- Right: Dynamic single stage badge -->
-                    <field name="stage_visible" invisible="1"/>
-                    <field name="ticket_status" widget="statusbar" options="{'clickable': '0'}"/>
                 </header>
 
                 <sheet>
