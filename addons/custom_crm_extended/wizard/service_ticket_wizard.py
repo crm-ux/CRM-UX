@@ -230,7 +230,7 @@ class ServiceTicketWizard(models.TransientModel):
             'engineer_contact': self.engineer_contact,
             'engineer_email': self.engineer_email,
             'visit_date': self.visit_date,
-            'ticket_status': self.ticket_status or 'open',
+            'ticket_status': 'open',
             'root_cause': self.root_cause,
             'corrective_action': self.corrective_action,
             'spare_parts_used': self.spare_parts_used,

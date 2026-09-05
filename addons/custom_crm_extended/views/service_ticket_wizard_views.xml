@@ -80,9 +80,6 @@
                             <field name="engineer_email" string="Engineer Email" placeholder="Email address"/>
                             <field name="visit_date" string="Visit Date"/>
                         </group>
-                        <group>
-                            <field name="ticket_status" string="Ticket Status"/>
-                        </group>
                     </div>
                 </sheet>
 
