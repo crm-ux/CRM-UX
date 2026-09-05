@@ -1518,18 +1518,17 @@ body {
     }
 
 
-    /* 1. Exactly 1 stage per row (horizontal row with label on left, count on right) */
     .crm-pipeline-strip {
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        max-height: clamp(220px, 35vh, 260px) !important;
-        /* Shows ~3-4 stages at a time */
-        overflow-y: auto !important;
-        /* ONLY this stage box scrolls internally */
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
         overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
+        overflow-y: visible !important;
     }
+
 
     .crm-pipe-item {
         flex: none !important;
