@@ -16,7 +16,7 @@ async function openServiceTicketWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
-// 1. Intercept "New" button in List View
+// 1. Intercept "New" button in List / Tree View
 patch(ListController.prototype, {
     async createRecord() {
         if (
@@ -66,16 +66,18 @@ patch(FormController.prototype, {
 export class ServiceTicketFormController extends FormController {
     setup() {
         super.setup();
-        if (this.props.resModel === TICKET_MODEL) {
+        if (this.props.resModel === "service.ticket") {
             let observer = null;
             const reorderToolbar = () => {
                 const container = document.querySelector(".o_control_panel_breadcrumbs");
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
                 if (container && breadcrumb && statusIndicator) {
+                    // 1. Move breadcrumb (ID + Gear) right after buttons
                     if (breadcrumb.previousElementSibling !== statusIndicator) {
                         container.insertBefore(breadcrumb, statusIndicator.nextSibling);
                     }
+                    // 2. Remove flex-grow and margin gap in JS directly
                     statusIndicator.style.setProperty("margin-right", "16px", "important");
                     statusIndicator.style.setProperty("flex-grow", "0", "important");
                     statusIndicator.style.setProperty("width", "auto", "important");
@@ -100,7 +102,7 @@ export class ServiceTicketFormController extends FormController {
     }
 
     async discard() {
-        if (this.props.resModel === TICKET_MODEL) {
+        if (this.props.resModel === "service.ticket") {
             const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
             const goBack = async () => {
                 await this.model.root.discard();
