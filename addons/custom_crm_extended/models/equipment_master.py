@@ -79,12 +79,12 @@ class EquipmentMaster(models.Model):
     accessories = fields.Text(string='Accessories')
     remarks = fields.Text(string='Remarks')
 
-@api.onchange('partner_id')
-def _onchange_partner_id(self):
-    if self.partner_id:
-        p = self.partner_id
-        if p.is_company:
-            primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
+    @api.onchange('partner_id')
+    def _onchange_partner_id(self):
+        if self.partner_id:
+            p = self.partner_id
+            if p.is_company:
+                primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
             if primary_contact:
                 self.contact_person = primary_contact.name or ""
                 self.contact_number = primary_contact.phone or getattr(primary_contact, 'mobile', False) or p.phone or getattr(p, 'mobile', False) or ""
