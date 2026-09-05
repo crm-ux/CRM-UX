@@ -22,7 +22,7 @@
                         invisible="ticket_status != 'closed'"/>
 
                     <!-- Right: Odoo automatically pushes this to the far right! -->
-                    <field name="ticket_status" widget="statusbar"/>
+                    <field name="ticket_status" widget="statusbar" class="ticket_statusbar_green"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>

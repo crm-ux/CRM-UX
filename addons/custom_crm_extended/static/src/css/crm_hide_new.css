@@ -358,15 +358,16 @@ button[name="action_save_lead"] {
     margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
 
-/* Service Ticket: Dynamically hide non-active stages and show active stage on far right */
-div[name="ticket_status"] button:not(.o_arrow_button_current) {
+/* Service Ticket custom statusbar: hide others and make active stage green */
+.ticket_statusbar_green button:not(.o_arrow_button_current) {
     display: none !important;
 }
 
-div[name="ticket_status"] button.o_arrow_button_current {
-    display: inline-block !important;
+.ticket_statusbar_green button.o_arrow_button_current {
     background-color: var(--bs-success, #28A745) !important;
+    background: var(--bs-success, #28A745) !important;
     border: 2px solid var(--bs-success, #28A745) !important;
+    border-color: var(--bs-success, #28A745) !important;
     color: var(--bs-white, #ffffff) !important;
     border-radius: var(--bs-border-radius, 6px) !important;
     padding: clamp(4px, 0.5vw, 6px) clamp(12px, 1.2vw, 18px) !important;
@@ -379,8 +380,7 @@ div[name="ticket_status"] button.o_arrow_button_current {
     opacity: 1 !important;
 }
 
-div[name="ticket_status"].o_statusbar_status button.o_arrow_button.o_arrow_button_current {
-    background-color: #28A745 !important;
-    border: 2px solid #28A745 !important;
-    border-color: #28A745 !important;
+.ticket_statusbar_green button.o_arrow_button_current::before,
+.ticket_statusbar_green button.o_arrow_button_current::after {
+    display: none !important;
 }
