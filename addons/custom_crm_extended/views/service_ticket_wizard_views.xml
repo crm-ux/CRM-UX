@@ -28,7 +28,7 @@
                         <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Ticket &amp; Customer Information</div>
                         <group>
                             <field name="ticket_id" string="Ticket ID" placeholder="e.g. TST2024-001"/>
-                            <field name="partner_id" string="Customer Name" placeholder="Select Customer..." context="{'show_equipment_serial': True}" options="{'limit': 6}"/>
+                            <field name="partner_id" string="Customer Name" placeholder="Select Customer..."/>
                             <field name="equipment_id" string="Equipment" placeholder="Select Equipment"/>
                         </group>
                         <group>

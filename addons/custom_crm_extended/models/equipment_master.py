@@ -79,6 +79,25 @@ class EquipmentMaster(models.Model):
     accessories = fields.Text(string='Accessories')
     remarks = fields.Text(string='Remarks')
 
+    @api.depends('name', 'serial_number', 'equipment_id')
+    def _compute_display_name(self):
+        for rec in self:
+            eq_name = rec.name.display_name if rec.name else (rec.equipment_id or '')
+            if rec.serial_number:
+                sn = str(rec.serial_number).strip()
+                last6 = sn[-6:] if len(sn) >= 6 else sn
+                rec.display_name = f"{eq_name} ...{last6}"
+            else:
+                rec.display_name = eq_name
+
+    @api.model
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
+        domain = list(domain or [])
+        if name:
+            domain += ['|', '|', ('name.name', operator, name), ('serial_number', operator, name), ('equipment_id', operator, name)]
+        records = self.search(domain, limit=limit)
+        return [(r.id, r.display_name) for r in records]
+
     @api.constrains('equipment_id')
     def _check_unique_equipment_id(self):
         for rec in self:

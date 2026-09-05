@@ -11,34 +11,14 @@ class ResPartnerPatch(models.Model):
             to_update.write({'customer_rank': 1})
         return records
 
-    @api.depends_context('partner_display_name_hide_company', 'show_equipment_serial')
+    @api.depends_context('partner_display_name_hide_company')
     def _compute_display_name(self):
-        show_serial = self.env.context.get('show_equipment_serial')
         hide_company = self.env.context.get('partner_display_name_hide_company')
-
-        if not show_serial and not hide_company:
-            return super()._compute_display_name()
-
-        if hide_company and not show_serial:
+        if hide_company:
             for partner in self:
                 partner.display_name = partner.name or ''
             return
-
-        # Fallback single display_name when not in dropdown search
-        Equip = self.env['equipment.master'].sudo()
-        equipments = Equip.search([('partner_id', 'in', self.ids)])
-        partner_equip_map = {}
-        for eq in equipments:
-            if eq.partner_id.id not in partner_equip_map and eq.serial_number:
-                sn = str(eq.serial_number).strip()
-                last6 = sn[-6:] if len(sn) >= 6 else sn
-                if last6:
-                    partner_equip_map[eq.partner_id.id] = last6
-
-        for partner in self:
-            base_name = partner.name or ''
-            last6 = partner_equip_map.get(partner.id)
-            partner.display_name = f"{base_name} ...{last6}" if last6 else base_name
+        return super()._compute_display_name()
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
