@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <header>
-                    <!-- Left: Next action buttons (one by one) -->
                     <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('new', 'open')"/>
                     <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
@@ -20,10 +19,29 @@
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
                     <button name="action_reopen" string="Reopen" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'closed'"/>
+
+                    <field name="ticket_status" invisible="1"/>
+
+                    <!-- Right side: Current Stage in green -->
+                    <div class="oe_right" style="margin-left:auto;">
+                        <button string="New" type="object" class="btn" disabled="1"
+                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
+                            invisible="ticket_status not in ('new', 'open')"/>
+                        <button string="Contacted" type="object" class="btn" disabled="1"
+                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
+                            invisible="ticket_status != 'contacted'"/>
+                        <button string="Ongoing" type="object" class="btn" disabled="1"
+                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
+                            invisible="ticket_status != 'ongoing'"/>
+                        <button string="Pending" type="object" class="btn" disabled="1"
+                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
+                            invisible="ticket_status != 'pending'"/>
+                        <button string="Close" type="object" class="btn" disabled="1"
+                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
+                            invisible="ticket_status != 'closed'"/>
+                    </div>
                 </header>
-
                 <sheet>
-
                     <div class="oe_button_box" name="button_box"/>
                     <div class="oe_title">
                         <label for="ticket_id" class="oe_edit_only" string="Ticket ID"/>
