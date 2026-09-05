@@ -79,28 +79,40 @@ class ServiceTicketWizard(models.TransientModel):
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
-            equipments = self.env['equipment.master'].search([('partner_id', '=', self.partner_id.id)])
-            if len(equipments) == 1:
-                eq = equipments[0]
-                self.equipment_id = eq
+            # 1. If equipment is ALREADY selected and belongs to this customer, PRESERVE IT!
+            if self.equipment_id and self.equipment_id.partner_id == self.partner_id:
+                eq = self.equipment_id
                 self.site_name = eq.site_name
-                self.contact_person = eq.contact_person
-                self.contact_number = eq.contact_number
-                self.email = eq.email
+                self.contact_person = eq.contact_person or self.partner_id.name
+                self.contact_number = eq.contact_number or getattr(self.partner_id, 'phone', False) or getattr(self.partner_id, 'mobile', False) or False
+                self.email = eq.email or getattr(self.partner_id, 'email', False) or False
                 self.model_number = eq.model_number
                 self.serial_number = eq.serial_number
                 self.part_number = eq.part_number
             else:
-                if self.equipment_id and self.equipment_id.partner_id != self.partner_id:
+                # 2. Check how many equipments this customer has
+                equipments = self.env['equipment.master'].search([('partner_id', '=', self.partner_id.id)])
+                if len(equipments) == 1:
+                    # Exactly 1 equipment -> auto-select it
+                    eq = equipments[0]
+                    self.equipment_id = eq
+                    self.site_name = eq.site_name
+                    self.contact_person = eq.contact_person
+                    self.contact_number = eq.contact_number
+                    self.email = eq.email
+                    self.model_number = eq.model_number
+                    self.serial_number = eq.serial_number
+                    self.part_number = eq.part_number
+                else:
+                    # Customer has 2+ equipments (or 0) -> clear equipment selection so user chooses the right one
                     self.equipment_id = False
                     self.model_number = False
                     self.serial_number = False
                     self.part_number = False
-                
-                self.contact_person = self.partner_id.name
-                self.contact_number = getattr(self.partner_id, 'phone', False) or getattr(self.partner_id, 'mobile', False) or False
-                self.email = getattr(self.partner_id, 'email', False) or False
-                self.site_name = getattr(self.partner_id, 'x_site_name', False) or False
+                    self.contact_person = self.partner_id.name
+                    self.contact_number = getattr(self.partner_id, 'phone', False) or getattr(self.partner_id, 'mobile', False) or False
+                    self.email = getattr(self.partner_id, 'email', False) or False
+                    self.site_name = getattr(self.partner_id, 'x_site_name', False) or False
             
             return {'domain': {'equipment_id': [('partner_id', '=', self.partner_id.id)]}}
         return {'domain': {'equipment_id': []}}
