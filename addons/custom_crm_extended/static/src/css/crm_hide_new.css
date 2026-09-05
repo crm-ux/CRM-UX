@@ -363,11 +363,8 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-.o_statusbar_status.ticket_statusbar_green button.o_arrow_button.o_arrow_button_current,
-.ticket_statusbar_green.o_statusbar_status button.o_arrow_button_current,
-.ticket_statusbar_green button.o_arrow_button_current,
-.ticket_statusbar_green button.active {
-
+.ticket_statusbar_green .o_statusbar_status button.o_arrow_button.o_arrow_button_current,
+.ticket_statusbar_green .o_statusbar_status button.o_arrow_button_current {
     display: inline-block !important;
     background-color: var(--bs-success, #28A745) !important;
     background: var(--bs-success, #28A745) !important;
