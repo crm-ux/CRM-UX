@@ -358,12 +358,15 @@ button[name="action_save_lead"] {
     margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
 
-/* Service Ticket custom statusbar: hide others and make active stage green */
-.ticket_statusbar_green button:not(.o_arrow_button_current) {
+/* Service Ticket custom statusbar */
+.ticket_statusbar_green button:disabled:not(.active):not(.o_arrow_button_current) {
     display: none !important;
 }
 
-.ticket_statusbar_green button.o_arrow_button_current {
+.ticket_statusbar_green button.active,
+.ticket_statusbar_green button.o_arrow_button_current,
+.ticket_statusbar_green button:not(:disabled) {
+    display: inline-block !important;
     background-color: var(--bs-success, #28A745) !important;
     background: var(--bs-success, #28A745) !important;
     border: 2px solid var(--bs-success, #28A745) !important;
@@ -380,7 +383,7 @@ button[name="action_save_lead"] {
     opacity: 1 !important;
 }
 
-.ticket_statusbar_green button.o_arrow_button_current::before,
-.ticket_statusbar_green button.o_arrow_button_current::after {
+.ticket_statusbar_green button::before,
+.ticket_statusbar_green button::after {
     display: none !important;
 }
