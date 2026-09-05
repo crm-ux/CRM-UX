@@ -73,13 +73,13 @@ class ResPartnerPatch(models.Model):
         return result
 
     @api.model
-    def web_name_search(self, name='', domain=None, operator='ilike', limit=100):
+    def web_name_search(self, name='', domain=None, operator='ilike', limit=100, specification=None, **kwargs):
         if not self.env.context.get('show_equipment_serial'):
-            return super().web_name_search(name=name, domain=domain, operator=operator, limit=limit)
+            return super().web_name_search(name=name, domain=domain, operator=operator, limit=limit, specification=specification, **kwargs)
 
-        # Return each equipment line directly as its own row in the autocomplete dropdown!
         id_name_pairs = self.name_search(name=name, domain=domain, operator=operator, limit=limit)
         return [{'id': pid, 'display_name': pname, '__formatted_display_name': pname} for pid, pname in id_name_pairs]
+
 
 
 
