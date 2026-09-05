@@ -1278,8 +1278,8 @@ body {
         justify-content: space-between !important;
         text-align: left !important;
         padding: clamp(0.6rem, 1.2vh, 0.85rem) clamp(0.85rem, 2vw, 1.1rem) !important;
-        /* TOP BORDER ONLY - Inherits the exact same colors from web view classes (.crm-pipe-c1 to c5) */
-        border-top: clamp(0.2rem, 0.4vw, 0.25rem) solid !important;
+        border-top-width: clamp(0.25rem, 0.5vw, 0.3rem) !important;
+        border-top-style: solid !important;
         border-left: none !important;
         border-right: none !important;
         border-bottom: none !important;
