@@ -1523,14 +1523,12 @@ body {
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        overflow: hidden !important;
+        max-height: clamp(220px, 35vh, 260px) !important;
+        /* Shows ~3-4 stages at a time */
+        overflow-y: auto !important;
+        /* ONLY this stage box scrolls internally */
         overflow-x: hidden !important;
-        overflow-y: visible !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        gap: clamp(0.35rem, 0.8vh, 0.5rem) !important;
-        padding: clamp(0.6rem, 1.2vh, 0.85rem) !important;
-        box-sizing: border-box !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .crm-pipe-item {
