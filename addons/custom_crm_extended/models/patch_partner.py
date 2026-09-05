@@ -11,7 +11,7 @@ class ResPartnerPatch(models.Model):
             to_update.write({'customer_rank': 1})
         return records
 
-        @api.depends_context('partner_display_name_hide_company', 'show_equipment_serial')
+    @api.depends_context('partner_display_name_hide_company', 'show_equipment_serial')
     def _compute_display_name(self):
         show_serial = self.env.context.get('show_equipment_serial')
         hide_company = self.env.context.get('partner_display_name_hide_company')
