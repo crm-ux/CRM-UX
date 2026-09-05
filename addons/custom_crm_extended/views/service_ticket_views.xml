@@ -23,7 +23,7 @@
                             <field name="ticket_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                         <group string="Customer Information">
-                            <field name="partner_id"/>
+                            <field name="partner_id" context="{'show_equipment_serial': True}"/>
                             <field name="site_name"/>
                             <field name="contact_person"/>
                             <field name="contact_number"/>

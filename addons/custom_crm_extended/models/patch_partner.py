@@ -11,13 +11,39 @@ class ResPartnerPatch(models.Model):
             to_update.write({'customer_rank': 1})
         return records
 
-    @api.depends_context('partner_display_name_hide_company')
+    @api.depends_context('partner_display_name_hide_company', 'show_equipment_serial')
     def _compute_display_name(self):
+        show_serial = self.env.context.get('show_equipment_serial')
         hide_company = self.env.context.get('partner_display_name_hide_company')
-        if not hide_company:
+
+        if not show_serial and not hide_company:
             return super()._compute_display_name()
+
+        # If only hide_company is requested
+        if hide_company and not show_serial:
+            for partner in self:
+                partner.display_name = partner.name or ''
+            return
+
+        # When show_equipment_serial is requested (for Service Ticket wizard/views)
+        Equip = self.env['equipment.master'].sudo()
+        # Prefetch equipments for all partners in batch
+        equipments = Equip.search([('partner_id', 'in', self.ids)])
+        partner_serial_map = {}
+        for eq in equipments:
+            if eq.partner_id.id not in partner_serial_map and eq.serial_number:
+                sn = str(eq.serial_number).strip()
+                last6 = sn[-6:] if len(sn) >= 6 else sn
+                if last6:
+                    partner_serial_map[eq.partner_id.id] = last6
+
         for partner in self:
-            partner.display_name = partner.name or ''
+            base_name = partner.name or ''
+            last6 = partner_serial_map.get(partner.id)
+            if last6:
+                partner.display_name = f"{base_name} ...{last6}"
+            else:
+                partner.display_name = base_name
 
 class ResCompanyDefaultCard(models.Model):
     _inherit = 'res.company'
