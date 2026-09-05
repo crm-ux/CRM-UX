@@ -277,16 +277,27 @@ class CrmDashboard extends Component {
     }
 
     openEquipmentList(domain = [], name = "Equipment Master") {
-        const eqCompDomain = this.state.selectedCompanies.length
-            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
-            : [];
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
         this.go({
             type: "ir.actions.act_window",
             name: name,
             res_model: "equipment.master",
             views: [[false, "list"], [false, "form"]],
-            domain: [...eqCompDomain, ...domain],
-            context: { allowed_company_ids: this.state.selectedCompanies },
+            domain: [...domain, ...cd],
+        });
+    }
+
+    openServiceTickets() {
+        this.openServiceTicketList([], "All Service Tickets");
+    }
+    openServiceTicketList(domain = [], name = "Service Tickets") {
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: name,
+            res_model: "service.ticket",
+            views: [[false, "list"], [false, "form"]],
+            domain: [...domain, ...cd],
         });
     }
 
