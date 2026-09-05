@@ -622,7 +622,7 @@ body,
 .crm-notif-dropdown {
     position: absolute;
     top: calc(100% + clamp(8px, 1.2vh, 12px));
-    right: 0;
+    right: clamp(-10px, -2vw, 0px);
     width: clamp(18rem, 24vw, 22rem);
     max-width: calc(100vw - clamp(16px, 4vw, 24px));
     background: #fff;
@@ -639,7 +639,7 @@ body,
     content: "";
     position: absolute;
     top: -6px;
-    right: clamp(10px, 2vw, 16px);
+    right: clamp(12px, 2.5vw, 18px);
     width: 12px;
     height: 12px;
     background: white;
@@ -1402,15 +1402,17 @@ body {
         transform: translateX(-50%) rotate(45deg) !important;
     }
 
-    /* Mobile: Notification popover stays fully in screen */
+    /* Mobile: Notification popover - shift right to stay completely on-screen with arrow under bell */
     .crm-notif-dropdown {
-        right: 0 !important;
+        right: clamp(-90px, -24vw, -45px) !important;
         left: auto !important;
-        width: clamp(16rem, 85vw, 22rem) !important;
+        width: clamp(260px, 85vw, 310px) !important;
+        max-width: calc(100vw - clamp(16px, 4vw, 24px)) !important;
+        box-sizing: border-box !important;
     }
 
     .crm-notif-dropdown::before {
-        right: clamp(10px, 2.5vw, 16px) !important;
+        right: clamp(96px, 25vw, 52px) !important;
         left: auto !important;
     }
 
