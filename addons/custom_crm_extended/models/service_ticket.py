@@ -86,9 +86,6 @@ class ServiceTicket(models.Model):
     def action_move_to_closed(self):
         self.write({'ticket_status': 'closed'})
 
-    def action_reopen(self):
-        self.write({'ticket_status': 'new'})
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
