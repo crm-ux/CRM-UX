@@ -358,22 +358,28 @@ button[name="action_save_lead"] {
     margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
 
-/* 1. Hide all non-active stage buttons on Service Ticket */
-.service_ticket_form .o_statusbar_status>button:not(.o_arrow_button_current) {
+/* Service Ticket: Dynamically hide non-active stages and show active stage on far right */
+div[name="ticket_status"] button:not(.o_arrow_button_current) {
     display: none !important;
 }
 
-/* 2. Style the single active stage button as solid green (matching Lead view) */
-.service_ticket_form .o_statusbar_status>button.o_arrow_button_current {
+div[name="ticket_status"] button.o_arrow_button_current {
     display: inline-block !important;
-    background-color: #28a745 !important;
-    border-color: #28a745 !important;
-    color: white !important;
-    border-radius: 6px !important;
-    padding: 6px 18px !important;
-    font-size: 13px !important;
+    background-color: var(--bs-success, #28A745) !important;
+    border: 2px solid var(--bs-success, #28A745) !important;
+    color: var(--bs-white, #ffffff) !important;
+    border-radius: var(--bs-border-radius, 6px) !important;
+    padding: clamp(4px, 0.5vw, 6px) clamp(12px, 1.2vw, 18px) !important;
+    font-size: var(--bs-body-font-size, 13px) !important;
     font-weight: 600 !important;
-    min-width: 130px !important;
+    min-width: clamp(100px, 10vw, 130px) !important;
     text-align: center !important;
     clip-path: none !important;
+    -webkit-clip-path: none !important;
+    opacity: 1 !important;
+}
+
+div[name="ticket_status"] button.o_arrow_button_current::before,
+div[name="ticket_status"] button.o_arrow_button_current::after {
+    display: none !important;
 }

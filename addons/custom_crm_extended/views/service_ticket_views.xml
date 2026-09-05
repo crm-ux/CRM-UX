@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <header>
+                    <!-- Left: Next action buttons -->
                     <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('new', 'open')"/>
                     <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
@@ -20,25 +21,8 @@
                     <button name="action_reopen" string="Reopen" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'closed'"/>
 
-                    <field name="ticket_status" invisible="1"/>
-
-                    <!-- Far Right Side: Current Stage in solid Green (exact match to Technical Discussion in Lead view) -->
-                    <button string="New" class="btn btn-success float-end ms-auto" disabled="1"
-                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
-                        invisible="ticket_status not in ('new', 'open')"/>
-                    <button string="Contacted" class="btn btn-success float-end ms-auto" disabled="1"
-                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
-                        invisible="ticket_status != 'contacted'"/>
-                    <button string="Ongoing" class="btn btn-success float-end ms-auto" disabled="1"
-                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
-                        invisible="ticket_status != 'ongoing'"/>
-                    <button string="Pending" class="btn btn-success float-end ms-auto" disabled="1"
-                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
-                        invisible="ticket_status != 'pending'"/>
-                    <button string="Close" class="btn btn-success float-end ms-auto" disabled="1"
-                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
-                        invisible="ticket_status != 'closed'"/>
-
+                    <!-- Right: Odoo automatically pushes this to the far right! -->
+                    <field name="ticket_status" widget="statusbar"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>
