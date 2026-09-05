@@ -43,11 +43,12 @@ class ServiceTicketWizard(models.TransientModel):
     visit_date = fields.Date(string='Visit Date')
     ticket_status = fields.Selection([
         ('new', 'New'),
+        ('open', 'New'),
         ('contacted', 'Contacted'),
         ('ongoing', 'Ongoing'),
         ('pending', 'Pending'),
         ('closed', 'Close')
-    ], string='Ticket Status', default='new')
+    ], string='Ticket Status', default='new', tracking=True)
 
     # Step 4: Resolution & Sign-off
     root_cause = fields.Text(string='Root Cause')

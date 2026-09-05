@@ -357,3 +357,7 @@ button[name="action_save_lead"] {
     top: auto !important;
     margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
+
+.service_ticket_form .o_statusbar_status button.o_arrow_button:not(.o_arrow_button_current) {
+    display: none !important;
+}
