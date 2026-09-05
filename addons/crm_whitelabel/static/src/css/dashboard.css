@@ -1,4 +1,4 @@
-*,
+﻿*,
 *::before,
 *::after {
     box-sizing: border-box;
@@ -586,25 +586,36 @@ body,
 }
 
 /* Quick Access: Arrow centered under button */
+.crm-admin-multiselect {
+    position: relative;
+}
+
 .crm-admin-multiselect .crm-company-dropdown {
-    left: 0;
-    right: auto;
+    left: 0 !important;
+    right: auto !important;
 }
 
 .crm-admin-multiselect .crm-company-dropdown::before {
-    left: clamp(28px, 6vw, 42px);
-    right: auto;
+    left: clamp(28px, 6vw, 42px) !important;
+    right: auto !important;
 }
 
-/* 3 Companies dropdown: Align right under button, arrow dynamically aligned */
+/* 3 Companies dropdown: Align right under button, arrow dynamically aligned under 3 Companies button */
+.crm-company-multiselect {
+    position: relative;
+    display: inline-block;
+}
+
 .crm-company-multiselect .crm-company-dropdown {
-    right: 0;
-    left: auto;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
 }
 
 .crm-company-multiselect .crm-company-dropdown::before {
-    right: clamp(24px, 5vw, 38px);
-    left: auto;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) rotate(45deg) !important;
 }
 
 /* Notifications popover: clean dropdown styling */
@@ -697,10 +708,12 @@ body,
 
 .crm-company-option input[type="checkbox"] {
     cursor: pointer;
-    width: 16px;
-    height: 16px;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
     accent-color: #0b3d91;
     flex-shrink: 0;
+    margin-right: 4px;
 }
 
 .crm-company-option span {
@@ -1376,13 +1389,17 @@ body {
 
     /* Mobile: 3 Companies align right with screen padding */
     .crm-company-multiselect .crm-company-dropdown {
-        right: 0 !important;
-        left: auto !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: clamp(250px, 80vw, 290px) !important;
+        max-width: calc(100vw - 20px) !important;
     }
 
     .crm-company-multiselect .crm-company-dropdown::before {
-        right: clamp(20px, 5vw, 32px) !important;
-        left: auto !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) rotate(45deg) !important;
     }
 
     /* Mobile: Notification popover stays fully in screen */
