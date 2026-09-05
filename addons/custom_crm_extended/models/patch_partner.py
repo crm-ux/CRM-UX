@@ -53,21 +53,31 @@ class ResPartnerPatch(models.Model):
         partners = self.search(domain or [], limit=limit)
         Equip = self.env['equipment.master'].sudo()
         equipments = Equip.search([('partner_id', 'in', partners.ids)])
-        
-        partner_serial_map = {}
+
+        partner_equip_map = {}
         for eq in equipments:
-            if eq.partner_id.id not in partner_serial_map and eq.serial_number:
+            if eq.partner_id.id not in partner_equip_map:
+                partner_equip_map[eq.partner_id.id] = []
+            if eq.serial_number:
                 sn = str(eq.serial_number).strip()
                 last6 = sn[-6:] if len(sn) >= 6 else sn
-                if last6:
-                    partner_serial_map[eq.partner_id.id] = last6
+                if last6 and last6 not in partner_equip_map[eq.partner_id.id]:
+                    partner_equip_map[eq.partner_id.id].append(last6)
 
         result = []
         for p in partners:
-            last6 = partner_serial_map.get(p.id)
-            display = f"{p.name} ...{last6}" if last6 else p.name
-            if not name or name.lower() in display.lower():
-                result.append((p.id, display))
+            serials = partner_equip_map.get(p.id, [])
+            if serials:
+                # If customer has multiple equipments, show each one:
+                # 3P INSTRUMENT ...N-0001
+                # 3P INSTRUMENT ...N-0002
+                for s in serials:
+                    display = f"{p.name} ...{s}"
+                    if not name or name.lower() in display.lower():
+                        result.append((p.id, display))
+            else:
+                if not name or name.lower() in (p.name or '').lower():
+                    result.append((p.id, p.name or ''))
         return result
 
 
