@@ -22,24 +22,23 @@
 
                     <field name="ticket_status" invisible="1"/>
 
-                    <!-- Right side: Current Stage in green -->
-                    <div class="oe_right" style="margin-left:auto;">
-                        <button string="New" type="object" class="btn" disabled="1"
-                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
-                            invisible="ticket_status not in ('new', 'open')"/>
-                        <button string="Contacted" type="object" class="btn" disabled="1"
-                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
-                            invisible="ticket_status != 'contacted'"/>
-                        <button string="Ongoing" type="object" class="btn" disabled="1"
-                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
-                            invisible="ticket_status != 'ongoing'"/>
-                        <button string="Pending" type="object" class="btn" disabled="1"
-                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
-                            invisible="ticket_status != 'pending'"/>
-                        <button string="Close" type="object" class="btn" disabled="1"
-                            style="background-color:#28a745 !important; color:white !important; border:2px solid #28a745 !important; border-radius:6px !important; padding:6px 18px !important; font-size:13px !important; font-weight:600 !important; min-width:130px !important; opacity:1 !important;"
-                            invisible="ticket_status != 'closed'"/>
-                    </div>
+                    <!-- Far Right Side: Current Stage in solid Green (exact match to Technical Discussion in Lead view) -->
+                    <button string="New" class="btn btn-success float-end ms-auto" disabled="1"
+                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
+                        invisible="ticket_status not in ('new', 'open')"/>
+                    <button string="Contacted" class="btn btn-success float-end ms-auto" disabled="1"
+                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
+                        invisible="ticket_status != 'contacted'"/>
+                    <button string="Ongoing" class="btn btn-success float-end ms-auto" disabled="1"
+                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
+                        invisible="ticket_status != 'ongoing'"/>
+                    <button string="Pending" class="btn btn-success float-end ms-auto" disabled="1"
+                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
+                        invisible="ticket_status != 'pending'"/>
+                    <button string="Close" class="btn btn-success float-end ms-auto" disabled="1"
+                        style="pointer-events:none !important; opacity:1 !important; color:#ffffff !important; font-weight:600 !important;"
+                        invisible="ticket_status != 'closed'"/>
+
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>
