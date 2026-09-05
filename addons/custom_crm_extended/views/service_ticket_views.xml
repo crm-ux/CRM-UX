@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <header>
+                    <!-- Left: Next action buttons (one by one) -->
                     <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('new', 'open')"/>
                     <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
@@ -20,8 +21,11 @@
                     <button name="action_reopen" string="Reopen" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'closed'"/>
 
-                    <field name="ticket_status" widget="statusbar"/>
+                    <!-- Right: Dynamic single stage badge -->
+                    <field name="stage_visible" invisible="1"/>
+                    <field name="ticket_status" widget="statusbar" options="{'clickable': '0'}"/>
                 </header>
+
                 <sheet>
 
                     <div class="oe_button_box" name="button_box"/>

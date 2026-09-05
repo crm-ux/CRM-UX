@@ -68,6 +68,12 @@ class ServiceTicket(models.Model):
         ('closed', 'Close')
     ], string='Ticket Status', default='new', tracking=True)
 
+    stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
+    @api.depends('ticket_status')
+    def _compute_stage_visible(self):
+        for rec in self:
+            rec.stage_visible = rec.ticket_status or 'new'
+
     def action_move_to_contacted(self):
         self.write({'ticket_status': 'contacted'})
 
