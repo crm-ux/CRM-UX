@@ -10,13 +10,13 @@
                     <!-- Left: One-Way Forward Action Buttons Only -->
                     <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('new', 'open')"/>
-                    <button name="action_move_to_ongoing" string="Start Ongoing" type="object" class="btn btn-secondary"
+                    <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'contacted'"/>
-                    <button name="action_move_to_pending" string="Put On Pending" type="object" class="btn btn-secondary"
+                    <button name="action_move_to_pending" string="Pending" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'ongoing'"/>
                     <button name="action_move_to_ongoing" string="Resume Ongoing" type="object" class="btn btn-secondary"
                         invisible="ticket_status != 'pending'"/>
-                    <button name="action_move_to_closed" string="Close Ticket" type="object" class="btn btn-secondary"
+                    <button name="action_move_to_closed" string="Close" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
 
                     <!-- Right: Current Active Stage Badge in Green -->
