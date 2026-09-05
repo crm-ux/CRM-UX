@@ -138,7 +138,7 @@
                 <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openLeads">
                     <div>
                         <div class="crm-stat-label">TOTAL LEADS</div>
-                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp + state.stageWon"/></div>
+                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp"/></div>
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
