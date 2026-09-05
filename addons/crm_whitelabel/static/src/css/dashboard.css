@@ -1279,7 +1279,18 @@ body {
         padding: 8px 10px !important;
         gap: 8px !important;
         box-sizing: border-box !important;
-        overflow: hidden !important;
+        overflow: visible !important;
+        position: relative !important;
+        z-index: 1000 !important;
+    }
+
+    .crm-company-dropdown,
+    .crm-user-dropdown {
+        z-index: 99999 !important;
+        position: absolute !important;
+        max-width: calc(100vw - 24px) !important;
+        right: 0 !important;
+        left: auto !important;
     }
 
     .crm-topbar-left {
