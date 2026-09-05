@@ -1521,7 +1521,6 @@ body {
     .crm-pipeline-strip {
         display: flex !important;
         flex-direction: column !important;
-        align-items: stretch !important;
         height: auto !important;
         max-height: none !important;
         overflow: visible !important;
