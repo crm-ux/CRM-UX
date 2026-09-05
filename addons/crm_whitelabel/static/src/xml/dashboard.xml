@@ -149,10 +149,10 @@
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
-                <div class="crm-stat-item crm-stat-monthly text-center justify-content-center">
-                    <div class="text-center w-100">
-                        <div class="crm-stat-label text-center">MONTHLY SALES</div>
-                        <div class="crm-stat-value text-center"><t t-esc="fmt(state.wonRevenue)"/></div>
+                <div class="crm-stat-item crm-stat-monthly">
+                    <div>
+                        <div class="crm-stat-label">MONTHLY SALES</div>
+                        <div class="crm-stat-value"><t t-esc="fmt(state.wonRevenue)"/></div>
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
