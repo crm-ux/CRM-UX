@@ -6,20 +6,21 @@
         <field name="model">service.ticket</field>
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
-                 <header>
-                    <button name="action_move_to_contacted" string="Contacted" type="object" class="btn-primary"
+                <header>
+                    <!-- Action buttons on Left: show one by one -->
+                    <button name="action_move_to_contacted" string="Contacted" type="object"
                         invisible="ticket_status != 'new'"/>
-                    <button name="action_move_to_ongoing" string="Start Ongoing" type="object" class="btn-primary"
+                    <button name="action_move_to_ongoing" string="Ongoing" type="object"
                         invisible="ticket_status != 'contacted'"/>
-                    <button name="action_move_to_pending" string="Put On Pending" type="object" class="btn-secondary"
+                    <button name="action_move_to_pending" string="Pending" type="object"
                         invisible="ticket_status != 'ongoing'"/>
-                    <button name="action_move_to_ongoing" string="Resume Ongoing" type="object" class="btn-primary"
-                        invisible="ticket_status != 'pending'"/>
-                    <button name="action_move_to_closed" string="Close Ticket" type="object" class="btn-success"
+                    <button name="action_move_to_closed" string="Close" type="object"
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
-                    <button name="action_reopen" string="Reopen Ticket" type="object" class="btn-secondary"
+                    <button name="action_reopen" string="Reopen" type="object"
                         invisible="ticket_status != 'closed'"/>
-                    <field name="ticket_status" widget="statusbar" statusbar_visible="new,contacted,ongoing,pending,closed"/>
+
+                    <!-- Current stage on Right: shows ONLY the current active stage in green! -->
+                    <field name="ticket_status" widget="statusbar"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box"/>
