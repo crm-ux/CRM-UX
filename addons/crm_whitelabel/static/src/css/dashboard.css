@@ -1518,16 +1518,17 @@ body {
     }
 
 
-    /* 1. Compact 2-column responsive grid for pipeline stages on mobile - NO long scroll */
+    /* 1. Exactly 1 stage per row (horizontal row with label on left, count on right) */
     .crm-pipeline-strip {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
         overflow: hidden !important;
         overflow-x: hidden !important;
         overflow-y: visible !important;
         width: 100% !important;
         max-width: 100% !important;
-        gap: clamp(0.35rem, 1vw, 0.5rem) !important;
+        gap: clamp(0.35rem, 0.8vh, 0.5rem) !important;
         padding: clamp(0.6rem, 1.2vh, 0.85rem) !important;
         box-sizing: border-box !important;
     }
@@ -1538,11 +1539,11 @@ body {
         min-width: 0 !important;
         max-width: 100% !important;
         display: flex !important;
-        flex-direction: column !important;
+        flex-direction: row !important;
         align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-        padding: clamp(0.45rem, 1vh, 0.65rem) clamp(0.3rem, 1vw, 0.5rem) !important;
+        justify-content: space-between !important;
+        text-align: left !important;
+        padding: clamp(0.55rem, 1vh, 0.75rem) clamp(0.85rem, 2vw, 1.1rem) !important;
         border-top-width: clamp(0.2rem, 0.4vw, 0.25rem) !important;
         border-top-style: solid !important;
         border-left: none !important;
@@ -1553,28 +1554,31 @@ body {
         box-sizing: border-box !important;
     }
 
-    .crm-pipe-num {
-        font-size: clamp(1.1rem, 2.2vw, 1.35rem) !important;
-        font-weight: 700 !important;
-        order: 1 !important;
-        line-height: 1.1 !important;
-    }
-
     .crm-pipe-lbl {
-        font-size: clamp(0.7rem, 1.4vw, 0.8rem) !important;
+        font-size: clamp(0.8rem, 1.6vw, 0.875rem) !important;
         font-weight: 600 !important;
-        color: #475569 !important;
-        margin-top: clamp(0.15rem, 0.3vh, 0.25rem) !important;
-        order: 2 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        max-width: 100% !important;
+        color: #334155 !important;
+        order: 1 !important;
+        margin: 0 !important;
     }
 
-    /* Hide arrow separators in compact grid layout */
+    .crm-pipe-num {
+        font-size: clamp(1.15rem, 2.4vw, 1.35rem) !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        order: 2 !important;
+        line-height: 1 !important;
+    }
+
+    /* Clean subtle down arrow between stacked 1-per-row stages */
     .crm-pipe-sep {
-        display: none !important;
+        display: block !important;
+        text-align: center !important;
+        transform: rotate(90deg) !important;
+        color: #cbd5e1 !important;
+        font-size: clamp(0.75rem, 1.3vw, 0.85rem) !important;
+        line-height: 1 !important;
+        margin: clamp(0.05rem, 0.15vh, 0.15rem) 0 !important;
     }
 
     /* 2. Stats bar: 2-column grid with dynamic spacing */
