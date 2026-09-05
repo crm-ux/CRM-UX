@@ -358,6 +358,22 @@ button[name="action_save_lead"] {
     margin-top: clamp(2rem, 4vh, 2.8rem) !important;
 }
 
-.service_ticket_form .o_statusbar_status button.o_arrow_button:not(.o_arrow_button_current) {
+/* 1. Hide all non-active stage buttons on Service Ticket */
+.service_ticket_form .o_statusbar_status>button:not(.o_arrow_button_current) {
     display: none !important;
+}
+
+/* 2. Style the single active stage button as solid green (matching Lead view) */
+.service_ticket_form .o_statusbar_status>button.o_arrow_button_current {
+    display: inline-block !important;
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+    border-radius: 6px !important;
+    padding: 6px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-width: 130px !important;
+    text-align: center !important;
+    clip-path: none !important;
 }
