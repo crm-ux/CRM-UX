@@ -244,7 +244,7 @@ class CrmDashboard extends Component {
     }
 
     go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
-    openLeads() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
+    openLeads() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ["x_stage_sequence", "!=", 90], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openQuotes() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "not in", ["won", "lost"]], ["state", "!=", "cancel"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openQuoteStage(stage) {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
