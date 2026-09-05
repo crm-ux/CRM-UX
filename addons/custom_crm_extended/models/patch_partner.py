@@ -46,35 +46,30 @@ class ResPartnerPatch(models.Model):
                 partner.display_name = base_name
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if not self.env.context.get('show_equipment_serial'):
-            return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
-        args = list(args or [])
-        partners = self.search(args + [('name', operator, name)] if name else args, limit=limit)
+        partners = self.search(domain or [], limit=limit)
         Equip = self.env['equipment.master'].sudo()
         equipments = Equip.search([('partner_id', 'in', partners.ids)])
-
-        partner_equip_map = {}
+        
+        partner_serial_map = {}
         for eq in equipments:
-            if eq.partner_id.id not in partner_equip_map:
-                partner_equip_map[eq.partner_id.id] = []
-            if eq.serial_number:
+            if eq.partner_id.id not in partner_serial_map and eq.serial_number:
                 sn = str(eq.serial_number).strip()
                 last6 = sn[-6:] if len(sn) >= 6 else sn
                 if last6:
-                    partner_equip_map[eq.partner_id.id].append(last6)
+                    partner_serial_map[eq.partner_id.id] = last6
 
         result = []
         for p in partners:
-            serials = partner_equip_map.get(p.id, [])
-            if serials:
-                # If ABC has multiple machines, show each one: ABC ...111111, ABC ...222222
-                for s in serials:
-                    result.append((p.id, f"{p.name} ...{s}"))
-            else:
-                result.append((p.id, p.name))
+            last6 = partner_serial_map.get(p.id)
+            display = f"{p.name} ...{last6}" if last6 else p.name
+            if not name or name.lower() in display.lower():
+                result.append((p.id, display))
         return result
+
 
 
 class ResCompanyDefaultCard(models.Model):
