@@ -116,14 +116,18 @@ class CrmLeadWizard(models.TransientModel):
     @api.onchange('phone')
     def _onchange_phone_digits_only(self):
         if self.phone:
-            digits = re.sub(r'\D', '', self.phone)[:10]
+            digits = re.sub(r'\D', '', self.phone)
+            if len(digits) >= 10:
+                digits = digits[-10:]
             if digits != self.phone:
                 self.phone = digits
 
     @api.onchange('x_mobile')
     def _onchange_mobile_digits_only(self):
         if self.x_mobile:
-            digits = re.sub(r'\D', '', self.x_mobile)[:10]
+            digits = re.sub(r'\D', '', self.x_mobile)
+            if len(digits) >= 10:
+                digits = digits[-10:]
             if digits != self.x_mobile:
                 self.x_mobile = digits
 
@@ -246,13 +250,19 @@ class CrmLeadWizard(models.TransientModel):
             # Validate phone format (10 digits)
             if self.phone:
                 digits = re.sub(r'\D', '', self.phone)
+                if len(digits) >= 10:
+                    digits = digits[-10:]
                 if len(digits) != 10:
-                    raise ValidationError(_("Phone number must be exactly 10 digits."))
-            # Validate mobile format (10 digits)
+                    raise ValidationError(_("Phone number must be a valid 10-digit number."))
+                self.phone = digits
+            # Validate mobile format (10 digits, +91 or 0 optional)
             if self.x_mobile:
                 digits = re.sub(r'\D', '', self.x_mobile)
+                if len(digits) >= 10:
+                    digits = digits[-10:]
                 if len(digits) != 10:
-                    raise ValidationError(_("Mobile number must be exactly 10 digits."))
+                    raise ValidationError(_("Mobile number must be a valid 10-digit number."))
+                self.x_mobile = digits
             # Validate email format
             if self.email_from:
                 if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', self.email_from):
