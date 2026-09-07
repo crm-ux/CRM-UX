@@ -173,6 +173,8 @@ class CrmDashboard extends Component {
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
+            const invoiceCreated = s.invoice_created || 0;
+            const invoicePending = s.invoice_pending || 0;
             const customers = s.customers || 0, products = s.products || 0, users = s.users || 0;
             const quoteRevenue = s.quote_revenue || 0, wonRevenue = s.won_revenue || 0;
             const todayRevenue = s.today_revenue || 0, exhibitionContacts = s.exhibition || 0;
@@ -224,7 +226,7 @@ class CrmDashboard extends Component {
                 leads, qualified, opportunity: opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, invoiceCreated, invoicePending,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
@@ -394,6 +396,30 @@ class CrmDashboard extends Component {
             views: [[false, "list"], [false, "form"]],
             domain: [...tckCompDomain, ...domain],
             context: { allowed_company_ids: this.state.selectedCompanies },
+        });
+    }
+
+    openInvoiceCreated() {
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Invoiced Orders",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["x_quote_stage", "=", "won"], ["invoice_ids.invoice_date", "!=", false], ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
+        });
+    }
+
+    openInvoicePending() {
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Invoice Pending Orders",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["x_quote_stage", "=", "won"], ["invoice_ids.invoice_date", "=", false], ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
         });
     }
 

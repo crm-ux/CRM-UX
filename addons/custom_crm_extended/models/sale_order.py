@@ -923,6 +923,17 @@ class DashboardStats(models.Model):
         won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')] + company_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
+        # Check invoice date for Won orders
+        invoice_created = 0
+        invoice_pending = 0
+        for order in won_orders:
+            # Check if any linked customer invoice has an invoice_date set
+            has_invoice_date = any(inv.invoice_date for inv in order.invoice_ids if inv.move_type == 'out_invoice')
+            if has_invoice_date:
+                invoice_created += 1
+            else:
+                invoice_pending += 1
+
         pending_orders = self.env['sale.order'].search([
             ('x_quote_stage', 'not in', ['won', 'lost']),
             ('state', '!=', 'cancel')
@@ -970,4 +981,6 @@ class DashboardStats(models.Model):
             'priority_counts': priority_counts,
             'meetings_this_month': meetings_this_month,
             'upcoming_events': upcoming_events,
+            'invoice_created': invoice_created,
+            'invoice_pending': invoice_pending,
         }
