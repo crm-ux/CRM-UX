@@ -302,6 +302,16 @@ class CrmLeadWizard(models.TransientModel):
         if not self.partner_name and not self.partner_company_id:
             raise ValidationError(_("Please enter a Company Name."))
 
+        # Ensure +91 format for WhatsApp compatibility (eliminates country code popup)
+        formatted_phone = False
+        if self.phone:
+            digits = re.sub(r'\D', '', self.phone)
+            formatted_phone = f"+91{digits[-10:]}" if len(digits) >= 10 else self.phone
+        formatted_mobile = False
+        if self.x_mobile:
+            digits = re.sub(r'\D', '', self.x_mobile)
+            formatted_mobile = f"+91{digits[-10:]}" if len(digits) >= 10 else self.x_mobile
+
         # Resolve the right partner_id to avoid Odoo creating duplicate companies later.
         # Priority: 1) contact picked from "Select Contact" dropdown
         #           2) existing company chosen in Step 1 (partner_company_id)
@@ -351,8 +361,9 @@ class CrmLeadWizard(models.TransientModel):
             "contact_name": self.contact_name,
             "function": self.function,
             "email_from": self.email_from,
-            "phone": self.phone,
-            "x_mobile": self.x_mobile,
+            "phone": formatted_phone or False,
+            "mobile": formatted_mobile or False,
+            "x_mobile": formatted_mobile or False,
             "city": self.city,
             "state_id": self.state_id.id if self.state_id else False,
             "zip": self.zip,
