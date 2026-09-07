@@ -380,6 +380,7 @@ class CrmLeadWizard(models.TransientModel):
             "x_created_by_id": self.created_by_id.id if self.created_by_id else False,
             "x_lead_priority": self.x_lead_priority or "medium",
         }
+        
         lead = self.env["crm.lead"].create(vals)
         return {
             "type": "ir.actions.act_window",
