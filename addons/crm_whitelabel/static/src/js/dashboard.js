@@ -249,10 +249,59 @@ class CrmDashboard extends Component {
     openQuoteStage(stage) {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
         const cd = this.state.isAdmin ? [] : (this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []);
-        const labels = { draft: "Quote", sent: "Sent", negotiation: "Negotiation", order_expected: "Order Expected", won: "Won" };
-        const cancelFilter = stage === 'won' ? [] : [["state", "!=", "cancel"]];
-        this.go({ type: "ir.actions.act_window", name: (labels[stage] || stage) + " Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", stage], ...cancelFilter, ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies, group_by: ["x_quote_type"], create: false }, create: false });
+        const labels = {
+            draft: "Quote",
+            sent: "Sent",
+            negotiation: "Negotiation",
+            order_expected: "Order Expected",
+            won: "Won"
+        };
+
+        // Mutually exclusive strict domains for each quote stage:
+        let stageDomain = [];
+        if (stage === 'won') {
+            // ONLY truly Won quotes/orders, never cancelled
+            stageDomain = [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"]];
+        } else {
+            // In-progress quote stages: exact stage match, exclude confirmed sale, won, lost, and cancelled
+            stageDomain = [
+                ["x_quote_stage", "=", stage],
+                ["state", "not in", ["sale", "cancel"]],
+                ["x_quote_stage", "not in", ["won", "lost"]]
+            ];
+        }
+
+        this.go({
+            type: "ir.actions.act_window",
+            name: (labels[stage] || stage) + " Quotations",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [...stageDomain, ...ud, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies, group_by: ["x_quote_type"], create: false }
+        });
     }
+
+    openStage(ev) {
+        const seq = parseInt(ev.currentTarget.dataset.seq || 0);
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+
+        // Strict CRM lead stage: active only, not won, exact sequence match
+        let leadDomain = [["active", "=", true], ["x_stage_sequence", "=", seq]];
+        if (seq !== 90) {
+            leadDomain.push(["x_stage_sequence", "!=", 90]);
+        }
+
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Pipeline Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [...leadDomain, ...ud, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
+        });
+    }
+
     openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
     openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
@@ -262,15 +311,7 @@ class CrmDashboard extends Component {
     openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
     openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
-    openStage(ev) {
-        const seq = parseInt(ev.currentTarget.dataset.seq || 0);
-        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
-        this.go({
-            type: "ir.actions.act_window", name: "Pipeline", res_model: "crm.lead",
-            views: [[false, "list"], [false, "form"]],
-            domain: [["active", "=", true], ["x_stage_sequence", "=", seq], ...ud]
-        });
-    }
+
 
     openAllPipelineLeads() {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
