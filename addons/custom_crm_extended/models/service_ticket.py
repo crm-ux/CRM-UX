@@ -16,7 +16,7 @@ class ServiceTicket(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, tracking=True)
 
     # Equipment & Customer Linkage
-    equipment_id = fields.Many2one('equipment.master', string='Equipment', tracking=True)
+    equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
     partner_id = fields.Many2one('res.partner', string='Customer Name')
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')

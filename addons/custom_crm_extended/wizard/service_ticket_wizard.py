@@ -12,7 +12,7 @@ class ServiceTicketWizard(models.TransientModel):
     ticket_id = fields.Char(string='Ticket ID')
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
     partner_id = fields.Many2one('res.partner', string='Customer Name', context={'show_equipment_serial': True})
-    equipment_id = fields.Many2one('equipment.master', string='Equipment')
+    equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')
     contact_number = fields.Char(string='Contact Number')
@@ -120,6 +120,7 @@ class ServiceTicketWizard(models.TransientModel):
         if self.equipment_id:
             eq = self.equipment_id
             p = eq.partner_id
+            self.partner_id = p
             company_partner = p.parent_id if (p and p.parent_id) else p
 
             self.partner_id = p
