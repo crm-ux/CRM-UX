@@ -928,8 +928,8 @@ class DashboardStats(models.Model):
         invoice_pending = 0
         for order in won_orders:
             # Check if any linked customer invoice has an invoice_date set
-            has_invoice_date = any(inv.invoice_date for inv in order.invoice_ids if inv.move_type == 'out_invoice')
-            if has_invoice_date:
+            inv_date = getattr(order, 'x_invoice_date', False) or getattr(order, 'invoice_date', False)
+            if inv_date:
                 invoice_created += 1
             else:
                 invoice_pending += 1
