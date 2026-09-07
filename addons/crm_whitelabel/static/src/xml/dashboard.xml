@@ -198,27 +198,27 @@
                     <div class="crm-pipe-lbl">Opportunity</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="30">
+                <div class="crm-pipe-item crm-pipe-c1" t-on-click="() => this.openQuoteStage('draft')" data-seq="30">
                     <div class="crm-pipe-num"><t t-esc="state.stageQuotes"/></div>
                     <div class="crm-pipe-lbl">Quotes</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="35">
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="() => this.openQuoteStage('sent')" data-seq="35">
                     <div class="crm-pipe-num"><t t-esc="state.stageSent"/></div>
                     <div class="crm-pipe-lbl">Sent</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="40">
+                <div class="crm-pipe-item crm-pipe-c2" t-on-click="() => this.openQuoteStage('negotiation')" data-seq="40">
                     <div class="crm-pipe-num"><t t-esc="state.stageNegotiation"/></div>
                     <div class="crm-pipe-lbl">Negotiation</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="50">
+                <div class="crm-pipe-item crm-pipe-c3" t-on-click="() => this.openQuoteStage('order_expected')" data-seq="50">
                     <div class="crm-pipe-num"><t t-esc="state.stageOrderExp"/></div>
                     <div class="crm-pipe-lbl">Order Expected</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c5" t-on-click="openStage" data-seq="90">
+                <div class="crm-pipe-item crm-pipe-c5" t-on-click="() => this.openQuoteStage('won')" data-seq="90">
                     <div class="crm-pipe-num"><t t-esc="state.stageWon"/></div>
                     <div class="crm-pipe-lbl">Won</div>
                 </div>

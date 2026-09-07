@@ -272,6 +272,19 @@ class CrmDashboard extends Component {
         });
     }
 
+    openAllPipelineLeads() {
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: "All Pipeline Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ...ud, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
+        });
+    }
+
     openEquipment() {
         this.openEquipmentList([], "All Equipment");
     }

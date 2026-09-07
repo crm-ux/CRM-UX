@@ -42,8 +42,6 @@ class CrmLeadProductLine(models.Model):
         string='Allowed Products'
     )
 
-
-
     @api.depends('x_qty', 'x_unit_price', 'x_discount')
     def _compute_amount(self):
         for rec in self:
