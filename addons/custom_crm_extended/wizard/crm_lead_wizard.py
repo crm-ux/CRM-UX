@@ -362,7 +362,6 @@ class CrmLeadWizard(models.TransientModel):
             "function": self.function,
             "email_from": self.email_from,
             "phone": formatted_phone or False,
-            "mobile": formatted_mobile or False,
             "x_mobile": formatted_mobile or False,
             "city": self.city,
             "state_id": self.state_id.id if self.state_id else False,
@@ -380,7 +379,7 @@ class CrmLeadWizard(models.TransientModel):
             "x_created_by_id": self.created_by_id.id if self.created_by_id else False,
             "x_lead_priority": self.x_lead_priority or "medium",
         }
-        
+
         lead = self.env["crm.lead"].create(vals)
         return {
             "type": "ir.actions.act_window",
