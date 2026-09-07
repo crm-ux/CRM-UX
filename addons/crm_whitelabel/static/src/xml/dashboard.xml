@@ -219,7 +219,7 @@
                 </div>
                 <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-item crm-pipe-c5" t-on-click="() => this.openQuoteStage('won')" data-seq="90">
-                    <div class="crm-pipe-num"><t t-esc="state.Won"/></div>
+                    <div class="crm-pipe-num"><t t-esc="state.stageWon"/></div>
                     <div class="crm-pipe-lbl">Won</div>
                 </div>
             </div>
