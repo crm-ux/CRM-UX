@@ -22,6 +22,7 @@ class CrmDashboard extends Component {
             equipmentTotal: 0, equipmentActive: 0, equipmentRepair: 0, equipmentStopped: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
+            invoiceCreated: 0, invoicePending: 0,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
             greeting: "", todayDate: "",

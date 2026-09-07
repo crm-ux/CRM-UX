@@ -133,15 +133,9 @@
                     </div>
                 </div>
             </div>
+
             <!-- STATS BAR -->
             <div class="crm-stats-bar">
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openLeads">
-                    <div>
-                        <div class="crm-stat-label">TOTAL LEADS</div>
-                        <div class="crm-stat-value"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.stageQuotes + state.stageSent + state.stageNegotiation + state.stageOrderExp"/></div>
-                    </div>
-                </div>
-                <div class="crm-stat-divider"/>
                 <div class="crm-stat-item">
                     <div>
                         <div class="crm-stat-label">TODAY'S REVENUE</div>
@@ -163,10 +157,17 @@
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openWon">
+                <div class="crm-stat-item">
                     <div>
-                        <div class="crm-stat-label">WON QUOTES</div>
-                        <div class="crm-stat-value"><t t-esc="state.won"/></div>
+                        <div class="crm-stat-label">INVOICE CREATED</div>
+                        <div class="crm-stat-value"><t t-esc="state.invoiceCreated || 0"/></div>
+                    </div>
+                </div>
+                <div class="crm-stat-divider"/>
+                <div class="crm-stat-item">
+                    <div>
+                        <div class="crm-stat-label">INVOICE PENDING</div>
+                        <div class="crm-stat-value"><t t-esc="state.invoicePending || 0"/></div>
                     </div>
                 </div>
             </div>
@@ -221,6 +222,11 @@
                 <div class="crm-pipe-item crm-pipe-c5" t-on-click="() => this.openQuoteStage('won')" data-seq="90">
                     <div class="crm-pipe-num"><t t-esc="state.won"/></div>
                     <div class="crm-pipe-lbl">Won</div>
+                </div>
+                <div class="crm-pipe-sep">→</div>
+                <div class="crm-pipe-item crm-pipe-total" t-on-click="openAllPipelineLeads" style="border-top: 3px solid #0b3d91;">
+                    <div class="crm-pipe-num"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></div>
+                    <div class="crm-pipe-lbl" style="font-weight: 700; color: #0b3d91;">Total</div>
                 </div>
             </div>
             <!-- CARDS -->
