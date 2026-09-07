@@ -146,10 +146,10 @@
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openQuotes">
+                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openWon">
                     <div>
-                        <div class="crm-stat-label">PENDING QUOTATIONS</div>
-                        <div class="crm-stat-value"><t t-esc="state.quotes"/></div>
+                        <div class="crm-stat-label">TOTAL WON</div>
+                        <div class="crm-stat-value"><t t-esc="state.won"/></div>
                     </div>
                 </div>
                 <div class="crm-stat-divider"/>
