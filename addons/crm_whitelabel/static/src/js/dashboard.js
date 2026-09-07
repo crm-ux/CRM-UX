@@ -280,7 +280,7 @@ class CrmDashboard extends Component {
             res_model: "sale.order",
             views: [[false, "list"], [false, "form"]],
             domain: [...stageDomain, ...ud, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies, group_by: ["x_quote_type"], create: false }
+            context: { allowed_company_ids: this.state.selectedCompanies, create: false }
         });
     }
 
