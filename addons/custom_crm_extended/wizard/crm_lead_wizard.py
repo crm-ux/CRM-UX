@@ -113,23 +113,23 @@ class CrmLeadWizard(models.TransientModel):
     def create(self, vals_list):
         return super().create(vals_list)
 
-    @api.onchange('phone')
-    def _onchange_phone_digits_only(self):
-        if self.phone:
-            digits = re.sub(r'\D', '', self.phone)
-            if len(digits) >= 10:
-                digits = digits[-10:]
-            if digits != self.phone:
-                self.phone = digits
+    def _validate_and_extract_phone(self, raw_number, field_label="Phone"):
+        if not raw_number:
+            return ""
+        val = str(raw_number).strip()
+        # Remove country code prefix (+91 or 91 or 0)
+        if val.startswith('+91'):
+            val = val[3:].strip()
+        elif val.startswith('91') and len(re.sub(r'\D', '', val)) == 12:
+            val = val[2:].strip()
+        elif val.startswith('0') and len(re.sub(r'\D', '', val)) == 11:
+            val = val[1:].strip()
 
-    @api.onchange('x_mobile')
-    def _onchange_mobile_digits_only(self):
-        if self.x_mobile:
-            digits = re.sub(r'\D', '', self.x_mobile)
-            if len(digits) >= 10:
-                digits = digits[-10:]
-            if digits != self.x_mobile:
-                self.x_mobile = digits
+        # Extract only digits of the actual phone number
+        digits = re.sub(r'\D', '', val)
+        if len(digits) != 10:
+            raise ValidationError(_("%s number must be exactly 10 digits.") % field_label)
+        return digits
 
     @api.onchange('partner_company_id')
     def _onchange_partner_company_id(self):
@@ -249,20 +249,12 @@ class CrmLeadWizard(models.TransientModel):
             self.e2_contact = False
             # Validate phone format (10 digits)
             if self.phone:
-                digits = re.sub(r'\D', '', self.phone)
-                if len(digits) >= 10:
-                    digits = digits[-10:]
-                if len(digits) != 10:
-                    raise ValidationError(_("Phone number must be a valid 10-digit number."))
-                self.phone = digits
-            # Validate mobile format (10 digits, +91 or 0 optional)
+                self._validate_and_extract_phone(self.phone, "Phone")
+
+            # Validate mobile format
             if self.x_mobile:
-                digits = re.sub(r'\D', '', self.x_mobile)
-                if len(digits) >= 10:
-                    digits = digits[-10:]
-                if len(digits) != 10:
-                    raise ValidationError(_("Mobile number must be a valid 10-digit number."))
-                self.x_mobile = digits
+                self._validate_and_extract_phone(self.x_mobile, "Mobile")
+
             # Validate email format
             if self.email_from:
                 if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', self.email_from):
