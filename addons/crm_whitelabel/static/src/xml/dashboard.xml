@@ -43,6 +43,7 @@
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                                 <a t-on-click="openQuoteSeries" class="crm-admin-menu-item" style="cursor:pointer;">Quote Series</a>
                                 <a t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
+                                <a t-on-click="openSettings" class="crm-admin-menu-item" style="cursor:pointer;">Settings</a>
                             </div>
                         </div>
                     </div>
@@ -79,11 +80,6 @@
                                     <div style="font-size:clamp(0.6rem, 0.75vw, 0.68rem);color:#999;"><t t-esc="notif.date"/></div>
                                 </div>
                             </t>
-                        </div>
-                    </div>
-                    <div class="crm-settings-btn-wrapper" t-if="state.isAdmin" style="margin-right:clamp(0.6rem, 1vw, 0.85rem);display:flex;align-items:center;height:clamp(1.8rem, 3.5vh, 2.2rem);">
-                        <div t-on-click="openSettings" title="Settings" style="cursor:pointer;width:clamp(1.8rem, 3.5vh, 2.2rem);height:clamp(1.8rem, 3.5vh, 2.2rem);display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                            <i class="fa fa-cog" style="font-size:clamp(1rem, 1.3vw, 1.2rem);color:#ffffff;line-height:1;"></i>
                         </div>
                     </div>
                     <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
