@@ -2,7 +2,6 @@
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
-import { ListController } from "@web/views/list/list_controller";
 import { useService } from "@web/core/utils/hooks";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
@@ -212,31 +211,3 @@ patch(FormController.prototype, {
         await goBack();
     }
 });
-
-patch(ListController.prototype, {
-    async openRecord(record) {
-        if (this.props.resModel === "crm.lead") {
-            const seq = record.data.x_stage_sequence || 0;
-            // If Quote or after (Quotes=30, Sent=35, Negotiation=40, Order Expected=50, Won=90)
-            if (seq >= 30) {
-                const quotes = await this.orm.searchRead(
-                    "sale.order",
-                    [["opportunity_id", "=", record.resId]],
-                    ["id"],
-                    { order: "id desc", limit: 1 }
-                );
-                if (quotes && quotes.length) {
-                    return this.actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: "Quotation",
-                        res_model: "sale.order",
-                        res_id: quotes[0].id,
-                        views: [[false, "form"]],
-                    });
-                }
-            }
-        }
-        return super.openRecord(...arguments);
-    }
-});
-

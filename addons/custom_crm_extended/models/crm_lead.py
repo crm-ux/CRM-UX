@@ -498,22 +498,8 @@ class CrmLead(models.Model):
     def get_formview_action(self, access_uid=None):
         if not self:
             return self.action_new_lead_wizard()
-        # ONLY apply for Total Pipeline list view when clicking Quotes or after (>= 30)
-        if self.env.context.get('from_total_pipeline') and self.stage_id and self.stage_id.sequence >= 30:
-            quote = self.env['sale.order'].search([
-                ('opportunity_id', '=', self.id)
-            ], order='id desc', limit=1)
-            if quote:
-                return {
-                    'type': 'ir.actions.act_window',
-                    'name': quote.name or 'Quotation',
-                    'res_model': 'sale.order',
-                    'res_id': quote.id,
-                    'view_mode': 'form',
-                    'views': [[False, 'form']],
-                    'target': 'current',
-                }
         return super().get_formview_action(access_uid=access_uid)
+
 
 
     @api.model
