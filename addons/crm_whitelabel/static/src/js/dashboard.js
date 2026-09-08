@@ -326,10 +326,8 @@ class CrmDashboard extends Component {
             domain: [["active", "=", true], ...ud, ...cd],
             context: {
                 allowed_company_ids: this.state.selectedCompanies,
-                from_total_pipeline: true,
-                create: false
-            },
-            create: false
+                from_total_pipeline: true
+            }
         });
     }
 

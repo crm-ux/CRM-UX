@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
+        <!-- 1st: Dashboard button before New -->
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
-            <!-- 1st: Dashboard button -->
             <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
-            
-            <!-- 2nd: Stage Dropdown right beside Dashboard -->
-            <div class="ms-2 d-inline-block" t-if="isTotalPipelineView">
-                <select class="form-select form-select-sm d-inline-block w-auto" 
+        </xpath>
+
+        <!-- 3rd: Stage Dropdown placed immediately after New button with matching height & style -->
+        <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="after">
+            <div class="ms-1 d-inline-flex align-items-center" t-if="isTotalPipelineView">
+                <select class="btn btn-outline-primary dropdown-toggle text-start" 
                         t-on-change="onStageFilterChange" 
-                        style="font-weight: 500; border-color: #0b3d91; color: #0b3d91; padding: 3px 28px 3px 8px;">
+                        style="height: 31px; padding: 0 24px 0 10px; font-size: 13px; font-weight: 500; border-color: #0b3d91; color: #0b3d91; background-color: #fff; line-height: 29px;">
                     <option value="all" t-att-selected="currentStageFilter == 'all'">All Stages</option>
                     <option value="0" t-att-selected="currentStageFilter == '0'">Lead</option>
                     <option value="5" t-att-selected="currentStageFilter == '5'">Contacted</option>
