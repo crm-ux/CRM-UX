@@ -77,9 +77,21 @@ patch(ControlPanel.prototype, {
     setup() {
         super.setup(...arguments);
         this.action = useService("action");
+        this.orm = useService("orm");
     },
     goDashboard() {
         this.action.doAction(435);
+    },
+    async createNewLead() {
+        const wizardId = await this.orm.create("crm.lead.wizard", [{ step: 1 }]);
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: "crm.lead.wizard",
+            res_id: wizardId[0],
+            views: [[false, "form"]],
+            target: "new",
+            name: "Lead Creation",
+        });
     },
     get isTotalPipelineView() {
         const ctx = this.env.searchModel?.context || {};

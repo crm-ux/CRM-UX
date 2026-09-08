@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
-        <!-- 1st: Dashboard button before New -->
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
+            <!-- 1st: Dashboard button -->
             <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
-        </xpath>
 
-        <!-- 3rd: Stage Dropdown placed immediately after New button with matching height & style -->
-        <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="after">
+            <!-- 2nd: Explicit New button for Lead creation -->
+            <button class="btn btn-primary ms-1" t-if="isTotalPipelineView" t-on-click="createNewLead">New</button>
+
+            <!-- 3rd: Stage Dropdown with matching 31px height -->
             <div class="ms-1 d-inline-flex align-items-center" t-if="isTotalPipelineView">
                 <select class="btn btn-outline-primary dropdown-toggle text-start" 
                         t-on-change="onStageFilterChange" 
