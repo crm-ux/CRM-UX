@@ -9,17 +9,17 @@
                 <select class="form-select form-select-sm d-inline-block w-auto" 
                         t-on-change="onStageFilterChange" 
                         style="font-weight: 500; border-color: #0b3d91; color: #0b3d91; padding: 3px 28px 3px 8px;">
-                    <option value="all">All Stages</option>
-                    <option value="0">Lead</option>
-                    <option value="5">Contacted</option>
-                    <option value="7">Tech. Discussion</option>
-                    <option value="10">Qualified</option>
-                    <option value="20">Opportunity</option>
-                    <option value="30">Quotes</option>
-                    <option value="35">Sent</option>
-                    <option value="40">Negotiation</option>
-                    <option value="50">Order Expected</option>
-                    <option value="90">Won</option>
+                    <option value="all" t-att-selected="currentStageFilter == 'all'">All Stages</option>
+                    <option value="0" t-att-selected="currentStageFilter == '0'">Lead</option>
+                    <option value="5" t-att-selected="currentStageFilter == '5'">Contacted</option>
+                    <option value="7" t-att-selected="currentStageFilter == '7'">Tech. Discussion</option>
+                    <option value="10" t-att-selected="currentStageFilter == '10'">Qualified</option>
+                    <option value="20" t-att-selected="currentStageFilter == '20'">Opportunity</option>
+                    <option value="30" t-att-selected="currentStageFilter == '30'">Quotes</option>
+                    <option value="35" t-att-selected="currentStageFilter == '35'">Sent</option>
+                    <option value="40" t-att-selected="currentStageFilter == '40'">Negotiation</option>
+                    <option value="50" t-att-selected="currentStageFilter == '50'">Order Expected</option>
+                    <option value="90" t-att-selected="currentStageFilter == '90'">Won</option>
                 </select>
             </div>
         </xpath>

@@ -85,18 +85,28 @@ patch(ControlPanel.prototype, {
         const ctx = this.env.searchModel?.context || {};
         return ctx.from_total_pipeline === true;
     },
+    get currentStageFilter() {
+        const ctx = this.env.searchModel?.context || {};
+        return ctx.default_stage_filter_val || "all";
+    },
+
     onStageFilterChange(ev) {
         const val = ev.target.value;
-        const searchModel = this.env.searchModel;
-        if (!searchModel) return;
+        const ctx = this.env.searchModel?.context || {};
+        const stageDomain = val === "all" ? [] : [["x_stage_sequence", "=", parseInt(val)]];
 
-        const baseDomain = [["active", "=", true]];
-        if (val === "all") {
-            searchModel.setDomain(baseDomain);
-        } else {
-            const seq = parseInt(val);
-            searchModel.setDomain([...baseDomain, ["x_stage_sequence", "=", seq]]);
-        }
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: val === "all" ? "All Pipeline Leads" : ev.target.options[ev.target.selectedIndex].text + " Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ...stageDomain],
+            context: {
+                ...ctx,
+                from_total_pipeline: true,
+                default_stage_filter_val: val,
+            },
+        }, { clearBreadcrumbs: true });
     }
 });
 
