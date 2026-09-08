@@ -49,20 +49,31 @@
             </xpath>
         </field>
     </record>
-    <!-- Add Customer column to lead list view -->
-    <!-- TEMP DISABLED: crm.crm_lead_view_tree does not exist in this Odoo version, need correct view id
-    <record id="crm_lead_list_add_partner" model="ir.ui.view">
-        <field name="name">crm.lead.list.add.partner</field>
+    
+    <!-- Stage Filters & Grouping for Pipeline Search View -->
+    <record id="crm_lead_view_search_inherit_stages" model="ir.ui.view">
+        <field name="name">crm.lead.search.inherit.stages</field>
         <field name="model">crm.lead</field>
-        <field name="inherit_id" ref="crm.crm_lead_view_tree"/>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
         <field name="arch" type="xml">
-            <field name="partner_id" position="attributes">
-                <attribute name="optional">show</attribute>
-                <attribute name="column_invisible">False</attribute>
-            </field>
+            <xpath expr="//group" position="inside">
+                <filter string="Stage" name="group_by_stage" context="{'group_by': 'stage_id'}"/>
+            </xpath>
+            <xpath expr="//filter[@name='assigned_to_me']" position="before">
+                <filter string="Lead" name="filter_stage_lead" domain="[('x_stage_sequence', '=', 0)]"/>
+                <filter string="Contacted" name="filter_stage_contacted" domain="[('x_stage_sequence', '=', 5)]"/>
+                <filter string="Tech. Discussion" name="filter_stage_tech" domain="[('x_stage_sequence', '=', 7)]"/>
+                <filter string="Qualified" name="filter_stage_qualified" domain="[('x_stage_sequence', '=', 10)]"/>
+                <filter string="Opportunity" name="filter_stage_opp" domain="[('x_stage_sequence', '=', 20)]"/>
+                <filter string="Quotes" name="filter_stage_quotes" domain="[('x_stage_sequence', '=', 30)]"/>
+                <filter string="Sent" name="filter_stage_sent" domain="[('x_stage_sequence', '=', 35)]"/>
+                <filter string="Negotiation" name="filter_stage_neg" domain="[('x_stage_sequence', '=', 40)]"/>
+                <filter string="Order Expected" name="filter_stage_orderexp" domain="[('x_stage_sequence', '=', 50)]"/>
+                <filter string="Won" name="filter_stage_won" domain="[('x_stage_sequence', '=', 90)]"/>
+                <separator/>
+            </xpath>
         </field>
     </record>
-    -->
 
     <!-- Hide stock Odoo "New Quotation" button - use our own Create Quotation flow instead -->
     <record id="crm_lead_hide_stock_new_quotation" model="ir.ui.view">
