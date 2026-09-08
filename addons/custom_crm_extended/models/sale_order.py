@@ -503,6 +503,10 @@ class SaleOrder(models.Model):
         self.message_post(body=_('Quote moved to <b>Negotiation</b>.'))
         if self.opportunity_id:
             self.opportunity_id.action_move_to_negotiation_sync()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def action_move_to_negotiation(self):
         """Move quote stage to Negotiation. Admin can move any quote, user only their own. Unlocks the quote, clears PO so it must be re-entered."""
@@ -516,6 +520,11 @@ class SaleOrder(models.Model):
         self.message_post(body=_('Quote moved back to <b>Negotiation</b>, unlocked, and PO number cleared.'))
         if self.opportunity_id:
             self.opportunity_id.action_move_to_negotiation_sync()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
+
 
     def action_admin_move_back(self):
         self.ensure_one()
