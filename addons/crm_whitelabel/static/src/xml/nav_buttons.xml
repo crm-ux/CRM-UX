@@ -2,9 +2,10 @@
 <templates xml:space="preserve">
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
+            <!-- 1st: Dashboard button -->
             <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
             
-            <!-- Show Stage Dropdown ONLY on Total Pipeline page -->
+            <!-- 2nd: Stage Dropdown right beside Dashboard -->
             <div class="ms-2 d-inline-block" t-if="isTotalPipelineView">
                 <select class="form-select form-select-sm d-inline-block w-auto" 
                         t-on-change="onStageFilterChange" 

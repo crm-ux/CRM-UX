@@ -315,7 +315,6 @@ class CrmDashboard extends Component {
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
     openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
 
-
     openAllPipelineLeads() {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
         const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
@@ -325,7 +324,12 @@ class CrmDashboard extends Component {
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [["active", "=", true], ...ud, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies, from_total_pipeline: true }
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                from_total_pipeline: true,
+                create: false
+            },
+            create: false
         });
     }
 
