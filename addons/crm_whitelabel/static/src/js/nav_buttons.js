@@ -80,6 +80,23 @@ patch(ControlPanel.prototype, {
     },
     goDashboard() {
         this.action.doAction(435);
+    },
+    get isTotalPipelineView() {
+        const ctx = this.env.searchModel?.context || {};
+        return ctx.from_total_pipeline === true;
+    },
+    onStageFilterChange(ev) {
+        const val = ev.target.value;
+        const searchModel = this.env.searchModel;
+        if (!searchModel) return;
+
+        const baseDomain = [["active", "=", true]];
+        if (val === "all") {
+            searchModel.setDomain(baseDomain);
+        } else {
+            const seq = parseInt(val);
+            searchModel.setDomain([...baseDomain, ["x_stage_sequence", "=", seq]]);
+        }
     }
 });
 

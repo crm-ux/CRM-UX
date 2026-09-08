@@ -3,6 +3,25 @@
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
             <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
+            
+            <!-- Show Stage Dropdown ONLY on Total Pipeline page -->
+            <div class="ms-2 d-inline-block" t-if="isTotalPipelineView">
+                <select class="form-select form-select-sm d-inline-block w-auto" 
+                        t-on-change="onStageFilterChange" 
+                        style="font-weight: 500; border-color: #0b3d91; color: #0b3d91; padding: 3px 28px 3px 8px;">
+                    <option value="all">All Stages</option>
+                    <option value="0">Lead</option>
+                    <option value="5">Contacted</option>
+                    <option value="7">Tech. Discussion</option>
+                    <option value="10">Qualified</option>
+                    <option value="20">Opportunity</option>
+                    <option value="30">Quotes</option>
+                    <option value="35">Sent</option>
+                    <option value="40">Negotiation</option>
+                    <option value="50">Order Expected</option>
+                    <option value="90">Won</option>
+                </select>
+            </div>
         </xpath>
     </t>
 </templates>

@@ -325,7 +325,7 @@ class CrmDashboard extends Component {
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [["active", "=", true], ...ud, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies }
+            context: { allowed_company_ids: this.state.selectedCompanies, from_total_pipeline: true }
         });
     }
 
