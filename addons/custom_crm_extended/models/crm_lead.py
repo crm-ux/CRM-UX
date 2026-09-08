@@ -2,7 +2,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-
 class CrmLead(models.Model):
     """
     Extends the default crm.lead model.
@@ -513,7 +512,6 @@ class CrmLead(models.Model):
             'context': dict(self.env.context, default_step=1),
         }
 
-
 class ResPartnerRestrict(models.Model):
     _inherit = 'res.partner'
 
@@ -523,8 +521,5 @@ class ResPartnerRestrict(models.Model):
         if self.env.uid not in allowed_ids and not self.env.su:
             for vals in vals_list:
                 if vals.get('is_company'):
-                    from odoo.exceptions import UserError
                     raise UserError('Only Admin and Dhruvil Shah can create new companies.')
         return super().create(vals_list)
-
-

@@ -30,12 +30,6 @@
                     invisible="x_stage_sequence != 7 or not active"/>
                 <button name="action_move_to_opportunity" string="Opportunity" type="object"
                     invisible="x_stage_sequence != 10 or not active"/>
-                <button name="action_move_to_quotes" string="Quotes" type="object"
-                    invisible="x_stage_sequence != 20 or not active"/>
-                <button name="action_move_to_negotiation" string="Negotiation" type="object"
-                    invisible="x_stage_sequence != 30 or not active"/>
-                <button name="action_open_won_po_wizard" string="Won" type="object"
-                    invisible="x_stage_sequence != 40 or not active"/>
             </xpath>
             <xpath expr="//field[@name='stage_id']" position="after">
                 <field name="x_stage_sequence" invisible="1"/>
