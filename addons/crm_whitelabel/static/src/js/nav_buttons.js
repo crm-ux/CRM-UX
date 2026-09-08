@@ -105,20 +105,51 @@ patch(ControlPanel.prototype, {
     onStageFilterChange(ev) {
         const val = ev.target.value;
         const ctx = this.env.searchModel?.context || {};
-        const stageDomain = val === "all" ? [] : [["x_stage_sequence", "=", parseInt(val)]];
+        const selectedText = ev.target.options[ev.target.selectedIndex].text;
 
-        this.action.doAction({
-            type: "ir.actions.act_window",
-            name: val === "all" ? "All Pipeline Leads" : ev.target.options[ev.target.selectedIndex].text + " Leads",
-            res_model: "crm.lead",
-            views: [[false, "list"], [false, "form"]],
-            domain: [["active", "=", true], ...stageDomain],
-            context: {
-                ...ctx,
-                from_total_pipeline: true,
-                default_stage_filter_val: val,
-            },
-        }, { clearBreadcrumbs: true });
+        // Map quote sequence numbers to sale.order x_quote_stage values
+        const quoteStageMap = {
+            "30": "draft",
+            "35": "sent",
+            "40": "negotiation",
+            "50": "order_expected",
+            "90": "won",
+        };
+
+        if (quoteStageMap[val]) {
+            // From Quote onwards -> open sale.order directly!
+            const quoteStage = quoteStageMap[val];
+            const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
+
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                name: selectedText + " Quotations",
+                res_model: "sale.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter],
+                context: {
+                    ...ctx,
+                    from_total_pipeline: true,
+                    default_stage_filter_val: val,
+                    create: false,
+                },
+            }, { clearBreadcrumbs: true });
+        } else {
+            // Early stages (All, Lead, Contacted, Tech Disc, Qualified, Opportunity) -> open crm.lead
+            const stageDomain = val === "all" ? [] : [["x_stage_sequence", "=", parseInt(val)]];
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                name: val === "all" ? "All Pipeline Leads" : selectedText + " Leads",
+                res_model: "crm.lead",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["active", "=", true], ...stageDomain],
+                context: {
+                    ...ctx,
+                    from_total_pipeline: true,
+                    default_stage_filter_val: val,
+                },
+            }, { clearBreadcrumbs: true });
+        }
     }
 });
 
