@@ -134,3 +134,11 @@ class CrmCustomSettings(models.TransientModel):
             'target': 'current',
         }
 
+    def action_open_expense_types(self):
+        return {
+            'name': _('Expense Types'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.expense.type',
+            'view_mode': 'list,form',
+            'target': 'current',
+        }

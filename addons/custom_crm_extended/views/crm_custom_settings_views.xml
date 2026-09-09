@@ -157,10 +157,7 @@
                                     </div>
                                     <p class="text-muted small mb-0">Manage expense categories for Service Ticket Vouchers (edit, active/inactive, reorder, delete).</p>
                                 </div>
-                                <button name="%(custom_crm_extended.action_service_ticket_expense_type)d"
-                                        string="Manage All Expense Types ➔"
-                                        type="action"
-                                        class="btn btn-outline-primary btn-sm px-3 fw-bold"/>
+                                <button name="action_open_expense_types" string="Manage All Expense Types ➔" type="object" class="btn btn-outline-primary btn-sm px-3 fw-bold"/>
                             </div>
 
                             <!-- Direct Inline Input Box -->
