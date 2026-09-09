@@ -235,14 +235,9 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_preview_bill(self):
         self.ensure_one()
+        url = f'/web/content/{self._name}/{self.id}/bill_file/{self.bill_filename or "bill"}?download=false'
         return {
-            'name': _('Bill Preview - %s') % (self.expense_type_id.name or self.bill_filename or _('Voucher')),
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.voucher.line',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'view_id': self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form').id,
+            'type': 'ir.actions.act_url',
+            'url': url,
             'target': 'new',
-            'flags': {'mode': 'readonly'},
-            'context': {'dialog_size': 'large'},
         }
