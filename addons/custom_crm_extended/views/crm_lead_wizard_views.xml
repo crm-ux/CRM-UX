@@ -101,6 +101,7 @@
                         </group>
                         <group col="2">
                             <field name="date_deadline" string="Expected Closing"/>
+                            <field name="date_deadline" string="Expected Closing"/>
                         </group>
                     </div>
 

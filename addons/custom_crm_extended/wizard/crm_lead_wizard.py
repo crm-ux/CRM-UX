@@ -261,7 +261,7 @@ class CrmLeadWizard(models.TransientModel):
                     raise ValidationError(_("Please enter a valid email address."))
         self.step += 1
         return self._reopen()
-
+    
     def action_back(self):
         self.step -= 1
         return self._reopen()
