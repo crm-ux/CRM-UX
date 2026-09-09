@@ -1287,20 +1287,61 @@ body,
     border: none !important;
 }
 
-/* Scoped ONLY to Voucher Expense Lines table: Force all icons, links & buttons to brand blue */
-div[name="voucher_line_ids"] .fa,
-div[name="voucher_line_ids"] .btn,
-div[name="voucher_line_ids"] .o_form_uri,
-div[name="voucher_line_ids"] .o_form_uri span,
-div[name="voucher_line_ids"] .o_list_record_remove,
-div[name="voucher_line_ids"] button {
-    color: #0b3d91 !important;
+/* ========================================================
+   VOUCHER EXPENSE FLOATING EDITABLE CARDS
+   ======================================================== */
+div[name="voucher_line_ids"] .o_list_table {
+    border-collapse: separate !important;
+    border-spacing: 0 12px !important;
+    /* 12px gap between cards */
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
 }
 
-div[name="voucher_line_ids"] .fa:hover,
-div[name="voucher_line_ids"] .o_form_uri:hover,
-div[name="voucher_line_ids"] button:hover {
-    color: #1e5fc4 !important;
+/* Hide the ugly table header to look like pure modern cards */
+div[name="voucher_line_ids"] .o_list_table thead {
+    display: none !important;
+}
+
+/* Transform each table row into an individual floating Card */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Card hover effect */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:hover {
+    box-shadow: 0 4px 14px rgba(11, 61, 145, 0.12) !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Smooth padding inside each cell of the card */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td {
+    padding: 14px 16px !important;
+    border: none !important;
+    vertical-align: middle !important;
+}
+
+/* Round left and right corners of each card */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td:first-child {
+    border-top-left-radius: 10px !important;
+    border-bottom-left-radius: 10px !important;
+}
+
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td:last-child {
+    border-top-right-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
+}
+
+/* Highlight amount inside the card */
+div[name="voucher_line_ids"] .o_list_table td[name="amount"] {
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    color: #0b3d91 !important;
 }
 
 /* ===== Mobile overflow fix ===== */
