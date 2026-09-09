@@ -1288,10 +1288,9 @@ body,
 }
 
 /* ========================================================
-   100% DYNAMIC VOUCHER EXPENSE TABLE (NO HARDCODED WIDTHS)
+   VOUCHER EXPENSE TABLE: SHRINK BY DEFAULT, EXPAND ON CLICK
    ======================================================== */
 div[name="voucher_line_ids"] .o_list_table {
-    table-layout: auto !important;
     width: 100% !important;
 }
 
@@ -1300,38 +1299,38 @@ div[name="voucher_line_ids"] .o_list_table tbody tr:not(.o_data_row) {
     display: none !important;
 }
 
-/* 1. Description: Takes 100% of all dynamic remaining space, single line trim with ... */
-div[name="voucher_line_ids"] .o_list_table td[name="description"] {
-    width: 100% !important;
+/* 1. DEFAULT (Not clicked): Shrink and trim with ... */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:not(.o_selected_row) td[name="description"] {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    max-width: 0 !important;
+    max-width: 250px !important;
 }
 
-div[name="voucher_line_ids"] .o_list_table td[name="description"] span,
-div[name="voucher_line_ids"] .o_list_table td[name="description"] div {
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:not(.o_selected_row) td[name="description"] span,
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:not(.o_selected_row) td[name="description"] div {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    display: block !important;
+    display: inline-block !important;
+    max-width: 100% !important;
 }
 
-div[name="voucher_line_ids"] .o_list_table td[name="description"] input {
+/* 2. ON CLICK (Selected / Editing Row): Expand fully and show multiline editor */
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_selected_row td[name="description"] {
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_selected_row td[name="description"] textarea,
+div[name="voucher_line_ids"] .o_list_table tbody tr.o_selected_row td[name="description"] input {
     width: 100% !important;
+    min-height: 40px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
 }
 
-/* 2. All compact columns: Shrink dynamically to exact content (ZERO wasted space) */
-div[name="voucher_line_ids"] .o_list_table td[name="expense_type_id"],
-div[name="voucher_line_ids"] .o_list_table td[name="amount"],
-div[name="voucher_line_ids"] .o_list_table td[name="bill_file"],
-div[name="voucher_line_ids"] .o_list_table td.o_list_button,
-div[name="voucher_line_ids"] .o_list_table td.o_list_record_remove {
-    width: 1% !important;
-    white-space: nowrap !important;
-}
-
-/* 3. Bill Filename: Dynamic max-width based on viewport width (ch/em units) */
+/* 3. Bill Filename: Clean trim with ... */
 div[name="voucher_line_ids"] .o_form_uri {
     display: inline-block !important;
     max-width: 15ch !important;
@@ -1341,7 +1340,7 @@ div[name="voucher_line_ids"] .o_form_uri {
     vertical-align: middle !important;
 }
 
-/* 4. Brand blue on all icons */
+/* 4. Compact action icon buttons with brand blue */
 div[name="voucher_line_ids"] .fa,
 div[name="voucher_line_ids"] .btn,
 div[name="voucher_line_ids"] .o_form_uri,

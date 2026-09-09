@@ -134,7 +134,7 @@
                             <field name="voucher_line_ids" class="o_voucher_card_list">
                                 <list editable="bottom" create="0" delete="1">
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold text-primary"/>
-                                    <field name="description" placeholder="Enter description..."/>
+                                    <field name="description" placeholder="Enter description..." widget="text"/>
                                     <field name="amount" sum="Total" class="fw-bold text-primary text-end"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill"/>
                                     <field name="bill_filename" column_invisible="1"/>
