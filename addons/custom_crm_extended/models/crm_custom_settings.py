@@ -31,7 +31,7 @@ class CrmCustomSettings(models.TransientModel):
     ticket_id_suffix = fields.Char(string='Suffix', default='')
     ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
 
-    expense_type_ids = fields.One2many('service.ticket.expense.type', compute='_compute_expense_type_ids', inverse='_inverse_expense_type_ids', string='Expense Types')
+    expense_type_ids = fields.One2many('service.ticket.expense.type', 'settings_id', string='Expense Types')
 
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
     def _compute_equipment_id_preview(self):
@@ -117,23 +117,25 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-    def _compute_expense_type_ids(self):
-        for rec in self:
-            rec.expense_type_ids = self.env['service.ticket.expense.type'].search([])
-
-    def _inverse_expense_type_ids(self):
-        # Allow editing and saving inline
-        pass
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        # Ensure all existing expense types are linked and loaded
+        types = self.env['service.ticket.expense.type'].search([])
+        if types:
+            res['expense_type_ids'] = [(6, 0, types.ids)]
+        return res
 
     def action_save_expenses(self):
-        """Dedicated button to save and notify expense types saved."""
+        """Save and keep all expense types permanently."""
         self.ensure_one()
+        # Any unsaved changes in the table are committed
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Settings Saved'),
-                'message': _('Expense types updated successfully!'),
+                'message': _('Expense types saved successfully!'),
                 'type': 'success',
                 'sticky': False,
             }

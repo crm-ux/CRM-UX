@@ -192,7 +192,7 @@ class ServiceTicketExpenseType(models.Model):
     name = fields.Char(string='Expense Type', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
     active = fields.Boolean(string='Active', default=True)
-    
+    settings_id = fields.Many2one('crm.custom.settings', string='Settings', ondelete='cascade')
 
 class ServiceTicketVoucherLine(models.Model):
     _name = 'service.ticket.voucher.line'
