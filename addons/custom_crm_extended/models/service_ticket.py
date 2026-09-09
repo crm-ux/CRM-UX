@@ -55,6 +55,7 @@ class ServiceTicket(models.Model):
     spare_parts_used = fields.Char(string='Spare Parts Used')
     service_start_time = fields.Datetime(string='Service Start Time')
     service_end_time = fields.Datetime(string='Service End Time')
+    voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Voucher Lines')
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
     
@@ -182,3 +183,27 @@ class ServiceTicket(models.Model):
                 ], limit=1)
                 if duplicate:
                     raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % rec.ticket_id)
+            
+class ServiceTicketExpenseType(models.Model):
+    _name = 'service.ticket.expense.type'
+    _description = 'Service Ticket Expense Type'
+    _order = 'sequence, name'
+
+    name = fields.Char(string='Expense Type', required=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+    
+
+class ServiceTicketVoucherLine(models.Model):
+    _name = 'service.ticket.voucher.line'
+    _description = 'Service Ticket Voucher Line'
+    _order = 'id asc'
+
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
+    expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
+    description = fields.Char(string='Description', placeholder='Enter description...')
+    amount = fields.Float(string='Amount (₹)', digits='Product Price')
+    bill_file = fields.Binary(string='Upload Bill', required=False)
+    bill_filename = fields.Char(string='File Name')
+    bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
+

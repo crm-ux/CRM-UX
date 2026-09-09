@@ -22,3 +22,6 @@ access_service_ticket_user,service.ticket.user,model_service_ticket,base.group_u
 access_service_ticket_wizard_user,service.ticket.wizard.user,model_service_ticket_wizard,base.group_user,1,1,1,1
 access_crm_custom_settings_user,crm.custom.settings.user,model_crm_custom_settings,base.group_user,1,1,1,1
 access_crm_custom_settings_admin,crm.custom.settings.admin,model_crm_custom_settings,base.group_system,1,1,1,1
+
+access_service_ticket_expense_type_user,service.ticket.expense.type.user,model_service_ticket_expense_type,base.group_user,1,1,1,1
+access_service_ticket_voucher_line_user,service.ticket.voucher.line.user,model_service_ticket_voucher_line,base.group_user,1,1,1,1

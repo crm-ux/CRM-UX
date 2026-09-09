@@ -31,6 +31,8 @@ class CrmCustomSettings(models.TransientModel):
     ticket_id_suffix = fields.Char(string='Suffix', default='')
     ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
 
+    expense_type_ids = fields.Many2many('service.ticket.expense.type', string='Expense Types', compute='_compute_expense_type_ids', inverse='_inverse_expense_type_ids')
+
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
     def _compute_equipment_id_preview(self):
         for rec in self:
@@ -114,4 +116,9 @@ class CrmCustomSettings(models.TransientModel):
                 'sticky': False,
             }
         }
-        
+
+    def _compute_expense_type_ids(self):
+        for rec in self:
+            rec.expense_type_ids = self.env['service.ticket.expense.type'].search([])
+    def _inverse_expense_type_ids(self):
+        pass
