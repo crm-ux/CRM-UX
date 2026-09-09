@@ -120,11 +120,15 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-    def action_open_expense_types(self):
+    def action_add_expense_type(self):
+        self.ensure_one()
+        if self.new_expense_type_name and self.new_expense_type_name.strip():
+            name = self.new_expense_type_name.strip()
+            self.env['service.ticket.expense.type'].create({'name': name})
+            self.new_expense_type_name = ''
+        types = self.env['service.ticket.expense.type'].search([])
+        self.expense_type_ids = [(6, 0, types.ids)]
         return {
-            'name': _('Expense Types'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.expense.type',
-            'view_mode': 'list,form',
-            'target': 'current',
+            'type': 'ir.actions.client',
+            'tag': 'reload',
         }
