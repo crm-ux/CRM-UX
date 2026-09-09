@@ -1287,16 +1287,19 @@ body,
     border: none !important;
 }
 
-/* Scoped ONLY to the Voucher Expense Lines table */
+/* Scoped ONLY to Voucher Expense Lines table: Force all icons, links & buttons to brand blue */
+div[name="voucher_line_ids"] .fa,
+div[name="voucher_line_ids"] .btn,
 div[name="voucher_line_ids"] .o_form_uri,
-div[name="voucher_line_ids"] .o_form_uri>span,
-div[name="voucher_line_ids"] button[name="action_preview_bill"],
-div[name="voucher_line_ids"] button[name="action_preview_bill"] i {
+div[name="voucher_line_ids"] .o_form_uri span,
+div[name="voucher_line_ids"] .o_list_record_remove,
+div[name="voucher_line_ids"] button {
     color: #0b3d91 !important;
 }
 
+div[name="voucher_line_ids"] .fa:hover,
 div[name="voucher_line_ids"] .o_form_uri:hover,
-div[name="voucher_line_ids"] button[name="action_preview_bill"]:hover i {
+div[name="voucher_line_ids"] button:hover {
     color: #1e5fc4 !important;
 }
 
