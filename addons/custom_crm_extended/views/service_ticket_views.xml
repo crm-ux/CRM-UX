@@ -133,45 +133,47 @@
                                     <field name="bill_filename"/>
                                     <templates>
                                         <t t-name="card">
-                                            <div class="oe_kanban_global_click p-3 mb-3 bg-white rounded border shadow-sm w-100">
-                                                <!-- Top Line: Type Tag on Left, Amount & Delete on Right -->
-                                                <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <i class="fa fa-tag text-primary" title="Expense Type"/>
-                                                        <field name="expense_type_id" widget="selection" class="fw-bold text-primary"/>
+                                            <div class="oe_kanban_global_click p-3 mb-2 bg-white rounded border shadow-sm w-100">
+                                                <div class="row g-2 align-items-center">
+                                                    <!-- 1. Expense Type with Tag Icon -->
+                                                    <div class="col-12 col-md-3 d-flex align-items-center gap-2">
+                                                        <i class="fa fa-tag text-primary fs-6" title="Expense Type"/>
+                                                        <field name="expense_type_id" widget="selection" class="fw-bold text-primary flex-grow-1"/>
                                                     </div>
-                                                    <div class="d-flex align-items-center gap-3">
-                                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1">
+
+                                                    <!-- 2. Description with Align-Left Icon -->
+                                                    <div class="col-12 col-md-3 d-flex align-items-center gap-2">
+                                                        <i class="fa fa-align-left text-secondary" title="Description"/>
+                                                        <field name="description" placeholder="Enter description..." class="w-100 text-muted"/>
+                                                    </div>
+
+                                                    <!-- 3. Amount Badge -->
+                                                    <div class="col-12 col-md-2 text-center">
+                                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1 font-monospace">
                                                             ₹ <field name="amount" class="fw-bold"/>
                                                         </span>
-                                                        <a type="delete" class="text-danger" title="Delete">
-                                                            <i class="fa fa-trash-o fs-5"/>
-                                                        </a>
                                                     </div>
-                                                </div>
 
-                                                <!-- Middle Line: Description Input -->
-                                                <div class="d-flex align-items-center gap-2 mb-2 text-muted">
-                                                    <i class="fa fa-align-left text-secondary" title="Description"/>
-                                                    <field name="description" placeholder="Enter description..." class="w-100"/>
-                                                </div>
-
-                                                <!-- Bottom Line: Bill Attachment & View Action -->
-                                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <i class="fa fa-paperclip text-secondary" title="Bill Attachment"/>
-                                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Upload Bill"/>
+                                                    <!-- 4. Bill Upload / File Name -->
+                                                    <div class="col-12 col-md-2 d-flex align-items-center gap-1">
+                                                        <i class="fa fa-paperclip text-secondary" title="Attachment"/>
+                                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Bill"/>
                                                         <field name="bill_filename" invisible="1"/>
                                                     </div>
-                                                    <div>
+
+                                                    <!-- 5. Actions: View Bill Eye & Delete Trash -->
+                                                    <div class="col-12 col-md-2 d-flex align-items-center justify-content-end gap-3">
                                                         <button name="action_preview_bill" 
                                                                 type="object" 
                                                                 icon="fa-eye" 
                                                                 title="View Bill" 
                                                                 invisible="not bill_file" 
-                                                                class="btn btn-outline-primary btn-sm px-3">
-                                                            View Bill
+                                                                class="btn btn-outline-primary btn-sm px-2 py-1">
+                                                            View
                                                         </button>
+                                                        <a type="delete" class="text-danger p-1" title="Delete Expense">
+                                                            <i class="fa fa-trash-o fs-5"/>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
