@@ -124,11 +124,9 @@ class CrmCustomSettings(models.TransientModel):
         self.ensure_one()
         if self.new_expense_type_name and self.new_expense_type_name.strip():
             name = self.new_expense_type_name.strip()
-            self.env['service.ticket.expense.type'].create({'name': name})
+            new_record = self.env['service.ticket.expense.type'].create({'name': name})
             self.new_expense_type_name = ''
-        types = self.env['service.ticket.expense.type'].search([])
-        self.expense_type_ids = [(6, 0, types.ids)]
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+            # Update many2many field directly on the current record in memory
+            self.expense_type_ids = [(4, new_record.id)]
+        return False
+

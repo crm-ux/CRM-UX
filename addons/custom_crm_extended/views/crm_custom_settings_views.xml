@@ -86,10 +86,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Save Button -->
-                                <div class="mt-4 pt-3 border-top text-end">
-                                    <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
-                                </div>
                             </div>
                         </div>
 
@@ -129,10 +125,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Save Button -->
-                                <div class="mt-4 pt-3 border-top text-end">
-                                    <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
-                                </div>
                             </div>
                         </div>
                     </div>
