@@ -129,11 +129,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Save Button -->
-                                    <div class="mt-4 pt-3 border-top text-end">
-                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
-                                    </div>
 
                                     <!-- Expense Types Block -->
                                     <div class="pt-3 mt-3 border-top">
@@ -147,10 +142,15 @@
                                         <field name="expense_type_ids">
                                             <list editable="bottom">
                                                 <field name="sequence" widget="handle"/>
-                                                <field name="name" string="Expense Type Name" placeholder="e.g. Travel, Food, Fuel..."/>
+                                                <field name="name" string="Expense Type" placeholder="e.g. Travel, Food, Fuel..."/>
                                                 <field name="active" widget="boolean_toggle"/>
                                             </list>
                                         </field>
+                                    </div>
+
+                                    <!-- Save Button -->
+                                    <div class="mt-4 pt-3 border-top text-end">
+                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
                                     </div>
                                 </div>
                             </div>
