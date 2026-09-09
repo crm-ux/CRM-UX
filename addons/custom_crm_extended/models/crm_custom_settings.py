@@ -120,10 +120,26 @@ class CrmCustomSettings(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        # Ensure all existing expense types are linked and loaded
-        types = self.env['service.ticket.expense.type'].search([])
-        if types:
-            res['expense_type_ids'] = [(6, 0, types.ids)]
+        # Load saved settings from ir.config_parameter
+        ICP = self.env['ir.config_parameter'].sudo()
+        res['equipment_id_auto'] = ICP.get_param('crm.equipment_id_auto', 'True') == 'True'
+        res['equipment_id_prefix'] = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
+        res['equipment_id_padding'] = int(ICP.get_param('crm.equipment_id_padding', 4))
+        res['equipment_id_next'] = int(ICP.get_param('crm.equipment_id_next', 1))
+        res['equipment_id_suffix'] = ICP.get_param('crm.equipment_id_suffix', '')
+
+        res['serial_number_auto'] = ICP.get_param('crm.serial_number_auto', 'True') == 'True'
+        res['serial_number_prefix'] = ICP.get_param('crm.serial_number_prefix', 'SN-')
+        res['serial_number_padding'] = int(ICP.get_param('crm.serial_number_padding', 4))
+        res['serial_number_next'] = int(ICP.get_param('crm.serial_number_next', 1))
+        res['serial_number_suffix'] = ICP.get_param('crm.serial_number_suffix', '')
+
+        res['ticket_id_auto'] = ICP.get_param('crm.ticket_id_auto', 'True') == 'True'
+        res['ticket_id_prefix'] = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
+        res['ticket_id_padding'] = int(ICP.get_param('crm.ticket_id_padding', 4))
+        res['ticket_id_next'] = int(ICP.get_param('crm.ticket_id_next', 1))
+        res['ticket_id_suffix'] = ICP.get_param('crm.ticket_id_suffix', '')
+
         return res
 
     def action_save_expenses(self):
