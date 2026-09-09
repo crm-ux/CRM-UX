@@ -1287,6 +1287,20 @@ body,
     border: none !important;
 }
 
+/* Force brand blue on binary download icons, filename links, and table action buttons */
+.o_form_view .o_form_uri,
+.o_form_view .o_form_uri>span,
+.o_form_view .o_form_uri>span:first-child,
+.o_list_table button[name="action_preview_bill"],
+.o_list_table button[name="action_preview_bill"] i {
+    color: #0b3d91 !important;
+}
+
+.o_form_view .o_form_uri:hover,
+.o_list_table button[name="action_preview_bill"]:hover i {
+    color: #1e5fc4 !important;
+}
+
 /* ===== Mobile overflow fix ===== */
 html,
 body {
