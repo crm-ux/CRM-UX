@@ -120,20 +120,6 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-    def action_add_expense_type(self):
-        self.ensure_one()
-        if self.new_expense_type_name and self.new_expense_type_name.strip():
-            name = self.new_expense_type_name.strip()
-            self.env['service.ticket.expense.type'].create({'name': name})
-            self.new_expense_type_name = ''
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'crm.custom.settings',
-            'res_id': self.id,
-            'views': [[False, 'form']],
-            'target': 'current',
-        }
-
     def action_open_expense_types(self):
         return {
             'name': _('Expense Types'),
