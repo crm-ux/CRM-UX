@@ -103,6 +103,7 @@
                             <field name="date_deadline" string="Expected Closing"/>
                             <field name="date_deadline" string="Expected Closing"/>
                         </group>
+                        
                     </div>
 
                     <!-- STEP 5: Assignment + Notes -->
