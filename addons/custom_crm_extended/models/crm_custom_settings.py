@@ -83,10 +83,32 @@ class CrmCustomSettings(models.TransientModel):
         res['ticket_id_next'] = int(ICP.get_param('crm.ticket_id_next', 1))
         res['ticket_id_suffix'] = ICP.get_param('crm.ticket_id_suffix', '')
 
-        types = self.env['service.ticket.expense.type'].search([])
+        # Automatically clean up duplicate expense types from the database
+        all_types = self.env['service.ticket.expense.type'].with_context(active_test=False).search([], order='id asc')
+        seen_names = {}
+        duplicates_to_delete = self.env['service.ticket.expense.type']
+        for t in all_types:
+            clean_name = (t.name or '').strip().lower()
+            if clean_name in seen_names:
+                duplicates_to_delete |= t
+            else:
+                seen_names[clean_name] = t
+        if duplicates_to_delete:
+            duplicates_to_delete.unlink()
+
+        types = self.env['service.ticket.expense.type'].search([], order='sequence asc, id asc')
         res['expense_type_ids'] = [(6, 0, types.ids)]
 
         return res
+
+    def write(self, vals):
+        if 'expense_type_ids' in vals:
+            for cmd in vals['expense_type_ids']:
+                if isinstance(cmd, (list, tuple)) and cmd[0] in (2, 3):
+                    record_to_del = self.env['service.ticket.expense.type'].browse(cmd[1])
+                    if record_to_del.exists():
+                        record_to_del.unlink()
+        return super().write(vals)
 
     def action_save_settings(self):
         self.ensure_one()
