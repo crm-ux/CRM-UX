@@ -1288,45 +1288,60 @@ body,
 }
 
 /* ========================================================
-   VOUCHER EXPENSE TABLE: MULTILINE DESCRIPTION & CLEAN TRIM
+   100% DYNAMIC VOUCHER EXPENSE TABLE (NO HARDCODED WIDTHS)
    ======================================================== */
 div[name="voucher_line_ids"] .o_list_table {
-    table-layout: fixed !important;
+    table-layout: auto !important;
     width: 100% !important;
 }
 
-/* 1. Description: Multiline (wraps up to 2 lines) and trims cleanly with ... */
+/* Remove empty dummy lines */
+div[name="voucher_line_ids"] .o_list_table tbody tr:not(.o_data_row) {
+    display: none !important;
+}
+
+/* 1. Description: Takes 100% of all dynamic remaining space, single line trim with ... */
 div[name="voucher_line_ids"] .o_list_table td[name="description"] {
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     max-width: 0 !important;
-    /* Forces table-cell to respect width without horizontal scroll */
 }
 
 div[name="voucher_line_ids"] .o_list_table td[name="description"] span,
 div[name="voucher_line_ids"] .o_list_table td[name="description"] div {
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
+    white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-    line-height: 1.35 !important;
+    display: block !important;
 }
 
-/* 2. Bill Filename: Single line trim using ... */
+div[name="voucher_line_ids"] .o_list_table td[name="description"] input {
+    width: 100% !important;
+}
+
+/* 2. All compact columns: Shrink dynamically to exact content (ZERO wasted space) */
+div[name="voucher_line_ids"] .o_list_table td[name="expense_type_id"],
+div[name="voucher_line_ids"] .o_list_table td[name="amount"],
+div[name="voucher_line_ids"] .o_list_table td[name="bill_file"],
+div[name="voucher_line_ids"] .o_list_table td.o_list_button,
+div[name="voucher_line_ids"] .o_list_table td.o_list_record_remove {
+    width: 1% !important;
+    white-space: nowrap !important;
+}
+
+/* 3. Bill Filename: Dynamic max-width based on viewport width (ch/em units) */
 div[name="voucher_line_ids"] .o_form_uri {
     display: inline-block !important;
-    max-width: 130px !important;
+    max-width: 15ch !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
     vertical-align: middle !important;
 }
 
-/* 3. Keep brand blue on all icons */
+/* 4. Brand blue on all icons */
 div[name="voucher_line_ids"] .fa,
 div[name="voucher_line_ids"] .btn,
 div[name="voucher_line_ids"] .o_form_uri,
