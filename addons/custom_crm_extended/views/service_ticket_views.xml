@@ -132,7 +132,7 @@
                                     <field name="bill_file"/>
                                     <field name="bill_filename"/>
                                     <templates>
-                                        <t t-name="kanban-box">
+                                        <t t-name="card">
                                             <div class="oe_kanban_global_click p-3 mb-3 bg-white rounded border shadow-sm w-100">
                                                 <!-- Top Line: Type Tag on Left, Amount & Delete on Right -->
                                                 <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
