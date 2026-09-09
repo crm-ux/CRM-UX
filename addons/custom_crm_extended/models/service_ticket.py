@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import re
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
@@ -201,8 +201,20 @@ class ServiceTicketVoucherLine(models.Model):
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
     description = fields.Char(string='Description', placeholder='Enter description...')
-    amount = fields.Float(string='Amount (₹)', digits='Product Price')
+    amount = fields.Float(string='Amount', digits='Product Price')
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
 
+    def action_preview_bill(self):
+        self.ensure_one()
+        return {
+            'name': _('Bill Preview - %s') % (self.expense_type_id.name or self.bill_filename or _('Voucher')),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form').id,
+            'target': 'new',
+            'flags': {'mode': 'readonly'},
+        }
