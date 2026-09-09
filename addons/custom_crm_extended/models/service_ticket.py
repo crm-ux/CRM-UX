@@ -76,6 +76,26 @@ class ServiceTicket(models.Model):
     new_voucher_bill_file = fields.Binary(string='Upload Bill')
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
 
+    def action_add_voucher_line(self):
+        self.ensure_one()
+        if self.new_voucher_expense_type_id and self.new_voucher_amount:
+            self.env['service.ticket.voucher.line'].create({
+                'ticket_id': self.id,
+                'expense_type_id': self.new_voucher_expense_type_id.id,
+                'description': self.new_voucher_description or '',
+                'amount': self.new_voucher_amount,
+                'bill_file': self.new_voucher_bill_file,
+                'bill_filename': self.new_voucher_bill_filename,
+            })
+            self.write({
+                'new_voucher_expense_type_id': False,
+                'new_voucher_description': False,
+                'new_voucher_amount': 0.0,
+                'new_voucher_bill_file': False,
+                'new_voucher_bill_filename': False,
+            })
+        return False
+
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
     @api.depends('ticket_status')
     def _compute_stage_visible(self):
@@ -225,24 +245,3 @@ class ServiceTicketVoucherLine(models.Model):
             'target': 'new',
             'flags': {'mode': 'readonly'},
         }
-
-    def action_add_voucher_line(self):
-        self.ensure_one()
-        if self.new_voucher_expense_type_id and self.new_voucher_amount:
-            self.env['service.ticket.voucher.line'].create({
-                'ticket_id': self.id,
-                'expense_type_id': self.new_voucher_expense_type_id.id,
-                'description': self.new_voucher_description or '',
-                'amount': self.new_voucher_amount,
-                'bill_file': self.new_voucher_bill_file,
-                'bill_filename': self.new_voucher_bill_filename,
-            })
-            # Reset quick-add inputs
-            self.write({
-                'new_voucher_expense_type_id': False,
-                'new_voucher_description': False,
-                'new_voucher_amount': 0.0,
-                'new_voucher_bill_file': False,
-                'new_voucher_bill_filename': False,
-            })
-        return False
