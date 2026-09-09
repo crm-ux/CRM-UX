@@ -162,7 +162,13 @@
                             </div>
 
                             <!-- The List View Right Here on this card -->
-                            <field name="expense_type_ids">
+                            <style>
+                                .o_expense_type_table .o_field_x2many_list_row_add,
+                                .o_expense_type_table tfoot {
+                                    display: none !important;
+                                }
+                            </style>
+                            <field name="expense_type_ids" class="o_expense_type_table" options="{&quot;no_create&quot;: true, &quot;no_create_edit&quot;: true, &quot;no_open&quot;: true}">
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" string="Expense Type"/>
