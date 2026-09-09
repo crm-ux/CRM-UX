@@ -1350,6 +1350,14 @@ div[name="voucher_line_ids"] button {
     color: #0b3d91 !important;
 }
 
+/* Remove ONLY the middle download button in the binary edit toolbar */
+div[name="voucher_line_ids"] .o_field_binary .o_download_file_button,
+div[name="voucher_line_ids"] .o_field_binary a.fa-download,
+div[name="voucher_line_ids"] .o_field_binary button.fa-download {
+    display: none !important;
+}
+
+
 /* ===== Mobile overflow fix ===== */
 html,
 body {
