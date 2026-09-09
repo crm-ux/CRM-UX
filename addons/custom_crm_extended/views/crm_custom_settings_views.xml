@@ -150,7 +150,7 @@
                     <!-- FULL ROW: Service Ticket Expenses -->
                     <div class="row g-4" style="width:100%; margin:0;">
                         <div class="col-12 ps-0 pe-0">
-                            <div class="p-4 border rounded-3 bg-white shadow-sm" style="max-width: 750px;">
+                            <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                     <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
