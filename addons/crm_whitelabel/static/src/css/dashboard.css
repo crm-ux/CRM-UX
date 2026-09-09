@@ -1357,13 +1357,6 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     display: none !important;
 }
 
-/* Keep main container scroll position locked when modal dialog opens */
-body.modal-open,
-body.modal-open .o_action_manager,
-body.modal-open .o_content {
-    overflow-y: scroll !important;
-}
-
 /* ===== Mobile overflow fix ===== */
 html,
 body {
