@@ -166,7 +166,7 @@
                                 <!-- Existing Types as Tags (Click 'x' to remove) -->
                                 <div class="p-3 bg-light rounded border">
                                     <span class="text-muted small d-block mb-2 font-weight-bold">Current Active Expense Types:</span>
-                                    <field name="expense_type_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
+                                    <field name="expense_type_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
                                 </div>
                             </div>
                         </div>
