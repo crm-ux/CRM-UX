@@ -130,24 +130,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Expense Types Block -->
-                                    <div class="pt-3 mt-3 border-top">
-                                        <div class="d-flex align-items-center justify-content-between mb-2">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fa fa-money me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types</strong>
-                                            </div>
-                                        </div>
-                                        <p class="text-muted small mb-2">Configure expense types available for Service Ticket Vouchers.</p>
-                                        <field name="expense_type_ids">
-                                            <list editable="bottom">
-                                                <field name="sequence" widget="handle"/>
-                                                <field name="name" string="Expense Type" placeholder="e.g. Travel, Food, Fuel..."/>
-                                                <field name="active" widget="boolean_toggle"/>
-                                            </list>
-                                        </field>
-                                    </div>
-
                                     <!-- Save Button -->
                                     <div class="mt-4 pt-3 border-top text-end">
                                         <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
@@ -157,6 +139,33 @@
                         </div>
                     </div>
 
+                    <!-- MAIN TITLE: Expense Configuration -->
+                    <div class="d-flex align-items-center pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
+                        <i class="fa fa-credit-card me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
+                        <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
+                            Expense Configuration
+                        </h2>
+                    </div>
+
+                    <!-- FULL ROW: Service Ticket Expenses -->
+                    <div class="row g-4" style="width:100%; margin:0;">
+                        <div class="col-12 ps-0 pe-0">
+                            <div class="p-4 border rounded-3 bg-white shadow-sm" style="max-width: 750px;">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                    <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
+                                </div>
+                                <p class="text-muted small mb-3">Configure expense categories available for Service Ticket Vouchers.</p>
+                                <field name="expense_type_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name" string="Expense Type" placeholder="e.g. Travel, Food, Fuel..."/>
+                                        <field name="active" widget="boolean_toggle"/>
+                                    </list>
+                                </field>
+                            </div>
+                        </div>
+                    </div>
                 </sheet>
             </form>
         </field>
