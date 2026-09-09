@@ -42,7 +42,7 @@
                             <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" invisible="is_admin"/>
                         </group>
                         <group col="2">
-                            <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals" required="1"/>
+                            <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals" required="e1_name"/>
                             <field name="created_by_id" string="Created By" readonly="1" options="{'no_open': True}"/>
                         </group>
                         <group col="2">
