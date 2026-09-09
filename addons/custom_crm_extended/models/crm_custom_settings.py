@@ -31,6 +31,7 @@ class CrmCustomSettings(models.TransientModel):
     ticket_id_suffix = fields.Char(string='Suffix', default='')
     ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
 
+    new_expense_type_name = fields.Char(string='New Expense Type', placeholder='e.g. Travel, Food, Fuel, Hotel...')
     expense_type_ids = fields.Many2many('service.ticket.expense.type', string='Expense Types')
 
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
@@ -63,7 +64,6 @@ class CrmCustomSettings(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        # Load saved settings from ir.config_parameter
         ICP = self.env['ir.config_parameter'].sudo()
         res['equipment_id_auto'] = ICP.get_param('crm.equipment_id_auto', 'True') == 'True'
         res['equipment_id_prefix'] = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
@@ -83,9 +83,8 @@ class CrmCustomSettings(models.TransientModel):
         res['ticket_id_next'] = int(ICP.get_param('crm.ticket_id_next', 1))
         res['ticket_id_suffix'] = ICP.get_param('crm.ticket_id_suffix', '')
 
-        # Load all existing expense types into the wizard
-        existing_types = self.env['service.ticket.expense.type'].search([])
-        res['expense_type_ids'] = [(6, 0, existing_types.ids)]
+        types = self.env['service.ticket.expense.type'].search([])
+        res['expense_type_ids'] = [(6, 0, types.ids)]
 
         return res
 
@@ -121,56 +120,17 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-    def action_save_expenses(self):
-        """Save and commit all expense types changes."""
+    def action_add_expense_type(self):
         self.ensure_one()
+        if self.new_expense_type_name and self.new_expense_type_name.strip():
+            name = self.new_expense_type_name.strip()
+            self.env['service.ticket.expense.type'].create({'name': name})
+            self.new_expense_type_name = ''
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Settings Saved'),
-                'message': _('Expense types saved successfully!'),
-                'type': 'success',
-                'sticky': False,
-            }
+            'type': 'ir.actions.act_window',
+            'res_model': 'crm.custom.settings',
+            'res_id': self.id,
+            'views': [[False, 'form']],
+            'target': 'current',
         }
 
-    @api.model
-    def default_get(self, fields_list):
-        res = super().default_get(fields_list)
-        # Load saved settings from ir.config_parameter
-        ICP = self.env['ir.config_parameter'].sudo()
-        res['equipment_id_auto'] = ICP.get_param('crm.equipment_id_auto', 'True') == 'True'
-        res['equipment_id_prefix'] = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
-        res['equipment_id_padding'] = int(ICP.get_param('crm.equipment_id_padding', 4))
-        res['equipment_id_next'] = int(ICP.get_param('crm.equipment_id_next', 1))
-        res['equipment_id_suffix'] = ICP.get_param('crm.equipment_id_suffix', '')
-
-        res['serial_number_auto'] = ICP.get_param('crm.serial_number_auto', 'True') == 'True'
-        res['serial_number_prefix'] = ICP.get_param('crm.serial_number_prefix', 'SN-')
-        res['serial_number_padding'] = int(ICP.get_param('crm.serial_number_padding', 4))
-        res['serial_number_next'] = int(ICP.get_param('crm.serial_number_next', 1))
-        res['serial_number_suffix'] = ICP.get_param('crm.serial_number_suffix', '')
-
-        res['ticket_id_auto'] = ICP.get_param('crm.ticket_id_auto', 'True') == 'True'
-        res['ticket_id_prefix'] = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
-        res['ticket_id_padding'] = int(ICP.get_param('crm.ticket_id_padding', 4))
-        res['ticket_id_next'] = int(ICP.get_param('crm.ticket_id_next', 1))
-        res['ticket_id_suffix'] = ICP.get_param('crm.ticket_id_suffix', '')
-
-        return res
-
-    def action_save_expenses(self):
-        """Save and keep all expense types permanently."""
-        self.ensure_one()
-        # Any unsaved changes in the table are committed
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Settings Saved'),
-                'message': _('Expense types saved successfully!'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }

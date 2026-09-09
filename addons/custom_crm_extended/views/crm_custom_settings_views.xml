@@ -155,19 +155,18 @@
                                     <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                     <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
                                 </div>
-                                <p class="text-muted small mb-3">Configure expense categories available for Service Ticket Vouchers.</p>
-                                
-                                <field name="expense_type_ids">
-                                    <list editable="bottom">
-                                        <field name="sequence" widget="handle"/>
-                                        <field name="name" string="Expense Type" placeholder="e.g. Travel, Food, Fuel..."/>
-                                        <field name="active" widget="boolean_toggle"/>
-                                    </list>
-                                </field>
+                                <p class="text-muted small mb-3">Add expense categories for Service Ticket Vouchers. Type name and click Add.</p>
 
+                                <!-- Direct Inline Input Box (Zero popups!) -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <field name="new_expense_type_name" nolabel="1" class="flex-grow-1" placeholder="e.g. Travel, Food, Fuel, Hotel..."/>
+                                    <button name="action_add_expense_type" string="+ Add Expense" type="object" class="btn btn-primary btn-sm px-3"/>
+                                </div>
 
-                                <div class="mt-4 pt-3 border-top text-end">
-                                    <button name="action_save_expenses" string="Save Expenses" type="object" class="btn btn-info btn-sm px-3"/>
+                                <!-- Existing Types as Tags (Click 'x' to remove) -->
+                                <div class="p-3 bg-light rounded border">
+                                    <span class="text-muted small d-block mb-2 font-weight-bold">Current Active Expense Types:</span>
+                                    <field name="expense_type_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create_edit': True}"/>
                                 </div>
                             </div>
                         </div>
