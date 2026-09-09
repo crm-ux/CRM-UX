@@ -1287,70 +1287,27 @@ body,
     border: none !important;
 }
 
-/* ========================================================
-   VOUCHER EXPENSE CARDS & COMPACT TOTAL BAR
-   ======================================================== */
+/* Totally Dynamic Layout: All compact columns shrink-to-fit, Description expands */
 div[name="voucher_line_ids"] .o_list_table {
-    border-collapse: separate !important;
-    border-spacing: 0 10px !important;
+    table-layout: auto !important;
     width: 100% !important;
-    background: transparent !important;
-    border: none !important;
 }
 
-/* Hide table headers and any dummy/empty filler rows */
-div[name="voucher_line_ids"] .o_list_table thead,
-div[name="voucher_line_ids"] .o_list_table tbody tr:not(.o_data_row) {
-    display: none !important;
+/* Description is the only column allowed to expand dynamically */
+div[name="voucher_line_ids"] .o_list_table td[name="description"] {
+    width: 100% !important;
 }
 
-/* Transform each data row into an isolated floating Card */
-div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
-}
-
-div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:hover {
-    box-shadow: 0 4px 12px rgba(11, 61, 145, 0.1) !important;
-    border-color: #cbd5e1 !important;
-}
-
-div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td {
-    padding: 10px 14px !important;
-    border: none !important;
-    vertical-align: middle !important;
-}
-
-/* Trim bill filename using ellipsis (...) */
-div[name="voucher_line_ids"] .o_form_uri {
-    display: inline-block !important;
-    max-width: 130px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+/* All other columns dynamically shrink to their exact content */
+div[name="voucher_line_ids"] .o_list_table td[name="expense_type_id"],
+div[name="voucher_line_ids"] .o_list_table td[name="amount"],
+div[name="voucher_line_ids"] .o_list_table td[name="bill_file"],
+div[name="voucher_line_ids"] .o_list_table td.o_list_button,
+div[name="voucher_line_ids"] .o_list_table td.o_list_record_remove {
+    width: 1% !important;
     white-space: nowrap !important;
-    vertical-align: middle !important;
 }
 
-/* Clean Separate Total Bar at Bottom (Zero empty gap) */
-div[name="voucher_line_ids"] .o_list_table tfoot {
-    display: table-footer-group !important;
-}
-
-div[name="voucher_line_ids"] .o_list_table tfoot tr {
-    background: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-}
-
-div[name="voucher_line_ids"] .o_list_table tfoot td {
-    padding: 10px 14px !important;
-    font-weight: 700 !important;
-    font-size: 1.05rem !important;
-    color: #0b3d91 !important;
-    border: none !important;
-}
 
 /* ===== Mobile overflow fix ===== */
 html,
