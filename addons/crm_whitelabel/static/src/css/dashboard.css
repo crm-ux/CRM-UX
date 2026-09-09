@@ -1288,60 +1288,68 @@ body,
 }
 
 /* ========================================================
-   VOUCHER EXPENSE FLOATING EDITABLE CARDS
+   VOUCHER EXPENSE CARDS & COMPACT TOTAL BAR
    ======================================================== */
 div[name="voucher_line_ids"] .o_list_table {
     border-collapse: separate !important;
-    border-spacing: 0 12px !important;
-    /* 12px gap between cards */
+    border-spacing: 0 10px !important;
     width: 100% !important;
     background: transparent !important;
     border: none !important;
 }
 
-/* Hide the ugly table header to look like pure modern cards */
-div[name="voucher_line_ids"] .o_list_table thead {
+/* Hide table headers and any dummy/empty filler rows */
+div[name="voucher_line_ids"] .o_list_table thead,
+div[name="voucher_line_ids"] .o_list_table tbody tr:not(.o_data_row) {
     display: none !important;
 }
 
-/* Transform each table row into an individual floating Card */
+/* Transform each data row into an isolated floating Card */
 div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-    transition: all 0.2s ease-in-out !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
 }
 
-/* Card hover effect */
 div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row:hover {
-    box-shadow: 0 4px 14px rgba(11, 61, 145, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(11, 61, 145, 0.1) !important;
     border-color: #cbd5e1 !important;
 }
 
-/* Smooth padding inside each cell of the card */
 div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td {
-    padding: 14px 16px !important;
+    padding: 10px 14px !important;
     border: none !important;
     vertical-align: middle !important;
 }
 
-/* Round left and right corners of each card */
-div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td:first-child {
-    border-top-left-radius: 10px !important;
-    border-bottom-left-radius: 10px !important;
+/* Trim bill filename using ellipsis (...) */
+div[name="voucher_line_ids"] .o_form_uri {
+    display: inline-block !important;
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
 }
 
-div[name="voucher_line_ids"] .o_list_table tbody tr.o_data_row td:last-child {
-    border-top-right-radius: 10px !important;
-    border-bottom-right-radius: 10px !important;
+/* Clean Separate Total Bar at Bottom (Zero empty gap) */
+div[name="voucher_line_ids"] .o_list_table tfoot {
+    display: table-footer-group !important;
 }
 
-/* Highlight amount inside the card */
-div[name="voucher_line_ids"] .o_list_table td[name="amount"] {
+div[name="voucher_line_ids"] .o_list_table tfoot tr {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+}
+
+div[name="voucher_line_ids"] .o_list_table tfoot td {
+    padding: 10px 14px !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
     color: #0b3d91 !important;
+    border: none !important;
 }
 
 /* ===== Mobile overflow fix ===== */
