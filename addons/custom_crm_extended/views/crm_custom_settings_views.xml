@@ -146,23 +146,30 @@
                     </h2>
                 </div>
 
-                <!-- FULL ROW: Service Ticket Expenses -->
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                        <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
+                                    </div>
+                                    <p class="text-muted small mb-0">Manage expense categories for Service Ticket Vouchers (edit, active/inactive, reorder, delete).</p>
+                                </div>
+                                <button name="%(custom_crm_extended.action_service_ticket_expense_type)d"
+                                        string="Manage All Expense Types ➔"
+                                        type="action"
+                                        class="btn btn-outline-primary btn-sm px-3 fw-bold"/>
                             </div>
-                            <p class="text-muted small mb-3">Add expense categories for Service Ticket Vouchers. Type name and click Add.</p>
 
-                            <!-- Direct Inline Input Box (Zero popups!) -->
+                            <!-- Direct Inline Input Box -->
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <field name="new_expense_type_name" nolabel="1" class="flex-grow-1" placeholder="e.g. Travel, Food, Fuel, Hotel..."/>
-                                <button name="action_add_expense_type" string="+ Add Expense" type="object" class="btn btn-primary btn-sm px-3"/>
+                                <button name="action_add_expense_type" string="+ Quick Add" type="object" class="btn btn-primary btn-sm px-3"/>
                             </div>
 
-                            <!-- Existing Types as Tags (Click 'x' to remove) -->
+                            <!-- Live Tag List View -->
                             <div class="p-3 bg-light rounded border">
                                 <span class="text-muted small d-block mb-2 font-weight-bold">Current Active Expense Types:</span>
                                 <field name="expense_type_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
