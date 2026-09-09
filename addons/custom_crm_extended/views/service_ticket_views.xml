@@ -139,7 +139,7 @@
                                     <field name="amount" sum="Total Amount" style="width: 12%; font-weight: 700; color: #0f172a;"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" style="width: 16%;"/>
                                     <field name="bill_filename" column_invisible="1"/>
-                                    <button name="action_preview_bill" type="object" icon="fa-eye" string="View" invisible="not bill_file" class="btn btn-sm py-0 px-2 fw-semibold" style="color: #ffffff !important; background-color: #0284c7 !important; border-color: #0284c7 !important;"/>
+                                    <button name="action_preview_bill" type="object" icon="fa-eye" invisible="not bill_file" class="btn btn-link p-0" style="color: #0284c7 !important;"/>
                                 </list>
                             </field>
                         </page>
