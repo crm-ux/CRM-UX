@@ -132,63 +132,15 @@
                             </div>
 
                             <!-- Itemized Expense Cards List (Fully Editable In-Place) -->
-                            <field name="voucher_line_ids" mode="kanban">
-                                <kanban class="o_kanban_mobile">
-                                    <field name="id"/>
-                                    <field name="expense_type_id"/>
-                                    <field name="description"/>
-                                    <field name="amount"/>
-                                    <field name="bill_file"/>
-                                    <field name="bill_filename"/>
-                                    <templates>
-                                        <t t-name="card">
-                                            <div class="oe_kanban_global_click p-3 bg-white rounded border shadow-sm w-100 m-0" style="min-width: 100% !important; max-width: 100% !important;">
-                                                <div class="row g-2 align-items-center">
-                                                    <!-- 1. Expense Type with Tag Icon -->
-                                                    <div class="col-12 col-md-3 d-flex align-items-center gap-2">
-                                                        <i class="fa fa-tag text-primary fs-6" title="Expense Type"/>
-                                                        <field name="expense_type_id" widget="selection" class="fw-bold text-primary flex-grow-1"/>
-                                                    </div>
-
-                                                    <!-- 2. Description with Align-Left Icon -->
-                                                    <div class="col-12 col-md-3 d-flex align-items-center gap-2">
-                                                        <i class="fa fa-align-left text-secondary" title="Description"/>
-                                                        <field name="description" placeholder="Enter description..." class="w-100 text-muted"/>
-                                                    </div>
-
-                                                    <!-- 3. Amount Badge -->
-                                                    <div class="col-12 col-md-2 text-center">
-                                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1 font-monospace">
-                                                            ₹ <field name="amount" class="fw-bold"/>
-                                                        </span>
-                                                    </div>
-
-                                                    <!-- 4. Bill Upload / File Name -->
-                                                    <div class="col-12 col-md-2 d-flex align-items-center gap-1">
-                                                        <i class="fa fa-paperclip text-secondary" title="Attachment"/>
-                                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Bill"/>
-                                                        <field name="bill_filename" invisible="1"/>
-                                                    </div>
-
-                                                    <!-- 5. Actions: View Bill Eye & Delete Trash -->
-                                                    <div class="col-12 col-md-2 d-flex align-items-center justify-content-end gap-3">
-                                                        <button name="action_preview_bill" 
-                                                                type="object" 
-                                                                icon="fa-eye" 
-                                                                title="View Bill" 
-                                                                invisible="not bill_file" 
-                                                                class="btn btn-outline-primary btn-sm px-2 py-1">
-                                                            View
-                                                        </button>
-                                                        <a type="delete" class="text-danger p-1" title="Delete Expense">
-                                                            <i class="fa fa-trash-o fs-5"/>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </t>
-                                    </templates>
-                                </kanban>
+                            <field name="voucher_line_ids">
+                                <list editable="bottom" create="0" delete="1">
+                                    <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" style="width: 20%; font-weight: 600; color: #0284c7;"/>
+                                    <field name="description" placeholder="Enter description..." style="width: 42%;"/>
+                                    <field name="amount" sum="Total Amount" style="width: 12%; font-weight: 700; color: #0f172a;"/>
+                                    <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" style="width: 16%;"/>
+                                    <field name="bill_filename" column_invisible="1"/>
+                                    <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn btn-link p-0" style="color: #0284c7 !important; font-size: 1.15rem; width: 10%;"/>
+                                </list>
                             </field>
                         </page>
 
