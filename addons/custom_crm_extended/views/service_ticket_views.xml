@@ -91,32 +91,41 @@
 
                                 <!-- Top Inline Input Bar -->
                                 <div class="row g-2 align-items-center">
-                                    <div class="col-12 col-md-3">
+                                    <!-- Expense Type: 20% -->
+                                    <div class="col-12 col-md-2">
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
                                             domain="[('active', '=', True)]" 
                                             placeholder="Select Expense Type..."/>
                                     </div>
-                                    <div class="col-12 col-md-3">
+
+                                    <!-- Description: 42% (WIDE & SPACIOUS) -->
+                                    <div class="col-12 col-md-5">
                                         <field name="new_voucher_description" 
-                                            placeholder="Enter description..."/>
+                                            class="w-100" 
+                                            placeholder="Enter detailed description..."/>
                                     </div>
-                                    <div class="col-12 col-md-2">
+
+                                    <!-- Amount: 12% -->
+                                    <div class="col-12 col-md-1">
                                         <field name="new_voucher_amount" 
                                             placeholder="Amount (₹)"/>
                                     </div>
+
+                                    <!-- Attach Bill: 20% -->
                                     <div class="col-12 col-md-2">
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
                                             widget="binary" 
-                                            string="Attach Bill"/>
+                                            string="Upload Bill"/>
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
+
+                                    <!-- Add Button: 16% -->
                                     <div class="col-12 col-md-2 text-end">
                                         <button name="action_add_voucher_line" 
-                                                string="Add Expense" 
+                                                string="+ Add Expense" 
                                                 type="object" 
-                                                icon="fa-plus" 
                                                 class="btn btn-primary w-100"/>
                                     </div>
                                 </div>
