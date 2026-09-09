@@ -93,10 +93,13 @@ patch(ControlPanel.prototype, {
             name: "Lead Creation",
         });
     },
+
     get isTotalPipelineView() {
         const ctx = this.env.searchModel?.context || {};
-        return ctx.from_total_pipeline === true;
+        const viewType = this.env.config?.viewType;
+        return ctx.from_total_pipeline === true && viewType === "list";
     },
+
     get currentStageFilter() {
         const ctx = this.env.searchModel?.context || {};
         return ctx.default_stage_filter_val || "all";
