@@ -244,4 +244,5 @@ class ServiceTicketVoucherLine(models.Model):
             'view_id': self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form').id,
             'target': 'new',
             'flags': {'mode': 'readonly'},
+            'context': {'dialog_size': 'large'},
         }

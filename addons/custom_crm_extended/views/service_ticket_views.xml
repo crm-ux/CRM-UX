@@ -214,11 +214,8 @@
         <field name="arch" type="xml">
             <form string="Bill Preview" create="0" edit="0" delete="0">
                 <div class="text-center p-3">
-                                    <field name="bill_preview" widget="image" options="{&quot;size&quot;: [650, 650]}" style="max-height: 70vh; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"/>
+                    <field name="bill_preview" widget="image" options="{&quot;size&quot;: [650, 650]}" style="max-height: 70vh; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"/>
                 </div>
-                <footer>
-                    <button string="Close" class="btn-secondary" special="cancel"/>
-                </footer>
             </form>
         </field>
     </record>
