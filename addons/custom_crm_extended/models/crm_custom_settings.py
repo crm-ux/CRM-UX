@@ -31,7 +31,7 @@ class CrmCustomSettings(models.TransientModel):
     ticket_id_suffix = fields.Char(string='Suffix', default='')
     ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
 
-    expense_type_ids = fields.Many2many('service.ticket.expense.type', string='Expense Types', compute='_compute_expense_type_ids', inverse='_inverse_expense_type_ids')
+    expense_type_ids = fields.One2many('service.ticket.expense.type', compute='_compute_expense_type_ids', inverse='_inverse_expense_type_ids', string='Expense Types')
 
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
     def _compute_equipment_id_preview(self):
@@ -117,8 +117,24 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-    def _compute_expense_type_ids(self):
+        def _compute_expense_type_ids(self):
         for rec in self:
             rec.expense_type_ids = self.env['service.ticket.expense.type'].search([])
+
     def _inverse_expense_type_ids(self):
+        # Allow editing and saving inline
         pass
+
+    def action_save_expenses(self):
+        """Dedicated button to save and notify expense types saved."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Settings Saved'),
+                'message': _('Expense types updated successfully!'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }

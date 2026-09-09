@@ -156,13 +156,18 @@
                                     <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
                                 </div>
                                 <p class="text-muted small mb-3">Configure expense categories available for Service Ticket Vouchers.</p>
+                                
                                 <field name="expense_type_ids">
-                                    <list editable="bottom">
+                                    <list editable="bottom" open_form_view="False">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name" string="Expense Type" placeholder="e.g. Travel, Food, Fuel..."/>
                                         <field name="active" widget="boolean_toggle"/>
                                     </list>
                                 </field>
+
+                                <div class="mt-4 pt-3 border-top text-end">
+                                    <button name="action_save_expenses" string="Save Expenses" type="object" class="btn btn-info btn-sm px-3"/>
+                                </div>
                             </div>
                         </div>
                     </div>
