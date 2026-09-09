@@ -7,8 +7,8 @@
 <form string="Lead Creation">
                 <field name="step" invisible="1"/>
                 <field name="is_admin" invisible="1"/>
-                <field name="e1_name" invisible="1"/>
                 <sheet>
+                    <field name="e1_name" invisible="1"/>
                     <!-- Step indicators -->
                     <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Lead Info</button>
