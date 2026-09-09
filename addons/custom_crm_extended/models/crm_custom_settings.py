@@ -124,9 +124,16 @@ class CrmCustomSettings(models.TransientModel):
         self.ensure_one()
         if self.new_expense_type_name and self.new_expense_type_name.strip():
             name = self.new_expense_type_name.strip()
-            new_record = self.env['service.ticket.expense.type'].create({'name': name})
+            # Check if one already exists with this name (even inactive)
+            existing = self.env['service.ticket.expense.type'].with_context(active_test=False).search([('name', '=ilike', name)], limit=1)
+            if existing:
+                existing.write({'active': True})
+                record = existing
+            else:
+                record = self.env['service.ticket.expense.type'].create({'name': name, 'active': True})
             self.new_expense_type_name = ''
-            # Update many2many field directly on the current record in memory
-            self.expense_type_ids = [(4, new_record.id)]
+            if record.id not in self.expense_type_ids.ids:
+                self.expense_type_ids = [(4, record.id)]
         return False
+
 

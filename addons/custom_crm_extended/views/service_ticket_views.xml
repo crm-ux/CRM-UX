@@ -84,10 +84,8 @@
                         <page string="Voucher" name="voucher_tab">
                             <field name="voucher_line_ids">
                                 <list editable="bottom">
-                                    <field name="expense_type_id" options="{'no_create_edit': False, 'no_open': True}" style="width: 22%;"/>
-                                    <field name="description"
-                                           placeholder="Enter description..."
-                                           style="width: 35%; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"/>
+                                    <field name="expense_type_id" domain="[('active', '=', True)]"  options="{'no_create': True, 'no_quick_create': True, 'no_create_edit': True, 'no_open': True}" style="width: 25%;"/>
+                                    <field name="description" placeholder="Enter description..." style="width: 35%; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"/>
                                     <field name="amount" sum="Total Amount" style="width: 15%; font-weight: 600;"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Upload Bill" style="width: 15%;"/>
                                     <field name="bill_filename" column_invisible="1"/>
