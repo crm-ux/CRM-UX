@@ -82,17 +82,105 @@
                             </group>
                         </page>
                         <page string="Voucher" name="voucher_tab">
-                            <field name="voucher_line_ids">
-                                <list editable="bottom">
-                                    <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]"/>
-                                    <field name="description" placeholder="Enter description..." style="width: 35%; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"/>
-                                    <field name="amount" sum="Total Amount" style="width: 15%; font-weight: 600;"/>
-                                    <field name="bill_file" filename="bill_filename" widget="binary" string="Upload Bill" style="width: 15%;"/>
-                                    <field name="bill_filename" column_invisible="1"/>
-                                    <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn btn-link text-primary p-0"/>
-                                </list>
+                            <div class="p-3 bg-light rounded border mb-4">
+                                <!-- Top Quick-Add Header -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fa fa-plus-circle text-primary me-2 fs-5" title="Add Expense"/>
+                                    <strong class="text-dark">Quick Add Expense</strong>
+                                </div>
+
+                                <!-- Top Inline Input Bar -->
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-12 col-md-3">
+                                        <field name="new_voucher_expense_type_id" 
+                                            widget="selection" 
+                                            domain="[('active', '=', True)]" 
+                                            placeholder="Select Expense Type..."/>
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <field name="new_voucher_description" 
+                                            placeholder="Enter description..."/>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <field name="new_voucher_amount" 
+                                            placeholder="Amount (₹)"/>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <field name="new_voucher_bill_file" 
+                                            filename="new_voucher_bill_filename" 
+                                            widget="binary" 
+                                            string="Attach Bill"/>
+                                        <field name="new_voucher_bill_filename" invisible="1"/>
+                                    </div>
+                                    <div class="col-12 col-md-2 text-end">
+                                        <button name="action_add_voucher_line" 
+                                                string="Add Expense" 
+                                                type="object" 
+                                                icon="fa-plus" 
+                                                class="btn btn-primary w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Itemized Expense Cards List (Fully Editable In-Place) -->
+                            <field name="voucher_line_ids" mode="kanban">
+                                <kanban class="o_kanban_mobile">
+                                    <field name="id"/>
+                                    <field name="expense_type_id"/>
+                                    <field name="description"/>
+                                    <field name="amount"/>
+                                    <field name="bill_file"/>
+                                    <field name="bill_filename"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div class="oe_kanban_global_click p-3 mb-3 bg-white rounded border shadow-sm w-100">
+                                                <!-- Top Line: Type Tag on Left, Amount & Delete on Right -->
+                                                <div class="d-flex justify-content-between align-items-center pb-2 border-bottom mb-2">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="fa fa-tag text-primary" title="Expense Type"/>
+                                                        <field name="expense_type_id" widget="selection" class="fw-bold text-primary"/>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1">
+                                                            ₹ <field name="amount" class="fw-bold"/>
+                                                        </span>
+                                                        <a type="delete" class="text-danger" title="Delete">
+                                                            <i class="fa fa-trash-o fs-5"/>
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Middle Line: Description Input -->
+                                                <div class="d-flex align-items-center gap-2 mb-2 text-muted">
+                                                    <i class="fa fa-align-left text-secondary" title="Description"/>
+                                                    <field name="description" placeholder="Enter description..." class="w-100"/>
+                                                </div>
+
+                                                <!-- Bottom Line: Bill Attachment & View Action -->
+                                                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <i class="fa fa-paperclip text-secondary" title="Bill Attachment"/>
+                                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Upload Bill"/>
+                                                        <field name="bill_filename" invisible="1"/>
+                                                    </div>
+                                                    <div>
+                                                        <button name="action_preview_bill" 
+                                                                type="object" 
+                                                                icon="fa-eye" 
+                                                                title="View Bill" 
+                                                                invisible="not bill_file" 
+                                                                class="btn btn-outline-primary btn-sm px-3">
+                                                            View Bill
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
                             </field>
                         </page>
+
                         <!-- <page string="Signatures" name="signatures_tab">
                             <group>
                                 <group string="Customer Sign-off">
