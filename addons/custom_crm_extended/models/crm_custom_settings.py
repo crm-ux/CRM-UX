@@ -89,6 +89,38 @@ class CrmCustomSettings(models.TransientModel):
 
         return res
 
+    def action_save_settings(self):
+        self.ensure_one()
+        ICP = self.env['ir.config_parameter'].sudo()
+        ICP.set_param('crm.equipment_id_auto', str(self.equipment_id_auto))
+        ICP.set_param('crm.equipment_id_prefix', self.equipment_id_prefix or '')
+        ICP.set_param('crm.equipment_id_padding', str(self.equipment_id_padding or 4))
+        ICP.set_param('crm.equipment_id_next', str(self.equipment_id_next or 1))
+        ICP.set_param('crm.equipment_id_suffix', self.equipment_id_suffix or '')
+
+        ICP.set_param('crm.serial_number_auto', str(self.serial_number_auto))
+        ICP.set_param('crm.serial_number_prefix', self.serial_number_prefix or '')
+        ICP.set_param('crm.serial_number_padding', str(self.serial_number_padding or 4))
+        ICP.set_param('crm.serial_number_next', str(self.serial_number_next or 1))
+        ICP.set_param('crm.serial_number_suffix', self.serial_number_suffix or '')
+
+        ICP.set_param('crm.ticket_id_auto', str(self.ticket_id_auto))
+        ICP.set_param('crm.ticket_id_prefix', self.ticket_id_prefix or '')
+        ICP.set_param('crm.ticket_id_padding', str(self.ticket_id_padding or 4))
+        ICP.set_param('crm.ticket_id_next', str(self.ticket_id_next or 1))
+        ICP.set_param('crm.ticket_id_suffix', self.ticket_id_suffix or '')
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Settings Saved'),
+                'message': _('Auto-numbering settings updated successfully!'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def action_save_expenses(self):
         """Save and commit all expense types changes."""
         self.ensure_one()
@@ -102,7 +134,6 @@ class CrmCustomSettings(models.TransientModel):
                 'sticky': False,
             }
         }
-
 
     @api.model
     def default_get(self, fields_list):
