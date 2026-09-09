@@ -5,173 +5,171 @@
         <field name="model">crm.custom.settings</field>
         <field name="arch" type="xml">
             <form string="CRM Settings" create="0" delete="0">
-                <sheet>
-                    <!-- Settings Header -->
-                    <div class="oe_title mb-4">
-                        <h1 style="font-size:clamp(1.4rem, 2.2vw, 1.8rem); font-weight:700; color:#0f172a;">
-                            CRM System Settings
-                        </h1>
-                    </div>
+                <!-- Settings Header -->
+                <div class="oe_title mb-4">
+                    <h1 style="font-size:clamp(1.4rem, 2.2vw, 1.8rem); font-weight:700; color:#0f172a;">
+                        CRM System Settings
+                    </h1>
+                </div>
 
-                    <div>
-                        <!-- MAIN TITLE: Auto Number Configuration -->
-                        <div class="d-flex align-items-center pb-2 mb-4" style="border-bottom:2px solid #e2e8f0; width:100%;">
-                            <i class="fa fa-sort-numeric-asc me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
-                            <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
-                                Auto Number Configuration
-                            </h2>
-                        </div>
-
-                        <!-- 2 SECTIONS IN ONE ROW (50% / 50%) -->
-                        <div class="row g-4" style="width:100%; margin:0;">
-                            <!-- SECTION 1: Equipment Master (Left) -->
-                            <div class="col-12 col-lg-6 ps-0 pe-lg-3">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fa fa-cogs me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
-                                    <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
-                                        Equipment Master
-                                    </h3>
-                                </div>
-                                <div class="p-4 border rounded-3 bg-white shadow-sm">
-                                    <!-- 1. Equipment ID Block -->
-                                    <div class="pb-4 mb-4 border-bottom">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fa fa-tag me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Equipment ID</strong>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <field name="equipment_id_auto" widget="boolean_toggle"/>
-                                            </div>
-                                        </div>
-
-                                        <div invisible="not equipment_id_auto" class="mt-2">
-                                            <group col="3" class="mb-2">
-                                                <field name="equipment_id_prefix" string="Prefix" placeholder="e.g. EQ-"/>
-                                                <field name="equipment_id_next" string="Number"/>
-                                                <field name="equipment_id_suffix" string="Suffix" placeholder="e.g. -IND"/>
-                                            </group>
-                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
-                                                <span class="text-muted small">Live Sample:</span>
-                                                <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
-                                                    <field name="equipment_id_preview" readonly="1"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 2. Serial Number Block -->
-                                    <div>
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fa fa-barcode me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Serial Number</strong>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <field name="serial_number_auto" widget="boolean_toggle"/>
-                                            </div>
-                                        </div>
-
-                                        <div invisible="not serial_number_auto" class="mt-2">
-                                            <group col="3" class="mb-2">
-                                                <field name="serial_number_prefix" string="Prefix" placeholder="e.g. SN-"/>
-                                                <field name="serial_number_next" string="Number"/>
-                                                <field name="serial_number_suffix" string="Suffix" placeholder="e.g. -2026"/>
-                                            </group>
-                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
-                                                <span class="text-muted small">Live Sample:</span>
-                                                <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
-                                                    <field name="serial_number_preview" readonly="1"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Save Button -->
-                                    <div class="mt-4 pt-3 border-top text-end">
-                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- SECTION 2: Service Ticket (Right) -->
-                            <div class="col-12 col-lg-6 pe-0 ps-lg-3">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fa fa-wrench me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
-                                    <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
-                                        Service Ticket
-                                    </h3>
-                                </div>
-                                <div class="p-4 border rounded-3 bg-white shadow-sm">
-                                    <!-- Ticket ID Block -->
-                                    <div class="pb-4 mb-4">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fa fa-ticket me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Ticket ID</strong>
-                                            </div>
-                                            <div class="form-check form-switch mb-0">
-                                                <field name="ticket_id_auto" widget="boolean_toggle"/>
-                                            </div>
-                                        </div>
-
-                                        <div invisible="not ticket_id_auto" class="mt-2">
-                                            <group col="3" class="mb-2">
-                                                <field name="ticket_id_prefix" string="Prefix" placeholder="e.g. TCK-"/>
-                                                <field name="ticket_id_next" string="Number"/>
-                                                <field name="ticket_id_suffix" string="Suffix" placeholder="e.g. -2026"/>
-                                            </group>
-                                            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
-                                                <span class="text-muted small">Live Sample:</span>
-                                                <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
-                                                    <field name="ticket_id_preview" readonly="1"/>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Save Button -->
-                                    <div class="mt-4 pt-3 border-top text-end">
-                                        <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MAIN TITLE: Expense Configuration -->
-                    <div class="d-flex align-items-center pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
-                        <i class="fa fa-credit-card me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
+                <div>
+                    <!-- MAIN TITLE: Auto Number Configuration -->
+                    <div class="d-flex align-items-center pb-2 mb-4" style="border-bottom:2px solid #e2e8f0; width:100%;">
+                        <i class="fa fa-sort-numeric-asc me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
                         <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
-                            Expense Configuration
+                            Auto Number Configuration
                         </h2>
                     </div>
 
-                    <!-- FULL ROW: Service Ticket Expenses -->
+                    <!-- 2 SECTIONS IN ONE ROW (50% / 50%) -->
                     <div class="row g-4" style="width:100%; margin:0;">
-                        <div class="col-12 ps-0 pe-0">
-                            <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                    <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
-                                </div>
-                                <p class="text-muted small mb-3">Add expense categories for Service Ticket Vouchers. Type name and click Add.</p>
+                        <!-- SECTION 1: Equipment Master (Left) -->
+                        <div class="col-12 col-lg-6 ps-0 pe-lg-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fa fa-cogs me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
+                                <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
+                                    Equipment Master
+                                </h3>
+                            </div>
+                            <div class="p-4 border rounded-3 bg-white shadow-sm">
+                                <!-- 1. Equipment ID Block -->
+                                <div class="pb-4 mb-4 border-bottom">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-tag me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                            <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Equipment ID</strong>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <field name="equipment_id_auto" widget="boolean_toggle"/>
+                                        </div>
+                                    </div>
 
-                                <!-- Direct Inline Input Box (Zero popups!) -->
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <field name="new_expense_type_name" nolabel="1" class="flex-grow-1" placeholder="e.g. Travel, Food, Fuel, Hotel..."/>
-                                    <button name="action_add_expense_type" string="+ Add Expense" type="object" class="btn btn-primary btn-sm px-3"/>
+                                    <div invisible="not equipment_id_auto" class="mt-2">
+                                        <group col="3" class="mb-2">
+                                            <field name="equipment_id_prefix" string="Prefix" placeholder="e.g. EQ-"/>
+                                            <field name="equipment_id_next" string="Number"/>
+                                            <field name="equipment_id_suffix" string="Suffix" placeholder="e.g. -IND"/>
+                                        </group>
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
+                                            <span class="text-muted small">Live Sample:</span>
+                                            <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
+                                                <field name="equipment_id_preview" readonly="1"/>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <!-- Existing Types as Tags (Click 'x' to remove) -->
-                                <div class="p-3 bg-light rounded border">
-                                    <span class="text-muted small d-block mb-2 font-weight-bold">Current Active Expense Types:</span>
-                                    <field name="expense_type_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
+                                <!-- 2. Serial Number Block -->
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-barcode me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                            <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Serial Number</strong>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <field name="serial_number_auto" widget="boolean_toggle"/>
+                                        </div>
+                                    </div>
+
+                                    <div invisible="not serial_number_auto" class="mt-2">
+                                        <group col="3" class="mb-2">
+                                            <field name="serial_number_prefix" string="Prefix" placeholder="e.g. SN-"/>
+                                            <field name="serial_number_next" string="Number"/>
+                                            <field name="serial_number_suffix" string="Suffix" placeholder="e.g. -2026"/>
+                                        </group>
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
+                                            <span class="text-muted small">Live Sample:</span>
+                                            <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
+                                                <field name="serial_number_preview" readonly="1"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Save Button -->
+                                <div class="mt-4 pt-3 border-top text-end">
+                                    <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 2: Service Ticket (Right) -->
+                        <div class="col-12 col-lg-6 pe-0 ps-lg-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fa fa-wrench me-2" style="font-size:clamp(0.95rem, 1.2vw, 1.1rem); color:#0284c7;"></i>
+                                <h3 style="font-size:clamp(1rem, 1.3vw, 1.15rem); font-weight:600; margin:0; color:#1e293b;">
+                                    Service Ticket
+                                </h3>
+                            </div>
+                            <div class="p-4 border rounded-3 bg-white shadow-sm">
+                                <!-- Ticket ID Block -->
+                                <div class="pb-4 mb-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa fa-ticket me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                            <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Ticket ID</strong>
+                                        </div>
+                                        <div class="form-check form-switch mb-0">
+                                            <field name="ticket_id_auto" widget="boolean_toggle"/>
+                                        </div>
+                                    </div>
+
+                                    <div invisible="not ticket_id_auto" class="mt-2">
+                                        <group col="3" class="mb-2">
+                                            <field name="ticket_id_prefix" string="Prefix" placeholder="e.g. TCK-"/>
+                                            <field name="ticket_id_next" string="Number"/>
+                                            <field name="ticket_id_suffix" string="Suffix" placeholder="e.g. -2026"/>
+                                        </group>
+                                        <div class="d-flex align-items-center justify-content-between p-2 rounded bg-light border mt-2">
+                                            <span class="text-muted small">Live Sample:</span>
+                                            <span class="badge fs-6 px-3 py-1 font-monospace" style="background-color:#0284c7; color:#ffffff;">
+                                                <field name="ticket_id_preview" readonly="1"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Save Button -->
+                                <div class="mt-4 pt-3 border-top text-end">
+                                    <button name="action_save_settings" string="Save Configuration" type="object" class="btn btn-info btn-sm px-3"/>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </sheet>
+                </div>
+
+                <!-- MAIN TITLE: Expense Configuration -->
+                <div class="d-flex align-items-center pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
+                    <i class="fa fa-credit-card me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
+                    <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
+                        Expense Configuration
+                    </h2>
+                </div>
+
+                <!-- FULL ROW: Service Ticket Expenses -->
+                <div class="row g-4" style="width:100%; margin:0;">
+                    <div class="col-12 ps-0 pe-0">
+                        <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
+                            </div>
+                            <p class="text-muted small mb-3">Add expense categories for Service Ticket Vouchers. Type name and click Add.</p>
+
+                            <!-- Direct Inline Input Box (Zero popups!) -->
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <field name="new_expense_type_name" nolabel="1" class="flex-grow-1" placeholder="e.g. Travel, Food, Fuel, Hotel..."/>
+                                <button name="action_add_expense_type" string="+ Add Expense" type="object" class="btn btn-primary btn-sm px-3"/>
+                            </div>
+
+                            <!-- Existing Types as Tags (Click 'x' to remove) -->
+                            <div class="p-3 bg-light rounded border">
+                                <span class="text-muted small d-block mb-2 font-weight-bold">Current Active Expense Types:</span>
+                                <field name="expense_type_ids" widget="many2many_tags" options="{'no_create_edit': True}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </field>
     </record>
