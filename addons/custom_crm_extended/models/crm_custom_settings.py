@@ -117,7 +117,7 @@ class CrmCustomSettings(models.TransientModel):
             }
         }
 
-        def _compute_expense_type_ids(self):
+    def _compute_expense_type_ids(self):
         for rec in self:
             rec.expense_type_ids = self.env['service.ticket.expense.type'].search([])
 
