@@ -24,16 +24,24 @@ class PersistentHome(Home):
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
-        if request.session.uid and not redirect:
-            return request.redirect('/app/action-435')
+        switch_account = kw.get('switch') == '1'
         
+        # If user already logged in and didn't click "Continue & Log In"
+        if request.session.uid and not switch_account and not redirect:
+            active_user = request.env['res.users'].sudo().browse(request.session.uid)
+            response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
+            response.qcontext['active_account_found'] = True
+            response.qcontext['active_user_name'] = active_user.name or 'Active User'
+            return response
+
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
         
         if request and request.session and request.session.uid:
             try:
-                request.future_response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
+                request.future_response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True, samesite='Lax')
             except Exception:
                 pass
                 
         return response
+
 

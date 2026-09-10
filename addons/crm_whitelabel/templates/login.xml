@@ -8,6 +8,24 @@
                 </div>
                 <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
                 <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
+                <!-- Active Account Found Card for New User Tab -->
+                <t t-if="active_account_found">
+                    <div class="card shadow-sm border-0 mb-4 p-4 text-center" style="border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0 !important;">
+                        <div style="font-size:32px;margin-bottom:8px;">👤</div>
+                        <h4 style="color:#1e293b;font-weight:700;font-size:18px;margin-bottom:8px;">Active Account Found</h4>
+                        <p style="color:#475569;font-size:13px;line-height:1.5;margin-bottom:12px;">
+                            <strong><t t-esc="active_user_name"/></strong> is currently signed in on this browser.<br/>
+                            Logging in as another user will end the previous session on this computer.
+                        </p>
+                        <div class="d-flex justify-content-center gap-2 mt-2">
+                            <a href="/web/login?switch=1" class="btn btn-primary" style="background:#1a3d6e !important;border-color:#1a3d6e !important;font-size:13px;padding:8px 16px;border-radius:6px;font-weight:600;">Continue &amp; Log In</a>
+                            <a href="/app/action-435" class="btn btn-outline-secondary" style="font-size:13px;padding:8px 16px;border-radius:6px;font-weight:600;">Stay as <t t-esc="active_user_name"/></a>
+                        </div>
+                    </div>
+                </t>
+                <xpath expr="//form" position="attributes">
+                    <attribute name="t-attf-style">#{'display:none !important;' if active_account_found else ''}</attribute>
+                </xpath>
             </div>
         </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
