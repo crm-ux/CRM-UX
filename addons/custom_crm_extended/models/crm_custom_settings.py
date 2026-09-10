@@ -96,7 +96,7 @@ class CrmCustomSettings(models.TransientModel):
         if duplicates_to_delete:
             duplicates_to_delete.unlink()
 
-        types = self.env['service.ticket.expense.type'].search([], order='sequence asc, id asc')
+        types = self.env['service.ticket.expense.type'].with_context(active_test=False).search([], order='sequence asc, id asc')
         res['expense_type_ids'] = [(6, 0, types.ids)]
 
         return res
