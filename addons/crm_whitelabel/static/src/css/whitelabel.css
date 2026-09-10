@@ -33,3 +33,14 @@
     overflow-y: auto !important;
     overscroll-behavior: contain !important;
 }
+
+.o_list_table th:last-child {
+    min-width: 36px !important;
+    padding-right: 12px !important;
+    overflow: visible !important;
+}
+
+.o_list_table th:last-child button {
+    margin-right: 6px !important;
+    overflow: visible !important;
+}
