@@ -34,13 +34,18 @@
     overscroll-behavior: contain !important;
 }
 
+/* Keep list view table headers clear of the browser vertical scrollbar */
+.o_list_renderer {
+    padding-right: clamp(8px, 1vw, 16px) !important;
+    box-sizing: border-box !important;
+}
+
+/* Ensure the column-picker button has proper breathing room and isn't clipped */
 .o_list_table th:last-child {
-    min-width: clamp(2rem, 2.5vw, 2.75rem) !important;
-    padding-right: clamp(0.75rem, 1vw, 1.25rem) !important;
+    padding-right: clamp(8px, 1vw, 16px) !important;
     overflow: visible !important;
 }
 
 .o_list_table th:last-child button {
-    margin-right: clamp(0.25rem, 0.5vw, 0.5rem) !important;
     overflow: visible !important;
 }
