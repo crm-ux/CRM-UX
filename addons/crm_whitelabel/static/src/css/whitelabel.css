@@ -35,12 +35,12 @@
 }
 
 .o_list_table th:last-child {
-    min-width: 36px !important;
-    padding-right: 12px !important;
+    min-width: clamp(2rem, 2.5vw, 2.75rem) !important;
+    padding-right: clamp(0.75rem, 1vw, 1.25rem) !important;
     overflow: visible !important;
 }
 
 .o_list_table th:last-child button {
-    margin-right: 6px !important;
+    margin-right: clamp(0.25rem, 0.5vw, 0.5rem) !important;
     overflow: visible !important;
 }
