@@ -1347,7 +1347,7 @@ div[name="voucher_line_ids"] .o_form_uri,
 div[name="voucher_line_ids"] .o_form_uri span,
 div[name="voucher_line_ids"] .o_list_record_remove,
 div[name="voucher_line_ids"] button {
-    color: #0b3d91 !important;
+    color: #212529 !important;
 }
 
 /* Remove ONLY the middle download button in the binary edit toolbar */
