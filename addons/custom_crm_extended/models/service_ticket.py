@@ -75,6 +75,9 @@ class ServiceTicket(models.Model):
     new_voucher_amount = fields.Float(string='Amount (₹)')
     new_voucher_bill_file = fields.Binary(string='Upload Bill')
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+    amount = fields.Monetary(string='Amount', currency_field='currency_id')
+
 
     def action_add_voucher_line(self):
         self.ensure_one()
