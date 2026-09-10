@@ -32,7 +32,7 @@ class CrmCustomSettings(models.TransientModel):
     ticket_id_preview = fields.Char(string='Preview', compute='_compute_ticket_id_preview')
 
     new_expense_type_name = fields.Char(string='New Expense Type', placeholder='e.g. Travel, Food, Fuel, Hotel...')
-    expense_type_ids = fields.Many2many('service.ticket.expense.type', string='Expense Types')
+    expense_type_ids = fields.Many2many('service.ticket.expense.type', string='Expense Types', context={'active_test': False})
 
     @api.depends('equipment_id_prefix', 'equipment_id_padding', 'equipment_id_next', 'equipment_id_suffix')
     def _compute_equipment_id_preview(self):
