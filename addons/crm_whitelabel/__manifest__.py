@@ -24,7 +24,6 @@
             'crm_whitelabel/static/src/js/nav_buttons.js',
             'crm_whitelabel/static/src/js/terms_checkbox.js',
             'crm_whitelabel/static/src/js/statusbar_override.js',
-            'crm_whitelabel/static/src/js/session_switched_notice.js',
         ],
     },
     'controllers': ['controllers/main.py'],

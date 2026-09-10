@@ -21,8 +21,8 @@ class PersistentHome(Home):
         if request.session.uid:
             return request.redirect('/app/action-435')
         return super(PersistentHome, self).index(s_action=s_action, **kw)
-    
-    @http.route('/web/login', type='http', auth="public", sitemap=False, csrf=False)
+
+    @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
         if request.session.uid and not redirect:
             return request.redirect('/app/action-435')
@@ -31,17 +31,8 @@ class PersistentHome(Home):
         
         if request and request.session and request.session.uid:
             try:
-                request.future_response.set_cookie(
-                    'session_id', request.session.sid,
-                    max_age=SESSION_1_YEAR, httponly=True, samesite='Lax'
-                )
-                request.future_response.set_cookie(
-                    'crm_logged_uid', str(request.session.uid),
-                    max_age=SESSION_1_YEAR, httponly=False, samesite='Lax'
-                )
+                request.future_response.set_cookie('session_id', request.session.sid, max_age=SESSION_1_YEAR, httponly=True)
             except Exception:
                 pass
                 
         return response
-
-
