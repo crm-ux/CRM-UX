@@ -1,3 +1,30 @@
+/* =========================================================================
+   Fix List Views: Only the table list scrolls, NEVER the whole page body
+   ========================================================================= */
+html,
+body {
+    height: 100% !important;
+    overflow: hidden !important;
+    /* Prevents whole page from scrolling */
+}
+
+.o_action_manager {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+.o_content {
+    height: 100% !important;
+    overflow-y: auto !important;
+    /* Only the active view content scrolls */
+    overscroll-behavior: contain !important;
+}
+
+.o_list_renderer {
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
 /* Hide entire breadcrumb ol - removes text and slash */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,
