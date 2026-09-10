@@ -22,18 +22,6 @@
     display: none !important;
 }
 
-/* Hide Odoo default empty state promo message in quotations */
-.o_nocontent_help {
-    display: none !important;
-}
-
-.dropdown-menu,
-.o_optional_columns_dropdown {
-    max-height: 50vh !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain !important;
-}
-
 /* Keep list view table headers clear of the browser vertical scrollbar */
 .o_list_renderer {
     padding-right: clamp(8px, 1vw, 16px) !important;
@@ -48,4 +36,49 @@
 
 .o_list_table th:last-child button {
     overflow: visible !important;
+}
+
+/* Hide entire breadcrumb ol - removes text and slash */
+.o_breadcrumb ol,
+.o_breadcrumb>ol,
+.o_control_panel_breadcrumbs>.o_breadcrumb>ol {
+    display: none !important;
+}
+
+/* Terms checkboxes visible */
+.o_field_many2many_checkboxes {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Hide default Odoo empty state messages in quotations */
+.o_view_nocontent .o_nocontent_help p:has-text,
+.o_sale_order .o_view_nocontent_smiling_face,
+.o_view_nocontent_smiling_face,
+.o_nocontent_help {
+    display: none !important;
+}
+
+/* 1. Only the opened dropdown menu list should scroll */
+.dropdown-menu {
+    max-height: clamp(250px, 50vh, 500px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+/* 2. Push sticky header cell away from scrollbar and give enough width */
+th.o_list_actions_header.position-sticky {
+    position: sticky !important;
+    right: clamp(6px, 0.6vw, 10px) !important;
+    width: clamp(38px, 2.5vw, 44px) !important;
+    min-width: clamp(38px, 2.5vw, 44px) !important;
+    overflow: visible !important;
+}
+
+/* 3. Allow button and icon inside to render fully without clipping */
+th.o_list_actions_header .o_optional_columns_dropdown,
+th.o_list_actions_header button,
+th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
+    overflow: visible !important;
+    max-height: none !important;
 }
