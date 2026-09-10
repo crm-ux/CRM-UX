@@ -35,10 +35,13 @@ class PersistentHome(Home):
                     'session_id', request.session.sid,
                     max_age=SESSION_1_YEAR, httponly=True, samesite='Lax'
                 )
+                request.future_response.set_cookie(
+                    'crm_logged_uid', str(request.session.uid),
+                    max_age=SESSION_1_YEAR, httponly=False, samesite='Lax'
+                )
             except Exception:
                 pass
+
                 
         return response
-
-
 

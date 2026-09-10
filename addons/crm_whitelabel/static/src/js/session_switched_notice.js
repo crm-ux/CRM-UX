@@ -1,13 +1,15 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { rpc } from "@web/core/network/rpc";
 
 let isNoticeOpen = false;
 
-// Store the original user who opened this tab
-const originalUid = (odoo.session_info && odoo.session_info.uid) || null;
-const originalUserName = (odoo.session_info && odoo.session_info.name) || "";
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
 
 function showSessionSwitchedDialog(userName) {
     if (isNoticeOpen) return;
@@ -37,20 +39,33 @@ function showSessionSwitchedDialog(userName) {
     document.body.appendChild(overlay);
 }
 
-// 1. Check whenever the user switches back to this tab
-window.addEventListener("focus", async () => {
-    if (!originalUid || isNoticeOpen) return;
-    try {
-        const sessionInfo = await rpc("/web/session/get_session_info");
-        if (sessionInfo && sessionInfo.uid && sessionInfo.uid !== originalUid) {
-            showSessionSwitchedDialog(originalUserName);
-        }
-    } catch (e) {
-        showSessionSwitchedDialog(originalUserName);
-    }
-});
+// 1. Lock this tab to whichever user opened it
+let tabLoadedUid = null;
 
-// 2. Intercept any CSRF or Session Expired RPC error
+function initSessionMonitor() {
+    tabLoadedUid = getCookie("crm_logged_uid") || (window.odoo && window.odoo.__session_info__ && window.odoo.__session_info__.uid);
+
+    const checkUserChange = () => {
+        if (!tabLoadedUid || isNoticeOpen) return;
+        const currentCookieUid = getCookie("crm_logged_uid");
+        // If cookie changed because another user logged in:
+        if (currentCookieUid && String(currentCookieUid) !== String(tabLoadedUid)) {
+            showSessionSwitchedDialog();
+        }
+    };
+
+    // Check immediately on switching back to tab, and every 1.5 seconds
+    window.addEventListener("focus", checkUserChange);
+    setInterval(checkUserChange, 1500);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSessionMonitor);
+} else {
+    initSessionMonitor();
+}
+
+// 2. Also catch any CSRF / 400 session error
 registry.category("error_handlers").add("csrf_session_switched_handler", (env, error) => {
     const err = error || env;
     const errorStr = (err?.message || err?.data?.message || err?.data?.name || "").toLowerCase();
@@ -61,8 +76,8 @@ registry.category("error_handlers").add("csrf_session_switched_handler", (env, e
         errorStr.includes("session invalid") ||
         err?.status === 400
     ) {
-        showSessionSwitchedDialog(originalUserName);
-        return true; // Prevents Odoo from showing the red crash dialog
+        showSessionSwitchedDialog();
+        return true;
     }
     return false;
 }, { sequence: 0 });
