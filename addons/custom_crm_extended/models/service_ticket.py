@@ -72,11 +72,10 @@ class ServiceTicket(models.Model):
     # Quick Add Voucher Fields on Ticket
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     new_voucher_description = fields.Char(string='Description')
-    new_voucher_amount = fields.Float(string='Amount (₹)')
+    new_voucher_amount = fields.Monetary(string='Amount', currency_field='currency_id')
     new_voucher_bill_file = fields.Binary(string='Upload Bill')
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
-    amount = fields.Monetary(string='Amount', currency_field='currency_id')
 
 
     def action_add_voucher_line(self):
