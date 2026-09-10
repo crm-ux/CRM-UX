@@ -190,7 +190,7 @@
                 <field name="partner_id"/>
                 <field name="equipment_id"/>
                 <field name="engineer_id"/>
-                <filter string="Open" name="open" domain="[('ticket_status', '=', 'open')]"/>
+                <filter string="New" name="new" domain="[('ticket_status', '=', 'new')]"/>
                 <filter string="On Going" name="ongoing" domain="[('ticket_status', '=', 'ongoing')]"/>
                 <filter string="Closed" name="closed" domain="[('ticket_status', '=', 'closed')]"/>
                 <separator/>
