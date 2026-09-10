@@ -27,7 +27,7 @@
     display: none !important;
 }
 
-/* Only make the column selection popup scrollable without moving the background */
+.dropdown-menu,
 .o_optional_columns_dropdown {
     max-height: 50vh !important;
     overflow-y: auto !important;
