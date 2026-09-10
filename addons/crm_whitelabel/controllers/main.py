@@ -21,8 +21,8 @@ class PersistentHome(Home):
         if request.session.uid:
             return request.redirect('/app/action-435')
         return super(PersistentHome, self).index(s_action=s_action, **kw)
-
-    @http.route('/web/login', type='http', auth="public", sitemap=False)
+    
+    @http.route('/web/login', type='http', auth="public", sitemap=False, csrf=False)
     def web_login(self, redirect=None, **kw):
         if request.session.uid and not redirect:
             return request.redirect('/app/action-435')
@@ -41,7 +41,7 @@ class PersistentHome(Home):
                 )
             except Exception:
                 pass
-
                 
         return response
+
 
