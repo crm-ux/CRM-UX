@@ -43,7 +43,6 @@ class ServiceTicketWizard(models.TransientModel):
     visit_date = fields.Date(string='Visit Date')
     ticket_status = fields.Selection([
         ('new', 'New'),
-        ('open', 'New'),
         ('contacted', 'Contacted'),
         ('ongoing', 'Ongoing'),
         ('pending', 'Pending'),

@@ -175,7 +175,7 @@
                 <field name="priority"/>
                 <field name="engineer_id"/>
                 <field name="visit_date"/>
-                <field name="ticket_status" widget="badge" decoration-info="ticket_status == 'open'" decoration-warning="ticket_status == 'ongoing'" decoration-success="ticket_status == 'closed'"/>
+                <field name="ticket_status" widget="badge" decoration-info="ticket_status == 'new'" decoration-warning="ticket_status == 'ongoing'" decoration-success="ticket_status == 'closed'"/>
             </list>
         </field>
     </record>
