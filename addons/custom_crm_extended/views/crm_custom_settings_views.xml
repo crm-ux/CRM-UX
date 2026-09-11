@@ -197,9 +197,11 @@
                        string="Name"
                        invisible="code not in ('crm.equipment.id', 'crm.equipment.serial')"
                        placeholder="Select Equipment ID or Serial Number..."/>
-                <field name="equipment_category_id" 
+                <field name="equipment_category_id"
                        string="Equipment Category"
-                       invisible="equipment_sequence_type == 'serial_number' or code == 'crm.equipment.serial'"/>
+                       invisible="equipment_sequence_type != 'crm.equipment.id'"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       placeholder="Select Category for this series (optional)..."/>
                 <field name="linked_equipment_id_seq_id"
                        string="Linked Equipment ID Series"
                        invisible="equipment_sequence_type != 'crm.equipment.serial'"
