@@ -81,3 +81,14 @@ th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
     overflow: visible !important;
     max-height: none !important;
 }
+
+/* Prevent aggressive browser auto-scroll when selecting text or dragging */
+.o_form_view {
+    overflow-anchor: none !important;
+    /* Disables scroll anchoring jumps */
+}
+
+.o_form_sheet_bg {
+    overscroll-behavior-y: contain !important;
+    /* Traps mouse wheel and drag inside the form */
+}

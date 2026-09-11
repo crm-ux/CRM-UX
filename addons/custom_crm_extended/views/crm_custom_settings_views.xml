@@ -5,8 +5,6 @@
         <field name="model">crm.custom.settings</field>
         <field name="arch" type="xml">
             <form string="CRM Settings" create="0" delete="0">
-                
-
                 <div>
                     <!-- MAIN TITLE: Auto Number Configuration -->
                     <div class="d-flex align-items-center pb-2 mb-4" style="border-bottom:2px solid #e2e8f0; width:100%;">
