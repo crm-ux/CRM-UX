@@ -175,7 +175,7 @@
         <field name="target">current</field>
     </record>
 
-        <!-- Sequence Form: Show Dropdown for Name on Equipment Series -->
+    <!-- Sequence Form: Show Dropdown for Name on Equipment Series & Link only if Serial Number -->
     <record id="view_sequence_form_equipment_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.form.equipment.inherit</field>
         <field name="model">ir.sequence</field>
@@ -189,8 +189,11 @@
                        string="Name"
                        invisible="code not in ('crm.equipment.id', 'crm.equipment.serial')"
                        placeholder="Select Equipment ID or Serial Number..."/>
+                <field name="linked_equipment_id_seq_id"
+                       invisible="equipment_sequence_type != 'crm.equipment.serial'"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       placeholder="Select Equipment ID Series to link with..."/>
             </xpath>
         </field>
     </record>
-
 </odoo>

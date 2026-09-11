@@ -165,7 +165,33 @@ class IrSequenceEquipmentExtension(models.Model):
     equipment_sequence_type = fields.Selection([
         ('crm.equipment.id', 'Equipment ID'),
         ('crm.equipment.serial', 'Equipment Serial Number'),
-    ], string='Name')
+    ], string='Name', compute='_compute_equipment_sequence_type', inverse='_inverse_equipment_sequence_type', store=True, readonly=False)
+
+    # Link Serial Number to Equipment ID (Only used when Serial Number is selected)
+    linked_equipment_id_seq_id = fields.Many2one(
+        'ir.sequence',
+        string='Linked Equipment ID Series',
+        domain="[('code', '=', 'crm.equipment.id')]",
+        help="Select which Equipment ID series this Serial Number sequence is paired with."
+    )
+
+    @api.depends('code')
+    def _compute_equipment_sequence_type(self):
+        for rec in self:
+            if rec.code in ('crm.equipment.id', 'crm.equipment.serial'):
+                rec.equipment_sequence_type = rec.code
+            else:
+                rec.equipment_sequence_type = False
+
+    def _inverse_equipment_sequence_type(self):
+        for rec in self:
+            if rec.equipment_sequence_type:
+                rec.code = rec.equipment_sequence_type
+                if rec.equipment_sequence_type == 'crm.equipment.id':
+                    rec.name = 'Equipment ID'
+                    rec.linked_equipment_id_seq_id = False
+                elif rec.equipment_sequence_type == 'crm.equipment.serial':
+                    rec.name = 'Equipment Serial Number'
 
     @api.onchange('equipment_sequence_type')
     def _onchange_equipment_sequence_type(self):
@@ -173,6 +199,7 @@ class IrSequenceEquipmentExtension(models.Model):
             self.code = self.equipment_sequence_type
             if self.equipment_sequence_type == 'crm.equipment.id':
                 self.name = 'Equipment ID'
+                self.linked_equipment_id_seq_id = False
             elif self.equipment_sequence_type == 'crm.equipment.serial':
                 self.name = 'Equipment Serial Number'
 
@@ -183,6 +210,7 @@ class IrSequenceEquipmentExtension(models.Model):
                 vals['code'] = vals['equipment_sequence_type']
                 if vals['equipment_sequence_type'] == 'crm.equipment.id':
                     vals['name'] = 'Equipment ID'
+                    vals['linked_equipment_id_seq_id'] = False
                 elif vals['equipment_sequence_type'] == 'crm.equipment.serial':
                     vals['name'] = 'Equipment Serial Number'
         return super().create(vals_list)
