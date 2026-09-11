@@ -83,7 +83,7 @@ class CrmDashboard extends Component {
             },
             target: 'current',
         });
-    },
+    }
 
     openServiceTicketSeries() {
         this.action.doAction({
