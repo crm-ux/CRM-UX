@@ -78,15 +78,12 @@ class CrmDashboard extends Component {
             views: [[false, 'tree'], [false, 'form']],
             domain: [['code', 'in', ['crm.equipment.id', 'crm.equipment.serial']]],
             context: {
+                active_test: false,
                 default_code: 'crm.equipment.id',
-                default_name: 'Equipment ID',
-                default_prefix: 'EQ-',
-                default_padding: 4,
-                default_company_id: false,
             },
             target: 'current',
         });
-    }
+    },
 
     openServiceTicketSeries() {
         this.action.doAction({
@@ -97,15 +94,13 @@ class CrmDashboard extends Component {
             views: [[false, 'tree'], [false, 'form']],
             domain: [['code', '=', 'service.ticket']],
             context: {
+                active_test: false,
                 default_code: 'service.ticket',
-                default_name: 'Service Ticket',
-                default_prefix: 'TCK-',
-                default_padding: 4,
-                default_company_id: false,
             },
             target: 'current',
         });
-    }
+    },
+
 
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
