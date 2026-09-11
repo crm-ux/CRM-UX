@@ -112,3 +112,33 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_form_statusbar button.btn-success {
   margin-left: auto !important;
 }
+
+/* =========================================================================
+   Quotation Gear (⚙) Menu: Keep ONLY Duplicate & Delete
+   ========================================================================= */
+
+/* 1. Hide dividers inside the gear action menu popover */
+.o_popover.o-dropdown--menu .dropdown-divider {
+  display: none !important;
+}
+
+/* 2. Hide Print report: Quotation / Order */
+.o_popover.o-dropdown--menu [aria-label*="Print report"],
+.o_popover.o-dropdown--menu .o_menu_item:has(.fa-print),
+.o_popover.o-dropdown--menu .o_menu_item:has(.oi-print) {
+  display: none !important;
+}
+
+/* 3. Hide all other actions (Payment Link, Send Email, Mark Sent, Share) */
+.o_popover.o-dropdown--menu .o_menu_item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-trash)) {
+  display: none !important;
+}
+
+/* 4. Strictly ensure Duplicate & Delete remain visible and styled */
+.o_popover.o-dropdown--menu .o_menu_item:has(.fa-clone),
+.o_popover.o-dropdown--menu .o_menu_item:has(.oi-clone),
+.o_popover.o-dropdown--menu .o_menu_item:has(.fa-trash-o),
+.o_popover.o-dropdown--menu .o_menu_item:has(.oi-trash),
+.o_popover.o-dropdown--menu .o_menu_item:has(.fa-trash) {
+  display: flex !important;
+}
