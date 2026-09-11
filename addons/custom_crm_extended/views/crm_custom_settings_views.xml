@@ -174,4 +174,23 @@
         <field name="view_mode">form</field>
         <field name="target">current</field>
     </record>
+
+        <!-- Sequence Form: Show Dropdown for Name on Equipment Series -->
+    <record id="view_sequence_form_equipment_inherit" model="ir.ui.view">
+        <field name="name">ir.sequence.form.equipment.inherit</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.sequence_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="equipment_sequence_type" 
+                       string="Name"
+                       invisible="code not in ('crm.equipment.id', 'crm.equipment.serial')"
+                       placeholder="Select Equipment ID or Serial Number..."/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
