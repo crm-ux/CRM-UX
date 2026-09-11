@@ -53,22 +53,32 @@ patch(FormController.prototype, {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
                 if (panel) {
-                    observer = new MutationObserver((mutations) => {
-                        // Ignore mutations caused by opening dropdown menus!
-                        for (const m of mutations) {
-                            if (m.target.closest && (m.target.closest(".dropdown-menu") || m.target.closest(".o-dropdown--menu"))) {
-                                return;
-                            }
-                        }
-                        reorderToolbar();
-                    });
-                    observer.observe(panel, { childList: true }); // childList only, NOT subtree!
+                    observer = new MutationObserver(() => reorderToolbar());
+                    observer.observe(panel, { childList: true, subtree: true });
                 }
             });
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
             });
         }
+    },
+
+    getActionMenuItems() {
+        const menuItems = super.getActionMenuItems ? super.getActionMenuItems() : {};
+        if (this.props.resModel === SALE_ORDER_MODEL) {
+            // Remove Print submenu completely
+            if (menuItems.print) {
+                menuItems.print = [];
+            }
+            // In Action items, keep only Duplicate and Delete
+            if (menuItems.action) {
+                menuItems.action = menuItems.action.filter((item) => {
+                    const desc = (item.description || "").toLowerCase();
+                    return desc.includes("duplicate") || desc.includes("delete");
+                });
+            }
+        }
+        return menuItems;
     },
 
     async saveButtonClicked() {
