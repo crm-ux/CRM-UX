@@ -68,12 +68,27 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
-    @api.onchange('name')
+       @api.onchange('name')
     def _onchange_name(self):
         if self.name:
-            self.category_id = self.name.categ_id.display_name if self.name.categ_id else ''
+            categ = self.name.categ_id
+            self.category_id = categ.display_name if categ else ''
             self.manufacturer = getattr(self.name, 'x_make', '') or ''
             self.part_number = getattr(self.name, 'default_code', '') or ''
+
+            # If category has a custom sequence, generate the ID for this category!
+            if categ:
+                cat_seq = self.env['ir.sequence'].search([
+                    ('code', '=', 'crm.equipment.id'),
+                    ('active', '=', True),
+                    ('equipment_category_id', '=', categ.id)
+                ], limit=1)
+                if cat_seq:
+                    gen_id = cat_seq.next_by_id()
+                    Equipment = self.env['equipment.master'].sudo()
+                    while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
+                        gen_id = cat_seq.next_by_id()
+                    self.equipment_id = gen_id
         else:
             self.category_id = ''
             self.manufacturer = ''

@@ -175,21 +175,35 @@
         <field name="target">current</field>
     </record>
 
-    <!-- Sequence Form: Show Dropdown for Name on Equipment Series & Link only if Serial Number -->
+    <!-- Sequence Form: Equipment Series Category, Name, Link & Hide Company -->
     <record id="view_sequence_form_equipment_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.form.equipment.inherit</field>
         <field name="model">ir.sequence</field>
         <field name="inherit_id" ref="base.sequence_view"/>
         <field name="arch" type="xml">
+            <!-- Normal Name field: hide when it's an equipment sequence -->
             <xpath expr="//field[@name='name']" position="attributes">
                 <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial')</attribute>
             </xpath>
+
+            <!-- Hide Company field on equipment sequences -->
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial')</attribute>
+            </xpath>
+
+            <!-- Dropdown Name field + Category Selection -->
             <xpath expr="//field[@name='name']" position="after">
                 <field name="equipment_sequence_type" 
                        string="Name"
                        invisible="code not in ('crm.equipment.id', 'crm.equipment.serial')"
                        placeholder="Select Equipment ID or Serial Number..."/>
+                <field name="equipment_category_id"
+                       string="Equipment Category"
+                       invisible="equipment_sequence_type != 'crm.equipment.id'"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       placeholder="Select Category for this series (optional)..."/>
                 <field name="linked_equipment_id_seq_id"
+                       string="Linked Equipment ID Series"
                        invisible="equipment_sequence_type != 'crm.equipment.serial'"
                        options="{'no_create': True, 'no_create_edit': True}"
                        placeholder="Select Equipment ID Series to link with..."/>

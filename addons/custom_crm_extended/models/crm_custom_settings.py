@@ -167,13 +167,30 @@ class IrSequenceEquipmentExtension(models.Model):
         ('crm.equipment.serial', 'Equipment Serial Number'),
     ], string='Name', compute='_compute_equipment_sequence_type', inverse='_inverse_equipment_sequence_type', store=True, readonly=False)
 
-    # Link Serial Number to Equipment ID (Only used when Serial Number is selected)
+    # Equipment Category linkage for Category-wise Equipment IDs
+    equipment_category_id = fields.Many2one(
+        'product.category',
+        string='Equipment Category',
+        help="Assign this sequence specifically to an Equipment Category."
+    )
+
+    # Link Serial Number to Equipment ID
     linked_equipment_id_seq_id = fields.Many2one(
         'ir.sequence',
         string='Linked Equipment ID Series',
         domain="[('code', '=', 'crm.equipment.id')]",
         help="Select which Equipment ID series this Serial Number sequence is paired with."
     )
+
+    @api.depends('name', 'prefix', 'equipment_category_id')
+    def _compute_display_name(self):
+        for rec in self:
+            if rec.code in ('crm.equipment.id', 'crm.equipment.serial'):
+                prefix_info = f" [Prefix: {rec.prefix}]" if rec.prefix else ""
+                cat_info = f" ({rec.equipment_category_id.name})" if rec.equipment_category_id else ""
+                rec.display_name = f"{rec.name or 'Sequence'}{prefix_info}{cat_info}"
+            else:
+                super(IrSequenceEquipmentExtension, rec)._compute_display_name()
 
     @api.depends('code')
     def _compute_equipment_sequence_type(self):
@@ -189,7 +206,6 @@ class IrSequenceEquipmentExtension(models.Model):
                 rec.code = rec.equipment_sequence_type
                 if rec.equipment_sequence_type == 'crm.equipment.id':
                     rec.name = 'Equipment ID'
-                    rec.linked_equipment_id_seq_id = False
                 elif rec.equipment_sequence_type == 'crm.equipment.serial':
                     rec.name = 'Equipment Serial Number'
 
@@ -202,6 +218,7 @@ class IrSequenceEquipmentExtension(models.Model):
                 self.linked_equipment_id_seq_id = False
             elif self.equipment_sequence_type == 'crm.equipment.serial':
                 self.name = 'Equipment Serial Number'
+                self.equipment_category_id = False
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -213,4 +230,5 @@ class IrSequenceEquipmentExtension(models.Model):
                     vals['linked_equipment_id_seq_id'] = False
                 elif vals['equipment_sequence_type'] == 'crm.equipment.serial':
                     vals['name'] = 'Equipment Serial Number'
+                    vals['equipment_category_id'] = False
         return super().create(vals_list)
