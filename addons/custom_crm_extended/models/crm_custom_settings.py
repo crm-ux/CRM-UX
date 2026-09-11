@@ -232,3 +232,44 @@ class IrSequenceEquipmentExtension(models.Model):
                     vals['name'] = 'Equipment Serial Number'
                     vals['equipment_category_id'] = False
         return super().create(vals_list)
+    
+from odoo import models, fields, api
+
+class IrSequence(models.Model):
+    _inherit = 'ir.sequence'
+
+    equipment_sequence_type = fields.Selection([
+        ('equipment_id', 'Equipment ID'),
+        ('serial_number', 'Serial Number'),
+    ], string="Sequence Type")
+
+    equipment_category_id = fields.Many2one(
+        'equipment.category', 
+        string="Equipment Category",
+        help="Assign this Equipment ID sequence to a specific category. Leave blank for default."
+    )
+
+    linked_equipment_id_seq_id = fields.Many2one(
+        'ir.sequence',
+        string="Linked Equipment ID Series",
+        domain="[('code', '=', 'crm.equipment.id')]",
+        help="Select which Equipment ID series this Serial Number series belongs to."
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            # If it's an Equipment or Service Ticket sequence, FORCE company_id = False (All Companies)
+            if vals.get('code') in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
+                vals['company_id'] = False
+        return super(IrSequence, self).create(vals_list)
+
+    def write(self, vals):
+        for record in self:
+            # If writing to an Equipment or Service Ticket sequence, keep company_id = False
+            code = vals.get('code', record.code)
+            if code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
+                if 'company_id' in vals and vals['company_id']:
+                    vals['company_id'] = False
+        return super(IrSequence, self).write(vals)
+
