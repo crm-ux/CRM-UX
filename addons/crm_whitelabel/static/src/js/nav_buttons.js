@@ -134,6 +134,7 @@ patch(ControlPanel.prototype, {
                     ...ctx,
                     from_total_pipeline: true,
                     default_stage_filter_val: val,
+                    create: false,
                 },
             }, { clearBreadcrumbs: true });
         } else {

@@ -112,20 +112,3 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_form_statusbar button.btn-success {
   margin-left: auto !important;
 }
-
-/* =========================================================================
-   Quotation Action Menu: Keep Duplicate & Delete, Hide All Other Actions
-   ========================================================================= */
-/* Hide Print report, Payment Link, Send Email, Mark Sent, Share */
-.o-dropdown--menu.dropdown-menu .dropdown-divider,
-.o-dropdown--menu.dropdown-menu span.o_menu_item[aria-label*="Print report"],
-.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-print),
-.o-dropdown--menu.dropdown-menu span.o_menu_item:not(:has(i.fa-clone)):not(:has(i.fa-trash-o)):not(:has(i.fa-copy)):not(:has(i.fa-trash)) {
-  display: none !important;
-}
-
-/* Ensure Duplicate & Delete always display */
-.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-clone),
-.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-trash-o) {
-  display: flex !important;
-}
