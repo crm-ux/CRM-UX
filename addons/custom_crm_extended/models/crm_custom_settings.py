@@ -179,10 +179,12 @@ class IrSequenceEquipmentExtension(models.Model):
     # Link Serial Number to Equipment ID
     linked_equipment_id_seq_id = fields.Many2one(
         'ir.sequence',
-        string='Linked Equipment ID Series',
+        string="Linked Equipment ID Series",
         domain="[('code', '=', 'crm.equipment.id')]",
-        help="Select which Equipment ID series this Serial Number sequence is paired with."
+        ondelete='set null',
+        help="Select which Equipment ID series this Serial Number series belongs to."
     )
+
 
     @api.depends('name', 'prefix', 'equipment_category_id')
     def _compute_display_name(self):
