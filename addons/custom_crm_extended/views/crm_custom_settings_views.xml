@@ -197,21 +197,20 @@
         </field>
     </record>
 
-    <!-- Inherit ir.sequence Tree to hide Company column and show Equipment Category -->
+        <!-- Inherit ir.sequence Tree to hide Company column and show Equipment Category -->
     <record id="view_sequence_tree_equipment_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.tree.equipment.inherit</field>
         <field name="model">ir.sequence</field>
-        <field name="inherit_id" ref="base.sequence_tree_view"/>
+        <field name="inherit_id" ref="base.sequence_view_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='company_id']" position="attributes">
                 <attribute name="column_invisible">context.get('default_code') in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
             </xpath>
             <xpath expr="//field[@name='prefix']" position="after">
                 <field name="equipment_category_id" 
-                       string="Equipment Category"
+                       string="Equipment Category" 
                        column_invisible="context.get('default_code') != 'crm.equipment.id'"/>
             </xpath>
         </field>
     </record>
-
 </odoo>
