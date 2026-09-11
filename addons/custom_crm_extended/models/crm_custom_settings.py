@@ -196,33 +196,32 @@ class IrSequenceEquipmentExtension(models.Model):
             else:
                 super(IrSequenceEquipmentExtension, rec)._compute_display_name()
 
-    @api.depends('code')
+        @api.depends('code')
     def _compute_equipment_sequence_type(self):
         for rec in self:
-            if rec.code in ('crm.equipment.id', 'crm.equipment.serial'):
-                rec.equipment_sequence_type = rec.code
+            if rec.code == 'crm.equipment.id':
+                rec.equipment_sequence_type = 'equipment_id'
+            elif rec.code == 'crm.equipment.serial':
+                rec.equipment_sequence_type = 'serial_number'
             else:
                 rec.equipment_sequence_type = False
 
     def _inverse_equipment_sequence_type(self):
         for rec in self:
-            if rec.equipment_sequence_type:
-                rec.code = rec.equipment_sequence_type
-                if rec.equipment_sequence_type == 'crm.equipment.id':
-                    rec.name = 'Equipment ID'
-                elif rec.equipment_sequence_type == 'crm.equipment.serial':
-                    rec.name = 'Equipment Serial Number'
+            if rec.equipment_sequence_type == 'equipment_id':
+                rec.code = 'crm.equipment.id'
+            elif rec.equipment_sequence_type == 'serial_number':
+                rec.code = 'crm.equipment.serial'
 
     @api.onchange('equipment_sequence_type')
     def _onchange_equipment_sequence_type(self):
-        if self.equipment_sequence_type:
-            self.code = self.equipment_sequence_type
-            if self.equipment_sequence_type == 'crm.equipment.id':
-                self.name = 'Equipment ID'
-                self.linked_equipment_id_seq_id = False
-            elif self.equipment_sequence_type == 'crm.equipment.serial':
-                self.name = 'Equipment Serial Number'
-                self.equipment_category_id = False
+        if self.equipment_sequence_type == 'equipment_id':
+            self.code = 'crm.equipment.id'
+            self.name = 'Equipment ID'
+        elif self.equipment_sequence_type == 'serial_number':
+            self.code = 'crm.equipment.serial'
+            self.name = 'Equipment Serial Number'
+            self.equipment_category_id = False
 
     @api.model_create_multi
     def create(self, vals_list):
