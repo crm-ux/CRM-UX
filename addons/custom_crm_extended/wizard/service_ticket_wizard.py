@@ -63,7 +63,6 @@ class ServiceTicketWizard(models.TransientModel):
         res = super().default_get(fields_list)
         Ticket = self.env['service.ticket'].sudo()
         company = self.env.company
-
         # Service Ticket ID Generation via ir.sequence
         seq_ticket = self.env['ir.sequence'].search([
             ('code', '=', 'service.ticket'),
