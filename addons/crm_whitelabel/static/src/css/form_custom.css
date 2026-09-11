@@ -108,25 +108,44 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-right: 0 !important;
 }
 
+/* ===== Push Won button (and Lost after it) to far right of statusbar ===== */
+.o_form_statusbar button.btn-success {
+  margin-left: auto !important;
+}
+
 /* =========================================================================
    Quotation Gear (⚙) Menu: Keep ONLY Duplicate & Delete
-   Scoped strictly to action menu to never touch product/category dropdowns
+   STRICTLY scoped ONLY to Quotation / Sale Order detail view (.o_sale_order)
    ========================================================================= */
 
-/* 1. Hide Print button, Print submenu toggle, and any item with fa-print */
-.o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.fa-print),
-.o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.oi-print),
-.o_action_manager .o_popover.o-dropdown--menu .dropdown-toggle:has(.fa-print),
-.o_action_manager .o_popover.o-dropdown--menu [aria-label*="Print report"] {
+/* 1. Hide dividers inside the quotation gear action menu */
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-divider {
   display: none !important;
 }
 
-/* 2. Hide unwanted server actions by their exact labels, NOT by breaking all dropdowns */
-.o_action_manager .o_popover.o-dropdown--menu .o_menu_item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-trash)):not(.o_m2o_dropdown_option):not(.o_autocomplete_dropdown_item) {
+/* 2. Hide Print button and Print submenu in quotation gear menu */
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.fa-print),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.oi-print),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-toggle:has(.fa-print),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu [aria-label*="Print report"] {
   display: none !important;
 }
 
-/* 3. Ensure autocomplete options (Products, Categories, Customers) ALWAYS display */
+/* 3. In quotation gear menu: hide all items EXCEPT Duplicate & Delete */
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .o_menu_item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-trash)):not(.o_m2o_dropdown_option):not(.o_autocomplete_dropdown_item) {
+  display: none !important;
+}
+
+/* 4. Strictly ensure Duplicate & Delete remain visible on quotations */
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.fa-clone),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.oi-clone),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.fa-trash-o),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.oi-trash),
+body:has(.o_sale_order) .o_action_manager .o_popover.o-dropdown--menu .dropdown-item:has(.fa-trash) {
+  display: flex !important;
+}
+
+/* 5. Autocomplete dropdowns (Product Name, Category, Customer) ALWAYS visible */
 .o-autocomplete--dropdown-menu .dropdown-item,
 .o_popover .o-autocomplete--dropdown-item,
 .o_field_many2one_selection .dropdown-item,
