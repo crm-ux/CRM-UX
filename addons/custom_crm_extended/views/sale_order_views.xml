@@ -255,11 +255,4 @@
             </form>
         </field>
     </record>
-        <!-- Remove unwanted actions from Sale Order Gear (⚙) Action Menu -->
-    <record id="sale.action_report_saleorder" model="ir.actions.report">
-        <field name="binding_model_id" eval="False"/>
-    </record>
-    <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
-        <field name="binding_model_id" eval="False"/>
-    </record>
 </odoo>

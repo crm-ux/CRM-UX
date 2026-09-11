@@ -114,17 +114,28 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* =========================================================================
-   Quotation / Sale Order Gear (⚙) Menu: Keep ONLY Duplicate & Delete
+   Quotation / Sale Order Gear (⚙) Popover: Keep ONLY Duplicate & Delete
    ========================================================================= */
-/* Hide the Print flyout submenu item */
-.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(i.fa-print),
-.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(.oi-print),
-.o_control_panel_breadcrumbs .dropdown-menu .o-dropdown--nested,
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-toggle {
+
+/* 1. Hide the dividers */
+.o-dropdown--menu.dropdown-menu .dropdown-divider {
   display: none !important;
 }
 
-/* Hide payment link, send email, mark sent, share */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-copy)) {
+/* 2. Hide Print (Quotation / Order) */
+.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-print),
+.o-dropdown--menu.dropdown-menu span[aria-label*="Print report"] {
   display: none !important;
+}
+
+/* 3. Hide Payment Link, Send email, Mark Sent, Share (any span without fa-clone or fa-trash-o) */
+.o-dropdown--menu.dropdown-menu span.o_menu_item:not(:has(i.fa-clone)):not(:has(i.fa-trash-o)) {
+  display: none !important;
+}
+
+/* 4. Fix dropdown container width so it wraps Duplicate and Delete cleanly without scrollbars */
+.o-dropdown--menu.dropdown-menu {
+  width: max-content !important;
+  min-width: 10rem !important;
+  overflow: hidden !important;
 }
