@@ -70,34 +70,30 @@ class CrmDashboard extends Component {
     }
 
     openEquipmentSeries() {
-        this.action.doAction({
-            name: 'Equipment Series',
-            type: 'ir.actions.act_window',
-            res_model: 'ir.sequence',
-            view_mode: 'tree,form',
-            views: [[false, 'tree'], [false, 'form']],
-            domain: [['code', 'in', ['crm.equipment.id', 'crm.equipment.serial']]],
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Equipment Series",
+            res_model: "ir.sequence",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["code", "in", ["crm.equipment.id", "crm.equipment.serial"]]],
             context: {
                 active_test: false,
-                default_code: 'crm.equipment.id',
+                default_code: "crm.equipment.id",
             },
-            target: 'current',
         });
     }
 
     openServiceTicketSeries() {
-        this.action.doAction({
-            name: 'Service Ticket Series',
-            type: 'ir.actions.act_window',
-            res_model: 'ir.sequence',
-            view_mode: 'tree,form',
-            views: [[false, 'tree'], [false, 'form']],
-            domain: [['code', '=', 'service.ticket']],
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Service Ticket Series",
+            res_model: "ir.sequence",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["code", "=", "service.ticket"]],
             context: {
                 active_test: false,
-                default_code: 'service.ticket',
+                default_code: "service.ticket",
             },
-            target: 'current',
         });
     }
 
