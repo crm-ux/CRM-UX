@@ -196,7 +196,7 @@ class IrSequenceEquipmentExtension(models.Model):
             else:
                 super(IrSequenceEquipmentExtension, rec)._compute_display_name()
 
-        @api.depends('code')
+    @api.depends('code')
     def _compute_equipment_sequence_type(self):
         for rec in self:
             if rec.code == 'crm.equipment.id':
