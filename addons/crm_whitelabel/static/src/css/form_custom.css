@@ -114,28 +114,22 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* =========================================================================
-   Quotation / Sale Order Gear (⚙) Popover: Keep ONLY Duplicate & Delete
+   Quotation Action Menu: Keep Duplicate and Delete, Hide Print/Email/Share
    ========================================================================= */
+/* Hide Print, Payment Link, Send Email, Mark Sent, Share */
+.o-dropdown--menu.dropdown-menu span.o_menu_item[aria-label*="Print report"],
+.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-print),
+.o-dropdown--menu.dropdown-menu span.o_menu_item:not(:has(i.fa-clone)):not(:has(i.fa-trash-o)):not(:has(i.fa-copy)):not(:has(i.fa-trash)) {
+  display: none !important;
+}
 
-/* 1. Hide the dividers */
+/* Hide dividers */
 .o-dropdown--menu.dropdown-menu .dropdown-divider {
   display: none !important;
 }
 
-/* 2. Hide Print (Quotation / Order) */
-.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-print),
-.o-dropdown--menu.dropdown-menu span[aria-label*="Print report"] {
-  display: none !important;
-}
-
-/* 3. Hide Payment Link, Send email, Mark Sent, Share (any span without fa-clone or fa-trash-o) */
-.o-dropdown--menu.dropdown-menu span.o_menu_item:not(:has(i.fa-clone)):not(:has(i.fa-trash-o)) {
-  display: none !important;
-}
-
-/* 4. Fix dropdown container width so it wraps Duplicate and Delete cleanly without scrollbars */
-.o-dropdown--menu.dropdown-menu {
-  width: max-content !important;
-  min-width: 10rem !important;
-  overflow: hidden !important;
+/* Ensure Duplicate and Delete are explicitly visible */
+.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-clone),
+.o-dropdown--menu.dropdown-menu span.o_menu_item:has(i.fa-trash-o) {
+  display: flex !important;
 }
