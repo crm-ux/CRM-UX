@@ -112,3 +112,19 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_form_statusbar button.btn-success {
   margin-left: auto !important;
 }
+
+/* =========================================================================
+   Quotation / Sale Order Gear (⚙) Menu: Keep ONLY Duplicate & Delete
+   ========================================================================= */
+/* Hide the Print flyout submenu item */
+.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(i.fa-print),
+.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(.oi-print),
+.o_control_panel_breadcrumbs .dropdown-menu .o-dropdown--nested,
+.o_control_panel_breadcrumbs .dropdown-menu .dropdown-toggle {
+  display: none !important;
+}
+
+/* Hide payment link, send email, mark sent, share */
+.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-copy)) {
+  display: none !important;
+}
