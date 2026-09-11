@@ -171,22 +171,25 @@ class EquipmentMasterWizard(models.TransientModel):
         if not self.equipment_id:
             raise ValidationError(_("Please enter Equipment ID before saving."))
 
-        # Final uniqueness check
+        # Final uniqueness check for Equipment ID
         dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
         if dup_eq:
             raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
-        if self.serial_number:
-            dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+
+        # Final uniqueness check for Serial Number (only if user actually entered one)
+        clean_sn = self.serial_number.strip() if self.serial_number and self.serial_number.strip() else False
+        if clean_sn:
+            dup_sn = self.env['equipment.master'].search([('serial_number', '=', clean_sn)], limit=1)
             if dup_sn:
-                raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+                raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % clean_sn)
 
         equipment = self.env["equipment.master"].create({
-            "equipment_id": self.equipment_id,
+            "equipment_id": self.equipment_id.strip(),
             "name": self.name.id if self.name else False,
             "category_id": self.category_id,
             "manufacturer": self.manufacturer,
             "model_number": self.model_number,
-            "serial_number": self.serial_number,
+            "serial_number": clean_sn,
             "part_number": self.part_number,
             "child_part_no": self.child_part_no,
             "invoice_number": self.invoice_number,
@@ -213,24 +216,15 @@ class EquipmentMasterWizard(models.TransientModel):
             "remarks": self.remarks,
         })
 
-        # Increment settings counter for next equipment
-        ICP = self.env['ir.config_parameter'].sudo()
-        if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
-            current_next = int(ICP.get_param('crm.equipment_id_next', 1))
-            ICP.set_param('crm.equipment_id_next', str(current_next + 1))
-
-        if ICP.get_param('crm.serial_number_auto', 'True') == 'True':
-            current_next_sn = int(ICP.get_param('crm.serial_number_next', 1))
-            ICP.set_param('crm.serial_number_next', str(current_next_sn + 1))
-
         return {
             "type": "ir.actions.act_window",
-            "name": equipment.name,
+            "name": equipment.name.name if equipment.name else "Equipment",
             "res_model": "equipment.master",
             "res_id": equipment.id,
             "view_mode": "form",
             "target": "current",
         }
+
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):

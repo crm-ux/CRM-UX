@@ -140,7 +140,7 @@ class EquipmentMaster(models.Model):
     @api.constrains('serial_number')
     def _check_unique_serial_number(self):
         for rec in self:
-            if rec.serial_number:
+            if rec.serial_number and rec.serial_number.strip():
                 duplicate = self.search([
                     ('serial_number', '=', rec.serial_number.strip()),
                     ('id', '!=', rec.id)
