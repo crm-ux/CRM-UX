@@ -68,7 +68,7 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
-       @api.onchange('name')
+    @api.onchange('name')
     def _onchange_name(self):
         if self.name:
             categ = self.name.categ_id
