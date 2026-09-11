@@ -113,50 +113,18 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-left: auto !important;
 }
 
-/* Fix Gear / Action menu submenu scroll jump (ONLY in breadcrumbs) */
-.o_control_panel_breadcrumbs .o-dropdown--menu,
-.o_control_panel_breadcrumbs .dropdown-menu {
-  position: absolute !important;
-  overflow-anchor: none !important;
-}
-
-/* Autocomplete dropdowns (Products, Categories) MUST keep native Odoo positioning */
-.o-autocomplete--dropdown-menu {
-  position: absolute !important;
-  top: 100% !important;
-  left: 0 !important;
-  z-index: 1055 !important;
-  display: block !important;
-}
-
 /* =========================================================================
-   Quotation Gear (⚙) Menu: Keep ONLY Duplicate & Delete
-   Scoped ONLY to the breadcrumb gear icon (never touches line item dropdowns)
+   Quotation / Sale Order Gear (⚙) Menu: Keep ONLY Duplicate & Delete
    ========================================================================= */
-
-/* 1. Hide dividers inside breadcrumb gear menu */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-divider {
+/* Hide the Print flyout submenu item */
+.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(i.fa-print),
+.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(.oi-print),
+.o_control_panel_breadcrumbs .dropdown-menu .o-dropdown--nested,
+.o_control_panel_breadcrumbs .dropdown-menu .dropdown-toggle {
   display: none !important;
 }
 
-/* 2. Hide Print button and Print submenu in breadcrumb gear menu */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.fa-print),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.oi-print),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-toggle,
-.o_control_panel_breadcrumbs .dropdown-menu [aria-label*="Print report"] {
+/* Hide payment link, send email, mark sent, share */
+.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-copy)) {
   display: none !important;
-}
-
-/* 3. Hide all actions EXCEPT Duplicate & Delete in the breadcrumb gear menu */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-trash)) {
-  display: none !important;
-}
-
-/* 4. Ensure Duplicate & Delete remain visible in breadcrumb gear menu */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.fa-clone),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.oi-clone),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.fa-trash-o),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.oi-trash),
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:has(.fa-trash) {
-  display: flex !important;
 }
