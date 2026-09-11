@@ -63,24 +63,6 @@ patch(FormController.prototype, {
         }
     },
 
-    getActionMenuItems() {
-        const menuItems = super.getActionMenuItems ? super.getActionMenuItems() : {};
-        if (this.props.resModel === SALE_ORDER_MODEL) {
-            // Remove Print submenu completely
-            if (menuItems.print) {
-                menuItems.print = [];
-            }
-            // In Action items, keep only Duplicate and Delete
-            if (menuItems.action) {
-                menuItems.action = menuItems.action.filter((item) => {
-                    const desc = (item.description || "").toLowerCase();
-                    return desc.includes("duplicate") || desc.includes("delete");
-                });
-            }
-        }
-        return menuItems;
-    },
-
     async saveButtonClicked() {
         if (this.props.resModel === SALE_ORDER_MODEL) {
             const saved = await super.saveButtonClicked(...arguments);
