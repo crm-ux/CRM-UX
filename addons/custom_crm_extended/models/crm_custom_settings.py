@@ -158,4 +158,24 @@ class CrmCustomSettings(models.TransientModel):
                 self.expense_type_ids = [(4, record.id)]
         return False
 
+from odoo import api, fields, models
+
+class IrSequenceEquipmentExtension(models.Model):
+    _inherit = 'ir.sequence'
+
+    equipment_sequence_type = fields.Selection([
+        ('crm.equipment.id', 'Equipment ID'),
+        ('crm.equipment.serial', 'Serial Number'),
+    ], string='Equipment Series Type')
+
+    @api.onchange('equipment_sequence_type')
+    def _onchange_equipment_sequence_type(self):
+        if self.equipment_sequence_type:
+            self.code = self.equipment_sequence_type
+            if self.equipment_sequence_type == 'crm.equipment.id':
+                self.name = 'Equipment ID'
+            elif self.equipment_sequence_type == 'crm.equipment.serial':
+                self.name = 'Equipment Serial Number'
+
+
 

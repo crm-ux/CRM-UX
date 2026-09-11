@@ -77,6 +77,21 @@
         </field>
     </record>
 
+    <!-- Add Equipment Series Type Dropdown to Sequence Form -->
+    <record id="view_sequence_form_equipment_inherit" model="ir.ui.view">
+        <field name="name">ir.sequence.form.equipment.inherit</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.sequence_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="equipment_sequence_type" 
+                       invisible="code and code not in ('crm.equipment.id', 'crm.equipment.serial')"
+                       placeholder="Select Equipment ID or Serial Number..."/>
+            </xpath>
+        </field>
+    </record>
+
+
     <!-- Equipment Master List/Tree View -->
     <record id="view_equipment_master_tree" model="ir.ui.view">
         <field name="name">equipment.master.tree</field>
