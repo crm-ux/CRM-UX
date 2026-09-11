@@ -53,8 +53,16 @@ patch(FormController.prototype, {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
                 if (panel) {
-                    observer = new MutationObserver(() => reorderToolbar());
-                    observer.observe(panel, { childList: true, subtree: true });
+                    observer = new MutationObserver((mutations) => {
+                        // Ignore mutations caused by opening dropdown menus!
+                        for (const m of mutations) {
+                            if (m.target.closest && (m.target.closest(".dropdown-menu") || m.target.closest(".o-dropdown--menu"))) {
+                                return;
+                            }
+                        }
+                        reorderToolbar();
+                    });
+                    observer.observe(panel, { childList: true }); // childList only, NOT subtree!
                 }
             });
             onWillUnmount(() => {
