@@ -89,6 +89,7 @@ th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
     overflow-anchor: none !important;
 }
 
+
 /* Prevent sub-menus (like Print >) from pushing or scrolling the parent page */
 .dropdown-menu .dropdown-menu {
     top: 0 !important;
