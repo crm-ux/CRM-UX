@@ -99,7 +99,7 @@ class CrmDashboard extends Component {
             },
             target: 'current',
         });
-    },
+    }
 
 
     async checkAdminStatus() {
