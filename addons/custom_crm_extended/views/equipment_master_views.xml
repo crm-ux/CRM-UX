@@ -77,15 +77,22 @@
         </field>
     </record>
 
-    <!-- Add Equipment Series Type Dropdown to Sequence Form -->
+        <!-- Replace Name text field with Dropdown on Equipment Sequences -->
     <record id="view_sequence_form_equipment_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.form.equipment.inherit</field>
         <field name="model">ir.sequence</field>
         <field name="inherit_id" ref="base.sequence_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='name']" position="before">
+            <!-- Normal Name field: hide only when working with equipment sequences -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial') or (not code and default_code in ('crm.equipment.id', 'crm.equipment.serial'))</attribute>
+            </xpath>
+
+            <!-- Dropdown Name field: display in its exact spot -->
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="equipment_sequence_type" 
-                       invisible="code and code not in ('crm.equipment.id', 'crm.equipment.serial')"
+                       string="Name"
+                       invisible="code not in ('crm.equipment.id', 'crm.equipment.serial') and (code or default_code not in ('crm.equipment.id', 'crm.equipment.serial'))"
                        placeholder="Select Equipment ID or Serial Number..."/>
             </xpath>
         </field>
