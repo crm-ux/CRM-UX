@@ -61,21 +61,35 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        ICP = self.env['ir.config_parameter'].sudo()
         Ticket = self.env['service.ticket'].sudo()
+        company = self.env.company
 
-        if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
-            prefix = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
-            pad = int(ICP.get_param('crm.ticket_id_padding', 4))
-            next_num = int(ICP.get_param('crm.ticket_id_next', 1))
-            suffix = ICP.get_param('crm.ticket_id_suffix', '')
+        # Service Ticket ID Generation via ir.sequence
+        seq_ticket = self.env['ir.sequence'].search([
+            ('code', '=', 'service.ticket'),
+            ('active', '=', True),
+            '|', ('company_id', '=', company.id), ('company_id', '=', False)
+        ], order='company_id desc', limit=1)
 
-            gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+        if seq_ticket:
+            gen_id = seq_ticket.next_by_id()
             while Ticket.search_count([('ticket_id', '=', gen_id)]) > 0:
-                next_num += 1
-                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-
+                gen_id = seq_ticket.next_by_id()
             res['ticket_id'] = gen_id
+        else:
+            # Fallback
+            ICP = self.env['ir.config_parameter'].sudo()
+            if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
+                prefix = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
+                pad = int(ICP.get_param('crm.ticket_id_padding', 4))
+                next_num = int(ICP.get_param('crm.ticket_id_next', 1))
+                suffix = ICP.get_param('crm.ticket_id_suffix', '')
+                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+                while Ticket.search_count([('ticket_id', '=', gen_id)]) > 0:
+                    next_num += 1
+                    gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+                res['ticket_id'] = gen_id
+
         return res
 
     @api.onchange('partner_id')

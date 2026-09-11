@@ -31,5 +31,42 @@
             <field name="name">Channel Partner</field>
         </record>
 
+                <!-- Equipment ID Sequence -->
+        <record id="seq_crm_equipment_id" model="ir.sequence">
+            <field name="name">Equipment ID</field>
+            <field name="code">crm.equipment.id</field>
+            <field name="prefix">WPS-</field>
+            <field name="padding">4</field>
+            <field name="number_next">13</field>
+            <field name="number_increment">1</field>
+            <field name="implementation">standard</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Equipment Serial Number Sequence -->
+        <record id="seq_crm_equipment_serial" model="ir.sequence">
+            <field name="name">Equipment Serial Number</field>
+            <field name="code">crm.equipment.serial</field>
+            <field name="prefix">SN-</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="active" eval="False"/>
+            <field name="implementation">standard</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Service Ticket ID Sequence -->
+        <record id="seq_service_ticket_id" model="ir.sequence">
+            <field name="name">Service Ticket ID</field>
+            <field name="code">service.ticket</field>
+            <field name="prefix">TCK-</field>
+            <field name="padding">4</field>
+            <field name="number_next">5</field>
+            <field name="number_increment">1</field>
+            <field name="implementation">standard</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

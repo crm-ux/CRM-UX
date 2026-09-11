@@ -42,6 +42,8 @@
                                 <a t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                                 <a t-on-click="openQuoteSeries" class="crm-admin-menu-item" style="cursor:pointer;">Quote Series</a>
+                                <a t-on-click="openEquipmentSeries" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Series</a>
+                                <a t-on-click="openServiceTicketSeries" class="crm-admin-menu-item" style="cursor:pointer;">Service Ticket Series</a>
                                 <a t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
                                 <a t-on-click="openSettings" class="crm-admin-menu-item" style="cursor:pointer;">Settings</a>
                             </div>

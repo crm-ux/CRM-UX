@@ -253,35 +253,46 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        ICP = self.env['ir.config_parameter'].sudo()
         Equipment = self.env['equipment.master'].sudo()
+        company = self.env.company
 
-        # 1. Collision-Free Equipment ID
-        if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
-            prefix = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
-            pad = int(ICP.get_param('crm.equipment_id_padding', 4))
-            next_num = int(ICP.get_param('crm.equipment_id_next', 1))
-            suffix = ICP.get_param('crm.equipment_id_suffix', '')
+        # 1. Equipment ID Generation via ir.sequence
+        seq_id = self.env['ir.sequence'].search([
+            ('code', '=', 'crm.equipment.id'),
+            ('active', '=', True),
+            '|', ('company_id', '=', company.id), ('company_id', '=', False)
+        ], order='company_id desc', limit=1)
 
-            gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+        if seq_id:
+            gen_id = seq_id.next_by_id()
             while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                next_num += 1
-                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-
+                gen_id = seq_id.next_by_id()
             res['equipment_id'] = gen_id
+        else:
+            # Fallback to config parameters if sequence is not present
+            ICP = self.env['ir.config_parameter'].sudo()
+            if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
+                prefix = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
+                pad = int(ICP.get_param('crm.equipment_id_padding', 4))
+                next_num = int(ICP.get_param('crm.equipment_id_next', 1))
+                suffix = ICP.get_param('crm.equipment_id_suffix', '')
+                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+                while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
+                    next_num += 1
+                    gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+                res['equipment_id'] = gen_id
 
-        # 2. Collision-Free Serial Number
-        if ICP.get_param('crm.serial_number_auto', 'True') == 'True':
-            prefix = ICP.get_param('crm.serial_number_prefix', 'SN-')
-            pad = int(ICP.get_param('crm.serial_number_padding', 4))
-            next_num = int(ICP.get_param('crm.serial_number_next', 1))
-            suffix = ICP.get_param('crm.serial_number_suffix', '')
+        # 2. Serial Number Generation (Optional)
+        seq_sn = self.env['ir.sequence'].search([
+            ('code', '=', 'crm.equipment.serial'),
+            ('active', '=', True),
+            '|', ('company_id', '=', company.id), ('company_id', '=', False)
+        ], order='company_id desc', limit=1)
 
-            gen_sn = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
+        if seq_sn:
+            gen_sn = seq_sn.next_by_id()
             while Equipment.search_count([('serial_number', '=', gen_sn)]) > 0:
-                next_num += 1
-                gen_sn = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-
+                gen_sn = seq_sn.next_by_id()
             res['serial_number'] = gen_sn
 
         return res

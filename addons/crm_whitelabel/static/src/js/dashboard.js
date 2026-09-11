@@ -69,6 +69,36 @@ class CrmDashboard extends Component {
         this.go("custom_crm_extended.action_crm_custom_settings");
     }
 
+    openEquipmentSeries() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Equipment Series",
+            res_model: "ir.sequence",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["code", "in", ["crm.equipment.id", "crm.equipment.serial"]]],
+            context: {
+                active_test: false,
+                default_code: "crm.equipment.id",
+                default_name: "Equipment ID",
+            }
+        });
+    }
+
+    openServiceTicketSeries() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Service Ticket Series",
+            res_model: "ir.sequence",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["code", "=", "service.ticket"]],
+            context: {
+                active_test: false,
+                default_code: "service.ticket",
+                default_name: "Service Ticket ID",
+            }
+        });
+    }
+
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
     }
