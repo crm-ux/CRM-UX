@@ -113,6 +113,29 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-left: auto !important;
 }
 
+.o-dropdown--menu,
+.dropdown-menu {
+  position: absolute !important;
+  overflow-anchor: none !important;
+}
+
+
+/* Fix Gear / Action menu submenu scroll jump (ONLY in breadcrumbs) */
+.o_control_panel_breadcrumbs .o-dropdown--menu,
+.o_control_panel_breadcrumbs .dropdown-menu {
+  position: absolute !important;
+  overflow-anchor: none !important;
+}
+
+/* Autocomplete dropdowns (Products, Categories) MUST keep native Odoo positioning */
+.o-autocomplete--dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  z-index: 1055 !important;
+  display: block !important;
+}
+
 /* =========================================================================
    Quotation Gear (⚙) Menu: Keep ONLY Duplicate & Delete
    Scoped ONLY to the breadcrumb gear icon (never touches line item dropdowns)
