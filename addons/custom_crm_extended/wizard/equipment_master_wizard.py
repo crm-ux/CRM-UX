@@ -265,14 +265,21 @@ class EquipmentMasterWizard(models.TransientModel):
         Equipment = self.env['equipment.master'].sudo()
 
         # 1. Equipment ID Generation via ir.sequence (Category-specific or Default)
-        cat_id = res.get('category_id')
+        raw_cat = res.get('category_id')
         seq_id = False
-        if cat_id:
-            seq_id = self.env['ir.sequence'].search([
-                ('code', '=', 'crm.equipment.id'),
-                ('equipment_category_id', '=', cat_id),
-                ('active', '=', True)
-            ], limit=1)
+        if raw_cat:
+            cat_rec = False
+            if isinstance(raw_cat, str):
+                cat_rec = self.env['product.category'].search([('name', '=', raw_cat.strip())], limit=1)
+            elif isinstance(raw_cat, int):
+                cat_rec = self.env['product.category'].browse(raw_cat)
+
+            if cat_rec:
+                seq_id = self.env['ir.sequence'].search([
+                    ('code', '=', 'crm.equipment.id'),
+                    ('equipment_category_id', '=', cat_rec.id),
+                    ('active', '=', True)
+                ], limit=1)
 
         # Fallback to default sequence (where equipment_category_id is False/NULL)
         if not seq_id:
@@ -294,19 +301,6 @@ class EquipmentMasterWizard(models.TransientModel):
             while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
                 gen_id = seq_id.next_by_id()
             res['equipment_id'] = gen_id
-        else:
-            # Fallback to config parameters if sequence is not present
-            ICP = self.env['ir.config_parameter'].sudo()
-            if ICP.get_param('crm.equipment_id_auto', 'True') == 'True':
-                prefix = ICP.get_param('crm.equipment_id_prefix', 'EQ-')
-                pad = int(ICP.get_param('crm.equipment_id_padding', 4))
-                next_num = int(ICP.get_param('crm.equipment_id_next', 1))
-                suffix = ICP.get_param('crm.equipment_id_suffix', '')
-                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-                while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                    next_num += 1
-                    gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-                res['equipment_id'] = gen_id
 
         # 2. Serial Number Generation (Optional)
         seq_sn = self.env['ir.sequence'].search([
@@ -322,19 +316,29 @@ class EquipmentMasterWizard(models.TransientModel):
 
         return res
 
+
     @api.onchange('category_id')
     def _onchange_category_id(self):
         Equipment = self.env['equipment.master'].sudo()
         seq_id = False
+        
         if self.category_id:
-            # Find sequence for selected category
-            seq_id = self.env['ir.sequence'].search([
-                ('code', '=', 'crm.equipment.id'),
-                ('equipment_category_id', '=', self.category_id.id),
-                ('active', '=', True)
-            ], limit=1)
+            # Handle both string name (e.g. "Bio Safety Cabinets") or Many2one record
+            cat_rec = False
+            if isinstance(self.category_id, str):
+                cat_rec = self.env['product.category'].search([('name', '=', self.category_id.strip())], limit=1)
+            elif hasattr(self.category_id, 'id'):
+                cat_rec = self.category_id
 
-        # If no category-specific sequence, use default (where category is blank)
+            if cat_rec:
+                # 1. Find sequence assigned specifically to this category
+                seq_id = self.env['ir.sequence'].search([
+                    ('code', '=', 'crm.equipment.id'),
+                    ('equipment_category_id', '=', cat_rec.id),
+                    ('active', '=', True)
+                ], limit=1)
+
+        # 2. If no category sequence found, fallback to General/Default series (Category is False/NULL)
         if not seq_id:
             seq_id = self.env['ir.sequence'].search([
                 ('code', '=', 'crm.equipment.id'),
@@ -342,6 +346,7 @@ class EquipmentMasterWizard(models.TransientModel):
                 ('active', '=', True)
             ], limit=1)
 
+        # 3. Any active sequence for equipment ID
         if not seq_id:
             seq_id = self.env['ir.sequence'].search([
                 ('code', '=', 'crm.equipment.id'),
