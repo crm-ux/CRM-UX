@@ -298,49 +298,7 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-
-        # Fetch directly from General/Default Equipment Series
-        raw_cat = res.get('category_id')
-        seq_id = False
-        if raw_cat:
-            cat_rec = False
-            if isinstance(raw_cat, str):
-                cat_rec = self.env['product.category'].search([
-                    '|', ('name', '=', raw_cat.strip()),
-                    ('display_name', '=', raw_cat.strip())
-                ], limit=1)
-            elif isinstance(raw_cat, int):
-                cat_rec = self.env['product.category'].browse(raw_cat)
-
-            if cat_rec:
-                seq_id = self.env['ir.sequence'].search([
-                    ('code', '=', 'crm.equipment.id'),
-                    ('equipment_category_id', '=', cat_rec.id),
-                    ('active', '=', True)
-                ], limit=1)
-
-        # Fallback to default General sequence
-        if not seq_id:
-            seq_id = self.env['ir.sequence'].search([
-                ('code', '=', 'crm.equipment.id'),
-                ('equipment_category_id', '=', False),
-                ('active', '=', True)
-            ], limit=1)
-
-        if not seq_id:
-            seq_id = self.env['ir.sequence'].search([
-                ('code', '=', 'crm.equipment.id'),
-                ('active', '=', True)
-            ], limit=1)
-
-        if seq_id:
-            prefix = seq_id.prefix or ''
-            suffix = seq_id.suffix or ''
-            pad = seq_id.padding or 0
-            num = seq_id.number_next or 1
-            num_str = str(num).zfill(pad) if pad else str(num)
-            res['equipment_id'] = f"{prefix}{num_str}{suffix}"
-
+        res['equipment_id'] = _('New')
         return res
 
 
