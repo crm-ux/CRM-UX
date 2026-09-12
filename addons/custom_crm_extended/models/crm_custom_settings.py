@@ -236,28 +236,14 @@ class IrSequenceEquipmentExtension(models.Model):
                     vals['equipment_category_id'] = False
         return super().create(vals_list)
     
-from odoo import models, fields, api
-
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
-    equipment_sequence_type = fields.Selection([
-        ('equipment_id', 'Equipment ID'),
-        ('serial_number', 'Serial Number'),
-    ], string="Sequence Type")
+    equipment_sequence_type = fields.Selection([('equipment_id', 'Equipment ID'),('serial_number', 'Serial Number'),], string="Sequence Type")
 
-    equipment_category_id = fields.Many2one(
-        'equipment.category', 
-        string="Equipment Category",
-        help="Assign this Equipment ID sequence to a specific category. Leave blank for default."
-    )
+    equipment_category_id = fields.Many2one('product.category', string="Category", required=False, ondelete='set null', help="Assign this Equipment ID sequence to a specific category. Leave blank for default.")
 
-    linked_equipment_id_seq_id = fields.Many2one(
-        'ir.sequence',
-        string="Linked Equipment ID Series",
-        domain="[('code', '=', 'crm.equipment.id')]",
-        help="Select which Equipment ID series this Serial Number series belongs to."
-    )
+    linked_equipment_id_seq_id = fields.Many2one('ir.sequence', string="Linked Equipment ID Series", domain="[('code', '=', 'crm.equipment.id')]",help="Select which Equipment ID series this Serial Number series belongs to.")
 
     @api.model_create_multi
     def create(self, vals_list):
