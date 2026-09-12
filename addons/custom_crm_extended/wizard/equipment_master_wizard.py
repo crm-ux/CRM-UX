@@ -93,11 +93,11 @@ class EquipmentMasterWizard(models.TransientModel):
                     ], limit=1)
 
                 if seq_id:
-                    gen_id = seq_id.next_by_id()
-                    while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                        gen_id = seq_id.next_by_id()
-                    self.equipment_id = gen_id
-
+                    next_num = seq_id.number_next_actual
+                    pad = seq_id.padding or 4
+                    prefix = seq_id.prefix or ''
+                    self.equipment_id = f"{prefix}{str(next_num).zfill(pad)}"
+                    
     # Navigation Actions
     def action_next(self):
         self.ensure_one()
@@ -300,10 +300,10 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            gen_id = seq_id.next_by_id()
-            while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                gen_id = seq_id.next_by_id()
-            res['equipment_id'] = gen_id
+            next_num = seq_id.number_next_actual
+            pad = seq_id.padding or 4
+            prefix = seq_id.prefix or ''
+            res['equipment_id'] = f"{prefix}{str(next_num).zfill(pad)}"
 
         # 2. Serial Number Generation (Optional)
         seq_sn = self.env['ir.sequence'].search([
@@ -363,7 +363,7 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            gen_id = seq_id.next_by_id()
-            while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                gen_id = seq_id.next_by_id()
-            self.equipment_id = gen_id
+            next_num = seq_id.number_next_actual
+            pad = seq_id.padding or 4
+            prefix = seq_id.prefix or ''
+            self.equipment_id = f"{prefix}{str(next_num).zfill(pad)}"
