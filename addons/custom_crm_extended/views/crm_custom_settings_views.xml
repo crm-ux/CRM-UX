@@ -182,11 +182,8 @@
         <field name="inherit_id" ref="base.sequence_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='code']" position="after">
-                <field name="equipment_category_id" 
-                       string="Category" 
-                       invisible="code != 'crm.equipment.id'"
-                       options="{'no_create': True, 'no_open': True}"
-                       placeholder="Optional (Leave blank for default series)..."/>
+                <field name="equipment_category_id" string="Category" invisible="code != 'crm.equipment.id'"
+                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" placeholder="Optional (Leave blank for default series)..."/>
             </xpath>
             <xpath expr="//field[@name='company_id']" position="attributes">
                 <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>

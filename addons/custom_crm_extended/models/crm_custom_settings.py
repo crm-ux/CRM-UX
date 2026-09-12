@@ -168,13 +168,7 @@ class IrSequenceEquipmentExtension(models.Model):
     ], string='Name', compute='_compute_equipment_sequence_type', inverse='_inverse_equipment_sequence_type', store=True, readonly=False)
 
     # Equipment Category linkage for Category-wise Equipment IDs
-    equipment_category_id = fields.Many2one(
-        'equipment.category', 
-        string="Equipment Category",
-        ondelete='set null',
-        help="Assign this Equipment ID sequence to a specific category. Leave blank for default."
-    )
-
+    equipment_category_id = fields.Many2one('product.category', string="Category", ondelete='set null', help="Assign this Equipment ID sequence to a specific category. Leave blank for default.")
 
     # Link Serial Number to Equipment ID
     linked_equipment_id_seq_id = fields.Many2one(
