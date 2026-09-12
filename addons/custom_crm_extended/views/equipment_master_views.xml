@@ -16,9 +16,9 @@
                     </div>
 
                     <div class="oe_title">
-                        <label for="equipment_id" class="oe_edit_only" string="Equipment ID" readonly="1"/>
+                        <label for="equipment_id" class="oe_edit_only" string="Equipment ID"/>
                         <h1>
-                            <field name="equipment_id" placeholder="e.g. LT000123"/>
+                            <field name="equipment_id" placeholder="e.g. LT000123" readonly="1"/>
                         </h1>
                         <h2>
                             <field name="name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
