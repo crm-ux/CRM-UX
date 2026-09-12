@@ -61,8 +61,8 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        # Service Ticket ID Preview via ir.sequence (Preview ONLY - do NOT burn on Cancel)
-        seq_ticket = self.env['ir.sequence'].search([
+        # Service Ticket ID Preview via ir.sequence (Preview ONLY - do NOT consume on Cancel)
+        seq_ticket = self.env['ir.sequence'].sudo().search([
             ('code', '=', 'service.ticket'),
             ('active', '=', True),
         ], limit=1)
@@ -71,20 +71,89 @@ class ServiceTicketWizard(models.TransientModel):
             prefix = seq_ticket.prefix or ''
             suffix = seq_ticket.suffix or ''
             pad = seq_ticket.padding or 0
+            
+            # For standard implementation, number_next gives the next number
+            # We read it safely from number_next
             num = seq_ticket.number_next or 1
             num_str = str(num).zfill(pad) if pad else str(num)
             preview_id = f"{prefix}{num_str}{suffix}"
-            
-            # If preview_id already exists in database, adjust preview display
+
+            # Make sure preview does not clash with existing tickets
             Ticket = self.env['service.ticket'].sudo()
             while Ticket.search_count([('ticket_id', '=', preview_id)]) > 0:
                 num += 1
                 num_str = str(num).zfill(pad) if pad else str(num)
                 preview_id = f"{prefix}{num_str}{suffix}"
-                
+
             res['ticket_id'] = preview_id
 
         return res
+
+    def action_save_ticket(self):
+        self.ensure_one()
+
+        # Find the sequence
+        seq_ticket = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'service.ticket'),
+            ('active', '=', True),
+        ], limit=1)
+
+        Ticket = self.env['service.ticket'].sudo()
+
+        # Consume the official sequence number on Save
+        if seq_ticket:
+            assigned_id = seq_ticket.next_by_id()
+            while Ticket.search_count([('ticket_id', '=', assigned_id)]) > 0:
+                assigned_id = seq_ticket.next_by_id()
+        else:
+            assigned_id = self.ticket_id
+
+        if not assigned_id:
+            raise ValidationError(_('Ticket ID is required.'))
+
+        # Check unique Ticket ID
+        dup_ticket = Ticket.search([('ticket_id', '=', assigned_id.strip())], limit=1)
+        if dup_ticket:
+            raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % assigned_id)
+
+        ticket_vals = {
+            'ticket_id': assigned_id,
+            'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
+            'partner_id': self.partner_id.id,
+            'company_id': self.company_id.id if self.company_id else False,
+            'equipment_id': self.equipment_id.id if self.equipment_id else False,
+            'site_name': self.site_name,
+            'contact_person': self.contact_person,
+            'contact_number': self.contact_number,
+            'email': self.email,    
+            'model_number': self.model_number,
+            'serial_number': self.serial_number,
+            'part_number': self.part_number,
+            'complaint_type': self.complaint_type or 'breakdown',
+            'complaint_description': self.complaint_description,
+            'priority': self.priority or 'medium',
+            'engineer_id': self.engineer_id.id if self.engineer_id else False,
+            'engineer_contact': self.engineer_contact,
+            'engineer_email': self.engineer_email,
+            'visit_date': self.visit_date,
+            'ticket_status': 'new',
+            'root_cause': self.root_cause,
+            'corrective_action': self.corrective_action,
+            'spare_parts_used': self.spare_parts_used,
+            'service_start_time': self.service_start_time,
+            'service_end_time': self.service_end_time,
+        }
+        ticket = self.env['service.ticket'].create(ticket_vals)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Service Ticket'),
+            'res_model': 'service.ticket',
+            'res_id': ticket.id,
+            'view_mode': 'form',
+            'views': [[False, 'form']],
+            'target': 'current',
+        }
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
