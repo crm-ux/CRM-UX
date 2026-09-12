@@ -280,18 +280,36 @@ class ServiceTicketWizard(models.TransientModel):
 
     def action_save_ticket(self):
         self.ensure_one()
-        if not self.ticket_id:
+
+        # Find the active Service Ticket sequence
+        seq_ticket = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'service.ticket'),
+            ('active', '=', True),
+        ], limit=1)
+
+        Ticket = self.env['service.ticket'].sudo()
+
+        # Officially consume the sequence number ONLY when Save is clicked:
+        if seq_ticket:
+            assigned_id = seq_ticket.next_by_id()
+            while Ticket.search_count([('ticket_id', '=', assigned_id)]) > 0:
+                assigned_id = seq_ticket.next_by_id()
+        else:
+            assigned_id = self.ticket_id
+
+        if not assigned_id:
             raise ValidationError(_('Ticket ID is required.'))
+
         # Check unique Ticket ID
-        dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
+        dup_ticket = Ticket.search([('ticket_id', '=', assigned_id.strip())], limit=1)
         if dup_ticket:
-            raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % self.ticket_id)
+            raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % assigned_id)
 
         ticket_vals = {
-            'ticket_id': self.ticket_id,
+            'ticket_id': assigned_id,
             'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
             'partner_id': self.partner_id.id,
-            "company_id": self.company_id.id if self.company_id else False,
+            'company_id': self.company_id.id if self.company_id else False,
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
             'site_name': self.site_name,
             'contact_person': self.contact_person,
@@ -313,16 +331,8 @@ class ServiceTicketWizard(models.TransientModel):
             'spare_parts_used': self.spare_parts_used,
             'service_start_time': self.service_start_time,
             'service_end_time': self.service_end_time,
-            # 'customer_signature': self.customer_signature,
-            # 'engineer_signature': self.engineer_signature,
         }
         ticket = self.env['service.ticket'].create(ticket_vals)
-
-        # Increment Ticket ID counter in settings
-        ICP = self.env['ir.config_parameter'].sudo()
-        if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
-            current_next = int(ICP.get_param('crm.ticket_id_next', 1))
-            ICP.set_param('crm.ticket_id_next', str(current_next + 1))
 
         return {
             'type': 'ir.actions.act_window',
