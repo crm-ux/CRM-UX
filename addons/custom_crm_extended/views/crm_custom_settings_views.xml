@@ -188,6 +188,11 @@
             <xpath expr="//field[@name='company_id']" position="attributes">
                 <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
             </xpath>
+            <!-- In view_sequence_form_equipment_category_inherit -->
+            <xpath expr="//field[@name='implementation']" position="attributes">
+                <attribute name="readonly">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
+            </xpath>
+
         </field>
     </record>
 

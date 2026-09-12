@@ -224,9 +224,10 @@ class IrSequence(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            # Force company_id = False for All Companies
+            # Force company_id = False (All Companies) AND implementation = 'standard' (like Quote)
             if vals.get('code') in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
                 vals['company_id'] = False
+                vals['implementation'] = 'standard'
 
             if vals.get('equipment_sequence_type') == 'equipment_id':
                 vals['code'] = 'crm.equipment.id'
@@ -243,5 +244,7 @@ class IrSequence(models.Model):
             if code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
                 if 'company_id' in vals and vals['company_id']:
                     vals['company_id'] = False
+                vals['implementation'] = 'standard'
         return super().write(vals)
+
         
