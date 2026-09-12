@@ -58,7 +58,7 @@ class ServiceTicketWizard(models.TransientModel):
     # customer_signature = fields.Binary(string='Customer Signature')
     # engineer_signature = fields.Binary(string='Engineer Signature')
 
-        @api.model
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         # Service Ticket ID Preview via ir.sequence (Preview ONLY - do NOT burn on Cancel)
