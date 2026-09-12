@@ -5,6 +5,8 @@ class CrmCustomSettings(models.Model):
     _name = 'crm.custom.settings'
     _description = 'CRM Custom Settings'
 
+
+    name = fields.Char(string="Name", default="CRM Settings")
     # Expense Configuration Fields
     new_expense_type_name = fields.Char(string="New Expense Type")
     expense_type_ids = fields.Many2many(
