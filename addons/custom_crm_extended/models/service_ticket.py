@@ -59,8 +59,7 @@ class ServiceTicket(models.Model):
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
     
-    # Status
-        # Status (5 Stages)
+    # Status (5 Stages)
     ticket_status = fields.Selection([
         ('new', 'New'),
         ('contacted', 'Contacted'),

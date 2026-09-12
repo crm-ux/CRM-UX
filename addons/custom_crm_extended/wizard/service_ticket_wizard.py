@@ -61,27 +61,7 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        seq_ticket = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'service.ticket'),
-            ('active', '=', True),
-        ], limit=1)
-
-        if seq_ticket:
-            prefix = seq_ticket.prefix or ''
-            suffix = seq_ticket.suffix or ''
-            pad = seq_ticket.padding or 0
-            num = seq_ticket.number_next or 1
-            num_str = str(num).zfill(pad) if pad else str(num)
-            preview_id = f"{prefix}{num_str}{suffix}"
-
-            Ticket = self.env['service.ticket'].sudo()
-            while Ticket.search_count([('ticket_id', '=', preview_id)]) > 0:
-                num += 1
-                num_str = str(num).zfill(pad) if pad else str(num)
-                preview_id = f"{prefix}{num_str}{suffix}"
-
-            res['ticket_id'] = preview_id
-
+        res['ticket_id'] = _('New')
         return res
 
     @api.onchange('partner_id')
@@ -149,9 +129,11 @@ class ServiceTicketWizard(models.TransientModel):
             raise ValidationError(_('Please enter Ticket ID before proceeding.'))
         if not self.partner_id:
             raise ValidationError(_('Please select Customer Name before proceeding.'))
-        dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
-        if dup_ticket:
-            raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % self.ticket_id)
+        if self.ticket_id != _('New'):
+            dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
+            if dup_ticket:
+                raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % self.ticket_id)
+
 
     def action_goto_2(self):
         self.ensure_one()
@@ -194,13 +176,14 @@ class ServiceTicketWizard(models.TransientModel):
                 raise ValidationError(_('Please enter Ticket ID before proceeding.'))
             if not self.partner_id:
                 raise ValidationError(_('Please select Customer Name before proceeding.'))
-            # Check unique Ticket ID
-            dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
-            if dup_ticket:
-                raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
+            if self.ticket_id != _('New'):
+                dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
+                if dup_ticket:
+                    raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
         if self.step < 3:
             self.step += 1
         return self._reopen_wizard()
+
 
     def action_prev_step(self):
         self.ensure_one()
@@ -210,27 +193,19 @@ class ServiceTicketWizard(models.TransientModel):
     def action_save_ticket(self):
         self.ensure_one()
 
-        # Find the active Service Ticket sequence
-        seq_ticket = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'service.ticket'),
-            ('active', '=', True),
-        ], limit=1)
-
-        Ticket = self.env['service.ticket'].sudo()
-
-        # Officially consume the sequence number ONLY when Save is clicked:
-        if seq_ticket:
-            assigned_id = seq_ticket.next_by_id()
-            while Ticket.search_count([('ticket_id', '=', assigned_id)]) > 0:
+        assigned_id = self.ticket_id
+        if not assigned_id or assigned_id == _('New'):
+            seq_ticket = self.env['ir.sequence'].sudo().search([
+                ('code', '=', 'service.ticket'),
+                ('active', '=', True),
+            ], limit=1)
+            if seq_ticket:
                 assigned_id = seq_ticket.next_by_id()
-        else:
-            assigned_id = self.ticket_id
-
-        if not assigned_id:
-            raise ValidationError(_('Ticket ID is required.'))
+            else:
+                raise ValidationError(_('Service Ticket sequence not found!'))
 
         # Check unique Ticket ID
-        dup_ticket = Ticket.search([('ticket_id', '=', assigned_id.strip())], limit=1)
+        dup_ticket = self.env['service.ticket'].sudo().search([('ticket_id', '=', assigned_id.strip())], limit=1)
         if dup_ticket:
             raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % assigned_id)
 
