@@ -20,7 +20,7 @@ class EquipmentMaster(models.Model):
     ]
 
     # Step 1: Equipment Info
-    equipment_id  = fields.Char(string='Equipment ID', required=True, tracking=True)
+    equipment_id  = fields.Char(string='Equipment ID', required=True, tracking=True, readonly=True)
     name = fields.Many2one('product.template', string='Equipment Name', tracking=True)
     category_id = fields.Char(string='Equipment Category', tracking=True)
     manufacturer = fields.Char(string='Manufacturer', tracking=True)

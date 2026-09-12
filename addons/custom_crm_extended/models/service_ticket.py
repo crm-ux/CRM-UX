@@ -11,7 +11,7 @@ class ServiceTicket(models.Model):
     _order = 'id desc'
 
     name = fields.Char(string='Ticket Number', required=True, copy=False, readonly=True, default=lambda self: _('New'))
-    ticket_id = fields.Char(string='Ticket ID', required=True, copy=False, tracking=True)
+    ticket_id = fields.Char(string='Ticket ID', required=True, copy=False, tracking=Tru, readonly=True)
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now, required=True, tracking=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, tracking=True)
 
