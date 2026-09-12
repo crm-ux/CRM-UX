@@ -92,7 +92,13 @@ class EquipmentMasterWizard(models.TransientModel):
                     ], limit=1)
 
                 if seq_id:
-                    self.equipment_id = seq_id.next_by_id()
+                    prefix = seq_id.prefix or ''
+                    suffix = seq_id.suffix or ''
+                    pad = seq_id.padding or 0
+                    num = seq_id.number_next or 1
+                    num_str = str(num).zfill(pad) if pad else str(num)
+                    self.equipment_id = f"{prefix}{num_str}{suffix}"
+
             
     # Navigation Actions
     def action_next(self):
@@ -167,13 +173,44 @@ class EquipmentMasterWizard(models.TransientModel):
 
     def action_save_equipment(self):
         self.ensure_one()
-        if not self.equipment_id:
+
+        # Find matching sequence for category or default to consume on save
+        cat_rec = False
+        if self.category_id:
+            if isinstance(self.category_id, str):
+                cat_rec = self.env['product.category'].search([
+                    '|', ('name', '=', self.category_id.strip()),
+                    ('display_name', '=', self.category_id.strip())
+                ], limit=1)
+            elif isinstance(self.category_id, int):
+                cat_rec = self.env['product.category'].browse(self.category_id)
+            elif hasattr(self.category_id, '_name'):
+                cat_rec = self.category_id
+
+        seq_id = False
+        if cat_rec:
+            seq_id = self.env['ir.sequence'].search([
+                ('code', '=', 'crm.equipment.id'),
+                ('equipment_category_id', '=', cat_rec.id),
+                ('active', '=', True)
+            ], limit=1)
+
+        if not seq_id:
+            seq_id = self.env['ir.sequence'].search([
+                ('code', '=', 'crm.equipment.id'),
+                ('equipment_category_id', '=', False),
+                ('active', '=', True)
+            ], limit=1)
+
+        # Officially consume the sequence on SAVE
+        assigned_eq_id = seq_id.next_by_id() if seq_id else self.equipment_id
+        if not assigned_eq_id:
             raise ValidationError(_("Please enter Equipment ID before saving."))
 
         # Final uniqueness check for Equipment ID
-        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', assigned_eq_id.strip())], limit=1)
         if dup_eq:
-            raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
+            raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % assigned_eq_id)
 
         # Final uniqueness check for Serial Number (only if user entered one)
         clean_sn = self.serial_number.strip() if self.serial_number and self.serial_number.strip() else False
@@ -183,7 +220,7 @@ class EquipmentMasterWizard(models.TransientModel):
                 raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % clean_sn)
 
         equipment = self.env["equipment.master"].create({
-            "equipment_id": self.equipment_id.strip(),
+            "equipment_id": assigned_eq_id.strip(),
             "name": self.name.id if self.name else False,
             "category_id": self.category_id,
             "manufacturer": self.manufacturer,
@@ -223,6 +260,7 @@ class EquipmentMasterWizard(models.TransientModel):
             "view_mode": "form",
             "target": "current",
         }
+
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
@@ -296,7 +334,12 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            res['equipment_id'] = seq_id.next_by_id()
+            prefix = seq_id.prefix or ''
+            suffix = seq_id.suffix or ''
+            pad = seq_id.padding or 0
+            num = seq_id.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            res['equipment_id'] = f"{prefix}{num_str}{suffix}"
 
         return res
 
@@ -333,4 +376,10 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            self.equipment_id = seq_id.next_by_id()
+            prefix = seq_id.prefix or ''
+            suffix = seq_id.suffix or ''
+            pad = seq_id.padding or 0
+            num = seq_id.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            self.equipment_id = f"{prefix}{num_str}{suffix}"
+
