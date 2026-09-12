@@ -159,16 +159,21 @@ class CrmCustomSettings(models.TransientModel):
         return False
 
 
-class IrSequenceEquipmentExtension(models.Model):
+class IrSequence(models.Model):
     _inherit = 'ir.sequence'
 
     equipment_sequence_type = fields.Selection([
-        ('crm.equipment.id', 'Equipment ID'),
-        ('crm.equipment.serial', 'Equipment Serial Number'),
+        ('equipment_id', 'Equipment ID'),
+        ('serial_number', 'Equipment Serial Number'),
     ], string='Name', compute='_compute_equipment_sequence_type', inverse='_inverse_equipment_sequence_type', store=True, readonly=False)
 
     # Equipment Category linkage for Category-wise Equipment IDs
-    equipment_category_id = fields.Many2one('product.category', string="Category", ondelete='set null', help="Assign this Equipment ID sequence to a specific category. Leave blank for default.")
+    equipment_category_id = fields.Many2one(
+        'product.category', 
+        string="Category", 
+        ondelete='set null', 
+        help="Assign this Equipment ID sequence to a specific category. Leave blank for default."
+    )
 
     # Link Serial Number to Equipment ID
     linked_equipment_id_seq_id = fields.Many2one(
@@ -179,7 +184,6 @@ class IrSequenceEquipmentExtension(models.Model):
         help="Select which Equipment ID series this Serial Number series belongs to."
     )
 
-
     @api.depends('name', 'prefix', 'equipment_category_id')
     def _compute_display_name(self):
         for rec in self:
@@ -188,7 +192,7 @@ class IrSequenceEquipmentExtension(models.Model):
                 cat_info = f" ({rec.equipment_category_id.name})" if rec.equipment_category_id else ""
                 rec.display_name = f"{rec.name or 'Sequence'}{prefix_info}{cat_info}"
             else:
-                super(IrSequenceEquipmentExtension, rec)._compute_display_name()
+                super(IrSequence, rec)._compute_display_name()
 
     @api.depends('code')
     def _compute_equipment_sequence_type(self):
@@ -220,39 +224,24 @@ class IrSequenceEquipmentExtension(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('equipment_sequence_type'):
-                vals['code'] = vals['equipment_sequence_type']
-                if vals['equipment_sequence_type'] == 'crm.equipment.id':
-                    vals['name'] = 'Equipment ID'
-                    vals['linked_equipment_id_seq_id'] = False
-                elif vals['equipment_sequence_type'] == 'crm.equipment.serial':
-                    vals['name'] = 'Equipment Serial Number'
-                    vals['equipment_category_id'] = False
-        return super().create(vals_list)
-    
-class IrSequence(models.Model):
-    _inherit = 'ir.sequence'
-
-    equipment_sequence_type = fields.Selection([('equipment_id', 'Equipment ID'),('serial_number', 'Serial Number'),], string="Sequence Type")
-
-    equipment_category_id = fields.Many2one('product.category', string="Category", required=False, ondelete='set null', help="Assign this Equipment ID sequence to a specific category. Leave blank for default.")
-
-    linked_equipment_id_seq_id = fields.Many2one('ir.sequence', string="Linked Equipment ID Series", domain="[('code', '=', 'crm.equipment.id')]",help="Select which Equipment ID series this Serial Number series belongs to.")
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            # If it's an Equipment or Service Ticket sequence, FORCE company_id = False (All Companies)
+            # Force company_id = False for All Companies
             if vals.get('code') in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
                 vals['company_id'] = False
-        return super(IrSequence, self).create(vals_list)
+
+            if vals.get('equipment_sequence_type') == 'equipment_id':
+                vals['code'] = 'crm.equipment.id'
+                vals['name'] = 'Equipment ID'
+            elif vals.get('equipment_sequence_type') == 'serial_number':
+                vals['code'] = 'crm.equipment.serial'
+                vals['name'] = 'Equipment Serial Number'
+                vals['equipment_category_id'] = False
+        return super().create(vals_list)
 
     def write(self, vals):
         for record in self:
-            # If writing to an Equipment or Service Ticket sequence, keep company_id = False
             code = vals.get('code', record.code)
             if code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket'):
                 if 'company_id' in vals and vals['company_id']:
                     vals['company_id'] = False
-        return super(IrSequence, self).write(vals)
-
+        return super().write(vals)
+        
