@@ -72,28 +72,31 @@ class EquipmentMasterWizard(models.TransientModel):
     def _onchange_name(self):
         if self.name:
             categ = self.name.categ_id
-            self.category_id = categ.display_name if categ else ''
+            self.category_id = categ.name if categ else ''
             self.manufacturer = getattr(self.name, 'x_make', '') or ''
             self.part_number = getattr(self.name, 'default_code', '') or ''
 
-            # If category has a custom sequence, generate the ID for this category!
+            # Trigger category series update directly using the category record ID
             if categ:
-                cat_seq = self.env['ir.sequence'].search([
+                Equipment = self.env['equipment.master'].sudo()
+                seq_id = self.env['ir.sequence'].search([
                     ('code', '=', 'crm.equipment.id'),
-                    ('active', '=', True),
-                    ('equipment_category_id', '=', categ.id)
+                    ('equipment_category_id', '=', categ.id),
+                    ('active', '=', True)
                 ], limit=1)
-                if cat_seq:
-                    gen_id = cat_seq.next_by_id()
-                    Equipment = self.env['equipment.master'].sudo()
-                    while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
-                        gen_id = cat_seq.next_by_id()
-                    self.equipment_id = gen_id
-        else:
-            self.category_id = ''
-            self.manufacturer = ''
-            self.part_number = ''
 
+                if not seq_id:
+                    seq_id = self.env['ir.sequence'].search([
+                        ('code', '=', 'crm.equipment.id'),
+                        ('equipment_category_id', '=', False),
+                        ('active', '=', True)
+                    ], limit=1)
+
+                if seq_id:
+                    gen_id = seq_id.next_by_id()
+                    while Equipment.search_count([('equipment_id', '=', gen_id)]) > 0:
+                        gen_id = seq_id.next_by_id()
+                    self.equipment_id = gen_id
 
     # Navigation Actions
     def action_next(self):
@@ -323,22 +326,28 @@ class EquipmentMasterWizard(models.TransientModel):
         seq_id = False
         
         if self.category_id:
-            # Handle both string name (e.g. "Bio Safety Cabinets") or Many2one record
-            cat_rec = False
+            cat_id_val = False
+            # 1. If it's a string name (e.g. "Bio Safety Cabinets")
             if isinstance(self.category_id, str):
                 cat_rec = self.env['product.category'].search([('name', '=', self.category_id.strip())], limit=1)
-            elif hasattr(self.category_id, 'id'):
-                cat_rec = self.category_id
+                if cat_rec:
+                    cat_id_val = cat_rec.id
+            # 2. If it's an integer ID
+            elif isinstance(self.category_id, int):
+                cat_id_val = self.category_id
+            # 3. If it's a Many2one recordset
+            elif type(self.category_id).__name__ != 'str' and hasattr(self.category_id, '_name'):
+                cat_id_val = self.category_id.id
 
-            if cat_rec:
-                # 1. Find sequence assigned specifically to this category
+            if cat_id_val:
+                # Find sequence specifically for this category
                 seq_id = self.env['ir.sequence'].search([
                     ('code', '=', 'crm.equipment.id'),
-                    ('equipment_category_id', '=', cat_rec.id),
+                    ('equipment_category_id', '=', cat_id_val),
                     ('active', '=', True)
                 ], limit=1)
 
-        # 2. If no category sequence found, fallback to General/Default series (Category is False/NULL)
+        # Fallback to default sequence (where equipment_category_id is False/NULL)
         if not seq_id:
             seq_id = self.env['ir.sequence'].search([
                 ('code', '=', 'crm.equipment.id'),
@@ -346,7 +355,7 @@ class EquipmentMasterWizard(models.TransientModel):
                 ('active', '=', True)
             ], limit=1)
 
-        # 3. Any active sequence for equipment ID
+        # Fallback to any active sequence for equipment ID
         if not seq_id:
             seq_id = self.env['ir.sequence'].search([
                 ('code', '=', 'crm.equipment.id'),
