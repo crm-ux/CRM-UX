@@ -76,29 +76,6 @@ class EquipmentMasterWizard(models.TransientModel):
             self.manufacturer = getattr(self.name, 'x_make', '') or ''
             self.part_number = getattr(self.name, 'default_code', '') or ''
 
-            # Directly fetch next ID from ir.sequence for this product category
-            if categ:
-                seq_id = self.env['ir.sequence'].search([
-                    ('code', '=', 'crm.equipment.id'),
-                    ('equipment_category_id', '=', categ.id),
-                    ('active', '=', True)
-                ], limit=1)
-
-                if not seq_id:
-                    seq_id = self.env['ir.sequence'].search([
-                        ('code', '=', 'crm.equipment.id'),
-                        ('equipment_category_id', '=', False),
-                        ('active', '=', True)
-                    ], limit=1)
-
-                if seq_id:
-                    prefix = seq_id.prefix or ''
-                    suffix = seq_id.suffix or ''
-                    pad = seq_id.padding or 0
-                    num = seq_id.number_next or 1
-                    num_str = str(num).zfill(pad) if pad else str(num)
-                    self.equipment_id = f"{prefix}{num_str}{suffix}"
-
             
     # Navigation Actions
     def action_next(self):
