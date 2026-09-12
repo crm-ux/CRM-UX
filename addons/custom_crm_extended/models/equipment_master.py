@@ -83,29 +83,38 @@ class EquipmentMaster(models.Model):
     def _onchange_partner_id(self):
         if self.partner_id:
             p = self.partner_id
+            contact_name = ""
+            contact_phone = ""
+            contact_email = ""
+
             if p.is_company:
                 primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
-            if primary_contact:
-                self.contact_person = primary_contact.name or ""
-                self.contact_number = primary_contact.phone or getattr(primary_contact, 'mobile', False) or p.phone or getattr(p, 'mobile', False) or ""
-                self.email = primary_contact.email or p.email or ""
+                if primary_contact:
+                    contact_name = primary_contact.name or p.name or ""
+                    contact_phone = primary_contact.phone or primary_contact.mobile or p.phone or p.mobile or ""
+                    contact_email = primary_contact.email or p.email or ""
+                else:
+                    contact_name = p.name or ""
+                    contact_phone = p.phone or p.mobile or ""
+                    contact_email = p.email or ""
             else:
-                self.contact_person = p.name or ""
-                self.contact_number = p.phone or getattr(p, 'mobile', False) or ""
-                self.email = p.email or ""
-        else:
-            self.contact_person = p.name or ""
-            self.contact_number = p.phone or getattr(p, 'mobile', False) or ""
-            self.email = p.email or ""
+                contact_name = p.name or ""
+                parent = p.parent_id
+                contact_phone = p.phone or p.mobile or (parent.phone if parent else False) or (parent.mobile if parent else False) or ""
+                contact_email = p.email or (parent.email if parent else False) or ""
 
-        addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
-        self.address = ", ".join([str(a) for a in addr_parts if a])
+            self.contact_person = contact_name
+            self.contact_number = contact_phone
+            self.email = contact_email
 
-        self.site_name = getattr(p, 'x_site_name', False) or ""
-        self.building = getattr(p, 'x_building', False) or ""
-        self.floor = getattr(p, 'x_floor', False) or ""
-        self.department = getattr(p, 'x_department', False) or p.function or ""
-        self.room_number = getattr(p, 'x_room_number', False) or ""
+            addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
+            self.address = ", ".join([str(a) for a in addr_parts if a])
+
+            self.site_name = getattr(p, 'x_site_name', False) or (getattr(p.parent_id, 'x_site_name', False) if p.parent_id else "") or ""
+            self.building = getattr(p, 'x_building', False) or ""
+            self.floor = getattr(p, 'x_floor', False) or ""
+            self.department = getattr(p, 'x_department', False) or p.function or ""
+            self.room_number = getattr(p, 'x_room_number', False) or ""
 
     @api.depends('name', 'serial_number', 'equipment_id')
     def _compute_display_name(self):
