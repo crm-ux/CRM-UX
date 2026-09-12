@@ -175,22 +175,40 @@
         <field name="target">current</field>
     </record>
 
-    <!-- In view_sequence_form_equipment_category_inherit -->
+    <!-- Sequence Form: Equipment Series Name Dropdown, Category Selection & Hide Company -->
     <record id="view_sequence_form_equipment_category_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.form.equipment.category.inherit</field>
         <field name="model">ir.sequence</field>
         <field name="inherit_id" ref="base.sequence_view"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='code']" position="after">
-                <field name="equipment_category_id" string="Category" invisible="code != 'crm.equipment.id'"
-                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" placeholder="Optional (Leave blank for default series)..."/>
+            <!-- 1. Hide normal text Name for equipment sequences -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial')</attribute>
             </xpath>
+
+            <!-- 2. Show Selection Dropdown for Name (Equipment ID / Serial Number) -->
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="equipment_sequence_type" 
+                       string="Name"
+                       invisible="code not in ('crm.equipment.id', 'crm.equipment.serial')"
+                       placeholder="Select Equipment ID or Serial Number..."/>
+            </xpath>
+
+            <!-- 3. Category: show ONLY when Equipment ID is selected -->
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="equipment_category_id" 
+                       string="Category" 
+                       invisible="code != 'crm.equipment.id' and equipment_sequence_type != 'equipment_id'"
+                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" 
+                       placeholder="Optional (Leave blank for default series)..."/>
+            </xpath>
+
+            <!-- 4. Hide Company field -->
             <xpath expr="//field[@name='company_id']" position="attributes">
                 <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
             </xpath>
         </field>
     </record>
-
 
     <!-- Tree View -->
     <record id="view_sequence_tree_equipment_inherit" model="ir.ui.view">
@@ -208,7 +226,6 @@
             </xpath>
         </field>
     </record>
-
 
         <!-- Inherit ir.sequence Tree to hide Company column and show Equipment Category -->
     <record id="view_sequence_tree_equipment_inherit" model="ir.ui.view">
