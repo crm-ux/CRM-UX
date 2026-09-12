@@ -175,7 +175,7 @@
         <field name="target">current</field>
     </record>
 
-    <!-- Form View -->
+    <!-- In view_sequence_form_equipment_category_inherit -->
     <record id="view_sequence_form_equipment_category_inherit" model="ir.ui.view">
         <field name="name">ir.sequence.form.equipment.category.inherit</field>
         <field name="model">ir.sequence</field>
@@ -188,13 +188,9 @@
             <xpath expr="//field[@name='company_id']" position="attributes">
                 <attribute name="invisible">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
             </xpath>
-            <!-- In view_sequence_form_equipment_category_inherit -->
-            <xpath expr="//field[@name='implementation']" position="attributes">
-                <attribute name="readonly">code in ('crm.equipment.id', 'crm.equipment.serial', 'service.ticket')</attribute>
-            </xpath>
-
         </field>
     </record>
+
 
     <!-- Tree View -->
     <record id="view_sequence_tree_equipment_inherit" model="ir.ui.view">
