@@ -58,36 +58,31 @@ class ServiceTicketWizard(models.TransientModel):
     # customer_signature = fields.Binary(string='Customer Signature')
     # engineer_signature = fields.Binary(string='Engineer Signature')
 
-    @api.model
+        @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        Ticket = self.env['service.ticket'].sudo()
-        company = self.env.company
-        # Service Ticket ID Generation via ir.sequence
+        # Service Ticket ID Preview via ir.sequence (Preview ONLY - do NOT burn on Cancel)
         seq_ticket = self.env['ir.sequence'].search([
             ('code', '=', 'service.ticket'),
             ('active', '=', True),
-            '|', ('company_id', '=', company.id), ('company_id', '=', False)
-        ], order='company_id desc', limit=1)
+        ], limit=1)
 
         if seq_ticket:
-            gen_id = seq_ticket.next_by_id()
-            while Ticket.search_count([('ticket_id', '=', gen_id)]) > 0:
-                gen_id = seq_ticket.next_by_id()
-            res['ticket_id'] = gen_id
-        else:
-            # Fallback
-            ICP = self.env['ir.config_parameter'].sudo()
-            if ICP.get_param('crm.ticket_id_auto', 'True') == 'True':
-                prefix = ICP.get_param('crm.ticket_id_prefix', 'TCK-')
-                pad = int(ICP.get_param('crm.ticket_id_padding', 4))
-                next_num = int(ICP.get_param('crm.ticket_id_next', 1))
-                suffix = ICP.get_param('crm.ticket_id_suffix', '')
-                gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-                while Ticket.search_count([('ticket_id', '=', gen_id)]) > 0:
-                    next_num += 1
-                    gen_id = f"{prefix}{str(next_num).zfill(pad)}{suffix}"
-                res['ticket_id'] = gen_id
+            prefix = seq_ticket.prefix or ''
+            suffix = seq_ticket.suffix or ''
+            pad = seq_ticket.padding or 0
+            num = seq_ticket.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            preview_id = f"{prefix}{num_str}{suffix}"
+            
+            # If preview_id already exists in database, adjust preview display
+            Ticket = self.env['service.ticket'].sudo()
+            while Ticket.search_count([('ticket_id', '=', preview_id)]) > 0:
+                num += 1
+                num_str = str(num).zfill(pad) if pad else str(num)
+                preview_id = f"{prefix}{num_str}{suffix}"
+                
+            res['ticket_id'] = preview_id
 
         return res
 
