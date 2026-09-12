@@ -301,7 +301,7 @@ class EquipmentMasterWizard(models.TransientModel):
         return res
 
 
-        @api.onchange('category_id')
+    @api.onchange('category_id')
     def _onchange_category_id(self):
         seq_id = False
         if self.category_id:
