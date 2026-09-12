@@ -78,7 +78,6 @@ class EquipmentMasterWizard(models.TransientModel):
 
             # Trigger category series update directly using the category record ID
             if categ:
-                Equipment = self.env['equipment.master'].sudo()
                 seq_id = self.env['ir.sequence'].search([
                     ('code', '=', 'crm.equipment.id'),
                     ('equipment_category_id', '=', categ.id),
@@ -93,8 +92,13 @@ class EquipmentMasterWizard(models.TransientModel):
                     ], limit=1)
 
                 if seq_id:
-                    self.equipment_id = seq_id.get_next_char(seq_id.number_next)
-                    
+                    prefix = seq_id.prefix or ''
+                    suffix = seq_id.suffix or ''
+                    pad = seq_id.padding or 0
+                    num = seq_id.number_next or 1
+                    num_str = str(num).zfill(pad) if pad else str(num)
+                    self.equipment_id = f"{prefix}{num_str}{suffix}"
+            
     # Navigation Actions
     def action_next(self):
         self.ensure_one()
@@ -225,6 +229,39 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "current",
         }
 
+        # Advance sequence upon actual save
+        cat_id_val = False
+        if self.category_id:
+            if isinstance(self.category_id, str):
+                cat_rec = self.env['product.category'].search([
+                    '|', ('name', '=', self.category_id.strip()),
+                    ('display_name', '=', self.category_id.strip())
+                ], limit=1)
+                if cat_rec:
+                    cat_id_val = cat_rec.id
+            elif isinstance(self.category_id, int):
+                cat_id_val = self.category_id
+            elif hasattr(self.category_id, '_name'):
+                cat_id_val = self.category_id.id
+
+        save_seq = False
+        if cat_id_val:
+            save_seq = self.env['ir.sequence'].search([
+                ('code', '=', 'crm.equipment.id'),
+                ('equipment_category_id', '=', cat_id_val),
+                ('active', '=', True)
+            ], limit=1)
+
+        if not save_seq:
+            save_seq = self.env['ir.sequence'].search([
+                ('code', '=', 'crm.equipment.id'),
+                ('equipment_category_id', '=', False),
+                ('active', '=', True)
+            ], limit=1)
+
+        if save_seq:
+            save_seq.next_by_id()
+
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
@@ -262,7 +299,6 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        Equipment = self.env['equipment.master'].sudo()
 
         # 1. Equipment ID Generation via ir.sequence (Category-specific or Default)
         raw_cat = res.get('category_id')
@@ -297,34 +333,28 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            res['equipment_id'] = seq_id.get_next_char(seq_id.number_next)
-
-
-        # 2. Serial Number Generation (Optional)
-        seq_sn = self.env['ir.sequence'].search([
-            ('code', '=', 'crm.equipment.serial'),
-            ('active', '=', True)
-        ], limit=1)
-
-        if seq_sn:
-            gen_sn = seq_sn.next_by_id()
-            while Equipment.search_count([('serial_number', '=', gen_sn)]) > 0:
-                gen_sn = seq_sn.next_by_id()
-            res['serial_number'] = gen_sn
+            prefix = seq_id.prefix or ''
+            suffix = seq_id.suffix or ''
+            pad = seq_id.padding or 0
+            num = seq_id.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            res['equipment_id'] = f"{prefix}{num_str}{suffix}"
 
         return res
 
 
     @api.onchange('category_id')
     def _onchange_category_id(self):
-        Equipment = self.env['equipment.master'].sudo()
         seq_id = False
         
         if self.category_id:
             cat_id_val = False
             # 1. If it's a string name (e.g. "Bio Safety Cabinets")
             if isinstance(self.category_id, str):
-                cat_rec = self.env['product.category'].search([('name', '=', self.category_id.strip())], limit=1)
+                cat_rec = self.env['product.category'].search([
+                    '|', ('name', '=', self.category_id.strip()),
+                    ('display_name', '=', self.category_id.strip())
+                ], limit=1)
                 if cat_rec:
                     cat_id_val = cat_rec.id
             # 2. If it's an integer ID
@@ -358,4 +388,9 @@ class EquipmentMasterWizard(models.TransientModel):
             ], limit=1)
 
         if seq_id:
-            self.equipment_id = seq_id.get_next_char(seq_id.number_next)
+            prefix = seq_id.prefix or ''
+            suffix = seq_id.suffix or ''
+            pad = seq_id.padding or 0
+            num = seq_id.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            self.equipment_id = f"{prefix}{num_str}{suffix}"
