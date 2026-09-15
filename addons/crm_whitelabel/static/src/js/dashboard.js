@@ -456,6 +456,7 @@ class CrmDashboard extends Component {
             view_mode: "form",
             views: [[false, "form"]],
             target: "current",
+            clear_breadcrumbs: true,
         });
     }
 

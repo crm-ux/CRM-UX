@@ -6,10 +6,6 @@
         <field name="model">amc.contract</field>
         <field name="arch" type="xml">
             <form string="Annual Maintenance Contract">
-                <header>
-                    <button name="action_save_and_close" string="Save" type="object" class="btn btn-primary"/>
-                    <button name="action_cancel_contract" string="Cancel" type="object" class="btn btn-secondary"/>
-                </header>
                 <sheet>
                     <div class="oe_title">
                         <label for="name" string="AMC No."/>
@@ -92,6 +88,7 @@
         <field name="name">Annual Maintenance Contracts</field>
         <field name="res_model">amc.contract</field>
         <field name="view_mode">list,form</field>
+        <field name="context">{'clear_breadcrumbs': True}</field>
     </record>
 
     <!-- Menu Item -->
