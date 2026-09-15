@@ -9,6 +9,22 @@ class EquipmentMasterWizard(models.TransientModel):
     step = fields.Integer(string="Step", default=1)
 
     @api.model
+    def _compute_preview_for_sequence(self, seq):
+        if not seq:
+            return ""
+        prefix = seq.prefix or ""
+        suffix = seq.suffix or ""
+        pad = seq.padding or 0
+        num = seq.number_next or 1
+        num_str = str(num).zfill(pad) if pad else str(num)
+        preview_id = f"{prefix}{num_str}{suffix}"
+        while self.env["equipment.master"].search_count([("equipment_id", "=", preview_id)]) > 0:
+            num += 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            preview_id = f"{prefix}{num_str}{suffix}"
+        return preview_id
+
+    @api.model
     def _default_equipment_id(self):
         gen_seq = self.env["ir.sequence"].search([
             ("code", "=", "crm.equipment.id"),
@@ -84,21 +100,6 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
-    @api.model
-    def _compute_preview_for_sequence(self, seq):
-        if not seq:
-            return ""
-        prefix = seq.prefix or ""
-        suffix = seq.suffix or ""
-        pad = seq.padding or 0
-        num = seq.number_next or 1
-        num_str = str(num).zfill(pad) if pad else str(num)
-        preview_id = f"{prefix}{num_str}{suffix}"
-        while self.env["equipment.master"].search_count([("equipment_id", "=", preview_id)]) > 0:
-            num += 1
-            num_str = str(num).zfill(pad) if pad else str(num)
-            preview_id = f"{prefix}{num_str}{suffix}"
-        return preview_id
        
     @api.onchange("name")
     def _onchange_name(self):
