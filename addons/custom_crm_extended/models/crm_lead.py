@@ -523,4 +523,4 @@ class ResPartnerRestrict(models.Model):
             for vals in vals_list:
                 if vals.get('is_company'):
                     raise UserError('Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.')
-        return super().create(vals_list)
+        return super().create(vals_list) 

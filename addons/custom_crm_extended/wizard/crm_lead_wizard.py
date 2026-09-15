@@ -26,7 +26,7 @@ class CrmLeadWizard(models.TransientModel):
         return {'quick_create': False, 'no_create': True, 'no_open': False}
 
     partner_company_id = fields.Many2one(
-        'res.partner',
+        'res.partner', 
         string='Company Name',
         domain=[('is_company', '=', True)],
         context={'default_is_company': True, 'restrict_company_create': True},
