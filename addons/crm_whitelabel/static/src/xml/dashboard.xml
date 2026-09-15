@@ -307,6 +307,30 @@
                     </div>
                     <p class="crm-panel-note">Service requests, complaints &amp; breakdown tracking overview.</p>
                 </div>
+                <div class="crm-pro-panel" style="border-left:4px solid #8b5cf6;">
+                    <div class="crm-panel-head" t-on-click="openAmcContracts" style="cursor:pointer;">
+                        <div><h2>AMC Contracts</h2></div><span class="crm-panel-arrow">›</span>
+                    </div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([], 'All AMC Contracts')">
+                            <strong><t t-esc="state.amcTotal || 0"/></strong>
+                            <span>Total</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','draft']], 'Draft Contracts')">
+                            <strong><t t-esc="state.amcDraft || 0"/></strong>
+                            <span>Draft</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','active']], 'Active Contracts')">
+                            <strong><t t-esc="state.amcActive || 0"/></strong>
+                            <span>Active</span>
+                        </div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','expired']], 'Expired Contracts')">
+                            <strong><t t-esc="state.amcExpired || 0"/></strong>
+                            <span>Expired</span>
+                        </div>
+                    </div>
+                    <p class="crm-panel-note">Annual maintenance contracts &amp; service agreements overview.</p>
+                </div>
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
             <!-- TASK DIALOG -->
