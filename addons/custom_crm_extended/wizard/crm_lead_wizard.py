@@ -20,7 +20,7 @@ class CrmLeadWizard(models.TransientModel):
     partner_name = fields.Char(string="Company Name")
     @api.model
     def _get_company_field_options(self):
-        allowed_ids = [2, 10]  # Admin and Dhruvil
+        allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
         if self.env.uid in allowed_ids:
             return {'quick_create': True, 'no_open': False}
         return {'quick_create': False, 'no_create': True, 'no_open': False}
@@ -38,7 +38,7 @@ class CrmLeadWizard(models.TransientModel):
 
     @api.depends_context('uid')
     def _compute_can_create_company(self):
-        allowed_ids = [2, 10]  # Admin and Dhruvil
+        allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
         for rec in self:
             rec.can_create_company = self.env.uid in allowed_ids
     x_customer_type = fields.Selection([
@@ -134,7 +134,7 @@ class CrmLeadWizard(models.TransientModel):
     @api.onchange('partner_company_id')
     def _onchange_partner_company_id(self):
         if self.partner_company_id:
-            allowed_ids = [2, 10]  # Admin and Dhruvil
+            allowed_ids = [2, 10, 11]  # Admin, Dhruvil and Himanshu
             if self.env.uid not in allowed_ids:
                 # Check if this partner was just created (not in original domain)
                 partner = self.partner_company_id
@@ -195,7 +195,7 @@ class CrmLeadWizard(models.TransientModel):
             if not self.phone:
                 self.phone = child.phone or ""
             # Check if newly created by unauthorized user
-            allowed_ids = [2, 10]  # Admin and Dhruvil
+            allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
             if self.env.uid not in allowed_ids:
                 # Check if this is a new record (just created)
                 # Check if the record is completely new and unsaved
@@ -295,7 +295,6 @@ class CrmLeadWizard(models.TransientModel):
             raise ValidationError(_("Please enter a Company Name."))
 
         # Ensure +91 format for WhatsApp compatibility (eliminates country code popup)
-                # Ensure +91 format for WhatsApp compatibility (eliminates country code popup)
         formatted_phone = False
         if self.phone:
             clean_phone = self._validate_and_extract_phone(self.phone, "Phone")
