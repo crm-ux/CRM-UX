@@ -115,3 +115,24 @@ class AmcContractLine(models.Model):
             self.end_user = eq.contact_person or ""
             self.mobile = eq.contact_number or ""
             self.email = eq.email or ""
+
+    def action_save_and_close(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Annual Maintenance Contracts'),
+            'res_model': 'amc.contract',
+            'view_mode': 'list,form',
+            'target': 'current',
+        }
+
+    def action_cancel_contract(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Annual Maintenance Contracts'),
+            'res_model': 'amc.contract',
+            'view_mode': 'list,form',
+            'target': 'current',
+        }
+
