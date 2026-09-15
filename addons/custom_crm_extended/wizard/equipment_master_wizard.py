@@ -319,7 +319,7 @@ class EquipmentMasterWizard(models.TransientModel):
             self.room_number = getattr(p, 'x_room_number', False) or ""
 
 
-        @api.model
+    @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         gen_seq = self.env["ir.sequence"].search([
