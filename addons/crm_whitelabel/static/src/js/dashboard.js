@@ -23,6 +23,7 @@ class CrmDashboard extends Component {
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
             invoiceCreated: 0, invoicePending: 0,
+            amcTotal: 0, amcDraft: 0, amcActive: 0, amcExpired: 0,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
             greeting: "", todayDate: "",
@@ -96,7 +97,6 @@ class CrmDashboard extends Component {
             },
         });
     }
-
 
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
@@ -250,6 +250,21 @@ class CrmDashboard extends Component {
                 console.log("Service Ticket count error:", err);
             }
 
+            let amcTotal = 0, amcDraft = 0, amcActive = 0, amcExpired = 0;
+            try {
+                const [aTot, aDrf, aAct, aExp] = await Promise.all([
+                    this.ormService.searchCount("amc.contract", []),
+                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "draft"]]),
+                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "active"]]),
+                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "expired"]]),
+                ]);
+                amcTotal = aTot;
+                amcDraft = aDrf;
+                amcActive = aAct;
+                amcExpired = aExp;
+            } catch (err) {
+                console.log("AMC count error:", err);
+            }
 
             Object.assign(this.state, {
                 exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
@@ -260,6 +275,7 @@ class CrmDashboard extends Component {
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
+                amcTotal, amcDraft, amcActive, amcExpired,
                 loading: false
             });
 
@@ -443,6 +459,21 @@ class CrmDashboard extends Component {
         });
     }
 
+    openAmcContracts() {
+        this.openAmcList([], "All AMC Contracts");
+    }
+
+    openAmcList(domain = [], title = "AMC Contracts") {
+        this.actionService.doAction({
+            type: "ir.actions.act_window",
+            name: title,
+            res_model: "amc.contract",
+            view_mode: "list,form",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+            target: "current",
+        });
+    }
 
     openInvoiceCreated() {
         const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];

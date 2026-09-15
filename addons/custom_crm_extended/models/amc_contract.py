@@ -9,16 +9,17 @@ class AmcContract(models.Model):
 
     name = fields.Char(string='AMC No.', default=lambda self: _('New'), tracking=True)
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
+
     contract_status = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
         ('expired', 'Expired'),
         ('renewed', 'Renewed'),
         ('cancelled', 'Cancelled'),
-    ], string='Contract Status', default='draft', tracking=True)
+    ], string='Contract Status', default='draft', required=True, tracking=True)
 
     # Customer & Contact Details
-    partner_id = fields.Many2one('res.partner', string='Customer / Company Name', required=True, tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Customer / Company Name', tracking=True)
     customer_address = fields.Text(string='Customer Address')
     gstin = fields.Char(string='GSTIN')
     contact_person = fields.Char(string='Contact Person')
@@ -36,9 +37,22 @@ class AmcContract(models.Model):
     pm = fields.Char(string='PM')
     cm = fields.Char(string='CM')
 
-    # Line Items (Equipments under this AMC)
+    # Line Items
     line_ids = fields.One2many('amc.contract.line', 'contract_id', string='Equipment Details')
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
+
+    # State actions
+    def action_set_active(self):
+        self.write({'contract_status': 'active'})
+
+    def action_set_draft(self):
+        self.write({'contract_status': 'draft'})
+
+    def action_set_expired(self):
+        self.write({'contract_status': 'expired'})
+
+    def action_set_cancelled(self):
+        self.write({'contract_status': 'cancelled'})
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -68,11 +82,8 @@ class AmcContract(models.Model):
             self.mobile = contact_phone
             self.email = contact_email
             self.gstin = p.vat or (p.parent_id.vat if p.parent_id else "") or ""
-
-            # Location / Site
             self.location = getattr(p, 'x_site_name', False) or (getattr(p.parent_id, 'x_site_name', False) if p.parent_id else "") or p.city or ""
 
-            # Address format
             addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
             self.customer_address = ", ".join([str(a) for a in addr_parts if a])
 
