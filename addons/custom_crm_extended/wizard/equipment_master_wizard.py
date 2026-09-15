@@ -236,14 +236,14 @@ class EquipmentMasterWizard(models.TransientModel):
             elif hasattr(self.category_id, '_name'):
                 cat_rec = self.category_id
 
-                # Identify sequence from the selected equipment_id or category
-            seq_id = False
-            if self.equipment_id:
-                # Check which sequence prefix matches the selected ID
-                for s in self.env['ir.sequence'].search([('code', '=', 'crm.equipment.id'), ('active', '=', True)]):
-                    if s.prefix and self.equipment_id.startswith(s.prefix):
-                        seq_id = s
-                        break
+        # Identify sequence from the selected equipment_id or category
+        seq_id = False
+        if self.equipment_id:
+            # Check which sequence prefix matches the selected ID
+            for s in self.env['ir.sequence'].search([('code', '=', 'crm.equipment.id'), ('active', '=', True)]):
+                if s.prefix and self.equipment_id.startswith(s.prefix):
+                    seq_id = s
+                    break
 
         if not seq_id:
             seq_id = self.env['ir.sequence'].search([
