@@ -8,7 +8,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
     step = fields.Integer(string="Step", default=1)
 
-     @api.model
+    @api.model
     def _default_equipment_id(self):
         gen_seq = self.env["ir.sequence"].search([
             ("code", "=", "crm.equipment.id"),
