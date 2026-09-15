@@ -8,9 +8,25 @@ class EquipmentMasterWizard(models.TransientModel):
 
     step = fields.Integer(string="Step", default=1)
 
+    @api.model
+    def _default_equipment_id(self):
+        gen_seq = self.env["ir.sequence"].search([
+            ("code", "=", "crm.equipment.id"),
+            ("equipment_category_id", "=", False),
+            ("active", "=", True)
+        ], limit=1)
+        if not gen_seq:
+            gen_seq = self.env["ir.sequence"].search([
+                ("code", "=", "crm.equipment.id"),
+                ("active", "=", True)
+            ], limit=1)
+        if gen_seq:
+            return self._compute_preview_for_sequence(gen_seq)
+        return _("New")
+
     # Step 1: Equipment Info
     e1_id = fields.Boolean(default=False)
-    equipment_id  = fields.Char(string="Equipment ID")
+    equipment_id  = fields.Char(string="Equipment ID", default=_default_equipment_id)
     name = fields.Many2one("product.template", string="Equipment Name")
     category_id = fields.Char(string='Equipment Category')
     manufacturer = fields.Char(string="Manufacturer")
@@ -85,6 +101,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
         return preview_id
 
+       
     @api.onchange("name")
     def _onchange_name(self):
         if self.name:
@@ -112,7 +129,6 @@ class EquipmentMasterWizard(models.TransientModel):
 
             if seq:
                 self.equipment_id = self._compute_preview_for_sequence(seq)
-
 
     # Navigation Actions
     def action_next(self):
@@ -322,21 +338,6 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        gen_seq = self.env["ir.sequence"].search([
-            ("code", "=", "crm.equipment.id"),
-            ("equipment_category_id", "=", False),
-            ("active", "=", True)
-        ], limit=1)
-
-        if not gen_seq:
-            gen_seq = self.env["ir.sequence"].search([
-                ("code", "=", "crm.equipment.id"),
-                ("active", "=", True)
-            ], limit=1)
-
-        if gen_seq:
-            res["equipment_id"] = self._compute_preview_for_sequence(gen_seq)
-        else:
-            res["equipment_id"] = _("New")
-
+        if "equipment_id" in fields_list or not fields_list:
+            res["equipment_id"] = self._default_equipment_id()
         return res
