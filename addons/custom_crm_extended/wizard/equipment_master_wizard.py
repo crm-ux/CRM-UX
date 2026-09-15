@@ -42,10 +42,10 @@ class EquipmentMasterWizard(models.TransientModel):
 
     # Step 1: Equipment Info
     e1_id = fields.Boolean(default=False)
-    name = fields.Many2one("product.template", string="Equipment Name")
-    category_id = fields.Char(string='Equipment Category')
+    name = fields.Many2one("product.template", string="Model Name")
+    category_id = fields.Char(string='Equipment')
     manufacturer = fields.Char(string="Manufacturer")
-    model_number = fields.Char(string="Model Number")
+    model_number = fields.Char(string="Equipment Owner")
     serial_number = fields.Char(string="Serial Number")
     part_number = fields.Char(string="Part Number")
     child_part_no = fields.Char(string="Child Part No")

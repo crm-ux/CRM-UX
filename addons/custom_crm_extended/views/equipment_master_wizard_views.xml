@@ -35,14 +35,14 @@
                     <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Equipment Information</div>
                         <group>
                             <field name="equipment_id" string="Equipment ID"/>
-                            <field name="name" string="Equipment Name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
+                            <field name="name" string="Model Name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
-                            <field name="category_id" string="Equipment Category" placeholder="e.g. Refrigerator"/>
+                            <field name="category_id" string="Equipment" placeholder="e.g. Refrigerator"/>
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
                         <group>
-                            <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="model_number" string="Equipment Owner" placeholder="e.g. TSV336RLGF"/>
                             <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
                         <group>
