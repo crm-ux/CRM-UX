@@ -114,17 +114,20 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* =========================================================================
-   Quotation / Sale Order Gear (⚙) Menu: Keep ONLY Duplicate & Delete
+   AMC Form ONLY: [Dashboard] [New] [Save] [Cancel]  ...  [Title ⚙]
    ========================================================================= */
-/* Hide the Print flyout submenu item */
-.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(i.fa-print),
-.o_control_panel_breadcrumbs .dropdown-menu .o_menu_item:has(.oi-print),
-.o_control_panel_breadcrumbs .dropdown-menu .o-dropdown--nested,
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-toggle {
-  display: none !important;
+.o_form_view:has([name="contract_status"]) .o_control_panel_main_buttons,
+.o_action_delegate[data-model="amc.contract"] .o_control_panel_main_buttons {
+  order: 1 !important;
 }
 
-/* Hide payment link, send email, mark sent, share */
-.o_control_panel_breadcrumbs .dropdown-menu .dropdown-item:not(:has(.fa-clone)):not(:has(.oi-clone)):not(:has(.fa-trash)):not(:has(.fa-trash-o)):not(:has(.oi-trash)):not(:has(.fa-copy)) {
-  display: none !important;
+.o_form_view:has([name="contract_status"]) .o_control_panel_actions,
+.o_action_delegate[data-model="amc.contract"] .o_control_panel_actions {
+  order: 2 !important;
+}
+
+.o_form_view:has([name="contract_status"]) .o_control_panel_breadcrumbs,
+.o_action_delegate[data-model="amc.contract"] .o_control_panel_breadcrumbs {
+  order: 3 !important;
+  margin-left: auto !important;
 }
