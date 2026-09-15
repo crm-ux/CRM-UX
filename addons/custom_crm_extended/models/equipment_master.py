@@ -8,7 +8,6 @@ class EquipmentCategory(models.Model):
 
     name = fields.Char(string='Category Name', required=True)
 
-
 class EquipmentMaster(models.Model):
     _name = 'equipment.master'
     _description = 'Equipment Master for Service Tickets'
@@ -41,7 +40,6 @@ class EquipmentMaster(models.Model):
         ('low', 'Low'),
     ], string='Criticality', default='medium', tracking=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, tracking=True)
-
 
     # Step 2: Location & Contact
     partner_id = fields.Many2one('res.partner', string='Customer Name', tracking=True)

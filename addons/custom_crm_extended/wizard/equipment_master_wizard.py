@@ -100,8 +100,33 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
+    @api.model
+    def _get_equipment_id_selection(self):
+        """Build dynamic selection choices for equipment_id: Category series + General series."""
+        options = []
+        seqs = self.env["ir.sequence"].search([
+            ("code", "=", "crm.equipment.id"),
+            ("active", "=", True)
+        ], order="equipment_category_id desc, id desc")
+        
+        for seq in seqs:
+            preview = self._compute_preview_for_sequence(seq)
+            label = f"{preview} ({seq.name})"
+            if (preview, label) not in options:
+                options.append((preview, label))
+        
+        if not options:
+            options = [("", "No series found")]
+        return options
+
+    equipment_id = fields.Selection(
+        selection=_get_equipment_id_selection,
+        string="Equipment ID",
+        default=lambda self: self._default_equipment_id(),
+    )
+
        
-    @api.onchange("name")
+        @api.onchange("name")
     def _onchange_name(self):
         if self.name:
             categ = self.name.categ_id
@@ -109,7 +134,7 @@ class EquipmentMasterWizard(models.TransientModel):
             self.manufacturer = getattr(self.name, "x_make", "") or ""
             self.part_number = getattr(self.name, "default_code", "") or ""
 
-            # Priority 1: Check category sequence
+            # Priority 1: Category sequence
             seq = False
             if categ:
                 seq = self.env["ir.sequence"].search([
@@ -118,7 +143,7 @@ class EquipmentMasterWizard(models.TransientModel):
                     ("active", "=", True)
                 ], limit=1)
 
-            # Priority 2: Fallback to General sequence
+            # Priority 2: General sequence
             if not seq:
                 seq = self.env["ir.sequence"].search([
                     ("code", "=", "crm.equipment.id"),
@@ -128,6 +153,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
             if seq:
                 self.equipment_id = self._compute_preview_for_sequence(seq)
+
 
     # Navigation Actions
     def action_next(self):
