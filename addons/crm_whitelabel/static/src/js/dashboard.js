@@ -132,6 +132,7 @@ class CrmDashboard extends Component {
             this.state.companyName = found ? found.name : all[0].name;
         }
     }
+
     toggleAdminMenu() { this.state.adminMenuOpen = !this.state.adminMenuOpen; }
     toggleUserDropdown() { this.state.userDropdownOpen = !this.state.userDropdownOpen; this.state.companyDropdownOpen = false; }
     toggleCompanyDropdown() { this.state.companyDropdownOpen = !this.state.companyDropdownOpen; this.state.userDropdownOpen = false; }
@@ -378,6 +379,7 @@ class CrmDashboard extends Component {
     openServiceTickets() {
         this.openServiceTicketList([], "All Service Tickets");
     }
+
     openServiceTicketList(domain = [], name = "Service Tickets") {
         const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
         this.go({
@@ -389,27 +391,27 @@ class CrmDashboard extends Component {
         });
     }
 
-    async openEquipmentMaster() {
-        const wizardId = await this.ormService.create("equipment.master.wizard", [{ step: 1 }]);
-        this.go({
+    openEquipmentMaster() {
+        this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "Equipment Master Creation",
             res_model: "equipment.master.wizard",
-            res_id: wizardId[0],
+            view_mode: "form",
             views: [[false, "form"]],
             target: "new",
+            context: { default_step: 1 },
         });
     }
 
-    async newServiceTicket() {
-        const wizardId = await this.ormService.create("service.ticket.wizard", [{ step: 1 }]);
-        this.go({
+    newServiceTicket() {
+        this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "Service Ticket Creation",
             res_model: "service.ticket.wizard",
-            res_id: wizardId[0],
+            view_mode: "form",
             views: [[false, "form"]],
             target: "new",
+            context: { default_step: 1 },
         });
     }
 
