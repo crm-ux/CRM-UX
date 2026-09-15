@@ -25,3 +25,5 @@ access_crm_custom_settings_admin,crm.custom.settings.admin,model_crm_custom_sett
 
 access_service_ticket_expense_type_user,service.ticket.expense.type.user,model_service_ticket_expense_type,base.group_user,1,1,1,1
 access_service_ticket_voucher_line_user,service.ticket.voucher.line.user,model_service_ticket_voucher_line,base.group_user,1,1,1,1
+access_amc_contract,amc.contract,model_amc_contract,base.group_user,1,1,1,1
+access_amc_contract_line,amc.contract.line,model_amc_contract_line,base.group_user,1,1,1,1

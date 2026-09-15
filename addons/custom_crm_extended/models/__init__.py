@@ -13,4 +13,4 @@ from . import equipment_master
 from . import res_partner
 from . import service_ticket
 from . import crm_custom_settings
-
+from . import amc_contract

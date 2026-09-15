@@ -432,6 +432,18 @@ class CrmDashboard extends Component {
         });
     }
 
+    createAmc() {
+        this.actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "New AMC Contract",
+            res_model: "amc.contract",
+            view_mode: "form",
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+
     openInvoiceCreated() {
         const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
         this.go({

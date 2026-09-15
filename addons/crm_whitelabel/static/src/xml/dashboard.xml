@@ -114,7 +114,7 @@
                             </div>
                             <span>›</span>
                         </button>
-                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="() => {}">
+                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="createAmc">
                             <div>
                                 <div class="crm-action-title">+ Create AMC</div>
                                 <div class="crm-action-sub">Annual Maintenance Contract</div>

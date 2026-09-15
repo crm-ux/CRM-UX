@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AMC Contract Form View -->
+    <record id="view_amc_contract_form" model="ir.ui.view">
+        <field name="name">amc.contract.form</field>
+        <field name="model">amc.contract</field>
+        <field name="arch" type="xml">
+            <form string="Annual Maintenance Contract">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="AMC No."/>
+                        <h1>
+                            <field name="name" placeholder="AMC No."/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group string="Contract &amp; Status">
+                            <field name="date"/>
+                            <field name="contract_status" widget="selection"/>
+                            <field name="contract_start_date"/>
+                            <field name="contract_end_date"/>
+                            <field name="contract_value"/>
+                            <field name="gst"/>
+                            <field name="payment_terms"/>
+                            <field name="renewal_terms"/>
+                            <field name="pm"/>
+                            <field name="cm"/>
+                        </group>
+                        <group string="Customer Information">
+                            <field name="partner_id"/>
+                            <field name="gstin"/>
+                            <field name="customer_address"/>
+                            <field name="contact_person"/>
+                            <field name="mobile"/>
+                            <field name="email"/>
+                            <field name="location"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Equipment Details" name="equipment_lines">
+                            <field name="line_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="equipment_id" options="{'no_create': True}"/>
+                                    <field name="make"/>
+                                    <field name="part_no"/>
+                                    <field name="serial_no"/>
+                                    <field name="location"/>
+                                    <field name="end_user"/>
+                                    <field name="mobile"/>
+                                    <field name="email"/>
+                                    <field name="remarks"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- AMC Contract Tree View -->
+    <record id="view_amc_contract_tree" model="ir.ui.view">
+        <field name="name">amc.contract.tree</field>
+        <field name="model">amc.contract</field>
+        <field name="arch" type="xml">
+            <list string="Annual Maintenance Contracts">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="partner_id"/>
+                <field name="contract_start_date"/>
+                <field name="contract_end_date"/>
+                <field name="contract_value"/>
+                <field name="contract_status" widget="badge" 
+                       decoration-success="contract_status == 'active'" 
+                       decoration-info="contract_status == 'draft'" 
+                       decoration-warning="contract_status == 'renewed'" 
+                       decoration-danger="contract_status in ('expired', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_amc_contract" model="ir.actions.act_window">
+        <field name="name">Annual Maintenance Contracts</field>
+        <field name="res_model">amc.contract</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item under Equipment Master or CRM -->
+    <menuitem id="menu_amc_contract_root" name="AMC Contracts" action="action_amc_contract" sequence="26"/>
+</odoo>
