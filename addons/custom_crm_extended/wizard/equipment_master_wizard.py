@@ -42,7 +42,6 @@ class EquipmentMasterWizard(models.TransientModel):
 
     # Step 1: Equipment Info
     e1_id = fields.Boolean(default=False)
-    equipment_id  = fields.Char(string="Equipment ID", default=_default_equipment_id)
     name = fields.Many2one("product.template", string="Equipment Name")
     category_id = fields.Char(string='Equipment Category')
     manufacturer = fields.Char(string="Manufacturer")
@@ -119,12 +118,7 @@ class EquipmentMasterWizard(models.TransientModel):
             options = [("", "No series found")]
         return options
 
-    equipment_id = fields.Selection(
-        selection=_get_equipment_id_selection,
-        string="Equipment ID",
-        default=lambda self: self._default_equipment_id(),
-    )
-
+    equipment_id = fields.Selection(selection=_get_equipment_id_selection, string="Equipment ID", default=lambda self: self._default_equipment_id(),)
        
     @api.onchange("name")
     def _onchange_name(self):
