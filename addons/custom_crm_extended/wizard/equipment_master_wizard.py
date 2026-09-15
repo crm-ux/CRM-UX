@@ -109,7 +109,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
         for seq in seqs:
             preview = self._compute_preview_for_sequence(seq)
-            label = f"{preview} ({seq.name})"
+            label = preview
             if (preview, label) not in options:
                 options.append((preview, label))
 
