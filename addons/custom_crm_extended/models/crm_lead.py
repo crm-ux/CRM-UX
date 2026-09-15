@@ -501,7 +501,6 @@ class CrmLead(models.Model):
         return super().get_formview_action(access_uid=access_uid)
 
 
-
     @api.model
     def action_new_lead_wizard(self):
         """Open multi-step Lead Creation wizard (used by New buttons)."""
@@ -519,9 +518,9 @@ class ResPartnerRestrict(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        allowed_ids = [2, 10, 11]  # Admin and Dhruvil
+        allowed_ids = [2, 10, 11]  # Admin, Dhruvil and Himanshu Patel
         if self.env.uid not in allowed_ids and not self.env.su:
             for vals in vals_list:
                 if vals.get('is_company'):
-                    raise UserError('Only Admin and Dhruvil Shah can create new companies.')
+                    raise UserError('Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.')
         return super().create(vals_list)
