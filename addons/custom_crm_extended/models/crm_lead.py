@@ -519,7 +519,7 @@ class ResPartnerRestrict(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        allowed_ids = [2, 10]  # Admin and Dhruvil
+        allowed_ids = [2, 10, 11]  # Admin and Dhruvil
         if self.env.uid not in allowed_ids and not self.env.su:
             for vals in vals_list:
                 if vals.get('is_company'):
