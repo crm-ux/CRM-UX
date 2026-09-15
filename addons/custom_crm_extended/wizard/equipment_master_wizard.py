@@ -68,15 +68,52 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
-    @api.onchange('name')
+    def _compute_preview_for_sequence(self, seq):
+        if not seq:
+            return _("New")
+        prefix = seq.prefix or ""
+        suffix = seq.suffix or ""
+        pad = seq.padding or 0
+        num = seq.number_next or 1
+        num_str = str(num).zfill(pad) if pad else str(num)
+        preview_id = f"{prefix}{num_str}{suffix}"
+
+        while self.env["equipment.master"].search_count([("equipment_id", "=", preview_id)]) > 0:
+            num += 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            preview_id = f"{prefix}{num_str}{suffix}"
+
+        return preview_id
+
+    @api.onchange("name")
     def _onchange_name(self):
         if self.name:
             categ = self.name.categ_id
-            self.category_id = categ.name if categ else ''
-            self.manufacturer = getattr(self.name, 'x_make', '') or ''
-            self.part_number = getattr(self.name, 'default_code', '') or ''
+            self.category_id = categ.name if categ else ""
+            self.manufacturer = getattr(self.name, "x_make", "") or ""
+            self.part_number = getattr(self.name, "default_code", "") or ""
 
-            
+            # Priority 1: Check category sequence
+            seq = False
+            if categ:
+                seq = self.env["ir.sequence"].search([
+                    ("code", "=", "crm.equipment.id"),
+                    ("equipment_category_id", "=", categ.id),
+                    ("active", "=", True)
+                ], limit=1)
+
+            # Priority 2: Fallback to General sequence
+            if not seq:
+                seq = self.env["ir.sequence"].search([
+                    ("code", "=", "crm.equipment.id"),
+                    ("equipment_category_id", "=", False),
+                    ("active", "=", True)
+                ], limit=1)
+
+            if seq:
+                self.equipment_id = self._compute_preview_for_sequence(seq)
+
+
     # Navigation Actions
     def action_next(self):
         self.ensure_one()
@@ -282,9 +319,24 @@ class EquipmentMasterWizard(models.TransientModel):
             self.room_number = getattr(p, 'x_room_number', False) or ""
 
 
-    @api.model
+        @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        res['equipment_id'] = _('New')
-        return res
+        gen_seq = self.env["ir.sequence"].search([
+            ("code", "=", "crm.equipment.id"),
+            ("equipment_category_id", "=", False),
+            ("active", "=", True)
+        ], limit=1)
 
+        if not gen_seq:
+            gen_seq = self.env["ir.sequence"].search([
+                ("code", "=", "crm.equipment.id"),
+                ("active", "=", True)
+            ], limit=1)
+
+        if gen_seq:
+            res["equipment_id"] = self._compute_preview_for_sequence(gen_seq)
+        else:
+            res["equipment_id"] = _("New")
+
+        return res
