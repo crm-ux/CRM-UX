@@ -99,26 +99,30 @@ class EquipmentMasterWizard(models.TransientModel):
     accessories = fields.Text(string="Accessories")
     remarks = fields.Text(string="Remarks")
 
-    @api.model
     def _get_equipment_id_selection(self):
-        """Build dynamic selection choices for equipment_id: Category series + General series."""
+        """Dynamic dropdown options for equipment_id directly."""
         options = []
         seqs = self.env["ir.sequence"].search([
             ("code", "=", "crm.equipment.id"),
             ("active", "=", True)
         ], order="equipment_category_id desc, id desc")
-        
+
         for seq in seqs:
             preview = self._compute_preview_for_sequence(seq)
             label = f"{preview} ({seq.name})"
             if (preview, label) not in options:
                 options.append((preview, label))
-        
+
         if not options:
-            options = [("", "No series found")]
+            options = [("New", "New")]
         return options
 
-    equipment_id = fields.Selection(selection=_get_equipment_id_selection, string="Equipment ID", default=lambda self: self._default_equipment_id(),)
+    equipment_id = fields.Selection(
+        selection="_get_equipment_id_selection",
+        string="Equipment ID",
+        default=lambda self: self._default_equipment_id(),
+        required=True,
+    )
        
     @api.onchange("name")
     def _onchange_name(self):

@@ -34,7 +34,7 @@
                     <div invisible="step != 1">
                     <div style="font-size:clamp(0.875rem, 1.1vw, 0.95rem); font-weight:700; color:#0b3d91; border-bottom:clamp(0.1rem, 0.15vw, 0.15rem) solid #0b3d91; padding-bottom:clamp(0.2rem, 0.4vh, 0.35rem); margin-bottom:clamp(0.75rem, 1.5vh, 1.1rem);">Equipment Information</div>
                         <group>
-                            <field name="equipment_id" string="Equipment ID" placeholder="e.g. LT000123"/>
+                            <field name="equipment_id" string="Equipment ID"/>
                             <field name="name" string="Equipment Name" placeholder="Search product..." options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
