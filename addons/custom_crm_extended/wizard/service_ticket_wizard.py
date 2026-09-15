@@ -61,7 +61,29 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        res['ticket_id'] = _('New')
+        seq_ticket = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'service.ticket'),
+            ('active', '=', True),
+        ], limit=1)
+
+        if seq_ticket:
+            prefix = seq_ticket.prefix or ''
+            suffix = seq_ticket.suffix or ''
+            pad = seq_ticket.padding or 0
+            num = seq_ticket.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            preview_id = f"{prefix}{num_str}{suffix}"
+
+            # Make sure preview does not clash with existing tickets
+            Ticket = self.env['service.ticket'].sudo()
+            while Ticket.search_count([('ticket_id', '=', preview_id)]) > 0:
+                num += 1
+                num_str = str(num).zfill(pad) if pad else str(num)
+                preview_id = f"{prefix}{num_str}{suffix}"
+
+            res['ticket_id'] = preview_id
+        else:
+            res['ticket_id'] = _('New')
         return res
 
     @api.onchange('partner_id')
@@ -193,16 +215,19 @@ class ServiceTicketWizard(models.TransientModel):
     def action_save_ticket(self):
         self.ensure_one()
 
-        assigned_id = self.ticket_id
-        if not assigned_id or assigned_id == _('New'):
-            seq_ticket = self.env['ir.sequence'].sudo().search([
-                ('code', '=', 'service.ticket'),
-                ('active', '=', True),
-            ], limit=1)
-            if seq_ticket:
+        # Consume official sequence on Save
+        seq_ticket = self.env['ir.sequence'].sudo().search([
+            ('code', '=', 'service.ticket'),
+            ('active', '=', True),
+        ], limit=1)
+
+        Ticket = self.env['service.ticket'].sudo()
+        if seq_ticket:
+            assigned_id = seq_ticket.next_by_id()
+            while Ticket.search_count([('ticket_id', '=', assigned_id)]) > 0:
                 assigned_id = seq_ticket.next_by_id()
-            else:
-                raise ValidationError(_('Service Ticket sequence not found!'))
+        else:
+            assigned_id = self.ticket_id or _('New')
 
         # Check unique Ticket ID
         dup_ticket = self.env['service.ticket'].sudo().search([('ticket_id', '=', assigned_id.strip())], limit=1)
