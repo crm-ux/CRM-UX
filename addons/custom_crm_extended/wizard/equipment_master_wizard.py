@@ -321,7 +321,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        res = super().deault_get(fields_list)
+        res = super().default_get(fields_list)
         gen_seq = self.env["ir.sequence"].search([
             ("code", "=", "crm.equipment.id"),
             ("equipment_category_id", "=", False),
