@@ -15,7 +15,7 @@
                     </div>
 
                     <group>
-                        <!-- Row 1: Date | Customer / Company Name -->
+                        <!-- Row 1: Date | Customer/company name -->
                         <group>
                             <field name="date"/>
                         </group>
@@ -23,7 +23,7 @@
                             <field name="partner_id" default_focus="1" string="Customer / Company Name"/>
                         </group>
 
-                        <!-- Row 2: Status | Customer Address -->
+                        <!-- Row 2: Status | Customer address -->
                         <group>
                             <field name="contract_status" class="custom_radio_clean" widget="radio" options="{'horizontal': true}"/>
                         </group>
@@ -39,46 +39,51 @@
                             <field name="location" string="Location"/>
                         </group>
 
+                        <!-- Row 4: Warranty start date | Mobile -->
                         <group>
                             <field name="warranty_start_date" string="Warranty Start Date"/>
-                            <field name="warranty_end_date" string="Warranty End Date"/>
-                        </group>
-
-                        <!-- Row 4: Start Date | Mobile -->
-                        <group>
-                            <field name="contract_start_date"/>
                         </group>
                         <group>
                             <field name="mobile" string="Mobile"/>
                         </group>
 
-                        <!-- Row 5: End Date | Email -->
+                        <!-- Row 5: Warranty end date | Email -->
                         <group>
-                            <field name="contract_end_date"/>
+                            <field name="warranty_end_date" string="Warranty End Date"/>
                         </group>
                         <group>
                             <field name="email" string="Email"/>
                         </group>
 
-                        <!-- Row 6: Renewal Terms | Contact Person -->
+                        <!-- Row 6: Contract start date | Contact person -->
                         <group>
-                            <field name="renewal_terms"/>
+                            <field name="contract_start_date"/>
                         </group>
                         <group>
                             <field name="contact_person" string="Contact Person"/>
                         </group>
 
-                        <!-- Row 7: Payment Terms | Contract Value -->
+                        <!-- Row 7: Contract end date | Contract value -->
                         <group>
-                            <field name="payment_terms"/>
+                            <field name="contract_end_date"/>
                         </group>
                         <group>
                             <field name="contract_value"/>
                         </group>
 
-                        <!-- Row 8: PM | CM -->
+                        <!-- Row 8: Renewal terms | PM -->
+                        <group>
+                            <field name="renewal_terms"/>
+                        </group>
                         <group>
                             <field name="pm" string="PM"/>
+                        </group>
+
+                        <!-- Row 9: Payment terms | CM -->
+                        <group>
+                            <field name="payment_terms"/>
+                        </group>
+                        <group>
                             <field name="cm" string="CM"/>
                         </group>
                     </group>
