@@ -57,12 +57,8 @@
                             <field name="contract_end_date"/>
                         </group>
 
-                        <!-- Row 7: Left = Contract Value (₹), Right = GST (%) -->
                         <group>
                             <field name="contract_value"/>
-                        </group>
-                        <group>
-                            <field name="gst"/>
                         </group>
 
                         <group>
