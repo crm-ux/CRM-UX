@@ -45,7 +45,7 @@
                     </group>
 
                     <notebook>
-                        <page string="Warranty &amp; Contract" name="warranty_tab">
+                        <page string="Warranty &amp; Contract" name="warranty_tab" style="min-height: clamp(22rem, 45vh, 32rem);">
                             <group>
                                 <group string="Installation &amp; Warranty">
                                     <field name="installation_date"/>
