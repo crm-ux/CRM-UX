@@ -26,8 +26,10 @@ class AmcContract(models.Model):
     mobile = fields.Char(string='Mobile')
     location = fields.Char(string='Location')
     email = fields.Char(string='Email')
-
+    
     # Contract Duration & Commercials
+    warranty_start_date = fields.Date(string='Warranty Start Date', tracking=True)
+    warranty_end_date = fields.Date(string='Warranty End Date', tracking=True)
     contract_start_date = fields.Date(string='Contract Start Date', tracking=True)
     contract_end_date = fields.Date(string='Contract End Date', tracking=True)
     contract_value = fields.Char(string='Contract Value (₹)', tracking=True)
