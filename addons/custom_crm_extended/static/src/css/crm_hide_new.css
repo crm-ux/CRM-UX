@@ -387,12 +387,20 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-.equipment_form .o_form_sheet_bg,
-div[name="warranty_end_date"],
-div[name="warranty_start_date"] {
-    margin-bottom: 5rem !important;
+/* Force DatePicker to open UPWARDS above the field for warranty dates */
+div[name="warranty_start_date"] .o_datetime_picker,
+div[name="warranty_end_date"] .o_datetime_picker,
+div[name="warranty_start_date"] .o-popover,
+div[name="warranty_end_date"] .o-popover {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-bottom: 0.5rem !important;
 }
 
-.equipment_form .o_form_sheet {
-    margin-bottom: 12rem !important;
+/* Also flip the little indicator arrow to point down toward the field */
+div[name="warranty_start_date"] .o-popover--arrow,
+div[name="warranty_end_date"] .o-popover--arrow {
+    top: 100% !important;
+    bottom: auto !important;
+    transform: rotate(180deg) !important;
 }
