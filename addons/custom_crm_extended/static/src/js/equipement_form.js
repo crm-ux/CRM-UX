@@ -86,6 +86,16 @@ export class EquipmentFormController extends FormController {
                     observer = new MutationObserver(() => reorderToolbar());
                     observer.observe(panel, { childList: true });
                 }
+                document.addEventListener("focusin", (e) => {
+                    if (e.target && (e.target.name === "warranty_end_date" || e.target.name === "warranty_start_date")) {
+                        setTimeout(() => {
+                            const content = document.querySelector(".o_content");
+                            if (content) {
+                                content.scrollBy({ top: 220, behavior: "smooth" });
+                            }
+                        }, 50);
+                    }
+                });
             });
 
             onWillUnmount(() => {
