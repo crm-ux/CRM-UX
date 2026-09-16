@@ -458,7 +458,7 @@ class CrmDashboard extends Component {
             name: "New AMC Contract",
             res_model: "amc.contract",
             view_mode: "list,form",
-            views: [[false, "list"], [false, "form"]],
+            views: [[false, "form"], [false, "list"]],
             target: "current",
         });
     }
