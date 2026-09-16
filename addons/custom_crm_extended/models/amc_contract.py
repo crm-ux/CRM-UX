@@ -94,9 +94,6 @@ class AmcContract(models.Model):
             addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
             self.customer_address = ", ".join([str(a) for a in addr_parts if a])
 
-            # ===================================================================
-            # AUTO-FETCH ALL EQUIPMENTS (1 or N) FOR THIS CUSTOMER
-            # ===================================================================
             equipments = self.env['equipment.master'].search([
                 '|', ('partner_id', '=', p.id), ('partner_id', '=', p.parent_id.id if p.parent_id else p.id)
             ])

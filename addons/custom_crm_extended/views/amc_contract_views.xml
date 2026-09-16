@@ -41,8 +41,6 @@
 
                         <group>
                             <field name="warranty_start_date" string="Warranty Start Date"/>
-                        </group>
-                        <group>
                             <field name="warranty_end_date" string="Warranty End Date"/>
                         </group>
 
@@ -81,8 +79,6 @@
                         <!-- Row 8: PM | CM -->
                         <group>
                             <field name="pm" string="PM"/>
-                        </group>
-                        <group>
                             <field name="cm" string="CM"/>
                         </group>
                     </group>
