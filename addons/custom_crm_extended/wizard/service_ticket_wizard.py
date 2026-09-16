@@ -61,7 +61,7 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        seq_ticket = self._get_or_create_service_sequence()
+        seq_ticket = self.env['ir.sequence'].sudo().search([('code', '=', 'service.ticket'), ('active', '=', True)], limit=1)
 
         if seq_ticket:
             prefix = seq_ticket.prefix or ''
@@ -82,6 +82,7 @@ class ServiceTicketWizard(models.TransientModel):
         else:
             res['ticket_id'] = _('New')
         return res
+
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
@@ -228,8 +229,7 @@ class ServiceTicketWizard(models.TransientModel):
         self.ensure_one()
 
         # Consume official sequence on Save
-        seq_ticket = self._get_or_create_service_sequence()
-
+        seq_ticket = self.env['ir.sequence'].sudo().search([('code', '=', 'service.ticket'), ('active', '=', True)], limit=1)
 
         Ticket = self.env['service.ticket'].sudo()
         if seq_ticket:
