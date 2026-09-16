@@ -24,6 +24,7 @@ class CrmDashboard extends Component {
             ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
             invoiceCreated: 0, invoicePending: 0,
             amcTotal: 0, amcDraft: 0, amcActive: 0, amcExpired: 0,
+            seriesSubmenuOpen: false,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
             greeting: "", todayDate: "",
@@ -355,6 +356,9 @@ class CrmDashboard extends Component {
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
     openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
+    toggleSeriesSubmenu(ev) { if (ev) { ev.stopPropagation(); } this.state.seriesSubmenuOpen = !this.state.seriesSubmenuOpen; }
+
+    openAmcSeries() { this.go({ type: "ir.actions.act_window", name: "AMC Numbering Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "amc.contract"]], context: { default_code: "amc.contract", default_name: "AMC Series" } }); }
     openTerms() { this.actionService.doAction({ type: 'ir.actions.act_window', name: 'Terms & Conditions', res_model: 'sale.terms.condition', view_mode: 'list,form', views: [[false, 'list'], [false, 'form']] }); }
     openContacts() { this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] }); }
     openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
