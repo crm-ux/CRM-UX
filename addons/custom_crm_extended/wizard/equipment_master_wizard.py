@@ -246,7 +246,7 @@ class EquipmentMasterWizard(models.TransientModel):
         seq_id = False
         if self.equipment_id:
             # Check which sequence prefix matches the selected ID
-            for s in self.env['ir.sequence'].search([('code', '=', 'crm.equipment.id'), ('active', '=', True)]):
+            for s in self.env['ir.sequence'].sudo().search([('code', '=', 'crm.equipment.id'), ('active', '=', True)]):
                 if s.prefix and self.equipment_id.startswith(s.prefix):
                     seq_id = s
                     break
