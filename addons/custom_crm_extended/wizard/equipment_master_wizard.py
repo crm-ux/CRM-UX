@@ -315,7 +315,7 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "current",
         }
 
-    @api.onchange('partner_id')
+        @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
             p = self.partner_id
@@ -347,6 +347,10 @@ class EquipmentMasterWizard(models.TransientModel):
             self.contact_person = contact_name
             self.contact_number = contact_phone
             self.email = contact_email
+
+            # Format Address (Restored!)
+            addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
+            self.address = ", ".join([str(a) for a in addr_parts if a])
 
             # Auto-fill location fields
             self.site_name = getattr(p, 'x_site_name', False) or (getattr(p.parent_id, 'x_site_name', False) if p.parent_id else "") or ""
