@@ -33,7 +33,7 @@
                             <field name="customer_address"/>
                         </group>
                         <group>
-                            <field name="customer_gstin"/>
+                            <field name="gst"/>
                         </group>
 
                         <group>
@@ -43,7 +43,6 @@
                             <field name="customer_phone" string="Mobile"/>
                         </group>
 
-                        <!-- Row 5: Left = Location, Right = Email -->
                         <group>
                             <field name="location" string="Location"/>
                         </group>
@@ -51,7 +50,6 @@
                             <field name="customer_email" string="Email"/>
                         </group>
 
-                        <!-- Row 6: Left = Contract Start Date, Right = Contract End Date -->
                         <group>
                             <field name="contract_start_date"/>
                         </group>
