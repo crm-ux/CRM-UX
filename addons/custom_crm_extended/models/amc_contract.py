@@ -106,7 +106,7 @@ class AmcContract(models.Model):
                     'location': eq.site_name or eq.room_number or "",
                     'end_user': eq.contact_person or "",
                     'mobile': eq.contact_number or "",
-                    'email': eq.contact_email or "",
+                    'email': eq.email or "",
                     'remarks': eq.notes or "",
                 }))
                 seq += 1
