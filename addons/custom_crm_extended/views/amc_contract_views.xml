@@ -33,34 +33,35 @@
                             <field name="gst"/>
                         </group>
 
+                        <!-- Contact Person & Location -->
                         <group>
                             <field name="contact_person" string="Contact Person"/>
                         </group>
                         <group>
-                            <field name="mobile" string="Mobile"/>
-                        </group>
-
-                        <group>
                             <field name="location" string="Location"/>
+                        </group>
+                        <!-- Mobile & Email below Location -->
+                        <group>
+                            <field name="mobile" string="Mobile"/>
                         </group>
                         <group>
                             <field name="email" string="Email"/>
                         </group>
-
+                        <!-- Start & End Date above Renewal Terms -->
                         <group>
                             <field name="contract_start_date"/>
                         </group>
                         <group>
-                            <field name="renewal_terms"/>
-                        </group>
-
-                        <group>
                             <field name="contract_end_date"/>
+                        </group>
+                        <!-- Renewal Terms & Payment Terms -->
+                        <group>
+                            <field name="renewal_terms"/>
                         </group>
                         <group>
                             <field name="payment_terms"/>
                         </group>
-
+                        <!-- Contract Value -->
                         <group>
                             <field name="contract_value"/>
                         </group>
