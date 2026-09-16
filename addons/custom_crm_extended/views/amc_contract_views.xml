@@ -15,60 +15,63 @@
                     </div>
 
                     <group>
+                        <!-- Row 1: Date | Customer / Company Name -->
                         <group>
                             <field name="date"/>
                         </group>
-
                         <group>
                             <field name="partner_id" default_focus="1" string="Customer / Company Name"/>
                         </group>
+
+                        <!-- Row 2: Status | Customer Address -->
                         <group>
                             <field name="contract_status" class="custom_radio_clean" widget="radio" options="{'horizontal': true}"/>
                         </group>
-
                         <group>
                             <field name="customer_address" rows="1"/>
                         </group>
+
+                        <!-- Row 3: GST | Location -->
                         <group>
                             <field name="gst"/>
-                        </group>
-                        <group>
-                            <field name="contract_start_date"/>
                         </group>
                         <group>
                             <field name="location" string="Location"/>
                         </group>
-                        <!-- Row 5: End Date (Left) | Mobile (Right) -->
+
+                        <!-- Row 4: Start Date | Mobile -->
                         <group>
-                            <field name="contract_end_date"/>
+                            <field name="contract_start_date"/>
                         </group>
                         <group>
                             <field name="mobile" string="Mobile"/>
                         </group>
-                        <!-- Row 6: Renewal Terms (Left) | Email (Right) -->
+
+                        <!-- Row 5: End Date | Email -->
                         <group>
-                            <field name="renewal_terms"/>
+                            <field name="contract_end_date"/>
                         </group>
                         <group>
                             <field name="email" string="Email"/>
                         </group>
-                        <!-- Row 7: Payment Terms (Left) | GST (Right) -->
+
+                        <!-- Row 6: Renewal Terms | Contact Person -->
+                        <group>
+                            <field name="renewal_terms"/>
+                        </group>
+                        <group>
+                            <field name="contact_person" string="Contact Person"/>
+                        </group>
+
+                        <!-- Row 7: Payment Terms | Contract Value -->
                         <group>
                             <field name="payment_terms"/>
                         </group>
                         <group>
-                            <field name="gst"/>
-                        </group>
-                        <!-- Row 8: PM (Left) | Contract Value (Right) -->
-                        <group>
-                            <field name="pm" string="PM"/>
-                        </group>
-                        <group>
                             <field name="contract_value"/>
                         </group>
-                        <!-- Row 9: Left Empty | CM (Right) -->
-                        <group/>
 
+                        <!-- Row 8: PM | CM -->
                         <group>
                             <field name="pm" string="PM"/>
                         </group>
@@ -76,6 +79,7 @@
                             <field name="cm" string="CM"/>
                         </group>
                     </group>
+
 
                     <notebook>
                         <page string="Equipment Details" name="equipment_lines">
