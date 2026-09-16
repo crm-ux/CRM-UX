@@ -20,6 +20,10 @@ export class AmcFormController extends FormController {
                     if (breadcrumb.previousElementSibling !== statusIndicator) {
                         container.insertBefore(breadcrumb, statusIndicator.nextSibling);
                     }
+                    // Dynamically remove auto-push margin so it naturally follows container gap
+                    statusIndicator.classList.remove("me-auto");
+                    statusIndicator.style.removeProperty("margin-right");
+                    breadcrumb.style.removeProperty("margin-left");
                 }
             }, 100);
         });
