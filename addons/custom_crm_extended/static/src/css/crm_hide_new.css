@@ -387,8 +387,12 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-.o_form_view.equipment_form .o_notebook .tab-pane,
-.o_form_view.equipment_form .tab-content,
+.equipment_form .o_form_sheet_bg,
+div[name="warranty_end_date"],
+div[name="warranty_start_date"] {
+    margin-bottom: 5rem !important;
+}
+
 .equipment_form .o_form_sheet {
-    padding-bottom: clamp(16rem, 30vh, 25rem) !important;
+    margin-bottom: 12rem !important;
 }
