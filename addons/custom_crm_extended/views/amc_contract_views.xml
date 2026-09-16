@@ -47,22 +47,25 @@
                             <field name="email" string="Email"/>
                         </group>
 
+                                                <!-- Row 6: Contract Start Date & Renewal Terms -->
                         <group>
                             <field name="contract_start_date"/>
                         </group>
                         <group>
+                            <field name="renewal_terms"/>
+                        </group>
+
+                        <!-- Row 7: Contract End Date & (Right Column) -->
+                        <group>
                             <field name="contract_end_date"/>
                         </group>
-
-                        <group>
-                            <field name="contract_value"/>
-                        </group>
-
                         <group>
                             <field name="payment_terms"/>
                         </group>
+
+                        <!-- Row 8: Contract Value -->
                         <group>
-                            <field name="renewal_terms"/>
+                            <field name="contract_value"/>
                         </group>
 
                         <group>
