@@ -1393,6 +1393,46 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
 
 }
 
+/* ==========================================================================
+   AMC CONTRACT STATUS RADIO BUTTON (DARK CIRCLE & BRAND COLOR PALETTE)
+   ========================================================================== */
+
+.o_form_view[js_class="amc_form"] .o_field_radio .form-check-input[type="radio"] {
+    width: 1.15rem;
+    height: 1.15rem;
+    border: 0.1rem solid #6c757d;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Checked Radio Button - Dark Circle */
+.o_form_view[js_class="amc_form"] .o_field_radio .form-check-input[type="radio"]:checked {
+    background-color: #003366 !important;
+    /* Dark Navy Circle */
+    border-color: #003366 !important;
+    box-shadow: 0 0 0 0.15rem rgba(0, 51, 102, 0.25);
+}
+
+/* Checked Radio Label - Bold Dark Blue Text */
+.o_form_view[js_class="amc_form"] .o_field_radio .form-check:has(.form-check-input:checked) .form-check-label {
+    color: #003366 !important;
+    font-weight: 700 !important;
+}
+
+/* Radio Labels Default */
+.o_form_view[js_class="amc_form"] .o_field_radio .form-check-label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #212529;
+    padding-left: 0.25rem;
+}
+
+.o_form_view[js_class="amc_form"] .o_field_radio .form-check {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 1.25rem;
+}
+
 /* 2. Desktop View (Min-width: 48rem / 768px) */
 @media (min-width: 48rem) {
     .crm-submenu-content {
