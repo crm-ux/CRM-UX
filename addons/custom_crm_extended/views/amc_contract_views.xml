@@ -33,38 +33,42 @@
                             <field name="gst"/>
                         </group>
 
-                        <!-- Contact Person & Location -->
-                        <group>
-                            <field name="contact_person" string="Contact Person"/>
+group>
+                            <field name="contract_start_date"/>
                         </group>
                         <group>
                             <field name="location" string="Location"/>
                         </group>
-                        <!-- Mobile & Email below Location -->
-                        <group>
-                            <field name="mobile" string="Mobile"/>
-                        </group>
-                        <group>
-                            <field name="email" string="Email"/>
-                        </group>
-                        <!-- Start & End Date above Renewal Terms -->
-                        <group>
-                            <field name="contract_start_date"/>
-                        </group>
+                        <!-- Row 5: End Date (Left) | Mobile (Right) -->
                         <group>
                             <field name="contract_end_date"/>
                         </group>
-                        <!-- Renewal Terms & Payment Terms -->
+                        <group>
+                            <field name="mobile" string="Mobile"/>
+                        </group>
+                        <!-- Row 6: Renewal Terms (Left) | Email (Right) -->
                         <group>
                             <field name="renewal_terms"/>
                         </group>
                         <group>
+                            <field name="email" string="Email"/>
+                        </group>
+                        <!-- Row 7: Payment Terms (Left) | GST (Right) -->
+                        <group>
                             <field name="payment_terms"/>
                         </group>
-                        <!-- Contract Value -->
+                        <group>
+                            <field name="gst"/>
+                        </group>
+                        <!-- Row 8: PM (Left) | Contract Value (Right) -->
+                        <group>
+                            <field name="pm" string="PM"/>
+                        </group>
                         <group>
                             <field name="contract_value"/>
                         </group>
+                        <!-- Row 9: Left Empty | CM (Right) -->
+                        <group/>
 
                         <group>
                             <field name="pm" string="PM"/>
