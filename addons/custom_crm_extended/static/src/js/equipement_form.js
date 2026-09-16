@@ -86,16 +86,22 @@ export class EquipmentFormController extends FormController {
                     observer = new MutationObserver(() => reorderToolbar());
                     observer.observe(panel, { childList: true });
                 }
-                document.addEventListener("focusin", (e) => {
-                    if (e.target && (e.target.name === "warranty_end_date" || e.target.name === "warranty_start_date")) {
+                // Auto-scroll when clicking on warranty dates
+                const scrollForDate = (e) => {
+                    const fieldDiv = e.target.closest('[name="warranty_end_date"], [name="warranty_start_date"]');
+                    if (fieldDiv) {
                         setTimeout(() => {
-                            const content = document.querySelector(".o_content");
-                            if (content) {
-                                content.scrollBy({ top: 220, behavior: "smooth" });
+                            // Find whichever element is currently scrolling
+                            const scroller = document.querySelector(".o_content") || document.querySelector(".o_form_view") || document.documentElement;
+                            if (scroller) {
+                                scroller.scrollBy({ top: 260, behavior: "smooth" });
                             }
-                        }, 50);
+                        }, 100);
                     }
-                });
+                };
+
+                document.addEventListener("click", scrollForDate);
+                document.addEventListener("focusin", scrollForDate);
             });
 
             onWillUnmount(() => {
