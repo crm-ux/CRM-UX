@@ -386,3 +386,8 @@ button[name="action_save_lead"] {
 .ticket_statusbar_green button::after {
     display: none !important;
 }
+
+/* Scoped ONLY to Equipment Master notebook tabs - no other view is affected */
+.o_form_view[js_class="equipment_form"] .o_notebook .tab-pane {
+    padding-bottom: clamp(14rem, 25vh, 22rem) !important;
+}
