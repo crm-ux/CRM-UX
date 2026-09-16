@@ -457,10 +457,9 @@ class CrmDashboard extends Component {
             type: "ir.actions.act_window",
             name: "New AMC Contract",
             res_model: "amc.contract",
-            view_mode: "form",
-            views: [[false, "form"]],
+            view_mode: "list,form",
+            views: [[false, "form"], [false, "list"]],
             target: "current",
-            clear_breadcrumbs: true,
         });
     }
 
