@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+﻿# -*- coding: utf-8 -*
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -61,10 +61,7 @@ class ServiceTicketWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        seq_ticket = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'service.ticket'),
-            ('active', '=', True),
-        ], limit=1)
+        seq_ticket = self._get_or_create_service_sequence()
 
         if seq_ticket:
             prefix = seq_ticket.prefix or ''
@@ -140,6 +137,21 @@ class ServiceTicketWizard(models.TransientModel):
             self.serial_number = eq.serial_number
             self.part_number = eq.part_number
 
+    @api.model
+    def _get_or_create_service_sequence(self):
+        """Auto-creates default Service Ticket sequence starting at 1 if not exists."""
+        seq = self.env['ir.sequence'].sudo().search([('code', '=', 'service.ticket'), ('active', '=', True)], limit=1)
+        if not seq:
+            seq = self.env['ir.sequence'].sudo().create({
+                'name': 'Service Ticket Series',
+                'code': 'service.ticket',
+                'prefix': False,
+                'padding': 1,
+                'number_next': 1,
+                'number_increment': 1,
+                'company_id': False,
+            })
+        return seq
 
     def action_goto_1(self):
         self.ensure_one()
@@ -216,10 +228,8 @@ class ServiceTicketWizard(models.TransientModel):
         self.ensure_one()
 
         # Consume official sequence on Save
-        seq_ticket = self.env['ir.sequence'].sudo().search([
-            ('code', '=', 'service.ticket'),
-            ('active', '=', True),
-        ], limit=1)
+        seq_ticket = self._get_or_create_service_sequence()
+
 
         Ticket = self.env['service.ticket'].sudo()
         if seq_ticket:

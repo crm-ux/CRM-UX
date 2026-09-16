@@ -36,9 +36,11 @@ class EquipmentMasterWizard(models.TransientModel):
                 ("code", "=", "crm.equipment.id"),
                 ("active", "=", True)
             ], limit=1)
-        if gen_seq:
-            return self._compute_preview_for_sequence(gen_seq)
-        return ""
+        if not gen_seq:
+            gen_seq = self._get_or_create_equipment_sequence()
+        return self._compute_preview_for_sequence(gen_seq)
+
+
 
     # Step 1: Equipment Info
     e1_id = fields.Boolean(default=False)
@@ -250,11 +252,12 @@ class EquipmentMasterWizard(models.TransientModel):
                     break
 
         if not seq_id:
-            seq_id = self.env['ir.sequence'].search([
-                ('code', '=', 'crm.equipment.id'),
-                ('equipment_category_id', '=', False),
-                ('active', '=', True)
-            ], limit=1)
+            seq_id = self._get_or_create_equipment_sequence()
+
+
+
+
+
 
         # Officially consume the sequence on SAVE
         assigned_eq_id = seq_id.next_by_id() if seq_id else self.equipment_id
@@ -314,6 +317,23 @@ class EquipmentMasterWizard(models.TransientModel):
             "view_mode": "form",
             "target": "current",
         }
+
+    @api.model
+    def _get_or_create_equipment_sequence(self):
+        """Auto-creates default Equipment ID sequence starting at 1 if not exists."""
+        seq = self.env['ir.sequence'].sudo().search([('code', '=', 'crm.equipment.id'), ('equipment_category_id', '=', False), ('active', '=', True)], limit=1)
+        if not seq:
+            seq = self.env['ir.sequence'].sudo().create({
+                'name': 'Equipment ID Series',
+                'code': 'crm.equipment.id',
+                'prefix': False,
+                'padding': 1,
+                'number_next': 1,
+                'number_increment': 1,
+                'company_id': False,
+            })
+        return seq
+
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
