@@ -43,7 +43,7 @@
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                                 <div class="crm-submenu-wrapper" t-att-class="{'open': state.seriesSubmenuOpen}">
                                     <div class="crm-admin-menu-item d-flex justify-content-between align-items-center" t-on-click.stop="toggleSeriesSubmenu" style="cursor:pointer;">
-                                        <span>Numbering Series</span>
+                                        <span>Series</span>
                                         <i class="fa fa-chevron-right crm-submenu-arrow d-none d-md-inline" style="font-size: 10px; opacity: 0.7;"/>
                                         <i class="fa fa-chevron-down crm-submenu-arrow-mobile d-inline d-md-none" style="font-size: 10px; opacity: 0.7;"/>
                                     </div>
