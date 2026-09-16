@@ -1378,17 +1378,11 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
 }
 
 .crm-submenu-content .crm-sub-item {
-    display: block;
+    display: block !important;
     width: 100%;
-    font-family: inherit !important;
-    font-size: inherit !important;
-    font-weight: inherit !important;
-    color: inherit !important;
+    color: #212529 !important;
     text-decoration: none !important;
-    padding: 0.5rem 1rem;
     white-space: nowrap;
-    background: transparent;
-    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .crm-submenu-content .crm-sub-item:hover,

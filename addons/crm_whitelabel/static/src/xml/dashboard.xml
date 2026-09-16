@@ -48,18 +48,10 @@
                                         <i class="fa fa-chevron-down crm-submenu-arrow-mobile d-inline d-md-none" style="font-size: 10px; opacity: 0.7;"/>
                                     </div>
                                     <div class="crm-submenu-content">
-                                        <button type="button" class="dropdown-item crm-sub-item" t-on-click="openQuoteSeries">
-                                            <span>Quote Series</span>
-                                        </button>
-                                        <button type="button" class="dropdown-item crm-sub-item" t-on-click="openEquipmentSeries">
-                                            <span>Equipment Series</span>
-                                        </button>
-                                        <button type="button" class="dropdown-item crm-sub-item" t-on-click="openServiceSeries">
-                                            <span>Service Series</span>
-                                        </button>
-                                        <button type="button" class="dropdown-item crm-sub-item" t-on-click="openAmcSeries">
-                                            <span>AMC Series</span>
-                                        </button>
+                                        <a t-on-click="openQuoteSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Quote Series</a>
+                                        <a t-on-click="openEquipmentSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Equipment Series</a>
+                                        <a t-on-click="openServiceSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Service Series</a>
+                                        <a t-on-click="openAmcSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">AMC Series</a>
                                     </div>
                                 </div>
                                 <a t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
