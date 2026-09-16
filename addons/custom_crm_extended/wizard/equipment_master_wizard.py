@@ -315,7 +315,7 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "current",
         }
 
-        @api.onchange('partner_id')
+    @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:
             p = self.partner_id
