@@ -80,7 +80,6 @@
                         </group>
                     </group>
 
-
                     <notebook>
                         <page string="Equipment Details" name="equipment_lines">
                             <field name="line_ids">
