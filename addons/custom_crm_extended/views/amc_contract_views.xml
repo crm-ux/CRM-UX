@@ -33,7 +33,7 @@
 
                         <!-- Row 3: GST | Location -->
                         <group>
-                            <field name="gst"/>
+                            <field name="gstin" string="GSTIN"/>
                         </group>
                         <group>
                             <field name="location" string="Location"/>

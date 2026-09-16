@@ -64,6 +64,16 @@ class AmcContract(models.Model):
             contact_phone = ""
             contact_email = ""
 
+            available_gstins = []
+            if p.vat:
+                available_gstins.append(p.vat)
+            if p.parent_id and p.parent_id.vat and p.parent_id.vat not in available_gstins:
+                available_gstins.append(p.parent_id.vat)
+            for child in p.child_ids:
+                if child.vat and child.vat not in available_gstins:
+                    available_gstins.append(child.vat)
+            self.gstin = available_gstins[0] if available_gstins else ""
+
             def get_phone(partner):
                 if not partner:
                     return ""
