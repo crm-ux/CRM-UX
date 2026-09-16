@@ -1357,7 +1357,7 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     display: none !important;
 }
 
-/* DYNAMIC RESPONSIVE NUMBERING SERIES SUBMENU (LINE 1333+) */
+/* DYNAMIC RESPONSIVE NUMBERING SERIES SUBMENU */
 
 .crm-submenu-wrapper {
     position: relative;
@@ -1377,13 +1377,28 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     transition: transform 0.25s ease, color 0.25s ease;
 }
 
+/* 1. Base Submenu Items (applied everywhere) */
+.crm-submenu-content .crm-sub-item {
+    display: block;
+    width: 100%;
+    color: #212529 !important;
+    text-decoration: none !important;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
+    background: transparent;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
 .crm-submenu-content .crm-sub-item:hover,
 .crm-submenu-content .crm-sub-item:focus {
-    background-color: var(--crm-hover-bg, rgba(0, 0, 0, 0.05));
-    padding-left: 1.25rem;
+    background-color: rgba(0, 0, 0, 0.05);
     color: #000000 !important;
 }
 
+/* 2. Desktop View (Min-width: 48rem / 768px) */
 @media (min-width: 48rem) {
     .crm-submenu-content {
         display: none;
@@ -1399,7 +1414,6 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
         z-index: 1055;
     }
 
-    /* Flyout triggers smoothly on hover or open state */
     .crm-submenu-wrapper:hover>.crm-submenu-content,
     .crm-submenu-wrapper.open>.crm-submenu-content {
         display: block;
@@ -1425,8 +1439,7 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     }
 }
 
-/* MOBILE & TABLET (Max-width: 47.99rem / 767px): Inline Accordion */
-
+/* 3. Mobile & Tablet View (Max-width: 47.99rem / 767px) */
 @media (max-width: 47.99rem) {
     .crm-submenu-content {
         display: none;
@@ -1439,7 +1452,6 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
         margin: 0.2rem 0;
     }
 
-    /* Accordion opens when clicked */
     .crm-submenu-wrapper.open>.crm-submenu-content {
         display: block;
     }
@@ -1450,20 +1462,10 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     }
 
     .crm-submenu-content .crm-sub-item {
-        display: block;
-        width: 100%;
-        color: #212529 !important;
-        text-decoration: none !important;
-        font-size: 0.875rem;
-        font-weight: 400;
-        line-height: 1.5;
-        padding: 0.5rem 1rem;
-        white-space: nowrap;
-        background: transparent;
-        transition: background-color 0.15s ease, color 0.15s ease;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
     }
 }
-
 
 /* ===== Mobile overflow fix ===== */
 html,
