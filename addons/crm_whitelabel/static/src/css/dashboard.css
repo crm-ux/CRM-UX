@@ -1377,26 +1377,11 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     transition: transform 0.25s ease, color 0.25s ease;
 }
 
-/* Individual Submenu Button Items */
-.crm-submenu-content .crm-sub-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.85rem;
-    padding: 0.55rem 1rem;
-    color: inherit;
-    background: transparent;
-    border: none;
-    width: 100%;
-    text-align: left;
-    white-space: nowrap;
-    transition: background-color 0.15s ease, padding-left 0.15s ease;
-}
-
 .crm-submenu-content .crm-sub-item:hover,
 .crm-submenu-content .crm-sub-item:focus {
     background-color: var(--crm-hover-bg, rgba(0, 0, 0, 0.05));
     padding-left: 1.25rem;
+    color: #000000 !important;
 }
 
 @media (min-width: 48rem) {
@@ -1465,9 +1450,17 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     }
 
     .crm-submenu-content .crm-sub-item {
-        padding: 0.7rem 1rem;
-        /* Comfortable touch target for fingers */
-        font-size: 0.9rem;
+        display: block;
+        width: 100%;
+        color: #212529 !important;
+        text-decoration: none !important;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        padding: 0.5rem 1rem;
+        white-space: nowrap;
+        background: transparent;
+        transition: background-color 0.15s ease, color 0.15s ease;
     }
 }
 
