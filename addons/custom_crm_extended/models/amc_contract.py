@@ -7,7 +7,7 @@ class AmcContract(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
-    name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='New')
+    name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='Draft')
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
 
     contract_status = fields.Selection([
@@ -129,7 +129,7 @@ class AmcContract(models.Model):
             status = vals.get('contract_status', 'draft')
             current_name = (vals.get('name') or '').strip()
             
-            if not current_name or current_name.lower() in ('new', '/'):
+            if not current_name or current_name.lower() in ('draft', 'new', '/'):
                 if status == 'draft':
                     seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
                     vals['name'] = seq.next_by_id() or 'Draft-1'
@@ -140,17 +140,14 @@ class AmcContract(models.Model):
 
 
     def write(self, vals):
-        # If moving from draft to active (or any confirmed status) and still has Draft- number:
         new_status = vals.get('contract_status')
         if new_status and new_status != 'draft':
             for record in self:
-                if record.contract_status == 'draft' and (not record.name or record.name.startswith('Draft-') or record.name == 'New'):
-                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract')
-                    if not seq_num:
-                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                        seq_num = seq.next_by_id()
-                    record.name = seq_num or '1'
+                if record.contract_status == 'draft' and (not record.name or record.name.startswith('Draft-') or record.name.lower() in ('draft', 'new')):
+                    seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                    vals['name'] = seq.next_by_id() or '1'
         return super().write(vals)
+
 
 
 
