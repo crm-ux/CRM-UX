@@ -19,7 +19,7 @@
                             <field name="date"/>
                             <field name="contract_status" widget="radio" options="{'horizontal': true}"/>
                             <field name="contract_start_date" autocomplete="off"/>
-                            <field name="contract_end_date"/>
+                            <field name="contract_end_date" autocomplete="off"/>
                             <field name="contract_value"/>
                             <field name="gst"/>
                             <field name="payment_terms"/>
