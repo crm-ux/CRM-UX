@@ -107,7 +107,6 @@ class AmcContract(models.Model):
                     'end_user': eq.contact_person or "",
                     'mobile': eq.contact_number or "",
                     'email': eq.email or "",
-                    'remarks': eq.notes or "",
                 }))
                 seq += 1
 
