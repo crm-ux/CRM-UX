@@ -387,7 +387,8 @@ button[name="action_save_lead"] {
     display: none !important;
 }
 
-/* Scoped ONLY to Equipment Master notebook tabs - no other view is affected */
-.o_form_view[js_class="equipment_form"] .o_notebook .tab-pane {
-    padding-bottom: clamp(14rem, 25vh, 22rem) !important;
+.o_form_view.equipment_form .o_notebook .tab-pane,
+.o_form_view.equipment_form .tab-content,
+.equipment_form .o_form_sheet {
+    padding-bottom: clamp(16rem, 30vh, 25rem) !important;
 }
