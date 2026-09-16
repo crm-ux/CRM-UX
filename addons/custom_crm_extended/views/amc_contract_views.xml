@@ -8,6 +8,7 @@
             <form string="Annual Maintenance Contract" js_class="amc_form">
                 <sheet>
                     <div class="oe_title">
+                        <label for="name" string="AMC No."/>
                         <h1>
                             <field name="name" placeholder="AMC No."/>
                         </h1>
