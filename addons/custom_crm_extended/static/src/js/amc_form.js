@@ -8,24 +8,27 @@ import { registry } from "@web/core/registry";
 export class AmcFormController extends FormController {
     setup() {
         super.setup();
+
+        let interval = null;
+
         onMounted(() => {
-            this.reorderAmcNavbar();
-        });
-    }
-
-    reorderAmcNavbar() {
-        const interval = setInterval(() => {
-            const container = document.querySelector(".o_control_panel_breadcrumbs");
-            const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
-            const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-            if (container && breadcrumb && statusIndicator) {
-                if (breadcrumb.previousElementSibling !== statusIndicator) {
-                    container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+            interval = setInterval(() => {
+                const container = document.querySelector(".o_control_panel_breadcrumbs");
+                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
+                if (container && breadcrumb && statusIndicator) {
+                    if (breadcrumb.previousElementSibling !== statusIndicator) {
+                        container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                    }
                 }
-            }
-        }, 100);
+            }, 100);
+        });
 
-        onWillUnmount(() => clearInterval(interval));
+        onWillUnmount(() => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        });
     }
 }
 
