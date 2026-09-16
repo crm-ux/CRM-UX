@@ -7,13 +7,6 @@
         <field name="arch" type="xml">
             <form string="Annual Maintenance Contract" js_class="amc_form">
                 <sheet>
-                    <div class="oe_title">
-                        <label for="name" string="AMC No."/>
-                        <h1>
-                            <field name="name" placeholder="AMC No."/>
-                        </h1>
-                    </div>
-
                     <group>
                         <group>
                             <field name="name" readonly="1"/>
@@ -30,7 +23,7 @@
                         </group>
 
                         <group>
-                            <field name="customer_address"/>
+                            <field name="customer_address" rows="1"/>
                         </group>
                         <group>
                             <field name="gst"/>
