@@ -26,13 +26,13 @@ class EquipmentMasterWizard(models.TransientModel):
 
     @api.model
     def _default_equipment_id(self):
-        gen_seq = self.env["ir.sequence"].search([
+        gen_seq = self.env["ir.sequence"].sudo().search([
             ("code", "=", "crm.equipment.id"),
             ("equipment_category_id", "=", False),
             ("active", "=", True)
         ], limit=1)
         if not gen_seq:
-            gen_seq = self.env["ir.sequence"].search([
+            gen_seq = self.env["ir.sequence"].sudo().search([
                 ("code", "=", "crm.equipment.id"),
                 ("active", "=", True)
             ], limit=1)
@@ -104,7 +104,7 @@ class EquipmentMasterWizard(models.TransientModel):
     def _get_equipment_id_selection(self):
         """Dynamic dropdown options for equipment_id directly."""
         options = []
-        seqs = self.env["ir.sequence"].search([
+        seqs = self.env["ir.sequence"].sudo().search([
             ("code", "=", "crm.equipment.id"),
             ("active", "=", True)
         ], order="equipment_category_id desc, id desc")
@@ -137,7 +137,7 @@ class EquipmentMasterWizard(models.TransientModel):
             # Priority 1: Category sequence
             seq = False
             if categ:
-                seq = self.env["ir.sequence"].search([
+                seq = self.env["ir.sequence"].sudo().search([
                     ("code", "=", "crm.equipment.id"),
                     ("equipment_category_id", "=", categ.id),
                     ("active", "=", True)
@@ -145,7 +145,7 @@ class EquipmentMasterWizard(models.TransientModel):
 
             # Priority 2: General sequence
             if not seq:
-                seq = self.env["ir.sequence"].search([
+                seq = self.env["ir.sequence"].sudo().search([
                     ("code", "=", "crm.equipment.id"),
                     ("equipment_category_id", "=", False),
                     ("active", "=", True)
@@ -233,12 +233,12 @@ class EquipmentMasterWizard(models.TransientModel):
         cat_rec = False
         if self.category_id:
             if isinstance(self.category_id, str):
-                cat_rec = self.env['product.category'].search([
+                cat_rec = self.env['product.category'].sudo().search([
                     '|', ('name', '=', self.category_id.strip()),
                     ('display_name', '=', self.category_id.strip())
                 ], limit=1)
             elif isinstance(self.category_id, int):
-                cat_rec = self.env['product.category'].browse(self.category_id)
+                cat_rec = self.env['product.category'].sudo().browse(self.category_id)
             elif hasattr(self.category_id, '_name'):
                 cat_rec = self.category_id
 
