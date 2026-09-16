@@ -1393,30 +1393,6 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
 
 }
 
-/* ==========================================================================
-   AMC & CRM RADIO BUTTONS (DARK CIRCLE & BRAND PALETTE)
-   ========================================================================== */
-div[name="contract_status"] .form-check-input[type="radio"],
-.o_field_radio .form-check-input[type="radio"] {
-    cursor: pointer;
-    border-color: #6c757d;
-}
-
-/* Checked Radio Button: Dark Navy Circle */
-div[name="contract_status"] .form-check-input[type="radio"]:checked,
-.o_field_radio .form-check-input[type="radio"]:checked {
-    background-color: #003366 !important;
-    border-color: #003366 !important;
-    background-image: radial-gradient(circle, #ffffff 35%, #003366 40%) !important;
-}
-
-/* Checked Label: Bold Dark Navy Text */
-div[name="contract_status"] .form-check:has(.form-check-input:checked) label,
-.o_field_radio .form-check:has(.form-check-input:checked) label {
-    color: #003366 !important;
-    font-weight: 700 !important;
-}
-
 /* 2. Desktop View (Min-width: 48rem / 768px) */
 @media (min-width: 48rem) {
     .crm-submenu-content {

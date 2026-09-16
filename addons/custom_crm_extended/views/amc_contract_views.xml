@@ -23,7 +23,7 @@
                             <field name="partner_id" default_focus="1" string="Customer / Company Name"/>
                         </group>
                         <group>
-                            <field name="contract_status" widget="radio" options="{'horizontal': true}"/>
+                            <field name="contract_status" class="custom_radio_clean" widget="radio" options="{'horizontal': true}"/>
                         </group>
 
                         <group>
