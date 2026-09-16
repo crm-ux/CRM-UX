@@ -18,7 +18,7 @@ class EquipmentMasterWizard(models.TransientModel):
         num = seq.number_next or 1
         num_str = str(num).zfill(pad) if pad else str(num)
         preview_id = f"{prefix}{num_str}{suffix}"
-        while self.env["equipment.master"].search_count([("equipment_id", "=", preview_id)]) > 0:
+        while self.env["equipment.master"].sudo().search_count([("equipment_id", "=", preview_id)]) > 0:
             num += 1
             num_str = str(num).zfill(pad) if pad else str(num)
             preview_id = f"{prefix}{num_str}{suffix}"
@@ -162,12 +162,12 @@ class EquipmentMasterWizard(models.TransientModel):
             if not self.equipment_id:
                 raise ValidationError(_("Please enter Equipment ID before proceeding."))
             # Check unique Equipment ID
-            dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+            dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
             if dup_eq:
                 raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
             # Check unique Serial Number
             if self.serial_number:
-                dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+                dup_sn = self.env['equipment.master'].sudo().search([('serial_number', '=', self.serial_number.strip())], limit=1)
                 if dup_sn:
                     raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
 
@@ -189,11 +189,11 @@ class EquipmentMasterWizard(models.TransientModel):
     def _check_step_1_uniqueness(self):
         if not self.equipment_id:
             raise ValidationError(_("Please enter Equipment ID before proceeding."))
-        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
+        dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
         if dup_eq:
             raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
         if self.serial_number:
-            dup_sn = self.env['equipment.master'].search([('serial_number', '=', self.serial_number.strip())], limit=1)
+            dup_sn = self.env['equipment.master'].sudo().search([('serial_number', '=', self.serial_number.strip())], limit=1)
             if dup_sn:
                 raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
 
@@ -265,14 +265,14 @@ class EquipmentMasterWizard(models.TransientModel):
             raise ValidationError(_("Please enter Equipment ID before saving."))
 
         # Final uniqueness check for Equipment ID
-        dup_eq = self.env['equipment.master'].search([('equipment_id', '=', assigned_eq_id.strip())], limit=1)
+        dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', assigned_eq_id.strip())], limit=1)
         if dup_eq:
             raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % assigned_eq_id)
 
         # Final uniqueness check for Serial Number (only if user entered one)
         clean_sn = self.serial_number.strip() if self.serial_number and self.serial_number.strip() else False
         if clean_sn:
-            dup_sn = self.env['equipment.master'].search([('serial_number', '=', clean_sn)], limit=1)
+            dup_sn = self.env['equipment.master'].sudo().search([('serial_number', '=', clean_sn)], limit=1)
             if dup_sn:
                 raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % clean_sn)
 
