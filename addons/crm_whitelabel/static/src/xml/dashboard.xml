@@ -49,19 +49,15 @@
                                     </div>
                                     <div class="crm-submenu-content">
                                         <button type="button" class="dropdown-item crm-sub-item" t-on-click="openQuoteSeries">
-                                            <i class="fa fa-file-text-o text-muted"></i>
                                             <span>Quote Series</span>
                                         </button>
                                         <button type="button" class="dropdown-item crm-sub-item" t-on-click="openEquipmentSeries">
-                                            <i class="fa fa-cubes text-muted"></i>
                                             <span>Equipment Series</span>
                                         </button>
                                         <button type="button" class="dropdown-item crm-sub-item" t-on-click="openServiceSeries">
-                                            <i class="fa fa-wrench text-muted"></i>
                                             <span>Service Series</span>
                                         </button>
                                         <button type="button" class="dropdown-item crm-sub-item" t-on-click="openAmcSeries">
-                                            <i class="fa fa-handshake-o text-muted"></i>
                                             <span>AMC Series</span>
                                         </button>
                                     </div>
