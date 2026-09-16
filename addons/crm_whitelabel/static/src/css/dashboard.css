@@ -1380,7 +1380,7 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
 .crm-submenu-content .crm-sub-item {
     display: block !important;
     width: 100%;
-    color: #212529 !important;
+    color: #2C3E50 !important;
     text-decoration: none !important;
     white-space: nowrap;
 }
@@ -1388,7 +1388,7 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
 .crm-submenu-content .crm-sub-item:hover,
 .crm-submenu-content .crm-sub-item:focus {
     background-color: rgba(0, 0, 0, 0.05);
-    color: #000000 !important;
+    color: #2C3E50 !important;
 
 }
 
