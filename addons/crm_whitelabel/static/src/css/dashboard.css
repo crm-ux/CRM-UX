@@ -1383,6 +1383,7 @@ div[name="voucher_line_ids"] .o_field_binary button.fa-download {
     color: #2C3E50 !important;
     text-decoration: none !important;
     white-space: nowrap;
+    padding-left: 1.25rem !important;
 }
 
 .crm-submenu-content .crm-sub-item:hover,
