@@ -7,7 +7,7 @@ class AmcContract(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
-    name = fields.Char(string='AMC No.', default=lambda self: _('New'), tracking=True)
+    name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='New')    
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
 
     contract_status = fields.Selection([
@@ -106,6 +106,56 @@ class AmcContract(models.Model):
             'view_mode': 'list,form',
             'target': 'current',
         }
+
+    @api.model
+    def _get_or_create_sequence(self, code, name, prefix=False):
+        """Finds existing sequence or creates default one."""
+        seq = self.env['ir.sequence'].sudo().search([('code', '=', code)], limit=1)
+        if not seq:
+            seq = self.env['ir.sequence'].sudo().create({
+                'name': name,
+                'code': code,
+                'prefix': prefix,
+                'padding': 1,
+                'number_next': 1,
+                'number_increment': 1,
+                'company_id': False,
+            })
+        return seq
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            status = vals.get('contract_status', 'draft')
+            if not vals.get('name') or vals.get('name') in ('New', '/'):
+                if status == 'draft':
+                    # Draft series: Draft-1, Draft-2, ...
+                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract.draft')
+                    if not seq_num:
+                        seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                        seq_num = seq.next_by_id()
+                    vals['name'] = seq_num or 'Draft-1'
+                else:
+                    # Real AMC series: 1, 2, 3, ...
+                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract')
+                    if not seq_num:
+                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                        seq_num = seq.next_by_id()
+                    vals['name'] = seq_num or '1'
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # If moving from draft to active (or any confirmed status) and still has Draft- number:
+        new_status = vals.get('contract_status')
+        if new_status and new_status != 'draft':
+            for record in self:
+                if record.contract_status == 'draft' and (not record.name or record.name.startswith('Draft-') or record.name == 'New'):
+                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract')
+                    if not seq_num:
+                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                        seq_num = seq.next_by_id()
+                    record.name = seq_num or '1'
+        return super().write(vals)
 
 
 
