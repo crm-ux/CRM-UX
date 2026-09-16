@@ -42,7 +42,7 @@
                         <group>
                             <field name="mobile" string="Mobile"/>
                         </group>
-
+    
                         <group>
                             <field name="location" string="Location"/>
                         </group>
