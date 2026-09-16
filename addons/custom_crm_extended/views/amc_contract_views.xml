@@ -37,12 +37,12 @@
                         </group>
 
                         <group>
-                            <field name="customer_person" string="Contact Person"/>
+                            <field name="contact_person" string="Contact Person"/>
                         </group>
                         <group>
                             <field name="mobile" string="Mobile"/>
                         </group>
-    
+
                         <group>
                             <field name="location" string="Location"/>
                         </group>
