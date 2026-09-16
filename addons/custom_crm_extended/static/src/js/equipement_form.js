@@ -96,7 +96,6 @@ export class EquipmentFormController extends FormController {
                         }, 50);
                     }
                 });
-                document.addEventListener("focusin", handleDateFocus);
             });
 
             onWillUnmount(() => {
