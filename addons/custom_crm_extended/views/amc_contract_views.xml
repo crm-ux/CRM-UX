@@ -81,6 +81,8 @@
                         <!-- Row 8: PM | CM -->
                         <group>
                             <field name="pm" string="PM"/>
+                        </group>
+                        <group>
                             <field name="cm" string="CM"/>
                         </group>
                     </group>
