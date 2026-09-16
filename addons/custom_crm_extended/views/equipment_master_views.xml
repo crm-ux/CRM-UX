@@ -47,16 +47,17 @@
                     <notebook>
                         <page string="Warranty &amp; Contract" name="warranty_tab">
                             <group>
-                                <group string="Installation &amp; Warranty">
-                                    <field name="installation_date"/>
+                                <group string="Warranty Dates">
                                     <field name="warranty_start_date"/>
+                                    <field name="installation_date"/>
                                 </group>
                                 <group string="Contract Details">
-                                    <field name="service_contract"/>
                                     <field name="warranty_end_date"/>
+                                    <field name="service_contract"/>
                                 </group>
                             </group>
                         </page>
+
                         <page string="Specs &amp; Remarks" name="specs_tab">
                             <group>
                                 <field name="firmware_version"/>
