@@ -10,6 +10,8 @@ class AmcContract(models.Model):
     name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='Draft')
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
 
+    draft_name = fields.Char(string='Saved Draft Number', copy=False)
+    official_name = fields.Char(string='Saved Official Number', copy=False)
     contract_status = fields.Selection([
         ('draft', 'Draft'),
         ('active', 'Active'),
@@ -178,28 +180,45 @@ class AmcContract(models.Model):
         for vals in vals_list:
             status = vals.get('contract_status', 'draft')
             current_name = (vals.get('name') or '').strip()
-            
+
             if not current_name or current_name.lower() in ('draft', 'new', '/'):
                 if status == 'draft':
                     seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                    vals['name'] = seq.next_by_id() or 'Draft-1'
+                    draft_num = seq.next_by_id() or 'Draft-1'
+                    vals['name'] = draft_num
+                    vals['draft_name'] = draft_num
                 else:
                     seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                    vals['name'] = seq.next_by_id() or '1'
+                    official_num = seq.next_by_id() or '1'
+                    vals['name'] = official_num
+                    vals['official_name'] = official_num
         return super().create(vals_list)
-
 
     def write(self, vals):
         new_status = vals.get('contract_status')
-        if new_status and new_status != 'draft':
+        if new_status:
             for record in self:
-                if record.contract_status == 'draft' and (not record.name or record.name.startswith('Draft-') or record.name.lower() in ('draft', 'new')):
-                    seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                    vals['name'] = seq.next_by_id() or '1'
+                # Switching BACK to Draft
+                if new_status == 'draft':
+                    if record.draft_name:
+                        vals['name'] = record.draft_name
+                    elif not record.name or not record.name.startswith('Draft-'):
+                        seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                        draft_num = seq.next_by_id() or 'Draft-1'
+                        vals['name'] = draft_num
+                        vals['draft_name'] = draft_num
+
+                # Switching to Active (or any other confirmed status)
+                elif new_status != 'draft':
+                    if record.official_name:
+                        vals['name'] = record.official_name
+                    elif not record.name or record.name.startswith('Draft-') or record.name.lower() in ('draft', 'new'):
+                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                        official_num = seq.next_by_id() or '1'
+                        vals['name'] = official_num
+                        vals['official_name'] = official_num
+
         return super().write(vals)
-
-
-
 
 class AmcContractLine(models.Model):
     _name = 'amc.contract.line'
