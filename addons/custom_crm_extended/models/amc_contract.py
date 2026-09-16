@@ -7,7 +7,7 @@ class AmcContract(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
 
-    name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='New')    
+    name = fields.Char(string='AMC No.', required=True, copy=False, readonly=True, default='New')
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
 
     contract_status = fields.Selection([
@@ -127,22 +127,17 @@ class AmcContract(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             status = vals.get('contract_status', 'draft')
-            if not vals.get('name') or vals.get('name') in ('New', '/'):
+            current_name = (vals.get('name') or '').strip()
+            
+            if not current_name or current_name.lower() in ('new', '/'):
                 if status == 'draft':
-                    # Draft series: Draft-1, Draft-2, ...
-                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract.draft')
-                    if not seq_num:
-                        seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                        seq_num = seq.next_by_id()
-                    vals['name'] = seq_num or 'Draft-1'
+                    seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                    vals['name'] = seq.next_by_id() or 'Draft-1'
                 else:
-                    # Real AMC series: 1, 2, 3, ...
-                    seq_num = self.env['ir.sequence'].next_by_code('amc.contract')
-                    if not seq_num:
-                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                        seq_num = seq.next_by_id()
-                    vals['name'] = seq_num or '1'
+                    seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                    vals['name'] = seq.next_by_id() or '1'
         return super().create(vals_list)
+
 
     def write(self, vals):
         # If moving from draft to active (or any confirmed status) and still has Draft- number:
