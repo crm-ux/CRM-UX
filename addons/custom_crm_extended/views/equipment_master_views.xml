@@ -57,7 +57,7 @@
                                 </group>
                             </group>
                         </page>
-
+                        
                         <page string="Specs &amp; Remarks" name="specs_tab">
                             <group>
                                 <field name="firmware_version"/>
