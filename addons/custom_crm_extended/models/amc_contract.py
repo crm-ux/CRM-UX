@@ -62,21 +62,26 @@ class AmcContract(models.Model):
             contact_phone = ""
             contact_email = ""
 
+            def get_phone(partner):
+                if not partner:
+                    return ""
+                return getattr(partner, 'mobile', False) or getattr(partner, 'phone', False) or ""
+
             if p.is_company:
                 primary_contact = p.child_ids.filtered(lambda c: c.type == 'contact')[:1]
                 if primary_contact:
-                    contact_name = primary_contact.name or p.name or ""
-                    contact_phone = primary_contact.phone or primary_contact.mobile or p.phone or p.mobile or ""
-                    contact_email = primary_contact.email or p.email or ""
+                    c = primary_contact[0]
+                    contact_name = c.name or p.name or ""
+                    contact_phone = get_phone(c) or get_phone(p)
+                    contact_email = c.email or p.email or ""
                 else:
                     contact_name = p.name or ""
-                    contact_phone = p.phone or p.mobile or ""
+                    contact_phone = get_phone(p)
                     contact_email = p.email or ""
             else:
                 contact_name = p.name or ""
-                parent = p.parent_id
-                contact_phone = p.phone or p.mobile or (parent.phone if parent else False) or (parent.mobile if parent else False) or ""
-                contact_email = p.email or (parent.email if parent else False) or ""
+                contact_phone = get_phone(p) or get_phone(p.parent_id)
+                contact_email = p.email or (p.parent_id.email if p.parent_id else False) or ""
 
             self.contact_person = contact_name
             self.mobile = contact_phone
