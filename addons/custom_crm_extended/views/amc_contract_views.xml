@@ -143,4 +143,17 @@
 
     <!-- Menu Item -->
     <menuitem id="menu_amc_contract_root" name="AMC Contracts" action="action_amc_contract" sequence="26"/>
+
+    <!-- Hide Company on AMC Numbering Series Form -->
+    <record id="view_sequence_form_amc_hide_company" model="ir.ui.view">
+        <field name="name">ir.sequence.form.amc.hide.company</field>
+        <field name="model">ir.sequence</field>
+        <field name="inherit_id" ref="base.sequence_view"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="attributes">
+                <attribute name="invisible">code == 'amc.contract'</attribute>
+            </field>
+        </field>
+    </record>
+
 </odoo>
