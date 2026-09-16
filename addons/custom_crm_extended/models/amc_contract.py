@@ -101,6 +101,13 @@ class AmcContract(models.Model):
                 '|', ('partner_id', '=', p.id), ('partner_id', '=', p.parent_id.id if p.parent_id else p.id)
             ])
 
+            if equipments:
+                self.warranty_start_date = equipments[0].warranty_start_date or False
+                self.warranty_end_date = equipments[0].warranty_end_date or False
+            else:
+                self.warranty_start_date = False
+                self.warranty_end_date = False
+
             lines = []
             seq = 1
             for eq in equipments:
