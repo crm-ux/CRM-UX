@@ -10,12 +10,14 @@ class ResUsers(models.Model):
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
 
-    @api.depends('name')
+    @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
         for user in self:
-            if not user.employee_id and user.id:
+            if user.id:
                 emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
                 user.employee_id = emp.id if emp else False
+            else:
+                user.employee_id = False
 
 
     @api.model_create_multi
