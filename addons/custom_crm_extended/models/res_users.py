@@ -118,6 +118,8 @@ class ResUsers(models.Model):
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
+    expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
+
     def write(self, vals):
         res = super().write(vals)
         if not self.env.context.get('skip_sync'):
