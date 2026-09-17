@@ -127,7 +127,7 @@ class IrSequence(models.Model):
     @api.constrains('code', 'prefix', 'equipment_category_id', 'active')
     def _check_unique_equipment_sequence(self):
         for rec in self:
-            if rec.code == 'crm.equipment.id' and rec.active:
+            if rec.code == 'crm.equipment.id' and rec.active and rec.prefix:
                 clean_prefix = (rec.prefix or '').strip()
 
                 # 1. Unique prefix among ACTIVE series
