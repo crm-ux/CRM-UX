@@ -32,11 +32,23 @@ class ResUsers(models.Model):
     
     def _sync_employee_records(self, users):
         for user in users:
-            if user.share:
+            # 1. Skip portal/public users or users without an ID
+            if user.share or not user.id:
                 continue
+            
+            # 2. Safety check: Ensure we have a valid name to satisfy resource.resource
+            employee_name = (user.name or '').strip()
+            if not employee_name:
+                # Fallback to login or email if name hasn't been typed yet
+                employee_name = (user.login or user.email or '').strip()
+            
+            # If there is still no name at all, skip sync until the user has a name
+            if not employee_name:
+                continue
+
             emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
             emp_vals = {
-                'name': user.name,
+                'name': employee_name,
                 'work_email': user.email or user.login,
                 'user_id': user.id,
                 'company_id': user.company_id.id if user.company_id else False,
@@ -51,12 +63,12 @@ class ResUsers(models.Model):
                     emp_vals['parent_id'] = mgr.id
             if user.crm_employee_tag_ids:
                 emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]
+
             if not emp:
                 new_emp = self.env['hr.employee'].sudo().create(emp_vals)
                 user.employee_id = new_emp.id
             else:
                 emp.sudo().write(emp_vals)
-
 
     def _assign_default_groups(self, users):
         try:
@@ -96,3 +108,10 @@ class ResUsers(models.Model):
                     )
         except Exception:
             pass
+
+    def unlink(self):
+        # Safely delete linked hr.employee records first so Odoo doesn't raise restrict error
+        employees = self.env['hr.employee'].sudo().search([('user_id', 'in', self.ids)])
+        if employees:
+            employees.unlink()
+        return super(ResUsers, self).unlink()
