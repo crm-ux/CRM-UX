@@ -4,7 +4,7 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     # Hierarchy & Organization dropdowns
-    employee_id = fields.Many2one('hr.employee', string='Related Employee', compute='_compute_employee_id', store=True, readonly=False)
+    employee_id = fields.Many2one('hr.employee', string='Related Employee', compute='_compute_employee_id', store=True, readonly=True)
     crm_department_id = fields.Many2one('hr.department', string='Department')
     crm_job_id = fields.Many2one('hr.job', string='Job Position / Role')
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
@@ -36,8 +36,8 @@ class ResUsers(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        # Only syncs IF the employee already exists
-        self._sync_employee_records(self)
+        if not self.env.context.get('skip_sync'):
+            self.with_context(skip_sync=True)._sync_employee_records(self)
         return res
     
     def _sync_employee_records(self, users):
@@ -66,9 +66,8 @@ class ResUsers(models.Model):
                     emp_vals['parent_id'] = mgr.id
             if user.crm_employee_tag_ids:
                 emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]
-
+            
             emp.sudo().write(emp_vals)
-            user.employee_id = emp.id
 
     def _assign_default_groups(self, users):
         try:
