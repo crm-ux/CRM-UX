@@ -15,12 +15,8 @@ class ResUsers(models.Model):
         for user in self:
             if not user.employee_id and user.id:
                 emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-            if not emp:
-                # Check if employee was selected manually in employee_id
-                if user.employee_id:
-                    emp = user.employee_id
-                else:
-                    continue
+                user.employee_id = emp.id if emp else False
+
 
     @api.model_create_multi
     def create(self, vals_list):
