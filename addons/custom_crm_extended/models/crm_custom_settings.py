@@ -141,7 +141,7 @@ class IrSequence(models.Model):
                     if dup_prefix:
                         raise ValidationError(_(
                             "An active Equipment Series with prefix '%s' already exists (Name: %s)! "
-                            "Please use a unique prefix or inactivate the existing one first."
+                            "\nPlease use a unique prefix or inactivate the existing one first."
                         ) % (clean_prefix, dup_prefix.display_name or dup_prefix.name))
 
                 # 2. Only ONE ACTIVE General series (where Category is empty)
