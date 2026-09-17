@@ -155,7 +155,7 @@ class IrSequence(models.Model):
                     if dup_gen:
                         raise ValidationError(_(
                             "An active General Equipment Series already exists (Name: %s)! "
-                            "Only one General series can be active at a time. \nPlease inactivate the existing one before activating this one."
+                            "\nOnly one General series can be active at a time. \nPlease inactivate the existing one before activating this one."
                         ) % (dup_gen.display_name or dup_gen.name))
 
                 # 3. Only ONE ACTIVE series per Category
@@ -168,7 +168,7 @@ class IrSequence(models.Model):
                     ], limit=1)
                     if dup_cat:
                         raise ValidationError(_(
-                            "An active series already exists for category '%s'.\n"
+                            "An active series already exists for category '%s'."
                             "Each category can have only one active series to keep numbering organized. Please turn off the existing one before activating this new series."
                         ) % (rec.equipment_category_id.name, dup_cat.display_name or dup_cat.name))
 
