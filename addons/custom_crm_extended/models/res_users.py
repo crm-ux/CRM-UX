@@ -19,6 +19,13 @@ class ResUsers(models.Model):
             else:
                 user.employee_id = False
 
+    def _compute_employee_count(self):
+        super()._compute_employee_count()
+        for user in self:
+            if not user.employee_count and user.id:
+                emp_cnt = self.env['hr.employee'].sudo().search_count([('user_id', '=', user.id)])
+                user.employee_count = emp_cnt
+
 
     @api.model_create_multi
     def create(self, vals_list):
