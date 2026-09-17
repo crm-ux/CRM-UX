@@ -6,6 +6,21 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="inside">
+                <!-- Tab: Organization & Hierarchy -->
+                <page string="Organization &amp; Hierarchy" name="org_hierarchy_page">
+                    <group>
+                        <group string="Role &amp; Hierarchy">
+                            <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
+                            <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
+                            <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
+                        </group>
+                        <group string="Employee Profile &amp; Tags">
+                            <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
+                            <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
+                        </group>
+                    </group>
+                </page>
+
                 <page string="Quotation Signature Card" name="signature_card_page">
                     <group>
                         <field name="x_signature_card" widget="image" options="{'size': [350, 200]}"/>
