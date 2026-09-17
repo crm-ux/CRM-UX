@@ -23,26 +23,6 @@
                                 <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
                             </group>
                         </div>
-                        <!-- Right Column: Visual Hierarchy & Subordinates -->
-                        <div class="col-lg-5">
-                            <h4 class="o_horizontal_separator mb-3">Hierarchy &amp; Team Structure</h4>
-                            
-                            <!-- Manager Card -->
-                            <div invisible="not crm_manager_id" class="alert alert-info p-2 mb-3">
-                                <small class="text-muted d-block">REPORTS TO (MANAGER)</small>
-                                <strong><field name="crm_manager_id" readonly="1" options="{'no_open': False}"/></strong>
-                            </div>
-
-                            <!-- Direct Subordinates -->
-                            <h5 class="text-muted fs-6 mb-2">Direct Reports (Team Members)</h5>
-                            <field name="crm_subordinate_ids" readonly="1">
-                                <list decoration-muted="not active">
-                                    <field name="name" string="Team Member"/>
-                                    <field name="crm_job_id" string="Job Role"/>
-                                    <field name="crm_department_id" string="Department"/>
-                                </list>
-                            </field>
-                        </div>
                     </div>
                 </page>
 
@@ -54,6 +34,17 @@
                         Upload the business card / signature image to appear at the bottom of quotations sent by this user.
                     </p>
                 </page>
+            </xpath>
+        </field>
+    </record>
+    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
+    <record id="view_employee_form_crm_custom" model="ir.ui.view">
+        <field name="name">hr.employee.form.crm.custom</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="expense_manager_id" string="Expense / Voucher Approver" widget="many2one_avatar_user"/>
             </xpath>
         </field>
     </record>
