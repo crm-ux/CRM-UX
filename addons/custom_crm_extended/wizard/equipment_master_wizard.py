@@ -104,12 +104,20 @@ class EquipmentMasterWizard(models.TransientModel):
     def _get_equipment_id_selection(self):
         """Dynamic dropdown options for equipment_id directly."""
         options = []
+        seen_prefixes = set()
         seqs = self.env["ir.sequence"].sudo().search([
             ("code", "=", "crm.equipment.id"),
             ("active", "=", True)
         ], order="equipment_category_id desc, id desc")
 
         for seq in seqs:
+            # Skip duplicate prefixes
+            p_key = (seq.prefix or '').strip().upper()
+            if p_key and p_key in seen_prefixes:
+                continue
+            if p_key:
+                seen_prefixes.add(p_key)
+
             preview = self._compute_preview_for_sequence(seq)
             label = preview
             if (preview, label) not in options:
@@ -119,12 +127,8 @@ class EquipmentMasterWizard(models.TransientModel):
             options = [("New", "New")]
         return options
 
-    equipment_id = fields.Selection(
-        selection="_get_equipment_id_selection",
-        string="Equipment ID",
-        default=lambda self: self._default_equipment_id(),
-        required=True,
-    )
+
+    equipment_id = fields.Selection(selection="_get_equipment_id_selection", string="Equipment ID", default=lambda self: self._default_equipment_id(), required=True,)
        
     @api.onchange("name")
     def _onchange_name(self):
@@ -245,19 +249,21 @@ class EquipmentMasterWizard(models.TransientModel):
         # Identify sequence from the selected equipment_id or category
         seq_id = False
         if self.equipment_id:
+            all_seqs = self.env['ir.sequence'].sudo().search([('code', '=', 'crm.equipment.id'), ('active', '=', True)])
             # Check which sequence prefix matches the selected ID
-            for s in self.env['ir.sequence'].sudo().search([('code', '=', 'crm.equipment.id'), ('active', '=', True)]):
-                if s.prefix and self.equipment_id.startswith(s.prefix):
+            for s in all_seqs:
+                if self._compute_preview_for_sequence(s) == self.equipment_id:
                     seq_id = s
                     break
+            # 2. If not matched, match by prefix
+            if not seq_id:
+                for s in all_seqs:
+                    if s.prefix and self.equipment_id.startswith(s.prefix):
+                        seq_id = s
+                        break
 
         if not seq_id:
             seq_id = self._get_or_create_equipment_sequence()
-
-
-
-
-
 
         # Officially consume the sequence on SAVE
         assigned_eq_id = seq_id.next_by_id() if seq_id else self.equipment_id
@@ -276,7 +282,7 @@ class EquipmentMasterWizard(models.TransientModel):
             if dup_sn:
                 raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % clean_sn)
 
-        equipment = self.env["equipment.master"].create({
+        equipment = self.env["equipment.master"].sudo().create({
             "equipment_id": assigned_eq_id.strip(),
             "name": self.name.id if self.name else False,
             "category_id": self.category_id,
@@ -333,7 +339,6 @@ class EquipmentMasterWizard(models.TransientModel):
                 'company_id': False,
             })
         return seq
-
 
     @api.onchange('partner_id')
     def _onchange_partner_id(self):

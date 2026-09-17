@@ -1,10 +1,11 @@
 ﻿# -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+
 
 class CrmCustomSettings(models.Model):
     _name = 'crm.custom.settings'
     _description = 'CRM Custom Settings'
-
 
     name = fields.Char(string="Name", default="CRM Settings")
     # Expense Configuration Fields
@@ -122,3 +123,52 @@ class IrSequence(models.Model):
                 if 'company_id' in vals and vals['company_id']:
                     vals['company_id'] = False
         return super().write(vals)
+
+    @api.constrains('code', 'prefix', 'equipment_category_id', 'active')
+    def _check_unique_equipment_sequence(self):
+        for rec in self:
+            if rec.code == 'crm.equipment.id' and rec.active:
+                clean_prefix = (rec.prefix or '').strip()
+
+                # 1. Unique prefix among ACTIVE series
+                if clean_prefix:
+                    dup_prefix = self.sudo().search([
+                        ('id', '!=', rec.id),
+                        ('code', '=', 'crm.equipment.id'),
+                        ('active', '=', True),
+                        ('prefix', '=', clean_prefix),
+                    ], limit=1)
+                    if dup_prefix:
+                        raise ValidationError(_(
+                            "An active Equipment Series with prefix '%s' already exists (Name: %s)! "
+                            "Please use a unique prefix or inactivate the existing one first."
+                        ) % (clean_prefix, dup_prefix.display_name or dup_prefix.name))
+
+                # 2. Only ONE ACTIVE General series (where Category is empty)
+                if not rec.equipment_category_id:
+                    dup_gen = self.sudo().search([
+                        ('id', '!=', rec.id),
+                        ('code', '=', 'crm.equipment.id'),
+                        ('active', '=', True),
+                        ('equipment_category_id', '=', False),
+                    ], limit=1)
+                    if dup_gen:
+                        raise ValidationError(_(
+                            "An active General Equipment Series already exists (Name: %s)! "
+                            "Only one General series can be active at a time. Please inactivate the existing one before activating this one."
+                        ) % (dup_gen.display_name or dup_gen.name))
+
+                # 3. Only ONE ACTIVE series per Category
+                if rec.equipment_category_id:
+                    dup_cat = self.sudo().search([
+                        ('id', '!=', rec.id),
+                        ('code', '=', 'crm.equipment.id'),
+                        ('active', '=', True),
+                        ('equipment_category_id', '=', rec.equipment_category_id.id),
+                    ], limit=1)
+                    if dup_cat:
+                        raise ValidationError(_(
+                            "An active Equipment Series already exists for category '%s' (Name: %s)! "
+                            "Only one series can be active per category at a time. Please inactivate the existing one before activating this one."
+                        ) % (rec.equipment_category_id.name, dup_cat.display_name or dup_cat.name))
+
