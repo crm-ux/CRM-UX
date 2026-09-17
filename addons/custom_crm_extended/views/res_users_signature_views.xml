@@ -9,21 +9,20 @@
             <xpath expr="//notebook" position="inside">
                 <!-- Tab: Organization & Hierarchy -->
                 <page string="Organization &amp; Hierarchy" name="org_hierarchy_page">
-                    <div class="row">
-                        <!-- Left Column: Details -->
-                        <div class="col-lg-7">
-                            <group string="Role &amp; Hierarchy">
-                                <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
-                                <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
-                                <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
-                                <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
-                            </group>
-                            <group string="Employee Profile &amp; Tags">
-                                <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
-                                <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
-                            </group>
-                        </div>
-                    </div>
+                    <group>
+                        <!-- Left Column -->
+                        <group string="Role &amp; Hierarchy">
+                            <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
+                            <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
+                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
+                            <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
+                        </group>
+                        <!-- Right Column -->
+                        <group string="Employee Profile &amp; Tags">
+                            <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
+                            <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
+                        </group>
+                    </group>
                 </page>
 
                 <page string="Quotation Signature Card" name="signature_card_page">
