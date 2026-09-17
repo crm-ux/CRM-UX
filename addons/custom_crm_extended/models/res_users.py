@@ -10,6 +10,7 @@ class ResUsers(models.Model):
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
     crm_expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
+    crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
 
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
