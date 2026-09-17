@@ -9,18 +9,26 @@
             <xpath expr="//notebook" position="inside">
                 <!-- Tab: Organization & Hierarchy -->
                 <page string="Organization &amp; Hierarchy" name="org_hierarchy_page">
-                    <group>
-                        <group string="Role &amp; Hierarchy">
-                            <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
-                            <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
-                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
-                            <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
-                        </group>
-                        <group string="Employee Profile &amp; Tags">
-                            <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
-                            <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
-                        </group>
-                    </group>
+                    <div class="row">
+                        <!-- Left Column: Details -->
+                        <div class="col-lg-7">
+                            <group string="Role &amp; Hierarchy">
+                                <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
+                                <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
+                                <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
+                                <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
+                            </group>
+                            <group string="Employee Profile &amp; Tags">
+                                <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
+                                <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
+                            </group>
+                        </div>
+                        <!-- Right Column: Visual Organization Chart -->
+                        <div class="col-lg-5">
+                            <h4 class="o_horizontal_separator mb-3">Organization Chart</h4>
+                            <widget name="hr_org_chart"/>
+                        </div>
+                    </div>
                 </page>
 
                 <page string="Quotation Signature Card" name="signature_card_page">
@@ -31,18 +39,6 @@
                         Upload the business card / signature image to appear at the bottom of quotations sent by this user.
                     </p>
                 </page>
-            </xpath>
-        </field>
-    </record>
-
-    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
-    <record id="view_employee_form_crm_custom" model="ir.ui.view">
-        <field name="name">hr.employee.form.crm.custom</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='parent_id']" position="after">
-                <field name="expense_manager_id" string="Expense / Voucher Approver" widget="many2one_avatar_user"/>
             </xpath>
         </field>
     </record>

@@ -18,6 +18,7 @@
         'CRM',
         'contacts',
         'hr',
+        'hr_org_chart',
     ],
     'data': [
         'security/ir.model.access.csv',
