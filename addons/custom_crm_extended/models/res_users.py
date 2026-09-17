@@ -68,7 +68,7 @@ class ResUsers(models.Model):
             if user.crm_expense_manager_id:
                 emp_vals['expense_manager_id'] = user.crm_expense_manager_id.id
             if user.crm_employee_tag_ids:
-                emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]]
+                emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]
             
             emp.sudo().write(emp_vals)
 
