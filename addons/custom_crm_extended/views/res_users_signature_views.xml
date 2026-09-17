@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- 1. User Form View Extension -->
     <record id="view_users_form_signature_card" model="ir.ui.view">
         <field name="name">res.users.form.signature.card</field>
         <field name="model">res.users</field>
@@ -30,17 +31,18 @@
                         Upload the business card / signature image to appear at the bottom of quotations sent by this user.
                     </p>
                 </page>
-                <!-- Employee Form View Extension: Add Expense / Voucher Approver -->
-                <record id="view_employee_form_crm_custom" model="ir.ui.view">
-                    <field name="name">hr.employee.form.crm.custom</field>
-                    <field name="model">hr.employee</field>
-                    <field name="inherit_id" ref="hr.view_employee_form"/>
-                    <field name="arch" type="xml">
-                        <xpath expr="//field[@name='parent_id']" position="after">
-                            <field name="expense_manager_id" string="Expense / Voucher Approver" widget="many2one_avatar_user"/>
-                        </xpath>
-                    </field>
-                </record>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
+    <record id="view_employee_form_crm_custom" model="ir.ui.view">
+        <field name="name">hr.employee.form.crm.custom</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="expense_manager_id" string="Expense / Voucher Approver" widget="many2one_avatar_user"/>
             </xpath>
         </field>
     </record>
