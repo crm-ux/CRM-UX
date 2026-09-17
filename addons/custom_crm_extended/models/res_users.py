@@ -8,6 +8,7 @@ class ResUsers(models.Model):
     crm_department_id = fields.Many2one('hr.department', string='Department')
     crm_job_id = fields.Many2one('hr.job', string='Job Position / Role')
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
+    crm_expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
 
     @api.depends('name', 'employee_ids')
@@ -64,8 +65,10 @@ class ResUsers(models.Model):
                 mgr = self.env['hr.employee'].sudo().search([('user_id', '=', user.crm_manager_id.id)], limit=1)
                 if mgr:
                     emp_vals['parent_id'] = mgr.id
+            if user.crm_expense_manager_id:
+                emp_vals['expense_manager_id'] = user.crm_expense_manager_id.id
             if user.crm_employee_tag_ids:
-                emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]
+                emp_vals['category_ids'] = [(6, 0, user.crm_employee_tag_ids.ids)]]
             
             emp.sudo().write(emp_vals)
 

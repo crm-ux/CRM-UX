@@ -12,6 +12,7 @@
                         <group string="Role &amp; Hierarchy">
                             <field name="crm_job_id" string="Job Position / Role" options="{'quick_create': True}"/>
                             <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
+                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
                             <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
                         </group>
                         <group string="Employee Profile &amp; Tags">
