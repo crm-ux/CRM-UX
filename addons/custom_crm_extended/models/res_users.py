@@ -15,7 +15,12 @@ class ResUsers(models.Model):
         for user in self:
             if not user.employee_id and user.id:
                 emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-                user.employee_id = emp.id if emp else False
+            if not emp:
+                # Check if employee was selected manually in employee_id
+                if user.employee_id:
+                    emp = user.employee_id
+                else:
+                    continue
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -59,7 +64,6 @@ class ResUsers(models.Model):
 
             emp.sudo().write(emp_vals)
             user.employee_id = emp.id
-
 
     def _assign_default_groups(self, users):
         try:
