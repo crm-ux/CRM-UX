@@ -17,7 +17,6 @@
                         <group string="Employee Profile &amp; Tags">
                             <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
                             <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
-                            <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
                         </group>
                     </group>
                 </page>
