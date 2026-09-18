@@ -147,28 +147,18 @@ class AmcContract(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             status = vals.get('contract_status', 'draft')
-            current_name = (vals.get('name') or '').strip()
-
-            # If user already got a previewed number from onchange, USE IT!
-            if current_name and current_name.lower() not in ('draft', 'new', '/'):
-                if status == 'draft':
-                    vals['draft_name'] = current_name
-                else:
-                    vals['official_name'] = current_name
-                continue
-
-            # Otherwise (if empty or default 'Draft'), generate one
             if status == 'draft':
                 seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                draft_num = seq.next_by_id() or 'Draft-1'
-                vals['name'] = draft_num
-                vals['draft_name'] = draft_num
+                num = seq.next_by_id() or 'Draft-1'
+                vals['name'] = num
+                vals['draft_name'] = num
             else:
                 seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
-                official_num = seq.next_by_id() if seq else '1'
-                vals['name'] = official_num
-                vals['official_name'] = official_num
+                num = seq.next_by_id() if seq else '1'
+                vals['name'] = num
+                vals['official_name'] = num
         return super().create(vals_list)
+
 
 
     def write(self, vals):
@@ -188,29 +178,32 @@ class AmcContract(models.Model):
                             vals['name'] = vals['official_name']
         return super().write(vals)
 
+    def _get_next_preview_number(self, code, prefix=''):
+        seq = self.env['ir.sequence'].sudo().search([('code', '=', code)], limit=1)
+        if not seq:
+            return f"{prefix}1"
+        next_val = seq.number_next_actual if hasattr(seq, 'number_next_actual') else seq.number_next
+        pad = seq.padding or 1
+        return f"{prefix or ''}{str(next_val).zfill(pad)}"
+
 
     @api.onchange('contract_status')
     def _onchange_contract_status(self):
-        """Auto-preview Draft vs Official AMC sequence on status change"""
+        """Show preview on screen WITHOUT burning/incrementing the sequence counter!"""
+        # If record is already saved in DB and has official_name, restore it
         if self.contract_status == 'draft':
-            # Restore draft name if already created, or generate next Draft number
             if self.draft_name:
                 self.name = self.draft_name
             else:
-                seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                self.draft_name = seq.next_by_id() or 'Draft-1'
-                self.name = self.draft_name
+                self.name = self._get_next_preview_number('amc.contract.draft', prefix='Draft-')
         else:
-            # Active or other status: use the AMC series (managed by sequence settings)
             if self.official_name:
                 self.name = self.official_name
             else:
                 seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
-                if seq:
-                    self.official_name = seq.next_by_id() or '1'
-                else:
-                    self.official_name = '1'
-                self.name = self.official_name
+                prefix = seq.prefix if seq and seq.prefix else ''
+                self.name = self._get_next_preview_number('amc.contract', prefix=prefix)
+
 
 
 class AmcContractLine(models.Model):
