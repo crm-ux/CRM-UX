@@ -14,7 +14,7 @@ class ServiceTicketWizard(models.TransientModel):
     partner_id = fields.Many2one('res.partner', string='Customer Name', context={'show_equipment_serial': True})
     equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
     has_amc = fields.Boolean(string='Has AMC', default=False)
-    amc_id = fields.Many2one('amc.contract', string='AMC Contract', domain="['|', ('partner_id', '=', partner_id), ('partner_id.parent_id', '=', partner_id)]")
+    amc_id = fields.Many2one('amc.contract', string='AMC Contract', domain="[('contract_status', '!=', 'draft'), '|', ('partner_id', '=', partner_id), ('partner_id.parent_id', '=', partner_id)]")
 
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')
@@ -120,10 +120,8 @@ class ServiceTicketWizard(models.TransientModel):
                     self.part_number = False
 
             # Check Active AMC for this partner
-            amcs = self.env['amc.contract'].search([
-                ('contract_status', '=', 'active'),
-                '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
-            ])
+            amcs = self.env['amc.contract'].search([('contract_status', '!=', 'draft'),'|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)])
+
             if not amcs:
                 self.has_amc = False
                 self.amc_id = False
@@ -169,10 +167,7 @@ class ServiceTicketWizard(models.TransientModel):
                 self.amc_id = eq_amcs[0].id
             else:
                 # Check if customer has any active AMC
-                cust_amcs = self.env['amc.contract'].search([
-                    ('contract_status', '=', 'active'),
-                    '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
-                ])
+                cust_amcs = self.env['amc.contract'].search([('contract_status', '!=', 'draft'),'|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)])
                 if cust_amcs:
                     self.has_amc = True
                     self.amc_id = cust_amcs[0].id if len(cust_amcs) == 1 else False
