@@ -107,7 +107,6 @@ class AmcContract(models.Model):
             self.customer_address = ", ".join([str(a) for a in addr_parts if a])
 
 
-
     def action_save_and_close(self):
         self.ensure_one()
         return {
@@ -167,27 +166,43 @@ class AmcContract(models.Model):
         new_status = vals.get('contract_status')
         if new_status:
             for record in self:
-                # Switching BACK to Draft
                 if new_status == 'draft':
                     if record.draft_name:
                         vals['name'] = record.draft_name
-                    elif not record.name or not record.name.startswith('Draft-'):
-                        seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                        draft_num = seq.next_by_id() or 'Draft-1'
-                        vals['name'] = draft_num
-                        vals['draft_name'] = draft_num
-
-                # Switching to Active (or any other confirmed status)
-                elif new_status != 'draft':
+                else:
                     if record.official_name:
                         vals['name'] = record.official_name
-                    elif not record.name or record.name.startswith('Draft-') or record.name.lower() in ('draft', 'new'):
-                        seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                        official_num = seq.next_by_id() or '1'
-                        vals['name'] = official_num
-                        vals['official_name'] = official_num
-
+                    elif not record.name or record.name.startswith('Draft-'):
+                        seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                        if seq:
+                            vals['official_name'] = seq.next_by_id() or '1'
+                            vals['name'] = vals['official_name']
         return super().write(vals)
+
+
+    @api.onchange('contract_status')
+    def _onchange_contract_status(self):
+        """Auto-preview Draft vs Official AMC sequence on status change"""
+        if self.contract_status == 'draft':
+            # Restore draft name if already created, or generate next Draft number
+            if self.draft_name:
+                self.name = self.draft_name
+            else:
+                seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                self.draft_name = seq.next_by_id() or 'Draft-1'
+                self.name = self.draft_name
+        else:
+            # Active or other status: use the AMC series (managed by sequence settings)
+            if self.official_name:
+                self.name = self.official_name
+            else:
+                seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                if seq:
+                    self.official_name = seq.next_by_id() or '1'
+                else:
+                    self.official_name = '1'
+                self.name = self.official_name
+
 
 class AmcContractLine(models.Model):
     _name = 'amc.contract.line'
@@ -217,21 +232,4 @@ class AmcContractLine(models.Model):
             self.mobile = eq.contact_number or ""
             self.email = eq.email or ""
 
-    @api.onchange('contract_status')
-    def _onchange_contract_status(self):
-        if self.contract_status == 'draft':
-            # Switch back to Draft number
-            if self.draft_name:
-                self.name = self.draft_name
-            elif not self.name or not self.name.startswith('Draft-'):
-                seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                self.name = seq.next_by_id() or 'Draft-1'
-                self.draft_name = self.name
-        else:
-            # Switch to Official number (Active, Expired, Renewed, Cancelled)
-            if self.official_name:
-                self.name = self.official_name
-            elif not self.name or self.name.startswith('Draft-') or self.name.lower() in ('draft', 'new'):
-                seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                self.name = seq.next_by_id() or '1'
-                self.official_name = self.name
+    
