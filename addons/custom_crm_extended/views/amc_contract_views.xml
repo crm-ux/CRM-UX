@@ -118,7 +118,7 @@
         <field name="model">amc.contract</field>
         <field name="arch" type="xml">
             <list string="Annual Maintenance Contracts">
-                <field name="name"/>
+                <field name="name" readonly="1"/>
                 <field name="date"/>
                 <field name="partner_id"/>
                 <field name="contract_start_date"/>
