@@ -96,8 +96,7 @@ class AmcContract(models.Model):
                 raise ValidationError(_("Breakdown visits cannot be negative! You entered: '%s'") % cm_val)
             if cm_is_non_numeric:
                 raise ValidationError(_("Breakdown visits must be a number only! Alphabets or symbols are not allowed: '%s'") % cm_val)
-
-
+                
     
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
