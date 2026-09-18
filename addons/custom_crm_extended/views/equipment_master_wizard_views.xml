@@ -42,7 +42,7 @@
                             <field name="manufacturer" string="Manufacturer" placeholder="e.g. Thermo Fisher Scientific"/>
                         </group>
                         <group>
-                            <field name="model_number" string="Equipment Owner" placeholder="e.g. TSV336RLGF"/>
+                            <field name="model_number" string="Equipment Owner" placeholder=""/>
                             <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
                         <group>

@@ -49,7 +49,7 @@
                     <group>
                         <group string="Equipment Details">
                             <field name="equipment_id"/>
-                            <field name="model_number"/>
+                            <field name="model_number" string="Equipment Owner"/>
                             <field name="serial_number"/>
                             <field name="part_number"/>
                             <field name="company_id" options="{'no_create': True}" placeholder="Leave empty for all companies"/>

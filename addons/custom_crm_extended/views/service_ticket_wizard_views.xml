@@ -47,7 +47,7 @@
                         <!-- Section 2: Equipment Specifications (Below Section 1) -->
                         <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:20px;margin-bottom:16px;">Equipment Specifications</div>
                         <group>
-                            <field name="model_number" string="Model Number" placeholder="e.g. TSV336RLGF"/>
+                            <field name="model_number" string="Equipment Owner"/>
                             <field name="serial_number" string="Serial Number" placeholder="e.g. 336RLGF12345"/>
                         </group>
                         <group>
