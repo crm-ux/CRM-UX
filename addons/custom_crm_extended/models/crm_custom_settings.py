@@ -130,29 +130,38 @@ class IrSequence(models.Model):
             if rec.code == 'crm.equipment.id' and rec.active and rec.prefix:
                 clean_prefix = (rec.prefix or '').strip()
 
-                # 1. Unique prefix among ACTIVE series (skip validation during module upgrade/data loading)
-                if clean_prefix and not self.env.context.get('install_mode'):
+                # 1. Unique prefix among ACTIVE series
+                is_module_loading = bool(
+                    self.env.context.get('install_mode')
+                    or self.env.context.get('module')
+                    or self.env.context.get('noupdate')
+                )
+                if clean_prefix:
                     dup_prefix = self.sudo().search([
                         ('id', '!=', rec.id),
                         ('code', '=', 'crm.equipment.id'),
                         ('active', '=', True),
                         ('prefix', '=', clean_prefix),
                     ], limit=1)
-                    if dup_prefix:
-                        # If existing record matches same prefix and one was created by xml_id, don't crash upgrade
-                        pass
+                    if dup_prefix and not is_module_loading:
+                        raise ValidationError(_(
+                            "An active Equipment Series with prefix '%s' already exists (Name: %s)! "
+                            "\nPlease use a unique prefix or inactivate the existing one first."
+                        ) % (clean_prefix, dup_prefix.display_name or dup_prefix.name))
 
                 # 2. Only ONE ACTIVE General series (where Category is empty)
-                if not rec.equipment_category_id and not self.env.context.get('install_mode'):
+                if not rec.equipment_category_id:
                     dup_gen = self.sudo().search([
                         ('id', '!=', rec.id),
                         ('code', '=', 'crm.equipment.id'),
                         ('active', '=', True),
                         ('equipment_category_id', '=', False),
                     ], limit=1)
-                    if dup_gen:
-                        # Skip error during module upgrades if record already exists
-                        pass
+                    if dup_gen and not is_module_loading:
+                        raise ValidationError(_(
+                            "An active General Equipment Series already exists (Name: %s)! "
+                            "\nOnly one General series can be active at a time. \nPlease inactivate the existing one before activating this one."
+                        ) % (dup_gen.display_name or dup_gen.name))
 
                 # 3. Only ONE ACTIVE series per Category
                 if rec.equipment_category_id:
