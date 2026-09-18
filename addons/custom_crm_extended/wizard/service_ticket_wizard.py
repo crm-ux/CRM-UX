@@ -252,6 +252,17 @@ class ServiceTicketWizard(models.TransientModel):
                 dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
                 if dup_ticket:
                     raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
+        elif self.step == 2:
+            # Check remaining quota immediately when leaving Step 2
+            if self.amc_id:
+                if self.complaint_type == 'pm':
+                    rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
+                    if rem_pm <= 0:
+                        raise ValidationError(_("This AMC contract has 0 remaining PM visits! You cannot proceed."))
+                elif self.complaint_type == 'breakdown':
+                    rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
+                    if rem_cm <= 0:
+                        raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits! You cannot proceed."))
         if self.step < 3:
             self.step += 1
         return self._reopen_wizard()
