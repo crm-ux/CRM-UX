@@ -59,13 +59,44 @@ class AmcContract(models.Model):
     def action_set_cancelled(self):
         self.write({'contract_status': 'cancelled'})
 
-    @api.constrains('pm', 'cm')
+        @api.constrains('pm', 'cm')
     def _check_pm_cm_numeric(self):
         for rec in self:
-            if rec.pm and not rec.pm.strip().isdigit():
-                raise ValidationError(_("PM must be a number only! You entered: '%s'") % rec.pm)
-            if rec.cm and not rec.cm.strip().isdigit():
-                raise ValidationError(_("Breakdown must be a number only! You entered: '%s'") % rec.cm)
+            pm_val = rec.pm.strip() if rec.pm else ""
+            cm_val = rec.cm.strip() if rec.cm else ""
+
+            # Detect negative values
+            pm_is_negative = pm_val.startswith('-') and pm_val[1:].isdigit()
+            cm_is_negative = cm_val.startswith('-') and cm_val[1:].isdigit()
+
+            # Detect other non-numeric / alphabet values
+            pm_is_non_numeric = bool(pm_val and not pm_val.isdigit() and not pm_is_negative)
+            cm_is_non_numeric = bool(cm_val and not cm_val.isdigit() and not cm_is_negative)
+
+            # 1. Both are negative
+            if pm_is_negative and cm_is_negative:
+                raise ValidationError(_("Negative values are not allowed! Both PM ('%s') and Breakdown ('%s') visits cannot be negative.") % (pm_val, cm_val))
+
+            # 2. Both have text / non-numeric characters
+            if pm_is_non_numeric and cm_is_non_numeric:
+                raise ValidationError(_("Alphabets and symbols are not allowed! Both PM ('%s') and Breakdown ('%s') must be numbers only.") % (pm_val, cm_val))
+
+            # 3. Both are wrong (one negative, one non-numeric)
+            if (pm_is_negative or pm_is_non_numeric) and (cm_is_negative or cm_is_non_numeric):
+                raise ValidationError(_("Both PM ('%s') and Breakdown ('%s') values are invalid! Please enter positive numbers only.") % (pm_val, cm_val))
+
+            # 4. Only PM is wrong
+            if pm_is_negative:
+                raise ValidationError(_("PM visits cannot be negative! You entered: '%s'") % pm_val)
+            if pm_is_non_numeric:
+                raise ValidationError(_("PM visits must be a number only! Alphabets or symbols are not allowed: '%s'") % pm_val)
+
+            # 5. Only Breakdown is wrong
+            if cm_is_negative:
+                raise ValidationError(_("Breakdown visits cannot be negative! You entered: '%s'") % cm_val)
+            if cm_is_non_numeric:
+                raise ValidationError(_("Breakdown visits must be a number only! Alphabets or symbols are not allowed: '%s'") % cm_val)
+
 
     
     @api.onchange('partner_id')
