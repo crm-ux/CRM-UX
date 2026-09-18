@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, ValidationError, api, _
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+
 
 class AmcContract(models.Model):
     _name = 'amc.contract'
