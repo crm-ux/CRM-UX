@@ -31,7 +31,7 @@
             <field name="name">Channel Partner</field>
         </record>
 
-                <!-- Equipment ID Sequence -->
+        <!-- Equipment ID Sequence -->
         <record id="seq_crm_equipment_id" model="ir.sequence">
             <field name="name">Equipment ID</field>
             <field name="code">crm.equipment.id</field>
