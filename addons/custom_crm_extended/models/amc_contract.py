@@ -7,12 +7,7 @@ class AmcContract(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'id desc'
     
-    name = fields.Char(
-        string='AMC No.', 
-        required=True, 
-        copy=False, 
-        default=lambda self: self.env['ir.sequence'].next_by_code('amc.contract.draft') or 'Draft-1'
-    )    
+    name = fields.Char(string='AMC No.', required=True, copy=False, default='Draft')
     date = fields.Date(string='Date', default=fields.Date.context_today, tracking=True)
     draft_name = fields.Char(string='Saved Draft Number', copy=False)
     official_name = fields.Char(string='Saved Official Number', copy=False)
@@ -131,86 +126,46 @@ class AmcContract(models.Model):
             'target': 'current',
         }
 
-    @api.model
-    def _get_or_create_sequence(self, code, name, prefix=False):
-        """Finds existing sequence or creates default one."""
-        seq = self.env['ir.sequence'].sudo().search([('code', '=', code)], limit=1)
-        if not seq:
-            seq = self.env['ir.sequence'].sudo().create({
-                'name': name,
-                'code': code,
-                'prefix': prefix,
-                'padding': 1,
-                'number_next': 1,
-                'number_increment': 1,
-                'company_id': False,
-            })
-        return seq
-
     @api.model_create_multi
     def create(self, vals_list):
-        # Name was already generated when "New" was clicked, so just save it!
+        for vals in vals_list:
+            status = vals.get('contract_status', 'draft')
+            # If created directly in Active, generate AMC number; otherwise keep 'Draft'
+            if status != 'draft':
+                seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                vals['name'] = seq.next_by_id() if seq else '1'
+            else:
+                vals['name'] = 'Draft'
         return super().create(vals_list)
+
 
     def write(self, vals):
         new_status = vals.get('contract_status')
-        if new_status and 'name' not in vals:
+        if new_status:
             for record in self:
-                curr_name = record.name or ''
-                amc_seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
-                amc_prefix = amc_seq.prefix if amc_seq and amc_seq.prefix else ''
-
-                clean_num = curr_name.replace('Draft-', '', 1)
-                if amc_prefix and clean_num.startswith(amc_prefix):
-                    clean_num = clean_num.replace(amc_prefix, '', 1)
-
-                if new_status == 'draft':
-                    vals['name'] = f"Draft-{clean_num}"
-                else:
-                    vals['name'] = f"{amc_prefix}{clean_num}"
-
+                # If moving from Draft to Active, generate official AMC sequence
+                if new_status != 'draft' and (not record.name or record.name == 'Draft'):
+                    seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                    vals['name'] = seq.next_by_id() if seq else '1'
+                # If moving back to Draft
+                elif new_status == 'draft':
+                    vals['name'] = 'Draft'
         return super().write(vals)
-
-
-    def _default_amc_name(self):
-        seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract.draft')], limit=1)
-        if not seq:
-            seq = self.env['ir.sequence'].sudo().create({
-                'name': 'AMC Draft Series',
-                'code': 'amc.contract.draft',
-                'prefix': 'Draft-',
-                'padding': 1,
-                'number_next': 1,
-                'number_increment': 1,
-                'company_id': False,
-            })
-        return seq.next_by_id() or 'Draft-1'
-
-    name = fields.Char(string='AMC No.', required=True, copy=False, default=_default_amc_name)
 
 
     @api.onchange('contract_status')
     def _onchange_contract_status(self):
-        if not self.name:
-            return
-        
-        curr_name = self.name.strip()
-        
-        # Get AMC official prefix from sequence settings (e.g. "AMC-")
-        amc_seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
-        amc_prefix = amc_seq.prefix if amc_seq and amc_seq.prefix else ''
-        
-        # Extract the pure number part (stripping Draft- or AMC prefix)
-        clean_num = curr_name.replace('Draft-', '', 1)
-        if amc_prefix and clean_num.startswith(amc_prefix):
-            clean_num = clean_num.replace(amc_prefix, '', 1)
-
         if self.contract_status == 'draft':
-            # In Draft: Show Draft- + number (e.g. "Draft-1")
-            self.name = f"Draft-{clean_num}"
+            self.name = 'Draft'
         else:
-            # In Active / Other: Show AMC prefix + number (e.g. "AMC-1")
-            self.name = f"{amc_prefix}{clean_num}"
+            # If already has an assigned official number in DB, keep it; else preview next AMC number
+            if self.name and self.name != 'Draft':
+                return
+            seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+            prefix = seq.prefix if seq and seq.prefix else ''
+            next_val = seq.number_next_actual if hasattr(seq, 'number_next_actual') else (seq.number_next or 1)
+            pad = seq.padding or 1
+            self.name = f"{prefix}{str(next_val).zfill(pad)}"
 
 
 class AmcContractLine(models.Model):
