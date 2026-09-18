@@ -156,7 +156,14 @@ class EquipmentMasterWizard(models.TransientModel):
                 ], limit=1)
 
             if seq:
-                self.equipment_id = self._compute_preview_for_sequence(seq)
+                preview = self._compute_preview_for_sequence(seq)
+                opts = [opt[0] for opt in self._get_equipment_id_selection()]
+                # If category sequence is in options, pick it!
+                if preview in opts:
+                    self.equipment_id = preview
+                elif opts:
+                    # Otherwise keep the first option instead of blanking out!
+                    self.equipment_id = opts[0]
 
 
     # Navigation Actions
@@ -388,6 +395,9 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        if "equipment_id" in fields_list or not fields_list:
-            res["equipment_id"] = self._default_equipment_id()
+        # Ensure equipment_id gets a valid option from the dropdown options
+        opts = self._get_equipment_id_selection()
+        if opts and ('equipment_id' in fields_list or not res.get('equipment_id')):
+            res['equipment_id'] = opts[0][0]
         return res
+
