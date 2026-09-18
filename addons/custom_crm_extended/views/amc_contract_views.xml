@@ -93,7 +93,7 @@
                             <field name="line_ids">
                                 <list editable="bottom">
                                     <field name="sequence" widget="handle"/>
-                                    <field name="equipment_id" options="{'no_create': True}"  domain="['|', ('partner_id', '=', parent.partner_id), ('partner_id.parent_id', '=', parent.partner_id)]"/>
+                                    <field name="equipment_id" options="{'no_create': True}" domain="['|', ('partner_id', '=', parent.partner_id), ('partner_id.parent_id', '=', parent.partner_id)]"/>
                                     <field name="make"/>
                                     <field name="part_no"/>
                                     <field name="serial_no"/>

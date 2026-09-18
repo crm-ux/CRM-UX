@@ -216,3 +216,22 @@ class AmcContractLine(models.Model):
             self.end_user = eq.contact_person or ""
             self.mobile = eq.contact_number or ""
             self.email = eq.email or ""
+
+    @api.onchange('contract_status')
+    def _onchange_contract_status(self):
+        if self.contract_status == 'draft':
+            # Switch back to Draft number
+            if self.draft_name:
+                self.name = self.draft_name
+            elif not self.name or not self.name.startswith('Draft-'):
+                seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                self.name = seq.next_by_id() or 'Draft-1'
+                self.draft_name = self.name
+        else:
+            # Switch to Official number (Active, Expired, Renewed, Cancelled)
+            if self.official_name:
+                self.name = self.official_name
+            elif not self.name or self.name.startswith('Draft-') or self.name.lower() in ('draft', 'new'):
+                seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
+                self.name = seq.next_by_id() or '1'
+                self.official_name = self.name
