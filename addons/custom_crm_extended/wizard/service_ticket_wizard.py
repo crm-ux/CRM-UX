@@ -28,7 +28,6 @@ class ServiceTicketWizard(models.TransientModel):
     # Step 2: Complaint Details
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
-        ('amc', 'AMC'),
         ('pm', 'PM'),
         ('free_call', 'Free Call')
     ], string='Complaint Type', default='breakdown')

@@ -32,7 +32,6 @@ class ServiceTicket(models.Model):
     # Complaint Details
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
-        ('amc', 'AMC'),
         ('pm', 'PM'),
         ('free_call', 'Free Call')
     ], string='Complaint Type', default='breakdown', tracking=True)
