@@ -13,6 +13,9 @@ class ServiceTicketWizard(models.TransientModel):
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
     partner_id = fields.Many2one('res.partner', string='Customer Name', context={'show_equipment_serial': True})
     equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
+    has_amc = fields.Boolean(string='Has AMC', default=False)
+    amc_id = fields.Many2one('amc.contract', string='AMC Contract', domain="['|', ('partner_id', '=', partner_id), ('partner_id.parent_id', '=', partner_id)]")
+
     site_name = fields.Char(string='Site Name')
     contact_person = fields.Char(string='Contact Person')
     contact_number = fields.Char(string='Contact Number')
@@ -88,7 +91,6 @@ class ServiceTicketWizard(models.TransientModel):
     def _onchange_partner_id(self):
         if self.partner_id:
             p = self.partner_id
-            # If partner is a contact person, get company for site_name fallback
             company_partner = p.parent_id if p.parent_id else p
 
             self.contact_person = p.name
@@ -117,8 +119,27 @@ class ServiceTicketWizard(models.TransientModel):
                     self.serial_number = False
                     self.part_number = False
 
+            # Check Active AMC for this partner
+            amcs = self.env['amc.contract'].search([
+                ('contract_status', '=', 'active'),
+                '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
+            ])
+            if not amcs:
+                self.has_amc = False
+                self.amc_id = False
+            elif len(amcs) == 1:
+                self.has_amc = True
+                self.amc_id = amcs[0].id
+            else:
+                self.has_amc = True
+                self.amc_id = False
+
             return {'domain': {'equipment_id': [('partner_id', 'in', [p.id, company_partner.id])]}}
+        
+        self.has_amc = False
+        self.amc_id = False
         return {'domain': {'equipment_id': []}}
+
 
     @api.onchange('equipment_id')
     def _onchange_equipment_id(self):
@@ -137,6 +158,28 @@ class ServiceTicketWizard(models.TransientModel):
             self.model_number = eq.model_number
             self.serial_number = eq.serial_number
             self.part_number = eq.part_number
+
+            # If equipment belongs to an Active AMC, prioritize that AMC
+            eq_amcs = self.env['amc.contract'].search([
+                ('contract_status', '=', 'active'),
+                ('line_ids.equipment_id', '=', eq.id)
+            ])
+            if eq_amcs:
+                self.has_amc = True
+                self.amc_id = eq_amcs[0].id
+            else:
+                # Check if customer has any active AMC
+                cust_amcs = self.env['amc.contract'].search([
+                    ('contract_status', '=', 'active'),
+                    '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
+                ])
+                if cust_amcs:
+                    self.has_amc = True
+                    self.amc_id = cust_amcs[0].id if len(cust_amcs) == 1 else False
+                else:
+                    self.has_amc = False
+                    self.amc_id = False
+
 
     @api.model
     def _get_or_create_service_sequence(self):
@@ -250,6 +293,7 @@ class ServiceTicketWizard(models.TransientModel):
             'partner_id': self.partner_id.id,
             'company_id': self.company_id.id if self.company_id else False,
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
+            'amc_id': self.amc_id.id if self.amc_id else False,
             'site_name': self.site_name,
             'contact_person': self.contact_person,
             'contact_number': self.contact_number,
