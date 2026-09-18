@@ -38,7 +38,7 @@ class AmcContract(models.Model):
     payment_terms = fields.Char(string='Payment Terms')
     renewal_terms = fields.Char(string='Renewal Terms')
     pm = fields.Char(string='PM')
-    cm = fields.Char(string='CM')
+    cm = fields.Char(string='Breakdown')
 
     # Line Items
     line_ids = fields.One2many('amc.contract.line', 'contract_id', string='Equipment Details')
