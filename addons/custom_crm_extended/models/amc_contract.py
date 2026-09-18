@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api, _
+from odoo import models, fields, ValidationError, api, _
 
 class AmcContract(models.Model):
     _name = 'amc.contract'
@@ -57,6 +57,15 @@ class AmcContract(models.Model):
     def action_set_cancelled(self):
         self.write({'contract_status': 'cancelled'})
 
+    @api.constrains('pm', 'cm')
+    def _check_pm_cm_numeric(self):
+        for rec in self:
+            if rec.pm and not rec.pm.strip().isdigit():
+                raise ValidationError(_("PM must be a number only! You entered: '%s'") % rec.pm)
+            if rec.cm and not rec.cm.strip().isdigit():
+                raise ValidationError(_("Breakdown must be a number only! You entered: '%s'") % rec.cm)
+
+    
     @api.onchange('partner_id')
     def _onchange_partner_id(self):
         if self.partner_id:

@@ -276,6 +276,19 @@ class ServiceTicketWizard(models.TransientModel):
         else:
             assigned_id = self.ticket_id or _('New')
 
+         # Check and deduct ONLY for PM or Breakdown
+        if self.amc_id:
+            if self.complaint_type == 'pm':
+                rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
+                if rem_pm <= 0:
+                    raise ValidationError(_("This AMC contract has 0 remaining PM visits!"))
+                self.amc_id.sudo().write({'pm': str(rem_pm - 1)})
+            elif self.complaint_type == 'breakdown':
+                rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
+                if rem_cm <= 0:
+                    raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits!"))
+                self.amc_id.sudo().write({'cm': str(rem_cm - 1)})
+
         # Check unique Ticket ID
         dup_ticket = self.env['service.ticket'].sudo().search([('ticket_id', '=', assigned_id.strip())], limit=1)
         if dup_ticket:
