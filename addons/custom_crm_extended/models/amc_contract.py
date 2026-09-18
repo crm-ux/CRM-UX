@@ -149,18 +149,27 @@ class AmcContract(models.Model):
             status = vals.get('contract_status', 'draft')
             current_name = (vals.get('name') or '').strip()
 
-            if not current_name or current_name.lower() in ('draft', 'new', '/'):
+            # If user already got a previewed number from onchange, USE IT!
+            if current_name and current_name.lower() not in ('draft', 'new', '/'):
                 if status == 'draft':
-                    seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
-                    draft_num = seq.next_by_id() or 'Draft-1'
-                    vals['name'] = draft_num
-                    vals['draft_name'] = draft_num
+                    vals['draft_name'] = current_name
                 else:
-                    seq = self._get_or_create_sequence('amc.contract', 'AMC Numbering Series', prefix=False)
-                    official_num = seq.next_by_id() or '1'
-                    vals['name'] = official_num
-                    vals['official_name'] = official_num
+                    vals['official_name'] = current_name
+                continue
+
+            # Otherwise (if empty or default 'Draft'), generate one
+            if status == 'draft':
+                seq = self._get_or_create_sequence('amc.contract.draft', 'AMC Draft Series', prefix='Draft-')
+                draft_num = seq.next_by_id() or 'Draft-1'
+                vals['name'] = draft_num
+                vals['draft_name'] = draft_num
+            else:
+                seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                official_num = seq.next_by_id() if seq else '1'
+                vals['name'] = official_num
+                vals['official_name'] = official_num
         return super().create(vals_list)
+
 
     def write(self, vals):
         new_status = vals.get('contract_status')
