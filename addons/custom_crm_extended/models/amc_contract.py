@@ -106,37 +106,6 @@ class AmcContract(models.Model):
             addr_parts = [p.street, p.street2, p.city, p.state_id.name if p.state_id else False, p.country_id.name if p.country_id else False, p.zip]
             self.customer_address = ", ".join([str(a) for a in addr_parts if a])
 
-            equipments = self.env['equipment.master'].search([
-                '|', ('partner_id', '=', p.id), ('partner_id', '=', p.parent_id.id if p.parent_id else p.id)
-            ])
-
-            if equipments:
-                self.warranty_start_date = equipments[0].warranty_start_date or False
-                self.warranty_end_date = equipments[0].warranty_end_date or False
-            else:
-                self.warranty_start_date = False
-                self.warranty_end_date = False
-
-            lines = []
-            seq = 1
-            for eq in equipments:
-                lines.append((0, 0, {
-                    'sequence': seq,
-                    'equipment_id': eq.id,
-                    'make': eq.manufacturer or "",
-                    'part_no': eq.part_number or "",
-                    'serial_no': eq.serial_number or "",
-                    'location': eq.site_name or eq.room_number or "",
-                    'end_user': eq.contact_person or "",
-                    'mobile': eq.contact_number or "",
-                    'email': eq.email or "",
-                }))
-                seq += 1
-
-            # Populate table automatically
-            self.line_ids = [(5, 0, 0)] + lines
-        else:
-            self.line_ids = [(5, 0, 0)]
 
 
     def action_save_and_close(self):
