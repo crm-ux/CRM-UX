@@ -59,7 +59,7 @@ class AmcContract(models.Model):
     def action_set_cancelled(self):
         self.write({'contract_status': 'cancelled'})
 
-        @api.constrains('pm', 'cm')
+    @api.constrains('pm', 'cm')
     def _check_pm_cm_numeric(self):
         for rec in self:
             pm_val = rec.pm.strip() if rec.pm else ""
