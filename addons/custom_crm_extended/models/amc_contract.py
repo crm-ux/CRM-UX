@@ -153,18 +153,24 @@ class AmcContract(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        # If status changed, ensure prefix matches
         new_status = vals.get('contract_status')
         if new_status and 'name' not in vals:
             for record in self:
                 curr_name = record.name or ''
+                amc_seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+                amc_prefix = amc_seq.prefix if amc_seq and amc_seq.prefix else ''
+
+                clean_num = curr_name.replace('Draft-', '', 1)
+                if amc_prefix and clean_num.startswith(amc_prefix):
+                    clean_num = clean_num.replace(amc_prefix, '', 1)
+
                 if new_status == 'draft':
-                    if not curr_name.startswith('Draft-'):
-                        vals['name'] = f"Draft-{curr_name}"
+                    vals['name'] = f"Draft-{clean_num}"
                 else:
-                    if curr_name.startswith('Draft-'):
-                        vals['name'] = curr_name.replace('Draft-', '', 1)
+                    vals['name'] = f"{amc_prefix}{clean_num}"
+
         return super().write(vals)
+
 
     def _default_amc_name(self):
         seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract.draft')], limit=1)
@@ -190,15 +196,21 @@ class AmcContract(models.Model):
         
         curr_name = self.name.strip()
         
-        if self.contract_status == 'draft':
-            # Add Draft- prefix if missing
-            if not curr_name.startswith('Draft-'):
-                self.name = f"Draft-{curr_name}"
-        else:
-            # Remove Draft- prefix for Active / Confirmed
-            if curr_name.startswith('Draft-'):
-                self.name = curr_name.replace('Draft-', '', 1)
+        # Get AMC official prefix from sequence settings (e.g. "AMC-")
+        amc_seq = self.env['ir.sequence'].sudo().search([('code', '=', 'amc.contract')], limit=1)
+        amc_prefix = amc_seq.prefix if amc_seq and amc_seq.prefix else ''
+        
+        # Extract the pure number part (stripping Draft- or AMC prefix)
+        clean_num = curr_name.replace('Draft-', '', 1)
+        if amc_prefix and clean_num.startswith(amc_prefix):
+            clean_num = clean_num.replace(amc_prefix, '', 1)
 
+        if self.contract_status == 'draft':
+            # In Draft: Show Draft- + number (e.g. "Draft-1")
+            self.name = f"Draft-{clean_num}"
+        else:
+            # In Active / Other: Show AMC prefix + number (e.g. "AMC-1")
+            self.name = f"{amc_prefix}{clean_num}"
 
 
 class AmcContractLine(models.Model):
