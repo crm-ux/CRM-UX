@@ -10,7 +10,7 @@ class EquipmentCategory(models.Model):
 
 class EquipmentMaster(models.Model):
     _name = 'equipment.master'
-    _description = 'Equipment Master for Service Tickets'
+    _description = 'Equipment Master'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     _sql_constraints = [
