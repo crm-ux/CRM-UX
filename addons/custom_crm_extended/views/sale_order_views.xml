@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//list" position="attributes">
                 <attribute name="create">true</attribute>
-            </xpath>
+            </xpath> 
         </field>
     </record>
 

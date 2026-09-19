@@ -61,6 +61,7 @@
             'custom_crm_extended/static/src/js/equipement_form.js',
             'custom_crm_extended/static/src/js/service_ticket_form.js',
             'custom_crm_extended/static/src/js/amc_form.js',
+            'custom_crm_extended/static/src/js/export_all_form_fields.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
