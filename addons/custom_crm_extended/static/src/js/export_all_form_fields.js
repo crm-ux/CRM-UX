@@ -73,20 +73,15 @@ export async function exportAllFormFields(env) {
 }
 
 // Register into Odoo's cogMenu
-cogMenuRegistry.add(
-    "export_all_form_fields",
-    {
-        Component: undefined,
-        groupNumber: 20,
-        isDisplayed: (env) => {
-            const isListView = env.config?.viewType === "list";
-            const resModel = env.config?.action?.res_model;
-            return isListView && TARGET_MODELS.includes(resModel);
-        },
-        description: _t("Export All (All Fields)"),
-        icon: "fa fa-download",
-        callback: (env) => exportAllFormFields(env),
-        sequence: 15,
+cogMenuRegistry.add("export_all_form_fields", {
+    isDisplayed: (env) => {
+        const resModel = env.searchModel?.resModel;
+        return TARGET_MODELS.includes(resModel);
     },
-    { sequence: 15 }
-);
+    Component: class ExportAllFieldsMenuItem {
+        static template = "custom_crm_extended.ExportAllFieldsMenuItem";
+    },
+    groupNumber: 20,
+    sequence: 15,
+});
+
