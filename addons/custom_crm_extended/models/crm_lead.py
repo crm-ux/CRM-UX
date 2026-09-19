@@ -32,8 +32,9 @@ class CrmLead(models.Model):
     priority = fields.Selection(
         selection=[
             ('0', 'Low'),
-            ('1', 'Medium'),
-            ('2', 'High'),
+            ('1', 'Low'),
+            ('2', 'Medium'),
+            ('3', 'High'),
         ],
         string='Priority',
         default='0',
