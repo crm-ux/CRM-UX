@@ -56,21 +56,32 @@ export async function exportAllFormFields(env) {
         const fdef = modelFields[fname];
         // If type is not in ignoredTypes, add it
         if (!fdef || !ignoredTypes.includes(fdef.type)) {
+            const rawLabel = node.getAttribute("string") || (fdef ? fdef.string : false) || fname;
+            const cleanLabel = formatCleanHeader(rawLabel);
+
             formFields.push({
                 name: fname,
-                label: node.getAttribute("string") || (fdef ? fdef.string : fname) || fname,
+                label: cleanLabel,
+                type: fdef ? fdef.type : "char",
             });
         }
+
     }
 
     if (!formFields.length) {
         return;
     }
 
-    // 2. Fetch all record IDs for current search filter
-    const domain = env.searchModel?.domain || [];
-    const ids = await env.services.orm.search(resModel, domain);
-
+    const selection = env.model?.root?.selection || [];
+    let ids = [];
+    if (selection.length > 0) {
+        // User checked specific rows -> export only selected rows
+        ids = selection.map((r) => r.resId);
+    } else {
+        // User didn't select rows -> export all records matching active filters
+        const domain = env.searchModel?.domain || [];
+        ids = await env.services.orm.search(resModel, domain);
+    }
     if (!ids.length) {
         return;
     }
@@ -101,6 +112,15 @@ export async function exportAllFormFields(env) {
     } finally {
         env.services.ui.unblock();
     }
+
+    function formatCleanHeader(rawName) {
+        if (!rawName) return "";
+        return rawName
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase())
+            .trim();
+    }
+
 
 }
 
