@@ -19,10 +19,11 @@ export async function exportAllFormFields(env) {
     if (!resModel) return;
 
     // 1. Dynamically fetch the Form View fields
-    const viewData = await env.services.orm.getViews({
-        res_model: resModel,
-        views: [[false, "form"]],
-    });
+    const viewData = await env.services.orm.call(
+        resModel,
+        "get_views",
+        [[[false, "form"]]]
+    );
 
     const formFields = [];
     const parser = new DOMParser();
@@ -34,7 +35,7 @@ export async function exportAllFormFields(env) {
 
     for (const node of fieldNodes) {
         const fname = node.getAttribute("name");
-        const fdef = viewData.models[resModel]?.[fname];
+        const fdef = viewData.models[resModel]?.[fname] || viewData.views?.form?.fields?.[fname];
         if (
             fname &&
             fdef &&
