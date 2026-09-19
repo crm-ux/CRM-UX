@@ -37,22 +37,21 @@ export async function exportAllFormFields(env) {
     const xmlDoc = parser.parseFromString(viewData.views.form.arch, "text/xml");
     const fieldNodes = xmlDoc.querySelectorAll("field");
 
-    const ignoredTypes = ["binary", "one2many"];
-    const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids"];
+    const ignoredTypes = ["binary", "one2many", "many2many"];
+    const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids", "customer_signature", "engineer_signature"];
 
     const modelFields = viewData.views?.form?.fields || viewData.models?.[resModel] || {};
-
     for (const node of fieldNodes) {
         const fname = node.getAttribute("name");
+        if (!fname || ignoredNames.includes(fname) || formFields.some((f) => f.name === fname)) {
+            continue;
+        }
         const fdef = modelFields[fname];
-        // If field exists in model
-        if (fname && !ignoredNames.includes(fname) && !formFields.some((f) => f.name === fname)) {
-            if (fdef && ignoredTypes.includes(fdef.type)) {
-                continue;
-            }
+        // Only export fields that actually exist on the model and are not binary or relational lists
+        if (fdef && !ignoredTypes.includes(fdef.type)) {
             formFields.push({
                 name: fname,
-                label: node.getAttribute("string") || (fdef ? fdef.string : fname) || fname,
+                label: node.getAttribute("string") || fdef.string || fname,
             });
         }
     }
