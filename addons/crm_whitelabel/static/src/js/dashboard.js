@@ -298,7 +298,7 @@ class CrmDashboard extends Component {
     openQuotes() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "not in", ["won", "lost"]], ["state", "!=", "cancel"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
     openQuoteStage(stage) {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
-        const cd = this.state.isAdmin ? [] : (this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []);
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
         const labels = {
             draft: "Quote",
             sent: "Sent",
@@ -363,7 +363,18 @@ class CrmDashboard extends Component {
     openContacts() { this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] }); }
     openProducts() { this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] }); }
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
-    openWon() { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Won Deals", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "=", "won"], ...ud, ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
+    openWon() {
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Won Deals",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["x_quote_stage", "=", "won"], ...ud, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
+        });
+    }
 
     openAllPipelineLeads() {
         const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
@@ -512,7 +523,19 @@ class CrmDashboard extends Component {
     openExhibition() { this.go({ type: "ir.actions.act_window", name: "Exhibition Contacts", res_model: "exhibition.contact", views: [[false, "list"], [false, "form"]] }); }
     openMeetings() { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Meetings This Month", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(start)], ["start", "<=", fmt(end)]] }); }
     openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Upcoming Events", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(now)], ["start", "<=", fmt(end)]] }); }
-    openLeadPriorityFilter(level) { const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]]; const labels = { high: "High", medium: "Medium", low: "Low" }; this.go({ type: "ir.actions.act_window", name: (labels[level] || level) + " Priority Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ["x_lead_priority", "=", level], ["x_stage_sequence", "<", 30], ...ud], context: { default_x_lead_priority: level } }); }
+    openLeadPriorityFilter(level) {
+        const ud = this.state.isAdmin ? [] : [["user_id", "=", user.userId]];
+        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        const labels = { high: "High", medium: "Medium", low: "Low" };
+        this.go({
+            type: "ir.actions.act_window",
+            name: (labels[level] || level) + " Priority Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ["x_lead_priority", "=", level], ["x_stage_sequence", "<", 30], ...ud, ...cd],
+            context: { default_x_lead_priority: level, allowed_company_ids: this.state.selectedCompanies }
+        });
+    }
     newQuote() { this.go({ type: "ir.actions.act_window", name: "New Quotation", res_model: "sale.order", views: [[false, "form"]], target: "current" }); }
     async onSearchInput(ev) {
         const q = ev.target.value;
