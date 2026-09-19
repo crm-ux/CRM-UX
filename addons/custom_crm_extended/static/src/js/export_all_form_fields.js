@@ -4,7 +4,7 @@ import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
-import { Component } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 
 const cogMenuRegistry = registry.category("cogMenu");
 
@@ -15,8 +15,7 @@ const TARGET_MODELS = [
 ];
 
 export async function exportAllFormFields(env) {
-    const action = env.config?.action;
-    const resModel = action?.res_model;
+    const resModel = env.config?.resModel || env.searchModel?.resModel;
     if (!resModel) return;
 
     // 1. Dynamically fetch the Form View fields
@@ -75,7 +74,12 @@ export async function exportAllFormFields(env) {
 }
 
 class ExportAllFieldsMenuItem extends Component {
-    static template = "web.DropdownItem";
+    static template = xml`
+        <DropdownItem class="'o_export_all_form_fields'" onSelected="() => this.onSelected()">
+            <i class="fa fa-download me-2"/>
+            <span>Export All (All Fields)</span>
+        </DropdownItem>
+    `;
     static components = { DropdownItem };
 
     async onSelected() {
@@ -85,11 +89,11 @@ class ExportAllFieldsMenuItem extends Component {
 
 cogMenuRegistry.add("export_all_form_fields", {
     isDisplayed: (env) => {
-        const resModel = env.searchModel?.resModel;
-        return TARGET_MODELS.includes(resModel);
+        const resModel = env.config?.resModel || env.searchModel?.resModel;
+        const viewType = env.config?.viewType;
+        return viewType === "list" && TARGET_MODELS.includes(resModel);
     },
     Component: ExportAllFieldsMenuItem,
     groupNumber: 20,
     sequence: 15,
 });
-

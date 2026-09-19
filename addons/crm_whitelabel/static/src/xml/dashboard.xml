@@ -185,7 +185,7 @@
             <div class="crm-pipeline-strip">
                 <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
                     <div class="crm-pipe-num"><t t-esc="state.stageLead"/></div>
-                    <div class="crm-pipe-lbl">Lead</div>
+                    <div class="crm-pipe-lbl">New Lead</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="5">
