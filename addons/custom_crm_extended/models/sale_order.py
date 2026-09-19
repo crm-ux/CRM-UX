@@ -916,8 +916,10 @@ class DashboardStats(models.Model):
             lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
         # Lead priority counts
+        lead_priority_domain = lead_domain + [('x_stage_sequence', '<', 30)]
         priority_groups = self.env['crm.lead'].read_group(
-            lead_domain, ['x_lead_priority'], ['x_lead_priority'])
+            lead_priority_domain, ['x_lead_priority'], ['x_lead_priority']
+        )
         priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
 
         # Quote stage counts
