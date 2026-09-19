@@ -15,7 +15,7 @@ const TARGET_MODELS = [
 ];
 
 export async function exportAllFormFields(env) {
-    const resModel = env.config?.resModel || env.searchModel?.resModel;
+    const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
     if (!resModel) return;
 
     // 1. Dynamically fetch the Form View fields
@@ -75,12 +75,11 @@ export async function exportAllFormFields(env) {
 
 class ExportAllFieldsMenuItem extends Component {
     static template = xml`
-        <DropdownItem class="'o_export_all_form_fields'" onSelected="() => this.onSelected()">
+        <span class="dropdown-item d-flex align-items-center cursor-pointer" role="menuitem" t-on-click="onSelected">
             <i class="fa fa-download me-2"/>
             <span>Export All (All Fields)</span>
-        </DropdownItem>
+        </span>
     `;
-    static components = { DropdownItem };
 
     async onSelected() {
         await exportAllFormFields(this.env);
@@ -89,11 +88,13 @@ class ExportAllFieldsMenuItem extends Component {
 
 cogMenuRegistry.add("export_all_form_fields", {
     isDisplayed: (env) => {
-        const resModel = env.config?.resModel || env.searchModel?.resModel;
+        const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
         const viewType = env.config?.viewType;
-        return viewType === "list" && TARGET_MODELS.includes(resModel);
+        const isListOrTree = !viewType || viewType === "list" || viewType === "tree";
+        return isListOrTree && TARGET_MODELS.includes(resModel);
     },
     Component: ExportAllFieldsMenuItem,
     groupNumber: 20,
     sequence: 15,
 });
+
