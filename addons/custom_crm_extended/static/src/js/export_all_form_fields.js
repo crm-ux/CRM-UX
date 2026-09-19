@@ -108,6 +108,7 @@ export async function exportAllFormFields(env) {
             groupby: [],
             ids: ids,
             model: resModel,
+            custom_filename: filename
         }),
     };
 
