@@ -40,11 +40,10 @@ export async function exportAllFormFields(env) {
     const ignoredTypes = ["binary", "one2many", "many2many"];
     const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids", "customer_signature", "engineer_signature"];
 
-    // Use the official fields dictionary of the target model
-    const modelFields = viewData.models?.[resModel] || {};
+    // Both views.form.fields and models[resModel] can hold fields
+    const modelFields = viewData.views?.form?.fields || viewData.models?.[resModel] || {};
 
     for (const node of fieldNodes) {
-        // Skip fields that are inside sub-tables (one2many child lists/trees)
         if (node.closest("list, tree")) {
             continue;
         }
@@ -55,24 +54,36 @@ export async function exportAllFormFields(env) {
         }
 
         const fdef = modelFields[fname];
-        // Ensure the field exists directly on the main model
-        if (fdef && !ignoredTypes.includes(fdef.type)) {
+        // If type is not in ignoredTypes, add it
+        if (!fdef || !ignoredTypes.includes(fdef.type)) {
             formFields.push({
                 name: fname,
-                label: node.getAttribute("string") || fdef.string || fname,
+                label: node.getAttribute("string") || (fdef ? fdef.string : fname) || fname,
             });
         }
     }
 
-    // 2. Call Odoo's native /web/export/xlsx
+    if (!formFields.length) {
+        return;
+    }
+
+    // 2. Fetch all record IDs for current search filter
+    const domain = env.searchModel?.domain || [];
+    const ids = await env.services.orm.search(resModel, domain);
+
+    if (!ids.length) {
+        return;
+    }
+
+    // 3. Call Odoo's native /web/export/xlsx with exact record IDs
     const exportData = {
         data: JSON.stringify({
             import_compat: false,
             context: env.searchModel?.context || {},
-            domain: env.searchModel?.domain || [],
+            domain: domain,
             fields: formFields,
             groupby: [],
-            ids: [],
+            ids: ids,
             model: resModel,
         }),
     };
