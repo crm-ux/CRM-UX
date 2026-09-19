@@ -3,7 +3,6 @@
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
-import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { Component, xml } from "@odoo/owl";
 
 const cogMenuRegistry = registry.category("cogMenu");
@@ -20,6 +19,16 @@ const MODEL_NAMES = {
     "amc.contract": "AMC Contract",
 };
 
+/**
+ * Format raw field names like 'model_number' -> 'Model Number'
+ */
+function formatCleanHeader(rawName) {
+    if (!rawName) return "";
+    return rawName
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+        .trim();
+}
 
 export async function exportAllFormFields(env) {
     const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
@@ -40,10 +49,11 @@ export async function exportAllFormFields(env) {
     const ignoredTypes = ["binary", "one2many", "many2many"];
     const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids", "customer_signature", "engineer_signature"];
 
-    // Both views.form.fields and models[resModel] can hold fields
+    // Field dictionary
     const modelFields = viewData.views?.form?.fields || viewData.models?.[resModel] || {};
 
     for (const node of fieldNodes) {
+        // Skip fields that are inside sub-tables (one2many child lists/trees)
         if (node.closest("list, tree")) {
             continue;
         }
@@ -54,7 +64,7 @@ export async function exportAllFormFields(env) {
         }
 
         const fdef = modelFields[fname];
-        // If type is not in ignoredTypes, add it
+        // Ensure field is not binary or relational list
         if (!fdef || !ignoredTypes.includes(fdef.type)) {
             const rawLabel = node.getAttribute("string") || (fdef ? fdef.string : false) || fname;
             const cleanLabel = formatCleanHeader(rawLabel);
@@ -62,31 +72,33 @@ export async function exportAllFormFields(env) {
             formFields.push({
                 name: fname,
                 label: cleanLabel,
-                type: fdef ? fdef.type : "char",
+                type: fdef ? fdef.type : "char", // type is required by /web/export/xlsx
             });
         }
-
     }
 
     if (!formFields.length) {
         return;
     }
 
+    // 2. Fetch record IDs (handles both multiple checkboxes and full list)
+    const domain = env.searchModel?.domain || [];
     const selection = env.model?.root?.selection || [];
     let ids = [];
+
     if (selection.length > 0) {
-        // User checked specific rows -> export only selected rows
+        // User selected specific rows
         ids = selection.map((r) => r.resId);
     } else {
-        // User didn't select rows -> export all records matching active filters
-        const domain = env.searchModel?.domain || [];
+        // Export all records matching the active filter
         ids = await env.services.orm.search(resModel, domain);
     }
+
     if (!ids.length) {
         return;
     }
 
-    // 3. Call Odoo's native /web/export/xlsx with exact record IDs
+    // 3. Call Odoo's native /web/export/xlsx
     const exportData = {
         data: JSON.stringify({
             import_compat: false,
@@ -112,16 +124,6 @@ export async function exportAllFormFields(env) {
     } finally {
         env.services.ui.unblock();
     }
-
-    function formatCleanHeader(rawName) {
-        if (!rawName) return "";
-        return rawName
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (c) => c.toUpperCase())
-            .trim();
-    }
-
-
 }
 
 class ExportAllFieldsMenuItem extends Component {
@@ -148,4 +150,3 @@ cogMenuRegistry.add("export_all_form_fields", {
     groupNumber: 20,
     sequence: 15,
 });
-
