@@ -370,6 +370,7 @@ class CrmLeadWizard(models.TransientModel):
             "type": "opportunity",
             "x_created_by_id": self.created_by_id.id if self.created_by_id else False,
             "x_lead_priority": self.x_lead_priority or "medium",
+            "priority": "3" if self.x_lead_priority == "high" else ("1" if self.x_lead_priority == "low" else "2"),
         }
 
         lead = self.env["crm.lead"].create(vals)
