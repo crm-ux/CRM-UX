@@ -118,14 +118,31 @@ export async function exportAllFormFields(env) {
 
     env.services.ui.block();
     try {
-        await download({
-            url: "/web/export/xlsx",
-            data: exportData,
-            filename: filename,
+        const response = await fetch("/web/export/xlsx", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ data: exportData.data }),
         });
+
+        if (!response.ok) {
+            throw new Error("Export failed");
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename; // Sets EXACT name: "Equipment Master.xlsx"
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     } finally {
         env.services.ui.unblock();
     }
+
 }
 
 class ExportAllFieldsMenuItem extends Component {
