@@ -11,6 +11,9 @@
             <xpath expr="//list" position="attributes">
                 <attribute name="js_class">crm_lead_list</attribute>
             </xpath>
+            <xpath expr="//field[@name='priority']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
         </field>
     </record>
 
