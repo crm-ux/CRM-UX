@@ -16,5 +16,26 @@
             <field name="global" eval="True"/>
             <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         </record>
+
+                <!-- Rename Security Categories on User Form -->
+        <!-- 1. "Sales" -> "Lead & Quotation" -->
+        <record id="base.module_category_sales_sales" model="ir.module.category">
+            <field name="name">Lead &amp; Quotation</field>
+        </record>
+
+        <!-- 2. "Products" -> "Product Catalog" -->
+        <record id="base.module_category_sales_product" model="ir.module.category">
+            <field name="name">Product Catalog</field>
+        </record>
+
+        <!-- 3. "Contact" -> "Contact Creation" -->
+        <record id="base.module_category_contact" model="ir.module.category">
+            <field name="name">Contact Creation</field>
+        </record>
+
+        <!-- 4. "Export" -> "Excel Export" -->
+        <record id="base.module_category_export" model="ir.module.category">
+            <field name="name">Excel Export</field>
+        </record>
     </data>
 </odoo>
