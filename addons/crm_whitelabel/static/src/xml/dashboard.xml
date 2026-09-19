@@ -234,7 +234,7 @@
                 </div>
                 <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-item crm-pipe-total" t-on-click="openAllPipelineLeads" style="border-top: 3px solid #0b3d91;">
-                    <div class="crm-pipe-num"><t t-esc="state.leadsTotal || 26"/></div>
+                    <div class="crm-pipe-num"><t t-esc="state.leadsTotal"/></div>
                     <div class="crm-pipe-lbl" style="font-weight: 700;">Total</div>
                 </div>
             </div>
