@@ -3,6 +3,8 @@
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
+import { DropdownItem } from "@web/core/dropdown/dropdown_item";
+import { Component } from "@odoo/owl";
 
 const cogMenuRegistry = registry.category("cogMenu");
 
@@ -72,15 +74,21 @@ export async function exportAllFormFields(env) {
     }
 }
 
-// Register into Odoo's cogMenu
+class ExportAllFieldsMenuItem extends Component {
+    static template = "web.DropdownItem";
+    static components = { DropdownItem };
+
+    async onSelected() {
+        await exportAllFormFields(this.env);
+    }
+}
+
 cogMenuRegistry.add("export_all_form_fields", {
     isDisplayed: (env) => {
         const resModel = env.searchModel?.resModel;
         return TARGET_MODELS.includes(resModel);
     },
-    Component: class ExportAllFieldsMenuItem {
-        static template = "custom_crm_extended.ExportAllFieldsMenuItem";
-    },
+    Component: ExportAllFieldsMenuItem,
     groupNumber: 20,
     sequence: 15,
 });
