@@ -40,14 +40,22 @@ export async function exportAllFormFields(env) {
     const ignoredTypes = ["binary", "one2many", "many2many"];
     const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids", "customer_signature", "engineer_signature"];
 
-    const modelFields = viewData.views?.form?.fields || viewData.models?.[resModel] || {};
+    // Use the official fields dictionary of the target model
+    const modelFields = viewData.models?.[resModel] || {};
+
     for (const node of fieldNodes) {
+        // Skip fields that are inside sub-tables (one2many child lists/trees)
+        if (node.closest("list, tree")) {
+            continue;
+        }
+
         const fname = node.getAttribute("name");
         if (!fname || ignoredNames.includes(fname) || formFields.some((f) => f.name === fname)) {
             continue;
         }
+
         const fdef = modelFields[fname];
-        // Only export fields that actually exist on the model and are not binary or relational lists
+        // Ensure the field exists directly on the main model
         if (fdef && !ignoredTypes.includes(fdef.type)) {
             formFields.push({
                 name: fname,
