@@ -14,6 +14,13 @@ const TARGET_MODELS = [
     "amc.contract",
 ];
 
+const MODEL_NAMES = {
+    "equipment.master": "Equipment Master",
+    "service.ticket": "Service Ticket",
+    "amc.contract": "AMC Contract",
+};
+
+
 export async function exportAllFormFields(env) {
     const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
     if (!resModel) return;
@@ -33,19 +40,19 @@ export async function exportAllFormFields(env) {
     const ignoredTypes = ["binary", "one2many"];
     const ignoredNames = ["message_follower_ids", "activity_ids", "message_ids"];
 
+    const modelFields = viewData.views?.form?.fields || viewData.models?.[resModel] || {};
+
     for (const node of fieldNodes) {
         const fname = node.getAttribute("name");
-        const fdef = viewData.models[resModel]?.[fname] || viewData.views?.form?.fields?.[fname];
-        if (
-            fname &&
-            fdef &&
-            !ignoredNames.includes(fname) &&
-            !ignoredTypes.includes(fdef.type) &&
-            !formFields.some((f) => f.name === fname)
-        ) {
+        const fdef = modelFields[fname];
+        // If field exists in model
+        if (fname && !ignoredNames.includes(fname) && !formFields.some((f) => f.name === fname)) {
+            if (fdef && ignoredTypes.includes(fdef.type)) {
+                continue;
+            }
             formFields.push({
                 name: fname,
-                label: node.getAttribute("string") || fdef.string || fname,
+                label: node.getAttribute("string") || (fdef ? fdef.string : fname) || fname,
             });
         }
     }
@@ -58,20 +65,25 @@ export async function exportAllFormFields(env) {
             domain: env.searchModel?.domain || [],
             fields: formFields,
             groupby: [],
-            ids: false,
+            ids: [],
             model: resModel,
         }),
     };
+
+    const cleanName = MODEL_NAMES[resModel] || resModel;
+    const filename = `${cleanName}.xlsx`;
 
     env.services.ui.block();
     try {
         await download({
             url: "/web/export/xlsx",
             data: exportData,
+            filename: filename,
         });
     } finally {
         env.services.ui.unblock();
     }
+
 }
 
 class ExportAllFieldsMenuItem extends Component {
