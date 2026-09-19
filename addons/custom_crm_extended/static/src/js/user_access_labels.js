@@ -1,36 +1,58 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
-import { onMounted, onPatched } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 
 patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
         if (this.props.resModel === "res.users") {
+            const labelMap = {
+                "Sales": "Lead & Quotation",
+                "Products": "Product Catalog",
+                "Contact": "Contact Creation",
+                "Export": "Excel Export",
+            };
+
             const relabel = () => {
-                const labelMap = {
-                    "Sales": "Lead & Quotation",
-                    "Products": "Product Catalog",
-                    "Contact": "Contact Creation",
-                    "Export": "Excel Export",
-                };
-                const labels = document.querySelectorAll(".o_field_res_user_group_ids_privilege label, .o_cell.o_wrap_label label");
-                labels.forEach((el) => {
-                    const text = el.childNodes[0]?.textContent?.trim();
-                    if (labelMap[text]) {
-                        el.childNodes[0].textContent = labelMap[text];
+                document.querySelectorAll("label.o_form_label").forEach((lbl) => {
+                    // Match the label text directly
+                    const firstText = Array.from(lbl.childNodes)
+                        .filter(node => node.nodeType === Node.TEXT_NODE)
+                        .map(node => node.textContent.trim())
+                        .join("");
+
+                    if (labelMap[firstText]) {
+                        // Replace only the text node, keep the tooltip '?' icon intact
+                        for (let node of lbl.childNodes) {
+                            if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() === firstText) {
+                                node.textContent = labelMap[firstText] + " ";
+                                break;
+                            }
+                        }
                     }
                 });
-                // Also update the section headers if needed
-                const headers = document.querySelectorAll(".o_horizontal_separator");
-                headers.forEach((h) => {
-                    if (h.textContent.trim().toUpperCase() === "SALES") {
+
+                document.querySelectorAll(".o_horizontal_separator").forEach((h) => {
+                    const txt = h.textContent.trim().toUpperCase();
+                    if (txt === "SALES") {
                         h.textContent = "Lead & Quotation";
                     }
                 });
             };
-            onMounted(relabel);
+
+            let observer = null;
+            onMounted(() => {
+                relabel();
+                observer = new MutationObserver(relabel);
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+
             onPatched(relabel);
+
+            onWillUnmount(() => {
+                if (observer) observer.disconnect();
+            });
         }
     },
 });
