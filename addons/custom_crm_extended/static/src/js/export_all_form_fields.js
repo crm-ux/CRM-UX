@@ -98,6 +98,10 @@ export async function exportAllFormFields(env) {
         return;
     }
 
+
+    const cleanName = MODEL_NAMES[resModel] || resModel;
+    const filename = `${cleanName}.xlsx`;
+
     // 3. Call Odoo's native /web/export/xlsx
     const exportData = {
         data: JSON.stringify({
@@ -111,9 +115,6 @@ export async function exportAllFormFields(env) {
             custom_filename: filename
         }),
     };
-
-    const cleanName = MODEL_NAMES[resModel] || resModel;
-    const filename = `${cleanName}.xlsx`;
 
     env.services.ui.block();
     try {
