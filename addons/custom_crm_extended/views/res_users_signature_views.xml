@@ -34,7 +34,7 @@
                             <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
                             <field name="crm_department_id" string="Department" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                         </group>
-                        <!-- Right Column -->
+                        <!-- Right Column --> 
                         <group string="Employee Profile &amp; Tags">
                             <field name="perm_export" widget="radio" string="Excel Export"/>
                             <field name="perm_company" widget="radio" string="Company Creation"/>
