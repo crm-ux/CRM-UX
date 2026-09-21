@@ -70,7 +70,7 @@
                         <field name="user_count" readonly="1"/>
                     </group>
                 </group>
-                <group string="Core CRM Permissions">
+                <group string="Permissions">
                     <group>
                         <field name="perm_lead_quote" widget="radio"/>
                         <field name="perm_contact" widget="radio"/>
