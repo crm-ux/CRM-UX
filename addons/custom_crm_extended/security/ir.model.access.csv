@@ -27,6 +27,3 @@ access_service_ticket_expense_type_user,service.ticket.expense.type.user,model_s
 access_service_ticket_voucher_line_user,service.ticket.voucher.line.user,model_service_ticket_voucher_line,base.group_user,1,1,1,1
 access_amc_contract,amc.contract,model_amc_contract,base.group_user,1,1,1,1
 access_amc_contract_line,amc.contract.line,model_amc_contract_line,base.group_user,1,1,1,1
-
-access_crm_role_access_user,crm.role.access.user,model_crm_role_access,base.group_user,1,0,0,0
-access_crm_role_access_manager,crm.role.access.manager,model_crm_role_access,base.group_system,1,1,1,1
