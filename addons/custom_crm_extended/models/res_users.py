@@ -12,22 +12,6 @@ class ResUsers(models.Model):
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
 
-    perm_export = fields.Selection([
-        ('none', 'No'),
-        ('export', 'Yes'),
-    ], string='Excel Export', default='none')
-
-    perm_company = fields.Selection([
-        ('none', 'No'),
-        ('create', 'Yes'),
-    ], string='Company Creation', default='none')
-
-    perm_equipment = fields.Selection([
-        ('none', 'No'),
-        ('view', 'View'),
-        ('create', 'Create'),
-    ], string='Equipment Master', default='create')
-
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
@@ -261,6 +245,22 @@ class HrJob(models.Model):
         ('view', 'View'),
         ('create', 'Create'),
     ], string='Product Catalog', default='create')
+
+    perm_export = fields.Selection([
+        ('none', 'No'),
+        ('export', 'Yes'),
+    ], string='Excel Export', default='none')
+
+    perm_company = fields.Selection([
+        ('none', 'No'),
+        ('create', 'Yes'),
+    ], string='Company Creation', default='none')
+
+    perm_equipment = fields.Selection([
+        ('none', 'No'),
+        ('view', 'View'),
+        ('create', 'Create'),
+    ], string='Equipment Master', default='create')
 
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
