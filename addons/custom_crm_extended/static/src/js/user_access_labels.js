@@ -46,6 +46,39 @@ patch(FormController.prototype, {
                 const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
                     .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION"));
 
+                // Convert every single dropdown in the Access Rights page into custom horizontal radio buttons
+                document.querySelectorAll(".tab-pane:first-child .o_field_selection select, .tab-pane[name='access_rights'] .o_field_selection select").forEach(select => {
+                    if (select.dataset.convertedToRadio) return;
+                    select.dataset.convertedToRadio = "true";
+                    select.style.display = "none";
+
+                    const radioContainer = document.createElement("div");
+                    radioContainer.className = "crm-custom-radios d-inline-flex align-items-center flex-wrap gap-3";
+
+                    Array.from(select.options).forEach(opt => {
+                        const label = document.createElement("label");
+                        label.className = "d-inline-flex align-items-center gap-1 mb-0 me-3 cursor-pointer";
+
+                        const input = document.createElement("input");
+                        input.type = "radio";
+                        input.name = select.name || select.id || Math.random();
+                        input.value = opt.value;
+                        input.checked = opt.selected;
+                        input.className = "crm-radio-dot";
+
+                        input.addEventListener("change", () => {
+                            select.value = opt.value;
+                            select.dispatchEvent(new Event("change", { bubbles: true }));
+                        });
+
+                        label.appendChild(input);
+                        label.appendChild(document.createTextNode(" " + opt.text));
+                        radioContainer.appendChild(label);
+                    });
+
+                    select.after(radioContainer);
+                });
+
                 if (configH && leadH) {
                     const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
                     const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
