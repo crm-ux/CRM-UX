@@ -52,6 +52,9 @@
                 </page>
             </xpath>
         </field>
+        <field name="perm_export" widget="radio" string="Excel Export"/>
+        <field name="perm_company" widget="radio" string="Company Creation"/>
+        <field name="perm_equipment" widget="radio" string="Equipment Master"/>
     </record>
 
     <!-- Clean Unified Roles & Groups (hr.job) Form View -->
