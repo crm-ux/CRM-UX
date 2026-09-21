@@ -79,7 +79,7 @@
                         <field name="user_count" readonly="1"/>
                     </group>
                 </group>
-                <group string="Permissions" class="crm-role-permissions-group">
+                <group string="Permissions" class="custom_radio_clean">
                     <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_contact" widget="radio" options="{'horizontal': true}"/>
