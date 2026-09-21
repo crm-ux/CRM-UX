@@ -80,7 +80,6 @@ class ResUsers(models.Model):
                 'perm_equipment': job.perm_equipment,
             })
 
-
             if target_sale_gid:
                 self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (target_sale_gid, user.id))
 
