@@ -39,20 +39,21 @@ patch(FormController.prototype, {
                         h.textContent = "Lead & Quotation";
                     }
                 });
-            };
 
-            // Position Configuration & Masters right below the first two columns
-            const configGroup = Array.from(document.querySelectorAll(".o_inner_group, .o_group"))
-                .find(el => el.textContent.includes("Configuration & Masters") || el.textContent.includes("CONFIGURATION & MASTERS"));
-            const leadQuoteH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
-                .find(el => el.textContent.includes("Lead & Quotation") || el.textContent.includes("LEAD & QUOTATION"));
+                // Position Configuration & Masters right below the first two columns (Master Data / Lead & Quotation)
+                const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
+                    .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
+                const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
+                    .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION"));
 
-            if (configGroup && leadQuoteH) {
-                const parentContainer = leadQuoteH.closest(".o_inner_group, .o_group");
-                if (parentContainer && parentContainer.parentElement && configGroup.parentElement !== parentContainer.parentElement) {
-                    parentContainer.parentElement.insertBefore(configGroup, parentContainer.nextSibling);
+                if (configH && leadH) {
+                    const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
+                    const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
+                    if (configBox && leadBox && configBox.previousElementSibling !== leadBox) {
+                        leadBox.after(configBox);
+                    }
                 }
-            }
+            };
 
             let observer = null;
             onMounted(() => {
