@@ -52,9 +52,12 @@
                 </page>
             </xpath>
             <xpath expr="//page[@name='access_rights']" position="inside">
-                <group string="Configuration &amp; Masters">
-                    <field name="perm_equipment" string="Equipment Master"/>
-                    <field name="perm_company" string="Company Creation"/>
+                <group>
+                    <group string="Configuration &amp; Masters">
+                        <field name="perm_equipment" string="Equipment Master"/>
+                        <field name="perm_company" string="Company Creation"/>
+                    </group>
+                    <group/>
                 </group>
             </xpath>
         </field>
