@@ -18,11 +18,20 @@ class ResUsers(models.Model):
         if self.crm_job_id:
             self._apply_job_permissions(self.crm_job_id)
 
-    def _apply_job_permissions(self, job):
-        """Applies permissions defined on hr.job down to this user (1-way sync only)."""
+    def _apply_job_permissions(self, role_or_job):
+        """Applies permissions down to this user (1-way sync only)."""
+        # If passed a hr.job, find its crm.role.access record
+        if role_or_job._name == 'hr.job':
+            role = self.env['crm.role.access'].search([('job_id', '=', role_or_job.id)], limit=1)
+            if not role:
+                return
+        else:
+            role = role_or_job
+
         for user in self:
             if user.has_group('base.group_system'):
                 continue
+
             all_cmds = []
 
             # 1. Lead & Quotation
@@ -33,11 +42,11 @@ class ResUsers(models.Model):
 
             rem_sales = [(3, g.id) for g in sales_groups if g in user.groups_id]
             add_sales = []
-            if job.perm_lead_quote == 'admin' and g_admin:
+            if role.perm_lead_quote == 'admin' and g_admin:
                 add_sales = [(4, g_admin.id)]
-            elif job.perm_lead_quote == 'all' and g_all:
+            elif role.perm_lead_quote == 'all' and g_all:
                 add_sales = [(4, g_all.id)]
-            elif job.perm_lead_quote == 'own' and g_own:
+            elif role.perm_lead_quote == 'own' and g_own:
                 add_sales = [(4, g_own.id)]
 
             all_cmds += rem_sales + add_sales
@@ -45,9 +54,9 @@ class ResUsers(models.Model):
             # 2. Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
             if g_contact:
-                if job.perm_contact == 'create' and g_contact not in user.groups_id:
+                if role.perm_contact == 'create' and g_contact not in user.groups_id:
                     all_cmds.append((4, g_contact.id))
-                elif job.perm_contact == 'none' and g_contact in user.groups_id:
+                elif role.perm_contact == 'none' and g_contact in user.groups_id:
                     all_cmds.append((3, g_contact.id))
 
             if all_cmds:
