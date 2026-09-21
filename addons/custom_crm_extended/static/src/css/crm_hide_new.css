@@ -396,28 +396,3 @@ button[name="action_save_lead"] {
 .equipment_form .o_form_sheet {
     margin-bottom: 10rem !important;
 }
-
-/* Custom Radio Buttons for Access Rights */
-.o_field_radio input[type="radio"] {
-    width: 15px !important;
-    height: 15px !important;
-    accent-color: #6366f1 !important;
-    cursor: pointer !important;
-    margin: 0 !important;
-}
-
-.o_field_radio .form-check {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin-right: 14px !important;
-    margin-bottom: 4px !important;
-    gap: 5px !important;
-    font-size: 13px !important;
-    color: #374151 !important;
-    cursor: pointer !important;
-}
-
-.o_field_radio .form-check-label {
-    margin-left: 4px !important;
-    cursor: pointer !important;
-}
