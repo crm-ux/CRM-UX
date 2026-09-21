@@ -38,33 +38,35 @@ patch(FormController.prototype, {
                     if (txt === "SALES") {
                         h.textContent = "Lead & Quotation";
                     }
-                    // Move Configuration & Masters right below Lead & Quotation / Master Data
-                    const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
-                        .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
-                    const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
-                        .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION"));
+                });
 
-                    if (configH && leadH) {
-                        const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
-                        const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
-                        if (configBox && leadBox && configBox.previousElementSibling !== leadBox) {
-                            leadBox.after(configBox);
-                        }
+                // Move Configuration & Masters right below Lead & Quotation / Master Data
+                const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
+                    .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
+                const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
+                    .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION"));
+
+                if (configH && leadH) {
+                    const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
+                    const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
+                    if (configBox && leadBox && configBox.previousElementSibling !== leadBox) {
+                        leadBox.after(configBox);
                     }
-                };
+                }
+            };
 
-                let observer = null;
-                onMounted(() => {
-                    relabel();
-                    observer = new MutationObserver(relabel);
-                    observer.observe(document.body, { childList: true, subtree: true });
-                });
+            let observer = null;
+            onMounted(() => {
+                relabel();
+                observer = new MutationObserver(relabel);
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
 
-                onPatched(relabel);
+            onPatched(relabel);
 
-                onWillUnmount(() => {
-                    if (observer) observer.disconnect();
-                });
-            }
-        },
-    });
+            onWillUnmount(() => {
+                if (observer) observer.disconnect();
+            });
+        }
+    },
+});
