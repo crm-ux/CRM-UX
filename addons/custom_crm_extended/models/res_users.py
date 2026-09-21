@@ -15,44 +15,40 @@ class ResUsers(models.Model):
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
         """When Job Position is selected on user form, apply group permissions to this user."""
-        if self.crm_job_id:
-            self._apply_job_permissions(self.crm_job_id)
+        if self.crm_job_id and self._origin.id:
+            # Safely apply to the real database record
+            real_user = self.env['res.users'].browse(self._origin.id)
 
     def _apply_job_permissions(self, job):
         """Applies permissions defined on hr.job down to this user (1-way sync only)."""
         for user in self:
-            if user.has_group('base.group_system'):
+            if not user.id or user.has_group('base.group_system'):
                 continue
-
-            all_cmds = []
-
+            current_group_ids = set(user.groups_id.ids) if hasattr(user, 'groups_id') else set()
             # 1. Lead & Quotation
             g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
             g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
-            sales_groups = [g for g in [g_own, g_all, g_admin] if g]
-
-            rem_sales = [(3, g.id) for g in sales_groups if g in user.groups_id]
-            add_sales = []
+            sales_groups = [g.id for g in [g_own, g_all, g_admin] if g]
+            # Remove existing sales groups
+            for gid in sales_groups:
+                current_group_ids.discard(gid)
+            # Add target sales group
             if job.perm_lead_quote == 'admin' and g_admin:
-                add_sales = [(4, g_admin.id)]
+                current_group_ids.add(g_admin.id)
             elif job.perm_lead_quote == 'all' and g_all:
-                add_sales = [(4, g_all.id)]
+                current_group_ids.add(g_all.id)
             elif job.perm_lead_quote == 'own' and g_own:
-                add_sales = [(4, g_own.id)]
-
-            all_cmds += rem_sales + add_sales
-
+                current_group_ids.add(g_own.id)
             # 2. Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
             if g_contact:
-                if job.perm_contact == 'create' and g_contact not in user.groups_id:
-                    all_cmds.append((4, g_contact.id))
-                elif job.perm_contact == 'none' and g_contact in user.groups_id:
-                    all_cmds.append((3, g_contact.id))
-
-            if all_cmds:
-                user.groups_id = all_cmds
+                if job.perm_contact == 'create':
+                    current_group_ids.add(g_contact.id)
+                elif job.perm_contact == 'none':
+                    current_group_ids.discard(g_contact.id)
+            # 3. Apply changes directly
+            user.sudo().write({'groups_id': [(6, 0, list(current_group_ids))]})
 
 
     @api.depends('name', 'employee_ids')
