@@ -365,15 +365,6 @@ class CrmDashboard extends Component {
         this.go({
             type: "ir.actions.act_window",
             name: "Roles & Groups",
-            res_model: "crm.role.access",
-            views: [[false, "list"], [false, "form"]],
-        });
-    }
-
-    openJobPositions() {
-        this.go({
-            type: "ir.actions.act_window",
-            name: "Job Positions",
             res_model: "hr.job",
             views: [[false, "list"], [false, "form"]],
             domain: [],
@@ -432,17 +423,6 @@ class CrmDashboard extends Component {
                 allowed_company_ids: this.state.selectedCompanies,
                 from_total_pipeline: true
             }
-        });
-    }
-
-    openRolesAndGroups() {
-        this.go({
-            type: "ir.actions.act_window",
-            name: "Roles & Groups",
-            res_model: "hr.job",
-            views: [[false, "list"], [false, "form"]],
-            domain: [],
-            context: { active_test: false },
         });
     }
 

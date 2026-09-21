@@ -18,16 +18,8 @@ class ResUsers(models.Model):
         if self.crm_job_id:
             self._apply_job_permissions(self.crm_job_id)
 
-    def _apply_job_permissions(self, role_or_job):
-        """Applies permissions down to this user (1-way sync only)."""
-        # If passed a hr.job, find its crm.role.access record
-        if role_or_job._name == 'hr.job':
-            role = self.env['crm.role.access'].search([('job_id', '=', role_or_job.id)], limit=1)
-            if not role:
-                return
-        else:
-            role = role_or_job
-
+    def _apply_job_permissions(self, job):
+        """Applies permissions defined on hr.job down to this user (1-way sync only)."""
         for user in self:
             if user.has_group('base.group_system'):
                 continue
@@ -42,11 +34,11 @@ class ResUsers(models.Model):
 
             rem_sales = [(3, g.id) for g in sales_groups if g in user.groups_id]
             add_sales = []
-            if role.perm_lead_quote == 'admin' and g_admin:
+            if job.perm_lead_quote == 'admin' and g_admin:
                 add_sales = [(4, g_admin.id)]
-            elif role.perm_lead_quote == 'all' and g_all:
+            elif job.perm_lead_quote == 'all' and g_all:
                 add_sales = [(4, g_all.id)]
-            elif role.perm_lead_quote == 'own' and g_own:
+            elif job.perm_lead_quote == 'own' and g_own:
                 add_sales = [(4, g_own.id)]
 
             all_cmds += rem_sales + add_sales
@@ -54,13 +46,14 @@ class ResUsers(models.Model):
             # 2. Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
             if g_contact:
-                if role.perm_contact == 'create' and g_contact not in user.groups_id:
+                if job.perm_contact == 'create' and g_contact not in user.groups_id:
                     all_cmds.append((4, g_contact.id))
-                elif role.perm_contact == 'none' and g_contact in user.groups_id:
+                elif job.perm_contact == 'none' and g_contact in user.groups_id:
                     all_cmds.append((3, g_contact.id))
 
             if all_cmds:
                 user.groups_id = all_cmds
+
 
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
@@ -226,7 +219,6 @@ class HrJob(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        # When group permissions are modified, push to all users assigned to this Role
         perm_keys = ['perm_lead_quote', 'perm_product', 'perm_contact']
         if any(k in vals for k in perm_keys):
             for job in self:
@@ -241,56 +233,3 @@ class HrDepartment(models.Model):
     _inherit = 'hr.department'
     # No company selected by default; user manually selects
     company_id = fields.Many2one('res.company', string='Company', default=False)
-
-
-class CrmRoleAccess(models.Model):
-    _name = 'crm.role.access'
-    _description = 'Roles & Group Permissions'
-    _rec_name = 'job_id'
-
-    job_id = fields.Many2one('hr.job', string='Job Position / Role', required=True, ondelete='cascade')
-    company_id = fields.Many2one('res.company', related='job_id.company_id', string='Company', readonly=True)
-
-    perm_lead_quote = fields.Selection([
-        ('none', 'No Access'),
-        ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
-    ], string='Lead & Quotation', default='own')
-
-    perm_product = fields.Selection([
-        ('none', 'No Access'),
-        ('create', 'Create'),
-    ], string='Product Catalog', default='create')
-
-    perm_contact = fields.Selection([
-        ('none', 'No Access'),
-        ('create', 'Creation'),
-    ], string='Contact Creation', default='create')
-
-    user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
-
-    def _compute_user_count(self):
-        for rec in self:
-            rec.user_count = self.env['res.users'].search_count([('crm_job_id', '=', rec.job_id.id), ('share', '=', False)])
-
-    def write(self, vals):
-        res = super().write(vals)
-        for rec in self:
-            users = self.env['res.users'].search([
-                ('crm_job_id', '=', rec.job_id.id),
-                ('share', '=', False),
-            ])
-            users._apply_job_permissions(rec)
-        return res
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        for rec in records:
-            users = self.env['res.users'].search([
-                ('crm_job_id', '=', rec.job_id.id),
-                ('share', '=', False),
-            ])
-            users._apply_job_permissions(rec)
-        return records
