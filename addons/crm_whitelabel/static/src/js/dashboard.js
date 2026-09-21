@@ -399,6 +399,8 @@ class CrmDashboard extends Component {
             name: "Roles & Groups",
             res_model: "hr.job",
             views: [[false, "list"], [false, "form"]],
+            domain: [],
+            context: { active_test: false },
         });
     }
 
