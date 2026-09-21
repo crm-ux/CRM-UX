@@ -25,6 +25,7 @@ class CrmDashboard extends Component {
             invoiceCreated: 0, invoicePending: 0,
             amcTotal: 0, amcDraft: 0, amcActive: 0, amcExpired: 0,
             seriesSubmenuOpen: false,
+            orgSubmenuOpen: false,
             userName: user.name || "User",
             companyName: "", companyLogo: "", heroImage: "",
             greeting: "", todayDate: "",
@@ -357,6 +358,50 @@ class CrmDashboard extends Component {
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
     openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
+
+    toggleOrgSubmenu(ev) {
+        if (ev) { ev.stopPropagation(); }
+        this.state.orgSubmenuOpen = !this.state.orgSubmenuOpen;
+    }
+
+    openRolesAndGroups() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Roles & Groups",
+            res_model: "hr.job",
+            views: [[false, "list"], [false, "form"]],
+            domain: [],
+            context: { active_test: false },
+        });
+    }
+
+    openDepartments() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Departments",
+            res_model: "hr.department",
+            views: [[false, "list"], [false, "form"]],
+        });
+    }
+
+    openEmployeeTags() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Employee Tags",
+            res_model: "hr.employee.category",
+            views: [[false, "list"], [false, "form"]],
+        });
+    }
+
+    openEmployees() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Employees",
+            res_model: "hr.employee",
+            views: [[false, "list"], [false, "form"]],
+        });
+    }
+
     toggleSeriesSubmenu(ev) { if (ev) { ev.stopPropagation(); } this.state.seriesSubmenuOpen = !this.state.seriesSubmenuOpen; }
 
     openAmcSeries() { this.go({ type: "ir.actions.act_window", name: "AMC Numbering Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "amc.contract"]], context: { default_code: "amc.contract", default_name: "AMC Series", default_company_id: false } }); }
