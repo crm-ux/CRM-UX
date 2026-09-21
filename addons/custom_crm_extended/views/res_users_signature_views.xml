@@ -36,9 +36,6 @@
                         </group>
                         <!-- Right Column --> 
                         <group string="Employee Profile &amp; Tags">
-                            <field name="perm_export" widget="radio" string="Excel Export"/>
-                            <field name="perm_company" widget="radio" string="Company Creation"/>
-                            <field name="perm_equipment" widget="radio" string="Equipment Master"/>
                             <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True, 'no_create_edit': True}" placeholder="Select tags..."/>
                             <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
                         </group>
@@ -54,6 +51,15 @@
                     </p>
                 </page>
             </xpath>
+            <!-- Place under Access Rights tab -->
+            <xpath expr="//page[@name='access_rights']//group" position="after">
+                <group string="Special Permissions">
+                    <field name="perm_export" string="Excel Export"/>
+                    <field name="perm_company" string="Company Creation"/>
+                    <field name="perm_equipment" string="Equipment Master"/>
+                </group>
+            </xpath>
+
         </field>
     </record>
 
