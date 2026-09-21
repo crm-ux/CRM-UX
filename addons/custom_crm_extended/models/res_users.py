@@ -48,7 +48,7 @@ class ResUsers(models.Model):
                 elif job.perm_contact == 'none':
                     current_group_ids.discard(g_contact.id)
             # 3. Apply changes directly
-            user.sudo().write({'groups_ids': [(6, 0, list(current_group_ids))]})
+            user.sudo().groups_id = [(6, 0, list(current_group_ids))]
 
 
     @api.depends('name', 'employee_ids')
