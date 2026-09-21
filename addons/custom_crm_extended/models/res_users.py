@@ -24,31 +24,44 @@ class ResUsers(models.Model):
         for user in self:
             if not user.id or user.has_group('base.group_system'):
                 continue
-            current_group_ids = set(user.groups_id.ids) if hasattr(user, 'groups_id') else set()
-            # 1. Lead & Quotation
+
+            # 1. Lead & Quotation (Sales groups)
             g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
             g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
-            sales_groups = [g.id for g in [g_own, g_all, g_admin] if g]
-            # Remove existing sales groups
-            for gid in sales_groups:
-                current_group_ids.discard(gid)
-            # Add target sales group
+            sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
+
+            if sales_gids:
+                self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = ANY(%s)", (user.id, sales_gids))
+
+            target_sale_gid = None
             if job.perm_lead_quote == 'admin' and g_admin:
-                current_group_ids.add(g_admin.id)
+                target_sale_gid = g_admin.id
             elif job.perm_lead_quote == 'all' and g_all:
-                current_group_ids.add(g_all.id)
+                target_sale_gid = g_all.id
             elif job.perm_lead_quote == 'own' and g_own:
-                current_group_ids.add(g_own.id)
+                target_sale_gid = g_own.id
+
+            if target_sale_gid:
+                self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (target_sale_gid, user.id))
+
             # 2. Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
             if g_contact:
                 if job.perm_contact == 'create':
-                    current_group_ids.add(g_contact.id)
+                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_contact.id, user.id))
                 elif job.perm_contact == 'none':
-                    current_group_ids.discard(g_contact.id)
-            # 3. Apply changes directly
-            user.sudo().groups_id = [(6, 0, list(current_group_ids))]
+                    self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = %s", (user.id, g_contact.id))
+
+            # 3. Product Catalog
+            # In Odoo, product rights are tied to sales / inventory
+            # When perm_product == 'create', ensure target_sale_gid or sale manager exists
+            if job.perm_product == 'create' and g_admin:
+                self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_admin.id, user.id))
+
+        # Invalidate cache so user form UI displays the updated dropdown values immediately
+        self.env.registry.clear_cache()
+
 
 
     @api.depends('name', 'employee_ids')
