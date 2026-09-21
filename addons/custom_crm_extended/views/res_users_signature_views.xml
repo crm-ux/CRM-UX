@@ -51,18 +51,12 @@
                     </p>
                 </page>
             </xpath>
-            <xpath expr="//field[@name='in_group_...']" position="after">
-                <field name="perm_equipment" string="Equipment Master"/>
-            </xpath>
             <xpath expr="//page[@name='access_rights']//group" position="after">
-                <group>
-                    <group string="Company &amp; Organization">
-                        <field name="perm_company" string="Company Creation"/>
-                    </group>
+                <group string="Configuration &amp; Masters">
+                    <field name="perm_equipment" string="Equipment Master"/>
+                    <field name="perm_company" string="Company Creation"/>
                 </group>
             </xpath>
-
-
         </field>
     </record>
 
