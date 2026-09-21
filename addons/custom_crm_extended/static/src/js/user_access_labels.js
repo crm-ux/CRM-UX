@@ -40,7 +40,7 @@ patch(FormController.prototype, {
                     }
                 });
 
-                // Position Configuration & Masters right below the first two columns (Master Data / Lead & Quotation)
+                // Move Configuration & Masters once right below Lead & Quotation (no scroll jump)
                 const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
                     .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
                 const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
@@ -49,8 +49,9 @@ patch(FormController.prototype, {
                 if (configH && leadH) {
                     const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
                     const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
-                    if (configBox && leadBox && configBox.previousElementSibling !== leadBox) {
+                    if (configBox && leadBox && !configBox.dataset.repositioned) {
                         leadBox.after(configBox);
+                        configBox.dataset.repositioned = "true";
                     }
                 }
             };
