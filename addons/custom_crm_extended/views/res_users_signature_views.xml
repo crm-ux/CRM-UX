@@ -81,18 +81,6 @@
         </field>
     </record>
 
-    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
-    <record id="view_employee_form_crm_custom" model="ir.ui.view">
-        <field name="name">hr.employee.form.crm.custom</field>
-        <field name="model">hr.employee</field>
-        <field name="inherit_id" ref="hr.view_employee_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='parent_id']" position="after">
-                <field name="expense_manager_id" string="Expense / Voucher Approver" widget="many2one_avatar_user"/>
-            </xpath>
-        </field>
-    </record>
-    
     <!-- Roles & Groups: List View (Odoo 18 uses <list>) -->
     <record id="view_crm_role_access_tree" model="ir.ui.view">
         <field name="name">crm.role.access.list</field>
