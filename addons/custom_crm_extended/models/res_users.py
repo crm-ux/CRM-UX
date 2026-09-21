@@ -28,7 +28,6 @@ class ResUsers(models.Model):
         ('create', 'Create'),
     ], string='Equipment Master', default='create')
 
-
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
         """When Job Position is selected on user form, apply group permissions to this user."""
