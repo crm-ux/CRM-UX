@@ -203,6 +203,7 @@ class CrmDashboard extends Component {
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
+            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const invoiceCreated = s.invoice_created || 0;
             const invoicePending = s.invoice_pending || 0;
@@ -272,7 +273,7 @@ class CrmDashboard extends Component {
                 leads, qualified, opportunity: opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, invoiceCreated, invoicePending,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, leadsTotal, invoiceCreated, invoicePending,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
