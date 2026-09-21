@@ -234,7 +234,8 @@
                 </div>
                 <div class="crm-pipe-sep">→</div>
                 <div class="crm-pipe-num">
-                    <t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/>
+                    <div class="crm-pipe-num"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"//></div>
+                    <div class="crm-pipe-lbl">Total</div>
                 </div>
             </div>
             <!-- CARDS -->
