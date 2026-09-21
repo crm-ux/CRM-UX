@@ -402,7 +402,6 @@ class CrmDashboard extends Component {
         });
     }
 
-
     openEquipment() {
         this.openEquipmentList([], "All Equipment");
     }

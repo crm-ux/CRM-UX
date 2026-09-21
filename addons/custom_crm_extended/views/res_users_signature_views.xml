@@ -37,28 +37,28 @@
         </field>
     </record>
 
-        <!-- Job Position / Roles View Extension -->
+    <!-- Job Position / Roles View Extension -->
     <record id="view_hr_job_form_crm_permissions" model="ir.ui.view">
         <field name="name">hr.job.form.crm.permissions</field>
         <field name="model">hr.job</field>
         <field name="inherit_id" ref="hr.view_hr_job_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook" position="inside">
-                <page string="Group Access Permissions" name="group_permissions_page">
-                    <group>
-                        <group string="Core CRM Permissions">
-                            <field name="perm_lead_quote" widget="radio"/>
-                            <field name="perm_contact" widget="radio"/>
-                            <field name="perm_product" widget="radio"/>
-                        </group>
-                        <group string="Assigned Users">
-                            <field name="user_count" readonly="1"/>
-                        </group>
+            <!-- Replace the standard notebook tabs with direct permissions -->
+            <xpath expr="//notebook" position="replace">
+                <group>
+                    <group string="Core CRM Permissions">
+                        <field name="perm_lead_quote" widget="radio"/>
+                        <field name="perm_contact" widget="radio"/>
+                        <field name="perm_product" widget="radio"/>
                     </group>
-                </page>
+                    <group string="Assigned Users">
+                        <field name="user_count" readonly="1"/>
+                    </group>
+                </group>
             </xpath>
         </field>
     </record>
+
 
     <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
     <record id="view_employee_form_crm_custom" model="ir.ui.view">
