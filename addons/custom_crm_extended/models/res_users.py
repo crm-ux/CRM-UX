@@ -48,7 +48,7 @@ class ResUsers(models.Model):
                 elif job.perm_contact == 'none':
                     current_group_ids.discard(g_contact.id)
             # 3. Apply changes directly
-            user.sudo().write({'groups_id': [(6, 0, list(current_group_ids))]})
+            user.sudo().write({'groups_ids': [(6, 0, list(current_group_ids))]})
 
 
     @api.depends('name', 'employee_ids')
@@ -77,9 +77,13 @@ class ResUsers(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        if 'crm_job_id' in vals and vals['crm_job_id']:
+            job = self.env['hr.job'].browse(vals['crm_job_id'])
+            self._apply_job_permissions(job)
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
         return res
+
     
     def _assign_default_groups(self, users):
         try:
