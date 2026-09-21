@@ -54,18 +54,18 @@
         </field>
     </record>
 
-        <!-- Roles & Groups: Tree View -->
+    <!-- Roles & Groups: List View (Odoo 18 uses <list>) -->
     <record id="view_crm_role_access_tree" model="ir.ui.view">
-        <field name="name">crm.role.access.tree</field>
+        <field name="name">crm.role.access.list</field>
         <field name="model">crm.role.access</field>
         <field name="arch" type="xml">
-            <tree string="Roles &amp; Groups">
+            <list string="Roles &amp; Groups">
                 <field name="job_id"/>
                 <field name="perm_lead_quote"/>
                 <field name="perm_contact"/>
                 <field name="perm_product"/>
                 <field name="user_count"/>
-            </tree>
+            </list>
         </field>
     </record>
 
