@@ -25,10 +25,24 @@ class ResUsers(models.Model):
             if not user.id or user.has_group('base.group_system'):
                 continue
 
-            # 1. Lead & Quotation (Sales groups)
             g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
             g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
+            
+    
+            g_export = self.env.ref('base.group_allow_export', raise_if_not_found=False)
+            if g_export:
+                if job.perm_export == 'export':
+                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_export.id, user.id))
+                else:
+                    self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = %s", (user.id, g_export.id))
+
+            g_multi = self.env.ref('base.group_multi_company', raise_if_not_found=False)
+            if g_multi:
+                if job.perm_company == 'create':
+                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_multi.id, user.id))
+
+    
             sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
 
             if sales_gids:
@@ -208,21 +222,38 @@ class HrJob(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=False)
 
     perm_lead_quote = fields.Selection([
-        ('none', 'No Access'),
+        ('none', 'No'),
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
     ], string='Lead & Quotation', default='own')
-
-    perm_product = fields.Selection([
-        ('none', 'No Access'),
-        ('create', 'Create'),
-    ], string='Product Catalog', default='create')
-
+    
     perm_contact = fields.Selection([
-        ('none', 'No Access'),
+        ('none', 'No'),
         ('create', 'Creation'),
     ], string='Contact Creation', default='create')
+    
+    perm_product = fields.Selection([
+        ('view', 'View'),
+        ('create', 'Create'),
+    ], string='Product Catalog', default='create')
+    
+    perm_export = fields.Selection([
+        ('none', 'No'),
+        ('export', 'Yes'),
+    ], string='Excel Export', default='none')
+
+    perm_company = fields.Selection([
+        ('none', 'No'),
+        ('create', 'Yes'),
+    ], string='Company Creation', default='none')
+
+    perm_equipment = fields.Selection([
+        ('none', 'No'),
+        ('view', 'View'),
+        ('create', 'Create'),
+    ], string='Equipment Master', default='create')
+
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
 
@@ -232,7 +263,7 @@ class HrJob(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        perm_keys = ['perm_lead_quote', 'perm_product', 'perm_contact']
+        perm_keys = ['perm_lead_quote', 'perm_product', 'perm_contact', 'perm_export', 'perm_company', 'perm_equipment']
         if any(k in vals for k in perm_keys):
             for job in self:
                 users = self.env['res.users'].search([

@@ -76,6 +76,11 @@
                         <field name="perm_contact" widget="radio"/>
                         <field name="perm_product" widget="radio"/>
                     </group>
+                    <group>
+                        <field name="perm_export" widget="radio"/>
+                        <field name="perm_company" widget="radio"/>
+                        <field name="perm_equipment" widget="radio"/>
+                    </group>
                 </group>
             </xpath>
         </field>
