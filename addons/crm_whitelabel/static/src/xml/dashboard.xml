@@ -233,9 +233,9 @@
                     <div class="crm-pipe-lbl">Won</div>
                 </div>
                 <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-num">
-                    <div class="crm-pipe-num"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"//></div>
-                    <div class="crm-pipe-lbl">Total</div>
+                <div class="crm-pipe-item crm-pipe-total" t-on-click="openAllPipelineLeads" style="border-top: 3px solid #0b3d91;">
+                    <div class="crm-pipe-num"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></div>
+                    <div class="crm-pipe-lbl" style="font-weight: 700;">Total</div>
                 </div>
             </div>
             <!-- CARDS -->
