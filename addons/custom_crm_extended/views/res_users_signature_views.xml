@@ -54,7 +54,7 @@
         </field>
     </record>
 
-        <!-- Clean Unified Roles & Groups (hr.job) Form View -->
+    <!-- Clean Unified Roles & Groups (hr.job) Form View -->
     <record id="view_hr_job_form_crm_clean" model="ir.ui.view">
         <field name="name">hr.job.form.crm.clean</field>
         <field name="model">hr.job</field>
