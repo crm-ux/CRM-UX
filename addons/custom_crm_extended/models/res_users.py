@@ -21,6 +21,8 @@ class ResUsers(models.Model):
     def _apply_job_permissions(self, job):
         """Applies permissions defined on hr.job down to this user (1-way sync only)."""
         for user in self:
+            if user.has_group('base.group_system'):
+                continue
             all_cmds = []
 
             # 1. Lead & Quotation
@@ -158,6 +160,7 @@ class ResUsers(models.Model):
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
+    company_id = fields.Many2one('res.company', string='Company', default=False)
     expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
 
     def write(self, vals):
@@ -186,6 +189,8 @@ class HrEmployee(models.Model):
 
 class HrJob(models.Model):
     _inherit = 'hr.job'
+
+    company_id = fields.Many2one('res.company', string='Company', default=False)
 
     perm_lead_quote = fields.Selection([
         ('none', 'No Access'),
@@ -222,3 +227,8 @@ class HrJob(models.Model):
                 ])
                 users._apply_job_permissions(job)
         return res
+
+class HrDepartment(models.Model):
+    _inherit = 'hr.department'
+    # No company selected by default; user manually selects
+    company_id = fields.Many2one('res.company', string='Company', default=False)

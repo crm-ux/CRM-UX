@@ -46,9 +46,9 @@
                                     </div>
                                     <div class="crm-submenu-content">
                                         <a t-on-click="openRolesAndGroups" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Roles &amp; Groups</a>
+                                        <a t-on-click="openJobPositions" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Job Positions</a>
                                         <a t-on-click="openDepartments" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Departments</a>
                                         <a t-on-click="openEmployeeTags" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employee Tags</a>
-                                        <a t-on-click="openEmployees" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employees</a>
                                     </div>
                                 </div>
                                 <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>

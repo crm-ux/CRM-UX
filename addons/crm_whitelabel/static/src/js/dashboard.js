@@ -372,6 +372,17 @@ class CrmDashboard extends Component {
         });
     }
 
+    openJobPositions() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Job Positions",
+            res_model: "hr.job",
+            views: [[false, "list"], [false, "form"]],
+            domain: [],
+            context: { active_test: false },
+        });
+    }
+
     openDepartments() {
         this.go({
             type: "ir.actions.act_window",
@@ -386,15 +397,6 @@ class CrmDashboard extends Component {
             type: "ir.actions.act_window",
             name: "Employee Tags",
             res_model: "hr.employee.category",
-            views: [[false, "list"], [false, "form"]],
-        });
-    }
-
-    openEmployees() {
-        this.go({
-            type: "ir.actions.act_window",
-            name: "Employees",
-            res_model: "hr.employee",
             views: [[false, "list"], [false, "form"]],
         });
     }
