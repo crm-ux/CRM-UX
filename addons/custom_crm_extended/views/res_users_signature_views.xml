@@ -79,13 +79,13 @@
                         <field name="user_count" readonly="1"/>
                     </group>
                 </group>
-                <group string="Permissions">
-                        <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
-                        <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
-                        <field name="perm_contact" widget="radio" options="{'horizontal': true}"/>
-                        <field name="perm_product" widget="radio" options="{'horizontal': true}"/>
-                        <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
-                        <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
+                <group string="Permissions" class="crm-role-permissions-group">
+                    <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_contact" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_product" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
                 </group>
             </xpath>
         </field>
