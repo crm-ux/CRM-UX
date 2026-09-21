@@ -51,14 +51,17 @@
                     </p>
                 </page>
             </xpath>
-            <!-- Place under Access Rights tab -->
             <xpath expr="//page[@name='access_rights']//group" position="after">
-                <group string="Special Permissions">
-                    <field name="perm_export" string="Excel Export"/>
-                    <field name="perm_company" string="Company Creation"/>
-                    <field name="perm_equipment" string="Equipment Master"/>
+                <group>
+                    <group string="Master Data">
+                        <field name="perm_equipment" string="Equipment Master"/>
+                    </group>
+                    <group string="Company &amp; Organization">
+                        <field name="perm_company" string="Company Creation"/>
+                    </group>
                 </group>
             </xpath>
+
 
         </field>
     </record>
