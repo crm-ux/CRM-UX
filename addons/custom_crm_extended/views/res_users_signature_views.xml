@@ -91,7 +91,7 @@
         </field>
     </record>
 
-        <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
+    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
     <record id="view_employee_form_crm_custom" model="ir.ui.view">
         <field name="name">hr.employee.form.crm.custom</field>
         <field name="model">hr.employee</field>
