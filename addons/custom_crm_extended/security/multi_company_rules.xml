@@ -20,12 +20,10 @@
         <!-- Equipment Groups -->
         <record id="group_equipment_own" model="res.groups">
             <field name="name">Equipment: Own Documents Only</field>
-            <field name="category_id" ref="base.module_category_hidden"/>
         </record>
 
         <record id="group_equipment_all" model="res.groups">
             <field name="name">Equipment: All Documents</field>
-            <field name="category_id" ref="base.module_category_hidden"/>
         </record>
 
         <!-- Rules for the groups -->
