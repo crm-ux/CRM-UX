@@ -359,10 +359,7 @@ class CrmDashboard extends Component {
     openContactCategories() { this.go({ type: "ir.actions.act_window", name: "Contact Categories", res_model: "exhibition.category", views: [[false, "list"], [false, "form"]] }); }
     openQuoteSeries() { this.go({ type: "ir.actions.act_window", name: "Quote Series", res_model: "ir.sequence", views: [[false, "list"], [false, "form"]], domain: [["code", "=", "sale.order"]], context: { active_test: false } }); }
 
-    toggleOrgSubmenu(ev) {
-        if (ev) { ev.stopPropagation(); }
-        this.state.orgSubmenuOpen = !this.state.orgSubmenuOpen;
-    }
+    toggleOrgSubmenu(ev) { if (ev) { ev.stopPropagation(); } this.state.orgSubmenuOpen = !this.state.orgSubmenuOpen; }
 
     openRolesAndGroups() {
         this.go({
