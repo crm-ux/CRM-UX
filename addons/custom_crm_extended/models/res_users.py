@@ -24,10 +24,11 @@ class ResUsers(models.Model):
 
     perm_equipment = fields.Selection([
         ('none', 'No'),
-        ('own', 'Own Records Only'),        
-        ('all', 'All Records (View/Edit)'), 
+        ('own', 'User: Own Documents Only'),        
+        ('all', 'User: All Documents'), 
         ('admin', 'Administrator'),
     ], string='Equipment Master', default='own')
+
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
@@ -285,10 +286,11 @@ class HrJob(models.Model):
 
     perm_equipment = fields.Selection([
         ('none', 'No'),
-        ('own', 'Own Records Only'),       
-        ('all', 'All Records (View/Edit)'), 
-        ('admin', 'Administrator'),    
+        ('own', 'User: Own Documents Only'),        
+        ('all', 'User: All Documents'), 
+        ('admin', 'Administrator'),
     ], string='Equipment Master', default='own')
+
 
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
