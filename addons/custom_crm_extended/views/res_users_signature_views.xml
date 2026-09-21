@@ -80,13 +80,13 @@
                     </group>
                 </group>
                 <group string="Permissions">
-                    <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                     <group>
+                        <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_contact" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_product" widget="radio" options="{'horizontal': true}"/>
                     </group>
                     <group>
+                        <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
                     </group>
