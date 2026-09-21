@@ -24,9 +24,10 @@ class ResUsers(models.Model):
 
     perm_equipment = fields.Selection([
         ('none', 'No'),
-        ('view', 'View'),
-        ('create', 'Create'),
-    ], string='Equipment Master', default='create')
+        ('own', 'Own Records Only'),        
+        ('all', 'All Records (View/Edit)'), 
+        ('admin', 'Administrator'),
+    ], string='Equipment Master', default='own')
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
@@ -61,6 +62,17 @@ class ResUsers(models.Model):
     
             sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
 
+            # Equipment Master permissions
+            g_eq_own = self.env.ref('custom_crm_extended.group_equipment_own', raise_if_not_found=False)
+            g_eq_all = self.env.ref('custom_crm_extended.group_equipment_all', raise_if_not_found=False)
+
+            if g_eq_own and g_eq_all:
+                self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid IN (%s, %s)", (user.id, g_eq_own.id, g_eq_all.id))
+                if job.perm_equipment == 'own':
+                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_eq_own.id, user.id))
+                elif job.perm_equipment in ('all', 'admin'):
+                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_eq_all.id, user.id))
+
             if sales_gids:
                 self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = ANY(%s)", (user.id, sales_gids))
 
@@ -72,7 +84,7 @@ class ResUsers(models.Model):
             elif job.perm_lead_quote == 'own' and g_own:
                 target_sale_gid = g_own.id
 
-                        # Sync the single-user field values
+            # Sync the single-user field values
             user.sudo().write({
                 'perm_export': job.perm_export,
                 'perm_company': job.perm_company,
@@ -273,9 +285,10 @@ class HrJob(models.Model):
 
     perm_equipment = fields.Selection([
         ('none', 'No'),
-        ('view', 'View'),
-        ('create', 'Create'),
-    ], string='Equipment Master', default='create')
+        ('own', 'Own Records Only'),       
+        ('all', 'All Records (View/Edit)'), 
+        ('admin', 'Administrator'),    
+    ], string='Equipment Master', default='own')
 
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
