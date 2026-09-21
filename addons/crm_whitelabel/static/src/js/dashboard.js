@@ -394,7 +394,7 @@ class CrmDashboard extends Component {
     }
 
     openRolesAndGroups() {
-        this.action.doAction({
+        this.actionService.doAction({
             name: "Roles & Groups",
             type: "ir.actions.act_window",
             res_model: "hr.job",
