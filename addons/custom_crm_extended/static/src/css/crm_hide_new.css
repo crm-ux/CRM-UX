@@ -396,3 +396,36 @@ button[name="action_save_lead"] {
 .equipment_form .o_form_sheet {
     margin-bottom: 10rem !important;
 }
+
+/* Horizontal Radio Buttons for User Access Rights */
+.tab-pane[name="access_rights"] .o_field_radio,
+.o_notebook .tab-pane:first-child .o_field_radio {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+}
+
+.tab-pane[name="access_rights"] .o_radio_item,
+.o_notebook .tab-pane:first-child .o_radio_item {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+    cursor: pointer !important;
+}
+
+/* Custom Radio Dot Color (#6366f1 Indigo) */
+.tab-pane[name="access_rights"] input[type="radio"],
+.o_notebook .tab-pane:first-child input[type="radio"] {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: #6366f1 !important;
+    cursor: pointer !important;
+}
+
+.tab-pane[name="access_rights"] input[type="radio"]:checked,
+.o_notebook .tab-pane:first-child input[type="radio"]:checked {
+    background-color: #6366f1 !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25) !important;
+}

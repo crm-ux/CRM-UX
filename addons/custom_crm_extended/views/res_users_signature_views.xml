@@ -54,12 +54,13 @@
             <xpath expr="//page[@name='access_rights']/group[1]" position="inside">
                 <group>
                     <group string="Configuration &amp; Masters">
-                        <field name="perm_equipment" string="Equipment Master"/>
-                        <field name="perm_company" string="Company Creation"/>
+                        <field name="perm_equipment" widget="radio" string="Equipment Master"/>
+                        <field name="perm_company" widget="radio" string="Company Creation"/>
                     </group>
                     <group/>
                 </group>
             </xpath>
+
         </field>
     </record>
 
