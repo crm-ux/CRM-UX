@@ -51,7 +51,7 @@
                     </p>
                 </page>
             </xpath>
-            <xpath expr="//page[@name='access_rights']" position="inside">
+            <xpath expr="//page[@name='access_rights']/group[1]" position="inside">
                 <group>
                     <group string="Configuration &amp; Masters">
                         <field name="perm_equipment" string="Equipment Master"/>
