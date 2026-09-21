@@ -232,3 +232,56 @@ class HrDepartment(models.Model):
     _inherit = 'hr.department'
     # No company selected by default; user manually selects
     company_id = fields.Many2one('res.company', string='Company', default=False)
+
+
+class CrmRoleAccess(models.Model):
+    _name = 'crm.role.access'
+    _description = 'Roles & Group Permissions'
+    _rec_name = 'job_id'
+
+    job_id = fields.Many2one('hr.job', string='Job Position / Role', required=True, ondelete='cascade')
+    company_id = fields.Many2one('res.company', related='job_id.company_id', string='Company', readonly=True)
+
+    perm_lead_quote = fields.Selection([
+        ('none', 'No Access'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Lead & Quotation', default='own')
+
+    perm_product = fields.Selection([
+        ('none', 'No Access'),
+        ('create', 'Create'),
+    ], string='Product Catalog', default='create')
+
+    perm_contact = fields.Selection([
+        ('none', 'No Access'),
+        ('create', 'Creation'),
+    ], string='Contact Creation', default='create')
+
+    user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
+
+    def _compute_user_count(self):
+        for rec in self:
+            rec.user_count = self.env['res.users'].search_count([('crm_job_id', '=', rec.job_id.id), ('share', '=', False)])
+
+    def write(self, vals):
+        res = super().write(vals)
+        for rec in self:
+            users = self.env['res.users'].search([
+                ('crm_job_id', '=', rec.job_id.id),
+                ('share', '=', False),
+            ])
+            users._apply_job_permissions(rec)
+        return res
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            users = self.env['res.users'].search([
+                ('crm_job_id', '=', rec.job_id.id),
+                ('share', '=', False),
+            ])
+            users._apply_job_permissions(rec)
+        return records
