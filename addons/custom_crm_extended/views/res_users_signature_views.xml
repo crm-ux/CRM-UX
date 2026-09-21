@@ -29,14 +29,14 @@
                     <group>
                         <!-- Left Column -->
                         <group string="Role &amp; Hierarchy">
-                            <field name="crm_job_id" string="Job Position / Role" context="{'form_view_ref': 'custom_crm_extended.view_hr_job_simple_crm_form'}"/>
-                            <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True}"/>
-                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True}"/>
-                            <field name="crm_department_id" string="Department" options="{'quick_create': True}"/>
+                            <field name="crm_job_id" string="Job Position / Role" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="crm_department_id" string="Department" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                         </group>
                         <!-- Right Column -->
                         <group string="Employee Profile &amp; Tags">
-                            <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Add tags..."/>
+                            <field name="crm_employee_tag_ids" widget="many2many_tags" options="{'color_field': 'color', 'no_create': True, 'no_create_edit': True}" placeholder="Select tags..."/>
                             <field name="employee_id" readonly="1" string="Linked Employee Profile"/>
                         </group>
                     </group>
