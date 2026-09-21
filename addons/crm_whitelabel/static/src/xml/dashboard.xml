@@ -38,6 +38,7 @@
                                 <a href="/app/companies" class="crm-admin-menu-item">Companies</a>
                                 <a href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
                                 <a href="/app/settings/users" class="crm-admin-menu-item">Users</a>
+                                <a t-on-click="openRolesAndGroups" class="crm-admin-menu-item" style="cursor:pointer;">Roles &amp; Groups</a>
                                 <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
                                 <a t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
                                 <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
@@ -240,7 +241,6 @@
             </div>
             <!-- CARDS -->
             <div class="crm-pro-grid">
-
                 <div class="crm-pro-panel crm-quote-panel">
                     <div class="crm-panel-head" t-on-click="openQuotes" style="cursor:pointer;"><div><h2>Quote Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">

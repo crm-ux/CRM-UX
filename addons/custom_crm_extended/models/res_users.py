@@ -12,6 +12,45 @@ class ResUsers(models.Model):
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
 
+    @api.onchange('crm_job_id')
+    def _onchange_crm_job_id_sync_permissions(self):
+        """When Job Position is selected on user form, apply group permissions to this user."""
+        if self.crm_job_id:
+            self._apply_job_permissions(self.crm_job_id)
+
+    def _apply_job_permissions(self, job):
+        """Applies permissions defined on hr.job down to this user (1-way sync only)."""
+        for user in self:
+            all_cmds = []
+
+            # 1. Lead & Quotation
+            g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
+            g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
+            g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
+            sales_groups = [g for g in [g_own, g_all, g_admin] if g]
+
+            rem_sales = [(3, g.id) for g in sales_groups if g in user.groups_id]
+            add_sales = []
+            if job.perm_lead_quote == 'admin' and g_admin:
+                add_sales = [(4, g_admin.id)]
+            elif job.perm_lead_quote == 'all' and g_all:
+                add_sales = [(4, g_all.id)]
+            elif job.perm_lead_quote == 'own' and g_own:
+                add_sales = [(4, g_own.id)]
+
+            all_cmds += rem_sales + add_sales
+
+            # 2. Contact Creation
+            g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
+            if g_contact:
+                if job.perm_contact == 'create' and g_contact not in user.groups_id:
+                    all_cmds.append((4, g_contact.id))
+                elif job.perm_contact == 'none' and g_contact in user.groups_id:
+                    all_cmds.append((3, g_contact.id))
+
+            if all_cmds:
+                user.groups_id = all_cmds
+
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
         for user in self:
@@ -145,3 +184,41 @@ class HrEmployee(models.Model):
 
             user.with_context(skip_sync=True).write(user_vals)
 
+class HrJob(models.Model):
+    _inherit = 'hr.job'
+
+    perm_lead_quote = fields.Selection([
+        ('none', 'No Access'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Lead & Quotation', default='own')
+
+    perm_product = fields.Selection([
+        ('none', 'No Access'),
+        ('create', 'Create'),
+    ], string='Product Catalog', default='create')
+
+    perm_contact = fields.Selection([
+        ('none', 'No Access'),
+        ('create', 'Creation'),
+    ], string='Contact Creation', default='create')
+
+    user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
+
+    def _compute_user_count(self):
+        for job in self:
+            job.user_count = self.env['res.users'].search_count([('crm_job_id', '=', job.id), ('share', '=', False)])
+
+    def write(self, vals):
+        res = super().write(vals)
+        # When group permissions are modified, push to all users assigned to this Role
+        perm_keys = ['perm_lead_quote', 'perm_product', 'perm_contact']
+        if any(k in vals for k in perm_keys):
+            for job in self:
+                users = self.env['res.users'].search([
+                    ('crm_job_id', '=', job.id),
+                    ('share', '=', False),
+                ])
+                users._apply_job_permissions(job)
+        return res

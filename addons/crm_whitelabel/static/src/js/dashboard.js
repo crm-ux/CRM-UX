@@ -393,6 +393,16 @@ class CrmDashboard extends Component {
         });
     }
 
+    openRolesAndGroups() {
+        this.action.doAction({
+            name: "Roles & Groups",
+            type: "ir.actions.act_window",
+            res_model: "hr.job",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        });
+    }
+
     openEquipment() {
         this.openEquipmentList([], "All Equipment");
     }
