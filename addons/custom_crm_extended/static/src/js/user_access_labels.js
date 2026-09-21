@@ -41,7 +41,7 @@ patch(FormController.prototype, {
                 });
             };
 
-            // Move Configuration & Masters once right below Lead & Quotation (no scroll jump)
+            // Move Configuration & Masters right below Lead & Quotation / Master Data
             const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
                 .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
             const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
@@ -50,9 +50,8 @@ patch(FormController.prototype, {
             if (configH && leadH) {
                 const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");
                 const leadBox = leadH.closest(".o_inner_group") || leadH.closest(".o_group");
-                if (configBox && leadBox && !configBox.dataset.repositioned) {
+                if (configBox && leadBox && configBox.previousElementSibling !== leadBox) {
                     leadBox.after(configBox);
-                    configBox.dataset.repositioned = "true";
                 }
             }
 
