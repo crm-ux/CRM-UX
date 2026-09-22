@@ -4,7 +4,7 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     # Hierarchy & Organization dropdowns
-    employee_id = fields.Many2one('hr.employee', string='Related Employee', compute='_compute_employee_id', store=True, readonly=True)
+    employee_id = fields.Many2one('hr.employee', string='Related Employee', compute='_compute_employee_id', readonly=True)
     crm_department_id = fields.Many2one('hr.department', string='Department')
     crm_job_id = fields.Many2one('hr.job', string='Job Position / Role')
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
@@ -180,7 +180,7 @@ class ResUsers(models.Model):
     def create(self, vals_list):
         users = super().create(vals_list)
         self._assign_default_groups(users)
-        # DO NOT auto-create employee here
+        users._sync_employee_records(users)
         return users
 
     def write(self, vals):
