@@ -37,15 +37,22 @@ patch(FormController.prototype, {
                     const txt = h.textContent.trim().toUpperCase();
                     if (txt === "SALES") {
                         h.textContent = "Lead & Quotation";
+                    } else if (txt === "MASTER DATA") {
+                        // Completely hide standard MASTER DATA group/column
+                        const masterBox = h.closest(".o_inner_group") || h.closest(".o_group");
+                        if (masterBox) {
+                            masterBox.style.setProperty("display", "none", "important");
+                        } else {
+                            h.style.setProperty("display", "none", "important");
+                        }
                     }
                 });
 
-                // Move Configuration & Masters right below Lead & Quotation / Master Data
+                // Move Configuration & Masters right below Lead & Quotation
                 const configH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
                     .find(h => h.textContent.toUpperCase().includes("CONFIGURATION & MASTERS"));
                 const leadH = Array.from(document.querySelectorAll(".o_horizontal_separator"))
-                    .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION"));
-
+                    .find(h => h.textContent.toUpperCase().includes("LEAD & QUOTATION") && h.offsetParent !== null);
 
                 if (configH && leadH) {
                     const configBox = configH.closest(".o_inner_group") || configH.closest(".o_group");

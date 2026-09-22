@@ -22,6 +22,13 @@ class ResUsers(models.Model):
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
 
+    perm_lead_quote = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Lead & Quotation', default='own')
+
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
@@ -127,6 +134,7 @@ class ResUsers(models.Model):
 
             # Apply all permission group changes via safe ORM
             user_vals = {
+                'perm_lead_quote': job.perm_lead_quote,
                 'perm_export': job.perm_export,
                 'perm_company': job.perm_company,
                 'perm_service_ticket': job.perm_service_ticket,
