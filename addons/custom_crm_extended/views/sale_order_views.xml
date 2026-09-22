@@ -8,9 +8,7 @@
             <xpath expr="//list" position="attributes">
                 <attribute name="create">true</attribute>
             </xpath> 
-            <xpath expr="//field[@name='invoice_status']" position="attributes">
-                <attribute name="column_invisible">1</attribute>
-            </xpath>
+            <xpath expr="//field[@name='invoice_status']" position="replace"/>
         </field>
     </record>
 
