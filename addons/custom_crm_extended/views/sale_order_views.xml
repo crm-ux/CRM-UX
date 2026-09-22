@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_sale_order_list_custom" model="ir.ui.view">
+        <record id="view_sale_order_list_custom" model="ir.ui.view">
         <field name="name">sale.order.list.custom.buttons</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
@@ -8,11 +8,11 @@
             <xpath expr="//list" position="attributes">
                 <attribute name="create">true</attribute>
             </xpath>
-            <xpath expr="//field[@name='invoice_status']" column_invisible="x_quote_stage != 'won'" position="replace"/>
+            <xpath expr="//field[@name='invoice_status']" position="replace"/>
         </field>
     </record>
 
-        <record id="view_order_tree_custom_invoice_status" model="ir.ui.view">
+    <record id="view_order_tree_custom_invoice_status" model="ir.ui.view">
         <field name="name">sale.order.tree.custom.invoice.status</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_tree"/>
@@ -23,7 +23,7 @@
                        widget="badge" 
                        decoration-success="x_custom_invoice_status == 'created'" 
                        decoration-warning="x_custom_invoice_status == 'pending'" 
-                       optional="show"/>
+                       column_invisible="context.get('hide_invoice_status', False)"/>
             </xpath>
         </field>
     </record>
