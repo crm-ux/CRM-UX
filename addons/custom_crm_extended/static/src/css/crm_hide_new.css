@@ -303,55 +303,64 @@ button[name="action_save_lead"] {
     font-weight: 700 !important;
 }
 
-/* 6. Unselected label text */
+/* 6. Unselected label text (shared between radio and checkbox labels) */
 .custom_radio_clean label,
-.custom_radio_clean .form-check-label {
+.custom_radio_clean .form-check-label,
+.custom_radio_clean .perm-checkbox-item span {
+    font-size: clamp(12.5px, 0.85vw, 13.5px) !important;
+    font-weight: 500 !important;
     color: #333333 !important;
     margin: 0 !important;
     padding: 0 !important;
     cursor: pointer !important;
     white-space: nowrap !important;
+    letter-spacing: 0.01em !important;
 }
 
-/* 7. Checkbox styling matching company theme with dynamic clamp/rem values */
+/* 7. Checkbox styling matching radio exact dimensions (14px) and company theme (#0C3868) */
 .custom_radio_clean input[type="checkbox"],
 .custom_radio_clean .form-check-input[type="checkbox"] {
-    width: clamp(1rem, 1.2vw, 1.25rem) !important;
-    height: clamp(1rem, 1.2vw, 1.25rem) !important;
-    min-width: clamp(1rem, 1.2vw, 1.25rem) !important;
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
     margin: 0 !important;
     cursor: pointer !important;
-    border: 1.5px solid #555555 !important;
-    border-radius: clamp(3px, 0.25rem, 4px) !important;
-    accent-color: var(--crm-primary-color, #0C3868) !important;
+    border: 1px solid #555555 !important;
+    border-radius: 3px !important;
+    accent-color: #0C3868 !important;
     appearance: auto !important;
     -webkit-appearance: auto !important;
     position: static !important;
     float: none !important;
+    flex-shrink: 0 !important;
 }
 
 .custom_radio_clean input[type="checkbox"]:checked,
 .custom_radio_clean .form-check-input[type="checkbox"]:checked {
-    background-color: var(--crm-primary-color, #0C3868) !important;
-    border-color: var(--crm-primary-color, #0C3868) !important;
+    background-color: #0C3868 !important;
+    border-color: #0C3868 !important;
 }
 
 .custom_radio_clean .perm-checkbox-group {
     display: inline-flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
-    gap: clamp(1rem, 2vw, 1.75rem) !important;
-    padding: clamp(0.25rem, 0.5vh, 0.5rem) 0 !important;
+    gap: clamp(1rem, 1.8vw, 2.2rem) !important;
+    padding: 4px 0 !important;
 }
 
 .custom_radio_clean .perm-checkbox-item {
     display: inline-flex !important;
     align-items: center !important;
-    gap: clamp(0.35rem, 0.6vw, 0.5rem) !important;
-    font-size: clamp(0.82rem, 0.95vw, 0.95rem) !important;
-    color: #333333 !important;
+    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
     cursor: pointer !important;
     white-space: nowrap !important;
+}
+
+/* When checkbox is checked, highlight label text in dark blue bold just like radio! */
+.custom_radio_clean .perm-checkbox-item:has(input:checked) span {
+    color: #0C3868 !important;
+    font-weight: 700 !important;
 }
 
 .custom_radio_clean .perm-checkbox-item .o_field_boolean,
