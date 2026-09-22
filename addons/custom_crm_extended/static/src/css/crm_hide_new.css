@@ -457,14 +457,11 @@ button[name="action_save_lead"] {
 }
 
 /* Hide duplicate standard Contact Creation field on res.users Access Rights tab */
-div[name="access_rights"] .o_cell:has([data-id="6"]),
-div[name="access_rights"] .o_cell:has(input#field_2_0),
+div[name="access_rights"] .o_cell:has(#field_2_0),
 div[name="access_rights"] .o_cell:has(label[for="field_2_0"]),
-div[name="access_rights"] .o_field_res_user_group_ids_privilege:has([data-id="6"]) {
-    display: none !important;
-}
-
-div[name="access_rights"] .o_inner_group>.o_cell:has(label[for="field_2_0"]),
-div[name="access_rights"] .o_inner_group>.o_cell:has(label[for="field_2_0"])+.o_cell {
+div[name="access_rights"] .o_cell:has([data-id="6"]),
+div[name="access_rights"] .o_inner_group>.o_cell.o_wrap_label:has(label[for="field_2_0"]),
+div[name="access_rights"] .o_inner_group>.o_cell.o_wrap_input:has(#field_2_0),
+div[name="access_rights"] .o_inner_group>.o_cell.o_wrap_input:has([data-id="6"]) {
     display: none !important;
 }

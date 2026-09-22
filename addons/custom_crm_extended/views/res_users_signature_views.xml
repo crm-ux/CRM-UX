@@ -52,24 +52,6 @@
                 </page>
             </xpath>
             <xpath expr="//page[@name='access_rights']" position="inside">
-                <style>
-                    /* Hide duplicate standard Contact Creation field on res.users Access Rights tab */
-                    .o_field_res_user_group_ids_privilege:has([data-id="6"]) {
-                        display: none !important;
-                    }
-                    .o_cell:has(.o_field_res_user_group_ids_privilege [data-id="6"]) {
-                        display: none !important;
-                    }
-                    .o_inner_group:has([data-id="6"]) &gt; .o_cell:has(label[for*="field_"]) {
-                        /* hides label if preceding data-id 6 input */
-                    }
-                    div:has(&gt; .o_field_res_user_group_ids_privilege [data-id="6"]) {
-                        display: none !important;
-                    }
-                    .o_cell:has([data-id="6"]) {
-                        display: none !important;
-                    }
-                </style>
                 <group string="Configuration &amp; Masters">
                     <group>
                         <field name="perm_service_ticket" string="Service Ticket"/>
