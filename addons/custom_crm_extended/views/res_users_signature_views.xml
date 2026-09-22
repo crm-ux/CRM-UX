@@ -63,18 +63,18 @@
                     <group>
                         <label for="perm_customer_create" string="Customer Creation"/>
                         <div class="perm-checkbox-group">
-                            <label class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></label>
+                            <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></span>
                         </div>
 
                         <label for="perm_equipment_create" string="Equipment Master"/>
                         <div class="perm-checkbox-group">
-                            <label class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></label>
-                            <label class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></label>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
                         </div>
                     </group>
                 </group>
@@ -106,18 +106,18 @@
                     
                     <label for="perm_customer_create" string="Customer Creation"/>
                     <div class="perm-checkbox-group">
-                        <label class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></label>
+                        <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></span>
                     </div>
 
                     <label for="perm_equipment_create" string="Equipment Master"/>
                     <div class="perm-checkbox-group">
-                        <label class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></label>
-                        <label class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></label>
+                        <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
                     </div>
 
                     <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
