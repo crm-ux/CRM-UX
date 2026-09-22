@@ -181,7 +181,6 @@ class ResUsers(models.Model):
                 emp_cnt = self.env['hr.employee'].sudo().search_count([('user_id', '=', user.id)])
                 user.employee_count = emp_cnt
 
-
     @api.model_create_multi
     def create(self, vals_list):
         users = super().create(vals_list)
@@ -190,6 +189,22 @@ class ResUsers(models.Model):
         return users
 
     def write(self, vals):
+        # 1. When archiving (active=False), release the login so new employees can reuse the name/login
+        if vals.get('active') is False:
+            for user in self:
+                if user.active and user.login and not user.login.startswith('archived_'):
+                    super(ResUsers, user).write({'login': f"archived_{user.id}_{user.login}"})
+
+        # 2. When unarchiving (active=True), safely restore the original login if not taken
+        elif vals.get('active') is True:
+            for user in self:
+                if not user.active and user.login and user.login.startswith(f"archived_{user.id}_"):
+                    orig_login = user.login.split(f"archived_{user.id}_", 1)[1]
+                    # Only restore if another user hasn't claimed it while archived
+                    taken = self.env['res.users'].sudo().search_count([('login', '=', orig_login), ('id', '!=', user.id)])
+                    if not taken:
+                        super(ResUsers, user).write({'login': orig_login})
+
         res = super().write(vals)
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
