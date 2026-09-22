@@ -36,12 +36,10 @@ class ResUsers(models.Model):
         ('admin', 'Administrator'),
     ], string='AMC Contract', default='own')
 
-    perm_product = fields.Selection([
-        ('none', 'No'),
-        ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
-    ], string='Product Catalog', default='all')
+    perm_product_create = fields.Boolean(string='Create Product', default=True)
+    perm_product_write = fields.Boolean(string='Update Product', default=True)
+    perm_product_read = fields.Boolean(string='View Product', default=True)
+    perm_product_unlink = fields.Boolean(string='Delete Product', default=False)
 
     perm_customer_create = fields.Boolean(string='Create Customer', default=True)
     perm_customer_write = fields.Boolean(string='Update Customer', default=True)
@@ -72,34 +70,37 @@ class ResUsers(models.Model):
             g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
             
     
+            group_ops = []
+
+            # 1. Excel Export
             g_export = self.env.ref('base.group_allow_export', raise_if_not_found=False)
             if g_export:
                 if job.perm_export == 'export':
-                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_export.id, user.id))
+                    group_ops.append((4, g_export.id))
                 else:
-                    self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = %s", (user.id, g_export.id))
+                    group_ops.append((3, g_export.id))
 
+            # 2. Company Creation (Multi Company)
             g_multi = self.env.ref('base.group_multi_company', raise_if_not_found=False)
             if g_multi:
                 if job.perm_company == 'create':
-                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_multi.id, user.id))
+                    group_ops.append((4, g_multi.id))
 
-    
-            sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
-
-            # Equipment Master permissions
+            # 3. Equipment Master permissions
             g_eq_own = self.env.ref('custom_crm_extended.group_equipment_own', raise_if_not_found=False)
             g_eq_all = self.env.ref('custom_crm_extended.group_equipment_all', raise_if_not_found=False)
-
             if g_eq_own and g_eq_all:
-                self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid IN (%s, %s)", (user.id, g_eq_own.id, g_eq_all.id))
-                if job.perm_equipment == 'own':
-                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_eq_own.id, user.id))
-                elif job.perm_equipment in ('all', 'admin'):
-                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_eq_all.id, user.id))
+                group_ops.append((3, g_eq_own.id))
+                group_ops.append((3, g_eq_all.id))
+                if getattr(job, 'perm_equipment', None) == 'own':
+                    group_ops.append((4, g_eq_own.id))
+                elif getattr(job, 'perm_equipment', None) in ('all', 'admin'):
+                    group_ops.append((4, g_eq_all.id))
 
-            if sales_gids:
-                self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = ANY(%s)", (user.id, sales_gids))
+            # 4. Lead & Quotation Sales groups
+            sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
+            for sg_id in sales_gids:
+                group_ops.append((3, sg_id))
 
             target_sale_gid = None
             if job.perm_lead_quote == 'admin' and g_admin:
@@ -109,13 +110,31 @@ class ResUsers(models.Model):
             elif job.perm_lead_quote == 'own' and g_own:
                 target_sale_gid = g_own.id
 
-            # Sync the single-user field values
-            user.sudo().write({
+            if target_sale_gid:
+                group_ops.append((4, target_sale_gid))
+
+            # 5. Customer / Contact Creation
+            g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
+            if g_contact:
+                if job.perm_customer_create:
+                    group_ops.append((4, g_contact.id))
+                else:
+                    group_ops.append((3, g_contact.id))
+
+            # 6. Product Catalog
+            if job.perm_product_create and g_admin:
+                group_ops.append((4, g_admin.id))
+
+            # Apply all permission group changes via safe ORM
+            user_vals = {
                 'perm_export': job.perm_export,
                 'perm_company': job.perm_company,
                 'perm_service_ticket': job.perm_service_ticket,
                 'perm_amc': job.perm_amc,
-                'perm_product': job.perm_product,
+                'perm_product_create': job.perm_product_create,
+                'perm_product_write': job.perm_product_write,
+                'perm_product_read': job.perm_product_read,
+                'perm_product_unlink': job.perm_product_unlink,
                 'perm_customer_create': job.perm_customer_create,
                 'perm_customer_write': job.perm_customer_write,
                 'perm_customer_read': job.perm_customer_read,
@@ -124,24 +143,11 @@ class ResUsers(models.Model):
                 'perm_equipment_write': job.perm_equipment_write,
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
-            })
+            }
+            if group_ops:
+                user_vals['groups_id'] = group_ops
 
-            # 2. Contact Creation
-            g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
-            if g_contact:
-                if job.perm_customer_create:
-                    self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_contact.id, user.id))
-                else:
-                    self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = %s", (user.id, g_contact.id))
-
-            # 3. Product Catalog
-            # In Odoo, product rights are tied to sales / inventory
-            # When perm_product == 'create', ensure target_sale_gid or sale manager exists
-            if job.perm_product == 'create' and g_admin:
-                self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_admin.id, user.id))
-
-        # Invalidate cache so user form UI displays the updated dropdown values immediately
-        self.env.registry.clear_cache()
+            user.sudo().with_context(skip_sync=True).write(user_vals)
 
 
 
@@ -199,22 +205,22 @@ class ResUsers(models.Model):
                 if internal_group not in user.groups_id:
                     continue
 
+                user_updates = {}
+                g_ops = []
                 for group_ref in groups_to_add:
-                    try:
-                        group = self.env.ref(group_ref)
-                        self.env.cr.execute(
-                            "INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING",
-                            (group.id, user.id)
-                        )
-                    except Exception:
-                        pass
+                    g = self.env.ref(group_ref, raise_if_not_found=False)
+                    if g and g not in user.groups_id:
+                        g_ops.append((4, g.id))
+                if g_ops:
+                    user_updates['groups_id'] = g_ops
 
-                # Assign all companies
-                for company in all_companies:
-                    self.env.cr.execute(
-                        "INSERT INTO res_company_users_rel (cid, user_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
-                        (company.id, user.id)
-                    )
+                # Assign all companies if not already assigned
+                c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
+                if c_ops:
+                    user_updates['company_ids'] = c_ops
+
+                if user_updates:
+                    user.sudo().with_context(skip_sync=True).write(user_updates)
         except Exception:
             pass
 
@@ -309,12 +315,10 @@ class HrJob(models.Model):
         ('admin', 'Administrator'),
     ], string='AMC Contract', default='own')
 
-    perm_product = fields.Selection([
-        ('none', 'No'),
-        ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
-    ], string='Product Catalog', default='all')
+    perm_product_create = fields.Boolean(string='Create Product', default=True)
+    perm_product_write = fields.Boolean(string='Update Product', default=True)
+    perm_product_read = fields.Boolean(string='View Product', default=True)
+    perm_product_unlink = fields.Boolean(string='Delete Product', default=False)
 
     perm_customer_create = fields.Boolean(string='Create Customer', default=True)
     perm_customer_write = fields.Boolean(string='Update Customer', default=True)
@@ -345,7 +349,8 @@ class HrJob(models.Model):
     def write(self, vals):
         res = super().write(vals)
         perm_keys = [
-            'perm_lead_quote', 'perm_service_ticket', 'perm_amc', 'perm_product',
+            'perm_lead_quote', 'perm_service_ticket', 'perm_amc',
+            'perm_product_create', 'perm_product_write', 'perm_product_read', 'perm_product_unlink',
             'perm_customer_create', 'perm_customer_write', 'perm_customer_read', 'perm_customer_unlink',
             'perm_equipment_create', 'perm_equipment_write', 'perm_equipment_read', 'perm_equipment_unlink',
             'perm_export', 'perm_company'

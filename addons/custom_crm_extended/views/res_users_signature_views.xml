@@ -56,7 +56,6 @@
                     <group>
                         <field name="perm_service_ticket" string="Service Ticket"/>
                         <field name="perm_amc" string="AMC Contract"/>
-                        <field name="perm_product" string="Product Catalog"/>
                         <field name="perm_company" string="Company Creation"/>
                         <field name="perm_export" string="Excel Export"/>
                     </group>
@@ -76,6 +75,14 @@
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_equipment_write" nolabel="1"/> Update</span>
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_equipment_read" nolabel="1"/> View</span>
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_equipment_unlink" nolabel="1"/> Delete</span>
+                        </div>
+
+                        <label for="perm_product_create" string="Product Catalog"/>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_create" nolabel="1"/> Create</span>
+                            <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_write" nolabel="1"/> Update</span>
+                            <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_read" nolabel="1"/> View</span>
+                            <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_unlink" nolabel="1"/> Delete</span>
                         </div>
                     </group>
                 </group>
@@ -103,7 +110,6 @@
                     <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_product" widget="radio" options="{'horizontal': true}"/>
                     
                     <label for="perm_customer_create" string="Customer Creation"/>
                     <div class="perm-checkbox-group">
@@ -119,6 +125,14 @@
                         <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
                         <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
                         <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
+                    </div>
+
+                    <label for="perm_product_create" string="Product Catalog"/>
+                    <div class="perm-checkbox-group">
+                        <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_product_write" nolabel="1"/> <span>Update</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>
+                        <span class="perm-checkbox-item"><field name="perm_product_unlink" nolabel="1"/> <span>Delete</span></span>
                     </div>
 
                     <field name="perm_export" widget="radio" options="{'horizontal': true}"/>

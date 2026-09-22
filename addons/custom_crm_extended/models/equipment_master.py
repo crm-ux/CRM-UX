@@ -1,6 +1,5 @@
-﻿# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class EquipmentCategory(models.Model):
     _name = 'equipment.category'
@@ -188,3 +187,11 @@ class EquipmentMaster(models.Model):
                 'default_partner_id': self.partner_id.id if self.partner_id else False,
             }
         }
+
+    def unlink(self):
+        for rec in self:
+            user = self.env.user
+            if not user.has_group('base.group_system'):
+                if not getattr(user, 'perm_equipment_unlink', False):
+                    raise UserError(_("Access Denied: You do not have permission to delete Equipment Master records."))
+        return super(EquipmentMaster, self).unlink()
