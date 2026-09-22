@@ -152,11 +152,17 @@ class ResUsers(models.Model):
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
-            if group_ops:
-                user_vals['groups_id'] = group_ops
-
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
+            # Apply security group additions and removals on group records directly
+            for op, gid in group_ops:
+                g = self.env['res.groups'].sudo().browse(gid)
+                if not g.exists():
+                    continue
+                if op == 4 and user not in g.users:
+                    g.write({'users': [(4, user.id)]})
+                elif op == 3 and user in g.users:
+                    g.write({'users': [(3, user.id)]})
 
 
     @api.depends('name', 'employee_ids')
