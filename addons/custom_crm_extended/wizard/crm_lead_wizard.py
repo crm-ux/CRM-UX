@@ -145,7 +145,7 @@ class CrmLeadWizard(models.TransientModel):
                 ], limit=1)
                 
                 # If partner was created by current user just now
-                from datetime import datetime, timedelta
+                from datetime import datetime, timedelta 
                 if partner.create_uid.id == self.env.uid:
                     created_at = partner.create_date
                     if created_at and (datetime.now() - created_at.replace(tzinfo=None)).seconds < 30:
