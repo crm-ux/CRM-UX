@@ -64,13 +64,26 @@ patch(FormController.prototype, {
             };
 
             let observer = null;
+            let isRelabeling = false;
+            const safeRelabel = () => {
+                if (isRelabeling) return;
+                isRelabeling = true;
+                try {
+                    relabel();
+                } finally {
+                    isRelabeling = false;
+                }
+            };
+
             onMounted(() => {
-                relabel();
-                observer = new MutationObserver(relabel);
+                safeRelabel();
+                observer = new MutationObserver(() => {
+                    if (!isRelabeling) safeRelabel();
+                });
                 observer.observe(document.body, { childList: true, subtree: true });
             });
 
-            onPatched(relabel);
+            onPatched(safeRelabel);
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
