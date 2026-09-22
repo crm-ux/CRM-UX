@@ -143,6 +143,7 @@ class CrmLeadWizard(models.TransientModel):
                     ('id', '=', partner.id),
                     ('create_uid', '!=', self.env.uid),
                 ], limit=1)
+                
                 # If partner was created by current user just now
                 from datetime import datetime, timedelta
                 if partner.create_uid.id == self.env.uid:
@@ -153,7 +154,7 @@ class CrmLeadWizard(models.TransientModel):
                         self.partner_name = False
                         return {'warning': {
                             'title': 'Not Allowed',
-                            'message': 'Only Admin and Dhruvil Shah can create new companies.'
+                            'message': 'Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.'
                         }}
             self.partner_name = self.partner_company_id.name
             # Auto-fill Contact Person & Job Title only when company has exactly ONE contact.
@@ -169,10 +170,10 @@ class CrmLeadWizard(models.TransientModel):
                 self.contact_name = child.name or ""
                 self.function = child.function or ""
                 self.email_from = child.email or ""
-                self.phone = child.phone or ""
-                self.x_mobile = child.mobile or ""
-                if not self.phone and child.mobile:
-                    self.phone = child.mobile
+                child_phone = getattr(child, 'phone', '') or ""
+                child_mobile = getattr(child, 'mobile', '') or ""
+                self.phone = child_phone or child_mobile
+                self.x_mobile = child_mobile or child_phone
 
             elif len(children) > 1:
                 self.contact_name = False
@@ -192,12 +193,11 @@ class CrmLeadWizard(models.TransientModel):
             self.contact_name = child.name or ""
             self.function = child.function or ""
             self.email_from = child.email or ""
-            self.phone = child.phone or ""
-            self.x_mobile = child.mobile or ""
-            if not self.phone and child.mobile:
-                self.phone = child.mobile
+            child_phone = getattr(child, 'phone', '') or ""
+            child_mobile = getattr(child, 'mobile', '') or ""
+            self.phone = child_phone or child_mobile
+            self.x_mobile = child_mobile or child_phone
 
-            
             # Check if newly created by unauthorized user
             allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
             if self.env.uid not in allowed_ids:
@@ -219,8 +219,10 @@ class CrmLeadWizard(models.TransientModel):
             self.contact_name = p.name if p.parent_id else ""
             self.function = p.function or ""
             self.email_from = p.email or ""
-            self.phone = p.phone or ""
-            self.x_mobile = p.mobile or ""
+            p_phone = getattr(p, 'phone', '') or ""
+            p_mobile = getattr(p, 'mobile', '') or ""
+            self.phone = p_phone or p_mobile
+            self.x_mobile = p_mobile or p_phone
             self.city = p.city or ""
             self.state_id = p.state_id
             self.zip = p.zip or ""
