@@ -19,6 +19,22 @@
         </field>
     </record>
 
+        <record id="view_order_tree_custom_invoice_status" model="ir.ui.view">
+        <field name="name">sale.order.tree.custom.invoice.status</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="replace">
+                <field name="x_custom_invoice_status" 
+                       string="Invoice Status" 
+                       widget="badge" 
+                       decoration-success="x_custom_invoice_status == 'created'" 
+                       decoration-warning="x_custom_invoice_status == 'pending'" 
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
     <record id="action_sale_order_with_buttons" model="ir.actions.act_window">
         <field name="name">Quotations</field>
         <field name="res_model">sale.order</field>
