@@ -219,22 +219,15 @@ class ResUsers(models.Model):
                 if internal_group not in user.groups_id:
                     continue
 
-                user_updates = {}
-                g_ops = []
                 for group_ref in groups_to_add:
                     g = self.env.ref(group_ref, raise_if_not_found=False)
-                    if g and g not in user.groups_id:
-                        g_ops.append((4, g.id))
-                if g_ops:
-                    user_updates['groups_id'] = g_ops
+                    if g and user not in g.users:
+                        g.sudo().write({'users': [(4, user.id)]})
 
                 # Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
                 if c_ops:
-                    user_updates['company_ids'] = c_ops
-
-                if user_updates:
-                    user.sudo().with_context(skip_sync=True).write(user_updates)
+                    user.sudo().with_context(skip_sync=True).write({'company_ids': c_ops})
         except Exception:
             pass
 
