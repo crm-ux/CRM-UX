@@ -8,6 +8,14 @@
             <xpath expr="//list" position="attributes">
                 <attribute name="create">true</attribute>
             </xpath> 
+            <xpath expr="//field[@name='invoice_status']" position="replace">
+                <field name="x_custom_invoice_status" 
+                       string="Invoice Status" 
+                       widget="badge" 
+                       decoration-success="x_custom_invoice_status == 'created'" 
+                       decoration-warning="x_custom_invoice_status == 'pending'" 
+                       optional="show"/>
+            </xpath>
         </field>
     </record>
 

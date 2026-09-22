@@ -261,9 +261,29 @@ class SaleOrder(models.Model):
         copy=False,
     )
 
+    x_custom_invoice_status = fields.Selection([
+        ('created', 'Invoice Created'),
+        ('pending', 'Invoice Pending'),
+    ], string='Invoice Status', compute='_compute_custom_invoice_status', store=True)
+
     # ==================================================================
     # COMPUTE
     # ==================================================================
+    
+    @api.depends('x_quote_stage', 'x_invoice_date', 'x_invoice_number', 'invoice_ids', 'invoice_ids.state')
+    def _compute_custom_invoice_status(self):
+        for order in self:
+            if order.x_quote_stage == 'won':
+                has_inv = (
+                    bool(order.x_invoice_date) or 
+                    bool(order.x_invoice_number) or 
+                    bool(order.invoice_ids.filtered(lambda inv: inv.state != 'cancel'))
+                )
+                order.x_custom_invoice_status = 'created' if has_inv else 'pending'
+            else:
+                order.x_custom_invoice_status = False
+
+
 
     @api.depends('x_quote_version')
     def _compute_version_label(self):
