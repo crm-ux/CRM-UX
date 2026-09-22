@@ -54,7 +54,6 @@
             <xpath expr="//page[@name='access_rights']" position="inside">
                 <group string="Configuration &amp; Masters">
                     <group>
-                        <field name="perm_lead_quote" string="Lead &amp; Quotation"/>
                         <field name="perm_service_ticket" string="Service Ticket"/>
                         <field name="perm_amc" string="AMC Contract"/>
                         <field name="perm_company" string="Company Creation"/>
