@@ -467,23 +467,3 @@ div[name="access_rights"] .o_wrap_input:has([data-id="6"]),
 div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
-
-/* Single User (res.users) Access Rights: Blue theme color (#0C3868) for checkboxes without changing structure/layout */
-div[name="access_rights"] input[type="checkbox"]:checked,
-div[name="access_rights"] .form-check-input[type="checkbox"]:checked {
-    background-color: #0C3868 !important;
-    border-color: #0C3868 !important;
-    accent-color: #0C3868 !important;
-}
-
-div[name="access_rights"] input[type="checkbox"],
-div[name="access_rights"] .form-check-input[type="checkbox"] {
-    accent-color: #0C3868 !important;
-}
-
-div[name="access_rights"] input[type="radio"]:checked,
-div[name="access_rights"] .form-check-input[type="radio"]:checked {
-    background-color: #0C3868 !important;
-    border-color: #0C3868 !important;
-    accent-color: #0C3868 !important;
-}
