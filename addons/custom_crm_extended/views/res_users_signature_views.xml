@@ -78,6 +78,7 @@
                         <field name="perm_company" string="Company Creation"/>
                         <field name="perm_export" string="Excel Export"/>
                     </group>
+                    
                     <group>
                         <label for="perm_customer_create" string="Customer Creation"/>
                         <div class="d-flex align-items-center gap-3">
