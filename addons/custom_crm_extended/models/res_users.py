@@ -22,12 +22,36 @@ class ResUsers(models.Model):
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
 
-    perm_equipment = fields.Selection([
+    perm_service_ticket = fields.Selection([
         ('none', 'No'),
-        ('own', 'User: Own Documents Only'),        
-        ('all', 'User: All Documents'), 
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Equipment Master', default='own')
+    ], string='Service Ticket', default='own')
+
+    perm_amc = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='AMC Contract', default='own')
+
+    perm_product = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Product Catalog', default='all')
+
+    perm_customer_create = fields.Boolean(string='Create Customer', default=True)
+    perm_customer_write = fields.Boolean(string='Update Customer', default=True)
+    perm_customer_read = fields.Boolean(string='View Customer', default=True)
+    perm_customer_unlink = fields.Boolean(string='Delete Customer', default=False)
+
+    perm_equipment_create = fields.Boolean(string='Create Equipment', default=True)
+    perm_equipment_write = fields.Boolean(string='Update Equipment', default=True)
+    perm_equipment_read = fields.Boolean(string='View Equipment', default=True)
+    perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
 
 
     @api.onchange('crm_job_id')
@@ -89,18 +113,25 @@ class ResUsers(models.Model):
             user.sudo().write({
                 'perm_export': job.perm_export,
                 'perm_company': job.perm_company,
-                'perm_equipment': job.perm_equipment,
+                'perm_service_ticket': job.perm_service_ticket,
+                'perm_amc': job.perm_amc,
+                'perm_product': job.perm_product,
+                'perm_customer_create': job.perm_customer_create,
+                'perm_customer_write': job.perm_customer_write,
+                'perm_customer_read': job.perm_customer_read,
+                'perm_customer_unlink': job.perm_customer_unlink,
+                'perm_equipment_create': job.perm_equipment_create,
+                'perm_equipment_write': job.perm_equipment_write,
+                'perm_equipment_read': job.perm_equipment_read,
+                'perm_equipment_unlink': job.perm_equipment_unlink,
             })
-
-            if target_sale_gid:
-                self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (target_sale_gid, user.id))
 
             # 2. Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
             if g_contact:
-                if job.perm_contact == 'create':
+                if job.perm_customer_create:
                     self.env.cr.execute("INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING", (g_contact.id, user.id))
-                elif job.perm_contact == 'none':
+                else:
                     self.env.cr.execute("DELETE FROM res_groups_users_rel WHERE uid = %s AND gid = %s", (user.id, g_contact.id))
 
             # 3. Product Catalog
@@ -263,16 +294,37 @@ class HrJob(models.Model):
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
     ], string='Lead & Quotation', default='own')
-    
-    perm_contact = fields.Selection([
+
+    perm_service_ticket = fields.Selection([
         ('none', 'No'),
-        ('create', 'Creation'),
-    ], string='Contact Creation', default='create')
-    
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Service Ticket', default='own')
+
+    perm_amc = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='AMC Contract', default='own')
+
     perm_product = fields.Selection([
-        ('view', 'View'),
-        ('create', 'Create'),
-    ], string='Product Catalog', default='create')
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('all', 'User: All Documents'),
+        ('admin', 'Administrator'),
+    ], string='Product Catalog', default='all')
+
+    perm_customer_create = fields.Boolean(string='Create Customer', default=True)
+    perm_customer_write = fields.Boolean(string='Update Customer', default=True)
+    perm_customer_read = fields.Boolean(string='View Customer', default=True)
+    perm_customer_unlink = fields.Boolean(string='Delete Customer', default=False)
+
+    perm_equipment_create = fields.Boolean(string='Create Equipment', default=True)
+    perm_equipment_write = fields.Boolean(string='Update Equipment', default=True)
+    perm_equipment_read = fields.Boolean(string='View Equipment', default=True)
+    perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
 
     perm_export = fields.Selection([
         ('none', 'No'),
@@ -284,15 +336,6 @@ class HrJob(models.Model):
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
 
-    perm_equipment = fields.Selection([
-        ('none', 'No'),
-        ('own', 'User: Own Documents Only'),        
-        ('all', 'User: All Documents'), 
-        ('admin', 'Administrator'),
-    ], string='Equipment Master', default='own')
-
-
-
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
 
     def _compute_user_count(self):
@@ -301,7 +344,12 @@ class HrJob(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        perm_keys = ['perm_lead_quote', 'perm_product', 'perm_contact', 'perm_export', 'perm_company', 'perm_equipment']
+        perm_keys = [
+            'perm_lead_quote', 'perm_service_ticket', 'perm_amc', 'perm_product',
+            'perm_customer_create', 'perm_customer_write', 'perm_customer_read', 'perm_customer_unlink',
+            'perm_equipment_create', 'perm_equipment_write', 'perm_equipment_read', 'perm_equipment_unlink',
+            'perm_export', 'perm_company'
+        ]
         if any(k in vals for k in perm_keys):
             for job in self:
                 users = self.env['res.users'].search([

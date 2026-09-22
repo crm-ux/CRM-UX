@@ -51,13 +51,32 @@
                     </p>
                 </page>
             </xpath>
-            <xpath expr="//page[@name='access_rights']/group[1]" position="inside">
-                <group>
-                    <group string="Configuration &amp; Masters">
-                        <field name="perm_equipment" string="Equipment Master"/>
+            <xpath expr="//page[@name='access_rights']" position="inside">
+                <group string="Configuration &amp; Masters">
+                    <group>
+                        <field name="perm_service_ticket" string="Service Ticket"/>
+                        <field name="perm_amc" string="AMC Contract"/>
+                        <field name="perm_product" string="Product Catalog"/>
                         <field name="perm_company" string="Company Creation"/>
+                        <field name="perm_export" string="Excel Export"/>
                     </group>
-                    <group/>
+                    <group>
+                        <label for="perm_customer_create" string="Customer Creation"/>
+                        <div class="d-flex gap-3 align-items-center mb-2">
+                            <field name="perm_customer_create"/> <span class="me-3">Create</span>
+                            <field name="perm_customer_write"/> <span class="me-3">Update</span>
+                            <field name="perm_customer_read"/> <span class="me-3">View</span>
+                            <field name="perm_customer_unlink"/> <span>Delete</span>
+                        </div>
+
+                        <label for="perm_equipment_create" string="Equipment Master"/>
+                        <div class="d-flex gap-3 align-items-center mb-2">
+                            <field name="perm_equipment_create"/> <span class="me-3">Create</span>
+                            <field name="perm_equipment_write"/> <span class="me-3">Update</span>
+                            <field name="perm_equipment_read"/> <span class="me-3">View</span>
+                            <field name="perm_equipment_unlink"/> <span>Delete</span>
+                        </div>
+                    </group>
                 </group>
             </xpath>
         </field>
@@ -81,9 +100,26 @@
                 </group>
                 <group string="Permissions" class="custom_radio_clean">
                     <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_contact" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
+                    <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_product" widget="radio" options="{'horizontal': true}"/>
+                    
+                    <label for="perm_customer_create" string="Customer Creation"/>
+                    <div class="d-flex gap-3 align-items-center mb-2">
+                        <field name="perm_customer_create"/> <span class="me-3">Create</span>
+                        <field name="perm_customer_write"/> <span class="me-3">Update</span>
+                        <field name="perm_customer_read"/> <span class="me-3">View</span>
+                        <field name="perm_customer_unlink"/> <span>Delete</span>
+                    </div>
+
+                    <label for="perm_equipment_create" string="Equipment Master"/>
+                    <div class="d-flex gap-3 align-items-center mb-2">
+                        <field name="perm_equipment_create"/> <span class="me-3">Create</span>
+                        <field name="perm_equipment_write"/> <span class="me-3">Update</span>
+                        <field name="perm_equipment_read"/> <span class="me-3">View</span>
+                        <field name="perm_equipment_unlink"/> <span>Delete</span>
+                    </div>
+
                     <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
                     <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
                 </group>
