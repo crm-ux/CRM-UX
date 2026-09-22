@@ -245,10 +245,6 @@ class ResUsers(models.Model):
                 continue
 
             emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-            # If no employee exists yet, do NOTHING until admin clicks "Create Employee"
-            if not emp:
-                continue
-
             employee_name = (user.name or user.login or user.email or '').strip()
             emp_vals = {
                 'name': employee_name,
@@ -264,8 +260,13 @@ class ResUsers(models.Model):
                 emp_vals['parent_id'] = mgr.id if mgr else False
             else:
                 emp_vals['parent_id'] = False
-            
-            emp.with_context(skip_sync=True).sudo().write(emp_vals)
+
+            if not emp:
+                # Auto-create linked employee for this user
+                emp_vals['user_id'] = user.id
+                self.env['hr.employee'].with_context(skip_sync=True).sudo().create(emp_vals)
+            else:
+                emp.with_context(skip_sync=True).sudo().write(emp_vals)
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
