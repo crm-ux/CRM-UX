@@ -257,7 +257,7 @@ button[name="action_save_lead"] {
     display: inline-flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
-    gap: 0.25rem !important;
+    gap: clamp(0.75rem, 1.2vw, 1.25rem) !important;
 }
 
 /* 2. Single Combined Rule for each Radio item (No conflicts, No strikethrough) */
