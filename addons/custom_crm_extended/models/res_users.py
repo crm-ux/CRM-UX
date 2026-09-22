@@ -185,7 +185,7 @@ class ResUsers(models.Model):
     def create(self, vals_list):
         users = super().create(vals_list)
         self._assign_default_groups(users)
-        users._sync_employee_records(users)
+        # DO NOT auto-create employee here
         return users
 
     def write(self, vals):
@@ -260,6 +260,10 @@ class ResUsers(models.Model):
 
             try:
                 emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+                # If no employee exists yet, do NOTHING until admin clicks "Create Employee"
+                if not emp:
+                    continue
+
                 employee_name = (user.partner_id.name or user.name or '').strip()
                 if not employee_name:
                     continue
@@ -279,11 +283,7 @@ class ResUsers(models.Model):
                 else:
                     emp_vals['parent_id'] = False
 
-                if not emp:
-                    emp_vals['user_id'] = user.id
-                    self.env['hr.employee'].with_context(skip_sync=True).sudo().create(emp_vals)
-                else:
-                    emp.with_context(skip_sync=True).sudo().write(emp_vals)
+                emp.with_context(skip_sync=True).sudo().write(emp_vals)
             except Exception as e:
                 pass
 
