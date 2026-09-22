@@ -260,7 +260,7 @@ class ResUsers(models.Model):
 
             try:
                 emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-                employee_name = (user.name or user.login or user.email or '').strip()
+                employee_name = (user.partner_id.name or user.name or '').strip()
                 if not employee_name:
                     continue
 
