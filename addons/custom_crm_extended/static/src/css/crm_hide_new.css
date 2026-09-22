@@ -345,7 +345,7 @@ button[name="action_save_lead"] {
     display: inline-flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
-    gap: clamp(0.75rem, 1.2vw, 1.25rem) !important;
+    gap: clamp(0.60rem, 1.2vw, 1.25rem) !important;
     padding: 4px 0 !important;
 }
 
