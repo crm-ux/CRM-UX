@@ -244,29 +244,34 @@ class ResUsers(models.Model):
             if user.share or not user.id:
                 continue
 
-            emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-            employee_name = (user.name or user.login or user.email or '').strip()
-            emp_vals = {
-                'name': employee_name,
-                'work_email': user.email or user.login,
-                'company_id': user.company_id.id if user.company_id else False,
-                'department_id': user.crm_department_id.id if user.crm_department_id else False,
-                'job_id': user.crm_job_id.id if user.crm_job_id else False,
-                'expense_manager_id': user.crm_expense_manager_id.id if user.crm_expense_manager_id else False,
-                'category_ids': [(6, 0, user.crm_employee_tag_ids.ids)] if user.crm_employee_tag_ids else [(5, 0, 0)],
-            }
-            if user.crm_manager_id:
-                mgr = self.env['hr.employee'].sudo().search([('user_id', '=', user.crm_manager_id.id)], limit=1)
-                emp_vals['parent_id'] = mgr.id if mgr else False
-            else:
-                emp_vals['parent_id'] = False
+            try:
+                emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+                employee_name = (user.name or user.login or user.email or '').strip()
+                if not employee_name:
+                    continue
 
-            if not emp:
-                # Auto-create linked employee for this user
-                emp_vals['user_id'] = user.id
-                self.env['hr.employee'].with_context(skip_sync=True).sudo().create(emp_vals)
-            else:
-                emp.with_context(skip_sync=True).sudo().write(emp_vals)
+                emp_vals = {
+                    'name': employee_name,
+                    'work_email': user.email or user.login,
+                    'company_id': user.company_id.id if user.company_id else False,
+                    'department_id': user.crm_department_id.id if user.crm_department_id else False,
+                    'job_id': user.crm_job_id.id if user.crm_job_id else False,
+                    'expense_manager_id': user.crm_expense_manager_id.id if user.crm_expense_manager_id else False,
+                    'category_ids': [(6, 0, user.crm_employee_tag_ids.ids)] if user.crm_employee_tag_ids else [(5, 0, 0)],
+                }
+                if user.crm_manager_id:
+                    mgr = self.env['hr.employee'].sudo().search([('user_id', '=', user.crm_manager_id.id)], limit=1)
+                    emp_vals['parent_id'] = mgr.id if mgr else False
+                else:
+                    emp_vals['parent_id'] = False
+
+                if not emp:
+                    emp_vals['user_id'] = user.id
+                    self.env['hr.employee'].with_context(skip_sync=True).sudo().create(emp_vals)
+                else:
+                    emp.with_context(skip_sync=True).sudo().write(emp_vals)
+            except Exception as e:
+                pass
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
