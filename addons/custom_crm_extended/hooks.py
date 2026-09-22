@@ -58,4 +58,35 @@ def post_init_hook(env):
         acc.write({'perm_create': False, 'perm_unlink': False, 'perm_write': False})
         _logger.info('Restricted utm.source create/write/unlink for regular users.')
 
+    # Auto-create linked hr.employee for all existing internal users
+    internal_group = env.ref('base.group_user', raise_if_not_found=False)
+    if internal_group:
+        users = env['res.users'].sudo().search([
+            ('share', '=', False),
+            ('groups_id', 'in', [internal_group.id])
+        ])
+        for user in users:
+            emp = env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+            emp_vals = {
+                'name': (user.name or user.login or '').strip(),
+                'work_email': user.email or user.login,
+                'company_id': user.company_id.id if user.company_id else False,
+                'department_id': user.crm_department_id.id if user.crm_department_id else False,
+                'job_id': user.crm_job_id.id if user.crm_job_id else False,
+                'expense_manager_id': user.crm_expense_manager_id.id if user.crm_expense_manager_id else False,
+                'category_ids': [(6, 0, user.crm_employee_tag_ids.ids)] if user.crm_employee_tag_ids else [(5, 0, 0)],
+            }
+            if user.crm_manager_id:
+                mgr = env['hr.employee'].sudo().search([('user_id', '=', user.crm_manager_id.id)], limit=1)
+                emp_vals['parent_id'] = mgr.id if mgr else False
+            else:
+                emp_vals['parent_id'] = False
+
+            if not emp:
+                emp_vals['user_id'] = user.id
+                env['hr.employee'].with_context(skip_sync=True).sudo().create(emp_vals)
+            else:
+                emp.with_context(skip_sync=True).sudo().write(emp_vals)
+        _logger.info('Synced and auto-created hr.employee for %s existing internal users.', len(users))
+
     _logger.info('custom_crm_extended 1.3.0 ready.')
