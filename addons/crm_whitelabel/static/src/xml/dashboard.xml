@@ -45,7 +45,7 @@
                                     </div>
                                     <div class="crm-submenu-content">
                                         <a t-on-click="openRolesAndGroups" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Roles &amp; Permissions</a>
-                                        <a t-on-click="openUsers" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Users</a>
+                                        <a t-on-click="/app/settings/users" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Users</a>
                                         <a t-on-click="openDepartments" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Departments</a>
                                         <a t-on-click="openEmployeeTags" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employee Tags</a>
                                     </div>
