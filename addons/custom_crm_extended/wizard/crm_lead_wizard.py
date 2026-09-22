@@ -163,16 +163,17 @@ class CrmLeadWizard(models.TransientModel):
                 ('parent_id', '=', self.partner_company_id.id),
                 ('is_company', '=', False),
             ], order='id asc')
+            
             if len(children) == 1:
                 child = children[0]
                 self.contact_name = child.name or ""
                 self.function = child.function or ""
-                if not self.email_from:
-                    self.email_from = child.email or ""
-                if not self.phone:
-                    self.phone = child.phone or ""
-                self.contact_picker_id = False
-                self.has_multiple_contacts = False
+                self.email_from = child.email or ""
+                self.phone = child.phone or ""
+                self.x_mobile = child.mobile or ""
+                if not self.phone and child.mobile:
+                    self.phone = child.mobile
+
             elif len(children) > 1:
                 self.contact_name = False
                 self.function = False
@@ -190,10 +191,13 @@ class CrmLeadWizard(models.TransientModel):
             child = self.contact_picker_id
             self.contact_name = child.name or ""
             self.function = child.function or ""
-            if not self.email_from:
-                self.email_from = child.email or ""
-            if not self.phone:
-                self.phone = child.phone or ""
+            self.email_from = child.email or ""
+            self.phone = child.phone or ""
+            self.x_mobile = child.mobile or ""
+            if not self.phone and child.mobile:
+                self.phone = child.mobile
+
+            
             # Check if newly created by unauthorized user
             allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
             if self.env.uid not in allowed_ids:
@@ -216,6 +220,7 @@ class CrmLeadWizard(models.TransientModel):
             self.function = p.function or ""
             self.email_from = p.email or ""
             self.phone = p.phone or ""
+            self.x_mobile = p.mobile or ""
             self.city = p.city or ""
             self.state_id = p.state_id
             self.zip = p.zip or ""
