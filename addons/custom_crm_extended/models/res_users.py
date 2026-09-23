@@ -21,8 +21,6 @@ class ResUsers(models.Model):
             user.sudo().write({'crm_job_id': False})
         return True
 
-    revoke_action = fields.Char(string='Action', default='')
-
     perm_export = fields.Selection([
         ('none', 'No'),
         ('export', 'Yes'),
