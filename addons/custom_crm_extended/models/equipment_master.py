@@ -188,6 +188,21 @@ class EquipmentMaster(models.Model):
             }
         }
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        user = self.env.user
+        if not user.has_group('base.group_system'):
+            if not getattr(user, 'perm_equipment_create', True):
+                raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
+        return super(EquipmentMaster, self).create(vals_list)
+
+    def write(self, vals):
+        user = self.env.user
+        if not user.has_group('base.group_system'):
+            if not getattr(user, 'perm_equipment_write', True):
+                raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
+        return super(EquipmentMaster, self).write(vals)
+
     def unlink(self):
         for rec in self:
             user = self.env.user

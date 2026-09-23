@@ -186,7 +186,10 @@ class ResUsers(models.Model):
     def create(self, vals_list):
         users = super().create(vals_list)
         self._assign_default_groups(users)
-        # DO NOT auto-create employee here
+        for user, vals in zip(users, vals_list):
+            if vals.get('crm_job_id'):
+                job = self.env['hr.job'].browse(vals['crm_job_id'])
+                user._apply_job_permissions(job)
         return users
 
     def write(self, vals):
