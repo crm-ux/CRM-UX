@@ -416,6 +416,23 @@ class HrJob(models.Model):
         domain="[('share', '=', False)]"
     )
 
+    assigned_employee_ids = fields.Many2many(
+        'res.users',
+        string='Assigned Employees',
+        compute='_compute_assigned_employee_ids',
+        help='Active employees assigned this role, excluding the department manager.'
+    )
+
+    @api.depends('user_ids', 'department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
+    def _compute_assigned_employee_ids(self):
+        for job in self:
+            mgr_user_id = job.department_id.manager_id.user_id.id if (job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id) else False
+            if mgr_user_id and not job.is_manager_role:
+                # Exclude the department manager from regular employee list!
+                job.assigned_employee_ids = job.user_ids.filtered(lambda u: u.id != mgr_user_id)
+            else:
+                job.assigned_employee_ids = job.user_ids
+
     @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
     def _compute_default_manager_id(self):
         for rec in self:

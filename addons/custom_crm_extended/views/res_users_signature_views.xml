@@ -103,8 +103,8 @@
                                placeholder="Optional: sub-departments managed under this role..."/>
                         <field name="company_id" string="Company" placeholder="Global (All Companies)"/>
                     </group>
-                    <group string="Assigned Users">
-                        <field name="user_ids" widget="many2many_tags" readonly="1" string="Users with this Role"/>
+                    <group string="Assigned Employees">
+                        <field name="assigned_employee_ids" widget="many2many_tags" readonly="1" string="Employees with this Role"/>
                     </group>
                 </group>
                 <group string="Permissions" class="custom_radio_clean">
