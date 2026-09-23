@@ -93,12 +93,18 @@
         <field name="arch" type="xml">
             <xpath expr="//notebook" position="replace">
                 <group>
-                    <group string="Organization">
-                        <field name="department_id" string="Department" options="{'no_create': True, 'no_open': True}"/>
+                    <group string="Organization &amp; Department Scope">
+                        <field name="is_all_departments" widget="boolean_toggle"/>
+                        <field name="department_ids" widget="many2many_tags" 
+                               options="{'color_field': 'color', 'no_create': True}"
+                               readonly="is_all_departments"
+                               placeholder="Select one or multiple departments..."/>
+                        <field name="default_manager_id" options="{'no_create': True, 'no_open': True}"/>
                         <field name="company_id" string="Company" placeholder="Global (All Companies)"/>
                     </group>
                     <group string="Assigned Users">
                         <field name="user_count" readonly="1"/>
+                        <field name="user_ids" widget="many2many_tags" readonly="1" string="Users with this Role"/>
                     </group>
                 </group>
                 <group string="Permissions" class="custom_radio_clean">
@@ -149,49 +155,12 @@
         </field>
     </record>
 
-    <!-- Upgraded Job Position Form View -->
-    <record id="view_hr_job_simple_crm_form" model="ir.ui.view">
-        <field name="name">hr.job.crm.hierarchy.form</field>
-        <field name="model">hr.job</field>
-        <field name="priority">999</field>
-        <field name="arch" type="xml">
-            <form string="Job Position / Role">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" string="Job Position / Role"/>
-                        <h1><field name="name" placeholder="e.g. Sales Executive, VP Operations, CEO"/></h1>
-                    </div>
-
-                    <group string="Department &amp; Scope">
-                        <field name="is_all_departments" widget="boolean_toggle"/>
-                        <field name="department_ids" widget="many2many_tags" 
-                            options="{'color_field': 'color', 'no_create': True}"
-                            readonly="is_all_departments"
-                            placeholder="Select one or multiple departments..."/>
-                        <field name="default_manager_id" options="{'no_create': True, 'no_open': True}"/>
-                    </group>
-
-                    <notebook>
-                        <page string="Assigned Team Members" name="job_users_page">
-                            <group>
-                                <field name="user_ids" widget="many2many_tags" readonly="1" string="Users with this Role"/>
-                            </group>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
     <!-- Department Form View Extension -->
     <record id="view_department_form_crm_hierarchy" model="ir.ui.view">
         <field name="name">hr.department.form.crm.hierarchy</field>
         <field name="model">hr.department</field>
         <field name="inherit_id" ref="hr.view_department_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='manager_id']" position="after">
-                <field name="manager_user_id" string="Department Head (CRM User)" options="{'no_create': True, 'no_open': True}"/>
-            </xpath>
             <xpath expr="//sheet" position="inside">
                 <notebook>
                     <page string="Department Members" name="dept_members_page">

@@ -321,13 +321,6 @@ class ResUsers(models.Model):
             if self.crm_job_id.default_manager_id and not self.crm_manager_id:
                 self.crm_manager_id = self.crm_job_id.default_manager_id.id
 
-    @api.onchange('crm_department_id')
-    def _onchange_crm_department_id_defaults(self):
-        if self.crm_department_id and self.crm_department_id.manager_user_id and not self.crm_manager_id:
-            # Auto-fill Manager from Department Head if not already set
-            self.crm_manager_id = self.crm_department_id.manager_user_id.id
-
-    
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
