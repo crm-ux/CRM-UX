@@ -122,7 +122,7 @@
                                 border: none !important;
                                 visibility: hidden !important;
                             }
-                            /* Revoke button column: header & cell exact alignment */
+                            /* Revoke button column: header and cell exact alignment */
                             .assigned_employees_table th:has(button[name="action_revoke_role"]),
                             .assigned_employees_table th.o_list_button_cell,
                             .assigned_employees_table thead th:last-child {
