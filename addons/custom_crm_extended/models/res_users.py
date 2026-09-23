@@ -157,15 +157,13 @@ class ResUsers(models.Model):
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
-            # Apply security group additions and removals on group records directly
-            for op, gid in group_ops:
-                g = self.env['res.groups'].sudo().browse(gid)
-                if not g.exists():
-                    continue
-                if op == 4 and user not in g.users:
-                    g.write({'users': [(4, user.id)]})
-                elif op == 3 and user in g.users:
-                    g.write({'users': [(3, user.id)]})
+            # Apply security group additions and removals directly on user.groups_id (Odoo 18 compatible)
+            add_groups = [gid for op, gid in group_ops if op == 4]
+            del_groups = [gid for op, gid in group_ops if op == 3]
+            group_updates = [(4, gid) for gid in add_groups if gid not in user.groups_id.ids]
+            group_updates.extend([(3, gid) for gid in del_groups if gid in user.groups_id.ids])
+            if group_updates:
+                user.sudo().with_context(skip_sync=True).write({'groups_id': group_updates})
 
 
     @api.depends('name', 'employee_ids')
