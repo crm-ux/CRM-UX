@@ -394,6 +394,7 @@ class HrJob(models.Model):
     is_manager_role = fields.Boolean(
         string='Is Department Head / Manager',
         default=False,
+        groups='base.group_erp_manager',
         help='Check if this role represents the head or manager of the department. If checked, this role reports to the parent department manager instead of this department itself.'
     )
 
@@ -507,7 +508,44 @@ class HrJob(models.Model):
         for job in self:
             job.user_count = self.env['res.users'].search_count([('crm_job_id', '=', job.id), ('share', '=', False)])
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'is_manager_role' in vals or 'department_id' in vals:
+                dept_id = vals.get('department_id')
+                is_mgr = vals.get('is_manager_role', False)
+                dept = self.env['hr.department'].browse(dept_id) if dept_id else False
+                if is_mgr:
+                    parent_dept = dept.parent_id if dept else False
+                    if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                        vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                    else:
+                        vals['default_manager_id'] = False
+                else:
+                    if dept and dept.manager_id and dept.manager_id.user_id:
+                        vals['default_manager_id'] = dept.manager_id.user_id.id
+                    else:
+                        vals['default_manager_id'] = False
+        return super().create(vals_list)
+
     def write(self, vals):
+        if 'is_manager_role' in vals or 'department_id' in vals:
+            for job in self:
+                is_mgr = vals.get('is_manager_role', job.is_manager_role)
+                dept_id = vals.get('department_id', job.department_id.id if job.department_id else False)
+                dept = self.env['hr.department'].browse(dept_id) if dept_id else False
+                if is_mgr:
+                    parent_dept = dept.parent_id if dept else False
+                    if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                        vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                    else:
+                        vals['default_manager_id'] = False
+                else:
+                    if dept and dept.manager_id and dept.manager_id.user_id:
+                        vals['default_manager_id'] = dept.manager_id.user_id.id
+                    else:
+                        vals['default_manager_id'] = False
+
         res = super().write(vals)
         perm_keys = [
             'perm_lead_quote', 'perm_service_ticket', 'perm_amc',
