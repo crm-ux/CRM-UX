@@ -109,11 +109,11 @@
                     <!-- TAB 1: Assigned Employees (Subordinate Team) -->
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
                         <field name="user_ids" nolabel="1">
-                            <list string="Assigned Employees" editable="bottom" delete="0">
-                                <field name="name" string="Employee Name" options="{'no_create': True, 'no_open': False}"/>
-                                <field name="login" string="Work Email" readonly="1"/>
-                                <field name="crm_department_id" string="Department" readonly="1"/>
-                                <field name="crm_manager_id" string="Reports To" readonly="1"/>
+                            <list string="Assigned Employees" delete="0">
+                                <field name="name" string="Employee Name"/>
+                                <field name="login" string="Work Email"/>
+                                <field name="crm_department_id" string="Department"/>
+                                <field name="crm_manager_id" string="Reports To"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
