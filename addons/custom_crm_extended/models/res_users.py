@@ -157,13 +157,7 @@ class ResUsers(models.Model):
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
-            # Apply security group additions and removals directly on user.groups_id (Odoo 18 compatible)
-            add_groups = [gid for op, gid in group_ops if op == 4]
-            del_groups = [gid for op, gid in group_ops if op == 3]
-            group_updates = [(4, gid) for gid in add_groups if gid not in user.groups_id.ids]
-            group_updates.extend([(3, gid) for gid in del_groups if gid in user.groups_id.ids])
-            if group_updates:
-                user.sudo().with_context(skip_sync=True).write({'groups_id': group_updates})
+            pass
 
 
     @api.depends('name', 'employee_ids')
@@ -228,21 +222,6 @@ class ResUsers(models.Model):
             all_companies = self.env['res.company'].sudo().search([])
 
             for user in users:
-                # Skip portal and public users
-                if portal_group in user.groups_id or public_group in user.groups_id:
-                    continue
-                # Only internal users
-                if internal_group not in user.groups_id:
-                    continue
-
-                new_gids = []
-                for group_ref in groups_to_add:
-                    g = self.env.ref(group_ref, raise_if_not_found=False)
-                    if g and g.id not in user.groups_id.ids:
-                        new_gids.append((4, g.id))
-                if new_gids:
-                    user.sudo().with_context(skip_sync=True).write({'groups_id': new_gids})
-
                 # Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
                 if c_ops:
