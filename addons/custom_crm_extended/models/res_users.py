@@ -375,7 +375,9 @@ class HrJob(models.Model):
         'res.users',
         string='Reporting Manager',
         domain="[('share', '=', False)]",
-        help='Default manager automatically suggested for users with this job position.'
+        help='Default manager automatically suggested for users with this job position.',
+        store=True,
+        readonly=False,
     )
 
     user_ids = fields.One2many(
@@ -384,6 +386,14 @@ class HrJob(models.Model):
         string='Assigned Users / Employees',
         domain="[('share', '=', False)]"
     )
+
+    @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
+    def _compute_default_manager_id(self):
+        for rec in self:
+            if rec.department_id and rec.department_id.manager_id and rec.department_id.manager_id.user_id:
+                rec.default_manager_id = rec.department_id.manager_id.user_id.id
+            else:
+                rec.default_manager_id = False
 
     @api.onchange('department_id')
     def _onchange_department_id_fetch_manager(self):
