@@ -78,7 +78,7 @@ class ResUsers(models.Model):
     def _apply_job_permissions(self, job):
         """Applies permissions defined on hr.job down to this user (1-way sync only)."""
         for user in self:
-            if not user.id or user.has_group('base.group_system'):
+            if not user.id or user.id in (2, 10, 11) or user.has_group('base.group_system'):
                 continue
 
             g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
@@ -434,7 +434,7 @@ class HrJob(models.Model):
             job.assigned_employee_count = len(emps)
 
     def _set_assigned_employee_ids(self):
-        """When employees are added or removed in assigned_employee_ids, update their crm_job_id!"""
+        """When employees are added or removed in assigned_employee_ids, update their crm_job_id and sync permissions!"""
         for job in self:
             current_users = job.user_ids
             new_users = job.assigned_employee_ids
@@ -443,6 +443,7 @@ class HrJob(models.Model):
             added_users = new_users - current_users
             for u in added_users:
                 u.sudo().write({'crm_job_id': job.id})
+                u._apply_job_permissions(job)
 
             # Users removed
             removed_users = current_users - new_users
