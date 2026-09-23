@@ -375,9 +375,10 @@ class HrJob(models.Model):
         'res.users',
         string='Reporting Manager',
         domain="[('share', '=', False)]",
-        help='Default manager automatically suggested for users with this job position.',
+        compute='_compute_default_manager_id',
         store=True,
         readonly=False,
+        help='Default manager automatically suggested for users with this job position.',
     )
 
     user_ids = fields.One2many(

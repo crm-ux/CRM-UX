@@ -95,7 +95,7 @@
                 <group>
                     <group string="Organization &amp; Department Scope">
                         <field name="department_id" string="Primary Department" options="{'no_create': True, 'no_open': True}"/>
-                        <field name="default_manager_id" string="Reporting Manager" readonly="1" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="default_manager_id" string="Reporting Manager" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
                         <field name="sub_department_ids" widget="many2many_tags" 
                                string="Managed Sub-Departments"
                                options="{'color_field': 'color', 'no_create': True}"
