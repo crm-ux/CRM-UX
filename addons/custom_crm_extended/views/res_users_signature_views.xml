@@ -27,12 +27,12 @@
                     <!-- Subordinates / Direct Reports Table -->
                     <group string="Subordinates / Direct Reports" invisible="not crm_subordinate_ids">
                         <field name="crm_subordinate_ids" nolabel="1" readonly="1">
-                            <tree create="false" edit="false" delete="false">
+                            <list create="false" edit="false" delete="false">
                                 <field name="name" string="Member Name"/>
                                 <field name="crm_job_id" string="Job Position / Role"/>
                                 <field name="crm_department_id" string="Department"/>
                                 <field name="login" string="Email"/>
-                            </tree>
+                            </list>
                         </field>
                     </group>
                 </page>
