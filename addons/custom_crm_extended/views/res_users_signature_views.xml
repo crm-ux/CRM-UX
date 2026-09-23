@@ -109,7 +109,7 @@
                     <!-- TAB 1: Assigned Employees (Subordinate Team) -->
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
                         <field name="assigned_employee_ids" nolabel="1">
-                            <list string="Assigned Employees" editable="bottom" delete="false">
+                            <list string="Assigned Employees" editable="bottom" delete="0">
                                 <field name="name" string="Employee Name" options="{'no_create': True, 'no_open': False}"/>
                                 <field name="login" string="Work Email" readonly="1"/>
                                 <field name="crm_department_id" string="Department" readonly="1"/>
@@ -118,6 +118,7 @@
                                         type="object" 
                                         string="Revoke" 
                                         class="btn-danger btn-sm"
+                                        title="Action"
                                         confirm="Are you sure you want to revoke this job position from this employee?"
                                         help="Remove this role from the employee."/>
                             </list>
