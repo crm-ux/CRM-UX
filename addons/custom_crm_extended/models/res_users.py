@@ -161,8 +161,6 @@ class ResUsers(models.Model):
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
-            if group_ops:
-                user_vals['groups_id'] = group_ops
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
             pass
@@ -444,7 +442,12 @@ class HrJob(models.Model):
             # Users added
             added_users = new_users - current_users
             for u in added_users:
-                u.sudo().write({'crm_job_id': job.id})
+                vals_to_write = {'crm_job_id': job.id}
+                if job.department_id:
+                    vals_to_write['crm_department_id'] = job.department_id.id
+                if job.default_manager_id:
+                    vals_to_write['crm_manager_id'] = job.default_manager_id.id
+                u.sudo().write(vals_to_write)
                 u._apply_job_permissions(job)
 
             # Users removed
