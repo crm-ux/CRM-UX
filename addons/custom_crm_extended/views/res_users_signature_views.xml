@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- 1. User Form View Extension -->
+    <!-- User Form View Extension -->
     <record id="view_users_form_signature_card" model="ir.ui.view">
         <field name="name">res.users.form.signature.card</field>
         <field name="model">res.users</field>
@@ -137,7 +137,7 @@
         </field>
     </record>
 
-    <!-- 2. Employee Form View Extension: Add Expense / Voucher Approver -->
+    <!-- Employee Form View Extension: Add Expense / Voucher Approver -->
     <record id="view_employee_form_crm_custom" model="ir.ui.view">
         <field name="name">hr.employee.form.crm.custom</field>
         <field name="model">hr.employee</field>
@@ -149,7 +149,7 @@
         </field>
     </record>
 
-    <!-- 1. Upgraded Job Position Form View -->
+    <!-- Upgraded Job Position Form View -->
     <record id="view_hr_job_simple_crm_form" model="ir.ui.view">
         <field name="name">hr.job.crm.hierarchy.form</field>
         <field name="model">hr.job</field>
@@ -176,7 +176,6 @@
                             <field name="user_ids" readonly="1">
                                 <tree create="false" edit="false" delete="false">
                                     <field name="name" string="User Name"/>
-                                    <field name="login" string="Login / Email"/>
                                     <field name="crm_department_id" string="Primary Department"/>
                                     <field name="crm_manager_id" string="Reports To"/>
                                 </tree>
@@ -188,7 +187,7 @@
         </field>
     </record>
 
-    <!-- 2. Department Form View Extension -->
+    <!-- Department Form View Extension -->
     <record id="view_department_form_crm_hierarchy" model="ir.ui.view">
         <field name="name">hr.department.form.crm.hierarchy</field>
         <field name="model">hr.department</field>
@@ -205,7 +204,6 @@
                                 <field name="name" string="Name"/>
                                 <field name="crm_job_id" string="Job Position / Role"/>
                                 <field name="crm_manager_id" string="Reports To"/>
-                                <field name="login" string="Work Email"/>
                             </tree>
                         </field>
                     </page>
