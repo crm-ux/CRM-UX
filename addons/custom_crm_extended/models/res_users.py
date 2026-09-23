@@ -390,7 +390,14 @@ class HrJob(models.Model):
         help='Specific sub-departments that this role is allowed to manage.'
     )
 
-    # 3. Reporting Manager (Auto-fetched from Primary Department)
+    # 3. Manager Role Toggle
+    is_manager_role = fields.Boolean(
+        string='Is Department Head / Manager',
+        default=False,
+        help='Check if this role represents the head or manager of the department. If checked, this role reports to the parent department manager instead of this department itself.'
+    )
+
+    # 4. Reporting Manager (Auto-fetched from Primary Department or Parent Department)
     default_manager_id = fields.Many2one(
         'res.users',
         string='Reporting Manager',
@@ -408,21 +415,45 @@ class HrJob(models.Model):
         domain="[('share', '=', False)]"
     )
 
-    @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
+    @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
     def _compute_default_manager_id(self):
         for rec in self:
-            if rec.department_id and rec.department_id.manager_id and rec.department_id.manager_id.user_id:
-                rec.default_manager_id = rec.department_id.manager_id.user_id.id
-            else:
+            if not rec.department_id:
                 rec.default_manager_id = False
+                continue
 
-    @api.onchange('department_id')
+            if rec.is_manager_role:
+                # If this is a Manager/Head role, report to Parent Department's manager (e.g. Director/CEO)
+                parent_dept = rec.department_id.parent_id
+                if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                    rec.default_manager_id = parent_dept.manager_id.user_id.id
+                else:
+                    rec.default_manager_id = False
+            else:
+                # Regular staff/executive role: report to this department's manager
+                if rec.department_id.manager_id and rec.department_id.manager_id.user_id:
+                    rec.default_manager_id = rec.department_id.manager_id.user_id.id
+                else:
+                    rec.default_manager_id = False
+
+    @api.onchange('department_id', 'is_manager_role')
     def _onchange_department_id_fetch_manager(self):
-        """When Primary Department is selected, auto-fetch manager. If department is cleared, clear manager!"""
-        if self.department_id and self.department_id.manager_id and self.department_id.manager_id.user_id:
-            self.default_manager_id = self.department_id.manager_id.user_id.id
-        else:
+        """When Primary Department or is_manager_role changes, auto-fetch reporting manager."""
+        if not self.department_id:
             self.default_manager_id = False
+            return
+
+        if self.is_manager_role:
+            parent_dept = self.department_id.parent_id
+            if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                self.default_manager_id = parent_dept.manager_id.user_id.id
+            else:
+                self.default_manager_id = False
+        else:
+            if self.department_id.manager_id and self.department_id.manager_id.user_id:
+                self.default_manager_id = self.department_id.manager_id.user_id.id
+            else:
+                self.default_manager_id = False
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
