@@ -372,7 +372,7 @@ class HrJob(models.Model):
 
     default_manager_id = fields.Many2one(
         'res.users',
-        string='Default Reports To (Manager)',
+        string='Manager',
         domain="[('share', '=', False)]",
         help='Default manager automatically suggested for users with this job position.'
     )
