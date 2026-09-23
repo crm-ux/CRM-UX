@@ -457,6 +457,21 @@ class HrJob(models.Model):
                 user.sudo().write({'crm_job_id': False})
         return True
 
+    def action_cancel_to_list(self):
+        """Cancel button action: directly returns to Job Positions list view instead of Dashboard."""
+        action = self.env.ref('hr.action_hr_job', raise_if_not_found=False)
+        if action:
+            res = action.read()[0]
+            res['target'] = 'current'
+            return res
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Job Positions',
+            'res_model': 'hr.job',
+            'view_mode': 'list,form',
+            'target': 'current',
+        }
+
     @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
     def _compute_default_manager_id(self):
         for rec in self:
