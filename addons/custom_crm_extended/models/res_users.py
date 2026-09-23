@@ -334,40 +334,6 @@ class HrEmployee(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=False)
     expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
 
-    is_all_departments = fields.Boolean(
-        string='All Departments Access (CEO / Director)',
-        default=False,
-        help='If checked, this role has global access across all departments.'
-    )
-
-    department_ids = fields.Many2many(
-        'hr.department',
-        'hr_job_department_rel',
-        'job_id',
-        'department_id',
-        string='Allowed Departments'
-    )
-
-    default_manager_id = fields.Many2one(
-        'res.users',
-        string='Default Reports To (Manager)',
-        domain="[('share', '=', False)]",
-        help='Default manager automatically suggested for users with this job position.'
-    )
-    
-    user_ids = fields.One2many(
-        'res.users',
-        'crm_job_id',
-        string='Assigned Users / Employees',
-        domain="[('share', '=', False)]"
-    )
-
-    @api.onchange('is_all_departments')
-    def _onchange_is_all_departments(self):
-        if self.is_all_departments:
-            all_depts = self.env['hr.department'].search([])
-            self.department_ids = [(6, 0, all_depts.ids)]
-
     def write(self, vals):
         res = super().write(vals)
         if not self.env.context.get('skip_sync'):
@@ -397,19 +363,39 @@ class HrJob(models.Model):
 
     company_id = fields.Many2one('res.company', string='Company', default=False)
 
-    manager_user_id = fields.Many2one(
-        'res.users',
-        string='Department Head / Manager',
-        domain="[('share', '=', False)]",
-        help='The user who manages this department.'
+    is_all_departments = fields.Boolean(
+        string='All Departments Access',
+        default=False,
+        help='If checked, this role has global access across all departments.'
     )
 
-    member_user_ids = fields.One2many(
+    department_ids = fields.Many2many(
+        'hr.department',
+        'hr_job_department_rel',
+        'job_id',
+        'department_id',
+        string='Allowed Departments'
+    )
+
+    default_manager_id = fields.Many2one(
         'res.users',
-        'crm_department_id',
-        string='Department Members',
+        string='Default Reports To (Manager)',
+        domain="[('share', '=', False)]",
+        help='Default manager automatically suggested for users with this job position.'
+    )
+
+    user_ids = fields.One2many(
+        'res.users',
+        'crm_job_id',
+        string='Assigned Users / Employees',
         domain="[('share', '=', False)]"
     )
+
+    @api.onchange('is_all_departments')
+    def _onchange_is_all_departments(self):
+        if self.is_all_departments:
+            all_depts = self.env['hr.department'].search([])
+            self.department_ids = [(6, 0, all_depts.ids)]
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
@@ -483,5 +469,18 @@ class HrJob(models.Model):
 
 class HrDepartment(models.Model):
     _inherit = 'hr.department'
-    # No company selected by default; user manually selects
     company_id = fields.Many2one('res.company', string='Company', default=False)
+
+    manager_user_id = fields.Many2one(
+        'res.users',
+        string='Department Head / Manager',
+        domain="[('share', '=', False)]",
+        help='The user who manages this department.'
+    )
+
+    member_user_ids = fields.One2many(
+        'res.users',
+        'crm_department_id',
+        string='Department Members',
+        domain="[('share', '=', False)]"
+    )
