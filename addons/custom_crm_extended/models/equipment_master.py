@@ -1,3 +1,4 @@
+from lxml import etree
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError, UserError
 
@@ -186,6 +187,29 @@ class EquipmentMaster(models.Model):
                 'default_partner_id': self.partner_id.id if self.partner_id else False,
             }
         }
+
+    @api.model
+    def get_views(self, views, options=None):
+        res = super(EquipmentMaster, self).get_views(views, options=options)
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            can_create = getattr(user, 'perm_equipment_create', True)
+            can_write = getattr(user, 'perm_equipment_write', True)
+            can_delete = getattr(user, 'perm_equipment_unlink', False)
+
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        if not can_create:
+                            doc.attrib['create'] = 'false'
+                        if not can_write:
+                            doc.attrib['edit'] = 'false'
+                        if not can_delete:
+                            doc.attrib['delete'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
 
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
