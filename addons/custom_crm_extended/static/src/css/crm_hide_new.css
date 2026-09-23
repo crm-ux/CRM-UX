@@ -467,37 +467,3 @@ div[name="access_rights"] .o_wrap_input:has([data-id="6"]),
 div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
-
-/* ── Assigned Employees Table (Job Positions form view only) ── */
-/* 1. Eliminate acquired empty space from the removed cross button column */
-.assigned_employees_table th.o_list_record_remove_header,
-.assigned_employees_table td.o_list_record_remove,
-.assigned_employees_table .o_list_record_remove {
-    display: none !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    visibility: hidden !important;
-}
-
-/* 2. Show 'Action' column title in header above Revoke button */
-.assigned_employees_table thead th:last-child::after,
-.assigned_employees_table thead th.o_list_button_cell::after {
-    content: "Action";
-    font-weight: 700;
-    color: #1e293b;
-    display: inline-block;
-}
-
-.assigned_employees_table thead th:last-child,
-.assigned_employees_table thead th.o_list_button_cell,
-.assigned_employees_table tbody td:has(button[name="action_revoke_role"]) {
-    text-align: center !important;
-    width: clamp(5.5rem, 7vw, 7rem) !important;
-    min-width: clamp(5.5rem, 7vw, 7rem) !important;
-    max-width: clamp(5.5rem, 7vw, 7rem) !important;
-    padding: clamp(0.25rem, 0.4vw, 0.5rem) clamp(0.5rem, 0.8vw, 1rem) !important;
-}
