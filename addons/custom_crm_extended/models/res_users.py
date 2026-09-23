@@ -415,6 +415,15 @@ class HrJob(models.Model):
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
 
+    @api.onchange('department_ids')
+    def _onchange_department_ids_fetch_manager(self):
+        """When a department is selected in Job Position master, auto-fetch that department's manager!"""
+        if self.department_ids:
+            # Check if the primary selected department has a manager
+            dept = self.department_ids[0]
+            if dept.manager_id and dept.manager_id.user_id:
+                self.default_manager_id = dept.manager_id.user_id.id
+
     def _compute_user_count(self):
         for job in self:
             job.user_count = self.env['res.users'].search_count([('crm_job_id', '=', job.id), ('share', '=', False)])
