@@ -290,23 +290,30 @@ class ResUsers(models.Model):
             except Exception as e:
                 pass
 
-    @api.depends('crm_job_id', 'crm_job_id.department_ids', 'crm_department_id')
+    @api.depends('crm_job_id', 'crm_job_id.department_id', 'crm_job_id.sub_department_ids', 'crm_department_id')
     def _compute_department_scope(self):
         for user in self:
-            if user.crm_job_id and user.crm_job_id.department_ids:
-                user.crm_department_ids = [(6, 0, user.crm_job_id.department_ids.ids)]
+            scope_ids = set()
+            if user.crm_job_id:
+                if user.crm_job_id.department_id:
+                    scope_ids.add(user.crm_job_id.department_id.id)
+                if user.crm_job_id.sub_department_ids:
+                    scope_ids.update(user.crm_job_id.sub_department_ids.ids)
             elif user.crm_department_id:
-                user.crm_department_ids = [(6, 0, [user.crm_department_id.id])]
+                scope_ids.add(user.crm_department_id.id)
+
+            if scope_ids:
+                user.crm_department_ids = [(6, 0, list(scope_ids))]
             else:
                 user.crm_department_ids = [(5, 0, 0)]
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_defaults(self):
         if self.crm_job_id:
-            # Auto-assign department if job has a single primary department
-            if self.crm_job_id.department_ids and len(self.crm_job_id.department_ids) == 1:
-                self.crm_department_id = self.crm_job_id.department_ids[0].id
-            # Auto-fill Manager from Job default
+            # Auto-assign Primary Department from Job Role
+            if self.crm_job_id.department_id:
+                self.crm_department_id = self.crm_job_id.department_id.id
+            # Auto-fill Reporting Manager from Job Role
             if self.crm_job_id.default_manager_id and not self.crm_manager_id:
                 self.crm_manager_id = self.crm_job_id.default_manager_id.id
 
@@ -345,17 +352,28 @@ class HrJob(models.Model):
 
     company_id = fields.Many2one('res.company', string='Company', default=False)
 
-    department_ids = fields.Many2many(
+    # 1. Primary Department (Home Base)
+    department_id = fields.Many2one(
         'hr.department',
-        'hr_job_department_rel',
-        'job_id',
-        'department_id',
-        string='Allowed Departments'
+        string='Primary Department',
+        ondelete='restrict',
+        help='The main department where this role belongs.'
     )
 
+    # 2. Managed Sub-Departments (Smaller departments managed under this role)
+    sub_department_ids = fields.Many2many(
+        'hr.department',
+        'hr_job_sub_department_rel',
+        'job_id',
+        'department_id',
+        string='Managed Sub-Departments',
+        help='Specific sub-departments that this role is allowed to manage.'
+    )
+
+    # 3. Reporting Manager (Auto-fetched from Primary Department)
     default_manager_id = fields.Many2one(
         'res.users',
-        string='Manager',
+        string='Reporting Manager',
         domain="[('share', '=', False)]",
         help='Default manager automatically suggested for users with this job position.'
     )
@@ -366,6 +384,12 @@ class HrJob(models.Model):
         string='Assigned Users / Employees',
         domain="[('share', '=', False)]"
     )
+
+    @api.onchange('department_id')
+    def _onchange_department_id_fetch_manager(self):
+        """When Primary Department is selected, auto-fetch that department's manager!"""
+        if self.department_id and self.department_id.manager_id and self.department_id.manager_id.user_id:
+            self.default_manager_id = self.department_id.manager_id.user_id.id
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
@@ -414,15 +438,6 @@ class HrJob(models.Model):
     ], string='Company Creation', default='none')
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
-
-    @api.onchange('department_ids')
-    def _onchange_department_ids_fetch_manager(self):
-        """When a department is selected in Job Position master, auto-fetch that department's manager!"""
-        if self.department_ids:
-            # Check if the primary selected department has a manager
-            dept = self.department_ids[0]
-            if dept.manager_id and dept.manager_id.user_id:
-                self.default_manager_id = dept.manager_id.user_id.id
 
     def _compute_user_count(self):
         for job in self:
