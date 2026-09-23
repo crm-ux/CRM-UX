@@ -103,42 +103,64 @@
                                placeholder="Optional: sub-departments managed under this role..."/>
                         <field name="company_id" string="Company" placeholder="Global (All Companies)"/>
                     </group>
-                    <group string="Assigned Employees">
-                        <field name="assigned_employee_ids" widget="many2many_tags" readonly="1" string="Employees with this Role"/>
-                    </group>
                 </group>
-                <group string="Permissions" class="custom_radio_clean">
-                    <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
-                    
-                    <label for="perm_customer_create" string="Customer Creation"/>
-                    <div class="perm-checkbox-group">
-                        <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></span>
-                    </div>
 
-                    <label for="perm_equipment_create" string="Equipment Master"/>
-                    <div class="perm-checkbox-group">
-                        <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
-                    </div>
+                <notebook>
+                    <!-- TAB 1: Assigned Employees (Subordinate Team) -->
+                    <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
+                        <field name="assigned_employee_ids" nolabel="1">
+                            <list string="Assigned Employees" editable="bottom">
+                                <field name="name" string="Employee Name" options="{'no_create': True, 'no_open': False}"/>
+                                <field name="login" string="Work Email" readonly="1"/>
+                                <field name="crm_department_id" string="Department" readonly="1"/>
+                                <field name="crm_manager_id" string="Reports To" readonly="1"/>
+                            </list>
+                        </field>
+                    </page>
 
-                    <label for="perm_product_create" string="Product Catalog"/>
-                    <div class="perm-checkbox-group">
-                        <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_product_write" nolabel="1"/> <span>Update</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>
-                        <span class="perm-checkbox-item"><field name="perm_product_unlink" nolabel="1"/> <span>Delete</span></span>
-                    </div>
+                    <!-- Manager Profile Tab (Visible when Is Manager / Head is ON) -->
+                    <page string="Manager Profile" name="manager_profile_page" invisible="not is_manager_role">
+                        <div class="alert alert-info" role="alert" style="margin: 15px 0;">
+                            <strong>Department Head / Manager Role:</strong> Users with this role represent department leadership. Subordinate employees are assigned to staff roles (e.g. Executives / Engineers) and will automatically report to this position.
+                        </div>
+                    </page>
 
-                    <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
-                    <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
-                </group>
+                    <!-- TAB 2: Permissions Matrix -->
+                    <page string="Permissions" name="permissions_page">
+                        <group class="custom_radio_clean">
+                            <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
+                            <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
+                            <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
+                            
+                            <label for="perm_customer_create" string="Customer Creation"/>
+                            <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></span>
+                            </div>
+
+                            <label for="perm_equipment_create" string="Equipment Master"/>
+                            <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
+                            </div>
+
+                            <label for="perm_product_create" string="Product Catalog"/>
+                            <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_product_write" nolabel="1"/> <span>Update</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>
+                                <span class="perm-checkbox-item"><field name="perm_product_unlink" nolabel="1"/> <span>Delete</span></span>
+                            </div>
+
+                            <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
+                            <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                    </page>
+                </notebook>
             </xpath>
         </field>
     </record>

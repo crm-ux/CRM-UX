@@ -398,9 +398,18 @@ class HrJob(models.Model):
 
     assigned_employee_ids = fields.Many2many(
         'res.users',
+        'hr_job_assigned_user_rel',
+        'job_id',
+        'user_id',
         string='Assigned Employees',
         compute='_compute_assigned_employee_ids',
+        inverse='_set_assigned_employee_ids',
         help='Active employees assigned this role, excluding the department manager.'
+    )
+
+    assigned_employee_count = fields.Integer(
+        string='Employee Count',
+        compute='_compute_assigned_employee_ids'
     )
 
     @api.depends('user_ids', 'department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
@@ -409,9 +418,38 @@ class HrJob(models.Model):
             mgr_user_id = job.department_id.manager_id.user_id.id if (job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id) else False
             if mgr_user_id and not job.is_manager_role:
                 # Exclude the department manager from regular employee list!
-                job.assigned_employee_ids = job.user_ids.filtered(lambda u: u.id != mgr_user_id)
+                emps = job.user_ids.filtered(lambda u: u.id != mgr_user_id)
             else:
-                job.assigned_employee_ids = job.user_ids
+                emps = job.user_ids
+            job.assigned_employee_ids = emps
+            job.assigned_employee_count = len(emps)
+
+    def _set_assigned_employee_ids(self):
+        """When employees are added or removed in assigned_employee_ids, update their crm_job_id!"""
+        for job in self:
+            current_users = job.user_ids
+            new_users = job.assigned_employee_ids
+
+            # Users added
+            added_users = new_users - current_users
+            for u in added_users:
+                u.sudo().write({'crm_job_id': job.id})
+
+            # Users removed
+            removed_users = current_users - new_users
+            for u in removed_users:
+                if not job.is_manager_role and job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id.id == u.id:
+                    continue  # do not touch manager
+                u.sudo().write({'crm_job_id': False})
+
+    def action_revoke_employee(self):
+        """Action button on the row to revoke an employee from this role."""
+        user_id = self.env.context.get('revoke_user_id')
+        if user_id:
+            user = self.env['res.users'].browse(user_id)
+            if user.exists() and user.crm_job_id.id == self.id:
+                user.sudo().write({'crm_job_id': False})
+        return True
 
     @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
     def _compute_default_manager_id(self):
