@@ -15,6 +15,12 @@ class ResUsers(models.Model):
     # Department Scope (Inherited from Job Role)
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Allowed Departments', compute='_compute_department_scope', store=True)
 
+    def action_revoke_role(self):
+        """Unassigns this role from the user."""
+        for user in self:
+            user.sudo().write({'crm_job_id': False})
+        return True
+
     perm_export = fields.Selection([
         ('none', 'No'),
         ('export', 'Yes'),
