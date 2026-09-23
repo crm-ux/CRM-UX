@@ -173,13 +173,9 @@
 
                     <notebook>
                         <page string="Assigned Team Members" name="job_users_page">
-                            <field name="user_ids" readonly="1">
-                                <tree create="false" edit="false" delete="false">
-                                    <field name="name" string="User Name"/>
-                                    <field name="crm_department_id" string="Primary Department"/>
-                                    <field name="crm_manager_id" string="Reports To"/>
-                                </tree>
-                            </field>
+                            <group>
+                                <field name="user_ids" widget="many2many_tags" readonly="1" string="Users with this Role"/>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>
@@ -199,13 +195,9 @@
             <xpath expr="//sheet" position="inside">
                 <notebook>
                     <page string="Department Members" name="dept_members_page">
-                        <field name="member_user_ids" readonly="1">
-                            <tree create="false" edit="false" delete="false">
-                                <field name="name" string="Name"/>
-                                <field name="crm_job_id" string="Job Position / Role"/>
-                                <field name="crm_manager_id" string="Reports To"/>
-                            </tree>
-                        </field>
+                        <group>
+                            <field name="member_user_ids" widget="many2many_tags" readonly="1" string="Department Members"/>
+                        </group>
                     </page>
                 </notebook>
             </xpath>
