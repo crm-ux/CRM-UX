@@ -387,9 +387,11 @@ class HrJob(models.Model):
 
     @api.onchange('department_id')
     def _onchange_department_id_fetch_manager(self):
-        """When Primary Department is selected, auto-fetch that department's manager!"""
+        """When Primary Department is selected, auto-fetch manager. If department is cleared, clear manager!"""
         if self.department_id and self.department_id.manager_id and self.department_id.manager_id.user_id:
             self.default_manager_id = self.department_id.manager_id.user_id.id
+        else:
+            self.default_manager_id = False
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
