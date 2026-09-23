@@ -157,6 +157,19 @@ class CrmLeadWizard(models.TransientModel):
                             'message': 'Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.'
                         }}
             self.partner_name = self.partner_company_id.name
+
+            # Auto-fetch address directly from Company Name
+            if self.partner_company_id.city:
+                self.city = self.partner_company_id.city
+            if self.partner_company_id.state_id:
+                self.state_id = self.partner_company_id.state_id
+            if self.partner_company_id.zip:
+                self.zip = self.partner_company_id.zip
+
+            # Auto-populate Existing Customer if customer type is existing
+            if self.x_customer_type in ('existing_new', 'existing_existing'):
+                self.partner_id = self.partner_company_id.id
+
             # Auto-fill Contact Person & Job Title only when company has exactly ONE contact.
             # If multiple contacts exist, leave fields blank so the user picks/types the right one
             # instead of silently grabbing a random contact.
@@ -185,6 +198,14 @@ class CrmLeadWizard(models.TransientModel):
                 self.function = False
                 self.contact_picker_id = False
                 self.has_multiple_contacts = False
+
+    @api.onchange('x_customer_type')
+    def _onchange_x_customer_type(self):
+        # Auto-sync partner_id when switching to existing customer type
+        if self.x_customer_type in ('existing_new', 'existing_existing') and self.partner_company_id:
+            self.partner_id = self.partner_company_id.id
+        elif self.x_customer_type not in ('existing_new', 'existing_existing'):
+            self.partner_id = False
 
     @api.onchange('contact_picker_id')
     def _onchange_contact_picker_id(self):
@@ -223,9 +244,12 @@ class CrmLeadWizard(models.TransientModel):
             p_mobile = getattr(p, 'mobile', '') or ""
             self.phone = p_phone or p_mobile
             self.x_mobile = p_mobile or p_phone
-            self.city = p.city or ""
-            self.state_id = p.state_id
-            self.zip = p.zip or ""
+
+            # Fetch address from partner_id; if empty, fallback directly to company name field
+            comp = self.partner_company_id
+            self.city = p.city or (comp.city if comp else "") or ""
+            self.state_id = p.state_id or (comp.state_id if comp else False)
+            self.zip = p.zip or (comp.zip if comp else "") or ""
 
     def _reopen(self, extra_context=None):
         ctx = dict(self.env.context)
