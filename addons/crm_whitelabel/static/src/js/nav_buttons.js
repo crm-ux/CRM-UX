@@ -194,6 +194,15 @@ patch(FormController.prototype, {
                     views: [[false, "list"], [false, "form"]],
                     domain: [["share", "=", false]],
                 }, { clearBreadcrumbs: true });
+            } else if (this.props.resModel === "hr.job") {
+                this.actionService.doAction({
+                    type: "ir.actions.act_window",
+                    name: "Roles & Groups",
+                    res_model: "hr.job",
+                    views: [[false, "list"], [false, "form"]],
+                    domain: [],
+                    context: { active_test: false },
+                }, { clearBreadcrumbs: true });
             } else {
                 this.actionService.doAction(435, { clearBreadcrumbs: true });
             }

@@ -91,11 +91,6 @@
         <field name="model">hr.job</field>
         <field name="inherit_id" ref="hr.view_hr_job_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet" position="before">
-                <header>
-                    <button name="action_cancel_to_list" string="Cancel / Back to List" type="object" class="btn-secondary"/>
-                </header>
-            </xpath>
             <xpath expr="//notebook" position="replace">
                 <group>
                     <group string="Organization &amp; Department Scope">
