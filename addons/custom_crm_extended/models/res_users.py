@@ -472,24 +472,32 @@ class HrJob(models.Model):
             'target': 'current',
         }
 
-    @api.depends('department_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
+    @api.depends('department_id', 'department_id.manager_user_id', 'department_id.senior_manager_user_id', 'department_id.manager_id', 'department_id.manager_id.user_id', 'department_id.parent_id', 'department_id.parent_id.manager_id', 'is_manager_role')
     def _compute_default_manager_id(self):
         for rec in self:
             if not rec.department_id:
                 rec.default_manager_id = False
                 continue
 
+            dept = rec.department_id
             if rec.is_manager_role:
-                # If this is a Manager/Head role, report to Parent Department's manager (e.g. Director/CEO)
-                parent_dept = rec.department_id.parent_id
-                if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                    rec.default_manager_id = parent_dept.manager_id.user_id.id
+                # If this is a Manager/Head role: prioritize senior_manager_user_id on department
+                if dept.senior_manager_user_id:
+                    rec.default_manager_id = dept.senior_manager_user_id.id
                 else:
-                    rec.default_manager_id = False
+                    parent_dept = dept.parent_id
+                    if parent_dept and parent_dept.manager_user_id:
+                        rec.default_manager_id = parent_dept.manager_user_id.id
+                    elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                        rec.default_manager_id = parent_dept.manager_id.user_id.id
+                    else:
+                        rec.default_manager_id = False
             else:
-                # Regular staff/executive role: report to this department's manager
-                if rec.department_id.manager_id and rec.department_id.manager_id.user_id:
-                    rec.default_manager_id = rec.department_id.manager_id.user_id.id
+                # Regular staff/executive role: report to this department's appointed manager
+                if dept.manager_user_id:
+                    rec.default_manager_id = dept.manager_user_id.id
+                elif dept.manager_id and dept.manager_id.user_id:
+                    rec.default_manager_id = dept.manager_id.user_id.id
                 else:
                     rec.default_manager_id = False
 
@@ -500,15 +508,23 @@ class HrJob(models.Model):
             self.default_manager_id = False
             return
 
+        dept = self.department_id
         if self.is_manager_role:
-            parent_dept = self.department_id.parent_id
-            if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                self.default_manager_id = parent_dept.manager_id.user_id.id
+            if dept.senior_manager_user_id:
+                self.default_manager_id = dept.senior_manager_user_id.id
             else:
-                self.default_manager_id = False
+                parent_dept = dept.parent_id
+                if parent_dept and parent_dept.manager_user_id:
+                    self.default_manager_id = parent_dept.manager_user_id.id
+                elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                    self.default_manager_id = parent_dept.manager_id.user_id.id
+                else:
+                    self.default_manager_id = False
         else:
-            if self.department_id.manager_id and self.department_id.manager_id.user_id:
-                self.default_manager_id = self.department_id.manager_id.user_id.id
+            if dept.manager_user_id:
+                self.default_manager_id = dept.manager_user_id.id
+            elif dept.manager_id and dept.manager_id.user_id:
+                self.default_manager_id = dept.manager_id.user_id.id
             else:
                 self.default_manager_id = False
 
@@ -572,13 +588,20 @@ class HrJob(models.Model):
                 is_mgr = vals.get('is_manager_role', False)
                 dept = self.env['hr.department'].browse(dept_id) if dept_id else False
                 if is_mgr:
-                    parent_dept = dept.parent_id if dept else False
-                    if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                        vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                    if dept and dept.senior_manager_user_id:
+                        vals['default_manager_id'] = dept.senior_manager_user_id.id
                     else:
-                        vals['default_manager_id'] = False
+                        parent_dept = dept.parent_id if dept else False
+                        if parent_dept and parent_dept.manager_user_id:
+                            vals['default_manager_id'] = parent_dept.manager_user_id.id
+                        elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                            vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                        else:
+                            vals['default_manager_id'] = False
                 else:
-                    if dept and dept.manager_id and dept.manager_id.user_id:
+                    if dept and dept.manager_user_id:
+                        vals['default_manager_id'] = dept.manager_user_id.id
+                    elif dept and dept.manager_id and dept.manager_id.user_id:
                         vals['default_manager_id'] = dept.manager_id.user_id.id
                     else:
                         vals['default_manager_id'] = False
@@ -591,13 +614,20 @@ class HrJob(models.Model):
                 dept_id = vals.get('department_id', job.department_id.id if job.department_id else False)
                 dept = self.env['hr.department'].browse(dept_id) if dept_id else False
                 if is_mgr:
-                    parent_dept = dept.parent_id if dept else False
-                    if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                        vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                    if dept and dept.senior_manager_user_id:
+                        vals['default_manager_id'] = dept.senior_manager_user_id.id
                     else:
-                        vals['default_manager_id'] = False
+                        parent_dept = dept.parent_id if dept else False
+                        if parent_dept and parent_dept.manager_user_id:
+                            vals['default_manager_id'] = parent_dept.manager_user_id.id
+                        elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
+                            vals['default_manager_id'] = parent_dept.manager_id.user_id.id
+                        else:
+                            vals['default_manager_id'] = False
                 else:
-                    if dept and dept.manager_id and dept.manager_id.user_id:
+                    if dept and dept.manager_user_id:
+                        vals['default_manager_id'] = dept.manager_user_id.id
+                    elif dept and dept.manager_id and dept.manager_id.user_id:
                         vals['default_manager_id'] = dept.manager_id.user_id.id
                     else:
                         vals['default_manager_id'] = False
@@ -625,9 +655,16 @@ class HrDepartment(models.Model):
 
     manager_user_id = fields.Many2one(
         'res.users',
-        string='Department Head / Manager',
+        string='Department Head',
         domain="[('share', '=', False)]",
-        help='The user who manages this department.'
+        help='The appointed manager or head of this department (e.g. Sales Manager).'
+    )
+
+    senior_manager_user_id = fields.Many2one(
+        'res.users',
+        string='Reporting Manager',
+        domain="[('share', '=', False)]",
+        help='The senior manager whom the department head reports to (e.g. Director, VP, CEO).'
     )
 
     member_user_ids = fields.One2many(
@@ -636,3 +673,19 @@ class HrDepartment(models.Model):
         string='Department Members',
         domain="[('share', '=', False)]"
     )
+
+    @api.onchange('manager_user_id')
+    def _onchange_manager_user_id(self):
+        """Sync manager_user_id to standard hr.employee manager_id if employee exists."""
+        if self.manager_user_id:
+            emp = self.env['hr.employee'].sudo().search([('user_id', '=', self.manager_user_id.id)], limit=1)
+            if emp:
+                self.manager_id = emp.id
+        else:
+            self.manager_id = False
+
+    @api.onchange('manager_id')
+    def _onchange_manager_id_sync_user(self):
+        """Sync standard hr.department manager_id to manager_user_id."""
+        if self.manager_id and self.manager_id.user_id:
+            self.manager_user_id = self.manager_id.user_id.id

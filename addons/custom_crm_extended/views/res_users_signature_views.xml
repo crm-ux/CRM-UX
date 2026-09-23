@@ -222,6 +222,13 @@
         <field name="model">hr.department</field>
         <field name="inherit_id" ref="hr.view_department_form"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='manager_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='manager_id']" position="after">
+                <field name="manager_user_id" string="Department Head" options="{'no_create': True, 'no_open': True}"/>
+                <field name="senior_manager_user_id" string="Reporting Manager" options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
             <xpath expr="//sheet" position="inside">
                 <notebook>
                     <page string="Department Members" name="dept_members_page">
