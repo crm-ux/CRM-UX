@@ -114,12 +114,34 @@
                     <!-- TAB 1: Assigned Employees (Subordinate Team) -->
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
                         <style>
-                            .assigned_employees_table .o_list_record_remove,
-                            .assigned_employees_table button.o_list_record_remove,
-                            .assigned_employees_table th.o_list_record_remove_header {
+                            /* Completely remove the trailing cross/delete column and its header space */
+                            .assigned_employees_table th.o_list_record_remove_header,
+                            .assigned_employees_table td.o_list_record_remove,
+                            .assigned_employees_table .o_list_record_remove {
                                 display: none !important;
                                 width: 0 !important;
+                                min-width: 0 !important;
+                                max-width: 0 !important;
                                 padding: 0 !important;
+                                margin: 0 !important;
+                                border: none !important;
+                                visibility: hidden !important;
+                            }
+                            /* Set Action column title above Revoke button */
+                            .assigned_employees_table thead th:last-child::after,
+                            .assigned_employees_table thead th.o_list_button_cell::after {
+                                content: "Action";
+                                font-weight: 700;
+                                color: #1e293b;
+                                display: inline-block;
+                            }
+                            .assigned_employees_table th:last-child,
+                            .assigned_employees_table th.o_list_button_cell,
+                            .assigned_employees_table td:has(button[name="action_revoke_role"]) {
+                                text-align: center !important;
+                                width: 100px !important;
+                                min-width: 100px !important;
+                                max-width: 100px !important;
                             }
                         </style>
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
@@ -132,7 +154,7 @@
                                         type="object" 
                                         string="Revoke" 
                                         class="btn-danger btn-sm"
-                                        title="Action"
+                                        title="Revoke Role"
                                         confirm="Are you sure you want to revoke this job position from this employee?"
                                         help="Remove this role from the employee."/>
                             </list>
