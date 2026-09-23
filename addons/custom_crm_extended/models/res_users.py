@@ -36,35 +36,35 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Lead & Quotation', default='own')
+    ], string='Lead & Quotation', default='none')
 
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Service Ticket', default='own')
+    ], string='Service Ticket', default='none')
 
     perm_amc = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='AMC Contract', default='own')
+    ], string='AMC Contract', default='none')
 
-    perm_product_create = fields.Boolean(string='Create Product', default=True)
-    perm_product_write = fields.Boolean(string='Update Product', default=True)
-    perm_product_read = fields.Boolean(string='View Product', default=True)
+    perm_product_create = fields.Boolean(string='Create Product', default=False)
+    perm_product_write = fields.Boolean(string='Update Product', default=False)
+    perm_product_read = fields.Boolean(string='View Product', default=False)
     perm_product_unlink = fields.Boolean(string='Delete Product', default=False)
 
-    perm_customer_create = fields.Boolean(string='Create Customer', default=True)
-    perm_customer_write = fields.Boolean(string='Update Customer', default=True)
-    perm_customer_read = fields.Boolean(string='View Customer', default=True)
+    perm_customer_create = fields.Boolean(string='Create Customer', default=False)
+    perm_customer_write = fields.Boolean(string='Update Customer', default=False)
+    perm_customer_read = fields.Boolean(string='View Customer', default=False)
     perm_customer_unlink = fields.Boolean(string='Delete Customer', default=False)
 
-    perm_equipment_create = fields.Boolean(string='Create Equipment', default=True)
-    perm_equipment_write = fields.Boolean(string='Update Equipment', default=True)
-    perm_equipment_read = fields.Boolean(string='View Equipment', default=True)
+    perm_equipment_create = fields.Boolean(string='Create Equipment', default=False)
+    perm_equipment_write = fields.Boolean(string='Update Equipment', default=False)
+    perm_equipment_read = fields.Boolean(string='View Equipment', default=False)
     perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
 
 
@@ -542,35 +542,35 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Lead & Quotation', default='own')
+    ], string='Lead & Quotation', default='none')
 
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Service Ticket', default='own')
+    ], string='Service Ticket', default='none')
 
     perm_amc = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
         ('all', 'User: All Documents'),
         ('admin', 'Administrator'),
-    ], string='AMC Contract', default='own')
+    ], string='AMC Contract', default='none')
 
-    perm_product_create = fields.Boolean(string='Create Product', default=True)
-    perm_product_write = fields.Boolean(string='Update Product', default=True)
-    perm_product_read = fields.Boolean(string='View Product', default=True)
+    perm_product_create = fields.Boolean(string='Create Product', default=False)
+    perm_product_write = fields.Boolean(string='Update Product', default=False)
+    perm_product_read = fields.Boolean(string='View Product', default=False)
     perm_product_unlink = fields.Boolean(string='Delete Product', default=False)
 
-    perm_customer_create = fields.Boolean(string='Create Customer', default=True)
-    perm_customer_write = fields.Boolean(string='Update Customer', default=True)
-    perm_customer_read = fields.Boolean(string='View Customer', default=True)
+    perm_customer_create = fields.Boolean(string='Create Customer', default=False)
+    perm_customer_write = fields.Boolean(string='Update Customer', default=False)
+    perm_customer_read = fields.Boolean(string='View Customer', default=False)
     perm_customer_unlink = fields.Boolean(string='Delete Customer', default=False)
 
-    perm_equipment_create = fields.Boolean(string='Create Equipment', default=True)
-    perm_equipment_write = fields.Boolean(string='Update Equipment', default=True)
-    perm_equipment_read = fields.Boolean(string='View Equipment', default=True)
+    perm_equipment_create = fields.Boolean(string='Create Equipment', default=False)
+    perm_equipment_write = fields.Boolean(string='Update Equipment', default=False)
+    perm_equipment_read = fields.Boolean(string='View Equipment', default=False)
     perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
 
     perm_export = fields.Selection([
