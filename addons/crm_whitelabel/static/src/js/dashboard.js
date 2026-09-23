@@ -234,16 +234,18 @@ class CrmDashboard extends Component {
                 console.log("Equipment count error:", err);
             }
 
+            const tckUserDomain = this.state.isAdmin ? [] : [["create_uid", "=", user.userId]];
             const tckCompDomain = this.state.selectedCompanies.length
                 ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
                 : [];
+            const tckBaseDomain = [...tckCompDomain, ...tckUserDomain];
             let ticketTotal = 0, ticketOpen = 0, ticketOngoing = 0, ticketClosed = 0;
             try {
                 const [tTot, tOp, tOn, tCl] = await Promise.all([
-                    this.ormService.searchCount("service.ticket", tckCompDomain),
-                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "open"]]),
-                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "ongoing"]]),
-                    this.ormService.searchCount("service.ticket", [...tckCompDomain, ["ticket_status", "=", "closed"]]),
+                    this.ormService.searchCount("service.ticket", tckBaseDomain),
+                    this.ormService.searchCount("service.ticket", [...tckBaseDomain, ["ticket_status", "=", "open"]]),
+                    this.ormService.searchCount("service.ticket", [...tckBaseDomain, ["ticket_status", "=", "ongoing"]]),
+                    this.ormService.searchCount("service.ticket", [...tckBaseDomain, ["ticket_status", "=", "closed"]]),
                 ]);
                 ticketTotal = tTot;
                 ticketOpen = tOp;
@@ -253,13 +255,18 @@ class CrmDashboard extends Component {
                 console.log("Service Ticket count error:", err);
             }
 
+            const amcUserDomain = this.state.isAdmin ? [] : [["create_uid", "=", user.userId]];
+            const amcCompDomain = this.state.selectedCompanies.length
+                ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+                : [];
+            const amcBaseDomain = [...amcCompDomain, ...amcUserDomain];
             let amcTotal = 0, amcDraft = 0, amcActive = 0, amcExpired = 0;
             try {
                 const [aTot, aDrf, aAct, aExp] = await Promise.all([
-                    this.ormService.searchCount("amc.contract", []),
-                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "draft"]]),
-                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "active"]]),
-                    this.ormService.searchCount("amc.contract", [["contract_status", "=", "expired"]]),
+                    this.ormService.searchCount("amc.contract", amcBaseDomain),
+                    this.ormService.searchCount("amc.contract", [...amcBaseDomain, ["contract_status", "=", "draft"]]),
+                    this.ormService.searchCount("amc.contract", [...amcBaseDomain, ["contract_status", "=", "active"]]),
+                    this.ormService.searchCount("amc.contract", [...amcBaseDomain, ["contract_status", "=", "expired"]]),
                 ]);
                 amcTotal = aTot;
                 amcDraft = aDrf;
@@ -482,6 +489,7 @@ class CrmDashboard extends Component {
         this.openServiceTicketList([], "All Service Tickets");
     }
     openServiceTicketList(domain = [], name = "Service Tickets") {
+        const tckUserDomain = this.state.isAdmin ? [] : [["create_uid", "=", user.userId]];
         const tckCompDomain = this.state.selectedCompanies.length
             ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
             : [];
@@ -490,7 +498,7 @@ class CrmDashboard extends Component {
             name: name,
             res_model: "service.ticket",
             views: [[false, "list"], [false, "form"]],
-            domain: [...tckCompDomain, ...domain],
+            domain: [...tckCompDomain, ...tckUserDomain, ...domain],
             context: { allowed_company_ids: this.state.selectedCompanies },
         });
     }
@@ -511,13 +519,17 @@ class CrmDashboard extends Component {
     }
 
     openAmcList(domain = [], title = "AMC Contracts") {
+        const amcUserDomain = this.state.isAdmin ? [] : [["create_uid", "=", user.userId]];
+        const amcCompDomain = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: title,
             res_model: "amc.contract",
             view_mode: "list,form",
             views: [[false, "list"], [false, "form"]],
-            domain: domain,
+            domain: [...amcCompDomain, ...amcUserDomain, ...domain],
             target: "current",
         });
     }
