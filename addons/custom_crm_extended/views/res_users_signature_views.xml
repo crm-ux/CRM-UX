@@ -1,22 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Simple Job Position Form for Quick Creation (Name only, no permissions) -->
-    <record id="view_hr_job_simple_crm_form" model="ir.ui.view">
-        <field name="name">hr.job.simple.crm.form</field>
-        <field name="model">hr.job</field>
-        <field name="priority">999</field>
-        <field name="arch" type="xml">
-            <form string="Create Job Position / Role">
-                <sheet>
-                    <div class="oe_title">
-                        <label for="name" string="Job Position"/>
-                        <h1><field name="name" placeholder="e.g. Sales Executive"/></h1>
-                    </div>
-                </sheet>
-            </form>
-        </field>
-    </record>
-
     <!-- 1. User Form View Extension -->
     <record id="view_users_form_signature_card" model="ir.ui.view">
         <field name="name">res.users.form.signature.card</field>
@@ -153,4 +136,87 @@
             </xpath>
         </field>
     </record>
+
+    <!-- ============================================================================== -->
+<!-- In views/res_users_signature_views.xml                                        -->
+<!-- ============================================================================== -->
+
+<!-- 1. Upgraded Job Position Form View -->
+<record id="view_hr_job_simple_crm_form" model="ir.ui.view">
+    <field name="name">hr.job.crm.hierarchy.form</field>
+    <field name="model">hr.job</field>
+    <field name="priority">999</field>
+    <field name="arch" type="xml">
+        <form string="Job Position / Role">
+            <sheet>
+                <div class="oe_title">
+                    <label for="name" string="Job Position / Role"/>
+                    <h1><field name="name" placeholder="e.g. Sales Executive, VP Operations, CEO"/></h1>
+                </div>
+
+                <group string="Department &amp; Scope">
+                    <field name="is_all_departments" widget="boolean_toggle"/>
+                    <field name="department_ids" widget="many2many_tags" 
+                           options="{'color_field': 'color', 'no_create': True}"
+                           readonly="is_all_departments"
+                           placeholder="Select one or multiple departments..."/>
+                    <field name="default_manager_id" options="{'no_create': True, 'no_open': True}"/>
+                </group>
+
+                <notebook>
+                    <page string="Assigned Team Members" name="job_users_page">
+                        <field name="user_ids" readonly="1">
+                            <tree create="false" edit="false" delete="false">
+                                <field name="name" string="User Name"/>
+                                <field name="login" string="Login / Email"/>
+                                <field name="crm_department_id" string="Primary Department"/>
+                                <field name="crm_manager_id" string="Reports To"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </sheet>
+        </form>
+    </field>
+</record>
+
+<!-- 2. Department Form View Extension -->
+<record id="view_department_form_crm_hierarchy" model="ir.ui.view">
+    <field name="name">hr.department.form.crm.hierarchy</field>
+    <field name="model">hr.department</field>
+    <field name="inherit_id" ref="hr.view_department_form"/>
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='manager_id']" position="after">
+            <field name="manager_user_id" string="Department Head (CRM User)" options="{'no_create': True, 'no_open': True}"/>
+        </xpath>
+        <xpath expr="//sheet" position="inside">
+            <notebook>
+                <page string="Department Members" name="dept_members_page">
+                    <field name="member_user_ids" readonly="1">
+                        <tree create="false" edit="false" delete="false">
+                            <field name="name" string="Name"/>
+                            <field name="crm_job_id" string="Job Position / Role"/>
+                            <field name="crm_manager_id" string="Reports To"/>
+                            <field name="login" string="Work Email"/>
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
+        </xpath>
+    </field>
+</record>
+
+<!-- 3. In User Form: Direct Reports (Team Table) in Organization & Hierarchy Tab -->
+<!-- Inside view_users_form_signature_card -> org_hierarchy_page -->
+<group string="Subordinates / Direct Reports" invisible="not crm_subordinate_ids">
+    <field name="crm_subordinate_ids" nolabel="1" readonly="1">
+        <tree create="false" edit="false" delete="false">
+            <field name="name" string="Member Name"/>
+            <field name="crm_job_id" string="Job Position / Role"/>
+            <field name="crm_department_id" string="Department"/>
+            <field name="login" string="Email"/>
+        </tree>
+    </field>
+</group>
+
 </odoo>

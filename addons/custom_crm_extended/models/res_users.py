@@ -12,6 +12,10 @@ class ResUsers(models.Model):
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
 
+    # Department Scope (Inherited from Job Role)
+    is_all_departments = fields.Boolean(string='All Departments Scope', compute='_compute_department_scope', store=True)
+    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Allowed Departments', compute='_compute_department_scope', store=True)
+
     perm_export = fields.Selection([
         ('none', 'No'),
         ('export', 'Yes'),
@@ -287,11 +291,82 @@ class ResUsers(models.Model):
             except Exception as e:
                 pass
 
+    @api.depends('crm_job_id', 'crm_job_id.is_all_departments', 'crm_job_id.department_ids', 'crm_department_id')
+    def _compute_department_scope(self):
+        for user in self:
+            if user.crm_job_id:
+                user.is_all_departments = user.crm_job_id.is_all_departments
+                if user.crm_job_id.is_all_departments:
+                    user.crm_department_ids = [(6, 0, self.env['hr.department'].search([]).ids)]
+                elif user.crm_job_id.department_ids:
+                    user.crm_department_ids = [(6, 0, user.crm_job_id.department_ids.ids)]
+                elif user.crm_department_id:
+                    user.crm_department_ids = [(6, 0, [user.crm_department_id.id])]
+                else:
+                    user.crm_department_ids = [(5, 0, 0)]
+            elif user.crm_department_id:
+                user.is_all_departments = False
+                user.crm_department_ids = [(6, 0, [user.crm_department_id.id])]
+            else:
+                user.is_all_departments = False
+                user.crm_department_ids = [(5, 0, 0)]
+
+    @api.onchange('crm_job_id')
+    def _onchange_crm_job_id_defaults(self):
+        if self.crm_job_id:
+            # Auto-assign department if job has a single primary department
+            if self.crm_job_id.department_ids and len(self.crm_job_id.department_ids) == 1:
+                self.crm_department_id = self.crm_job_id.department_ids[0].id
+            # Auto-fill Manager from Job default
+            if self.crm_job_id.default_manager_id and not self.crm_manager_id:
+                self.crm_manager_id = self.crm_job_id.default_manager_id.id
+
+    @api.onchange('crm_department_id')
+    def _onchange_crm_department_id_defaults(self):
+        if self.crm_department_id and self.crm_department_id.manager_user_id and not self.crm_manager_id:
+            # Auto-fill Manager from Department Head if not already set
+            self.crm_manager_id = self.crm_department_id.manager_user_id.id
+
+    
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
     company_id = fields.Many2one('res.company', string='Company', default=False)
     expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
+
+    is_all_departments = fields.Boolean(
+        string='All Departments Access (CEO / Director)',
+        default=False,
+        help='If checked, this role has global access across all departments.'
+    )
+
+    department_ids = fields.Many2many(
+        'hr.department',
+        'hr_job_department_rel',
+        'job_id',
+        'department_id',
+        string='Allowed Departments'
+    )
+
+    default_manager_id = fields.Many2one(
+        'res.users',
+        string='Default Reports To (Manager)',
+        domain="[('share', '=', False)]",
+        help='Default manager automatically suggested for users with this job position.'
+    )
+    
+    user_ids = fields.One2many(
+        'res.users',
+        'crm_job_id',
+        string='Assigned Users / Employees',
+        domain="[('share', '=', False)]"
+    )
+
+    @api.onchange('is_all_departments')
+    def _onchange_is_all_departments(self):
+        if self.is_all_departments:
+            all_depts = self.env['hr.department'].search([])
+            self.department_ids = [(6, 0, all_depts.ids)]
 
     def write(self, vals):
         res = super().write(vals)
@@ -321,6 +396,20 @@ class HrJob(models.Model):
     _inherit = 'hr.job'
 
     company_id = fields.Many2one('res.company', string='Company', default=False)
+
+    manager_user_id = fields.Many2one(
+        'res.users',
+        string='Department Head / Manager',
+        domain="[('share', '=', False)]",
+        help='The user who manages this department.'
+    )
+
+    member_user_ids = fields.One2many(
+        'res.users',
+        'crm_department_id',
+        string='Department Members',
+        domain="[('share', '=', False)]"
+    )
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
