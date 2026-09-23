@@ -122,18 +122,29 @@
                                 border: none !important;
                                 visibility: hidden !important;
                             }
-                            /* Set Action column title above Revoke button */
+                            /* Revoke button column: header & cell exact alignment */
+                            .assigned_employees_table th:has(button[name="action_revoke_role"]),
+                            .assigned_employees_table th.o_list_button_cell,
+                            .assigned_employees_table thead th:last-child {
+                                text-align: center !important;
+                                vertical-align: middle !important;
+                                width: clamp(5.5rem, 7vw, 7rem) !important;
+                                min-width: clamp(5.5rem, 7vw, 7rem) !important;
+                                max-width: clamp(5.5rem, 7vw, 7rem) !important;
+                            }
                             .assigned_employees_table thead th:last-child::after,
                             .assigned_employees_table thead th.o_list_button_cell::after {
                                 content: "Action";
                                 font-weight: 700;
                                 color: #1e293b;
-                                display: inline-block;
+                                display: block;
+                                text-align: center;
+                                width: 100%;
                             }
-                            .assigned_employees_table th:last-child,
-                            .assigned_employees_table th.o_list_button_cell,
-                            .assigned_employees_table td:has(button[name="action_revoke_role"]) {
+                            .assigned_employees_table tbody td:has(button[name="action_revoke_role"]),
+                            .assigned_employees_table tbody td:last-child {
                                 text-align: center !important;
+                                vertical-align: middle !important;
                                 width: clamp(5.5rem, 7vw, 7rem) !important;
                                 min-width: clamp(5.5rem, 7vw, 7rem) !important;
                                 max-width: clamp(5.5rem, 7vw, 7rem) !important;
