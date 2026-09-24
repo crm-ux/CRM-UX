@@ -422,28 +422,32 @@ class HrJob(models.Model):
 
             def render_node(node, current_id):
                 is_active = (node.id == current_id)
-                active_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #374151; padding: 0.2rem 0.55rem; white-space: nowrap; display: inline-block;"
-                badge_style = "background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 0.05rem 0.45rem; font-size: 0.75rem; color: #475569; margin-left: 0.45rem; font-weight: 600; display: inline-block; vertical-align: middle;"
-                
+                text_style = "font-weight: 700; color: #111827; font-size: 0.92rem;" if is_active else "color: #374151; font-size: 0.92rem;"
+                badge_style = "background: #e9ecef; border-radius: 9999px; min-width: 1.6rem; height: 1.4rem; padding: 0 0.5rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: #495057;"
+
                 # Count users in this role
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                html = f'<div style="margin: 0.35rem 0; white-space: nowrap;"><span style="{active_style}">{node.name or "Untitled"}</span><span style="{badge_style}">{cnt}</span>'
-                
+                html = f'''
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0.25rem; width: 100%;">
+                        <span style="{text_style}">{node.name or "Untitled"}</span>
+                        <span style="{badge_style}">{cnt}</span>
+                    </div>
+                '''
+
                 children = self.search([('parent_job_id', '=', node.id)])
                 if children:
-                    html += '<div style="margin-left: 1.25rem; border-left: 2px solid #e2e8f0; padding-left: 0.75rem; margin-top: 0.25rem;">'
+                    html += '<div style="margin-left: 1.25rem; border-left: 1px solid #dee2e6; padding-left: 0.75rem;">'
                     for child in children:
                         html += render_node(child, current_id)
                     html += '</div>'
-                html += '</div>'
                 return html
 
             tree_html = render_node(root, job.id)
             job.job_hierarchy_html = f'''
-                <div style="font-family: inherit; font-size: clamp(0.82rem, 0.9vw, 0.92rem); line-height: 1.4; padding: 0.25rem 0; min-width: 15rem; width: 100%;">
+                <div style="font-family: inherit; width: 100%; max-width: 24rem; padding: 0.5rem 0;">
                     {tree_html}
                 </div>
             '''
