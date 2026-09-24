@@ -232,6 +232,12 @@
             <xpath expr="//field[@name='manager_id']" position="after">
                 <field name="manager_user_id" string="Department Head" options="{'no_create': True, 'no_open': True}"/>
             </xpath>
+            <xpath expr="//field[@name='parent_id']" position="attributes">
+                <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('o_hr_department_organization')]" position="replace">
+                <field name="department_hierarchy_html" nolabel="1" widget="html"/>
+            </xpath>
             <xpath expr="//sheet" position="inside">
                 <notebook>
                     <page string="Department Members" name="dept_members_page">

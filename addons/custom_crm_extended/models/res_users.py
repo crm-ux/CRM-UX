@@ -429,26 +429,27 @@ class HrJob(models.Model):
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
-                name_cls = "org_name org_name_active" if is_active else "org_name"
+                name_style = "font-weight: 700; color: #000000; font-size: 0.875rem; white-space: nowrap;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap;"
                 
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                connector = '<span class="org_branch_line"></span>' if is_child else ''
+                connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.35rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
+                badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
 
                 html = f'''
-                    <div class="org_node">
+                    <div style="position: relative; margin: 0.55rem 0;">
                         {connector}
-                        <div class="org_row">
-                            <span class="{name_cls}">{node.name or "Untitled"}</span>
-                            <span class="org_badge">{cnt}</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
+                            <span style="{name_style}">{node.name or "Untitled"}</span>
+                            <span style="{badge_style}">{cnt}</span>
                         </div>
                 '''
 
                 children = get_sub_roles(node)
                 if children:
-                    html += '<div class="org_children">'
+                    html += '<div style="position: relative; margin-left: 1.75rem; padding-left: 0.25rem;">'
                     for child in children:
                         html += render_node(child, current_id, is_child=True)
                     html += '</div>'
@@ -457,7 +458,7 @@ class HrJob(models.Model):
 
             tree_html = render_node(root, job.id, is_child=False)
             job.job_hierarchy_html = f'''
-                <div class="crm_job_org_tree">
+                <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
                     {tree_html}
                 </div>
             '''
@@ -875,6 +876,51 @@ class HrDepartment(models.Model):
             
             # The count should be at least the unique count of users + employees
             department.total_employee = max(department.total_employee, len(user_ids))
+
+    department_hierarchy_html = fields.Html(
+        string='Department Hierarchy',
+        compute='_compute_department_hierarchy_html',
+        help='Visual hierarchy tree of departments.'
+    )
+
+    def _compute_department_hierarchy_html(self):
+        all_depts = self.search([])
+        for dept in self:
+            # Find the top root department
+            top_depts = all_depts.filtered(lambda d: not d.parent_id)
+            root = top_depts[0] if top_depts else (dept.parent_id or dept)
+
+            def render_node(node, current_id, is_child=False):
+                is_active = (node.id == current_id)
+                name_style = "font-weight: 700; color: #000000; font-size: 0.875rem; white-space: nowrap;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap;"
+                
+                connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.35rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
+                badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
+
+                html = f'''
+                    <div style="position: relative; margin: 0.55rem 0;">
+                        {connector}
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
+                            <span style="{name_style}">{node.name or "Untitled"}</span>
+                            <span style="{badge_style}">{node.total_employee}</span>
+                        </div>
+                '''
+
+                children = all_depts.filtered(lambda d: d.parent_id.id == node.id)
+                if children:
+                    html += '<div style="position: relative; margin-left: 1.75rem; padding-left: 0.25rem;">'
+                    for child in children:
+                        html += render_node(child, current_id, is_child=True)
+                    html += '</div>'
+                html += '</div>'
+                return html
+
+            tree_html = render_node(root, dept.id, is_child=False)
+            dept.department_hierarchy_html = f'''
+                <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
+                    {tree_html}
+                </div>
+            '''
 
     def name_get(self):
         """Display only the department's own name (e.g. 'Sales') rather than the full parent path."""
