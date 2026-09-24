@@ -297,10 +297,10 @@
                 <div class="crm-pro-panel" style="border-left:4px solid #3b82f6;">
                     <div class="crm-panel-head" t-on-click="openEquipment" style="cursor:pointer;"><div><h2>Equipment Master</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')"><strong><t t-esc="state.equipmentTotal"/></strong><span>Total</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')"><strong><t t-esc="state.equipmentActive"/></strong><span>Active</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','inactive']], 'Inactive Equipment')"><strong><t t-esc="state.equipmentInactive"/></strong><span>Inactive</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')"><strong><t t-esc="state.equipmentRepair"/></strong><span>Repair</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')"><strong><t t-esc="state.equipmentTotal || 0"/></strong><span>Total</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')"><strong><t t-esc="state.equipmentActive || 0"/></strong><span>Active</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','inactive']], 'Inactive Equipment')"><strong><t t-esc="state.equipmentInactive || 0"/></strong><span>Inactive</span></div>
+                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')"><strong><t t-esc="state.equipmentRepair || 0"/></strong><span>Repair</span></div>
                     </div>
                     <p class="crm-panel-note">Equipment tracking &amp; maintenance overview.</p>
                 </div>
