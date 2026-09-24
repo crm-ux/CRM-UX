@@ -861,3 +861,16 @@ class HrDepartment(models.Model):
             
             # The count should be at least the unique count of users + employees
             department.total_employee = max(department.total_employee, len(user_ids))
+
+    def name_get(self):
+        """Display only the department's own name (e.g. 'Sales') rather than the full parent path."""
+        result = []
+        for dept in self:
+            result.append((dept.id, dept.name or ''))
+        return result
+
+    @api.depends('name')
+    def _compute_display_name(self):
+        """Odoo 17/18 display_name override to prevent long slash-separated paths."""
+        for dept in self:
+            dept.display_name = dept.name or ''
