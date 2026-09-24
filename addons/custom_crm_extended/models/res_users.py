@@ -420,34 +420,40 @@ class HrJob(models.Model):
                 visited.add(root.id)
                 root = root.parent_job_id
 
-            def render_node(node, current_id):
+            def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
-                text_style = "font-weight: 700; color: #111827; font-size: 0.92rem;" if is_active else "color: #374151; font-size: 0.92rem;"
-                badge_style = "background: #e9ecef; border-radius: 9999px; min-width: 1.6rem; height: 1.4rem; padding: 0 0.5rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; color: #495057;"
-
+                text_font = "font-weight: 700; color: #000;" if is_active else "color: #495057; font-weight: 400;"
+                
                 # Count users in this role
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
+                connector = '''
+                    <span style="position: absolute; left: -1.25rem; top: 0.65rem; width: 0.85rem; height: 1.25rem; border-left: 1px solid #c9d1d9; border-bottom: 1px solid #c9d1d9; display: inline-block;"></span>
+                ''' if is_child else ''
+
                 html = f'''
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.45rem 0.25rem; width: 100%;">
-                        <span style="{text_style}">{node.name or "Untitled"}</span>
-                        <span style="{badge_style}">{cnt}</span>
-                    </div>
+                    <div style="position: relative; margin: 0.35rem 0;">
+                        {connector}
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; min-height: 1.8rem;">
+                            <span style="font-size: 0.875rem; {text_font}">{node.name or "Untitled"}</span>
+                            <span style="background: #e9ecef; border-radius: 50rem; min-width: 1.65rem; height: 1.35rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #495057; padding: 0 0.4rem;">{cnt}</span>
+                        </div>
                 '''
 
                 children = self.search([('parent_job_id', '=', node.id)])
                 if children:
-                    html += '<div style="margin-left: 1.25rem; border-left: 1px solid #dee2e6; padding-left: 0.75rem;">'
+                    html += '<div style="position: relative; margin-left: 1.5rem; padding-left: 0.25rem;">'
                     for child in children:
-                        html += render_node(child, current_id)
+                        html += render_node(child, current_id, is_child=True)
                     html += '</div>'
+                html += '</div>'
                 return html
 
-            tree_html = render_node(root, job.id)
+            tree_html = render_node(root, job.id, is_child=False)
             job.job_hierarchy_html = f'''
-                <div style="font-family: inherit; width: 100%; max-width: 24rem; padding: 0.5rem 0;">
+                <div style="font-family: inherit; width: 100%; max-width: 22rem; padding: 0.5rem 0 1rem 0;">
                     {tree_html}
                 </div>
             '''
