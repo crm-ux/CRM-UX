@@ -773,6 +773,49 @@ class HrDepartment(models.Model):
         domain="[('share', '=', False)]"
     )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        departments = super().create(vals_list)
+        for dept in departments:
+            dept._sync_head_to_user()
+        return departments
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'manager_user_id' in vals or 'parent_id' in vals:
+            for dept in self:
+                dept._sync_head_to_user()
+        return res
+
+    def _sync_head_to_user(self):
+        if not self.manager_user_id:
+            return
+        user = self.manager_user_id.sudo()
+        # Find the Manager role for this department
+        mgr_job = self.env['hr.job'].search([
+            ('department_id', '=', self.id),
+            ('is_manager_role', '=', True)
+        ], limit=1)
+        
+        # Determine senior manager (e.g. Administrator from Parent Dept)
+        senior_mgr_id = False
+        if mgr_job and mgr_job.default_manager_id:
+            senior_mgr_id = mgr_job.default_manager_id.id
+        elif self.parent_id and self.parent_id.manager_user_id:
+            senior_mgr_id = self.parent_id.manager_user_id.id
+
+        user_vals = {
+            'crm_department_id': self.id,
+        }
+        if mgr_job:
+            user_vals['crm_job_id'] = mgr_job.id
+        if senior_mgr_id and senior_mgr_id != user.id:
+            user_vals['crm_manager_id'] = senior_mgr_id
+
+        user.with_context(skip_sync=True).write(user_vals)
+        if mgr_job:
+            user._apply_job_permissions(mgr_job)
+
     @api.onchange('manager_user_id')
     def _onchange_manager_user_id(self):
         """Sync manager_user_id to standard hr.employee manager_id if employee exists."""
