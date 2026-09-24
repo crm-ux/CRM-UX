@@ -429,7 +429,7 @@ class HrJob(models.Model):
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
-                name_style = "font-weight: 700; color: #000000; font-size: 0.875rem; white-space: nowrap;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap;"
+                name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                 
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
@@ -892,7 +892,7 @@ class HrDepartment(models.Model):
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
-                name_style = "font-weight: 700; color: #000000; font-size: 0.875rem; white-space: nowrap;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap;"
+                name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                 
                 connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.35rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
                 badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
