@@ -208,7 +208,7 @@
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
             <xpath expr="//widget[@name='hr_department_chart']" position="replace">
-                <group string="Department Organization">
+                <group string="Department Organization" class="dept_hierarchy_col">
                     <field name="department_hierarchy_html" nolabel="1" widget="html"/>
                 </group>
             </xpath>

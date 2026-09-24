@@ -151,6 +151,14 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   display: none !important;
 }
 
+/* Department Hierarchy Column Alignment Fix */
+.dept_hierarchy_col {
+  width: 100% !important;
+  max-width: clamp(18rem, 28vw, 32rem) !important;
+  margin-left: auto !important;
+}
+
+
 
 
 /* ===== Assigned Employees Table Action Button & Column Layout ===== */
@@ -182,4 +190,3 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   text-align: center !important;
   vertical-align: middle !important;
 }
-
