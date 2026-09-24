@@ -24,17 +24,22 @@
                         </group>
                     </group>
 
-                    <!-- Subordinates / Direct Reports Table -->
-                    <group string="Subordinates / Direct Reports" invisible="not crm_subordinate_ids">
-                        <field name="crm_subordinate_ids" nolabel="1" readonly="1">
+                    <!-- Subordinates / Direct Reports Table (Styled Clean Modern Card) -->
+                    <div invisible="not crm_subordinate_ids" class="mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h4 class="text-uppercase fw-bold text-muted mb-0" style="font-size: clamp(0.85rem, 1vw, 0.95rem); letter-spacing: 0.05em;">
+                                Subordinates &amp; Direct Reports
+                            </h4>
+                        </div>
+                        <field name="crm_subordinate_ids" nolabel="1" readonly="1" class="subordinates_clean_table">
                             <list create="false" edit="false" delete="false">
-                                <field name="name" string="Member Name"/>
+                                <field name="name" string="Member Name" widget="many2one_avatar_user"/>
                                 <field name="crm_job_id" string="Job Position / Role"/>
                                 <field name="crm_department_id" string="Department"/>
-                                <field name="login" string="Email"/>
+                                <field name="email" string="Work Email"/>
                             </list>
                         </field>
-                    </group>
+                    </div>
                 </page>
 
                 <page string="Quotation Signature Card" name="signature_card_page">

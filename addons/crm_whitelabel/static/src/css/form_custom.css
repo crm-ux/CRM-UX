@@ -112,3 +112,35 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_form_statusbar button.btn-success {
   margin-left: auto !important;
 }
+
+/* ===== Subordinates / Direct Reports Clean Table Styling ===== */
+.subordinates_clean_table table {
+  width: 100% !important;
+  table-layout: auto !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.subordinates_clean_table th {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  font-weight: 600 !important;
+  font-size: clamp(0.75rem, 0.85vw, 0.85rem) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  padding: 0.65rem 1rem !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  white-space: nowrap !important;
+}
+
+.subordinates_clean_table td {
+  padding: 0.65rem 1rem !important;
+  vertical-align: middle !important;
+  font-size: clamp(0.85rem, 0.95vw, 0.92rem) !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  white-space: nowrap !important;
+}
+
+.subordinates_clean_table tr:hover td {
+  background-color: #f8fafc !important;
+}
