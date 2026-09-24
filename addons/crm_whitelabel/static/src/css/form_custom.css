@@ -143,4 +143,71 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 .subordinates_clean_table tr:hover td {
   background-color: #f8fafc !important;
+}
+
+/* ===== Dedicated Job Position Hierarchy Tree Styling ===== */
+.crm_job_org_tree {
+  width: 100% !important;
+  display: block !important;
+  font-family: inherit !important;
+  padding: 0.25rem 0 1rem 0 !important;
+}
+
+.crm_job_org_tree .org_node {
+  position: relative !important;
+  margin: 0.45rem 0 !important;
+  display: block !important;
+}
+
+.crm_job_org_tree .org_row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  min-height: 1.85rem !important;
+}
+
+.crm_job_org_tree .org_name {
+  font-size: 0.875rem !important;
+  color: #212529 !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+
+.crm_job_org_tree .org_name_active {
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+.crm_job_org_tree .org_badge {
+  background-color: #dee2e6 !important;
+  color: #212529 !important;
+  border-radius: 50rem !important;
+  min-width: 1.75rem !important;
+  height: 1.45rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 0 0.45rem !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+.crm_job_org_tree .org_children {
+  position: relative !important;
+  margin-left: 1.75rem !important;
+  padding-left: 0.25rem !important;
+}
+
+.crm_job_org_tree .org_branch_line {
+  position: absolute !important;
+  left: -1.15rem !important;
+  top: -0.45rem !important;
+  width: 1rem !important;
+  height: 1.4rem !important;
+  border-left: 1px solid #d0d7de !important;
+  border-bottom: 1px solid #d0d7de !important;
+  pointer-events: none !important;
 }
