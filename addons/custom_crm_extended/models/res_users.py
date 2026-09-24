@@ -314,27 +314,11 @@ class ResUsers(models.Model):
             if dept:
                 self.crm_department_id = dept.id
 
-            # Determine Reporting Manager:
-            # Check if this user is the head/manager of this department
-            is_dept_manager = False
-            if dept and dept.manager_id and dept.manager_id.user_id:
-                if self._origin and self._origin.id == dept.manager_id.user_id.id:
-                    is_dept_manager = True
-                elif not self._origin.id and self.id and self.id == dept.manager_id.user_id.id:
-                    is_dept_manager = True
-
-            if is_dept_manager:
-                # User is Department Head! Never report to themselves.
-                # Auto-assign Parent Department manager (e.g. Director / CEO)
-                parent_dept = dept.parent_id
-                if parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                    self.crm_manager_id = parent_dept.manager_id.user_id.id
-                else:
-                    self.crm_manager_id = False
+            # Directly use the Job Role's configured Reporting Manager (e.g. Administrator for Managers)
+            if self.crm_job_id.default_manager_id:
+                self.crm_manager_id = self.crm_job_id.default_manager_id.id
             else:
-                # Regular employee/executive: Auto-fill Department Head
-                if self.crm_job_id.default_manager_id:
-                    self.crm_manager_id = self.crm_job_id.default_manager_id.id
+                self.crm_manager_id = False
 
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
