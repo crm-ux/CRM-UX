@@ -146,20 +146,14 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* ===== Department Organization Line Color Fix ===== */
-.o_hr_department_chart .o_treeEntry::before,
-.o_hr_department_chart .o_treeEntry::after,
-.o_hr_department_chart .o_hr_department_chart_self::before,
-.o_hr_department_chart .o_hr_department_chart_self::after,
-.o_hr_department_chart .o_hr_department_chart_children::before,
-.o_hr_department_chart .o_hr_department_chart_children::after,
-.o_hr_department_chart [class*="treeEntry"]::before,
-.o_hr_department_chart [class*="treeEntry"]::after,
-.o_widget_hr_department_chart *::before,
-.o_widget_hr_department_chart *::after {
-  border-color: #6c757d !important;
+.o_treeEntry,
+.o_hr_department_chart {
+  --treeEntry--beforeAfter-color: #6c757d !important;
 }
 
-.o_hr_department_chart .o_treeEntry::before {
-  border-left-color: #6c757d !important;
-  border-bottom-color: #6c757d !important;
-}
+.o_treeEntry:before,
+.o_treeEntry:after {
+  background: #6c757d !important;
+  background-color: #6c757d !important;
+}
+
