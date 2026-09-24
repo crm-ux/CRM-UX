@@ -230,19 +230,20 @@
 
 .crm-metrics {
     display: flex;
-    justify-content: flex-start;
+    flex-wrap: wrap;
     align-items: flex-start;
-    gap: clamp(0.75rem, 1.8vw, 1.75rem);
+    gap: clamp(0.5rem, 1.2vw, 1.25rem);
     margin-bottom: 0.75rem;
 }
 
 .crm-metric {
-    flex: 0 0 auto;
+    flex: 1 1 clamp(3.2rem, 4.5vw, 5.5rem);
+    min-width: clamp(2.8rem, 3.8vw, 4.5rem);
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-width: clamp(2.5rem, 3.5vw, 4rem);
 }
 
 .crm-metric strong {
@@ -250,7 +251,7 @@
     align-items: center;
     justify-content: center;
     height: clamp(1.8rem, 2.5vw, 2.2rem);
-    font-size: clamp(1.3rem, 1.8vw, 1.65rem);
+    font-size: clamp(1.2rem, 1.6vw, 1.55rem);
     font-weight: 700;
     color: #1a2332;
     line-height: 1;
@@ -264,7 +265,8 @@
     line-height: 1.25;
     white-space: normal;
     text-align: center;
-    max-width: clamp(3.5rem, 5vw, 5rem);
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .crm-panel-note {
