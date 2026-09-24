@@ -450,9 +450,11 @@ class HrJob(models.Model):
                 children = get_sub_roles(node)
                 if children:
                     html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
-                    for child in children:
-                        # Horizontal branch connector: a single clean horizontal line extending from the continuous vertical spine
-                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                    for idx, child in enumerate(children):
+                        is_last_child = (idx == len(children) - 1)
+                        # On the last child, mask off the vertical line below its horizontal branch to form a perfect L-corner
+                        bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_child else ''
+                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
                         child_is_active = (child.id == current_id)
                         child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                         
@@ -462,6 +464,7 @@ class HrJob(models.Model):
 
                         html += f'''
                             <div style="position: relative; margin: 0.55rem 0;">
+                                {bottom_mask}
                                 {child_connector}
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                                     <span style="{child_name_style}">{child.name or "Untitled"}</span>
@@ -472,13 +475,16 @@ class HrJob(models.Model):
                         sub_children = get_sub_roles(child)
                         if sub_children:
                             html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
-                            for sc in sub_children:
-                                sc_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                            for s_idx, sc in enumerate(sub_children):
+                                is_last_sub = (s_idx == len(sub_children) - 1)
+                                sub_bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_sub else ''
+                                sc_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
                                 sc_is_active = (sc.id == current_id)
                                 sc_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if sc_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                                 sc_cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', sc.id), ('share', '=', False)])
                                 html += f'''
                                     <div style="position: relative; margin: 0.55rem 0;">
+                                        {sub_bottom_mask}
                                         {sc_connector}
                                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                                             <span style="{sc_name_style}">{sc.name or "Untitled"}</span>
@@ -945,13 +951,16 @@ class HrDepartment(models.Model):
                 children = all_depts.filtered(lambda d: d.parent_id.id == node.id)
                 if children:
                     html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
-                    for child in children:
-                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                    for idx, child in enumerate(children):
+                        is_last_child = (idx == len(children) - 1)
+                        bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_child else ''
+                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
                         child_is_active = (child.id == current_id)
                         child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                         
                         html += f'''
                             <div style="position: relative; margin: 0.55rem 0;">
+                                {bottom_mask}
                                 {child_connector}
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                                     <span style="{child_name_style}">{child.name or "Untitled"}</span>
