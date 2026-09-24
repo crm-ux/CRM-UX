@@ -440,24 +440,20 @@ class HrJob(models.Model):
 
                 connector = ""
                 if depth > 0:
-                    symbol = "└─&nbsp;" if is_last else "├─&nbsp;"
-                    connector = f'<span style="color: #6c757d; font-family: monospace; font-size: 1.15rem; font-weight: 600; user-select: none; line-height: 1;">{symbol}</span>'
+                    connector = f'''<span style="position: absolute; left: -1.25rem; top: 50%; width: 0.95rem; height: 50%; border-left: 1.5px solid #6c757d; border-top: 1.5px solid #6c757d; transform: translateY(-50%); display: inline-block;"></span>''' if not is_last else f'''<span style="position: absolute; left: -1.25rem; top: 0; width: 0.95rem; height: 50%; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>'''
 
                 html = f'''
-                    <div style="margin: 0.35rem 0;">
+                    <div style="position: relative; margin: 0.4rem 0;">
+                        {connector}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
-                            <div style="display: flex; align-items: center;">
-                                {connector}
-                                <span style="{name_style}">{node.name or "Untitled"}</span>
-                            </div>
+                            <span style="{name_style}">{node.name or "Untitled"}</span>
                             <span style="{badge_style}">{cnt}</span>
                         </div>
                 '''
 
                 children = all_jobs.filtered(lambda j: j.parent_job_id.id == node.id and j.id != node.id)
                 if children:
-                    indent_border = "border-left: 1.5px solid #6c757d;" if not is_last else "border-left: 1.5px solid transparent;"
-                    html += f'<div style="margin-left: {0.75 if depth == 0 else 1.25}rem; padding-left: 0.65rem; {indent_border}">'
+                    html += '<div style="position: relative; margin-left: 1.25rem;">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
                         html += render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
