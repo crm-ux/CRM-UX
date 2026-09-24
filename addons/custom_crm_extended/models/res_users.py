@@ -414,20 +414,17 @@ class HrJob(models.Model):
     def _compute_job_hierarchy_html(self):
         all_jobs = self.search([])
         for job in self:
-            # 1. Identify top level job (e.g. Managing Director in Management dept or top parent)
-            top_jobs = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
-            root = top_jobs[0] if top_jobs else (all_jobs.filtered(lambda j: j.is_manager_role)[:1] or job)
+            # Find the top root role by traversing up parent_job_id
+            curr = job
+            visited = set()
+            while curr.parent_job_id and curr.parent_job_id.id not in visited:
+                visited.add(curr.id)
+                curr = curr.parent_job_id
+            root = curr
 
-            def get_sub_roles(parent_role):
-                if parent_role.is_manager_role and (not parent_role.department_id or not parent_role.department_id.parent_id):
-                    # Top Director: child roles are the Department Managers (Sales Manager, Service Manager)
-                    return all_jobs.filtered(lambda j: j.id != parent_role.id and j.is_manager_role)
-                elif parent_role.is_manager_role:
-                    # Department Manager: child roles are staff in that department (Sales Executive, Service Engineer)
-                    return all_jobs.filtered(lambda j: not j.is_manager_role and j.department_id.id == parent_role.department_id.id)
-                return self.env['hr.job']
+            badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
 
-            def render_node(node, current_id, is_child=False):
+            def render_job_tree(node, current_id, depth=0, is_last=False):
                 is_active = (node.id == current_id)
                 name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
                 
@@ -435,70 +432,40 @@ class HrJob(models.Model):
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.35rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
-                badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
+                connector_svg = ""
+                if depth > 0:
+                    y2 = "50%" if is_last else "100%"
+                    connector_svg = f'''
+                        <div style="position: absolute; left: -1.25rem; top: 0; width: 1.25rem; height: 100%; pointer-events: none;">
+                            <svg width="100%" height="100%" style="overflow: visible;">
+                                <line x1="0" y1="0" x2="0" y2="{y2}" stroke="#6c757d" stroke-width="1.5"/>
+                                <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#6c757d" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                    '''
 
                 html = f'''
-                    <div style="position: relative; margin: 0.55rem 0;">
-                        {connector}
+                    <div style="position: relative; margin: 0.45rem 0;">
+                        {connector_svg}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                             <span style="{name_style}">{node.name or "Untitled"}</span>
                             <span style="{badge_style}">{cnt}</span>
                         </div>
                 '''
 
-                children = get_sub_roles(node)
+                # Children are roles that have parent_job_id == node.id
+                children = all_jobs.filtered(lambda j: j.parent_job_id.id == node.id and j.id != node.id)
                 if children:
-                    html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
+                    html += '<div style="position: relative; margin-left: 1.25rem;">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
-                        # On the last child, mask off the vertical line below its horizontal branch to form a perfect L-corner
-                        bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_child else ''
-                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
-                        child_is_active = (child.id == current_id)
-                        child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
-                        
-                        child_cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', child.id), ('share', '=', False)])
-                        if child.is_manager_role and child.department_id and (child.department_id.manager_user_id or child.department_id.manager_id):
-                            child_cnt = max(child_cnt, 1)
-
-                        html += f'''
-                            <div style="position: relative; margin: 0.55rem 0;">
-                                {bottom_mask}
-                                {child_connector}
-                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
-                                    <span style="{child_name_style}">{child.name or "Untitled"}</span>
-                                    <span style="{badge_style}">{child_cnt}</span>
-                                </div>
-                        '''
-                        # Render sub-children (Level 3 staff)
-                        sub_children = get_sub_roles(child)
-                        if sub_children:
-                            html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
-                            for s_idx, sc in enumerate(sub_children):
-                                is_last_sub = (s_idx == len(sub_children) - 1)
-                                sub_bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_sub else ''
-                                sc_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
-                                sc_is_active = (sc.id == current_id)
-                                sc_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if sc_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
-                                sc_cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', sc.id), ('share', '=', False)])
-                                html += f'''
-                                    <div style="position: relative; margin: 0.55rem 0;">
-                                        {sub_bottom_mask}
-                                        {sc_connector}
-                                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
-                                            <span style="{sc_name_style}">{sc.name or "Untitled"}</span>
-                                            <span style="{badge_style}">{sc_cnt}</span>
-                                        </div>
-                                    </div>
-                                '''
-                            html += '</div>'
-                        html += '</div>'
+                        html += render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
                     html += '</div>'
+
                 html += '</div>'
                 return html
 
-            tree_html = render_node(root, job.id, is_child=False)
+            tree_html = render_job_tree(root, job.id, depth=0, is_last=False)
             job.job_hierarchy_html = f'''
                 <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
                     {tree_html}
@@ -928,51 +895,53 @@ class HrDepartment(models.Model):
     def _compute_department_hierarchy_html(self):
         all_depts = self.search([])
         for dept in self:
-            # Find the top root department
-            top_depts = all_depts.filtered(lambda d: not d.parent_id)
-            root = top_depts[0] if top_depts else (dept.parent_id or dept)
+            # Find the top root department by traversing up parent_id
+            curr = dept
+            visited = set()
+            while curr.parent_id and curr.parent_id.id not in visited:
+                visited.add(curr.id)
+                curr = curr.parent_id
+            root = curr
 
-            def render_node(node, current_id, is_child=False):
+            badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
+
+            def render_dept_tree(node, current_id, depth=0, is_last=False):
                 is_active = (node.id == current_id)
                 name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
-                
-                connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.35rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
-                badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
+
+                connector_svg = ""
+                if depth > 0:
+                    y2 = "50%" if is_last else "100%"
+                    connector_svg = f'''
+                        <div style="position: absolute; left: -1.25rem; top: 0; width: 1.25rem; height: 100%; pointer-events: none;">
+                            <svg width="100%" height="100%" style="overflow: visible;">
+                                <line x1="0" y1="0" x2="0" y2="{y2}" stroke="#6c757d" stroke-width="1.5"/>
+                                <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#6c757d" stroke-width="1.5"/>
+                            </svg>
+                        </div>
+                    '''
 
                 html = f'''
-                    <div style="position: relative; margin: 0.55rem 0;">
-                        {connector}
+                    <div style="position: relative; margin: 0.45rem 0;">
+                        {connector_svg}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                             <span style="{name_style}">{node.name or "Untitled"}</span>
                             <span style="{badge_style}">{node.total_employee}</span>
                         </div>
                 '''
 
-                children = all_depts.filtered(lambda d: d.parent_id.id == node.id)
+                children = all_depts.filtered(lambda d: d.parent_id.id == node.id and d.id != node.id)
                 if children:
-                    html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
+                    html += '<div style="position: relative; margin-left: 1.25rem;">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
-                        bottom_mask = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last_child else ''
-                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.95rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
-                        child_is_active = (child.id == current_id)
-                        child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
-                        
-                        html += f'''
-                            <div style="position: relative; margin: 0.55rem 0;">
-                                {bottom_mask}
-                                {child_connector}
-                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
-                                    <span style="{child_name_style}">{child.name or "Untitled"}</span>
-                                    <span style="{badge_style}">{child.total_employee}</span>
-                                </div>
-                            </div>
-                        '''
+                        html += render_dept_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
                     html += '</div>'
+
                 html += '</div>'
                 return html
 
-            tree_html = render_node(root, dept.id, is_child=False)
+            tree_html = render_dept_tree(root, dept.id, depth=0, is_last=False)
             dept.department_hierarchy_html = f'''
                 <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
                     {tree_html}
