@@ -145,5 +145,23 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #f8fafc !important;
 }
 
+/* ===== Department Organization Line Color Fix ===== */
+.o_department_organization,
+.o_org_chart_group_up,
+.o_org_chart_group_down,
+.o_org_chart_entry {
+  --o-org-chart-line-color: #6c757d !important;
+}
+
+.o_department_organization .o_org_chart_line,
+.o_department_organization [class*="line"],
+.o_department_organization [class*="connector"],
+.o_org_chart_group_up:before,
+.o_org_chart_group_down:before,
+.o_org_chart_entry:before,
+.o_org_chart_entry:after {
+  border-color: #6c757d !important;
+}
+
 
 
