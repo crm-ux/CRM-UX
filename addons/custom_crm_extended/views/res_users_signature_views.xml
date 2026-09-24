@@ -235,19 +235,6 @@
             <xpath expr="//field[@name='parent_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
-            <xpath expr="//sheet" position="before">
-                <style>
-                    .o_treeEntry,
-                    .o_hr_department_chart {
-                        --treeEntry--beforeAfter-color: #6c757d !important;
-                    }
-                    .o_treeEntry:before,
-                    .o_treeEntry:after {
-                        background: #6c757d !important;
-                        background-color: #6c757d !important;
-                    }
-                </style>
-            </xpath>
 
             <xpath expr="//sheet" position="inside">
                 <notebook>
