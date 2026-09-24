@@ -440,10 +440,12 @@ class HrJob(models.Model):
 
                 connector = ""
                 if depth > 0:
-                    connector = f'''<span style="position: absolute; left: -1.25rem; top: 50%; width: 0.95rem; height: 50%; border-left: 1.5px solid #6c757d; border-top: 1.5px solid #6c757d; transform: translateY(-50%); display: inline-block;"></span>''' if not is_last else f'''<span style="position: absolute; left: -1.25rem; top: 0; width: 0.95rem; height: 50%; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>'''
+                    v_line = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; bottom: -0.45rem; width: 1.5px; background-color: #6c757d;"></span>' if not is_last else '<span style="position: absolute; left: -1.25rem; top: -0.45rem; height: calc(50% + 0.45rem); width: 1.5px; background-color: #6c757d;"></span>'
+                    h_branch = '<span style="position: absolute; left: -1.25rem; top: 50%; width: 0.95rem; height: 1.5px; background-color: #6c757d;"></span>'
+                    connector = v_line + h_branch
 
                 html = f'''
-                    <div style="position: relative; margin: 0.4rem 0;">
+                    <div style="position: relative; margin: 0.45rem 0;">
                         {connector}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                             <span style="{name_style}">{node.name or "Untitled"}</span>
