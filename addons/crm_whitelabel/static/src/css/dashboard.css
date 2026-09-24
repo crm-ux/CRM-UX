@@ -256,14 +256,14 @@
     align-items: center;
     justify-content: center;
     height: clamp(1.6rem, 2.2vw, 2rem);
-    font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+    font-size: clamp(1.3rem, 1.8vw, 1.65rem);
     font-weight: 700;
     color: #1a2332;
     line-height: 1;
 }
 
 .crm-metric span {
-    font-size: clamp(0.6rem, 0.7vw, 0.68rem);
+    font-size: clamp(0.7rem, 0.85vw, 0.8rem);
     color: #888;
     margin-top: 0.2rem;
     display: block;
