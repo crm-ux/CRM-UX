@@ -145,6 +145,21 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #f8fafc !important;
 }
 
+.o_field_widget[name="job_hierarchy_html"] {
+  width: 100% !important;
+  display: block !important;
+}
+
+.crm_job_org_tree {
+  width: 100% !important;
+}
+
+.crm_job_org_tree .org_children {
+  margin-left: 20px !important;
+  padding-left: 8px !important;
+  position: relative !important;
+}
+
 /* 1. Ensure the container takes full column width */
 .crm_job_org_tree {
   width: 100% !important;
