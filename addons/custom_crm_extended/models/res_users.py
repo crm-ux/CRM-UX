@@ -392,35 +392,42 @@ class HrJob(models.Model):
                 job.parent_job_id = False
                 continue
 
+            # Top Director role itself (Managing Director) has no parent
+            top_director = self.search([
+                ('is_manager_role', '=', True),
+                ('department_id.parent_id', '=', False)
+            ], limit=1)
+
+            if top_director and job.id == top_director.id:
+                job.parent_job_id = False
+                continue
+
             if job.is_manager_role:
-                # Department Manager reports to the Parent Department's Manager Role (e.g. Managing Director)
                 parent_dept = job.department_id.parent_id
                 if parent_dept:
                     parent_job = self.search([
                         ('department_id', '=', parent_dept.id),
                         ('is_manager_role', '=', True)
                     ], limit=1)
-                    job.parent_job_id = parent_job.id if parent_job else False
+                    job.parent_job_id = parent_job.id if parent_job else (top_director.id if top_director else False)
                 else:
-                    job.parent_job_id = False
+                    # Manager in top department reports to the top director
+                    job.parent_job_id = top_director.id if (top_director and top_director.id != job.id) else False
             else:
                 # Regular staff role reports to this department's Manager Role
                 mgr_job = self.search([
                     ('department_id', '=', job.department_id.id),
-                    ('is_manager_role', '=', True)
+                    ('is_manager_role', '=', True),
+                    ('id', '!=', job.id)
                 ], limit=1)
-                job.parent_job_id = mgr_job.id if mgr_job else False
+                job.parent_job_id = mgr_job.id if mgr_job else (top_director.id if top_director else False)
 
     def _compute_job_hierarchy_html(self):
         all_jobs = self.search([])
         for job in self:
-            # Find the top root role by traversing up parent_job_id
-            curr = job
-            visited = set()
-            while curr.parent_job_id and curr.parent_job_id.id not in visited:
-                visited.add(curr.id)
-                curr = curr.parent_job_id
-            root = curr
+            # Find the top root role
+            top_director = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
+            root = top_director[0] if top_director else (job.parent_job_id or job)
 
             badge_style = "background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.75rem; height: 1.45rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600; padding: 0 0.45rem; margin-left: auto;"
 
@@ -432,21 +439,13 @@ class HrJob(models.Model):
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                connector_svg = ""
+                connector_html = ""
                 if depth > 0:
-                    y2 = "50%" if is_last else "100%"
-                    connector_svg = f'''
-                        <div style="position: absolute; left: -1.25rem; top: 0; width: 1.25rem; height: 100%; pointer-events: none;">
-                            <svg width="100%" height="100%" style="overflow: visible;">
-                                <line x1="0" y1="0" x2="0" y2="{y2}" stroke="#6c757d" stroke-width="1.5"/>
-                                <line x1="0" y1="50%" x2="100%" y2="50%" stroke="#6c757d" stroke-width="1.5"/>
-                            </svg>
-                        </div>
-                    '''
+                    connector_html = '<span style="position: absolute; left: -1.25rem; top: 0; width: 0.95rem; height: 0.85rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>'
 
                 html = f'''
                     <div style="position: relative; margin: 0.45rem 0;">
-                        {connector_svg}
+                        {connector_html}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
                             <span style="{name_style}">{node.name or "Untitled"}</span>
                             <span style="{badge_style}">{cnt}</span>
@@ -456,10 +455,13 @@ class HrJob(models.Model):
                 # Children are roles that have parent_job_id == node.id
                 children = all_jobs.filtered(lambda j: j.parent_job_id.id == node.id and j.id != node.id)
                 if children:
-                    html += '<div style="position: relative; margin-left: 1.25rem;">'
+                    border_style = "border-left: 1.5px solid #6c757d;"
+                    html += f'<div style="position: relative; margin-left: 1.25rem; {border_style}">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
-                        html += render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
+                        # For the last child, cut the vertical line below its branch
+                        mask = '<span style="position: absolute; left: -1.25rem; top: 0.85rem; bottom: 0; width: 3px; background: #ffffff; margin-left: -1px; z-index: 1;"></span>' if is_last_child else ''
+                        html += mask + render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
                     html += '</div>'
 
                 html += '</div>'
@@ -592,26 +594,30 @@ class HrJob(models.Model):
                 continue
 
             dept = rec.department_id
+            top_director = self.search([
+                ('is_manager_role', '=', True),
+                ('department_id.parent_id', '=', False)
+            ], limit=1)
+            top_director_user = (dept.manager_user_id or dept.senior_manager_user_id) if (top_director and top_director.id == rec.id) else (top_director.default_manager_id if top_director else False)
+
             if rec.is_manager_role:
-                # If this is a Manager/Head role: prioritize senior_manager_user_id on department
                 if dept.senior_manager_user_id:
                     rec.default_manager_id = dept.senior_manager_user_id.id
+                elif dept.parent_id and dept.parent_id.manager_user_id:
+                    rec.default_manager_id = dept.parent_id.manager_user_id.id
+                elif dept.parent_id and dept.parent_id.manager_id and dept.parent_id.manager_id.user_id:
+                    rec.default_manager_id = dept.parent_id.manager_id.user_id.id
+                elif dept.manager_user_id and dept.manager_user_id.id != self.env.user.id:
+                    rec.default_manager_id = dept.manager_user_id.id
                 else:
-                    parent_dept = dept.parent_id
-                    if parent_dept and parent_dept.manager_user_id:
-                        rec.default_manager_id = parent_dept.manager_user_id.id
-                    elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                        rec.default_manager_id = parent_dept.manager_id.user_id.id
-                    else:
-                        rec.default_manager_id = False
+                    rec.default_manager_id = self.env.ref('base.user_admin').id
             else:
-                # Regular staff/executive role: report to this department's appointed manager
                 if dept.manager_user_id:
                     rec.default_manager_id = dept.manager_user_id.id
                 elif dept.manager_id and dept.manager_id.user_id:
                     rec.default_manager_id = dept.manager_id.user_id.id
                 else:
-                    rec.default_manager_id = False
+                    rec.default_manager_id = self.env.ref('base.user_admin').id
 
     @api.onchange('department_id', 'is_manager_role')
     def _onchange_department_id_fetch_manager(self):
@@ -624,21 +630,21 @@ class HrJob(models.Model):
         if self.is_manager_role:
             if dept.senior_manager_user_id:
                 self.default_manager_id = dept.senior_manager_user_id.id
+            elif dept.parent_id and dept.parent_id.manager_user_id:
+                self.default_manager_id = dept.parent_id.manager_user_id.id
+            elif dept.parent_id and dept.parent_id.manager_id and dept.parent_id.manager_id.user_id:
+                self.default_manager_id = dept.parent_id.manager_id.user_id.id
+            elif dept.manager_user_id:
+                self.default_manager_id = dept.manager_user_id.id
             else:
-                parent_dept = dept.parent_id
-                if parent_dept and parent_dept.manager_user_id:
-                    self.default_manager_id = parent_dept.manager_user_id.id
-                elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
-                    self.default_manager_id = parent_dept.manager_id.user_id.id
-                else:
-                    self.default_manager_id = False
+                self.default_manager_id = self.env.ref('base.user_admin').id
         else:
             if dept.manager_user_id:
                 self.default_manager_id = dept.manager_user_id.id
             elif dept.manager_id and dept.manager_id.user_id:
                 self.default_manager_id = dept.manager_id.user_id.id
             else:
-                self.default_manager_id = False
+                self.default_manager_id = self.env.ref('base.user_admin').id
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
