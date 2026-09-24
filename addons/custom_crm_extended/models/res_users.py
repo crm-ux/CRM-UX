@@ -422,7 +422,7 @@ class HrJob(models.Model):
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
-                text_font = "font-weight: 700; color: #000;" if is_active else "color: #495057; font-weight: 400;"
+                text_font = "font-weight: 700; color: #000;" if is_active else "color: #374151; font-weight: 400;"
                 
                 # Count users in this role
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
@@ -430,15 +430,15 @@ class HrJob(models.Model):
                     cnt = max(cnt, 1)
 
                 connector = '''
-                    <span style="position: absolute; left: -1.25rem; top: 0.65rem; width: 0.85rem; height: 1.25rem; border-left: 1px solid #c9d1d9; border-bottom: 1px solid #c9d1d9; display: inline-block;"></span>
+                    <span style="position: absolute; left: -1.2rem; top: 0.75rem; width: 0.85rem; height: 1.1rem; border-left: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; display: inline-block;"></span>
                 ''' if is_child else ''
 
                 html = f'''
-                    <div style="position: relative; margin: 0.35rem 0;">
+                    <div style="position: relative; margin: 0.45rem 0;">
                         {connector}
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.3rem 0; min-height: 1.8rem;">
-                            <span style="font-size: 0.875rem; {text_font}">{node.name or "Untitled"}</span>
-                            <span style="background: #e9ecef; border-radius: 50rem; min-width: 1.65rem; height: 1.35rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #495057; padding: 0 0.4rem;">{cnt}</span>
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0; min-height: 1.75rem;">
+                            <span style="font-size: 0.875rem; {text_font} white-space: nowrap; padding-right: 1rem;">{node.name or "Untitled"}</span>
+                            <span style="background: #e9ecef; border-radius: 50rem; min-width: 1.65rem; height: 1.35rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; color: #495057; padding: 0 0.4rem; flex-shrink: 0;">{cnt}</span>
                         </div>
                 '''
 
@@ -453,7 +453,7 @@ class HrJob(models.Model):
 
             tree_html = render_node(root, job.id, is_child=False)
             job.job_hierarchy_html = f'''
-                <div style="font-family: inherit; width: 100%; max-width: 22rem; padding: 0.5rem 0 1rem 0;">
+                <div style="font-family: inherit; width: 100%; padding: 0.25rem 0 1rem 0;">
                     {tree_html}
                 </div>
             '''
