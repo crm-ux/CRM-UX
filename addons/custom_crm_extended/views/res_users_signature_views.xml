@@ -116,34 +116,6 @@
                 <notebook>
                     <!-- TAB 1: Assigned Employees (Subordinate Team) -->
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
-                        <style>
-                            .assigned_employees_table th.o_list_record_remove_header,
-                            .assigned_employees_table td.o_list_record_remove,
-                            .assigned_employees_table .o_list_record_remove {
-                                display: none !important;
-                                width: 0 !important;
-                                min-width: 0 !important;
-                                max-width: 0 !important;
-                                padding: 0 !important;
-                                margin: 0 !important;
-                                border: none !important;
-                                visibility: hidden !important;
-                            }
-                            .assigned_employees_table th.o_list_button_cell,
-                            .assigned_employees_table th:last-child {
-                                width: clamp(5rem, 6vw, 6.5rem) !important;
-                                min-width: clamp(5rem, 6vw, 6.5rem) !important;
-                                max-width: clamp(5rem, 6vw, 6.5rem) !important;
-                                text-align: center !important;
-                            }
-                            .assigned_employees_table td:has(button[name="action_revoke_role"]) {
-                                width: clamp(5rem, 6vw, 6.5rem) !important;
-                                min-width: clamp(5rem, 6vw, 6.5rem) !important;
-                                max-width: clamp(5rem, 6vw, 6.5rem) !important;
-                                text-align: center !important;
-                                vertical-align: middle !important;
-                            }
-                        </style>
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
                             <list string="Assigned Employees">
                                 <field name="name" string="Employee Name"/>
@@ -234,6 +206,11 @@
             </xpath>
             <xpath expr="//field[@name='parent_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
+            </xpath>
+            <xpath expr="//sheet//group[1]" position="after">
+                <group string="Department Hierarchy">
+                    <field name="department_hierarchy_html" nolabel="1" widget="html"/>
+                </group>
             </xpath>
 
             <xpath expr="//sheet" position="inside">

@@ -145,15 +145,39 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #f8fafc !important;
 }
 
-/* ===== Department Organization Line Color Fix ===== */
-.o_treeEntry,
+/* ===== Hide default Odoo Department Chart Widget ===== */
+.o_widget_hr_department_chart,
 .o_hr_department_chart {
-  --treeEntry--beforeAfter-color: #6c757d !important;
+  display: none !important;
 }
 
-.o_treeEntry:before,
-.o_treeEntry:after {
-  background: #6c757d !important;
-  background-color: #6c757d !important;
+/* ===== Assigned Employees Table Action Button & Column Layout ===== */
+.assigned_employees_table th.o_list_record_remove_header,
+.assigned_employees_table td.o_list_record_remove,
+.assigned_employees_table .o_list_record_remove {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  visibility: hidden !important;
+}
+
+.assigned_employees_table th.o_list_button_cell,
+.assigned_employees_table th:last-child {
+  width: clamp(5rem, 6vw, 6.5rem) !important;
+  min-width: clamp(5rem, 6vw, 6.5rem) !important;
+  max-width: clamp(5rem, 6vw, 6.5rem) !important;
+  text-align: center !important;
+}
+
+.assigned_employees_table td:has(button[name="action_revoke_role"]) {
+  width: clamp(5rem, 6vw, 6.5rem) !important;
+  min-width: clamp(5rem, 6vw, 6.5rem) !important;
+  max-width: clamp(5rem, 6vw, 6.5rem) !important;
+  text-align: center !important;
+  vertical-align: middle !important;
 }
 
