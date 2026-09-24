@@ -152,6 +152,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 .crm_job_org_tree {
   width: 100% !important;
+  display: block !important;
+  font-family: inherit !important;
 }
 
 .crm_job_org_tree .org_children {
@@ -160,22 +162,29 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   position: relative !important;
 }
 
-/* 1. Ensure the container takes full column width */
-.crm_job_org_tree {
-  width: 100% !important;
-  max-width: 20rem !important;
-}
-
-/* 2. Position the row so name is left, pill badge is far right */
+/* Position the row so name is left, pill badge is far right */
 .crm_job_org_tree .org_row {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   position: relative !important;
-  padding: 4px 0 !important;
+  padding: 6px 0 !important;
+  width: 100% !important;
 }
 
-/* 3. The Pill Badge - exact match to Department Organization */
+.crm_job_org_tree .org_name {
+  white-space: nowrap !important;
+  font-size: 0.875rem !important;
+  color: #212529 !important;
+  padding-right: 12px !important;
+}
+
+.crm_job_org_tree .org_name_active {
+  font-weight: 700 !important;
+  color: #000000 !important;
+}
+
+/* The Pill Badge - exact match to Department Organization */
 .crm_job_org_tree .org_badge {
   background-color: #dee2e6 !important;
   color: #212529 !important;
@@ -189,9 +198,10 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   font-weight: 600 !important;
   padding: 0 6px !important;
   flex-shrink: 0 !important;
+  margin-left: auto !important;
 }
 
-/* 4. The L-Shaped Connector Line - accurately connected */
+/* The L-Shaped Connector Line - accurately connected */
 .crm_job_org_tree .org_branch_line {
   position: absolute !important;
   left: -16px !important;
