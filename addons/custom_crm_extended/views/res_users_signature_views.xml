@@ -33,7 +33,7 @@
                         </div>
                         <field name="crm_subordinate_ids" nolabel="1" readonly="1" class="subordinates_clean_table">
                             <list create="false" edit="false" delete="false">
-                                <field name="name" string="Member Name" widget="many2one_avatar_user"/>
+                                <field name="name" string="Member Name"/>
                                 <field name="crm_job_id" string="Job Position / Role"/>
                                 <field name="crm_department_id" string="Department"/>
                                 <field name="email" string="Work Email"/>
