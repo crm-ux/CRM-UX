@@ -422,15 +422,15 @@ class HrJob(models.Model):
 
             def render_node(node, current_id):
                 is_active = (node.id == current_id)
-                active_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.15rem 0.45rem; border-radius: 0.25rem; border-left: 3px solid #0284c7;" if is_active else "color: #374151; padding: 0.15rem 0.45rem;"
-                badge_style = "background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 0.05rem 0.45rem; font-size: 0.75rem; color: #475569; margin-left: 0.4rem; font-weight: 600;"
+                active_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if is_active else "color: #374151; padding: 0.2rem 0.55rem; white-space: nowrap; display: inline-block;"
+                badge_style = "background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 0.05rem 0.45rem; font-size: 0.75rem; color: #475569; margin-left: 0.45rem; font-weight: 600; display: inline-block; vertical-align: middle;"
                 
                 # Count users in this role
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                html = f'<div style="margin: 0.25rem 0;"><span style="{active_style}">{node.name or "Untitled"}</span><span style="{badge_style}">{cnt}</span>'
+                html = f'<div style="margin: 0.35rem 0; white-space: nowrap;"><span style="{active_style}">{node.name or "Untitled"}</span><span style="{badge_style}">{cnt}</span>'
                 
                 children = self.search([('parent_job_id', '=', node.id)])
                 if children:
@@ -443,7 +443,7 @@ class HrJob(models.Model):
 
             tree_html = render_node(root, job.id)
             job.job_hierarchy_html = f'''
-                <div style="font-family: inherit; font-size: clamp(0.85rem, 0.95vw, 0.95rem); line-height: 1.5; padding: 0.5rem 0;">
+                <div style="font-family: inherit; font-size: clamp(0.82rem, 0.9vw, 0.92rem); line-height: 1.4; padding: 0.25rem 0; min-width: 15rem; width: 100%;">
                     {tree_html}
                 </div>
             '''
@@ -871,6 +871,6 @@ class HrDepartment(models.Model):
 
     @api.depends('name')
     def _compute_display_name(self):
-        """Odoo 17/18 display_name override to prevent long slash-separated paths."""
+        """Display_name override to prevent long slash-separated paths."""
         for dept in self:
             dept.display_name = dept.name or ''
