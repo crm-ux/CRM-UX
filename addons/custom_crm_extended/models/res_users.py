@@ -719,3 +719,21 @@ class HrDepartment(models.Model):
         """Sync standard hr.department manager_id to manager_user_id."""
         if self.manager_id and self.manager_id.user_id:
             self.manager_user_id = self.manager_id.user_id.id
+
+    def _compute_total_employee(self):
+        super()._compute_total_employee()
+        for department in self:
+            # Gather all users assigned to this department
+            users = self.env['res.users'].sudo().search([
+                ('crm_department_id', '=', department.id),
+                ('share', '=', False)
+            ])
+            user_ids = set(users.ids)
+            # Include Department Head if appointed
+            if department.manager_user_id:
+                user_ids.add(department.manager_user_id.id)
+            if department.manager_id and department.manager_id.user_id:
+                user_ids.add(department.manager_id.user_id.id)
+            
+            # The count should be at least the unique count of users + employees
+            department.total_employee = max(department.total_employee, len(user_ids))
