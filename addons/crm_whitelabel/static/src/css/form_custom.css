@@ -147,9 +147,12 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 /* ===== Hide default Odoo Department Chart Widget ===== */
 .o_widget_hr_department_chart,
-.o_hr_department_chart {
+.o_hr_department_chart,
+div:has(> .o_widget_hr_department_chart),
+div:has(> * > .o_hr_department_chart) {
   display: none !important;
 }
+
 
 /* ===== Assigned Employees Table Action Button & Column Layout ===== */
 .assigned_employees_table th.o_list_record_remove_header,
