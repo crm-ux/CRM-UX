@@ -816,6 +816,18 @@ class HrDepartment(models.Model):
         if mgr_job:
             user._apply_job_permissions(mgr_job)
 
+        # Also sync to linked hr.employee record so both Employee profile and User profile match!
+        emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+        if emp:
+            emp_vals = {'department_id': self.id}
+            if mgr_job:
+                emp_vals['job_id'] = mgr_job.id
+            if senior_mgr_id:
+                senior_emp = self.env['hr.employee'].sudo().search([('user_id', '=', senior_mgr_id)], limit=1)
+                if senior_emp:
+                    emp_vals['parent_id'] = senior_emp.id
+            emp.with_context(skip_sync=True).sudo().write(emp_vals)
+
     @api.onchange('manager_user_id')
     def _onchange_manager_user_id(self):
         """Sync manager_user_id to standard hr.employee manager_id if employee exists."""
