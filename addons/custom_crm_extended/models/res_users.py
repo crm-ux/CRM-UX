@@ -599,6 +599,17 @@ class HrJob(models.Model):
         for job in self:
             job.user_count = self.env['res.users'].search_count([('crm_job_id', '=', job.id), ('share', '=', False)])
 
+    def _compute_employees(self):
+        super()._compute_employees()
+        for job in self:
+            # Count users assigned to this role
+            crm_users = self.env['res.users'].search([('crm_job_id', '=', job.id), ('share', '=', False)])
+            count = len(crm_users)
+            # If manager role and department has a manager assigned, ensure count is at least 1
+            if job.is_manager_role and job.department_id and (job.department_id.manager_user_id or job.department_id.manager_id):
+                count = max(count, 1)
+            job.no_of_employee = count
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
