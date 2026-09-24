@@ -62,9 +62,11 @@ class ResPartner(models.Model):
 
     def write(self, vals):
         user = self.env.user
-        # Do not block background employee sync or self user profile updates
+        # Do not block background sync, superusers, or the user updating their own partner record on login (e.g. tz, login_date)
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11) and not self.env.context.get('skip_sync'):
-            if not getattr(user, 'perm_customer_write', True):
+            # Allow user to update their own partner record
+            other_partners = self.filtered(lambda p: p.id != user.partner_id.id)
+            if other_partners and not getattr(user, 'perm_customer_write', True):
                 raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
         return super(ResPartner, self).write(vals)
 
