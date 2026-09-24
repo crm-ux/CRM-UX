@@ -19,7 +19,7 @@ class CrmDashboard extends Component {
             priorityLow: 0, priorityMedium: 0, priorityHigh: 0,
             meetingsThisMonth: 0, upcomingEvents: 0,
             customers: 0, quotes: 0, products: 0, users: 0,
-            equipmentTotal: 0, equipmentActive: 0, equipmentRepair: 0, equipmentStopped: 0,
+            equipmentTotal: 0, equipmentActive: 0, equipmentInactive: 0, equipmentRepair: 0, equipmentStopped: 0,
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
             invoiceCreated: 0, invoicePending: 0,
