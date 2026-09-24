@@ -449,9 +449,45 @@ class HrJob(models.Model):
 
                 children = get_sub_roles(node)
                 if children:
-                    html += '<div style="position: relative; margin-left: 1.75rem; padding-left: 0.25rem;">'
+                    html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
                     for child in children:
-                        html += render_node(child, current_id, is_child=True)
+                        # Horizontal branch connector: a single clean horizontal line extending from the continuous vertical spine
+                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                        child_is_active = (child.id == current_id)
+                        child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
+                        
+                        child_cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', child.id), ('share', '=', False)])
+                        if child.is_manager_role and child.department_id and (child.department_id.manager_user_id or child.department_id.manager_id):
+                            child_cnt = max(child_cnt, 1)
+
+                        html += f'''
+                            <div style="position: relative; margin: 0.55rem 0;">
+                                {child_connector}
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
+                                    <span style="{child_name_style}">{child.name or "Untitled"}</span>
+                                    <span style="{badge_style}">{child_cnt}</span>
+                                </div>
+                        '''
+                        # Render sub-children (Level 3 staff)
+                        sub_children = get_sub_roles(child)
+                        if sub_children:
+                            html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
+                            for sc in sub_children:
+                                sc_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                                sc_is_active = (sc.id == current_id)
+                                sc_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if sc_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
+                                sc_cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', sc.id), ('share', '=', False)])
+                                html += f'''
+                                    <div style="position: relative; margin: 0.55rem 0;">
+                                        {sc_connector}
+                                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
+                                            <span style="{sc_name_style}">{sc.name or "Untitled"}</span>
+                                            <span style="{badge_style}">{sc_cnt}</span>
+                                        </div>
+                                    </div>
+                                '''
+                            html += '</div>'
+                        html += '</div>'
                     html += '</div>'
                 html += '</div>'
                 return html
@@ -908,9 +944,21 @@ class HrDepartment(models.Model):
 
                 children = all_depts.filtered(lambda d: d.parent_id.id == node.id)
                 if children:
-                    html += '<div style="position: relative; margin-left: 1.75rem; padding-left: 0.25rem;">'
+                    html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0.75rem; border-left: 1.5px solid #6c757d;">'
                     for child in children:
-                        html += render_node(child, current_id, is_child=True)
+                        child_connector = '<span style="position: absolute; left: -0.75rem; top: 0.85rem; width: 0.65rem; height: 1.5px; background: #6c757d; display: inline-block;"></span>'
+                        child_is_active = (child.id == current_id)
+                        child_name_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.2rem 0.55rem; border-radius: 0.35rem; border-left: 3px solid #0284c7; white-space: nowrap; display: inline-block;" if child_is_active else "color: #212529; font-weight: 400; font-size: 0.875rem; white-space: nowrap; padding: 0.2rem 0.55rem; display: inline-block;"
+                        
+                        html += f'''
+                            <div style="position: relative; margin: 0.55rem 0;">
+                                {child_connector}
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
+                                    <span style="{child_name_style}">{child.name or "Untitled"}</span>
+                                    <span style="{badge_style}">{child.total_employee}</span>
+                                </div>
+                            </div>
+                        '''
                     html += '</div>'
                 html += '</div>'
                 return html
