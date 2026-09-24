@@ -425,7 +425,6 @@ class HrJob(models.Model):
     def _compute_job_hierarchy_html(self):
         all_jobs = self.search([])
         for job in self:
-            # Find the top root role
             top_director = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
             root = top_director[0] if top_director else (job.parent_job_id or job)
 
@@ -439,29 +438,29 @@ class HrJob(models.Model):
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
 
-                connector_html = ""
+                connector = ""
                 if depth > 0:
-                    connector_html = '<span style="position: absolute; left: -1.25rem; top: 0; width: 0.95rem; height: 0.85rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>'
+                    symbol = "└─&nbsp;" if is_last else "├─&nbsp;"
+                    connector = f'<span style="color: #6c757d; font-family: monospace; font-size: 1.15rem; font-weight: 600; user-select: none; line-height: 1;">{symbol}</span>'
 
                 html = f'''
-                    <div style="position: relative; margin: 0.45rem 0;">
-                        {connector_html}
+                    <div style="margin: 0.35rem 0;">
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
-                            <span style="{name_style}">{node.name or "Untitled"}</span>
+                            <div style="display: flex; align-items: center;">
+                                {connector}
+                                <span style="{name_style}">{node.name or "Untitled"}</span>
+                            </div>
                             <span style="{badge_style}">{cnt}</span>
                         </div>
                 '''
 
-                # Children are roles that have parent_job_id == node.id
                 children = all_jobs.filtered(lambda j: j.parent_job_id.id == node.id and j.id != node.id)
                 if children:
-                    border_style = "border-left: 1.5px solid #6c757d;"
-                    html += f'<div style="position: relative; margin-left: 1.25rem; {border_style}">'
+                    indent_border = "border-left: 1.5px solid #6c757d;" if not is_last else "border-left: 1.5px solid transparent;"
+                    html += f'<div style="margin-left: {0.75 if depth == 0 else 1.25}rem; padding-left: 0.65rem; {indent_border}">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
-                        # For the last child, cut the vertical line below its branch
-                        mask = '<span style="position: absolute; left: -1.25rem; top: 0.85rem; bottom: 0; width: 3px; background: #ffffff; margin-left: -1px; z-index: 1;"></span>' if is_last_child else ''
-                        html += mask + render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
+                        html += render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
                     html += '</div>'
 
                 html += '</div>'
