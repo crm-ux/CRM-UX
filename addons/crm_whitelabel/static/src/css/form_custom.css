@@ -157,9 +157,25 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 .crm_job_org_tree .org_children {
-  margin-left: 20px !important;
-  padding-left: 8px !important;
+  margin-left: clamp(1.1rem, 1.3vw, 1.4rem) !important;
+  padding-left: clamp(0.5rem, 0.7vw, 0.75rem) !important;
   position: relative !important;
+  border-left: 1px solid #adb5bd !important;
+}
+
+/* Hide continuous spine below the last child so it terminates cleanly */
+.crm_job_org_tree .org_children > .org_node:last-child {
+  position: relative !important;
+}
+
+.crm_job_org_tree .org_children > .org_node:last-child::after {
+  content: "" !important;
+  position: absolute !important;
+  left: calc(-1 * clamp(0.5rem, 0.7vw, 0.75rem) - 1px) !important;
+  top: 50% !important;
+  bottom: 0 !important;
+  width: 2px !important;
+  background-color: #ffffff !important;
 }
 
 /* Position the row so name is left, pill badge is far right */
@@ -168,15 +184,15 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   align-items: center !important;
   justify-content: space-between !important;
   position: relative !important;
-  padding: 6px 0 !important;
+  padding: clamp(0.25rem, 0.45vh, 0.4rem) 0 !important;
   width: 100% !important;
 }
 
 .crm_job_org_tree .org_name {
   white-space: nowrap !important;
-  font-size: 0.875rem !important;
+  font-size: clamp(0.82rem, 0.9vw, 0.88rem) !important;
   color: #212529 !important;
-  padding-right: 12px !important;
+  padding-right: clamp(0.5rem, 0.8vw, 0.85rem) !important;
 }
 
 .crm_job_org_tree .org_name_active {
@@ -189,26 +205,25 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #dee2e6 !important;
   color: #212529 !important;
   border-radius: 50rem !important;
-  min-width: 24px !important;
-  height: 20px !important;
+  min-width: clamp(1.4rem, 1.6vw, 1.65rem) !important;
+  height: clamp(1.2rem, 1.35vw, 1.35rem) !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 12px !important;
+  font-size: clamp(0.72rem, 0.78vw, 0.78rem) !important;
   font-weight: 600 !important;
-  padding: 0 6px !important;
+  padding: 0 clamp(0.35rem, 0.45vw, 0.45rem) !important;
   flex-shrink: 0 !important;
   margin-left: auto !important;
 }
 
-/* The L-Shaped Connector Line - accurately connected */
+/* The Connector Line - horizontal branch from continuous spine */
 .crm_job_org_tree .org_branch_line {
   position: absolute !important;
-  left: -16px !important;
-  top: -8px !important;
-  width: 12px !important;
-  height: 20px !important;
-  border-left: 1px solid #ced4da !important;
-  border-bottom: 1px solid #ced4da !important;
+  left: calc(-1 * clamp(0.5rem, 0.7vw, 0.75rem) - 1px) !important;
+  top: 50% !important;
+  width: clamp(0.5rem, 0.7vw, 0.75rem) !important;
+  height: 1px !important;
+  background-color: #adb5bd !important;
   display: block !important;
-}
+}
