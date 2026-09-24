@@ -103,6 +103,9 @@
                                placeholder="Optional: sub-departments managed under this role..."/>
                         <field name="company_id" string="Company" placeholder="Global (All Companies)"/>
                     </group>
+                    <group string="Job Position Hierarchy">
+                        <field name="job_hierarchy_html" nolabel="1" widget="html"/>
+                    </group>
                 </group>
 
                 <notebook>

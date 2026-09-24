@@ -379,6 +379,91 @@ class HrJob(models.Model):
         help='The main department where this role belongs.'
     )
 
+    # Job Position Hierarchy: Parent Job (Reporting Job) & Subordinate Jobs
+    parent_job_id = fields.Many2one(
+        'hr.job',
+        string='Parent Job Position',
+        compute='_compute_parent_job_id',
+        store=True,
+        readonly=False,
+        help='The senior job position that this role reports to.'
+    )
+
+    child_job_ids = fields.One2many(
+        'hr.job',
+        'parent_job_id',
+        string='Subordinate Roles'
+    )
+
+    job_hierarchy_html = fields.Html(
+        string='Role Hierarchy',
+        compute='_compute_job_hierarchy_html',
+        help='Visual hierarchy tree of job positions.'
+    )
+
+    @api.depends('is_manager_role', 'department_id', 'department_id.parent_id')
+    def _compute_parent_job_id(self):
+        for job in self:
+            if not job.department_id:
+                job.parent_job_id = False
+                continue
+
+            if job.is_manager_role:
+                # Department Manager reports to the Parent Department's Manager Role (e.g. Managing Director)
+                parent_dept = job.department_id.parent_id
+                if parent_dept:
+                    parent_job = self.search([
+                        ('department_id', '=', parent_dept.id),
+                        ('is_manager_role', '=', True)
+                    ], limit=1)
+                    job.parent_job_id = parent_job.id if parent_job else False
+                else:
+                    job.parent_job_id = False
+            else:
+                # Regular staff role reports to this department's Manager Role
+                mgr_job = self.search([
+                    ('department_id', '=', job.department_id.id),
+                    ('is_manager_role', '=', True)
+                ], limit=1)
+                job.parent_job_id = mgr_job.id if mgr_job else False
+
+    def _compute_job_hierarchy_html(self):
+        for job in self:
+            # Find the top root job in this branch
+            root = job
+            visited = set()
+            while root.parent_job_id and root.id not in visited:
+                visited.add(root.id)
+                root = root.parent_job_id
+
+            def render_node(node, current_id):
+                is_active = (node.id == current_id)
+                active_style = "font-weight: 700; color: #1e3a8a; background: #e0f2fe; padding: 0.15rem 0.45rem; border-radius: 0.25rem; border-left: 3px solid #0284c7;" if is_active else "color: #374151; padding: 0.15rem 0.45rem;"
+                badge_style = "background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 0.05rem 0.45rem; font-size: 0.75rem; color: #475569; margin-left: 0.4rem; font-weight: 600;"
+                
+                # Count users in this role
+                cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
+                if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
+                    cnt = max(cnt, 1)
+
+                html = f'<div style="margin: 0.25rem 0;"><span style="{active_style}">{node.name or "Untitled"}</span><span style="{badge_style}">{cnt}</span>'
+                
+                children = self.search([('parent_job_id', '=', node.id)])
+                if children:
+                    html += '<div style="margin-left: 1.25rem; border-left: 2px solid #e2e8f0; padding-left: 0.75rem; margin-top: 0.25rem;">'
+                    for child in children:
+                        html += render_node(child, current_id)
+                    html += '</div>'
+                html += '</div>'
+                return html
+
+            tree_html = render_node(root, job.id)
+            job.job_hierarchy_html = f'''
+                <div style="font-family: inherit; font-size: clamp(0.85rem, 0.95vw, 0.95rem); line-height: 1.5; padding: 0.5rem 0;">
+                    {tree_html}
+                </div>
+            '''
+
     # 2. Managed Sub-Departments (Smaller departments managed under this role)
     sub_department_ids = fields.Many2many(
         'hr.department',
