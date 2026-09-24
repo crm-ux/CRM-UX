@@ -224,6 +224,32 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   top: 50% !important;
   width: clamp(0.5rem, 0.7vw, 0.75rem) !important;
   height: 1px !important;
-  background-color: #adb5bd !important;
+  background-color: #6c757d !important;
   display: block !important;
-}
+}
+
+.crm_job_org_tree .org_children {
+  border-left-color: #6c757d !important;
+}
+
+/* ===== Department Organization Widget Connecting Lines (Make equally visible & dark) ===== */
+.o_field_widget[name="department_id"] .o_org_chart_group_up .o_org_chart_entry:before,
+.o_field_widget[name="department_id"] .o_org_chart_group_down .o_org_chart_entry:before,
+.o_org_chart_entry:before,
+.o_org_chart_entry:after,
+.o_hr_department_organization:before,
+.o_hr_department_organization:after,
+.o_field_hr_department_organization div[class*="border"],
+.o_field_hr_department_organization span[class*="border"] {
+  border-color: #6c757d !important;
+  opacity: 1 !important;
+}
+
+/* Target standard Odoo department chart connector lines */
+div[name="department_id"] div[style*="border-left"],
+div[name="department_id"] div[style*="border-bottom"],
+.o_field_widget .o_org_chart_line,
+.o_field_widget div:has(> .badge):before {
+  border-color: #6c757d !important;
+}
+
