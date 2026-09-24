@@ -184,6 +184,15 @@ class ResUsers(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            # 1. Use exact name as login username (never long email)
+            if vals.get('name') and vals.get('login') == vals.get('email'):
+                exact_name = vals['name'].strip()
+                # If name already taken, keep original
+                taken = self.sudo().search_count([('login', '=', exact_name)])
+                if not taken:
+                    vals['login'] = exact_name
+
         users = super().create(vals_list)
         self._assign_default_groups(users)
         for user, vals in zip(users, vals_list):
@@ -191,6 +200,7 @@ class ResUsers(models.Model):
                 job = self.env['hr.job'].browse(vals['crm_job_id'])
                 user._apply_job_permissions(job)
         return users
+
 
     def write(self, vals):
         # 1. When archiving (active=False), release the login so new employees can reuse the name/login
