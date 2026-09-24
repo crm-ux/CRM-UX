@@ -439,10 +439,10 @@ class HrJob(models.Model):
                     cnt = max(cnt, 1)
 
                 branch = '<span style="position: absolute; left: -1.25rem; top: 0.85rem; width: 1.25rem; height: 1.5px; background: #6c757d;"></span>' if depth > 0 else ''
-                cover_bottom = '<span style="position: absolute; left: -1.25rem; top: 0.85rem; bottom: -0.5rem; width: 3px; background: #ffffff; margin-left: -1px; z-index: 2;"></span>' if (depth > 0 and is_last) else ''
+                cover_bottom = '<span style="position: absolute; left: -1.25rem; top: 0.85rem; bottom: -0.85rem; width: 4px; background: #ffffff; margin-left: -1.5px; z-index: 2;"></span>' if (depth > 0 and is_last) else ''
 
                 html = f'''
-                    <div style="position: relative; margin: 0.4rem 0;">
+                    <div style="position: relative; margin: 0.45rem 0;">
                         {branch}
                         {cover_bottom}
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 1.75rem;">
@@ -453,8 +453,9 @@ class HrJob(models.Model):
 
                 children = all_jobs.filtered(lambda j: j.parent_job_id.id == node.id and j.id != node.id)
                 if children:
-                    # Spine starts cleanly under this parent node's branch
-                    html += '<div style="position: relative; margin-left: 1.25rem; padding-left: 0; border-left: 1.5px solid #6c757d; margin-top: 0.2rem;">'
+                    # Vertical line starts at the level of the parent text and runs down
+                    top_offset = "top: -0.35rem;" if depth == 0 else "top: 0.85rem;"
+                    html += f'<div style="position: relative; margin-left: 1.25rem; border-left: 1.5px solid #6c757d; margin-top: 0.15rem; {top_offset}">'
                     for idx, child in enumerate(children):
                         is_last_child = (idx == len(children) - 1)
                         html += render_job_tree(child, current_id, depth=depth + 1, is_last=is_last_child)
