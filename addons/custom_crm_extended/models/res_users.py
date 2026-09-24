@@ -412,19 +412,25 @@ class HrJob(models.Model):
                 job.parent_job_id = mgr_job.id if mgr_job else False
 
     def _compute_job_hierarchy_html(self):
+        all_jobs = self.search([])
         for job in self:
-            # Find the top root job in this branch
-            root = job
-            visited = set()
-            while root.parent_job_id and root.id not in visited:
-                visited.add(root.id)
-                root = root.parent_job_id
+            # 1. Identify top level job (e.g. Managing Director in Management dept or top parent)
+            top_jobs = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
+            root = top_jobs[0] if top_jobs else (all_jobs.filtered(lambda j: j.is_manager_role)[:1] or job)
+
+            def get_sub_roles(parent_role):
+                if parent_role.is_manager_role and (not parent_role.department_id or not parent_role.department_id.parent_id):
+                    # Top Director: child roles are the Department Managers (Sales Manager, Service Manager)
+                    return all_jobs.filtered(lambda j: j.id != parent_role.id and j.is_manager_role)
+                elif parent_role.is_manager_role:
+                    # Department Manager: child roles are staff in that department (Sales Executive, Service Engineer)
+                    return all_jobs.filtered(lambda j: not j.is_manager_role and j.department_id.id == parent_role.department_id.id)
+                return self.env['hr.job']
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
                 name_cls = "org_name org_name_active" if is_active else "org_name"
                 
-                # Count users in this role
                 cnt = self.env['res.users'].sudo().search_count([('crm_job_id', '=', node.id), ('share', '=', False)])
                 if node.is_manager_role and node.department_id and (node.department_id.manager_user_id or node.department_id.manager_id):
                     cnt = max(cnt, 1)
@@ -440,7 +446,7 @@ class HrJob(models.Model):
                         </div>
                 '''
 
-                children = self.search([('parent_job_id', '=', node.id)])
+                children = get_sub_roles(node)
                 if children:
                     html += '<div class="org_children">'
                     for child in children:
