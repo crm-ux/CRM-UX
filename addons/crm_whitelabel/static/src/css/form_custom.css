@@ -145,13 +145,12 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #f8fafc !important;
 }
 
-/* ===== Hide default Odoo Department Chart Widget ===== */
+/* ===== Hide default Odoo Department Chart Widget (handled via XML replace) ===== */
 .o_widget_hr_department_chart,
-.o_hr_department_chart,
-div:has(> .o_widget_hr_department_chart),
-div:has(> * > .o_hr_department_chart) {
+.o_hr_department_chart {
   display: none !important;
 }
+
 
 
 /* ===== Assigned Employees Table Action Button & Column Layout ===== */
