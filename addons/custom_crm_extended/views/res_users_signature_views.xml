@@ -235,9 +235,6 @@
             <xpath expr="//field[@name='parent_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
-            <xpath expr="//widget[@name='hr_department_organization']" position="replace">
-                <field name="department_hierarchy_html" nolabel="1" widget="html"/>
-            </xpath>
             <xpath expr="//sheet" position="inside">
                 <notebook>
                     <page string="Department Members" name="dept_members_page">
