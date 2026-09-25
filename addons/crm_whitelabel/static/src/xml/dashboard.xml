@@ -29,7 +29,7 @@
                     <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
                         <div class="crm-admin-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
-                                <span class="crm-company-toggle-text">Quick Links</span>
+                                <span class="crm-company-toggle-text">Quick Access</span>
                                 <span class="crm-company-arrow">▾</span>
                             </button>
                             <div class="crm-company-dropdown dropdown-menu-start" t-if="state.adminMenuOpen">
