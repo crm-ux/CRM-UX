@@ -231,16 +231,15 @@
 .crm-metrics {
     display: flex;
     flex-wrap: nowrap;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: flex-start;
-    gap: clamp(4px, 0.6vw, 12px);
+    gap: clamp(10px, 1.2vw, 22px);
     margin-bottom: 0.75rem;
     width: 100%;
 }
 
 .crm-metric {
-    flex: 1 1 0px;
-    min-width: 0;
+    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -260,14 +259,13 @@
 }
 
 .crm-metric span {
-    font-size: clamp(0.62rem, 0.72vw, 0.75rem);
+    font-size: clamp(0.65rem, 0.78vw, 0.75rem);
     color: #888;
     margin-top: 0.2rem;
     display: block;
     line-height: 1.2;
     text-align: center;
-    word-break: break-word;
-    max-width: 100%;
+    white-space: nowrap;
 }
 
 .crm-panel-note {
