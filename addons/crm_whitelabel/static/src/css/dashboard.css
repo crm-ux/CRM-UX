@@ -162,7 +162,7 @@
 .crm-pro-panel {
     background: #fff;
     border-radius: 12px;
-    padding: 20px 24px;
+    padding: 20px clamp(12px, 1.2vw, 20px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     cursor: pointer;
     transition: all 0.2s;
@@ -231,20 +231,16 @@
 .crm-metrics {
     display: flex;
     flex-wrap: nowrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: flex-start;
-    gap: clamp(0.4rem, 1.2vw, 1.2rem);
+    gap: clamp(4px, 0.6vw, 12px);
     margin-bottom: 0.75rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-
-.crm-metrics::-webkit-scrollbar {
-    display: none;
+    width: 100%;
 }
 
 .crm-metric {
-    flex: 0 0 auto;
+    flex: 1 1 0px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -260,16 +256,18 @@
     font-weight: 700;
     color: #1a2332;
     line-height: 1;
+    white-space: nowrap;
 }
 
 .crm-metric span {
-    font-size: clamp(0.65rem, 0.8vw, 0.75rem);
+    font-size: clamp(0.62rem, 0.72vw, 0.75rem);
     color: #888;
     margin-top: 0.2rem;
     display: block;
     line-height: 1.2;
-    white-space: nowrap;
     text-align: center;
+    word-break: break-word;
+    max-width: 100%;
 }
 
 .crm-panel-note {
