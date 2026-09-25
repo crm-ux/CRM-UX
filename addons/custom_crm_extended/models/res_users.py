@@ -161,9 +161,10 @@ class ResUsers(models.Model):
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
-            user.sudo().with_context(skip_sync=True).write(user_vals)
+            if group_ops:
+                user_vals['groups_id'] = group_ops
 
-            pass
+            user.sudo().with_context(skip_sync=True).write(user_vals)
 
 
     @api.depends('name', 'employee_ids')
@@ -1000,7 +1001,6 @@ class HrDepartment(models.Model):
                     {tree_html}
                 </div>
             '''
-
 
 
     def name_get(self):
