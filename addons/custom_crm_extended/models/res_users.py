@@ -174,6 +174,19 @@ class ResUsers(models.Model):
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
 
+    @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
+    def _compute_department_scope(self):
+        for user in self:
+            depts = self.env['hr.department']
+            if user.crm_department_id:
+                depts |= user.crm_department_id
+            if user.crm_job_id:
+                if user.crm_job_id.department_id:
+                    depts |= user.crm_job_id.department_id
+                if user.crm_job_id.sub_department_ids:
+                    depts |= user.crm_job_id.sub_department_ids
+            user.crm_department_ids = depts
+
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
         for user in self:
@@ -231,7 +244,7 @@ class ResUsers(models.Model):
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
             self._apply_job_permissions(job)
-        elif 'perm_lead_quote' in vals and not self.env.context.get('skip_sync'):
+        if 'perm_lead_quote' in vals and not self.env.context.get('skip_sync'):
             # When admin modifies Lead & Quotation permission directly on user form
             g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
@@ -269,21 +282,30 @@ class ResUsers(models.Model):
     
     def _assign_default_groups(self, users):
         try:
-            portal_group = self.env.ref('base.group_portal')
-            public_group = self.env.ref('base.group_public')
-            internal_group = self.env.ref('base.group_user')
-
-            groups_to_add = [
-                'sales_team.group_sale_salesman',
-                'base.group_multi_company',
-            ]
+            g_salesman = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
+            g_multi = self.env.ref('base.group_multi_company', raise_if_not_found=False)
             all_companies = self.env['res.company'].sudo().search([])
 
             for user in users:
-                # Assign all companies if not already assigned
+                if user.share or user.id in (2, 10, 11):
+                    continue
+                user_updates = {}
+                # 1. Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
                 if c_ops:
-                    user.sudo().with_context(skip_sync=True).write({'company_ids': c_ops})
+                    user_updates['company_ids'] = c_ops
+
+                # 2. Ensure base Salesman group is assigned
+                g_ops = []
+                if g_salesman and g_salesman not in user.groups_id:
+                    g_ops.append((4, g_salesman.id))
+                if g_multi and g_multi not in user.groups_id:
+                    g_ops.append((4, g_multi.id))
+                if g_ops:
+                    user_updates['groups_id'] = g_ops
+
+                if user_updates:
+                    user.sudo().with_context(skip_sync=True).write(user_updates)
         except Exception:
             pass
 
