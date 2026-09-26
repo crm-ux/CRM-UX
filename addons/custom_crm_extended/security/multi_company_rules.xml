@@ -41,47 +41,44 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
-        <!-- Groups for Lead & Quotation Hierarchy Scopes -->
-        <record id="group_sale_team_leads" model="res.groups">
-            <field name="name">Sales: Assigned Subordinates / Team Leads</field>
-            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
-        </record>
-
-        <record id="group_sale_department_leads" model="res.groups">
-            <field name="name">Sales: Department &amp; Sub-Departments Leads</field>
-            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
-        </record>
-
-        <!-- Record Rule: Team Manager sees own + assigned subordinates' leads -->
-        <record id="rule_crm_lead_subordinates" model="ir.rule">
-            <field name="name">Lead: Assigned Subordinates Only</field>
+        <!-- Global Hierarchy Record Rule for CRM Leads -->
+        <record id="rule_crm_lead_hierarchy" model="ir.rule">
+            <field name="name">CRM Lead: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="crm.model_crm_lead"/>
-            <field name="groups" eval="[(4, ref('group_sale_team_leads'))]"/>
-            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)]</field>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[
+                '|',
+                    ('user_id', '=', False),
+                '|',
+                    (user.id, 'in', (2, 10, 11)),
+                '|',
+                    (user.perm_lead_quote, 'in', ('all', 'admin')),
+                '|',
+                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
+                '|',
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)),
+                    ('user_id', '=', user.id)
+            ]</field>
         </record>
 
-        <!-- Record Rule: Department Manager sees all leads in primary + managed sub-departments -->
-        <record id="rule_crm_lead_department" model="ir.rule">
-            <field name="name">Lead: Department &amp; Sub-Departments</field>
-            <field name="model_id" ref="crm.model_crm_lead"/>
-            <field name="groups" eval="[(4, ref('group_sale_department_leads'))]"/>
-            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)]</field>
-        </record>
-
-        <!-- Record Rule: Team Manager sees own + assigned subordinates' quotations -->
-        <record id="rule_sale_order_subordinates" model="ir.rule">
-            <field name="name">Quotation: Assigned Subordinates Only</field>
+        <!-- Global Hierarchy Record Rule for Quotations / Sales Orders -->
+        <record id="rule_sale_order_hierarchy" model="ir.rule">
+            <field name="name">Sale Order: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="sale.model_sale_order"/>
-            <field name="groups" eval="[(4, ref('group_sale_team_leads'))]"/>
-            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)]</field>
-        </record>
-
-        <!-- Record Rule: Department Manager sees all quotations in primary + managed sub-departments -->
-        <record id="rule_sale_order_department" model="ir.rule">
-            <field name="name">Quotation: Department &amp; Sub-Departments</field>
-            <field name="model_id" ref="sale.model_sale_order"/>
-            <field name="groups" eval="[(4, ref('group_sale_department_leads'))]"/>
-            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)]</field>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[
+                '|',
+                    ('user_id', '=', False),
+                '|',
+                    (user.id, 'in', (2, 10, 11)),
+                '|',
+                    (user.perm_lead_quote, 'in', ('all', 'admin')),
+                '|',
+                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
+                '|',
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)),
+                    ('user_id', '=', user.id)
+            ]</field>
         </record>
     </data>
 </odoo>

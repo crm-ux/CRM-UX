@@ -77,78 +77,7 @@ class ResUsers(models.Model):
             # Safely apply to the real database record
             real_user = self.env['res.users'].browse(self._origin.id)
 
-    def _apply_job_permissions(self, job):
-        """Applies permissions defined on hr.job down to this user (1-way sync only)."""
-        for user in self:
-            if not user.id or user.id in (2, 10, 11) or user.has_group('base.group_system'):
-                continue
-
-            g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
-            g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
-            g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
-            
-    
-            group_ops = []
-
-            # 1. Excel Export
-            g_export = self.env.ref('base.group_allow_export', raise_if_not_found=False)
-            if g_export:
-                if job.perm_export == 'export':
-                    group_ops.append((4, g_export.id))
-                else:
-                    group_ops.append((3, g_export.id))
-
-            # 2. Company Creation (Multi Company)
-            g_multi = self.env.ref('base.group_multi_company', raise_if_not_found=False)
-            if g_multi:
-                if job.perm_company == 'create':
-                    group_ops.append((4, g_multi.id))
-
-            # 3. Equipment Master permissions
-            g_eq_own = self.env.ref('custom_crm_extended.group_equipment_own', raise_if_not_found=False)
-            g_eq_all = self.env.ref('custom_crm_extended.group_equipment_all', raise_if_not_found=False)
-            if g_eq_own and g_eq_all:
-                group_ops.append((3, g_eq_own.id))
-                group_ops.append((3, g_eq_all.id))
-                if getattr(job, 'perm_equipment', None) == 'own':
-                    group_ops.append((4, g_eq_own.id))
-                elif getattr(job, 'perm_equipment', None) in ('all', 'admin'):
-                    group_ops.append((4, g_eq_all.id))
-
-            # 4. Lead & Quotation Sales groups
-            g_team = self.env.ref('custom_crm_extended.group_sale_team_leads', raise_if_not_found=False)
-            g_dept = self.env.ref('custom_crm_extended.group_sale_department_leads', raise_if_not_found=False)
-            sales_gids = [g.id for g in [g_own, g_all, g_admin, g_team, g_dept] if g]
-            for sg_id in sales_gids:
-                group_ops.append((3, sg_id))
-
-            if job.perm_lead_quote and job.perm_lead_quote != 'none':
-                # ALWAYS grant base salesman group so user satisfies standard Odoo ACLs to create/access CRM leads & Sales orders
-                if g_own:
-                    group_ops.append((4, g_own.id))
-
-                if job.perm_lead_quote == 'admin' and g_admin:
-                    group_ops.append((4, g_admin.id))
-                elif job.perm_lead_quote == 'all' and (g_all or g_admin):
-                    group_ops.append((4, g_all.id if g_all else g_admin.id))
-                elif job.perm_lead_quote == 'department' and g_dept:
-                    group_ops.append((4, g_dept.id))
-                elif job.perm_lead_quote == 'subordinates' and g_team:
-                    group_ops.append((4, g_team.id))
-
-            # 5. Customer / Contact Creation
-            g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
-            if g_contact:
-                if job.perm_customer_create:
-                    group_ops.append((4, g_contact.id))
-                else:
-                    group_ops.append((3, g_contact.id))
-
-            # 6. Product Catalog
-            if job.perm_product_create and g_admin:
-                group_ops.append((4, g_admin.id))
-
-            # Apply all permission group changes via safe ORM
+            # Apply all permission values via safe ORM
             user_vals = {
                 'perm_lead_quote': job.perm_lead_quote,
                 'perm_export': job.perm_export,
@@ -169,15 +98,6 @@ class ResUsers(models.Model):
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
-
-            # Apply permission groups via pure Odoo ORM on res.groups
-            if group_ops:
-                for op in group_ops:
-                    grp = self.env['res.groups'].sudo().browse(op[1])
-                    if op[0] == 4:  # Add user to group
-                        grp.write({'users': [(4, user.id)]})
-                    elif op[0] == 3:  # Remove user from group
-                        grp.write({'users': [(3, user.id)]})
 
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
@@ -252,42 +172,6 @@ class ResUsers(models.Model):
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
             self._apply_job_permissions(job)
-        if 'perm_lead_quote' in vals and not self.env.context.get('skip_sync'):
-            # When admin modifies Lead & Quotation permission directly on user form
-            g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
-            g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
-            g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
-            g_team = self.env.ref('custom_crm_extended.group_sale_team_leads', raise_if_not_found=False)
-            g_dept = self.env.ref('custom_crm_extended.group_sale_department_leads', raise_if_not_found=False)
-            sales_gids = [g.id for g in [g_own, g_all, g_admin, g_team, g_dept] if g]
-
-            for user in self:
-                if user.id in (2, 10, 11) or user.has_group('base.group_system'):
-                    continue
-                g_ops = [(3, sg_id) for sg_id in sales_gids]
-                p_val = vals['perm_lead_quote']
-                if p_val and p_val != 'none':
-                    # ALWAYS grant base salesman group so user satisfies standard Odoo ACLs to create/access CRM leads & Sales orders
-                    if g_own:
-                        g_ops.append((4, g_own.id))
-
-                    if p_val == 'admin' and g_admin:
-                        g_ops.append((4, g_admin.id))
-                    elif p_val == 'all' and (g_all or g_admin):
-                        g_ops.append((4, g_all.id if g_all else g_admin.id))
-                    elif p_val == 'department' and g_dept:
-                        g_ops.append((4, g_dept.id))
-                    elif p_val == 'subordinates' and g_team:
-                        g_ops.append((4, g_team.id))
-
-                if g_ops:
-                    for op in g_ops:
-                        grp = self.env['res.groups'].sudo().browse(op[1])
-                        if op[0] == 4:
-                            grp.write({'users': [(4, user.id)]})
-                        elif op[0] == 3:
-                            grp.write({'users': [(3, user.id)]})
-
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
         return res
@@ -295,22 +179,14 @@ class ResUsers(models.Model):
     
     def _assign_default_groups(self, users):
         try:
-            g_salesman = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
-            g_multi = self.env.ref('base.group_multi_company', raise_if_not_found=False)
             all_companies = self.env['res.company'].sudo().search([])
-
             for user in users:
                 if user.share or user.id in (2, 10, 11):
                     continue
-                # 1. Assign all companies if not already assigned
+                # Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
                 if c_ops:
                     user.sudo().with_context(skip_sync=True).write({'company_ids': c_ops})
-
-                # 2. Ensure base Salesman and Multi-Company groups are assigned via pure ORM
-                for g in [g_salesman, g_multi]:
-                    if g:
-                        g.sudo().write({'users': [(4, user.id)]})
         except Exception:
             pass
 
