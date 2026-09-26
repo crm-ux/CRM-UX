@@ -61,10 +61,7 @@ def post_init_hook(env):
     # Auto-create linked hr.employee for all existing internal users
     internal_group = env.ref('base.group_user', raise_if_not_found=False)
     if internal_group:
-        users = env['res.users'].sudo().search([
-            ('share', '=', False),
-            ('groups_id', 'in', [internal_group.id])
-        ])
+        users = internal_group.users.filtered(lambda u: not u.share)
         for user in users:
             emp = env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
             emp_vals = {

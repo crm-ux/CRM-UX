@@ -170,22 +170,14 @@ class ResUsers(models.Model):
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
 
-            # In Odoo 19, res.users does not have 'groups_id' as a writeable field.
-            # Safely sync group membership directly via res_groups_users_rel
+            # Apply permission groups via pure Odoo ORM on res.groups
             if group_ops:
-                cr = self.env.cr
                 for op in group_ops:
-                    if op[0] == 4:  # Add
-                        cr.execute(
-                            "INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING",
-                            (op[1], user.id)
-                        )
-                    elif op[0] == 3:  # Remove
-                        cr.execute(
-                            "DELETE FROM res_groups_users_rel WHERE gid = %s AND uid = %s",
-                            (op[1], user.id)
-                        )
-                user.invalidate_recordset()
+                    grp = self.env['res.groups'].sudo().browse(op[1])
+                    if op[0] == 4:  # Add user to group
+                        grp.write({'users': [(4, user.id)]})
+                    elif op[0] == 3:  # Remove user from group
+                        grp.write({'users': [(3, user.id)]})
 
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
@@ -289,7 +281,12 @@ class ResUsers(models.Model):
                         g_ops.append((4, g_team.id))
 
                 if g_ops:
-                    user.sudo().with_context(skip_sync=True).write({'groups_id': g_ops})
+                    for op in g_ops:
+                        grp = self.env['res.groups'].sudo().browse(op[1])
+                        if op[0] == 4:
+                            grp.write({'users': [(4, user.id)]})
+                        elif op[0] == 3:
+                            grp.write({'users': [(3, user.id)]})
 
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
@@ -305,23 +302,15 @@ class ResUsers(models.Model):
             for user in users:
                 if user.share or user.id in (2, 10, 11):
                     continue
-                user_updates = {}
                 # 1. Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
                 if c_ops:
-                    user_updates['company_ids'] = c_ops
+                    user.sudo().with_context(skip_sync=True).write({'company_ids': c_ops})
 
-                # 2. Ensure base Salesman group is assigned
-                g_ops = []
-                if g_salesman and g_salesman not in user.groups_id:
-                    g_ops.append((4, g_salesman.id))
-                if g_multi and g_multi not in user.groups_id:
-                    g_ops.append((4, g_multi.id))
-                if g_ops:
-                    user_updates['groups_id'] = g_ops
-
-                if user_updates:
-                    user.sudo().with_context(skip_sync=True).write(user_updates)
+                # 2. Ensure base Salesman and Multi-Company groups are assigned via pure ORM
+                for g in [g_salesman, g_multi]:
+                    if g:
+                        g.sudo().write({'users': [(4, user.id)]})
         except Exception:
             pass
 
