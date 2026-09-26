@@ -939,7 +939,7 @@ class DashboardStats(models.Model):
             if perm == 'subordinates':
                 user_filter = ['|', ('user_id', 'in', sub_ids), ('create_uid', 'in', sub_ids)]
             elif perm == 'department':
-                # Dynamic department resolution so it works even if stored field hasn't computed yet
+                # Dynamic department resolution
                 depts = target_user.crm_department_ids
                 if not depts:
                     if target_user.crm_department_id:
@@ -949,18 +949,19 @@ class DashboardStats(models.Model):
                             depts |= target_user.crm_job_id.department_id
                         if target_user.crm_job_id.sub_department_ids:
                             depts |= target_user.crm_job_id.sub_department_ids
-                dept_ids = depts.ids
 
-                if dept_ids:
-                    user_filter = [
-                        '|', '|', '|',
-                        ('user_id', 'in', sub_ids),
-                        ('create_uid', 'in', sub_ids),
-                        ('user_id.crm_department_id', 'in', dept_ids),
-                        ('create_uid.crm_department_id', 'in', dept_ids)
-                    ]
-                else:
-                    user_filter = ['|', ('user_id', 'in', sub_ids), ('create_uid', 'in', sub_ids)]
+                # Also find all users who belong to this department or child departments
+                dept_users = self.env['res.users'].search([
+                    '|', ('crm_department_id', 'in', depts.ids),
+                    ('crm_job_id.department_id', 'in', depts.ids)
+                ]) if depts else self.env['res.users']
+                allowed_uids = list(set(sub_ids + dept_users.ids + [uid]))
+
+                user_filter = [
+                    '|',
+                    ('user_id', 'in', allowed_uids),
+                    ('create_uid', 'in', allowed_uids)
+                ]
             elif perm in ('all', 'admin'):
                 user_filter = []
             else:  # 'own' or 'none'
