@@ -50,12 +50,16 @@ class ResPartner(models.Model):
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
+        # When creating or editing leads/quotes, CRM auto-links or touches partner in the background; bypass strict customer check
+        if self.env.context.get('skip_sync') or self.env.context.get('default_opportunity_id') or self.env.context.get('active_model') == 'crm.lead':
+            return super(ResPartner, self).check_access_rights(operation, raise_exception=raise_exception)
+
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             if operation == 'create' and not self._user_can('perm_customer_create', True):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Customer / Contact records."))
                 return False
-            if operation == 'write' and not self._user_can('perm_customer_write', True) and not self.env.context.get('skip_sync'):
+            if operation == 'write' and not self._user_can('perm_customer_write', True):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
                 return False
@@ -68,16 +72,18 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        # Allow lead creation wizard / opportunity creation to create contact if needed
+        is_lead_ctx = bool(self.env.context.get('skip_sync') or self.env.context.get('active_model') == 'crm.lead' or self.env.context.get('default_opportunity_id'))
+        if not is_lead_ctx and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             if not self._user_can('perm_customer_create', True):
                 raise UserError(_("Access Denied: You do not have permission to create Customer / Contact records."))
         return super(ResPartner, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
-        # Do not block background sync, superusers, or the user updating their own partner record on login (e.g. tz, login_date)
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11) and not self.env.context.get('skip_sync'):
-            # Allow user to update their own partner record
+        # Allow lead creation context, skip_sync, superuser, or updating own profile
+        is_lead_ctx = bool(self.env.context.get('skip_sync') or self.env.context.get('active_model') == 'crm.lead' or self.env.context.get('default_opportunity_id'))
+        if not is_lead_ctx and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             other_partners = self.filtered(lambda p: p.id != user.partner_id.id)
             if other_partners and not self._user_can('perm_customer_write', True):
                 raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
@@ -86,7 +92,6 @@ class ResPartner(models.Model):
     def unlink(self):
         for rec in self:
             user = self.env.user
-            # Allow super admin or if user has delete customer permission
             if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
                 if not self._user_can('perm_customer_unlink', False):
                     raise UserError(_("Access Denied: You do not have permission to delete Customer / Contact records."))
