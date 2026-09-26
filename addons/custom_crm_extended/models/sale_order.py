@@ -939,7 +939,7 @@ class DashboardStats(models.Model):
                 user_filter = [('user_id', 'in', sub_ids)]
             elif perm == 'department':
                 dept_ids = target_user.crm_department_ids.ids
-                user_filter = ['|', ('user_id', '=', uid), ('user_id.crm_department_ids', 'in', dept_ids)]
+                user_filter = ['|', ('user_id', '=', uid), ('user_id.crm_department_id', 'in', dept_ids)]
             elif perm in ('all', 'admin'):
                 user_filter = []
             else:  # 'own' or 'none'

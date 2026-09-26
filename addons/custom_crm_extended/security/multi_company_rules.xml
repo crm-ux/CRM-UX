@@ -56,7 +56,7 @@
                 '|',
                     '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)),
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_id', 'in', user.crm_department_ids.ids)),
                     ('user_id', '=', user.id)
             ]</field>
         </record>
@@ -76,7 +76,7 @@
                 '|',
                     '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)),
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_id', 'in', user.crm_department_ids.ids)),
                     ('user_id', '=', user.id)
             ]</field>
         </record>
