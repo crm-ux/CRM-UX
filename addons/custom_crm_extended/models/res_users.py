@@ -72,12 +72,17 @@ class ResUsers(models.Model):
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
-        """When Job Position is selected on user form, apply group permissions to this user."""
+        """When Job Position is selected on user form, apply permissions to this user."""
         if self.crm_job_id and self._origin.id:
-            # Safely apply to the real database record
             real_user = self.env['res.users'].browse(self._origin.id)
+            real_user._apply_job_permissions(self.crm_job_id)
 
-            # Apply all permission values via safe ORM
+    def _apply_job_permissions(self, job):
+        """Applies permissions defined on hr.job down to this user (1-way sync)."""
+        for user in self:
+            if not user.id or user.id in (2, 10, 11) or user.has_group('base.group_system'):
+                continue
+
             user_vals = {
                 'perm_lead_quote': job.perm_lead_quote,
                 'perm_export': job.perm_export,
