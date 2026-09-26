@@ -43,16 +43,20 @@ class ResUsers(models.Model):
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'Company: All Documents'),
         ('admin', 'Administrator'),
-    ], string='Service Ticket', default='none')
+    ], string='Service Ticket', default='own')
 
     perm_amc = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'Company: All Documents'),
         ('admin', 'Administrator'),
-    ], string='AMC Contract', default='none')
+    ], string='AMC Contract', default='own')
 
     perm_product_create = fields.Boolean(string='Create Product', default=False)
     perm_product_write = fields.Boolean(string='Update Product', default=False)

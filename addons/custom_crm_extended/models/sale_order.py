@@ -934,16 +934,37 @@ class DashboardStats(models.Model):
 
         user_filter = []
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
+            # Direct subordinates
+            sub_ids = target_user.crm_subordinate_ids.ids + [uid]
             if perm == 'subordinates':
-                sub_ids = target_user.crm_subordinate_ids.ids + [uid]
-                user_filter = [('user_id', 'in', sub_ids)]
+                user_filter = ['|', ('user_id', 'in', sub_ids), ('create_uid', 'in', sub_ids)]
             elif perm == 'department':
-                dept_ids = target_user.crm_department_ids.ids
-                user_filter = ['|', ('user_id', '=', uid), ('user_id.crm_department_id', 'in', dept_ids)]
+                # Dynamic department resolution so it works even if stored field hasn't computed yet
+                depts = target_user.crm_department_ids
+                if not depts:
+                    if target_user.crm_department_id:
+                        depts |= target_user.crm_department_id
+                    if target_user.crm_job_id:
+                        if target_user.crm_job_id.department_id:
+                            depts |= target_user.crm_job_id.department_id
+                        if target_user.crm_job_id.sub_department_ids:
+                            depts |= target_user.crm_job_id.sub_department_ids
+                dept_ids = depts.ids
+
+                if dept_ids:
+                    user_filter = [
+                        '|', '|', '|',
+                        ('user_id', 'in', sub_ids),
+                        ('create_uid', 'in', sub_ids),
+                        ('user_id.crm_department_id', 'in', dept_ids),
+                        ('create_uid.crm_department_id', 'in', dept_ids)
+                    ]
+                else:
+                    user_filter = ['|', ('user_id', 'in', sub_ids), ('create_uid', 'in', sub_ids)]
             elif perm in ('all', 'admin'):
                 user_filter = []
             else:  # 'own' or 'none'
-                user_filter = [('user_id', '=', uid)]
+                user_filter = ['|', ('user_id', '=', uid), ('create_uid', '=', uid)]
 
         # Lead stage counts
         lead_domain = [('active', '=', True)] + company_filter + user_filter

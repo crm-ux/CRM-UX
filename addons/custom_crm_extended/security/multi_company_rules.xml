@@ -54,10 +54,10 @@
                 '|',
                     (user.perm_lead_quote, 'in', ('all', 'admin')),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
+                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_id', 'in', user.crm_department_ids.ids)),
-                    ('user_id', '=', user.id)
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
             ]</field>
         </record>
 
@@ -74,10 +74,64 @@
                 '|',
                     (user.perm_lead_quote, 'in', ('all', 'admin')),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)),
+                    '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), ('user_id.crm_department_id', 'in', user.crm_department_ids.ids)),
-                    ('user_id', '=', user.id)
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
+            ]</field>
+        </record>
+
+        <!-- Global Hierarchy Record Rule for Service Tickets -->
+        <record id="rule_service_ticket_hierarchy" model="ir.rule">
+            <field name="name">Service Ticket: Hierarchy &amp; Permission Access</field>
+            <field name="model_id" ref="model_service_ticket"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[
+                '|',
+                    (user.id, 'in', (2, 10, 11)),
+                '|',
+                    (user.perm_service_ticket, 'in', ('all', 'admin')),
+                '|',
+                    '&amp;', (user.perm_service_ticket, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
+                '|',
+                    '&amp;', (user.perm_service_ticket, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
+            ]</field>
+        </record>
+
+        <!-- Global Hierarchy Record Rule for AMC Contracts -->
+        <record id="rule_amc_contract_hierarchy" model="ir.rule">
+            <field name="name">AMC Contract: Hierarchy &amp; Permission Access</field>
+            <field name="model_id" ref="model_amc_contract"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[
+                '|',
+                    (user.id, 'in', (2, 10, 11)),
+                '|',
+                    (user.perm_amc, 'in', ('all', 'admin')),
+                '|',
+                    '&amp;', (user.perm_amc, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
+                '|',
+                    '&amp;', (user.perm_amc, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
+            ]</field>
+        </record>
+
+        <!-- Global Hierarchy Record Rule for Equipment Master -->
+        <record id="rule_equipment_master_hierarchy" model="ir.rule">
+            <field name="name">Equipment Master: Hierarchy Access</field>
+            <field name="model_id" ref="model_equipment_master"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[
+                '|',
+                    (user.id, 'in', (2, 10, 11)),
+                '|',
+                    (user.perm_equipment_read, '=', True),
+                '|',
+                    '|', ('user_id', '=', user.id), ('create_uid', '=', user.id),
+                '|',
+                    '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids),
+                    '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))
             ]</field>
         </record>
     </data>
