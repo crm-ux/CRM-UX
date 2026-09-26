@@ -969,26 +969,26 @@ class DashboardStats(models.Model):
             else:  # 'own' or 'none'
                 user_filter = ['|', ('user_id', '=', uid), ('create_uid', '=', uid)]
 
-        # Lead stage counts
+        # Lead stage counts (evaluated with sudo to avoid double-filtering with ir.rule)
         lead_domain = [('active', '=', True)] + company_filter + user_filter
-        leads = self.env['crm.lead'].read_group(
+        leads = self.env['crm.lead'].sudo().read_group(
             lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
         # Lead priority counts
         lead_priority_domain = lead_domain + [('x_stage_sequence', '<', 30)]
-        priority_groups = self.env['crm.lead'].read_group(
+        priority_groups = self.env['crm.lead'].sudo().read_group(
             lead_priority_domain, ['x_lead_priority'], ['x_lead_priority']
         )
         priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
 
         # Quote stage counts
         quote_domain = [('state', '!=', 'cancel')] + company_filter + user_filter
-        quotes = self.env['sale.order'].read_group(
+        quotes = self.env['sale.order'].sudo().read_group(
             quote_domain, ['x_quote_stage'], ['x_quote_stage'])
         quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
 
         # Revenue
-        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')] + company_filter + user_filter)
+        won_orders = self.env['sale.order'].sudo().search([('x_quote_stage', '=', 'won')] + company_filter + user_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
         # Check invoice date for Won orders
@@ -1002,7 +1002,7 @@ class DashboardStats(models.Model):
             else:
                 invoice_pending += 1
 
-        pending_orders = self.env['sale.order'].search([
+        pending_orders = self.env['sale.order'].sudo().search([
             ('x_quote_stage', 'not in', ['won', 'lost']),
             ('state', '!=', 'cancel')
         ] + company_filter + user_filter)
@@ -1010,7 +1010,7 @@ class DashboardStats(models.Model):
 
         from datetime import date
         today = date.today().strftime('%Y-%m-%d')
-        today_orders = self.env['sale.order'].search([
+        today_orders = self.env['sale.order'].sudo().search([
             ('x_quote_stage', '=', 'won'),
             ('date_order', '>=', today + ' 00:00:00')
         ] + company_filter + user_filter)
