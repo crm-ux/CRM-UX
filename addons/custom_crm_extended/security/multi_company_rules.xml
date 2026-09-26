@@ -46,17 +46,9 @@
             <field name="name">CRM Lead: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="crm.model_crm_lead"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[
-                '|',
-                    ('user_id', '=', False),
-                '|',
-                    (user.id, 'in', (2, 10, 11)),
-                '|',
-                    (user.perm_lead_quote, 'in', ('all', 'admin')),
-                '|',
-                    ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')),
-                    ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))
-            ]</field>
+            <field name="domain_force">
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))]
+            </field>
         </record>
 
         <!-- Global Hierarchy Record Rule for Quotations / Sales Orders -->
@@ -64,17 +56,9 @@
             <field name="name">Sale Order: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[
-                '|',
-                    ('user_id', '=', False),
-                '|',
-                    (user.id, 'in', (2, 10, 11)),
-                '|',
-                    (user.perm_lead_quote, 'in', ('all', 'admin')),
-                '|',
-                    ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')),
-                    ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))
-            ]</field>
+            <field name="domain_force">
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))]
+            </field>
         </record>
 
         <!-- Global Hierarchy Record Rule for Service Tickets -->
@@ -82,15 +66,9 @@
             <field name="name">Service Ticket: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="model_service_ticket"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[
-                '|',
-                    (user.id, 'in', (2, 10, 11)),
-                '|',
-                    (user.perm_service_ticket, 'in', ('all', 'admin')),
-                '|',
-                    ('user_id', 'in', user._get_accessible_user_ids('perm_service_ticket')),
-                    ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))
-            ]</field>
+            <field name="domain_force">
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_service_ticket in ('all', 'admin') else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_service_ticket')), ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))]
+            </field>
         </record>
 
         <!-- Global Hierarchy Record Rule for AMC Contracts -->
@@ -98,15 +76,9 @@
             <field name="name">AMC Contract: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="model_amc_contract"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[
-                '|',
-                    (user.id, 'in', (2, 10, 11)),
-                '|',
-                    (user.perm_amc, 'in', ('all', 'admin')),
-                '|',
-                    ('user_id', 'in', user._get_accessible_user_ids('perm_amc')),
-                    ('create_uid', 'in', user._get_accessible_user_ids('perm_amc'))
-            ]</field>
+            <field name="domain_force">
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_amc in ('all', 'admin') else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_amc')), ('create_uid', 'in', user._get_accessible_user_ids('perm_amc'))]
+            </field>
         </record>
 
         <!-- Global Hierarchy Record Rule for Equipment Master -->
@@ -114,15 +86,9 @@
             <field name="name">Equipment Master: Hierarchy Access</field>
             <field name="model_id" ref="model_equipment_master"/>
             <field name="global" eval="True"/>
-            <field name="domain_force">[
-                '|',
-                    (user.id, 'in', (2, 10, 11)),
-                '|',
-                    (user.perm_equipment_read, '=', True),
-                '|',
-                    ('user_id', 'in', user._get_accessible_user_ids('perm_equipment_read')),
-                    ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment_read'))
-            ]</field>
+            <field name="domain_force">
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment_read else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment_read')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment_read'))]
+            </field>
         </record>
     </data>
 </odoo>
