@@ -11,9 +11,21 @@ class ResUsers(models.Model):
     crm_expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
-
-    # Department Scope (Inherited from Job Role)
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Allowed Departments', compute='_compute_department_scope', store=True)
+
+    def _get_all_subordinates(self):
+        """Recursively retrieves all subordinate user IDs down the entire management chain."""
+        subordinates = self.env['res.users']
+        current_users = self
+        visited = set(self.ids)
+        while current_users:
+            next_users = self.search([('crm_manager_id', 'in', current_users.ids), ('id', 'not in', list(visited))])
+            if not next_users:
+                break
+            subordinates |= next_users
+            visited.update(next_users.ids)
+            current_users = next_users
+        return subordinates
 
     def action_revoke_role(self):
         """Unassigns this role from the user."""

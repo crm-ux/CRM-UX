@@ -934,44 +934,43 @@ class DashboardStats(models.Model):
 
         user_filter = []
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
-            # Direct subordinates
-            sub_ids = target_user.crm_subordinate_ids.ids + [uid]
-            if perm == 'subordinates':
-                user_filter = ['|', ('user_id', 'in', sub_ids), ('create_uid', 'in', sub_ids)]
-            elif perm == 'department':
-                # Dynamic department resolution + all child departments
-                depts = target_user.crm_department_ids
-                if not depts:
-                    if target_user.crm_department_id:
-                        depts |= target_user.crm_department_id
-                    if target_user.crm_job_id:
-                        if target_user.crm_job_id.department_id:
-                            depts |= target_user.crm_job_id.department_id
-                        if target_user.crm_job_id.sub_department_ids:
-                            depts |= target_user.crm_job_id.sub_department_ids
+            if perm in ('all', 'admin'):
+                user_filter = []
+            elif perm in ('subordinates', 'department'):
+                # 1. Collect all subordinates recursively
+                all_subs = target_user._get_all_subordinates()
+                sub_ids = set(all_subs.ids + target_user.crm_subordinate_ids.ids + [uid])
 
-                # Include all children of these departments
+                # 2. Collect departments from user, job role, and employee
+                depts = target_user.crm_department_ids | target_user.crm_department_id
+                if target_user.crm_job_id:
+                    if target_user.crm_job_id.department_id:
+                        depts |= target_user.crm_job_id.department_id
+                    if target_user.crm_job_id.sub_department_ids:
+                        depts |= target_user.crm_job_id.sub_department_ids
+                if target_user.employee_id and target_user.employee_id.department_id:
+                    depts |= target_user.employee_id.department_id
+
                 all_dept_ids = []
                 if depts:
-                    all_depts = self.env['hr.department'].search([('id', 'child_of', depts.ids)])
+                    all_depts = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)])
                     all_dept_ids = all_depts.ids
 
-                # Find all users who belong to this department or its children (via user or employee)
+                # 3. Find all users in these departments
                 dept_users = self.env['res.users'].sudo().search([
                     '|', '|',
                     ('crm_department_id', 'in', all_dept_ids),
                     ('crm_job_id.department_id', 'in', all_dept_ids),
                     ('employee_id.department_id', 'in', all_dept_ids)
                 ]) if all_dept_ids else self.env['res.users']
-                allowed_uids = list(set(sub_ids + dept_users.ids + [uid]))
+
+                allowed_uids = list(sub_ids | set(dept_users.ids))
 
                 user_filter = [
                     '|',
                     ('user_id', 'in', allowed_uids),
                     ('create_uid', 'in', allowed_uids)
                 ]
-            elif perm in ('all', 'admin'):
-                user_filter = []
             else:  # 'own' or 'none'
                 user_filter = ['|', ('user_id', '=', uid), ('create_uid', '=', uid)]
 
