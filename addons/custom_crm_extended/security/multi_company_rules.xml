@@ -56,7 +56,7 @@
                 '|',
                     '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
                     '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
             ]</field>
         </record>
@@ -76,7 +76,7 @@
                 '|',
                     '&amp;', (user.perm_lead_quote, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
+                    '&amp;', (user.perm_lead_quote, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
                     '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
             ]</field>
         </record>
@@ -94,7 +94,7 @@
                 '|',
                     '&amp;', (user.perm_service_ticket, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_service_ticket, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '&amp;', (user.perm_service_ticket, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
                     '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
             ]</field>
         </record>
@@ -112,7 +112,7 @@
                 '|',
                     '&amp;', (user.perm_amc, '=', 'subordinates'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), ('create_uid', 'in', user.crm_subordinate_ids.ids)),
                 '|',
-                    '&amp;', (user.perm_amc, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id])), ('create_uid.crm_department_id', 'in', (user.crm_department_ids.ids or [user.crm_department_id.id]))),
+                    '&amp;', (user.perm_amc, '=', 'department'), ('|', ('user_id', '=', user.id), '|', ('create_uid', '=', user.id), '|', ('user_id', 'in', user.crm_subordinate_ids.ids), '|', ('create_uid', 'in', user.crm_subordinate_ids.ids), '|', ('user_id.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id])), ('create_uid.crm_department_id', 'child_of', (user.crm_department_ids.ids or [user.crm_department_id.id] or [user.crm_job_id.department_id.id]))),
                     '|', ('user_id', '=', user.id), ('create_uid', '=', user.id)
             ]</field>
         </record>
