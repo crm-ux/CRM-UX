@@ -937,30 +937,13 @@ class DashboardStats(models.Model):
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
             if perm in ('all', 'admin'):
                 user_filter = []
-            elif perm == 'subordinates':
-                # Only subordinates + self
-                sub_ids = list(set([uid] + target_user.crm_subordinate_ids.ids + target_user._get_all_subordinates().ids))
-                user_filter = [
-                    '|',
-                    ('user_id', 'in', sub_ids),
-                    ('create_uid', 'in', sub_ids)
-                ]
-            elif perm == 'department':
-                # Subordinates + users in own department or sub-departments
-                sub_ids = set([uid] + target_user.crm_subordinate_ids.ids + target_user._get_all_subordinates().ids)
-                depts = target_user.crm_department_ids | target_user.crm_department_id
-                if not depts and target_user.crm_job_id and target_user.crm_job_id.department_id:
-                    depts = target_user.crm_job_id.department_id
-                all_dept_ids = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)]).ids if depts else []
-                dept_users = self.env['res.users'].sudo().search([('crm_department_id', 'in', all_dept_ids)]).ids if all_dept_ids else []
-                allowed_uids = list(sub_ids | set(dept_users))
+            else:
+                allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
                 user_filter = [
                     '|',
                     ('user_id', 'in', allowed_uids),
                     ('create_uid', 'in', allowed_uids)
                 ]
-            else:  # 'own' or 'none'
-                user_filter = ['|', ('user_id', '=', uid), ('create_uid', '=', uid)]
 
         # Lead stage counts (evaluated with sudo to avoid double-filtering with ir.rule)
         lead_domain = [('active', '=', True)] + company_filter + user_filter

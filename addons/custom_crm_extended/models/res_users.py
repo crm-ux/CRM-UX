@@ -27,6 +27,37 @@ class ResUsers(models.Model):
             current_users = next_users
         return subordinates
 
+    def _get_accessible_user_ids(self, perm_field='perm_lead_quote'):
+        """Return all user IDs that this user is permitted to see according to their hierarchy/department."""
+        self.ensure_one()
+        u = self.sudo()
+        uids = set([u.id])
+
+        # 1. Direct and indirect subordinates
+        uids.update(u.crm_subordinate_ids.ids)
+        uids.update(u._get_all_subordinates().ids)
+
+        # 2. Check permission level
+        perm = getattr(u, perm_field, None) or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
+        if perm in ('department', 'all', 'admin'):
+            depts = u.crm_department_ids | u.crm_department_id
+            if u.crm_job_id:
+                depts |= u.crm_job_id.department_id | u.crm_job_id.sub_department_ids
+            if u.employee_id and u.employee_id.department_id:
+                depts |= u.employee_id.department_id
+
+            all_dept_ids = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)]).ids if depts else []
+            if all_dept_ids:
+                dept_users = self.env['res.users'].sudo().search([
+                    '|', '|',
+                    ('crm_department_id', 'in', all_dept_ids),
+                    ('crm_job_id.department_id', 'in', all_dept_ids),
+                    ('employee_ids.department_id', 'in', all_dept_ids)
+                ])
+                uids.update(dept_users.ids)
+
+        return list(uids)
+
     def action_revoke_role(self):
         """Unassigns this role from the user."""
         for user in self:
