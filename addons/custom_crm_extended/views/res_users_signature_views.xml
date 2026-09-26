@@ -51,7 +51,14 @@
                     </p>
                 </page>
             </xpath>
-            <xpath expr="//page[@name='access_rights']" position="inside">
+
+            <!-- Hide standard duplicate Sales / CRM / Lead group -->
+            <xpath expr="//page[@name='access_rights']//group[field[@name='sale_team_id'] or field[@name='target_sales_done']]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Place Configuration & Masters at the TOP of Access Rights, and Website below it -->
+            <xpath expr="//page[@name='access_rights']//group[1]" position="before">
                 <group string="Configuration &amp; Masters">
                     <group>
                         <field name="perm_lead_quote" string="Lead &amp; Quotation"/>
