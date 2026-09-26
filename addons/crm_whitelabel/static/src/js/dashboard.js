@@ -446,13 +446,16 @@ class CrmDashboard extends Component {
     }
 
     openEquipmentList(domain = [], name = "Equipment Master") {
-        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        const cd = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: name,
             res_model: "equipment.master",
             views: [[false, "list"], [false, "form"]],
             domain: [...domain, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies },
         });
     }
 
@@ -461,13 +464,16 @@ class CrmDashboard extends Component {
     }
 
     openServiceTicketList(domain = [], name = "Service Tickets") {
-        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        const cd = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: name,
             res_model: "service.ticket",
             views: [[false, "list"], [false, "form"]],
             domain: [...domain, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies },
         });
     }
 
@@ -543,7 +549,9 @@ class CrmDashboard extends Component {
     }
 
     openInvoiceCreated() {
-        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        const cd = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: "Invoiced Orders",
@@ -555,7 +563,9 @@ class CrmDashboard extends Component {
     }
 
     openInvoicePending() {
-        const cd = this.state.selectedCompanies.length ? [["company_id", "in", this.state.selectedCompanies]] : [];
+        const cd = this.state.selectedCompanies.length
+            ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
+            : [];
         this.go({
             type: "ir.actions.act_window",
             name: "Invoice Pending Orders",
