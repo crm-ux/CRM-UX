@@ -16,10 +16,10 @@ class ResUsers(models.Model):
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
         subordinates = self.env['res.users']
-        current_users = self
+        current_users = self.sudo()
         visited = set(self.ids)
         while current_users:
-            next_users = self.search([('crm_manager_id', 'in', current_users.ids), ('id', 'not in', list(visited))])
+            next_users = self.env['res.users'].sudo().search([('crm_manager_id', 'in', current_users.ids), ('id', 'not in', list(visited))])
             if not next_users:
                 break
             subordinates |= next_users
