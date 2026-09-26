@@ -69,5 +69,21 @@
             <field name="groups" eval="[(4, ref('group_sale_department_leads'))]"/>
             <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)]</field>
         </record>
+
+        <!-- Record Rule: Team Manager sees own + assigned subordinates' quotations -->
+        <record id="rule_sale_order_subordinates" model="ir.rule">
+            <field name="name">Quotation: Assigned Subordinates Only</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="groups" eval="[(4, ref('group_sale_team_leads'))]"/>
+            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id', 'in', user.crm_subordinate_ids.ids)]</field>
+        </record>
+
+        <!-- Record Rule: Department Manager sees all quotations in primary + managed sub-departments -->
+        <record id="rule_sale_order_department" model="ir.rule">
+            <field name="name">Quotation: Department &amp; Sub-Departments</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="groups" eval="[(4, ref('group_sale_department_leads'))]"/>
+            <field name="domain_force">['|', ('user_id', '=', user.id), ('user_id.crm_department_ids', 'in', user.crm_department_ids.ids)]</field>
+        </record>
     </data>
 </odoo>

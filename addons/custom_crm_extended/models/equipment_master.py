@@ -189,13 +189,23 @@ class EquipmentMaster(models.Model):
         }
 
     @api.model
+    def _user_can(self, perm_name, default=False):
+        user = self.env.user
+        if user.has_group('base.group_system') or user.id in (2, 10, 11):
+            return True
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
+
+    @api.model
     def get_views(self, views, options=None):
         res = super(EquipmentMaster, self).get_views(views, options=options)
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            can_create = getattr(user, 'perm_equipment_create', True)
-            can_write = getattr(user, 'perm_equipment_write', True)
-            can_delete = getattr(user, 'perm_equipment_unlink', False)
+            can_create = self._user_can('perm_equipment_create', True)
+            can_write = self._user_can('perm_equipment_write', True)
+            can_delete = self._user_can('perm_equipment_unlink', False)
 
             for vtype in ['form', 'list', 'tree', 'kanban']:
                 if vtype in res.get('views', {}):
@@ -215,15 +225,15 @@ class EquipmentMaster(models.Model):
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if operation == 'create' and not getattr(user, 'perm_equipment_create', True):
+            if operation == 'create' and not self._user_can('perm_equipment_create', True):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
                 return False
-            if operation == 'write' and not getattr(user, 'perm_equipment_write', True):
+            if operation == 'write' and not self._user_can('perm_equipment_write', True):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
                 return False
-            if operation == 'unlink' and not getattr(user, 'perm_equipment_unlink', False):
+            if operation == 'unlink' and not self._user_can('perm_equipment_unlink', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to delete Equipment Master records."))
                 return False
@@ -233,14 +243,14 @@ class EquipmentMaster(models.Model):
     def create(self, vals_list):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not getattr(user, 'perm_equipment_create', True):
+            if not self._user_can('perm_equipment_create', True):
                 raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
         return super(EquipmentMaster, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not getattr(user, 'perm_equipment_write', True):
+            if not self._user_can('perm_equipment_write', True):
                 raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
         return super(EquipmentMaster, self).write(vals)
 
@@ -248,6 +258,6 @@ class EquipmentMaster(models.Model):
         for rec in self:
             user = self.env.user
             if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-                if not getattr(user, 'perm_equipment_unlink', False):
+                if not self._user_can('perm_equipment_unlink', False):
                     raise UserError(_("Access Denied: You do not have permission to delete Equipment Master records."))
         return super(EquipmentMaster, self).unlink()

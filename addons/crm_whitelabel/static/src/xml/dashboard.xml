@@ -269,6 +269,13 @@
                     </div>
                     <p class="crm-panel-note">View customer records, company details and communication history.</p>
                 </div>
+                <div class="crm-pro-panel" style="border-left:4px solid #0284c7;" t-on-click="openProducts">
+                    <div class="crm-panel-head"><div><h2>Product Catalog</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric"><strong><t t-esc="state.products || 0"/></strong><span>Products</span></div>
+                    </div>
+                    <p class="crm-panel-note">Browse product list, models, pricing and specifications.</p>
+                </div>
                 <div class="crm-pro-panel" style="border-left:4px solid #6366f1;">
                     <div class="crm-panel-head"><div><h2>This Month Reminders</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">

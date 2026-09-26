@@ -16,12 +16,11 @@ class ResPartner(models.Model):
         user = self.env.user
         if user.has_group('base.group_system') or user.id in (2, 10, 11):
             return True
+        # If user assigned a job position, the role permission takes precedence
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        # Otherwise check the direct user setting
         val = getattr(user, perm_name, None)
-        if val:
-            return True
-        # If user assigned a job position, inherit role permission directly
-        if user.crm_job_id:
-            return bool(getattr(user.crm_job_id, perm_name, default))
         return bool(val if val is not None else default)
 
     @api.model

@@ -122,19 +122,19 @@ class ResUsers(models.Model):
             for sg_id in sales_gids:
                 group_ops.append((3, sg_id))
 
-            target_sale_gid = None
-            if job.perm_lead_quote in ('admin', 'all') and (g_admin or g_all):
-                target_sale_gid = g_admin.id if job.perm_lead_quote == 'admin' and g_admin else (g_all.id if g_all else (g_admin.id if g_admin else None))
-            elif job.perm_lead_quote == 'department' and g_dept:
-                target_sale_gid = g_dept.id
-            elif job.perm_lead_quote == 'subordinates' and g_team:
-                target_sale_gid = g_team.id
-            elif job.perm_lead_quote in ('own', 'subordinates', 'department') and g_own:
-                # If custom team/dept group not yet loaded, fall back to own
-                target_sale_gid = g_own.id
+            if job.perm_lead_quote and job.perm_lead_quote != 'none':
+                # ALWAYS grant base salesman group so user satisfies standard Odoo ACLs to create/access CRM leads & Sales orders
+                if g_own:
+                    group_ops.append((4, g_own.id))
 
-            if target_sale_gid:
-                group_ops.append((4, target_sale_gid))
+                if job.perm_lead_quote == 'admin' and g_admin:
+                    group_ops.append((4, g_admin.id))
+                elif job.perm_lead_quote == 'all' and (g_all or g_admin):
+                    group_ops.append((4, g_all.id if g_all else g_admin.id))
+                elif job.perm_lead_quote == 'department' and g_dept:
+                    group_ops.append((4, g_dept.id))
+                elif job.perm_lead_quote == 'subordinates' and g_team:
+                    group_ops.append((4, g_team.id))
 
             # 5. Customer / Contact Creation
             g_contact = self.env.ref('base.group_partner_manager', raise_if_not_found=False)
@@ -244,19 +244,21 @@ class ResUsers(models.Model):
                 if user.id in (2, 10, 11) or user.has_group('base.group_system'):
                     continue
                 g_ops = [(3, sg_id) for sg_id in sales_gids]
-                target_gid = None
                 p_val = vals['perm_lead_quote']
-                if p_val in ('admin', 'all') and (g_admin or g_all):
-                    target_gid = g_admin.id if p_val == 'admin' and g_admin else (g_all.id if g_all else (g_admin.id if g_admin else None))
-                elif p_val == 'department' and g_dept:
-                    target_gid = g_dept.id
-                elif p_val == 'subordinates' and g_team:
-                    target_gid = g_team.id
-                elif p_val in ('own', 'subordinates', 'department') and g_own:
-                    target_gid = g_own.id
+                if p_val and p_val != 'none':
+                    # ALWAYS grant base salesman group so user satisfies standard Odoo ACLs to create/access CRM leads & Sales orders
+                    if g_own:
+                        g_ops.append((4, g_own.id))
 
-                if target_gid:
-                    g_ops.append((4, target_gid))
+                    if p_val == 'admin' and g_admin:
+                        g_ops.append((4, g_admin.id))
+                    elif p_val == 'all' and (g_all or g_admin):
+                        g_ops.append((4, g_all.id if g_all else g_admin.id))
+                    elif p_val == 'department' and g_dept:
+                        g_ops.append((4, g_dept.id))
+                    elif p_val == 'subordinates' and g_team:
+                        g_ops.append((4, g_team.id))
+
                 if g_ops:
                     user.sudo().with_context(skip_sync=True).write({'groups_id': g_ops})
 
