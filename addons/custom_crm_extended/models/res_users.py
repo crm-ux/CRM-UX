@@ -168,10 +168,24 @@ class ResUsers(models.Model):
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
-            if group_ops:
-                user_vals['groups_id'] = group_ops
-
             user.sudo().with_context(skip_sync=True).write(user_vals)
+
+            # In Odoo 19, res.users does not have 'groups_id' as a writeable field.
+            # Safely sync group membership directly via res_groups_users_rel
+            if group_ops:
+                cr = self.env.cr
+                for op in group_ops:
+                    if op[0] == 4:  # Add
+                        cr.execute(
+                            "INSERT INTO res_groups_users_rel (gid, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                            (op[1], user.id)
+                        )
+                    elif op[0] == 3:  # Remove
+                        cr.execute(
+                            "DELETE FROM res_groups_users_rel WHERE gid = %s AND uid = %s",
+                            (op[1], user.id)
+                        )
+                user.invalidate_recordset()
 
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
@@ -220,6 +234,8 @@ class ResUsers(models.Model):
             if vals.get('crm_job_id'):
                 job = self.env['hr.job'].browse(vals['crm_job_id'])
                 user._apply_job_permissions(job)
+            elif vals.get('perm_lead_quote'):
+                user.write({'perm_lead_quote': vals['perm_lead_quote']})
         return users
 
 

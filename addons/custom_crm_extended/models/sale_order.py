@@ -928,10 +928,25 @@ class DashboardStats(models.Model):
         company_filter = [('company_id', 'in', company_ids)] if company_ids else []
         shared_company_filter = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)] if company_ids else []
 
+        # Hierarchy-aware domain filter
+        target_user = self.env['res.users'].browse(uid)
+        perm = target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')
+
+        user_filter = []
+        if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
+            if perm == 'subordinates':
+                sub_ids = target_user.crm_subordinate_ids.ids + [uid]
+                user_filter = [('user_id', 'in', sub_ids)]
+            elif perm == 'department':
+                dept_ids = target_user.crm_department_ids.ids
+                user_filter = ['|', ('user_id', '=', uid), ('user_id.crm_department_ids', 'in', dept_ids)]
+            elif perm in ('all', 'admin'):
+                user_filter = []
+            else:  # 'own' or 'none'
+                user_filter = [('user_id', '=', uid)]
+
         # Lead stage counts
-        lead_domain = [('active', '=', True)] + company_filter
-        if not is_admin:
-            lead_domain.append(('user_id', '=', uid))
+        lead_domain = [('active', '=', True)] + company_filter + user_filter
         leads = self.env['crm.lead'].read_group(
             lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
@@ -943,15 +958,13 @@ class DashboardStats(models.Model):
         priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
 
         # Quote stage counts
-        quote_domain = [('state', '!=', 'cancel')] + company_filter
-        if not is_admin:
-            quote_domain.append(('user_id', '=', uid))
+        quote_domain = [('state', '!=', 'cancel')] + company_filter + user_filter
         quotes = self.env['sale.order'].read_group(
             quote_domain, ['x_quote_stage'], ['x_quote_stage'])
         quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
 
         # Revenue
-        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')] + company_filter)
+        won_orders = self.env['sale.order'].search([('x_quote_stage', '=', 'won')] + company_filter + user_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
         # Check invoice date for Won orders
@@ -968,7 +981,7 @@ class DashboardStats(models.Model):
         pending_orders = self.env['sale.order'].search([
             ('x_quote_stage', 'not in', ['won', 'lost']),
             ('state', '!=', 'cancel')
-        ] + company_filter)
+        ] + company_filter + user_filter)
         quote_revenue = sum(pending_orders.mapped('amount_total'))
 
         from datetime import date
@@ -976,7 +989,7 @@ class DashboardStats(models.Model):
         today_orders = self.env['sale.order'].search([
             ('x_quote_stage', '=', 'won'),
             ('date_order', '>=', today + ' 00:00:00')
-        ] + company_filter)
+        ] + company_filter + user_filter)
         today_revenue = sum(today_orders.mapped('amount_total'))
 
         # Other counts
