@@ -50,8 +50,9 @@ class ResPartner(models.Model):
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
-        # When creating or editing leads/quotes, CRM auto-links or touches partner in the background; bypass strict customer check
-        if self.env.context.get('skip_sync') or self.env.context.get('default_opportunity_id') or self.env.context.get('active_model') == 'crm.lead':
+        # Strict permission check ONLY applies when directly interacting with Customer management, not when referenced by Lead, Quote, Equipment, Ticket, AMC
+        active_model = self.env.context.get('active_model') or self.env.context.get('params', {}).get('model')
+        if active_model and active_model != 'res.partner':
             return super(ResPartner, self).check_access_rights(operation, raise_exception=raise_exception)
 
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
@@ -72,18 +73,18 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
-        # Allow lead creation wizard / opportunity creation to create contact if needed
-        is_lead_ctx = bool(self.env.context.get('skip_sync') or self.env.context.get('active_model') == 'crm.lead' or self.env.context.get('default_opportunity_id'))
-        if not is_lead_ctx and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        active_model = self.env.context.get('active_model') or self.env.context.get('params', {}).get('model')
+        # Only block direct customer creation from customer menu
+        if (not active_model or active_model == 'res.partner') and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             if not self._user_can('perm_customer_create', True):
                 raise UserError(_("Access Denied: You do not have permission to create Customer / Contact records."))
         return super(ResPartner, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
-        # Allow lead creation context, skip_sync, superuser, or updating own profile
-        is_lead_ctx = bool(self.env.context.get('skip_sync') or self.env.context.get('active_model') == 'crm.lead' or self.env.context.get('default_opportunity_id'))
-        if not is_lead_ctx and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        active_model = self.env.context.get('active_model') or self.env.context.get('params', {}).get('model')
+        # Only block direct customer edits from customer menu
+        if (not active_model or active_model == 'res.partner') and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             other_partners = self.filtered(lambda p: p.id != user.partner_id.id)
             if other_partners and not self._user_can('perm_customer_write', True):
                 raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
