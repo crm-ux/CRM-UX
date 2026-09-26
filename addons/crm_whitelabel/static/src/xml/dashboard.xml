@@ -26,18 +26,27 @@
                     </div>
                 </div>
                 <div class="crm-topbar-right">
-                    <div class="crm-admin-menu-wrapper" t-if="state.isAdmin">
+                    <!-- Quick Access: visible to Admin or users with assigned permissions -->
+                    <div class="crm-admin-menu-wrapper" t-if="state.isAdmin or state.canAccessQuickMenu">
                         <div class="crm-admin-multiselect">
                             <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
                                 <span class="crm-company-toggle-text">Quick Access</span>
                                 <span class="crm-company-arrow">▾</span>
                             </button>
                             <div class="crm-company-dropdown dropdown-menu-start" t-if="state.adminMenuOpen">
-                                <div class="crm-company-dropdown-header">Admin Quick Links</div>
-                                <a t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
-                                <a href="/app/companies" class="crm-admin-menu-item">Companies</a>
-                                <a href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
-                                <div class="crm-submenu-wrapper" t-att-class="{'open': state.orgSubmenuOpen}">
+                                <div class="crm-company-dropdown-header">Quick Links</div>
+                                
+                                <!-- Customers: visible to Admin or users with Customer permission -->
+                                <a t-if="state.isAdmin or state.canViewCustomer" t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
+                                
+                                <!-- Companies: Admin only -->
+                                <a t-if="state.isAdmin" href="/app/companies" class="crm-admin-menu-item">Companies</a>
+                                
+                                <!-- Quotations: Admin only -->
+                                <a t-if="state.isAdmin" href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
+                                
+                                <!-- Organization Submenu: Admin only -->
+                                <div class="crm-submenu-wrapper" t-if="state.isAdmin" t-att-class="{'open': state.orgSubmenuOpen}">
                                     <div class="crm-admin-menu-item d-flex justify-content-between align-items-center" t-on-click.stop="toggleOrgSubmenu" style="cursor:pointer;">
                                         <span>Organization</span>
                                         <i class="fa fa-chevron-right crm-submenu-arrow d-none d-md-inline" style="font-size: 10px; opacity: 0.7;"/>
@@ -50,23 +59,38 @@
                                         <a t-on-click="openEmployeeTags" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employee Tags</a>
                                     </div>
                                 </div>
-                                <a href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
-                                <a t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
-                                <a t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
-                                <div class="crm-submenu-wrapper" t-att-class="{'open': state.seriesSubmenuOpen}">
+
+                                <!-- Direct Users link for Managers (non-admins) -->
+                                <a t-if="!state.isAdmin and state.canViewUsers" href="/app/settings/users" class="crm-admin-menu-item">Users</a>
+
+                                <!-- Products: visible to Admin or users with Product permission -->
+                                <a t-if="state.isAdmin or state.canViewProduct" href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
+                                
+                                <!-- Equipment Master: visible to Admin or users with Equipment permission -->
+                                <a t-if="state.isAdmin or state.canViewEquipment" t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
+                                
+                                <!-- Terms & Conditions: Admin only -->
+                                <a t-if="state.isAdmin" t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
+                                
+                                <!-- Series: Admin only -->
+                                <div class="crm-submenu-wrapper" t-if="state.isAdmin" t-att-class="{'open': state.seriesSubmenuOpen}">
                                     <div class="crm-admin-menu-item d-flex justify-content-between align-items-center" t-on-click.stop="toggleSeriesSubmenu" style="cursor:pointer;">
                                         <span>Series</span>
                                         <i class="fa fa-chevron-right crm-submenu-arrow d-none d-md-inline" style="font-size: 10px; opacity: 0.7;"/>
                                         <i class="fa fa-chevron-down crm-submenu-arrow-mobile d-inline d-md-none" style="font-size: 10px; opacity: 0.7;"/>
                                     </div>
-                                     <div class="crm-submenu-content">
+                                    <div class="crm-submenu-content">
                                         <a t-on-click="openRolesAndGroups" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Roles &amp; Permissions</a>
                                         <a t-on-click="openDepartments" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Departments</a>
                                         <a t-on-click="openEmployeeTags" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employee Tags</a>
                                     </div>
                                 </div>
-                                <a t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
-                                <a t-on-click="openSettings" class="crm-admin-menu-item" style="cursor:pointer;">Settings</a>
+                                
+                                <!-- Contact Categories: Admin only -->
+                                <a t-if="state.isAdmin" t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
+                                
+                                <!-- Settings: Admin only -->
+                                <a t-if="state.isAdmin" t-on-click="openSettings" class="crm-admin-menu-item" style="cursor:pointer;">Settings</a>
                             </div>
                         </div>
                     </div>
@@ -149,12 +173,11 @@
                             </div>
                             <span>›</span>
                         </button>
-                        
                     </div>
                 </div>
             </div>
 
-            <!-- STATS BAR -->
+            <!-- STATS BAR (ALWAYS VISIBLE) -->
             <div class="crm-stats-bar">
                 <div class="crm-stat-item">
                     <div>
@@ -192,7 +215,7 @@
                 </div>
             </div>
 
-            <!-- PIPELINE -->
+            <!-- PIPELINE (ALWAYS VISIBLE) -->
             <div class="crm-pipeline-strip">
                 <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
                     <div class="crm-pipe-num"><t t-esc="state.stageLead"/></div>
@@ -249,8 +272,10 @@
                     <div class="crm-pipe-lbl" style="font-weight: 700;">Total</div>
                 </div>
             </div>
-            <!-- CARDS -->
+
+            <!-- ALL CARDS DISPLAYED (NEVER REMOVED) -->
             <div class="crm-pro-grid">
+                <!-- 1. Quote Management Card -->
                 <div class="crm-pro-panel crm-quote-panel">
                     <div class="crm-panel-head" t-on-click="openQuotes" style="cursor:pointer;"><div><h2>Quote Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -262,13 +287,17 @@
                     </div>
                     <p class="crm-panel-note">Create, preview and send professional quotations to clients.</p>
                 </div>
-                <div class="crm-pro-panel crm-customer-panel" t-on-click="openContacts">
+
+                <!-- 2. Customer Management Card -->
+                <div class="crm-pro-panel crm-customer-panel" t-on-click="openContacts" style="cursor:pointer;">
                     <div class="crm-panel-head"><div><h2>Customer Management</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
                         <div class="crm-metric"><strong><t t-esc="state.customers"/></strong><span>Customers</span></div>
                     </div>
                     <p class="crm-panel-note">View customer records, company details and communication history.</p>
                 </div>
+
+                <!-- 3. Reminders Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #6366f1;">
                     <div class="crm-panel-head"><div><h2>This Month Reminders</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -278,6 +307,8 @@
                     </div>
                     <p class="crm-panel-note">Upcoming events, meetings and monthly targets.</p>
                 </div>
+
+                <!-- 4. Exhibition Database Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #ff6b35;" t-on-click="openExhibition">
                     <div class="crm-panel-head"><div><h2>Exhibition Database</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -285,6 +316,8 @@
                     </div>
                     <p class="crm-panel-note">Manage exhibition and visitor contacts with card scanning.</p>
                 </div>
+
+                <!-- 5. Lead Priority Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #22c55e;">
                     <div class="crm-panel-head"><div><h2>Lead Priority</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -294,6 +327,8 @@
                     </div>
                     <p class="crm-panel-note">Leads grouped by priority level.</p>
                 </div>
+
+                <!-- 6. Equipment Master Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #3b82f6;">
                     <div class="crm-panel-head" t-on-click="openEquipment" style="cursor:pointer;"><div><h2>Equipment Master</h2></div><span class="crm-panel-arrow">›</span></div>
                     <div class="crm-metrics">
@@ -304,6 +339,8 @@
                     </div>
                     <p class="crm-panel-note">Equipment tracking &amp; maintenance overview.</p>
                 </div>
+
+                <!-- 7. AMC Contracts Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #8b5cf6;">
                     <div class="crm-panel-head" t-on-click="openAmcContracts" style="cursor:pointer;">
                         <div><h2>AMC Contracts</h2></div><span class="crm-panel-arrow">›</span>
@@ -328,6 +365,8 @@
                     </div>
                     <p class="crm-panel-note">Annual maintenance contracts &amp; service agreements overview.</p>
                 </div>
+
+                <!-- 8. Service Tickets Card -->
                 <div class="crm-pro-panel" style="border-left:4px solid #10b981;">
                     <div class="crm-panel-head" t-on-click="openServiceTickets" style="cursor:pointer;">
                         <div><h2>Service Tickets</h2></div><span class="crm-panel-arrow">›</span>
@@ -354,6 +393,7 @@
                 </div>
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
+
             <!-- TASK DIALOG -->
             <div class="crm-task-overlay" t-if="state.taskDialogOpen" t-on-click="closeTaskDialog">
                 <div class="crm-task-dialog" t-on-click.stop="">

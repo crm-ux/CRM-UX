@@ -1051,4 +1051,10 @@ class DashboardStats(models.Model):
             'upcoming_events': upcoming_events,
             'invoice_created': invoice_created,
             'invoice_pending': invoice_pending,
+            'permissions': {
+                'product_read': bool(target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or is_admin or target_user.has_group('base.group_system')),
+                'customer_read': bool(target_user.perm_customer_read or target_user.perm_customer_write or target_user.perm_customer_create or is_admin or target_user.has_group('base.group_system')),
+                'equipment_read': bool(target_user.perm_equipment_read or target_user.perm_equipment_write or target_user.perm_equipment_create or is_admin or target_user.has_group('base.group_system')),
+                'is_manager': bool(target_user.crm_subordinate_ids or target_user.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or is_admin or target_user.has_group('base.group_system')),
+            },
         }

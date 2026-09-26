@@ -32,6 +32,12 @@ class CrmDashboard extends Component {
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
             isAdmin: user.isAdmin || [2, 11].includes(user.userId),
+            // Permission flags for Quick Access
+            canAccessQuickMenu: false,
+            canViewCustomer: false,
+            canViewProduct: false,
+            canViewEquipment: false,
+            canViewUsers: false,
             loading: true,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
@@ -191,7 +197,7 @@ class CrmDashboard extends Component {
     async loadStats() {
         try {
             const isAdmin = this.state.isAdmin;
-            // Single RPC call for all stats
+            // Single RPC call for all stats & user permissions
             const s = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead", method: "get_dashboard_stats",
                 args: [user.userId, isAdmin, this.state.selectedCompanies], kwargs: {}
@@ -215,6 +221,15 @@ class CrmDashboard extends Component {
             const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
             const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
+
+            // Permissions unpacked
+            const perms = s.permissions || {};
+            const canViewCustomer = Boolean(perms.customer_read || isAdmin);
+            const canViewProduct = Boolean(perms.product_read || isAdmin);
+            const canViewEquipment = Boolean(perms.equipment_read || isAdmin);
+            const canViewUsers = Boolean(perms.is_manager || isAdmin);
+            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewUsers);
+
             const eqCompDomain = this.state.selectedCompanies.length
                 ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
                 : [];
@@ -284,6 +299,7 @@ class CrmDashboard extends Component {
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 amcTotal, amcDraft, amcActive, amcExpired,
+                canAccessQuickMenu, canViewCustomer, canViewProduct, canViewEquipment, canViewUsers,
                 loading: false
             });
 
