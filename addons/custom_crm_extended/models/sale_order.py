@@ -937,30 +937,23 @@ class DashboardStats(models.Model):
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
             if perm in ('all', 'admin'):
                 user_filter = []
-            elif perm in ('subordinates', 'department'):
-                # Collect manager's subordinates
+            elif perm == 'subordinates':
+                # Only subordinates + self
+                sub_ids = list(set([uid] + target_user.crm_subordinate_ids.ids + target_user._get_all_subordinates().ids))
+                user_filter = [
+                    '|',
+                    ('user_id', 'in', sub_ids),
+                    ('create_uid', 'in', sub_ids)
+                ]
+            elif perm == 'department':
+                # Subordinates + users in own department or sub-departments
                 sub_ids = set([uid] + target_user.crm_subordinate_ids.ids + target_user._get_all_subordinates().ids)
-
-                # Collect all departments associated with this manager
                 depts = target_user.crm_department_ids | target_user.crm_department_id
-                if target_user.crm_job_id:
-                    depts |= target_user.crm_job_id.department_id | target_user.crm_job_id.sub_department_ids
-                if target_user.employee_id and target_user.employee_id.department_id:
-                    depts |= target_user.employee_id.department_id
-
-                # Get all child departments
+                if not depts and target_user.crm_job_id and target_user.crm_job_id.department_id:
+                    depts = target_user.crm_job_id.department_id
                 all_dept_ids = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)]).ids if depts else []
-
-                # Find all users belonging to this department (checking user, job, and all employee records)
-                dept_users = self.env['res.users'].sudo().search([
-                    '|', '|',
-                    ('crm_department_id', 'in', all_dept_ids),
-                    ('crm_job_id.department_id', 'in', all_dept_ids),
-                    ('employee_ids.department_id', 'in', all_dept_ids)
-                ]) if all_dept_ids else self.env['res.users']
-
-                allowed_uids = list(sub_ids | set(dept_users.ids))
-
+                dept_users = self.env['res.users'].sudo().search([('crm_department_id', 'in', all_dept_ids)]).ids if all_dept_ids else []
+                allowed_uids = list(sub_ids | set(dept_users))
                 user_filter = [
                     '|',
                     ('user_id', 'in', allowed_uids),
