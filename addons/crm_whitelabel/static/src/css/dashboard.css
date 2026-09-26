@@ -155,7 +155,7 @@
 /* Grid */
 .crm-pro-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(clamp(320px, 22vw, 360px), 1fr));
     gap: 16px;
 }
 
@@ -233,9 +233,18 @@
     flex-wrap: nowrap;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: clamp(10px, 1.2vw, 22px);
+    gap: clamp(6px, 1vw, 20px);
     margin-bottom: 0.75rem;
     width: 100%;
+}
+
+/* For Quote Management with 5 stages: guarantee no overflow at any zoom or screen */
+.crm-quote-panel .crm-metrics {
+    gap: clamp(4px, 0.8vw, 16px);
+}
+.crm-quote-panel .crm-metric {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .crm-metric {
@@ -263,9 +272,11 @@
     color: #888;
     margin-top: 0.2rem;
     display: block;
-    line-height: 1.2;
+    line-height: 1.15;
     text-align: center;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: normal;
+    max-width: 100%;
 }
 
 .crm-panel-note {
