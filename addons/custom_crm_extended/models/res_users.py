@@ -34,9 +34,11 @@ class ResUsers(models.Model):
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
-    ], string='Lead & Quotation', default='none')
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'Company: All Documents'),
+        ('admin', 'Administrator (Full Access)'),
+    ], string='Lead & Quotation', default='own')
 
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
@@ -114,16 +116,21 @@ class ResUsers(models.Model):
                     group_ops.append((4, g_eq_all.id))
 
             # 4. Lead & Quotation Sales groups
-            sales_gids = [g.id for g in [g_own, g_all, g_admin] if g]
+            g_team = self.env.ref('custom_crm_extended.group_sale_team_leads', raise_if_not_found=False)
+            g_dept = self.env.ref('custom_crm_extended.group_sale_department_leads', raise_if_not_found=False)
+            sales_gids = [g.id for g in [g_own, g_all, g_admin, g_team, g_dept] if g]
             for sg_id in sales_gids:
                 group_ops.append((3, sg_id))
 
             target_sale_gid = None
-            if job.perm_lead_quote == 'admin' and g_admin:
-                target_sale_gid = g_admin.id
-            elif job.perm_lead_quote == 'all' and g_all:
-                target_sale_gid = g_all.id
-            elif job.perm_lead_quote == 'own' and g_own:
+            if job.perm_lead_quote in ('admin', 'all') and (g_admin or g_all):
+                target_sale_gid = g_admin.id if job.perm_lead_quote == 'admin' and g_admin else (g_all.id if g_all else (g_admin.id if g_admin else None))
+            elif job.perm_lead_quote == 'department' and g_dept:
+                target_sale_gid = g_dept.id
+            elif job.perm_lead_quote == 'subordinates' and g_team:
+                target_sale_gid = g_team.id
+            elif job.perm_lead_quote in ('own', 'subordinates', 'department') and g_own:
+                # If custom team/dept group not yet loaded, fall back to own
                 target_sale_gid = g_own.id
 
             if target_sale_gid:
@@ -224,6 +231,35 @@ class ResUsers(models.Model):
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
             self._apply_job_permissions(job)
+        elif 'perm_lead_quote' in vals and not self.env.context.get('skip_sync'):
+            # When admin modifies Lead & Quotation permission directly on user form
+            g_own = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
+            g_all = self.env.ref('sales_team.group_sale_salesman_all_leads', raise_if_not_found=False)
+            g_admin = self.env.ref('sales_team.group_sale_manager', raise_if_not_found=False)
+            g_team = self.env.ref('custom_crm_extended.group_sale_team_leads', raise_if_not_found=False)
+            g_dept = self.env.ref('custom_crm_extended.group_sale_department_leads', raise_if_not_found=False)
+            sales_gids = [g.id for g in [g_own, g_all, g_admin, g_team, g_dept] if g]
+
+            for user in self:
+                if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+                    continue
+                g_ops = [(3, sg_id) for sg_id in sales_gids]
+                target_gid = None
+                p_val = vals['perm_lead_quote']
+                if p_val in ('admin', 'all') and (g_admin or g_all):
+                    target_gid = g_admin.id if p_val == 'admin' and g_admin else (g_all.id if g_all else (g_admin.id if g_admin else None))
+                elif p_val == 'department' and g_dept:
+                    target_gid = g_dept.id
+                elif p_val == 'subordinates' and g_team:
+                    target_gid = g_team.id
+                elif p_val in ('own', 'subordinates', 'department') and g_own:
+                    target_gid = g_own.id
+
+                if target_gid:
+                    g_ops.append((4, target_gid))
+                if g_ops:
+                    user.sudo().with_context(skip_sync=True).write({'groups_id': g_ops})
+
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
         return res
@@ -680,9 +716,11 @@ class HrJob(models.Model):
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
-    ], string='Lead & Quotation', default='none')
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'Company: All Documents'),
+        ('admin', 'Administrator (Full Access)'),
+    ], string='Lead & Quotation', default='own')
 
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
