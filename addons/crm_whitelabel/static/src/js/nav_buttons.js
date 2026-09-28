@@ -197,20 +197,11 @@ patch(ControlPanel.prototype, {
         const searchModel = this.env.searchModel;
         if (!searchModel) return;
 
-        // Toggle or update the dynamic user domain in searchModel
         const resModel = searchModel.resModel;
         const userField = resModel === 'service.ticket' ? 'engineer_id' : (resModel === 'amc.contract' ? 'create_uid' : 'user_id');
 
-        // Check if there is an active custom employee domain
         const domain = val === "all" ? [] : ['|', [userField, '=', parseInt(val)], ['create_uid', '=', parseInt(val)]];
 
-        // Store selected employee in context and reload searchModel
-        searchModel.context = {
-            ...searchModel.context,
-            filter_employee_user_id: val,
-        };
-
-        // Trigger domain update on searchModel
         const actionService = this.action;
         const currentAction = actionService.currentController?.action;
         if (currentAction) {
@@ -221,12 +212,12 @@ patch(ControlPanel.prototype, {
                 return true;
             });
             const newDomain = val === "all" ? baseDomain : [...baseDomain, ...domain];
+            const existingContext = currentAction.context || {};
             actionService.doAction({
                 ...currentAction,
                 domain: newDomain,
                 context: {
-                    ...currentAction.context,
-                    ...searchModel.context,
+                    ...existingContext,
                     filter_employee_user_id: val,
                 }
             }, { clearBreadcrumbs: false });
