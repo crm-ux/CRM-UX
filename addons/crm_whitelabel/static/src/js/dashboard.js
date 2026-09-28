@@ -203,26 +203,6 @@ class CrmDashboard extends Component {
                 model: "crm.lead", method: "get_dashboard_stats",
                 args: [user.userId, isAdmin, this.state.selectedCompanies], kwargs: {}
             });
-            const lc = s.lead_counts || {}, qc = s.quote_counts || {};
-            const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
-            const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0, stageQuotes = lc[30] || 0;
-            const stageSent = lc[35] || 0, stageNegotiation = lc[40] || 0, stageOrderExp = lc[50] || 0;
-            const stageWon = lc[90] || 0;
-            const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
-            const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
-            const won = qc['won'] || 0;
-            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
-            const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
-            const invoiceCreated = s.invoice_created || 0;
-            const invoicePending = s.invoice_pending || 0;
-            const customers = s.customers || 0, products = s.products || 0, users = s.users || 0;
-            const quoteRevenue = s.quote_revenue || 0, wonRevenue = s.won_revenue || 0;
-            const todayRevenue = s.today_revenue || 0, exhibitionContacts = s.exhibition || 0;
-            const pc = s.priority_counts || {};
-            const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
-            const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
-            const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
-
             // Permissions unpacked
             const perms = s.permissions || {};
             const canViewLeadQuote = Boolean(perms.lead_quote_read || isAdmin);
@@ -234,19 +214,43 @@ class CrmDashboard extends Component {
             const canViewUsers = Boolean(perms.is_manager || isAdmin);
             const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers);
 
-            const eqCounts = s.equipment_counts || {};
+            const lc = canViewLeadQuote ? (s.lead_counts || {}) : {}, qc = canViewLeadQuote ? (s.quote_counts || {}) : {};
+            const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
+            const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0, stageQuotes = lc[30] || 0;
+            const stageSent = lc[35] || 0, stageNegotiation = lc[40] || 0, stageOrderExp = lc[50] || 0;
+            const stageWon = lc[90] || 0;
+            const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
+            const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
+            const won = qc['won'] || 0;
+            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
+            const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
+            const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
+            const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
+            const customers = canViewCustomer ? (s.customers || 0) : 0;
+            const products = canViewProduct ? (s.products || 0) : 0;
+            const users = canViewUsers ? (s.users || 0) : 0;
+            const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
+            const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
+            const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
+            const exhibitionContacts = s.exhibition || 0;
+            const pc = canViewLeadQuote ? (s.priority_counts || {}) : {};
+            const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
+            const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
+            const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
+
+            const eqCounts = canViewEquipment ? (s.equipment_counts || {}) : {};
             const equipmentTotal = eqCounts.total || 0;
             const equipmentActive = eqCounts.active || 0;
             const equipmentInactive = eqCounts.inactive || 0;
             const equipmentRepair = eqCounts.repair || 0;
 
-            const tckCounts = s.ticket_counts || {};
+            const tckCounts = canViewTicket ? (s.ticket_counts || {}) : {};
             const ticketTotal = tckCounts.total || 0;
             const ticketOpen = tckCounts.open || 0;
             const ticketOngoing = tckCounts.ongoing || 0;
             const ticketClosed = tckCounts.closed || 0;
 
-            const amcCounts = s.amc_counts || {};
+            const amcCounts = canViewAmc ? (s.amc_counts || {}) : {};
             const amcTotal = amcCounts.total || 0;
             const amcDraft = amcCounts.draft || 0;
             const amcActive = amcCounts.active || 0;
