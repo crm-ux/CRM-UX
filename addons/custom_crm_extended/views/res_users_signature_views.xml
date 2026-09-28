@@ -161,11 +161,24 @@
                         </field>
                     </page>
 
-                    <!-- Manager Profile Tab (Visible when Is Manager / Head is ON) -->
+                    <!-- TAB 1 (Alternative for Manager Roles): Shows assigned managers with hierarchy button -->
                     <page string="Manager Profile" name="manager_profile_page" invisible="not is_manager_role">
-                        <div class="alert alert-info" role="alert" style="margin: 15px 0;">
+                        <div class="alert alert-info mb-3" role="alert">
                             <strong>Department Head / Manager Role:</strong> Users with this role represent department leadership. Subordinate employees are assigned to staff roles (e.g. Executives / Engineers) and will automatically report to this position.
                         </div>
+                        <field name="assigned_employee_ids" nolabel="1" readonly="1" options="{'no_create': True, 'no_open': False}">
+                            <list string="Department Managers" create="false" delete="false">
+                                <field name="name" string="Manager Name"/>
+                                <field name="login" string="Work Email"/>
+                                <field name="crm_department_id" string="Department"/>
+                                <field name="crm_manager_id" string="Reports To"/>
+                                <button name="action_view_user_hierarchy"
+                                        type="object"
+                                        icon="fa-sitemap"
+                                        title="View Reporting Hierarchy"
+                                        class="btn btn-sm btn-outline-primary"/>
+                            </list>
+                        </field>
                     </page>
 
                     <!-- TAB 2: Permissions Matrix -->
