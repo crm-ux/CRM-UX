@@ -41,6 +41,15 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
+        <!-- Deactivate standard built-in personal rules which conflict with hierarchy permissions -->
+        <record id="crm.crm_rule_personal_lead" model="ir.rule">
+            <field name="active" eval="False"/>
+        </record>
+        <record id="sale.sale_order_personal_rule" model="ir.rule">
+            <field name="active" eval="False"/>
+        </record>
+
+
         <!-- Global Hierarchy Record Rule for CRM Leads -->
         <record id="rule_crm_lead_hierarchy" model="ir.rule">
             <field name="name">CRM Lead: Hierarchy &amp; Permission Access</field>
