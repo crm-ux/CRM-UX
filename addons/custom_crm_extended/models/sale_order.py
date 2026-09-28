@@ -1012,28 +1012,38 @@ class DashboardStats(models.Model):
             ('start', '<=', month_end.strftime('%Y-%m-%d %H:%M:%S')),
         ])
 
-        # Equipment counts (sudo so cards display real counts even if user has restricted access)
+        # Hierarchy domains for Equipment, Service Ticket, AMC
+        if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
+            eq_filter = target_user._get_hierarchy_domain('perm_equipment', 'user_id')
+            ticket_filter = target_user._get_hierarchy_domain('perm_service_ticket', 'engineer_id')
+            amc_filter = target_user._get_hierarchy_domain('perm_amc', False)
+        else:
+            eq_filter = []
+            ticket_filter = []
+            amc_filter = []
+
+        # Equipment counts: filtered by user's hierarchy (own, team, dept, all)
         equipment_counts = {
-            'total': self.env['equipment.master'].sudo().search_count(shared_company_filter),
-            'active': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'active')]),
-            'inactive': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'inactive')]),
-            'repair': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'under_repair')]),
+            'total': self.env['equipment.master'].sudo().search_count(shared_company_filter + eq_filter),
+            'active': self.env['equipment.master'].sudo().search_count(shared_company_filter + eq_filter + [('equipment_status', '=', 'active')]),
+            'inactive': self.env['equipment.master'].sudo().search_count(shared_company_filter + eq_filter + [('equipment_status', '=', 'inactive')]),
+            'repair': self.env['equipment.master'].sudo().search_count(shared_company_filter + eq_filter + [('equipment_status', '=', 'under_repair')]),
         }
 
-        # Service Ticket counts (sudo so cards display real counts)
+        # Service Ticket counts: filtered by user's hierarchy (own, team, dept, all)
         ticket_counts = {
-            'total': self.env['service.ticket'].sudo().search_count(shared_company_filter),
-            'open': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'open')]),
-            'ongoing': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'ongoing')]),
-            'closed': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'closed')]),
+            'total': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter),
+            'open': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('ticket_status', '=', 'open')]),
+            'ongoing': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('ticket_status', '=', 'ongoing')]),
+            'closed': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('ticket_status', '=', 'closed')]),
         }
 
-        # AMC Contract counts (sudo so cards display real counts)
+        # AMC Contract counts: filtered by user's hierarchy (own, team, dept, all)
         amc_counts = {
-            'total': self.env['amc.contract'].sudo().search_count(shared_company_filter),
-            'draft': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'draft')]),
-            'active': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'active')]),
-            'expired': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'expired')]),
+            'total': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter),
+            'draft': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'draft')]),
+            'active': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'active')]),
+            'expired': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'expired')]),
         }
 
         return {
