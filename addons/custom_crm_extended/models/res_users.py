@@ -195,6 +195,12 @@ class ResUsers(models.Model):
             user.sudo().with_context(skip_sync=True).write(user_vals)
             if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
                 sales_grp.sudo().write({'user_ids': [(4, user.id)]})
+            export_grp = self.env.ref('base.group_allow_export', raise_if_not_found=False)
+            if export_grp:
+                if job.perm_export == 'export':
+                    export_grp.sudo().write({'user_ids': [(4, user.id)]})
+                else:
+                    export_grp.sudo().write({'user_ids': [(3, user.id)]})
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
     def _compute_department_scope(self):
@@ -270,6 +276,14 @@ class ResUsers(models.Model):
             sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             if sales_grp and self.ids:
                 sales_grp.sudo().write({'user_ids': [(4, uid) for uid in self.ids]})
+
+        if 'perm_export' in vals:
+            export_grp = self.env.ref('base.group_allow_export', raise_if_not_found=False)
+            if export_grp and self.ids:
+                if vals.get('perm_export') == 'export':
+                    export_grp.sudo().write({'user_ids': [(4, uid) for uid in self.ids]})
+                else:
+                    export_grp.sudo().write({'user_ids': [(3, uid) for uid in self.ids]})
 
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])

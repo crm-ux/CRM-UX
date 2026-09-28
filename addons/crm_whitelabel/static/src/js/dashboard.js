@@ -38,7 +38,7 @@ class CrmDashboard extends Component {
             canViewProduct: false,
             canViewEquipment: false,
             canViewUsers: false,
-            loading: true,
+            loading: false,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false,

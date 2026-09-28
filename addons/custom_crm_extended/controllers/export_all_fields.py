@@ -1,15 +1,24 @@
 # -*- coding: utf-8 -*-
 import json
 import re
-from odoo import http
+from odoo import http, _
 from odoo.addons.web.controllers.export import Export
 from odoo.http import content_disposition, request
-
+from odoo.exceptions import UserError, AccessError
 
 class CustomExport(Export):
+    def _check_export_permission(self):
+        user = request.env.user
+        if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+            return True
+        perm = user.perm_export or (user.crm_job_id.perm_export if user.crm_job_id else 'none')
+        if perm != 'export':
+            raise UserError(_("Access Denied: You do not have permission to export Excel data."))
+        return True
 
     @http.route('/web/export/xlsx', type='http', auth="user")
     def web_export_xlsx(self, data):
+        self._check_export_permission()
         response = super().web_export_xlsx(data)
 
         try:
@@ -32,3 +41,8 @@ class CustomExport(Export):
             pass
 
         return response
+
+    @http.route('/web/export/csv', type='http', auth="user")
+    def web_export_csv(self, data):
+        self._check_export_permission()
+        return super().web_export_csv(data)

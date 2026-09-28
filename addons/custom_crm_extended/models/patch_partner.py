@@ -20,9 +20,46 @@ class ResPartnerPatch(models.Model):
             return
         return super()._compute_display_name()
 
+from lxml import etree
+from odoo.exceptions import UserError
+
 class ResCompanyDefaultCard(models.Model):
     _inherit = 'res.company'
     x_default_signature_card = fields.Binary(string='Default Quotation Signature Card')
+
+    def _user_can_create_company(self):
+        user = self.env.user
+        if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+            return True
+        perm = user.perm_company or (user.crm_job_id.perm_company if user.crm_job_id else 'none')
+        return perm == 'create'
+
+    @api.model
+    def get_views(self, views, options=None):
+        res = super().get_views(views, options=options)
+        if not self._user_can_create_company():
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        doc.attrib['create'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        if operation == 'create' and not self._user_can_create_company():
+            if raise_exception:
+                raise UserError("Access Denied: You do not have permission to create companies.")
+            return False
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not self._user_can_create_company():
+            raise UserError("Access Denied: You do not have permission to create companies.")
+        return super().create(vals_list)
 
 class ResUsersNotificationPatch(models.Model):
     _inherit = 'res.users'
