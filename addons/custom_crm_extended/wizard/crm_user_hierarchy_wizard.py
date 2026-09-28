@@ -42,7 +42,7 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 is_target = (person.id == user.id)
                 name = person.name or person.login or "Unnamed"
                 initial = name[:1].upper() if name else "U"
-                role_title = person.crm_job_position_id.name or ("Employee" if not person.crm_manager_id else "Team Member")
+                role_title = person.crm_job_id.name if person.crm_job_id else (person.crm_department_id.name if person.crm_department_id else ("Employee" if not person.crm_manager_id else "Team Member"))
                 bg_color = palette[person.id % len(palette)]
                 
                 # Card styling
