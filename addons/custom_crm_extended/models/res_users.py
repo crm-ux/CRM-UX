@@ -225,13 +225,14 @@ class ResUsers(models.Model):
         res = super().write(vals)
 
         # Auto-grant base Sales group if user has any Lead & Quote permission
-        if 'perm_lead_quote' in vals:
+        if 'perm_lead_quote' in vals and vals.get('perm_lead_quote') in ('own', 'subordinates', 'department', 'all', 'admin'):
             sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
-            if sales_grp:
-                for user in self:
-                    if user.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
-                        if sales_grp not in user.groups_id:
-                            user.sudo().with_context(skip_sync=True).write({'groups_id': [(4, sales_grp.id)]})
+            if sales_grp and self.ids:
+                self.env.cr.execute("""
+                    INSERT INTO res_groups_users_rel (gid, uid)
+                    SELECT %s, id FROM res_users WHERE id IN %s
+                    ON CONFLICT DO NOTHING
+                """, (sales_grp.id, tuple(self.ids)))
 
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
