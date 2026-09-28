@@ -426,6 +426,24 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ACCESS DENIED WIZARD MODAL -->
+            <div class="crm-task-overlay" t-if="state.accessModalOpen" t-on-click="closeAccessModal">
+                <div class="crm-task-dialog" t-on-click.stop="" style="max-width: 440px; text-align: center; border-top: 5px solid #e74c3c;">
+                    <div style="margin-bottom: 14px;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;background:#fde8e8;color:#e74c3c;border-radius:50%;font-size:28px;box-shadow:0 4px 14px rgba(231,76,60,0.2);">🔒</span>
+                    </div>
+                    <div class="crm-task-header" style="justify-content: center; margin-bottom: 8px;">
+                        <h3 style="font-size: 19px; font-weight: 700; color: #1e293b;">Access Denied</h3>
+                    </div>
+                    <div style="padding: 10px 16px 20px 16px; font-size: 14px; line-height: 1.5; color: #475569;">
+                        <t t-esc="state.accessModalMessage"/>
+                    </div>
+                    <div class="crm-task-footer" style="justify-content: center; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+                        <button class="crm-task-cancel-btn" t-on-click="closeAccessModal" style="background:#0b3d91;color:#fff;border:none;padding:8px 26px;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;">Understand</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </t>
     <t t-name="crm_whitelabel.NavButtons">

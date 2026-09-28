@@ -1012,6 +1012,30 @@ class DashboardStats(models.Model):
             ('start', '<=', month_end.strftime('%Y-%m-%d %H:%M:%S')),
         ])
 
+        # Equipment counts (sudo so cards display real counts even if user has restricted access)
+        equipment_counts = {
+            'total': self.env['equipment.master'].sudo().search_count(shared_company_filter),
+            'active': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'active')]),
+            'inactive': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'inactive')]),
+            'repair': self.env['equipment.master'].sudo().search_count(shared_company_filter + [('equipment_status', '=', 'under_repair')]),
+        }
+
+        # Service Ticket counts (sudo so cards display real counts)
+        ticket_counts = {
+            'total': self.env['service.ticket'].sudo().search_count(shared_company_filter),
+            'open': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'open')]),
+            'ongoing': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'ongoing')]),
+            'closed': self.env['service.ticket'].sudo().search_count(shared_company_filter + [('ticket_status', '=', 'closed')]),
+        }
+
+        # AMC Contract counts (sudo so cards display real counts)
+        amc_counts = {
+            'total': self.env['amc.contract'].sudo().search_count(shared_company_filter),
+            'draft': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'draft')]),
+            'active': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'active')]),
+            'expired': self.env['amc.contract'].sudo().search_count(shared_company_filter + [('contract_status', '=', 'expired')]),
+        }
+
         return {
             'lead_counts': lead_counts,
             'quote_counts': quote_counts,
@@ -1027,6 +1051,9 @@ class DashboardStats(models.Model):
             'upcoming_events': upcoming_events,
             'invoice_created': invoice_created,
             'invoice_pending': invoice_pending,
+            'equipment_counts': equipment_counts,
+            'ticket_counts': ticket_counts,
+            'amc_counts': amc_counts,
             'permissions': {
                 'product_read': bool(
                     target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or
@@ -1038,21 +1065,24 @@ class DashboardStats(models.Model):
                     (target_user.crm_job_id and (target_user.crm_job_id.perm_customer_read or target_user.crm_job_id.perm_customer_write or target_user.crm_job_id.perm_customer_create)) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
+                'lead_quote_read': bool(
+                    (target_user.perm_lead_quote and target_user.perm_lead_quote != 'none') or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_lead_quote and target_user.crm_job_id.perm_lead_quote != 'none') or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
                 'equipment_read': bool(
-                    target_user.perm_equipment_read or target_user.perm_equipment_write or target_user.perm_equipment_create or
-                    (target_user.crm_job_id and (
-                        target_user.crm_job_id.perm_equipment_read or target_user.crm_job_id.perm_equipment_write or target_user.crm_job_id.perm_equipment_create
-                    )) or
+                    (target_user.perm_equipment and target_user.perm_equipment != 'none' and target_user.perm_equipment_read) or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_equipment and target_user.crm_job_id.perm_equipment != 'none' and target_user.crm_job_id.perm_equipment_read) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
                 'ticket_read': bool(
-                    target_user.perm_ticket_read or target_user.perm_ticket_write or target_user.perm_ticket_create or
-                    (target_user.crm_job_id and (target_user.crm_job_id.perm_ticket_read or target_user.crm_job_id.perm_ticket_write or target_user.crm_job_id.perm_ticket_create)) or
+                    (target_user.perm_service_ticket and target_user.perm_service_ticket != 'none' and target_user.perm_ticket_read) or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_service_ticket and target_user.crm_job_id.perm_service_ticket != 'none' and target_user.crm_job_id.perm_ticket_read) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
                 'amc_read': bool(
-                    target_user.perm_amc_read or target_user.perm_amc_write or target_user.perm_amc_create or
-                    (target_user.crm_job_id and (target_user.crm_job_id.perm_amc_read or target_user.crm_job_id.perm_amc_write or target_user.crm_job_id.perm_amc_create)) or
+                    (target_user.perm_amc and target_user.perm_amc != 'none' and target_user.perm_amc_read) or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_amc and target_user.crm_job_id.perm_amc != 'none' and target_user.crm_job_id.perm_amc_read) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
                 'is_manager': bool(
