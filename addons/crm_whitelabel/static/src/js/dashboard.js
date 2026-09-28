@@ -109,6 +109,20 @@ class CrmDashboard extends Component {
         });
     }
 
+    openQuotationSeries() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Quotation Series",
+            res_model: "ir.sequence",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["code", "in", ["sale.order", "crm.quote"]]],
+            context: {
+                active_test: false,
+                default_code: "sale.order",
+            },
+        });
+    }
+
     async checkAdminStatus() {
         this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
     }
