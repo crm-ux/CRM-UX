@@ -96,7 +96,7 @@
             <field name="model_id" ref="model_equipment_master"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment_read else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment_read')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment_read'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment'))]
             </field>
         </record>
     </data>

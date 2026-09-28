@@ -31,14 +31,17 @@ class ResUsers(models.Model):
         """Return all user IDs that this user is permitted to see according to their hierarchy/department."""
         self.ensure_one()
         u = self.sudo()
-        uids = set([u.id])
-
-        # 1. Direct and indirect subordinates
-        uids.update(u.crm_subordinate_ids.ids)
-        uids.update(u._get_all_subordinates().ids)
-
         # 2. Check permission level
         perm = getattr(u, perm_field, None) or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
+        if perm == 'none':
+            return []
+
+        uids = set([u.id])
+        if perm in ('subordinates', 'department', 'all', 'admin'):
+            # 1. Direct and indirect subordinates
+            uids.update(u.crm_subordinate_ids.ids)
+            uids.update(u._get_all_subordinates().ids)
+
         if perm in ('department', 'all', 'admin'):
             depts = u.crm_department_ids | u.crm_department_id
             if u.crm_job_id:
@@ -87,8 +90,7 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
-        ('all', 'Company: All Documents'),
-        ('admin', 'Administrator'),
+        ('admin', 'Administrator (Full Access)'),
     ], string='Service Ticket', default='own')
 
     perm_amc = fields.Selection([
@@ -96,9 +98,16 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
-        ('all', 'Company: All Documents'),
-        ('admin', 'Administrator'),
+        ('admin', 'Administrator (Full Access)'),
     ], string='AMC Contract', default='own')
+
+    perm_equipment = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('admin', 'Administrator (Full Access)'),
+    ], string='Equipment Master', default='own')
 
     perm_product_create = fields.Boolean(string='Create Product', default=False)
     perm_product_write = fields.Boolean(string='Update Product', default=False)
@@ -136,6 +145,7 @@ class ResUsers(models.Model):
                 'perm_company': job.perm_company,
                 'perm_service_ticket': job.perm_service_ticket,
                 'perm_amc': job.perm_amc,
+                'perm_equipment': job.perm_equipment,
                 'perm_product_create': job.perm_product_create,
                 'perm_product_write': job.perm_product_write,
                 'perm_product_read': job.perm_product_read,
@@ -688,16 +698,26 @@ class HrJob(models.Model):
     perm_service_ticket = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('admin', 'Administrator (Full Access)'),
     ], string='Service Ticket', default='none')
 
     perm_amc = fields.Selection([
         ('none', 'No'),
         ('own', 'User: Own Documents Only'),
-        ('all', 'User: All Documents'),
-        ('admin', 'Administrator'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('admin', 'Administrator (Full Access)'),
     ], string='AMC Contract', default='none')
+
+    perm_equipment = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('admin', 'Administrator (Full Access)'),
+    ], string='Equipment Master', default='own')
 
     perm_product_create = fields.Boolean(string='Create Product', default=False)
     perm_product_write = fields.Boolean(string='Update Product', default=False)

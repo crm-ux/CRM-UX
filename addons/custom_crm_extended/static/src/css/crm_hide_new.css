@@ -376,6 +376,7 @@ button[name="action_save_lead"] {
 .custom_radio_clean .o_radio_item:has(input[value="all"]),
 .custom_radio_clean .form-check:has(input[value="all"]),
 select[name="perm_lead_quote"] option[value="all"],
+select[name="perm_equipment"] option[value="all"],
 select[name="perm_service_ticket"] option[value="all"],
 select[name="perm_amc"] option[value="all"] {
     display: none !important;

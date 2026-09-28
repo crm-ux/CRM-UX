@@ -53,13 +53,14 @@
             </xpath>
 
 
-            <!-- Place Configuration & Masters at the TOP of Access Rights, and Website below it -->
-            <xpath expr="//page[@name='access_rights']//group[1]" position="before">
+            <!-- 1. Place Configuration & Masters AFTER the Roles & Companies group -->
+            <xpath expr="//page[@name='access_rights']//group[1]" position="after">
                 <group string="Configuration &amp; Masters">
                     <group>
                         <field name="perm_lead_quote" string="Lead &amp; Quotation"/>
                         <field name="perm_service_ticket" string="Service Ticket"/>
                         <field name="perm_amc" string="AMC Contract"/>
+                        <field name="perm_equipment" string="Equipment Master"/>
                         <field name="perm_company" string="Company Creation"/>
                         <field name="perm_export" string="Excel Export"/>
                     </group>
@@ -91,6 +92,15 @@
                     </group>
                 </group>
             </xpath>
+
+            <!-- 2. Remove / Hide the duplicate standard Odoo Lead & Quotation group -->
+            <xpath expr="//field[@name='in_group_3']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='sel_groups_1_2_3']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
         </field>
     </record>
 
@@ -145,7 +155,6 @@
                     </page>
 
                     <!-- TAB 2: Permissions Matrix -->
-                                        <!-- TAB 2: Permissions Matrix -->
                     <page string="Permissions" name="permissions_page">
                         
                         <!-- SECTION 1: Record Access & Visibility -->
@@ -154,6 +163,7 @@
                         </div>
                         <group class="custom_radio_clean">
                             <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
+                            <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
                         </group>
