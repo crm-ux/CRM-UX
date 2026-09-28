@@ -200,18 +200,44 @@ patch(ControlPanel.prototype, {
         const resModel = searchModel.resModel;
         const userField = resModel === 'service.ticket' ? 'engineer_id' : (resModel === 'amc.contract' ? 'create_uid' : 'user_id');
 
-        const domain = val === "all" ? [] : ['|', [userField, '=', parseInt(val)], ['create_uid', '=', parseInt(val)]];
+        // When a specific user is selected, filter strictly by userField (or create_uid)
+        let domain = [];
+        if (val !== "all") {
+            const uid = parseInt(val);
+            if (userField && userField !== 'create_uid') {
+                domain = ['|', [userField, '=', uid], ['create_uid', '=', uid]];
+            } else {
+                domain = [['create_uid', '=', uid]];
+            }
+        }
 
         const actionService = this.action;
         const currentAction = actionService.currentController?.action;
         if (currentAction) {
-            const baseDomain = (currentAction.domain || []).filter(d => {
-                if (Array.isArray(d) && d.length === 3) {
-                    if (d[0] === userField && (d[1] === '=' || d[1] === 'in')) return false;
+            // Remove previous employee filter domains cleanly
+            const baseDomain = [];
+            const rawDomain = currentAction.domain || [];
+            let i = 0;
+            while (i < rawDomain.length) {
+                const item = rawDomain[i];
+                if (item === '|' && i + 2 < rawDomain.length) {
+                    const c1 = rawDomain[i + 1];
+                    const c2 = rawDomain[i + 2];
+                    if (Array.isArray(c1) && (c1[0] === userField || c1[0] === 'create_uid') &&
+                        Array.isArray(c2) && (c2[0] === userField || c2[0] === 'create_uid')) {
+                        i += 3;
+                        continue;
+                    }
                 }
-                return true;
-            });
-            const newDomain = val === "all" ? baseDomain : [...baseDomain, ...domain];
+                if (Array.isArray(item) && (item[0] === userField || item[0] === 'create_uid') && item[1] === '=') {
+                    i += 1;
+                    continue;
+                }
+                baseDomain.push(item);
+                i += 1;
+            }
+
+            const newDomain = [...baseDomain, ...domain];
             const existingContext = currentAction.context || {};
             actionService.doAction({
                 ...currentAction,
