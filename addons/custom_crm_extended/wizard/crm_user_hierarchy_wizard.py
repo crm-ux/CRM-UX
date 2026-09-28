@@ -82,21 +82,21 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 {connector}
                 """)
 
-            target_name = user.name or user.login or "Employee"
-            wizard.hierarchy_html = f"""
-            <div style='font-family: inherit; padding: 12px 16px;'>
-                <!-- Header -->
-                <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
-                    <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
-                        <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
+                target_name = user.name or user.login or "Employee"
+                wizard.hierarchy_html = f"""
+                <div style='font-family: inherit; padding: 12px 16px;'>
+                    <!-- Header -->
+                    <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
+                        <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
+                            <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
+                        </div>
+                    </div>
+                    <!-- Linear Reporting Chain -->
+                    <div style='padding-left: 10px;'>
+                        {''.join(lines)}
                     </div>
                 </div>
-                <!-- Linear Reporting Chain -->
-                <div style='padding-left: 10px;'>
-                    {''.join(lines)}
-                </div>
-            </div>
-            """
+                """
 
                 # Render subordinate direct reports
                 subs = user.crm_subordinate_ids.filtered(lambda u: u.active and not u.share)
