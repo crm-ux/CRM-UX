@@ -145,13 +145,25 @@
                     </page>
 
                     <!-- TAB 2: Permissions Matrix -->
+                                        <!-- TAB 2: Permissions Matrix -->
                     <page string="Permissions" name="permissions_page">
+                        
+                        <!-- SECTION 1: Record Access & Visibility -->
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                            Record Access &amp; Visibility Filters
+                        </div>
                         <group class="custom_radio_clean">
                             <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
-                            
-                            <label for="perm_customer_create" string="Customer Creation"/>
+                        </group>
+
+                        <!-- SECTION 2: Master Data Actions -->
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                            Master Data Operations
+                        </div>
+                        <group class="custom_radio_clean">
+                            <label for="perm_customer_create" string="Customer Master"/>
                             <div class="perm-checkbox-group">
                                 <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
@@ -174,7 +186,13 @@
                                 <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_product_unlink" nolabel="1"/> <span>Delete</span></span>
                             </div>
+                        </group>
 
+                        <!-- SECTION 3: System Actions -->
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                            System Actions &amp; Export
+                        </div>
+                        <group class="custom_radio_clean">
                             <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
                         </group>
