@@ -11,73 +11,92 @@ class CrmUserHierarchyWizard(models.TransientModel):
 
     @api.depends('user_id')
     def _compute_hierarchy_html(self):
-        for rec in self:
-            if not rec.user_id:
-                rec.hierarchy_html = ""
+        for wizard in self:
+            user = wizard.user_id
+            if not user:
+                wizard.hierarchy_html = "<div class='text-muted p-4'>No user selected.</div>"
                 continue
 
-            target_user = rec.user_id
-
-            # 1. Trace upward chain to find the Top Leader (Root)
-            visited = set()
+            # 1. Build bottom-to-top direct reporting chain
             chain = []
-            curr = target_user
+            curr = user
+            visited = set()
             while curr and curr.id not in visited:
                 visited.add(curr.id)
-                chain.insert(0, curr)
+                chain.append(curr)
                 curr = curr.crm_manager_id
 
-            # Top leader
-            top_user = chain[0] if chain else target_user
+            # Reverse to display top-to-bottom: Top Owner -> Manager -> Target Employee
+            chain.reverse()
 
-            # Color generator for user avatar boxes based on initial
-            color_palette = [
-                '#16a34a', '#9333ea', '#0284c7', '#ea580c', '#0d9488',
-                '#e11d48', '#4f46e5', '#ca8a04', '#2563eb', '#7c3aed'
+            palette = [
+                '#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed',
+                '#0891b2', '#4f46e5', '#ca8a04', '#0d9488', '#e11d48',
+                '#9333ea', '#16a34a', '#ea580c', '#0284c7', '#c026d3',
+                '#65a30d', '#db2777', '#0369a1', '#b45309', '#475569'
             ]
 
-            def get_color(name_str):
-                if not name_str:
-                    return '#0284c7'
-                idx = sum(ord(ch) for ch in name_str) % len(color_palette)
-                return color_palette[idx]
+            lines = []
+            total = len(chain)
+            for idx, person in enumerate(chain):
+                is_target = (person.id == user.id)
+                name = person.name or person.login or "Unnamed"
+                initial = name[:1].upper() if name else "U"
+                role_title = person.crm_job_position_id.name or ("Employee" if not person.crm_manager_id else "Team Member")
+                bg_color = palette[person.id % len(palette)]
+                
+                # Card styling
+                if is_target:
+                    card_style = "border: 2px solid #007bff; background: #f0f7ff; box-shadow: 0 2px 6px rgba(0,123,255,0.15);"
+                    badge_tag = "<span style='font-size: 0.65rem; background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 6px;'>Current</span>"
+                else:
+                    card_style = "border: 1px solid #e2e8f0; background: #ffffff;"
+                    badge_tag = ""
 
-            # Render tree node
-            def render_node(user, current_id, is_child=False):
-                is_active = (user.id == current_id)
-                initial = (user.name or 'U')[:1].upper()
-                bg_color = get_color(user.name)
-
-                # Count direct subordinates
-                sub_count = len(user.crm_subordinate_ids.filtered(lambda u: u.active and not u.share))
-                badge_html = f'<span style="background-color: #dee2e6; color: #212529; border-radius: 50rem; min-width: 1.6rem; height: 1.35rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; padding: 0 0.4rem; margin-left: auto;">{sub_count}</span>' if sub_count > 0 else ''
-
-                connector = '<span style="position: absolute; left: -1.25rem; top: -0.45rem; width: 0.95rem; height: 1.45rem; border-left: 1.5px solid #6c757d; border-bottom: 1.5px solid #6c757d; display: inline-block;"></span>' if is_child else ''
-
-                # Avatar square
-                avatar_border = 'box-shadow: 0 0 0 2px #38bdf8;' if is_active else ''
-                avatar_box = f'<span style="display:inline-flex; align-items:center; justify-content:center; width:2rem; height:2rem; min-width:2rem; border-radius:0.35rem; background:{bg_color}; color:#ffffff; font-weight:700; font-size:0.95rem; margin-right:0.65rem; {avatar_border}">{initial}</span>'
-
-                # Name and Job title
-                role_name = user.crm_job_id.name if user.crm_job_id else (user.crm_department_id.name if user.crm_department_id else 'Employee')
-                active_box_style = "background: #f0f9ff; border: 1.5px solid #0284c7; padding: 0.25rem 0.6rem; border-radius: 0.4rem;" if is_active else ""
-
-                name_html = f'''
-                    <div style="display:inline-flex; flex-direction:column; {active_box_style}">
-                        <span style="font-weight: 700; color: #0f172a; font-size: 0.92rem; line-height: 1.2;">{user.name or 'Unknown'}</span>
-                        <span style="font-size: 0.78rem; color: #64748b; font-weight: 500;">{role_name}</span>
+                # Connecting vertical tree line
+                connector = ""
+                if idx < total - 1:
+                    connector = """
+                    <div style='display: flex; align-items: center; margin-left: 20px; height: 28px;'>
+                        <div style='width: 2px; height: 100%; background: #cbd5e1;'></div>
+                        <i class='fa fa-arrow-down' style='font-size: 0.75rem; color: #94a3b8; margin-left: 10px;'></i>
                     </div>
-                '''
+                    """
 
-                node_html = f'''
-                    <div style="position: relative; margin: 0.65rem 0;">
-                        {connector}
-                        <div style="display: flex; align-items: center; width: 100%; min-height: 2.1rem;">
-                            {avatar_box}
-                            {name_html}
-                            {badge_html}
+                lines.append(f"""
+                <div style='display: flex; align-items: center; position: relative;'>
+                    <!-- Avatar -->
+                    <div style='width: 38px; height: 38px; border-radius: 8px; background: {bg_color}; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0;'>
+                        {initial}
+                    </div>
+                    <!-- Details Card -->
+                    <div style='margin-left: 12px; padding: 6px 14px; border-radius: 8px; {card_style} min-width: 200px;'>
+                        <div style='font-weight: 600; font-size: 0.88rem; color: #1e293b; display: flex; align-items: center;'>
+                            {name} {badge_tag}
                         </div>
-                '''
+                        <div style='font-size: 0.75rem; color: #64748b;'>
+                            {role_title}
+                        </div>
+                    </div>
+                </div>
+                {connector}
+                """)
+
+            target_name = user.name or user.login or "Employee"
+            wizard.hierarchy_html = f"""
+            <div style='font-family: inherit; padding: 12px 16px;'>
+                <!-- Header -->
+                <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
+                    <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
+                        <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
+                    </div>
+                </div>
+                <!-- Linear Reporting Chain -->
+                <div style='padding-left: 10px;'>
+                    {''.join(lines)}
+                </div>
+            </div>
+            """
 
                 # Render subordinate direct reports
                 subs = user.crm_subordinate_ids.filtered(lambda u: u.active and not u.share)
