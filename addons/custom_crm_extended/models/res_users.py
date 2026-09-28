@@ -149,11 +149,13 @@ class ResUsers(models.Model):
                 'perm_equipment_write': job.perm_equipment_write,
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
-            }
-            if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
-                if sales_grp not in user.groups_id:
-                    user_vals['groups_id'] = [(4, sales_grp.id)]
             user.sudo().with_context(skip_sync=True).write(user_vals)
+            if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
+                self.env.cr.execute("""
+                    INSERT INTO res_groups_users_rel (gid, uid)
+                    VALUES (%s, %s)
+                    ON CONFLICT DO NOTHING
+                """, (sales_grp.id, user.id))
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
     def _compute_department_scope(self):
