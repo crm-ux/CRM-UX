@@ -36,7 +36,7 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 '#65a30d', '#db2777', '#0369a1', '#b45309', '#475569'
             ]
 
-                        total = len(chain)
+            total = len(chain)
             lines = []
             for idx, person in enumerate(chain):
                 is_target = (person.id == user.id)
