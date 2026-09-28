@@ -173,6 +173,7 @@ patch(ControlPanel.prototype, {
         }
     },
 
+
     get showEmployeeFilter() {
         const viewType = this.env.config?.viewType;
         if (viewType !== "list" && viewType !== "kanban") return false;
