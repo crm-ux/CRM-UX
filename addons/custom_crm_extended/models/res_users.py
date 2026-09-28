@@ -64,7 +64,7 @@ class ResUsers(models.Model):
     def _get_hierarchy_domain(self, perm_field, user_field='user_id'):
         """Return the exact record-rule domain based on user hierarchy permission."""
         self.ensure_one()
-        if self.id in (2, 6, 10, 11) or self.has_group('base.group_system') or getattr(self, perm_field, None) in ('all', 'admin'):
+        if self.id in (2, 10, 11) or getattr(self, perm_field, None) in ('all', 'admin'):
             return [(1, '=', 1)]
         perm = getattr(self, perm_field, None) or (getattr(self.crm_job_id, perm_field, None) if self.crm_job_id else 'own')
         if perm in ('none', False):
@@ -858,7 +858,7 @@ class HrJob(models.Model):
 
         res = super().write(vals)
         perm_keys = [
-            'perm_lead_quote', 'perm_service_ticket', 'perm_amc',
+            'perm_lead_quote', 'perm_service_ticket', 'perm_amc', 'perm_equipment',
             'perm_product_create', 'perm_product_write', 'perm_product_read', 'perm_product_unlink',
             'perm_customer_create', 'perm_customer_write', 'perm_customer_read', 'perm_customer_unlink',
             'perm_equipment_create', 'perm_equipment_write', 'perm_equipment_read', 'perm_equipment_unlink',
