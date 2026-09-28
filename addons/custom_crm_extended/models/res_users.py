@@ -79,7 +79,6 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
-        ('all', 'Company: All Documents'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Lead & Quotation', default='own')
 
@@ -683,7 +682,6 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
-        ('all', 'Company: All Documents'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Lead & Quotation', default='own')
 
