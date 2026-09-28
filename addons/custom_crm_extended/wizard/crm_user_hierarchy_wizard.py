@@ -36,52 +36,63 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 '#65a30d', '#db2777', '#0369a1', '#b45309', '#475569'
             ]
 
-            lines = []
                         total = len(chain)
             lines = []
             for idx, person in enumerate(chain):
                 is_target = (person.id == user.id)
                 name = person.name or person.login or "Unnamed"
-                role_title = person.crm_job_id.name if person.crm_job_id else (person.crm_department_id.name if person.crm_department_id else ("Employee" if not person.crm_manager_id else "Team Member"))
+                job_name = person.crm_job_id.name if person.crm_job_id else ""
+                dept_name = person.crm_department_id.name if person.crm_department_id else ""
                 
-                # Odoo avatar image
+                # Dynamic role subtitle
+                if job_name and dept_name:
+                    role_title = f"{job_name} &bull; {dept_name}"
+                elif job_name:
+                    role_title = job_name
+                elif dept_name:
+                    role_title = dept_name
+                else:
+                    role_title = "Manager" if person.crm_subordinate_ids else "Employee"
+
+                # Dynamic Odoo avatar image
                 avatar_url = f"/web/image?model=res.users&id={person.id}&field=avatar_128"
                 
-                # Subordinate count badge (Odoo style)
+                # Subordinate count badge (Odoo theme pill)
                 sub_count = len(person.crm_subordinate_ids.filtered(lambda u: u.active and not u.share))
                 sub_badge = f"""
-                <span class='badge rounded-pill text-bg-light border ms-auto' style='font-size: 0.72rem; padding: 0.35rem 0.6rem; color: #475569;'>
+                <span class='badge rounded-pill bg-light text-dark border ms-auto' title='{sub_count} Direct Reports' style='font-size: 0.72rem; padding: 0.35rem 0.6rem;'>
                     {sub_count}
                 </span>
                 """ if sub_count > 0 else ""
 
-                # Target employee highlight vs regular manager
+                # Dynamic Theme-aware Card styling using Bootstrap & CSS variables
                 if is_target:
-                    card_border = "border: 1.5px solid #007bff; background-color: #f8faff;"
-                    name_color = "#007bff"
+                    card_classes = "border border-primary bg-primary-subtle shadow-sm"
+                    name_classes = "text-primary fw-bold"
                 else:
-                    card_border = "border: 1px solid #e2e8f0; background-color: #ffffff;"
-                    name_color = "#1e293b"
+                    card_classes = "border border-secondary-subtle bg-body"
+                    name_classes = "text-body fw-bold"
 
                 is_last = (idx == total - 1)
-                connector_line = "" if is_last else "<div style='position: absolute; left: 18px; top: 38px; bottom: -12px; width: 2px; background: #cbd5e1;'></div>"
+                connector_line = "" if is_last else "<div class='position-absolute' style='left: 1.15rem; top: 2.4rem; bottom: -0.85rem; width: 2px; background: var(--border-color, #cbd5e1);'></div>"
 
                 lines.append(f"""
-                <div style='position: relative; display: flex; align-items: center; margin-bottom: 12px;'>
+                <div class='position-relative d-flex align-items-center mb-3'>
                     {connector_line}
-                    <!-- Circular Avatar -->
+                    <!-- Dynamic Theme Avatar -->
                     <img src='{avatar_url}' 
                          alt='{name}'
-                         style='width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #e2e8f0; background: #f1f5f9; z-index: 1;' 
+                         class='rounded-circle border border-2 border-secondary-subtle bg-light shadow-sm'
+                         style='width: 2.4rem; height: 2.4rem; object-fit: cover; z-index: 1;' 
                          onerror="this.onerror=null; this.src='/web/static/img/placeholder.png';"/>
                     
-                    <!-- Odoo Employee Node Card -->
-                    <div style='margin-left: 12px; padding: 6px 14px; border-radius: 6px; {card_border} display: flex; align-items: center; flex: 1; max-width: 320px;'>
-                        <div>
-                            <div style='font-weight: 600; font-size: 0.88rem; color: {name_color}; line-height: 1.2;'>
+                    <!-- Dynamic Odoo Employee Node Card -->
+                    <div class='ms-3 p-2 px-3 rounded-2 {card_classes} d-flex align-items-center flex-grow-1' style='max-width: 22rem;'>
+                        <div class='overflow-hidden text-truncate'>
+                            <div class='{name_classes}' style='font-size: 0.88rem; line-height: 1.25;'>
                                 {name}
                             </div>
-                            <div style='font-size: 0.74rem; color: #64748b; margin-top: 2px;'>
+                            <div class='text-muted' style='font-size: 0.74rem; margin-top: 0.15rem;'>
                                 {role_title}
                             </div>
                         </div>
@@ -91,8 +102,8 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 """)
 
             wizard.hierarchy_html = f"""
-            <div style='padding: 10px 16px; font-family: inherit;'>
-                <div style='padding-left: 6px;'>
+            <div class='p-3 text-body bg-body' style='font-family: inherit;'>
+                <div class='ps-1'>
                     {''.join(lines)}
                 </div>
             </div>
