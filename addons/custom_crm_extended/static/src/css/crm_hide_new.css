@@ -383,9 +383,10 @@ select[name="perm_amc"] option[value="all"] {
 }
 
 /* Hide duplicate stock Odoo 'Lead & Quotation' group on User form Access Rights page */
-.o_form_view .o_group:has(label[for*="sel_groups"]:has-text("Lead & Quotation")),
-.o_form_view .o_inner_group:has(.o_horizontal_separator:contains("Lead & Quotation")),
-.o_form_view div[name="groups_id"]:has(label:contains("Lead & Quotation")) {
+.o_form_view .o_inner_group:has(.o_horizontal_separator):has(div[name="field_4"]),
+.o_form_view .o_inner_group:has(div[name="field_4"]),
+.o_form_view div[name="field_4"],
+.o_form_view .o_inner_group:has(.o_select_menu[data-id="9"]) {
     display: none !important;
 }
 
