@@ -92,12 +92,24 @@ class CrmUserHierarchyWizard(models.TransientModel):
 
             wizard.hierarchy_html = f"""
             <style>
-                .modal-header .btn-close {{ display: none !important; }}
-                .modal-dialog {{ max-width: 28rem !important; }}
+                /* Remove header cross icon */
+                .modal-header .btn-close {{ 
+                    display: none !important; 
+                }}
+                /* Centered, balanced desktop dialog width and natural height */
+                .modal-dialog:has(.crm-hierarchy-container) {{
+                    max-width: 36rem !important;
+                    margin: 4rem auto !important;
+                }}
+                .modal-body:has(.crm-hierarchy-container) {{
+                    max-height: none !important;
+                    overflow: visible !important;
+                }}
             </style>
-            <div style='padding: 0.5rem 1rem; font-family: inherit;'>
+            <div class='crm-hierarchy-container' style='padding: 1.25rem 2rem; font-family: inherit;'>
                 {''.join(lines)}
             </div>
             """
+
 
 
