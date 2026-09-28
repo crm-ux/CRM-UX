@@ -76,7 +76,7 @@
             <field name="model_id" ref="model_service_ticket"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_service_ticket in ('all', 'admin') else ['|', ('engineer_id', '=', False), '|', ('engineer_id', 'in', user._get_accessible_user_ids('perm_service_ticket')), ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_service_ticket in ('all', 'admin') else ['|', ('engineer_id', 'in', user._get_accessible_user_ids('perm_service_ticket')), ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))]
             </field>
         </record>
 
@@ -96,7 +96,7 @@
             <field name="model_id" ref="model_equipment_master"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment in ('all', 'admin') else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment'))]
             </field>
         </record>
     </data>
