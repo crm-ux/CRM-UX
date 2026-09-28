@@ -124,6 +124,16 @@ class ResUsers(models.Model):
     perm_equipment_read = fields.Boolean(string='View Equipment', default=False)
     perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
 
+    perm_ticket_create = fields.Boolean(string='Create Ticket', default=False)
+    perm_ticket_write = fields.Boolean(string='Update Ticket', default=False)
+    perm_ticket_read = fields.Boolean(string='View Ticket', default=False)
+    perm_ticket_unlink = fields.Boolean(string='Delete Ticket', default=False)
+
+    perm_amc_create = fields.Boolean(string='Create AMC', default=False)
+    perm_amc_write = fields.Boolean(string='Update AMC', default=False)
+    perm_amc_read = fields.Boolean(string='View AMC', default=False)
+    perm_amc_unlink = fields.Boolean(string='Delete AMC', default=False)
+
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
@@ -158,6 +168,14 @@ class ResUsers(models.Model):
                 'perm_equipment_write': job.perm_equipment_write,
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
+                'perm_ticket_create': job.perm_ticket_create,
+                'perm_ticket_write': job.perm_ticket_write,
+                'perm_ticket_read': job.perm_ticket_read,
+                'perm_ticket_unlink': job.perm_ticket_unlink,
+                'perm_amc_create': job.perm_amc_create,
+                'perm_amc_write': job.perm_amc_write,
+                'perm_amc_read': job.perm_amc_read,
+                'perm_amc_unlink': job.perm_amc_unlink,
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
             if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
@@ -733,6 +751,16 @@ class HrJob(models.Model):
     perm_equipment_write = fields.Boolean(string='Update Equipment', default=False)
     perm_equipment_read = fields.Boolean(string='View Equipment', default=False)
     perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
+
+    perm_ticket_create = fields.Boolean(string='Create Ticket', default=False)
+    perm_ticket_write = fields.Boolean(string='Update Ticket', default=False)
+    perm_ticket_read = fields.Boolean(string='View Ticket', default=False)
+    perm_ticket_unlink = fields.Boolean(string='Delete Ticket', default=False)
+
+    perm_amc_create = fields.Boolean(string='Create AMC', default=False)
+    perm_amc_write = fields.Boolean(string='Update AMC', default=False)
+    perm_amc_read = fields.Boolean(string='View AMC', default=False)
+    perm_amc_unlink = fields.Boolean(string='Delete AMC', default=False)
 
     perm_export = fields.Selection([
         ('none', 'No'),

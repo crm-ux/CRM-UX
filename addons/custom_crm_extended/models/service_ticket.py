@@ -1,7 +1,8 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import re
+from lxml import etree
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class ServiceTicket(models.Model):
     _name = 'service.ticket'
@@ -196,6 +197,79 @@ class ServiceTicket(models.Model):
         else:
             self.engineer_contact = False
             self.engineer_email = False
+
+    def _user_can(self, perm_name, default=True):
+        user = self.env.user
+        if user.has_group('base.group_system') or user.id in (2, 10, 11):
+            return True
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
+
+    @api.model
+    def get_views(self, views, options=None):
+        res = super(ServiceTicket, self).get_views(views, options=options)
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            can_create = self._user_can('perm_ticket_create', True)
+            can_write = self._user_can('perm_ticket_write', True)
+            can_delete = self._user_can('perm_ticket_unlink', False)
+
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        if not can_create:
+                            doc.attrib['create'] = 'false'
+                        if not can_write:
+                            doc.attrib['edit'] = 'false'
+                        if not can_delete:
+                            doc.attrib['delete'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            if operation == 'create' and not self._user_can('perm_ticket_create', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to create Service Tickets."))
+                return False
+            if operation == 'write' and not self._user_can('perm_ticket_write', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to update Service Tickets."))
+                return False
+            if operation == 'unlink' and not self._user_can('perm_ticket_unlink', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to delete Service Tickets."))
+                return False
+        return super(ServiceTicket, self).check_access_rights(operation, raise_exception=raise_exception)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            if not self._user_can('perm_ticket_create', True):
+                raise UserError(_("Access Denied: You do not have permission to create Service Tickets."))
+        return super(ServiceTicket, self).create(vals_list)
+
+    def write(self, vals):
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            if not self._user_can('perm_ticket_write', True):
+                raise UserError(_("Access Denied: You do not have permission to update Service Tickets."))
+        return super(ServiceTicket, self).write(vals)
+
+    def unlink(self):
+        for rec in self:
+            user = self.env.user
+            if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+                if not self._user_can('perm_ticket_unlink', False):
+                    raise UserError(_("Access Denied: You do not have permission to delete Service Tickets."))
+        return super(ServiceTicket, self).unlink()
 
     _sql_constraints = [
         ('ticket_id_uniq', 'unique(ticket_id)', 'The Ticket ID must be unique! This Ticket ID is already assigned to another ticket.'),
