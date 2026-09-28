@@ -1,6 +1,6 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 class EquipmentMasterWizard(models.TransientModel):
     _name = "equipment.master.wizard"
@@ -237,8 +237,22 @@ class EquipmentMasterWizard(models.TransientModel):
             "target": "new",
         }
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            can_create = user.perm_equipment_create or (user.crm_job_id and user.crm_job_id.perm_equipment_create)
+            if not can_create:
+                raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
+        return super().create(vals_list)
+
     def action_save_equipment(self):
         self.ensure_one()
+        user = self.env.user
+        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            can_create = user.perm_equipment_create or (user.crm_job_id and user.crm_job_id.perm_equipment_create)
+            if not can_create:
+                raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
 
         # Find matching sequence for category or default to consume on save
         cat_rec = False

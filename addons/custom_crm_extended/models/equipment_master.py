@@ -203,8 +203,8 @@ class EquipmentMaster(models.Model):
         res = super(EquipmentMaster, self).get_views(views, options=options)
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            can_create = self._user_can('perm_equipment_create', True)
-            can_write = self._user_can('perm_equipment_write', True)
+            can_create = self._user_can('perm_equipment_create', False)
+            can_write = self._user_can('perm_equipment_write', False)
             can_delete = self._user_can('perm_equipment_unlink', False)
 
             for vtype in ['form', 'list', 'tree', 'kanban']:
@@ -225,11 +225,11 @@ class EquipmentMaster(models.Model):
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if operation == 'create' and not self._user_can('perm_equipment_create', True):
+            if operation == 'create' and not self._user_can('perm_equipment_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
                 return False
-            if operation == 'write' and not self._user_can('perm_equipment_write', True):
+            if operation == 'write' and not self._user_can('perm_equipment_write', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
                 return False
@@ -243,14 +243,14 @@ class EquipmentMaster(models.Model):
     def create(self, vals_list):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_equipment_create', True):
+            if not self._user_can('perm_equipment_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
         return super(EquipmentMaster, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_equipment_write', True):
+            if not self._user_can('perm_equipment_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
         return super(EquipmentMaster, self).write(vals)
 

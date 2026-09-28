@@ -1040,10 +1040,8 @@ class DashboardStats(models.Model):
                 ),
                 'equipment_read': bool(
                     target_user.perm_equipment_read or target_user.perm_equipment_write or target_user.perm_equipment_create or
-                    (target_user.perm_equipment and target_user.perm_equipment != 'none') or
                     (target_user.crm_job_id and (
-                        target_user.crm_job_id.perm_equipment_read or target_user.crm_job_id.perm_equipment_write or target_user.crm_job_id.perm_equipment_create or
-                        (target_user.crm_job_id.perm_equipment and target_user.crm_job_id.perm_equipment != 'none')
+                        target_user.crm_job_id.perm_equipment_read or target_user.crm_job_id.perm_equipment_write or target_user.crm_job_id.perm_equipment_create
                     )) or
                     is_admin or target_user.has_group('base.group_system')
                 ),

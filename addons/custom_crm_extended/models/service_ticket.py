@@ -212,8 +212,8 @@ class ServiceTicket(models.Model):
         res = super(ServiceTicket, self).get_views(views, options=options)
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            can_create = self._user_can('perm_ticket_create', True)
-            can_write = self._user_can('perm_ticket_write', True)
+            can_create = self._user_can('perm_ticket_create', False)
+            can_write = self._user_can('perm_ticket_write', False)
             can_delete = self._user_can('perm_ticket_unlink', False)
 
             for vtype in ['form', 'list', 'tree', 'kanban']:
@@ -234,11 +234,11 @@ class ServiceTicket(models.Model):
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if operation == 'create' and not self._user_can('perm_ticket_create', True):
+            if operation == 'create' and not self._user_can('perm_ticket_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Service Tickets."))
                 return False
-            if operation == 'write' and not self._user_can('perm_ticket_write', True):
+            if operation == 'write' and not self._user_can('perm_ticket_write', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Service Tickets."))
                 return False
@@ -252,14 +252,14 @@ class ServiceTicket(models.Model):
     def create(self, vals_list):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_ticket_create', True):
+            if not self._user_can('perm_ticket_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Service Tickets."))
         return super(ServiceTicket, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_ticket_write', True):
+            if not self._user_can('perm_ticket_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Service Tickets."))
         return super(ServiceTicket, self).write(vals)
 
