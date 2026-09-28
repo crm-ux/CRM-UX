@@ -61,6 +61,21 @@ class ResUsers(models.Model):
 
         return list(uids)
 
+    def _get_hierarchy_domain(self, perm_field, user_field='user_id'):
+        """Return the exact record-rule domain based on user hierarchy permission."""
+        self.ensure_one()
+        if self.id in (2, 6, 10, 11) or self.has_group('base.group_system') or getattr(self, perm_field, None) in ('all', 'admin'):
+            return [(1, '=', 1)]
+        perm = getattr(self, perm_field, None) or (getattr(self.crm_job_id, perm_field, None) if self.crm_job_id else 'own')
+        if perm in ('none', False):
+            return [(0, '=', 1)]
+        uids = self._get_accessible_user_ids(perm_field)
+        if not uids:
+            return [(0, '=', 1)]
+        if user_field:
+            return ['|', (user_field, 'in', uids), ('create_uid', 'in', uids)]
+        return [('create_uid', 'in', uids)]
+
     def action_revoke_role(self):
         """Unassigns this role from the user."""
         for user in self:
