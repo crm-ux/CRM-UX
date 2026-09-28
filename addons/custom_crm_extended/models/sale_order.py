@@ -1085,6 +1085,16 @@ class DashboardStats(models.Model):
                     (target_user.crm_job_id and target_user.crm_job_id.perm_amc and target_user.crm_job_id.perm_amc != 'none' and target_user.crm_job_id.perm_amc_read) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
+                'can_create_company': bool(
+                    target_user.perm_company == 'create' or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_company == 'create') or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'can_export': bool(
+                    target_user.perm_export == 'export' or
+                    (target_user.crm_job_id and target_user.crm_job_id.perm_export == 'export') or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
                 'is_manager': bool(
                     target_user.crm_subordinate_ids or
                     target_user.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or

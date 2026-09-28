@@ -38,6 +38,8 @@ class CrmDashboard extends Component {
             canViewProduct: false,
             canViewEquipment: false,
             canViewUsers: false,
+            canCreateCompany: false,
+            canExport: false,
             loading: false,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
@@ -212,7 +214,9 @@ class CrmDashboard extends Component {
             const canViewTicket = Boolean(perms.ticket_read || isAdmin);
             const canViewAmc = Boolean(perms.amc_read || isAdmin);
             const canViewUsers = Boolean(perms.is_manager || isAdmin);
-            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers);
+            const canCreateCompany = Boolean(perms.can_create_company || isAdmin);
+            const canExport = Boolean(perms.can_export || isAdmin);
+            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers || canCreateCompany);
 
             const lc = canViewLeadQuote ? (s.lead_counts || {}) : {}, qc = canViewLeadQuote ? (s.quote_counts || {}) : {};
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
@@ -267,6 +271,7 @@ class CrmDashboard extends Component {
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 amcTotal, amcDraft, amcActive, amcExpired,
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
+                canCreateCompany, canExport,
                 loading: false
             });
 
@@ -410,6 +415,13 @@ class CrmDashboard extends Component {
             return;
         }
         this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] });
+    }
+    openCompanies() {
+        if (!this.state.isAdmin && !this.state.canCreateCompany) {
+            this.showAccessDenied("Companies");
+            return;
+        }
+        this.go({ type: "ir.actions.act_window", name: "Companies", res_model: "res.company", views: [[false, "list"], [false, "form"]] });
     }
     openProducts() {
         if (!this.state.isAdmin && !this.state.canViewProduct) {

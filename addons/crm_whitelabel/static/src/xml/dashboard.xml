@@ -39,8 +39,8 @@
                                 <!-- Customers: visible to Admin or users with Customer permission -->
                                 <a t-if="state.isAdmin or state.canViewCustomer" t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
                                 
-                                <!-- Companies: Admin only -->
-                                <a t-if="state.isAdmin" href="/app/companies" class="crm-admin-menu-item">Companies</a>
+                                <!-- Companies: visible to Admin or users with Company Creation permission -->
+                                <a t-if="state.isAdmin or state.canCreateCompany" t-on-click="openCompanies" class="crm-admin-menu-item" style="cursor:pointer;">Companies</a>
                                 
                                 <!-- Quotations: Admin only -->
                                 <a t-if="state.isAdmin" href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
