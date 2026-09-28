@@ -317,7 +317,7 @@ class CrmDashboard extends Component {
     }
 
     go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
-    openLeads() { const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ["x_stage_sequence", "!=", 90], ...cd], context: { allowed_company_ids: this.state.selectedCompanies } }); }
+    openLeads() { const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Leads", res_model: "crm.lead", views: [[false, "list"], [false, "form"]], domain: [["active", "=", true], ["x_stage_sequence", "!=", 90], ...cd], context: { allowed_company_ids: this.state.selectedCompanies, search_default_assigned_to_me: 0, search_default_my_leads: 0 } }); }
     openQuotes() { const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : []; this.go({ type: "ir.actions.act_window", name: "Quotations", res_model: "sale.order", views: [[false, "list"], [false, "form"]], domain: [["x_quote_stage", "not in", ["won", "lost"]], ["state", "!=", "cancel"], ...cd], context: { allowed_company_ids: this.state.selectedCompanies, hide_invoice_status: true } }); }
     openQuoteStage(stage) {
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -369,7 +369,11 @@ class CrmDashboard extends Component {
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [...leadDomain, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies }
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
         });
     }
 
