@@ -23,8 +23,8 @@ class ProductTemplate(models.Model):
         res = super(ProductTemplate, self).get_views(views, options=options)
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            can_create = self._user_can('perm_product_create', True)
-            can_write = self._user_can('perm_product_write', True)
+            can_create = self._user_can('perm_product_create', False)
+            can_write = self._user_can('perm_product_write', False)
             can_delete = self._user_can('perm_product_unlink', False)
 
             for vtype in ['form', 'list', 'tree', 'kanban']:
@@ -45,11 +45,11 @@ class ProductTemplate(models.Model):
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if operation == 'create' and not self._user_can('perm_product_create', True):
+            if operation == 'create' and not self._user_can('perm_product_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Product records."))
                 return False
-            if operation == 'write' and not self._user_can('perm_product_write', True):
+            if operation == 'write' and not self._user_can('perm_product_write', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Product records."))
                 return False
@@ -63,14 +63,14 @@ class ProductTemplate(models.Model):
     def create(self, vals_list):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_product_create', True):
+            if not self._user_can('perm_product_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Product records."))
         return super(ProductTemplate, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_product_write', True):
+            if not self._user_can('perm_product_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Product records."))
         return super(ProductTemplate, self).write(vals)
 

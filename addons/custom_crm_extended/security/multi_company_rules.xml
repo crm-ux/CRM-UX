@@ -26,19 +26,12 @@
             <field name="name">Equipment: All Documents</field>
         </record>
 
-        <!-- Rules for the groups -->
+        <!-- Deactivate group rules so rule_equipment_master_hierarchy controls access -->
         <record id="rule_equipment_own" model="ir.rule">
-            <field name="name">Equipment: Own Documents Only</field>
-            <field name="model_id" ref="model_equipment_master"/>
-            <field name="groups" eval="[(4, ref('group_equipment_own'))]"/>
-            <field name="domain_force">['|', ('user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+            <field name="active" eval="False"/>
         </record>
-
         <record id="rule_equipment_all" model="ir.rule">
-            <field name="name">Equipment: All Documents</field>
-            <field name="model_id" ref="model_equipment_master"/>
-            <field name="groups" eval="[(4, ref('group_equipment_all'))]"/>
-            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="active" eval="False"/>
         </record>
 
         <!-- Deactivate standard built-in personal rules which conflict with hierarchy permissions -->
@@ -49,14 +42,13 @@
             <field name="active" eval="False"/>
         </record>
 
-
         <!-- Global Hierarchy Record Rule for CRM Leads -->
         <record id="rule_crm_lead_hierarchy" model="ir.rule">
             <field name="name">CRM Lead: Hierarchy &amp; Permission Access</field>
             <field name="model_id" ref="crm.model_crm_lead"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ([(0, '=', 1)] if (getattr(user, 'perm_lead_quote', None) or (getattr(user.crm_job_id, 'perm_lead_quote', None) if user.crm_job_id else 'own')) == 'none' else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))])
             </field>
         </record>
 
@@ -66,7 +58,7 @@
             <field name="model_id" ref="sale.model_sale_order"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ['|', ('user_id', '=', False), '|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_lead_quote in ('all', 'admin') else ([(0, '=', 1)] if (getattr(user, 'perm_lead_quote', None) or (getattr(user.crm_job_id, 'perm_lead_quote', None) if user.crm_job_id else 'own')) == 'none' else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_lead_quote')), ('create_uid', 'in', user._get_accessible_user_ids('perm_lead_quote'))])
             </field>
         </record>
 
@@ -76,7 +68,7 @@
             <field name="model_id" ref="model_service_ticket"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_service_ticket in ('all', 'admin') else ['|', ('engineer_id', 'in', user._get_accessible_user_ids('perm_service_ticket')), ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_service_ticket in ('all', 'admin') else ([(0, '=', 1)] if (getattr(user, 'perm_service_ticket', None) or (getattr(user.crm_job_id, 'perm_service_ticket', None) if user.crm_job_id else 'own')) == 'none' else ['|', ('engineer_id', 'in', user._get_accessible_user_ids('perm_service_ticket')), ('create_uid', 'in', user._get_accessible_user_ids('perm_service_ticket'))])
             </field>
         </record>
 
@@ -86,7 +78,7 @@
             <field name="model_id" ref="model_amc_contract"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_amc in ('all', 'admin') else [('create_uid', 'in', user._get_accessible_user_ids('perm_amc'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_amc in ('all', 'admin') else ([(0, '=', 1)] if (getattr(user, 'perm_amc', None) or (getattr(user.crm_job_id, 'perm_amc', None) if user.crm_job_id else 'own')) == 'none' else [('create_uid', 'in', user._get_accessible_user_ids('perm_amc'))])
             </field>
         </record>
 
@@ -96,7 +88,7 @@
             <field name="model_id" ref="model_equipment_master"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment in ('all', 'admin') else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment'))]
+                [(1, '=', 1)] if user.id in (2, 10, 11) or user.perm_equipment in ('all', 'admin') else ([(0, '=', 1)] if (getattr(user, 'perm_equipment', None) or (getattr(user.crm_job_id, 'perm_equipment', None) if user.crm_job_id else 'own')) == 'none' else ['|', ('user_id', 'in', user._get_accessible_user_ids('perm_equipment')), ('create_uid', 'in', user._get_accessible_user_ids('perm_equipment'))])
             </field>
         </record>
     </data>

@@ -29,8 +29,8 @@ class ResPartner(models.Model):
         res = super(ResPartner, self).get_views(views, options=options)
         user = self.env.user
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            can_create = self._user_can('perm_customer_create', True)
-            can_write = self._user_can('perm_customer_write', True)
+            can_create = self._user_can('perm_customer_create', False)
+            can_write = self._user_can('perm_customer_write', False)
             can_delete = self._user_can('perm_customer_unlink', False)
 
             for vtype in ['form', 'list', 'tree', 'kanban']:
@@ -56,11 +56,11 @@ class ResPartner(models.Model):
             return super(ResPartner, self).check_access_rights(operation, raise_exception=raise_exception)
 
         if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if operation == 'create' and not self._user_can('perm_customer_create', True):
+            if operation == 'create' and not self._user_can('perm_customer_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Customer / Contact records."))
                 return False
-            if operation == 'write' and not self._user_can('perm_customer_write', True):
+            if operation == 'write' and not self._user_can('perm_customer_write', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
                 return False
@@ -76,7 +76,7 @@ class ResPartner(models.Model):
         active_model = self.env.context.get('active_model') or self.env.context.get('params', {}).get('model')
         # Only block direct customer creation from customer menu
         if (not active_model or active_model == 'res.partner') and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
-            if not self._user_can('perm_customer_create', True):
+            if not self._user_can('perm_customer_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Customer / Contact records."))
         return super(ResPartner, self).create(vals_list)
 
@@ -86,7 +86,7 @@ class ResPartner(models.Model):
         # Only block direct customer edits from customer menu
         if (not active_model or active_model == 'res.partner') and not user.has_group('base.group_system') and user.id not in (2, 10, 11):
             other_partners = self.filtered(lambda p: p.id != user.partner_id.id)
-            if other_partners and not self._user_can('perm_customer_write', True):
+            if other_partners and not self._user_can('perm_customer_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Customer / Contact records."))
         return super(ResPartner, self).write(vals)
 
