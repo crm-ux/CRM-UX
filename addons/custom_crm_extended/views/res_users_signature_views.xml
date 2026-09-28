@@ -147,13 +147,13 @@
                                 <button name="action_view_user_hierarchy"
                                         type="object"
                                         icon="fa-sitemap"
+                                        string="Hierarchy"
                                         title="View Reporting Hierarchy"
-                                        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center p-1 me-2"
-                                        style="width: 2rem; height: 1.8rem;"/>
+                                        class="btn btn-sm btn-outline-primary"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
-                                        class="btn btn-sm btn-danger d-inline-flex align-items-center py-1 px-2" 
+                                        class="btn btn-sm btn-danger" 
                                         title="Revoke Role"
                                         confirm="Are you sure you want to revoke this job position from this employee?"
                                         help="Remove this role from the employee."/>
