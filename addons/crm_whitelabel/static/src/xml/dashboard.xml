@@ -64,7 +64,7 @@
                                 <a t-if="!state.isAdmin and state.canViewUsers" href="/app/settings/users" class="crm-admin-menu-item">Users</a>
 
                                 <!-- Products: visible to Admin or users with Product permission -->
-                                <a t-if="state.isAdmin or state.canViewProduct" t-on-click="openProducts" class="crm-admin-menu-item" style="cursor:pointer;">Products</a>
+                                <a t-if="state.isAdmin or state.canViewProduct" href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
                                 
                                 <!-- Equipment Master: visible to Admin or users with Equipment permission -->
                                 <a t-if="state.isAdmin or state.canViewEquipment" t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
