@@ -69,6 +69,12 @@
                                 <!-- Equipment Master: visible to Admin or users with Equipment permission -->
                                 <a t-if="state.isAdmin or state.canViewEquipment" t-on-click="openEquipmentMaster" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
                                 
+                                <!-- Service Tickets: visible to Admin or users with Ticket permission -->
+                                <a t-if="state.isAdmin or state.canViewTicket" t-on-click="openServiceTickets" class="crm-admin-menu-item" style="cursor:pointer;">Service Tickets</a>
+
+                                <!-- AMC Contracts: visible to Admin or users with AMC permission -->
+                                <a t-if="state.isAdmin or state.canViewAmc" t-on-click="openAmcContracts" class="crm-admin-menu-item" style="cursor:pointer;">AMC Contracts</a>
+
                                 <!-- Terms & Conditions: Admin only -->
                                 <a t-if="state.isAdmin" t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
                                 

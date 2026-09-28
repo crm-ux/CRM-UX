@@ -847,6 +847,8 @@ class HrJob(models.Model):
             'perm_product_create', 'perm_product_write', 'perm_product_read', 'perm_product_unlink',
             'perm_customer_create', 'perm_customer_write', 'perm_customer_read', 'perm_customer_unlink',
             'perm_equipment_create', 'perm_equipment_write', 'perm_equipment_read', 'perm_equipment_unlink',
+            'perm_ticket_create', 'perm_ticket_write', 'perm_ticket_read', 'perm_ticket_unlink',
+            'perm_amc_create', 'perm_amc_write', 'perm_amc_read', 'perm_amc_unlink',
             'perm_export', 'perm_company'
         ]
         if any(k in vals for k in perm_keys):

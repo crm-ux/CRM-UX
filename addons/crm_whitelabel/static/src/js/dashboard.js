@@ -227,8 +227,10 @@ class CrmDashboard extends Component {
             const canViewCustomer = Boolean(perms.customer_read || isAdmin);
             const canViewProduct = Boolean(perms.product_read || isAdmin);
             const canViewEquipment = Boolean(perms.equipment_read || isAdmin);
+            const canViewTicket = Boolean(perms.ticket_read || isAdmin);
+            const canViewAmc = Boolean(perms.amc_read || isAdmin);
             const canViewUsers = Boolean(perms.is_manager || isAdmin);
-            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewUsers);
+            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers);
 
             const eqCompDomain = this.state.selectedCompanies.length
                 ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
@@ -299,7 +301,7 @@ class CrmDashboard extends Component {
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 amcTotal, amcDraft, amcActive, amcExpired,
-                canAccessQuickMenu, canViewCustomer, canViewProduct, canViewEquipment, canViewUsers,
+                canAccessQuickMenu, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 loading: false
             });
 

@@ -1028,9 +1028,44 @@ class DashboardStats(models.Model):
             'invoice_created': invoice_created,
             'invoice_pending': invoice_pending,
             'permissions': {
-                'product_read': bool(target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or is_admin or target_user.has_group('base.group_system')),
-                'customer_read': bool(target_user.perm_customer_read or target_user.perm_customer_write or target_user.perm_customer_create or is_admin or target_user.has_group('base.group_system')),
-                'equipment_read': bool(target_user.perm_equipment_read or target_user.perm_equipment_write or target_user.perm_equipment_create or (target_user.perm_equipment and target_user.perm_equipment != 'none') or is_admin or target_user.has_group('base.group_system')),
-                'is_manager': bool(target_user.crm_subordinate_ids or target_user.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or target_user.perm_equipment in ('subordinates', 'department', 'all', 'admin') or is_admin or target_user.has_group('base.group_system')),
+                'product_read': bool(
+                    target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or
+                    (target_user.crm_job_id and (target_user.crm_job_id.perm_product_read or target_user.crm_job_id.perm_product_write or target_user.crm_job_id.perm_product_create)) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'customer_read': bool(
+                    target_user.perm_customer_read or target_user.perm_customer_write or target_user.perm_customer_create or
+                    (target_user.crm_job_id and (target_user.crm_job_id.perm_customer_read or target_user.crm_job_id.perm_customer_write or target_user.crm_job_id.perm_customer_create)) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'equipment_read': bool(
+                    target_user.perm_equipment_read or target_user.perm_equipment_write or target_user.perm_equipment_create or
+                    (target_user.perm_equipment and target_user.perm_equipment != 'none') or
+                    (target_user.crm_job_id and (
+                        target_user.crm_job_id.perm_equipment_read or target_user.crm_job_id.perm_equipment_write or target_user.crm_job_id.perm_equipment_create or
+                        (target_user.crm_job_id.perm_equipment and target_user.crm_job_id.perm_equipment != 'none')
+                    )) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'ticket_read': bool(
+                    target_user.perm_ticket_read or target_user.perm_ticket_write or target_user.perm_ticket_create or
+                    (target_user.crm_job_id and (target_user.crm_job_id.perm_ticket_read or target_user.crm_job_id.perm_ticket_write or target_user.crm_job_id.perm_ticket_create)) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'amc_read': bool(
+                    target_user.perm_amc_read or target_user.perm_amc_write or target_user.perm_amc_create or
+                    (target_user.crm_job_id and (target_user.crm_job_id.perm_amc_read or target_user.crm_job_id.perm_amc_write or target_user.crm_job_id.perm_amc_create)) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
+                'is_manager': bool(
+                    target_user.crm_subordinate_ids or
+                    target_user.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or
+                    target_user.perm_equipment in ('subordinates', 'department', 'all', 'admin') or
+                    (target_user.crm_job_id and (
+                        target_user.crm_job_id.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or
+                        target_user.crm_job_id.perm_equipment in ('subordinates', 'department', 'all', 'admin')
+                    )) or
+                    is_admin or target_user.has_group('base.group_system')
+                ),
             },
         }
