@@ -76,6 +76,20 @@ class ResUsers(models.Model):
             return ['|', (user_field, 'in', uids), ('create_uid', 'in', uids)]
         return [('create_uid', 'in', uids)]
 
+    @api.model
+    def get_accessible_employees(self, perm_field='perm_lead_quote'):
+        """Returns list of {id, name} of accessible users for the current user if more than 1 user is accessible."""
+        user = self.env.user
+        if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+            all_users = self.sudo().search([('share', '=', False), ('active', '=', True)], order='name asc')
+            return [{'id': u.id, 'name': u.name} for u in all_users]
+
+        uids = user._get_accessible_user_ids(perm_field)
+        if len(uids) <= 1:
+            return []
+        users = self.sudo().browse(uids).filtered(lambda u: u.active and not u.share)
+        return [{'id': u.id, 'name': u.name} for u in users.sorted('name')]
+
     def action_revoke_role(self):
         """Unassigns this role from the user."""
         for user in self:

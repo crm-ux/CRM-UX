@@ -3,6 +3,8 @@ import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
 import { useService } from "@web/core/utils/hooks";
+import { useState, onWillStart } from "@odoo/owl";
+import { rpc } from "@web/core/network/rpc";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { notificationService } from "@web/core/notifications/notification_service";
@@ -78,6 +80,23 @@ patch(ControlPanel.prototype, {
         super.setup(...arguments);
         this.action = useService("action");
         this.orm = useService("orm");
+        this.empFilterState = useState({ accessibleEmployees: [] });
+
+        onWillStart(async () => {
+            try {
+                const emps = await rpc("/web/dataset/call_kw", {
+                    model: "res.users",
+                    method: "get_accessible_employees",
+                    args: [],
+                    kwargs: {},
+                });
+                if (Array.isArray(emps)) {
+                    this.empFilterState.accessibleEmployees = emps;
+                }
+            } catch (e) {
+                this.empFilterState.accessibleEmployees = [];
+            }
+        });
     },
     goDashboard() {
         this.action.doAction(435);
@@ -151,6 +170,65 @@ patch(ControlPanel.prototype, {
                     default_stage_filter_val: val,
                 },
             }, { clearBreadcrumbs: true });
+        }
+    },
+
+    get showEmployeeFilter() {
+        const viewType = this.env.config?.viewType;
+        if (viewType !== "list" && viewType !== "kanban") return false;
+        const resModel = this.env.searchModel?.resModel;
+        const supportedModels = ['crm.lead', 'sale.order', 'equipment.master', 'service.ticket', 'amc.contract'];
+        if (!supportedModels.includes(resModel)) return false;
+        return (this.empFilterState?.accessibleEmployees || []).length > 1;
+    },
+
+    get accessibleEmployees() {
+        return this.empFilterState?.accessibleEmployees || [];
+    },
+
+    get currentEmployeeFilter() {
+        const ctx = this.env.searchModel?.context || {};
+        return ctx.filter_employee_user_id || "all";
+    },
+
+    onEmployeeFilterChange(ev) {
+        const val = ev.target.value;
+        const searchModel = this.env.searchModel;
+        if (!searchModel) return;
+
+        // Toggle or update the dynamic user domain in searchModel
+        const resModel = searchModel.resModel;
+        const userField = resModel === 'service.ticket' ? 'engineer_id' : (resModel === 'amc.contract' ? 'create_uid' : 'user_id');
+
+        // Check if there is an active custom employee domain
+        const domain = val === "all" ? [] : ['|', [userField, '=', parseInt(val)], ['create_uid', '=', parseInt(val)]];
+
+        // Store selected employee in context and reload searchModel
+        searchModel.context = {
+            ...searchModel.context,
+            filter_employee_user_id: val,
+        };
+
+        // Trigger domain update on searchModel
+        const actionService = this.action;
+        const currentAction = actionService.currentController?.action;
+        if (currentAction) {
+            const baseDomain = (currentAction.domain || []).filter(d => {
+                if (Array.isArray(d) && d.length === 3) {
+                    if (d[0] === userField && (d[1] === '=' || d[1] === 'in')) return false;
+                }
+                return true;
+            });
+            const newDomain = val === "all" ? baseDomain : [...baseDomain, ...domain];
+            actionService.doAction({
+                ...currentAction,
+                domain: newDomain,
+                context: {
+                    ...currentAction.context,
+                    ...searchModel.context,
+                    filter_employee_user_id: val,
+                }
+            }, { clearBreadcrumbs: false });
         }
     }
 });
