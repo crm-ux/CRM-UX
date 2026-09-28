@@ -82,48 +82,18 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 {connector}
                 """)
 
-                target_name = user.name or user.login or "Employee"
-                wizard.hierarchy_html = f"""
-                <div style='font-family: inherit; padding: 12px 16px;'>
-                    <!-- Header -->
-                    <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
-                        <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
-                            <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
-                        </div>
-                    </div>
-                    <!-- Linear Reporting Chain -->
-                    <div style='padding-left: 10px;'>
-                        {''.join(lines)}
+            target_name = user.name or user.login or "Employee"
+            wizard.hierarchy_html = f"""
+            <div style='font-family: inherit; padding: 12px 16px;'>
+                <!-- Header -->
+                <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
+                    <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
+                        <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
                     </div>
                 </div>
-                """
-
-                # Render subordinate direct reports
-                subs = user.crm_subordinate_ids.filtered(lambda u: u.active and not u.share)
-                if subs:
-                    node_html += '<div style="position: relative; margin-left: 1.5rem; padding-left: 1.15rem; border-left: 1.5px solid #6c757d;">'
-                    for idx, sub in enumerate(subs):
-                        is_last = (idx == len(subs) - 1)
-                        mask = '<span style="position: absolute; left: -1.15rem; top: 1rem; bottom: -0.55rem; width: 3px; background: #ffffff; margin-left: -2px;"></span>' if is_last else ''
-                        node_html += mask
-                        node_html += render_node(sub, current_id, is_child=True)
-                    node_html += '</div>'
-
-                node_html += '</div>'
-                return node_html
-
-            tree_content = render_node(top_user, target_user.id, is_child=False)
-
-            rec.hierarchy_html = f'''
-                <div style="padding: 1rem 1.2rem; background: #ffffff; border-radius: 0.5rem; font-family: inherit;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 0.65rem; margin-bottom: 0.85rem;">
-                        <span style="font-weight: 800; font-size: 0.85rem; letter-spacing: 0.05em; color: #0f172a; text-transform: uppercase;">ORGANIZATION CHART</span>
-                        <span style="font-size: 0.78rem; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 0.35rem;">
-                            <i class="fa fa-sitemap"></i> FULL CHART
-                        </span>
-                    </div>
-                    <div style="overflow-x: auto; padding: 0.25rem 0;">
-                        {tree_content}
-                    </div>
+                <!-- Linear Reporting Chain -->
+                <div style='padding-left: 10px;'>
+                    {''.join(lines)}
                 </div>
-            '''
+            </div>
+            """
