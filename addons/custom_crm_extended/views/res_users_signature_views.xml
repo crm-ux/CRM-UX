@@ -147,9 +147,9 @@
                                 <button name="action_view_user_hierarchy"
                                         type="object"
                                         icon="fa-sitemap"
-                                        string="Hierarchy"
                                         title="View Reporting Hierarchy"
                                         class="btn btn-sm btn-outline-primary"/>
+                                <field name="id" column_invisible="True"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
