@@ -37,62 +37,62 @@ class CrmUserHierarchyWizard(models.TransientModel):
             ]
 
             lines = []
-            total = len(chain)
+                        total = len(chain)
+            lines = []
             for idx, person in enumerate(chain):
                 is_target = (person.id == user.id)
                 name = person.name or person.login or "Unnamed"
-                initial = name[:1].upper() if name else "U"
                 role_title = person.crm_job_id.name if person.crm_job_id else (person.crm_department_id.name if person.crm_department_id else ("Employee" if not person.crm_manager_id else "Team Member"))
-                bg_color = palette[person.id % len(palette)]
                 
-                # Card styling
-                if is_target:
-                    card_style = "border: 2px solid #007bff; background: #f0f7ff; box-shadow: 0 2px 6px rgba(0,123,255,0.15);"
-                    badge_tag = "<span style='font-size: 0.65rem; background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 6px;'>Current</span>"
-                else:
-                    card_style = "border: 1px solid #e2e8f0; background: #ffffff;"
-                    badge_tag = ""
+                # Odoo avatar image
+                avatar_url = f"/web/image?model=res.users&id={person.id}&field=avatar_128"
+                
+                # Subordinate count badge (Odoo style)
+                sub_count = len(person.crm_subordinate_ids.filtered(lambda u: u.active and not u.share))
+                sub_badge = f"""
+                <span class='badge rounded-pill text-bg-light border ms-auto' style='font-size: 0.72rem; padding: 0.35rem 0.6rem; color: #475569;'>
+                    {sub_count}
+                </span>
+                """ if sub_count > 0 else ""
 
-                # Connecting vertical tree line
-                connector = ""
-                if idx < total - 1:
-                    connector = """
-                    <div style='display: flex; align-items: center; margin-left: 20px; height: 28px;'>
-                        <div style='width: 2px; height: 100%; background: #cbd5e1;'></div>
-                        <i class='fa fa-arrow-down' style='font-size: 0.75rem; color: #94a3b8; margin-left: 10px;'></i>
-                    </div>
-                    """
+                # Target employee highlight vs regular manager
+                if is_target:
+                    card_border = "border: 1.5px solid #007bff; background-color: #f8faff;"
+                    name_color = "#007bff"
+                else:
+                    card_border = "border: 1px solid #e2e8f0; background-color: #ffffff;"
+                    name_color = "#1e293b"
+
+                is_last = (idx == total - 1)
+                connector_line = "" if is_last else "<div style='position: absolute; left: 18px; top: 38px; bottom: -12px; width: 2px; background: #cbd5e1;'></div>"
 
                 lines.append(f"""
-                <div style='display: flex; align-items: center; position: relative;'>
-                    <!-- Avatar -->
-                    <div style='width: 38px; height: 38px; border-radius: 8px; background: {bg_color}; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; flex-shrink: 0;'>
-                        {initial}
-                    </div>
-                    <!-- Details Card -->
-                    <div style='margin-left: 12px; padding: 6px 14px; border-radius: 8px; {card_style} min-width: 200px;'>
-                        <div style='font-weight: 600; font-size: 0.88rem; color: #1e293b; display: flex; align-items: center;'>
-                            {name} {badge_tag}
+                <div style='position: relative; display: flex; align-items: center; margin-bottom: 12px;'>
+                    {connector_line}
+                    <!-- Circular Avatar -->
+                    <img src='{avatar_url}' 
+                         alt='{name}'
+                         style='width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #e2e8f0; background: #f1f5f9; z-index: 1;' 
+                         onerror="this.onerror=null; this.src='/web/static/img/placeholder.png';"/>
+                    
+                    <!-- Odoo Employee Node Card -->
+                    <div style='margin-left: 12px; padding: 6px 14px; border-radius: 6px; {card_border} display: flex; align-items: center; flex: 1; max-width: 320px;'>
+                        <div>
+                            <div style='font-weight: 600; font-size: 0.88rem; color: {name_color}; line-height: 1.2;'>
+                                {name}
+                            </div>
+                            <div style='font-size: 0.74rem; color: #64748b; margin-top: 2px;'>
+                                {role_title}
+                            </div>
                         </div>
-                        <div style='font-size: 0.75rem; color: #64748b;'>
-                            {role_title}
-                        </div>
+                        {sub_badge}
                     </div>
                 </div>
-                {connector}
                 """)
 
-            target_name = user.name or user.login or "Employee"
             wizard.hierarchy_html = f"""
-            <div style='font-family: inherit; padding: 12px 16px;'>
-                <!-- Header -->
-                <div style='display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px;'>
-                    <div style='font-size: 0.85rem; font-weight: 700; letter-spacing: 0.5px; color: #334155; text-transform: uppercase;'>
-                        <i class='fa fa-sitemap me-1' style='color: #007bff;'></i> Reporting Chain &mdash; {target_name}
-                    </div>
-                </div>
-                <!-- Linear Reporting Chain -->
-                <div style='padding-left: 10px;'>
+            <div style='padding: 10px 16px; font-family: inherit;'>
+                <div style='padding-left: 6px;'>
                     {''.join(lines)}
                 </div>
             </div>
