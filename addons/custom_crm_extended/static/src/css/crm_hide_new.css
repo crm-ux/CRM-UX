@@ -382,6 +382,13 @@ select[name="perm_amc"] option[value="all"] {
     display: none !important;
 }
 
+/* Hide duplicate stock Odoo 'Lead & Quotation' group on User form Access Rights page */
+.o_form_view .o_group:has(label[for*="sel_groups"]:has-text("Lead & Quotation")),
+.o_form_view .o_inner_group:has(.o_horizontal_separator:contains("Lead & Quotation")),
+.o_form_view div[name="groups_id"]:has(label:contains("Lead & Quotation")) {
+    display: none !important;
+}
+
 /* Center and give proper viewport margin to Wizard Dialog so dropdowns never hit screen edges */
 .o_dialog .modal-dialog {
     margin-top: 3vh !important;
