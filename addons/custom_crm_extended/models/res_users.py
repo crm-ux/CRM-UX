@@ -103,7 +103,7 @@ class ResUsers(models.Model):
             'view_mode': 'form',
             'target': 'new',
             'context': {
-                'dialog_size': 'small',
+                'dialog_size': 'medium',
             },
         }
 

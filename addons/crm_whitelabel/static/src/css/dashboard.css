@@ -242,6 +242,7 @@
 .crm-quote-panel .crm-metrics {
     gap: clamp(4px, 0.8vw, 16px);
 }
+
 .crm-quote-panel .crm-metric {
     flex: 1 1 0;
     min-width: 0;
@@ -1846,7 +1847,7 @@ body {
     color: #e74c3c !important;
     border-radius: 50% !important;
     font-size: clamp(1.5rem, 2.8vw, 1.85rem) !important;
-    box-shadow: 0 clamp(0.2rem, 0.4vw, 0.35rem) clamp(0.6rem, 1vw, 0.9rem) rgba(231,76,60,0.18) !important;
+    box-shadow: 0 clamp(0.2rem, 0.4vw, 0.35rem) clamp(0.6rem, 1vw, 0.9rem) rgba(231, 76, 60, 0.18) !important;
 }
 
 .crm-access-modal-title {
@@ -1895,4 +1896,18 @@ body {
 
 .crm-access-modal-btn:hover {
     background: #082d6b !important;
+}
+
+/* User Hierarchy Dialog Styling */
+.modal:has(.crm-hierarchy-container) .btn-close {
+    display: none !important;
+}
+
+.modal:has(.crm-hierarchy-container) .modal-content {
+    max-height: none !important;
+}
+
+.modal:has(.crm-hierarchy-container) .modal-body {
+    max-height: none !important;
+    overflow: visible !important;
 }
