@@ -305,8 +305,10 @@
         <field name="name">crm.user.hierarchy.wizard.form</field>
         <field name="model">crm.user.hierarchy.wizard</field>
         <field name="arch" type="xml">
-            <form string="Organization Chart">
-                <field name="hierarchy_html" nolabel="1" widget="html"/>
+            <form string="Reporting Hierarchy">
+                <sheet>
+                    <field name="hierarchy_html" nolabel="1" widget="html"/>
+                </sheet>
                 <footer>
                     <button string="Close" class="btn-secondary" special="cancel"/>
                 </footer>

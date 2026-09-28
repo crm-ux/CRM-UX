@@ -91,19 +91,20 @@ class ResUsers(models.Model):
         return [{'id': u.id, 'name': u.name} for u in users.sorted('name')]
 
     def action_view_user_hierarchy(self):
-        """Opens clean wizard popup showing organization hierarchy from top down to this person and their team."""
         self.ensure_one()
         wizard = self.env['crm.user.hierarchy.wizard'].create({
             'user_id': self.id,
         })
         return {
+            'name': f"Organization Chart - {self.name or self.login}",
             'type': 'ir.actions.act_window',
-            'name': f'Organization Chart - {self.name}',
             'res_model': 'crm.user.hierarchy.wizard',
             'res_id': wizard.id,
             'view_mode': 'form',
-            'views': [[False, 'form']],
             'target': 'new',
+            'context': {
+                'dialog_size': 'small',
+            },
         }
 
     def action_revoke_role(self):

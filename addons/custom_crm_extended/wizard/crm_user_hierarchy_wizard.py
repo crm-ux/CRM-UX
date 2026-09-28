@@ -91,8 +91,13 @@ class CrmUserHierarchyWizard(models.TransientModel):
                 """)
 
             wizard.hierarchy_html = f"""
-            <div style='padding: 1.5rem 2rem; font-family: inherit;'>
+            <style>
+                .modal-header .btn-close {{ display: none !important; }}
+                .modal-dialog {{ max-width: 28rem !important; }}
+            </style>
+            <div style='padding: 0.5rem 1rem; font-family: inherit;'>
                 {''.join(lines)}
             </div>
             """
+
 
