@@ -144,6 +144,13 @@
                                 <field name="login" string="Work Email"/>
                                 <field name="crm_department_id" string="Department"/>
                                 <field name="crm_manager_id" string="Reports To"/>
+                                <button name="action_view_user_hierarchy"
+                                        type="object"
+                                        icon="fa-sitemap"
+                                        string="Hierarchy"
+                                        class="btn-outline-primary btn-sm me-1"
+                                        title="View Organization Hierarchy"
+                                        help="View this employee's organization hierarchy tree."/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
@@ -278,6 +285,20 @@
                     </page>
                 </notebook>
             </xpath>
+        </field>
+    </record>
+
+    <!-- Clean Organization Chart Wizard Form View -->
+    <record id="view_crm_user_hierarchy_wizard_form" model="ir.ui.view">
+        <field name="name">crm.user.hierarchy.wizard.form</field>
+        <field name="model">crm.user.hierarchy.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Organization Chart">
+                <field name="hierarchy_html" nolabel="1" widget="html"/>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
         </field>
     </record>
 
