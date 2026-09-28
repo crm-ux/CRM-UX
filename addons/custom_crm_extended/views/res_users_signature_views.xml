@@ -148,9 +148,8 @@
                                         type="object"
                                         icon="fa-sitemap"
                                         string=" "
-                                        class="btn-light text-primary border-0 p-1"
-                                        title="View Organization Chart"
-                                        help="View organization hierarchy tree."/>
+                                        class="btn btn-sm btn-outline-primary me-2 shadow-none"
+                                        title="View Employee Hierarchy"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
