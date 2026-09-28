@@ -147,10 +147,10 @@
                                 <button name="action_view_user_hierarchy"
                                         type="object"
                                         icon="fa-sitemap"
-                                        string="Hierarchy"
-                                        class="btn-outline-primary btn-sm me-1"
-                                        title="View Organization Hierarchy"
-                                        help="View this employee's organization hierarchy tree."/>
+                                        string=" "
+                                        class="btn-light text-primary border-0 p-1"
+                                        title="View Organization Chart"
+                                        help="View organization hierarchy tree."/>
                                 <button name="action_revoke_role" 
                                         type="object" 
                                         string="Revoke" 
