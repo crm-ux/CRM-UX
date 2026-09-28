@@ -149,13 +149,10 @@ class ResUsers(models.Model):
                 'perm_equipment_write': job.perm_equipment_write,
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
+            }
             user.sudo().with_context(skip_sync=True).write(user_vals)
             if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
-                self.env.cr.execute("""
-                    INSERT INTO res_groups_users_rel (gid, uid)
-                    VALUES (%s, %s)
-                    ON CONFLICT DO NOTHING
-                """, (sales_grp.id, user.id))
+                sales_grp.sudo().write({'user_ids': [(4, user.id)]})
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
     def _compute_department_scope(self):
@@ -230,11 +227,7 @@ class ResUsers(models.Model):
         if 'perm_lead_quote' in vals and vals.get('perm_lead_quote') in ('own', 'subordinates', 'department', 'all', 'admin'):
             sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             if sales_grp and self.ids:
-                self.env.cr.execute("""
-                    INSERT INTO res_groups_users_rel (gid, uid)
-                    SELECT %s, id FROM res_users WHERE id IN %s
-                    ON CONFLICT DO NOTHING
-                """, (sales_grp.id, tuple(self.ids)))
+                sales_grp.sudo().write({'user_ids': [(4, uid) for uid in self.ids]})
 
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
