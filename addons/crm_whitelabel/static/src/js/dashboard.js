@@ -454,10 +454,18 @@ class CrmDashboard extends Component {
     }
 
     openEquipment() {
+        if (!this.state.isAdmin && !this.state.canViewEquipment) {
+            this.showToast("Access Denied: You do not have permission to view Equipment Master.");
+            return;
+        }
         this.openEquipmentList([], "All Equipment");
     }
 
     openEquipmentList(domain = [], name = "Equipment Master") {
+        if (!this.state.isAdmin && !this.state.canViewEquipment) {
+            this.showToast("Access Denied: You do not have permission to view Equipment Master.");
+            return;
+        }
         const cd = this.state.selectedCompanies.length
             ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
             : [];
@@ -472,10 +480,18 @@ class CrmDashboard extends Component {
     }
 
     openServiceTickets() {
+        if (!this.state.isAdmin && !this.state.canViewTicket) {
+            this.showToast("Access Denied: You do not have permission to view Service Tickets.");
+            return;
+        }
         this.openServiceTicketList([], "All Service Tickets");
     }
 
     openServiceTicketList(domain = [], name = "Service Tickets") {
+        if (!this.state.isAdmin && !this.state.canViewTicket) {
+            this.showToast("Access Denied: You do not have permission to view Service Tickets.");
+            return;
+        }
         const cd = this.state.selectedCompanies.length
             ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
             : [];
@@ -542,10 +558,18 @@ class CrmDashboard extends Component {
     }
 
     openAmcContracts() {
+        if (!this.state.isAdmin && !this.state.canViewAmc) {
+            this.showToast("Access Denied: You do not have permission to view AMC Contracts.");
+            return;
+        }
         this.openAmcList([], "All AMC Contracts");
     }
 
     openAmcList(domain = [], title = "AMC Contracts") {
+        if (!this.state.isAdmin && !this.state.canViewAmc) {
+            this.showToast("Access Denied: You do not have permission to view AMC Contracts.");
+            return;
+        }
         const amcCompDomain = this.state.selectedCompanies.length
             ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
             : [];
