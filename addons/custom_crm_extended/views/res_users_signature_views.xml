@@ -196,12 +196,20 @@
                         </group>
 
                         <!-- SECTION 2: Master Data Actions -->
-                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
-                            Master Data Operations
+                        <div class="d-flex align-items-center justify-content-between mt-4 mb-3 pb-1 border-bottom">
+                            <div class="text-uppercase fw-bold text-primary" style="font-size: 13px; letter-spacing: 0.5px;">
+                                Master Data Operations
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <field name="perm_master_select_all" nolabel="1" class="me-1"/>
+                                <span class="fw-bold text-dark small">Select All Masters</span>
+                            </div>
                         </div>
+
                         <group class="custom_radio_clean">
                             <label for="perm_customer_create" string="Customer Master"/>
                             <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_customer_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
@@ -210,6 +218,7 @@
 
                             <label for="perm_equipment_create" string="Equipment Master"/>
                             <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_equipment_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
@@ -218,6 +227,7 @@
 
                             <label for="perm_ticket_create" string="Service Ticket"/>
                             <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_ticket_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_ticket_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_ticket_write" nolabel="1"/> <span>Update</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_ticket_read" nolabel="1"/> <span>View</span></span>
@@ -226,6 +236,7 @@
 
                             <label for="perm_amc_create" string="AMC Contract"/>
                             <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_amc_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_amc_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_amc_write" nolabel="1"/> <span>Update</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_amc_read" nolabel="1"/> <span>View</span></span>
@@ -234,6 +245,7 @@
 
                             <label for="perm_product_create" string="Product Catalog"/>
                             <div class="perm-checkbox-group">
+                                <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_product_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_product_write" nolabel="1"/> <span>Update</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>

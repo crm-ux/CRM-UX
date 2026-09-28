@@ -832,6 +832,68 @@ class HrJob(models.Model):
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
 
+    # Master "Select All" toggles for each entity
+    perm_customer_all = fields.Boolean(string='All', default=False)
+    perm_equipment_all = fields.Boolean(string='All', default=False)
+    perm_ticket_all = fields.Boolean(string='All', default=False)
+    perm_amc_all = fields.Boolean(string='All', default=False)
+    perm_product_all = fields.Boolean(string='All', default=False)
+    perm_master_select_all = fields.Boolean(string='Select All Masters', default=False)
+
+    @api.onchange('perm_master_select_all')
+    def _onchange_perm_master_select_all(self):
+        val = self.perm_master_select_all
+        self.perm_customer_all = val
+        self.perm_equipment_all = val
+        self.perm_ticket_all = val
+        self.perm_amc_all = val
+        self.perm_product_all = val
+        self._onchange_perm_customer_all()
+        self._onchange_perm_equipment_all()
+        self._onchange_perm_ticket_all()
+        self._onchange_perm_amc_all()
+        self._onchange_perm_product_all()
+
+    @api.onchange('perm_customer_all')
+    def _onchange_perm_customer_all(self):
+        val = self.perm_customer_all
+        self.perm_customer_create = val
+        self.perm_customer_write = val
+        self.perm_customer_read = val
+        self.perm_customer_unlink = val
+
+    @api.onchange('perm_equipment_all')
+    def _onchange_perm_equipment_all(self):
+        val = self.perm_equipment_all
+        self.perm_equipment_create = val
+        self.perm_equipment_write = val
+        self.perm_equipment_read = val
+        self.perm_equipment_unlink = val
+
+    @api.onchange('perm_ticket_all')
+    def _onchange_perm_ticket_all(self):
+        val = self.perm_ticket_all
+        self.perm_ticket_create = val
+        self.perm_ticket_write = val
+        self.perm_ticket_read = val
+        self.perm_ticket_unlink = val
+
+    @api.onchange('perm_amc_all')
+    def _onchange_perm_amc_all(self):
+        val = self.perm_amc_all
+        self.perm_amc_create = val
+        self.perm_amc_write = val
+        self.perm_amc_read = val
+        self.perm_amc_unlink = val
+
+    @api.onchange('perm_product_all')
+    def _onchange_perm_product_all(self):
+        val = self.perm_product_all
+        self.perm_product_create = val
+        self.perm_product_write = val
+        self.perm_product_read = val
+        self.perm_product_unlink = val
+
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
 
     def _compute_user_count(self):
