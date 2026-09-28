@@ -44,7 +44,7 @@ class CrmDashboard extends Component {
             searchQuery: "", searchResults: [], searchOpen: false,
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
-            accessModalOpen: false, accessModalMessage: "",
+            accessModalOpen: false, accessModalModule: "",
         });
         // Force isAdmin check synchronously using session info
         const sessionUid = odoo.__session_info__?.uid;
@@ -286,7 +286,7 @@ class CrmDashboard extends Component {
     go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
     openLeads() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Leads.");
+            this.showAccessDenied("Leads & Pipeline");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -294,7 +294,7 @@ class CrmDashboard extends Component {
     }
     openQuotes() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Quotations.");
+            this.showAccessDenied("Quotations & Deals");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -302,7 +302,7 @@ class CrmDashboard extends Component {
     }
     openQuoteStage(stage) {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Quotations.");
+            this.showAccessDenied("Quotations & Deals");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -340,7 +340,7 @@ class CrmDashboard extends Component {
 
     openStage(ev) {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Leads.");
+            this.showAccessDenied("Leads & Pipeline");
             return;
         }
         const seq = parseInt(ev.currentTarget.dataset.seq || 0);
@@ -406,14 +406,14 @@ class CrmDashboard extends Component {
     openTerms() { this.actionService.doAction({ type: 'ir.actions.act_window', name: 'Terms & Conditions', res_model: 'sale.terms.condition', view_mode: 'list,form', views: [[false, 'list'], [false, 'form']] }); }
     openContacts() {
         if (!this.state.isAdmin && !this.state.canViewCustomer) {
-            this.showAccessDenied("You do not have permission to view Customer records.");
+            this.showAccessDenied("Customer Records");
             return;
         }
         this.go({ type: "ir.actions.act_window", name: "Customers", res_model: "res.partner", views: [[false, "list"], [false, "form"]], domain: [["customer_rank", ">", 0]] });
     }
     openProducts() {
         if (!this.state.isAdmin && !this.state.canViewProduct) {
-            this.showAccessDenied("You do not have permission to view Products.");
+            this.showAccessDenied("Products");
             return;
         }
         this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] });
@@ -421,7 +421,7 @@ class CrmDashboard extends Component {
     openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
     openWon() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Won Quotations.");
+            this.showAccessDenied("Quotations & Deals");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -441,7 +441,7 @@ class CrmDashboard extends Component {
 
     openAllPipelineLeads() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Leads.");
+            this.showAccessDenied("Leads & Pipeline");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -462,7 +462,7 @@ class CrmDashboard extends Component {
 
     openEquipment() {
         if (!this.state.isAdmin && !this.state.canViewEquipment) {
-            this.showAccessDenied("You do not have permission to view Equipment Master.");
+            this.showAccessDenied("Equipment Master");
             return;
         }
         this.openEquipmentList([], "All Equipment");
@@ -470,7 +470,7 @@ class CrmDashboard extends Component {
 
     openEquipmentList(domain = [], name = "Equipment Master") {
         if (!this.state.isAdmin && !this.state.canViewEquipment) {
-            this.showAccessDenied("You do not have permission to view Equipment Master.");
+            this.showAccessDenied("Equipment Master");
             return;
         }
         const cd = this.state.selectedCompanies.length
@@ -488,7 +488,7 @@ class CrmDashboard extends Component {
 
     openServiceTickets() {
         if (!this.state.isAdmin && !this.state.canViewTicket) {
-            this.showAccessDenied("You do not have permission to view Service Tickets.");
+            this.showAccessDenied("Service Tickets");
             return;
         }
         this.openServiceTicketList([], "All Service Tickets");
@@ -496,7 +496,7 @@ class CrmDashboard extends Component {
 
     openServiceTicketList(domain = [], name = "Service Tickets") {
         if (!this.state.isAdmin && !this.state.canViewTicket) {
-            this.showAccessDenied("You do not have permission to view Service Tickets.");
+            this.showAccessDenied("Service Tickets");
             return;
         }
         const cd = this.state.selectedCompanies.length
@@ -549,7 +549,7 @@ class CrmDashboard extends Component {
 
     openAmcContracts() {
         if (!this.state.isAdmin && !this.state.canViewAmc) {
-            this.showAccessDenied("You do not have permission to view AMC Contracts.");
+            this.showAccessDenied("AMC Contracts");
             return;
         }
         this.openAmcList([], "All AMC Contracts");
@@ -557,7 +557,7 @@ class CrmDashboard extends Component {
 
     openAmcList(domain = [], title = "AMC Contracts") {
         if (!this.state.isAdmin && !this.state.canViewAmc) {
-            this.showAccessDenied("You do not have permission to view AMC Contracts.");
+            this.showAccessDenied("AMC Contracts");
             return;
         }
         const amcCompDomain = this.state.selectedCompanies.length
@@ -576,7 +576,7 @@ class CrmDashboard extends Component {
 
     openInvoiceCreated() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Invoiced Orders.");
+            this.showAccessDenied("Quotations & Deals");
             return;
         }
         const cd = this.state.selectedCompanies.length
@@ -594,7 +594,7 @@ class CrmDashboard extends Component {
 
     openInvoicePending() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Invoice Pending Orders.");
+            this.showAccessDenied("Quotations & Deals");
             return;
         }
         const cd = this.state.selectedCompanies.length
@@ -621,7 +621,7 @@ class CrmDashboard extends Component {
     openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Upcoming Events", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(now)], ["start", "<=", fmt(end)]] }); }
     openLeadPriorityFilter(level) {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
-            this.showAccessDenied("You do not have permission to view Leads.");
+            this.showAccessDenied("Leads & Pipeline");
             return;
         }
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
@@ -687,14 +687,14 @@ class CrmDashboard extends Component {
         }
     }
 
-    showAccessDenied(msg) {
-        this.state.accessModalMessage = msg;
+    showAccessDenied(moduleName = "") {
+        this.state.accessModalModule = moduleName;
         this.state.accessModalOpen = true;
     }
 
     closeAccessModal() {
         this.state.accessModalOpen = false;
-        this.state.accessModalMessage = "";
+        this.state.accessModalModule = "";
     }
 
     showToast(msg) {

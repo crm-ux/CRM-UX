@@ -1821,3 +1821,78 @@ body {
         width: 100% !important;
     }
 }
+
+/* RESPONSIVE ACCESS DENIED WIZARD MODAL */
+.crm-access-modal {
+    max-width: clamp(18rem, 88vw, 27.5rem) !important;
+    text-align: center !important;
+    border-top: clamp(0.25rem, 0.45vw, 0.35rem) solid #e74c3c !important;
+    border-radius: clamp(0.6rem, 1.2vw, 0.85rem) !important;
+    padding: clamp(1.2rem, 2.5vw, 1.6rem) !important;
+    box-sizing: border-box !important;
+}
+
+.crm-access-modal-icon-wrapper {
+    margin-bottom: clamp(0.7rem, 1.4vw, 0.95rem) !important;
+}
+
+.crm-access-modal-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: clamp(3rem, 5.5vw, 3.75rem) !important;
+    height: clamp(3rem, 5.5vw, 3.75rem) !important;
+    background: #fde8e8 !important;
+    color: #e74c3c !important;
+    border-radius: 50% !important;
+    font-size: clamp(1.5rem, 2.8vw, 1.85rem) !important;
+    box-shadow: 0 clamp(0.2rem, 0.4vw, 0.35rem) clamp(0.6rem, 1vw, 0.9rem) rgba(231,76,60,0.18) !important;
+}
+
+.crm-access-modal-title {
+    font-size: clamp(1.05rem, 1.8vw, 1.25rem) !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin: 0 !important;
+}
+
+.crm-access-modal-body {
+    padding: clamp(0.5rem, 1vw, 0.75rem) clamp(0.5rem, 1.2vw, 1rem) clamp(1rem, 2vw, 1.3rem) !important;
+    font-size: clamp(0.82rem, 1.35vw, 0.92rem) !important;
+    line-height: 1.6 !important;
+    color: #475569 !important;
+}
+
+.crm-access-modal-module {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+.crm-access-modal-subtext {
+    margin-top: clamp(0.5rem, 1vw, 0.65rem) !important;
+    color: #64748b !important;
+    font-size: clamp(0.75rem, 1.2vw, 0.82rem) !important;
+}
+
+.crm-access-modal-footer {
+    justify-content: center !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: clamp(0.75rem, 1.5vw, 1rem) !important;
+    display: flex !important;
+}
+
+.crm-access-modal-btn {
+    background: #0b3d91 !important;
+    color: #fff !important;
+    border: none !important;
+    padding: clamp(0.45rem, 0.9vw, 0.55rem) clamp(1.5rem, 3vw, 2rem) !important;
+    border-radius: clamp(0.35rem, 0.6vw, 0.45rem) !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-size: clamp(0.78rem, 1.25vw, 0.85rem) !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.crm-access-modal-btn:hover {
+    background: #082d6b !important;
+}
