@@ -126,6 +126,7 @@ class ResUsers(models.Model):
 
     def _apply_job_permissions(self, job):
         """Applies permissions defined on hr.job down to this user (1-way sync)."""
+        sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
         for user in self:
             if not user.id or user.id in (2, 10, 11) or user.has_group('base.group_system'):
                 continue
@@ -149,8 +150,10 @@ class ResUsers(models.Model):
                 'perm_equipment_read': job.perm_equipment_read,
                 'perm_equipment_unlink': job.perm_equipment_unlink,
             }
+            if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
+                if sales_grp not in user.groups_id:
+                    user_vals['groups_id'] = [(4, sales_grp.id)]
             user.sudo().with_context(skip_sync=True).write(user_vals)
-
 
     @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
     def _compute_department_scope(self):
@@ -219,8 +222,17 @@ class ResUsers(models.Model):
                     taken = self.env['res.users'].sudo().search_count([('login', '=', orig_login), ('id', '!=', user.id)])
                     if not taken:
                         super(ResUsers, user).write({'login': orig_login})
-
         res = super().write(vals)
+
+        # Auto-grant base Sales group if user has any Lead & Quote permission
+        if 'perm_lead_quote' in vals:
+            sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
+            if sales_grp:
+                for user in self:
+                    if user.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
+                        if sales_grp not in user.groups_id:
+                            user.sudo().with_context(skip_sync=True).write({'groups_id': [(4, sales_grp.id)]})
+
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
             self._apply_job_permissions(job)
@@ -228,7 +240,7 @@ class ResUsers(models.Model):
             self.with_context(skip_sync=True)._sync_employee_records(self)
         return res
 
-    
+
     def _assign_default_groups(self, users):
         try:
             all_companies = self.env['res.company'].sudo().search([])
