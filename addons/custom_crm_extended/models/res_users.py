@@ -1018,7 +1018,7 @@ class HrJob(models.Model):
                         'message': f"Cannot select '{invalid_names}' as a managed sub-department!\n\nHierarchy flows downward only: top-level parent departments (like Management) or your own department cannot be managed as sub-departments."
                     }
                 }
-
+    
 
 class HrDepartment(models.Model):
     _inherit = 'hr.department'
