@@ -514,8 +514,8 @@ class HrJob(models.Model):
     def _compute_job_hierarchy_html(self):
         all_jobs = self.search([])
         for job in self:
-            top_director = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
-            root = top_director[0] if top_director else (job.parent_job_id or job)
+                top_director = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
+                root = top_director[0] if top_director else (job.parent_job_id or job)
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
@@ -729,6 +729,7 @@ class HrJob(models.Model):
                 elif dept.manager_user_id and dept.manager_user_id.id != self.env.user.id:
                     rec.default_manager_id = dept.manager_user_id.id
                 else:
+                    admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
                     rec.default_manager_id = self.env.ref('base.user_admin').id
             else:
                 if dept.manager_user_id:
@@ -736,6 +737,7 @@ class HrJob(models.Model):
                 elif dept.manager_id and dept.manager_id.user_id:
                     rec.default_manager_id = dept.manager_id.user_id.id
                 else:
+                    admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
                     rec.default_manager_id = self.env.ref('base.user_admin').id
 
     @api.onchange('department_id', 'is_manager_role')
