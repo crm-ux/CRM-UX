@@ -28,6 +28,11 @@ class CrmProductStock(models.Model):
         compute='_compute_stock_alert',
         store=True
     )
+    stock_status = fields.Selection([
+        ('in_stock', 'In Stock'),
+        ('low_stock', 'Low Stock'),
+        ('out_of_stock', 'Out of Stock'),
+    ], string='Stock Status', compute='_compute_stock_alert', store=True)
     stock_alert_tooltip = fields.Char(
         string='Stock Alert Tooltip',
         compute='_compute_stock_alert',
@@ -52,11 +57,17 @@ class CrmProductStock(models.Model):
     @api.depends('quantity', 'safety_stock')
     def _compute_stock_alert(self):
         for rec in self:
-            if rec.safety_stock > 0 and rec.quantity <= rec.safety_stock:
+            if rec.quantity <= 0:
                 rec.is_low_stock = True
+                rec.stock_status = 'out_of_stock'
+                rec.stock_alert_tooltip = "Out of Stock: Current quantity is 0! Restocking required immediately."
+            elif rec.safety_stock > 0 and rec.quantity <= rec.safety_stock:
+                rec.is_low_stock = True
+                rec.stock_status = 'low_stock'
                 rec.stock_alert_tooltip = f"⚠️ Low Stock Alert: Current quantity ({rec.quantity:g}) is at or below safety stock ({rec.safety_stock:g})! Restocking recommended."
             else:
                 rec.is_low_stock = False
+                rec.stock_status = 'in_stock'
                 rec.stock_alert_tooltip = f"Healthy Stock: Current quantity ({rec.quantity:g}) is above safety stock ({rec.safety_stock:g})."
 
     def write(self, vals):

@@ -15,6 +15,11 @@
                        class="fw-bold"
                        decoration-danger="is_low_stock" 
                        decoration-bf="is_low_stock"/>
+                <field name="stock_status" 
+                       widget="badge" 
+                       decoration-success="stock_status == 'in_stock'" 
+                       decoration-warning="stock_status == 'low_stock'" 
+                       decoration-danger="stock_status == 'out_of_stock'"/>
                 <field name="last_updated_date" readonly="1" string="Last Updated"/>
                 <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
             </list>
@@ -50,7 +55,9 @@
                 <field name="product_id" string="Product"/>
                 <field name="user_id" string="Updated By"/>
                 <separator/>
-                <filter string="⚠️ Low Stock Alert" name="filter_low_stock" domain="[('is_low_stock', '=', True)]"/>
+                <filter string="🟢 In Stock" name="filter_in_stock" domain="[('stock_status', '=', 'in_stock')]"/>
+                <filter string="⚠️ Low Stock" name="filter_low_stock" domain="[('stock_status', '=', 'low_stock')]"/>
+                <filter string="🔴 Out of Stock" name="filter_out_of_stock" domain="[('stock_status', '=', 'out_of_stock')]"/>
             </search>
         </field>
     </record>
