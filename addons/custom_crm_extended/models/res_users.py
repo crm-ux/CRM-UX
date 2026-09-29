@@ -935,7 +935,8 @@ class HrJob(models.Model):
                             vals['default_manager_id'] = parent_dept.manager_id.user_id.id
                         else:
                             admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
-                            vals['default_manager_id'] = admin_user.id if admin_user else False                else:
+                            vals['default_manager_id'] = admin_user.id if admin_user else False
+                else:
                     if dept and dept.manager_user_id:
                         vals['default_manager_id'] = dept.manager_user_id.id
                     elif dept and dept.manager_id and dept.manager_id.user_id:
@@ -960,7 +961,8 @@ class HrJob(models.Model):
                         elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
                             vals['default_manager_id'] = parent_dept.manager_id.user_id.id
                         else:
-                            vals['default_manager_id'] = False
+                            admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
+                            vals['default_manager_id'] = admin_user.id if admin_user else False
                 else:
                     if dept and dept.manager_user_id:
                         vals['default_manager_id'] = dept.manager_user_id.id
