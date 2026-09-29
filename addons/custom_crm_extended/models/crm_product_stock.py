@@ -26,12 +26,12 @@ class CrmProductStock(models.Model):
     is_low_stock = fields.Boolean(
         string='Is Low Stock',
         compute='_compute_stock_alert',
-        store=False
+        store=True
     )
     stock_alert_tooltip = fields.Char(
         string='Stock Alert Tooltip',
         compute='_compute_stock_alert',
-        store=False
+        store=True
     )
     last_updated_date = fields.Datetime(
         string='Last Updated',

@@ -11,14 +11,10 @@
                 <field name="stock_alert_tooltip" column_invisible="True"/>
                 <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="safety_stock"/>
-                <!-- Quantity cell: bold red + red background tint + hover tooltip if <= safety_stock -->
                 <field name="quantity" 
                        class="fw-bold"
                        decoration-danger="is_low_stock" 
-                       decoration-bf="is_low_stock"
-                       widget="badge" 
-                       options="{'color_field': 'is_low_stock'}"
-                       invisible="0"/>
+                       decoration-bf="is_low_stock"/>
                 <field name="last_updated_date" readonly="1" string="Last Updated"/>
                 <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
             </list>
