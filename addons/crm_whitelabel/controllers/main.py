@@ -15,6 +15,10 @@ class CrmWhitelabelController(http.Controller):
     def favicon(self, **kw):
         return request.redirect('/web/static/img/favicon.ico', code=301)
 
+    @http.route('/crm/dashboard-preview', type='http', auth='public', website=False)
+    def dashboard_preview(self, **kw):
+        return request.render('crm_whitelabel.dashboard_preview_template', {})
+
 class PersistentHome(Home):
     @http.route('/', type='http', auth="none")
     def index(self, s_action=None, **kw):

@@ -1,0 +1,914 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="dashboard_preview_template" name="Dashboard V2 Preview">
+        &lt;!DOCTYPE html&gt;
+        <html lang="en">
+        <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+            <title>Dashboard Preview - Ultrawin CRM</title>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+            <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+            <style>
+                :root {
+                    --primary-blue: #0b3d91;
+                    --primary-dark: #082d6e;
+                    --accent-cyan: #0284c7;
+                    --bg-slate: #f1f5f9;
+                    --card-bg: #ffffff;
+                    --text-dark: #0f172a;
+                    --text-muted: #64748b;
+                    --border-color: #e2e8f0;
+                    --sidebar-width: 250px;
+                    --sidebar-collapsed-width: 70px;
+                }
+                * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+                body { background-color: var(--bg-slate); color: var(--text-dark); min-height: 100vh; display: flex; }
+                
+                /* ── Sidebar ── */
+                .crm-sidebar {
+                    width: var(--sidebar-width);
+                    background: #ffffff;
+                    border-right: 1px solid var(--border-color);
+                    display: flex;
+                    flex-direction: column;
+                    transition: all 0.3s ease;
+                    z-index: 100;
+                    position: fixed;
+                    top: 0;
+                    bottom: 0;
+                    left: 0;
+                }
+                .crm-sidebar-header {
+                    padding: 1.25rem 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    border-bottom: 1px solid var(--border-color);
+                }
+                .crm-brand { font-size: 1.15rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 0.5rem; }
+                .crm-brand i { font-size: 1.35rem; color: var(--accent-cyan); }
+                .crm-nav-list { list-style: none; padding: 1rem 0.75rem; flex: 1; overflow-y: auto; }
+                .crm-nav-item { margin-bottom: 0.25rem; }
+                .crm-nav-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.85rem;
+                    padding: 0.7rem 1rem;
+                    border-radius: 0.5rem;
+                    color: var(--text-muted);
+                    font-size: 0.88rem;
+                    font-weight: 600;
+                    text-decoration: none;
+                    transition: all 0.2s;
+                    cursor: pointer;
+                }
+                .crm-nav-link i { font-size: 1rem; width: 1.25rem; text-align: center; }
+                .crm-nav-link:hover, .crm-nav-link.active {
+                    background: #eff6ff;
+                    color: var(--primary-blue);
+                }
+                .crm-nav-link.active i { color: var(--accent-cyan); }
+                .crm-sidebar-badge {
+                    margin-left: auto;
+                    background: #e0f2fe;
+                    color: var(--accent-cyan);
+                    font-size: 0.72rem;
+                    padding: 0.15rem 0.45rem;
+                    border-radius: 1rem;
+                    font-weight: 700;
+                }
+
+                /* ── Main Content Area ── */
+                .crm-main-wrapper {
+                    margin-left: var(--sidebar-width);
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    min-width: 0;
+                    transition: all 0.3s ease;
+                }
+
+                /* ── Top Bar ── */
+                .crm-topbar {
+                    background: #ffffff;
+                    border-bottom: 1px solid var(--border-color);
+                    padding: 0.85rem 1.75rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    position: sticky;
+                    top: 0;
+                    z-index: 90;
+                }
+                .crm-topbar-left { display: flex; align-items: center; gap: 1rem; }
+                .crm-sidebar-toggle {
+                    background: none;
+                    border: none;
+                    font-size: 1.25rem;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    display: none;
+                }
+                .crm-search-box {
+                    display: flex;
+                    align-items: center;
+                    background: #f8fafc;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.5rem;
+                    padding: 0.45rem 0.85rem;
+                    gap: 0.5rem;
+                    width: clamp(200px, 20vw, 320px);
+                }
+                .crm-search-box input {
+                    border: none;
+                    background: transparent;
+                    outline: none;
+                    font-size: 0.85rem;
+                    width: 100%;
+                    color: var(--text-dark);
+                }
+                .crm-search-box i { color: var(--text-muted); font-size: 0.85rem; }
+                
+                .crm-topbar-right { display: flex; align-items: center; gap: 1.25rem; }
+                
+                /* Company Dropdown */
+                .crm-company-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.45rem;
+                    background: #f8fafc;
+                    border: 1px solid var(--border-color);
+                    padding: 0.4rem 0.85rem;
+                    border-radius: 0.5rem;
+                    font-size: 0.82rem;
+                    font-weight: 600;
+                    color: var(--text-dark);
+                    cursor: pointer;
+                }
+                
+                /* Notifications */
+                .crm-notif-btn {
+                    position: relative;
+                    background: #f8fafc;
+                    border: 1px solid var(--border-color);
+                    width: 2.25rem;
+                    height: 2.25rem;
+                    border-radius: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                }
+                .crm-notif-dot {
+                    position: absolute;
+                    top: -2px;
+                    right: -2px;
+                    background: #ef4444;
+                    color: #fff;
+                    font-size: 0.65rem;
+                    width: 1.05rem;
+                    height: 1.05rem;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 700;
+                    border: 2px solid #fff;
+                }
+
+                /* User Profile */
+                .crm-user-profile {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.65rem;
+                    cursor: pointer;
+                }
+                .crm-user-avatar {
+                    width: 2.25rem;
+                    height: 2.25rem;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+                    color: #ffffff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 700;
+                    font-size: 0.88rem;
+                }
+                .crm-user-info { display: flex; flex-direction: column; }
+                .crm-user-name { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
+                .crm-user-role { font-size: 0.72rem; color: var(--text-muted); }
+
+                /* ── Main Content ── */
+                .crm-content { padding: 1.75rem; flex: 1; display: flex; flex-direction: column; gap: 1.5rem; }
+
+                /* ── Hero Section ── */
+                .crm-hero {
+                    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+                    color: #ffffff;
+                    border-radius: 1rem;
+                    padding: clamp(1.25rem, 2.5vw, 2.25rem);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 1.5rem;
+                    flex-wrap: wrap;
+                    box-shadow: 0 10px 25px -5px rgba(11, 61, 145, 0.25);
+                }
+                .crm-hero-left h1 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 800; margin-bottom: 0.35rem; }
+                .crm-hero-left p { color: #cbd5e1; font-size: 0.88rem; max-width: 500px; margin-bottom: 0.75rem; line-height: 1.5; }
+                .crm-hero-date {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.45rem;
+                    background: rgba(255, 255, 255, 0.12);
+                    backdrop-filter: blur(8px);
+                    padding: 0.35rem 0.75rem;
+                    border-radius: 0.45rem;
+                    font-size: 0.78rem;
+                    font-weight: 600;
+                }
+
+                .crm-hero-actions {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 0.65rem;
+                    min-width: clamp(260px, 30vw, 360px);
+                }
+                .crm-action-btn {
+                    background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.25);
+                    backdrop-filter: blur(6px);
+                    color: #ffffff;
+                    padding: 0.65rem 0.85rem;
+                    border-radius: 0.6rem;
+                    text-align: left;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    transition: all 0.2s;
+                }
+                .crm-action-btn:hover {
+                    background: rgba(255, 255, 255, 0.25);
+                    transform: translateY(-2px);
+                }
+                .crm-action-title { font-size: 0.82rem; font-weight: 700; }
+                .crm-action-sub { font-size: 0.7rem; color: #cbd5e1; }
+                .crm-action-icon { font-size: 0.85rem; color: #93c5fd; }
+
+                /* ── KPI Metric Bar ── */
+                .crm-stats-bar {
+                    background: #ffffff;
+                    border-radius: 0.85rem;
+                    border: 1px solid var(--border-color);
+                    padding: 1rem 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+                }
+                .crm-stat-box { display: flex; flex-direction: column; gap: 0.2rem; }
+                .crm-stat-label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+                .crm-stat-val { font-size: 1.35rem; font-weight: 800; color: var(--text-dark); }
+                .crm-stat-sep { width: 1px; height: 35px; background: var(--border-color); }
+
+                /* ── Pipeline Strip ── */
+                .crm-pipeline-card {
+                    background: #ffffff;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.85rem;
+                    padding: 1rem 1.25rem;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+                }
+                .crm-pipeline-header {
+                    font-size: 0.82rem;
+                    font-weight: 700;
+                    color: var(--text-muted);
+                    text-transform: uppercase;
+                    margin-bottom: 0.75rem;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .crm-pipe-track {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    overflow-x: auto;
+                    padding-bottom: 0.35rem;
+                }
+                .crm-pipe-step {
+                    flex: 1;
+                    min-width: 80px;
+                    background: #f8fafc;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.5rem;
+                    padding: 0.55rem 0.45rem;
+                    text-align: center;
+                    position: relative;
+                }
+                .crm-pipe-step.active {
+                    background: #eff6ff;
+                    border-color: #93c5fd;
+                }
+                .crm-pipe-count { font-size: 1.15rem; font-weight: 800; color: var(--primary-blue); }
+                .crm-pipe-name { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin-top: 0.15rem; }
+                .crm-pipe-arrow { color: #cbd5e1; font-size: 0.75rem; }
+
+                /* ── Entity Grid Cards ── */
+                .crm-cards-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                    gap: 1.15rem;
+                }
+                .crm-card {
+                    background: #ffffff;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.85rem;
+                    padding: 1.25rem;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+                    transition: transform 0.2s, box-shadow 0.2s;
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                }
+                .crm-card::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    bottom: 0;
+                    width: 4px;
+                }
+                .crm-card.c-blue::before { background: #0284c7; }
+                .crm-card.c-indigo::before { background: #6366f1; }
+                .crm-card.c-orange::before { background: #f97316; }
+                .crm-card.c-emerald::before { background: #10b981; }
+                .crm-card.c-amber::before { background: #f59e0b; }
+                .crm-card.c-purple::before { background: #8b5cf6; }
+
+                .crm-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); }
+                .crm-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem; }
+                .crm-card-title { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
+                .crm-card-icon { font-size: 0.95rem; color: var(--text-muted); }
+                .crm-card-stats { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.65rem; }
+                .crm-card-main-num { font-size: 1.65rem; font-weight: 800; color: var(--text-dark); }
+                .crm-card-sub-num { display: flex; flex-direction: column; font-size: 0.72rem; color: var(--text-muted); }
+                .crm-card-sub-num strong { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
+                .crm-card-desc { font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; }
+
+                /* ── Analytics & Insights Section ── */
+                .crm-analytics-section {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr;
+                    gap: 1.15rem;
+                }
+                .crm-chart-card {
+                    background: #ffffff;
+                    border: 1px solid var(--border-color);
+                    border-radius: 0.85rem;
+                    padding: 1.25rem;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+                }
+                .crm-chart-head {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 1.15rem;
+                }
+                .crm-chart-title { font-size: 0.95rem; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 0.5rem; }
+                .crm-chart-title i { color: var(--accent-cyan); }
+                .crm-chart-badge {
+                    font-size: 0.72rem;
+                    background: #f1f5f9;
+                    color: var(--text-muted);
+                    padding: 0.25rem 0.55rem;
+                    border-radius: 0.35rem;
+                    font-weight: 600;
+                }
+                
+                /* Mock Chart Bars */
+                .crm-bar-chart {
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                    height: 160px;
+                    padding-top: 1.5rem;
+                    gap: 0.5rem;
+                }
+                .crm-bar-col {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 0.5rem;
+                    height: 100%;
+                    justify-content: flex-end;
+                }
+                .crm-bar-pill {
+                    width: 70%;
+                    background: linear-gradient(180deg, #38bdf8 0%, var(--primary-blue) 100%);
+                    border-radius: 0.35rem 0.35rem 0 0;
+                    transition: height 0.5s ease;
+                }
+                .crm-bar-lbl { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+
+                /* Donut Ring Mock */
+                .crm-donut-wrap {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    padding: 1rem 0;
+                    gap: 1rem;
+                }
+                .crm-donut {
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    background: conic-gradient(#10b981 0% 65%, #f59e0b 65% 85%, #ef4444 85% 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+                }
+                .crm-donut-inner {
+                    width: 80px;
+                    height: 80px;
+                    background: #ffffff;
+                    border-radius: 50%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .crm-donut-inner strong { font-size: 1.15rem; color: var(--text-dark); }
+                .crm-donut-inner span { font-size: 0.65rem; color: var(--text-muted); }
+                .crm-donut-legend { display: flex; gap: 0.85rem; font-size: 0.75rem; color: var(--text-muted); }
+                .crm-donut-legend span { display: flex; align-items: center; gap: 0.3rem; }
+                .crm-dot-green { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+                .crm-dot-yellow { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
+                .crm-dot-red { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
+
+                /* ── Responsive Rules (Tablet & Mobile) ── */
+                @media (max-width: 1024px) {
+                    .crm-sidebar { width: var(--sidebar-collapsed-width); }
+                    .crm-brand span, .crm-nav-link span, .crm-sidebar-badge { display: none; }
+                    .crm-nav-link { justify-content: center; padding: 0.85rem 0; }
+                    .crm-nav-link i { font-size: 1.25rem; }
+                    .crm-main-wrapper { margin-left: var(--sidebar-collapsed-width); }
+                    .crm-analytics-section { grid-template-columns: 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .crm-sidebar { left: -100%; width: 240px; }
+                    .crm-sidebar.open { left: 0; }
+                    .crm-brand span, .crm-nav-link span, .crm-sidebar-badge { display: inline; }
+                    .crm-nav-link { justify-content: flex-start; padding: 0.7rem 1rem; }
+                    .crm-main-wrapper { margin-left: 0; }
+                    .crm-sidebar-toggle { display: block; }
+                    .crm-hero { flex-direction: column; align-items: flex-start; }
+                    .crm-hero-actions { width: 100%; grid-template-columns: 1fr; }
+                    .crm-stats-bar { justify-content: flex-start; gap: 1.25rem; }
+                    .crm-stat-sep { display: none; }
+                    .crm-search-box { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+
+            <!-- 1. MODERN LEFT SIDEBAR -->
+            <aside class="crm-sidebar" id="crmSidebar">
+                <div class="crm-sidebar-header">
+                    <div class="crm-brand">
+                        <i class="fa fa-layer-group"></i>
+                        <span>Ultrawin CRM</span>
+                    </div>
+                </div>
+                <ul class="crm-nav-list">
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link active">
+                            <i class="fa fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-filter-circle-dollar"></i>
+                            <span>Leads &amp; Pipeline</span>
+                            <span class="crm-sidebar-badge">39</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-users"></i>
+                            <span>Customers</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-microchip"></i>
+                            <span>Equipment Master</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-ticket"></i>
+                            <span>Service Tickets</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-file-contract"></i>
+                            <span>AMC Contracts</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-boxes-stacked"></i>
+                            <span>Product Stock</span>
+                            <span class="crm-sidebar-badge" style="background:#fee2e2; color:#ef4444;">1 Low</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-list-check"></i>
+                            <span>Task Management</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-chart-line"></i>
+                            <span>Analytics &amp; Insights</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                        <a class="crm-nav-link">
+                            <i class="fa fa-gear"></i>
+                            <span>Settings &amp; Users</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- 2. MAIN APPLICATION CONTENT -->
+            <div class="crm-main-wrapper">
+                
+                <!-- TOP BAR (No Quick Access, Only Company Selector, Bell & User Profile) -->
+                <header class="crm-topbar">
+                    <div class="crm-topbar-left">
+                        <button class="crm-sidebar-toggle" onclick="toggleSidebar()">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <div class="crm-search-box">
+                            <i class="fa fa-magnifying-glass"></i>
+                            <input type="text" placeholder="Search leads, customers, products..."/>
+                        </div>
+                    </div>
+                    <div class="crm-topbar-right">
+                        <!-- Company Selector -->
+                        <div class="crm-company-badge">
+                            <i class="fa fa-building" style="color: var(--accent-cyan);"></i>
+                            <span>Ultrawin Technologies</span>
+                            <i class="fa fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                        </div>
+
+                        <!-- Notification Bell -->
+                        <div class="crm-notif-btn">
+                            <i class="fa fa-bell"></i>
+                            <span class="crm-notif-dot">2</span>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="crm-user-profile">
+                            <div class="crm-user-avatar">D</div>
+                            <div class="crm-user-info">
+                                <span class="crm-user-name">Dhruvil Shah</span>
+                                <span class="crm-user-role">Administrator</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <main class="crm-content">
+                    
+                    <!-- HERO SECTION WITH + ASSIGN TASK BUTTON -->
+                    <section class="crm-hero">
+                        <div class="crm-hero-left">
+                            <div class="crm-hero-date">
+                                <i class="fa fa-calendar-day"></i>
+                                <span>Tuesday, 29 September 2026</span>
+                            </div>
+                            <h1 style="margin-top: 0.5rem;">Good Afternoon, Dhruvil Shah!</h1>
+                            <p>Here's an overview of your business performance, ongoing operations, and team workload.</p>
+                        </div>
+                        <div class="crm-hero-actions">
+                            <div class="crm-action-btn">
+                                <div>
+                                    <div class="crm-action-title">+ Create Lead</div>
+                                    <div class="crm-action-sub">Add new lead to pipeline</div>
+                                </div>
+                                <span class="crm-action-icon">›</span>
+                            </div>
+                            <div class="crm-action-btn">
+                                <div>
+                                    <div class="crm-action-title">+ Create AMC</div>
+                                    <div class="crm-action-sub">Annual Maintenance</div>
+                                </div>
+                                <span class="crm-action-icon">›</span>
+                            </div>
+                            <div class="crm-action-btn">
+                                <div>
+                                    <div class="crm-action-title">+ Create Ticket</div>
+                                    <div class="crm-action-sub">Log service request</div>
+                                </div>
+                                <span class="crm-action-icon">›</span>
+                            </div>
+                            <!-- NEW 4th BUTTON: ASSIGN TASK -->
+                            <div class="crm-action-btn" style="background: rgba(2, 132, 199, 0.3); border-color: rgba(56, 189, 248, 0.4);">
+                                <div>
+                                    <div class="crm-action-title">+ Assign Task</div>
+                                    <div class="crm-action-sub">Create &amp; assign work item</div>
+                                </div>
+                                <span class="crm-action-icon" style="color: #38bdf8;">›</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- KPI METRIC BAR -->
+                    <section class="crm-stats-bar">
+                        <div class="crm-stat-box">
+                            <span class="crm-stat-label">Today's Revenue</span>
+                            <span class="crm-stat-val">₹0</span>
+                        </div>
+                        <div class="crm-stat-sep"></div>
+                        <div class="crm-stat-box">
+                            <span class="crm-stat-label">Monthly Sales</span>
+                            <span class="crm-stat-val" style="color: var(--primary-blue);">₹92.6K</span>
+                        </div>
+                        <div class="crm-stat-sep"></div>
+                        <div class="crm-stat-box">
+                            <span class="crm-stat-label">Total Won Deals</span>
+                            <span class="crm-stat-val">4</span>
+                        </div>
+                        <div class="crm-stat-sep"></div>
+                        <div class="crm-stat-box">
+                            <span class="crm-stat-label">Invoice Created</span>
+                            <span class="crm-stat-val">2</span>
+                        </div>
+                        <div class="crm-stat-sep"></div>
+                        <div class="crm-stat-box">
+                            <span class="crm-stat-label">Invoice Pending</span>
+                            <span class="crm-stat-val" style="color: #f59e0b;">2</span>
+                        </div>
+                    </section>
+
+                    <!-- PIPELINE STRIP -->
+                    <section class="crm-pipeline-card">
+                        <div class="crm-pipeline-header">
+                            <span>Sales Pipeline Conversion Stages</span>
+                            <span style="color: var(--primary-blue);">Total Active: 39</span>
+                        </div>
+                        <div class="crm-pipe-track">
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">6</div>
+                                <div class="crm-pipe-name">New Lead</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">1</div>
+                                <div class="crm-pipe-name">Contacted</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">0</div>
+                                <div class="crm-pipe-name">Tech Disc.</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">0</div>
+                                <div class="crm-pipe-name">Qualified</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">0</div>
+                                <div class="crm-pipe-name">Opportunity</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step active">
+                                <div class="crm-pipe-count">26</div>
+                                <div class="crm-pipe-name">Quotes Sent</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">1</div>
+                                <div class="crm-pipe-name">Negotiation</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step">
+                                <div class="crm-pipe-count">0</div>
+                                <div class="crm-pipe-name">Order Exp.</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <div class="crm-pipe-step" style="border-color: #86efac; background: #f0fdf4;">
+                                <div class="crm-pipe-count" style="color: #16a34a;">4</div>
+                                <div class="crm-pipe-name" style="color: #16a34a;">Won</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ENTITY CARDS GRID -->
+                    <section class="crm-cards-grid">
+                        <!-- Customer Management -->
+                        <div class="crm-card c-blue">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Customer Management</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">243</span>
+                                    <span class="crm-card-sub-num">Customers</span>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">View customer records, company details and communication history.</p>
+                        </div>
+
+                        <!-- Reminders & Targets -->
+                        <div class="crm-card c-indigo">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">This Month Reminders</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <div class="crm-card-sub-num"><strong>--</strong><span>Events</span></div>
+                                    <div class="crm-card-sub-num"><strong>--</strong><span>Meetings</span></div>
+                                    <div class="crm-card-sub-num"><strong>--</strong><span>Targets</span></div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Upcoming events, meetings and monthly sales targets.</p>
+                        </div>
+
+                        <!-- Exhibition Database -->
+                        <div class="crm-card c-orange">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Exhibition Database</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">4</span>
+                                    <span class="crm-card-sub-num">Total Contacts</span>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Manage exhibition visitors and card-scanned contacts.</p>
+                        </div>
+
+                        <!-- Equipment Master -->
+                        <div class="crm-card c-emerald">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Equipment Master</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">10</span>
+                                    <div class="crm-card-sub-num"><strong>10</strong><span>Active</span></div>
+                                    <div class="crm-card-sub-num"><strong>0</strong><span>Repair</span></div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Equipment tracking, calibration and maintenance status.</p>
+                        </div>
+
+                        <!-- AMC Contracts -->
+                        <div class="crm-card c-purple">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">AMC Contracts</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">4</span>
+                                    <div class="crm-card-sub-num"><strong>2</strong><span>Active</span></div>
+                                    <div class="crm-card-sub-num"><strong>0</strong><span>Expired</span></div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Annual maintenance contracts &amp; service agreements.</p>
+                        </div>
+
+                        <!-- Service Tickets -->
+                        <div class="crm-card c-emerald">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Service Tickets</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">12</span>
+                                    <div class="crm-card-sub-num"><strong>2</strong><span>Open</span></div>
+                                    <div class="crm-card-sub-num"><strong>1</strong><span>On Going</span></div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Service requests, complaints &amp; breakdown tracking.</p>
+                        </div>
+
+                        <!-- Product Stock (NEW) -->
+                        <div class="crm-card c-blue">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Product Stock</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <span class="crm-card-main-num">2</span>
+                                    <div class="crm-card-sub-num"><strong style="color: #ef4444;">1</strong><span>Low Stock</span></div>
+                                    <div class="crm-card-sub-num"><strong style="color: #10b981;">1</strong><span>In Stock</span></div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Live inventory tracking and safety stock alert monitoring.</p>
+                        </div>
+                    </section>
+
+                    <!-- 3. ADVANCED ANALYTICS & INSIGHTS (NEW DEMO SECTION) -->
+                    <section class="crm-analytics-section">
+                        
+                        <!-- Left Chart: Monthly Sales Trend -->
+                        <div class="crm-chart-card">
+                            <div class="crm-chart-head">
+                                <span class="crm-chart-title">
+                                    <i class="fa fa-chart-column"></i>
+                                    <span>Monthly Sales &amp; Revenue Growth</span>
+                                </span>
+                                <span class="crm-chart-badge">Past 6 Months</span>
+                            </div>
+                            <div class="crm-bar-chart">
+                                <div class="crm-bar-col">
+                                    <div class="crm-bar-pill" style="height: 35%;"></div>
+                                    <span class="crm-bar-lbl">May</span>
+                                </div>
+                                <div class="crm-bar-col">
+                                    <div class="crm-bar-pill" style="height: 55%;"></div>
+                                    <span class="crm-bar-lbl">Jun</span>
+                                </div>
+                                <div class="crm-bar-col">
+                                    <div class="crm-bar-pill" style="height: 40%;"></div>
+                                    <span class="crm-bar-lbl">Jul</span>
+                                </div>
+                                <div class="crm-bar-col">
+                                    <div class="crm-bar-pill" style="height: 80%;"></div>
+                                    <span class="crm-bar-lbl">Aug</span>
+                                </div>
+                                <div class="crm-bar-col">
+                                    <div class="crm-bar-pill" style="height: 95%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);"></div>
+                                    <span class="crm-bar-lbl" style="font-weight: 700; color: var(--primary-blue);">Sep</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Widget: Ticket Resolution Health -->
+                        <div class="crm-chart-card">
+                            <div class="crm-chart-head">
+                                <span class="crm-chart-title">
+                                    <i class="fa fa-chart-pie"></i>
+                                    <span>Ticket Health</span>
+                                </span>
+                                <span class="crm-chart-badge">Live SLA</span>
+                            </div>
+                            <div class="crm-donut-wrap">
+                                <div class="crm-donut">
+                                    <div class="crm-donut-inner">
+                                        <strong>85%</strong>
+                                        <span>Resolved</span>
+                                    </div>
+                                </div>
+                                <div class="crm-donut-legend">
+                                    <span><span class="crm-dot-green"></span> Closed (9)</span>
+                                    <span><span class="crm-dot-yellow"></span> Ongoing (1)</span>
+                                    <span><span class="crm-dot-red"></span> Open (2)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </section>
+
+                </main>
+            </div>
+
+            <script>
+                function toggleSidebar() {
+                    const sidebar = document.getElementById('crmSidebar');
+                    sidebar.classList.toggle('open');
+                }
+            </script>
+        </body>
+        </html>
+    </template>
+</odoo>

@@ -9,6 +9,7 @@
     'data': [
         'templates/login.xml',
         'views/dashboard.xml',
+        'templates/dashboard_preview.xml',
     ],
     'assets': {
         'web.assets_frontend': [
