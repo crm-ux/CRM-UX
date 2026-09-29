@@ -50,7 +50,7 @@
                 <field name="product_id" string="Product"/>
                 <field name="user_id" string="Updated By"/>
                 <separator/>
-                <filter string="⚠️ Low Stock Alert" name="filter_low_stock" domain="[('safety_stock', '>', 0), ('quantity', '&lt;=', self.safety_stock)]"/>
+                <filter string="⚠️ Low Stock Alert" name="filter_low_stock" domain="[('is_low_stock', '=', True)]"/>
             </search>
         </field>
     </record>
