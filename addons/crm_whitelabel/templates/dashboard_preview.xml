@@ -9,7 +9,7 @@
             <title>Dashboard Preview - Ultrawin CRM</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-            <style>
+            <style><![CDATA[
                 :root {
                     --primary-blue: #0b3d91;
                     --primary-dark: #082d6e;
@@ -25,7 +25,7 @@
                 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
                 body { background-color: var(--bg-slate); color: var(--text-dark); min-height: 100vh; display: flex; }
                 
-                /* ── Sidebar ── */
+                /* Sidebar */
                 .crm-sidebar {
                     width: var(--sidebar-width);
                     background: #ffffff;
@@ -79,7 +79,7 @@
                     font-weight: 700;
                 }
 
-                /* ── Main Content Area ── */
+                /* Main Content Area */
                 .crm-main-wrapper {
                     margin-left: var(--sidebar-width);
                     flex: 1;
@@ -89,7 +89,7 @@
                     transition: all 0.3s ease;
                 }
 
-                /* ── Top Bar ── */
+                /* Top Bar */
                 .crm-topbar {
                     background: #ffffff;
                     border-bottom: 1px solid var(--border-color);
@@ -201,10 +201,10 @@
                 .crm-user-name { font-size: 0.85rem; font-weight: 700; color: var(--text-dark); }
                 .crm-user-role { font-size: 0.72rem; color: var(--text-muted); }
 
-                /* ── Main Content ── */
+                /* Main Content */
                 .crm-content { padding: 1.75rem; flex: 1; display: flex; flex-direction: column; gap: 1.5rem; }
 
-                /* ── Hero Section ── */
+                /* Hero Section */
                 .crm-hero {
                     background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
                     color: #ffffff;
@@ -259,7 +259,7 @@
                 .crm-action-sub { font-size: 0.7rem; color: #cbd5e1; }
                 .crm-action-icon { font-size: 0.85rem; color: #93c5fd; }
 
-                /* ── KPI Metric Bar ── */
+                /* KPI Metric Bar */
                 .crm-stats-bar {
                     background: #ffffff;
                     border-radius: 0.85rem;
@@ -277,7 +277,7 @@
                 .crm-stat-val { font-size: 1.35rem; font-weight: 800; color: var(--text-dark); }
                 .crm-stat-sep { width: 1px; height: 35px; background: var(--border-color); }
 
-                /* ── Pipeline Strip ── */
+                /* Pipeline Strip */
                 .crm-pipeline-card {
                     background: #ffffff;
                     border: 1px solid var(--border-color);
@@ -319,7 +319,7 @@
                 .crm-pipe-name { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin-top: 0.15rem; }
                 .crm-pipe-arrow { color: #cbd5e1; font-size: 0.75rem; }
 
-                /* ── Entity Grid Cards ── */
+                /* Entity Grid Cards */
                 .crm-cards-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -364,7 +364,7 @@
                 .crm-card-sub-num strong { font-size: 0.88rem; font-weight: 700; color: var(--text-dark); }
                 .crm-card-desc { font-size: 0.74rem; color: var(--text-muted); line-height: 1.4; }
 
-                /* ── Analytics & Insights Section ── */
+                /* Analytics Section */
                 .crm-analytics-section {
                     display: grid;
                     grid-template-columns: 2fr 1fr;
@@ -457,7 +457,7 @@
                 .crm-dot-yellow { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
                 .crm-dot-red { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
 
-                /* ── Responsive Rules (Tablet & Mobile) ── */
+                /* Responsive Rules */
                 @media (max-width: 1024px) {
                     .crm-sidebar { width: var(--sidebar-collapsed-width); }
                     .crm-brand span, .crm-nav-link span, .crm-sidebar-badge { display: none; }
@@ -480,7 +480,7 @@
                     .crm-stat-sep { display: none; }
                     .crm-search-box { display: none; }
                 }
-            </style>
+            ]]></style>
         </head>
         <body>
 
@@ -902,12 +902,12 @@
                 </main>
             </div>
 
-            <script>
+            <script><![CDATA[
                 function toggleSidebar() {
                     const sidebar = document.getElementById('crmSidebar');
                     sidebar.classList.toggle('open');
                 }
-            </script>
+            ]]></script>
         </body>
         </html>
     </template>
