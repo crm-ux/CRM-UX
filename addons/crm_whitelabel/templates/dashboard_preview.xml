@@ -1436,12 +1436,12 @@
                             </div>
                         </div>
 
-                        <!-- 3. AMC Expiry & Renewal Risk -->
+                        <!-- 3. AMC Renewals -->
                         <div class="crm-chart-card">
                             <div class="crm-chart-head">
                                 <span class="crm-chart-title">
                                     <i class="fa fa-file-contract" style="color: #8b5cf6;"></i>
-                                    <span>AMC Expiry &amp; Renewal Forecast</span>
+                                    <span>AMC Renewals</span>
                                 </span>
                                 <span class="crm-chart-badge">Next 90 Days</span>
                             </div>
@@ -1476,14 +1476,14 @@
                             </div>
                         </div>
 
-                        <!-- 4. Critical Stock & Inventory Health -->
+                        <!-- 4. Low Stock Alerts -->
                         <div class="crm-chart-card">
                             <div class="crm-chart-head">
                                 <span class="crm-chart-title">
                                     <i class="fa fa-boxes-stacked" style="color: #0284c7;"></i>
-                                    <span>Inventory &amp; Safety Stock Alerts</span>
+                                    <span>Low Stock Alerts</span>
                                 </span>
-                                <span class="crm-chart-badge">Live Levels</span>
+                                <span class="crm-chart-badge">Reorder Alerts</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.75rem; padding-top: 0.25rem;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #fff1f2; border: 1px solid #ffe4e6; border-radius: 0.5rem;">
