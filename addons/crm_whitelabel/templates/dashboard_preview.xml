@@ -799,6 +799,18 @@
                     .crm-stat-sep { display: none; }
                     .crm-search-box { display: none; }
                 }
+
+                /* Clean, clearly readable footer */
+                .crm-footer {
+                    text-align: center;
+                    padding: 1.5rem 1rem 2rem 1rem;
+                    font-size: 0.82rem;
+                    color: #64748b;
+                    font-weight: 500;
+                    letter-spacing: 0.02em;
+                    border-top: 1px solid #e2e8f0;
+                    margin-top: 1rem;
+                }
             ]]></style>
         </head>
         <body>
@@ -1426,6 +1438,11 @@
 
                     </section>
 
+                    <!-- FOOTER: Clear & Readable Branding -->
+                    <footer class="crm-footer" id="crmDashboardFooter">
+                        <span>Ultrawin Technolgies CRM · Connect. Manage. Grow.</span>
+                    </footer>
+
                 </main>
             </div>
 
@@ -1474,15 +1491,19 @@
                         if (checkIcon) checkIcon.style.display = 'block';
                     }
 
-                    // Update topbar label dynamically
+                    // Update topbar label and footer dynamically
                     const count = selectedCompanies.size;
                     const labelElem = document.getElementById('currentCompanyName');
                     const badgeElem = document.getElementById('selectedCountBadge');
+                    const footerElem = document.getElementById('crmDashboardFooter');
 
                     if (count === 1) {
-                        labelElem.innerText = Array.from(selectedCompanies)[0];
+                        const singleName = Array.from(selectedCompanies)[0];
+                        labelElem.innerText = singleName;
+                        if (footerElem) footerElem.innerHTML = `<span>${singleName} CRM · Connect. Manage. Grow.</span>`;
                     } else {
                         labelElem.innerText = count + ' Companies';
+                        if (footerElem) footerElem.innerHTML = `<span>Ultrawin Technolgies CRM · Connect. Manage. Grow.</span>`;
                     }
 
                     if (badgeElem) {
