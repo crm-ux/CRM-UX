@@ -25,19 +25,38 @@
                 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
                 body { background-color: var(--bg-slate); color: var(--text-dark); min-height: 100vh; display: flex; }
                 
-                /* Sidebar */
+                /* Floating & Collapsible Sidebar */
                 .crm-sidebar {
                     width: var(--sidebar-width);
                     background: #ffffff;
                     border-right: 1px solid var(--border-color);
                     display: flex;
                     flex-direction: column;
-                    transition: all 0.3s ease;
-                    z-index: 100;
+                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 1050;
                     position: fixed;
                     top: 0;
                     bottom: 0;
                     left: 0;
+                    transform: translateX(-100%);
+                    box-shadow: 10px 0 35px rgba(11, 61, 145, 0.15);
+                }
+                .crm-sidebar.open {
+                    transform: translateX(0);
+                }
+                .crm-sidebar-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(15, 23, 42, 0.35);
+                    backdrop-filter: blur(2px);
+                    z-index: 1040;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: all 0.3s ease;
+                }
+                .crm-sidebar-overlay.active {
+                    opacity: 1;
+                    visibility: visible;
                 }
                 .crm-sidebar-header {
                     padding: 1.25rem 1.5rem;
@@ -46,6 +65,20 @@
                     justify-content: space-between;
                     border-bottom: 1px solid var(--border-color);
                 }
+                .crm-sidebar-close {
+                    background: #f1f5f9;
+                    border: none;
+                    width: 2rem;
+                    height: 2rem;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .crm-sidebar-close:hover { background: #e2e8f0; color: var(--text-dark); }
                 .crm-brand { font-size: 1.15rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 0.5rem; }
                 .crm-brand i { font-size: 1.35rem; color: var(--accent-cyan); }
                 .crm-nav-list { list-style: none; padding: 1rem 0.75rem; flex: 1; overflow-y: auto; }
@@ -79,9 +112,10 @@
                     font-weight: 700;
                 }
 
-                /* Main Content Area */
+                /* Main Content Area - Full 100% Width Uncompromised */
                 .crm-main-wrapper {
-                    margin-left: var(--sidebar-width);
+                    margin-left: 0 !important;
+                    width: 100% !important;
                     flex: 1;
                     display: flex;
                     flex-direction: column;
@@ -103,12 +137,22 @@
                 }
                 .crm-topbar-left { display: flex; align-items: center; gap: 1rem; }
                 .crm-sidebar-toggle {
-                    background: none;
-                    border: none;
-                    font-size: 1.25rem;
-                    color: var(--text-muted);
+                    background: #f8fafc;
+                    border: 1px solid var(--border-color);
+                    width: 2.35rem;
+                    height: 2.35rem;
+                    border-radius: 0.5rem;
+                    display: flex !important;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.05rem;
+                    color: var(--primary-blue);
                     cursor: pointer;
-                    display: none;
+                    transition: all 0.2s;
+                }
+                .crm-sidebar-toggle:hover {
+                    background: #eff6ff;
+                    border-color: #bfdbfe;
                 }
                 .crm-search-box {
                     display: flex;
@@ -484,13 +528,19 @@
         </head>
         <body>
 
-            <!-- 1. MODERN LEFT SIDEBAR -->
+            <!-- BACKDROP OVERLAY FOR FLOATING SIDEBAR -->
+            <div class="crm-sidebar-overlay" id="crmSidebarOverlay" onclick="toggleSidebar()"></div>
+
+            <!-- 1. FLOATING & COLLAPSIBLE LEFT SIDEBAR -->
             <aside class="crm-sidebar" id="crmSidebar">
                 <div class="crm-sidebar-header">
                     <div class="crm-brand">
                         <i class="fa fa-layer-group"></i>
                         <span>Ultrawin CRM</span>
                     </div>
+                    <button class="crm-sidebar-close" onclick="toggleSidebar()" title="Close menu">
+                        <i class="fa fa-xmark"></i>
+                    </button>
                 </div>
                 <ul class="crm-nav-list">
                     <li class="crm-nav-item">
@@ -905,7 +955,9 @@
             <script><![CDATA[
                 function toggleSidebar() {
                     const sidebar = document.getElementById('crmSidebar');
+                    const overlay = document.getElementById('crmSidebarOverlay');
                     sidebar.classList.toggle('open');
+                    overlay.classList.toggle('active');
                 }
             ]]></script>
         </body>
