@@ -327,17 +327,23 @@
                     flex-shrink: 0;
                     background: #fff;
                 }
-                .crm-company-item.selected .crm-company-checkbox {
+                .crm-company-checkbox.selected {
                     background: var(--primary-blue);
                     border-color: var(--primary-blue);
                 }
-                .crm-company-checkbox i {
-                    color: #fff;
-                    font-size: 0.68rem;
-                    display: none;
-                }
-                .crm-company-item.selected .crm-company-checkbox i {
-                    display: block;
+                .crm-company-avatar {
+                    width: 1.65rem;
+                    height: 1.65rem;
+                    border-radius: 50%;
+                    background: #1557bf;
+                    color: #ffffff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.78rem;
+                    font-weight: 800;
+                    flex-shrink: 0;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 }
                 .crm-company-item.selected {
                     background: #eff6ff;
@@ -927,40 +933,34 @@
                         <div class="crm-dropdown-container">
                             <div class="crm-company-badge" id="crmCompanyBadge" onclick="toggleDropdown('crmCompanyDropdown')">
                                 <i class="fa fa-building" style="color: var(--accent-cyan);"></i>
-                                <span id="currentCompanyName">Ultrawin Technologies</span>
+                                <span id="currentCompanyName">Ultrawin Technolgies</span>
                                 <i class="fa fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
                             </div>
                             <div class="crm-dropdown-menu crm-company-menu" id="crmCompanyDropdown">
                                 <div class="crm-company-head">
-                                    <span>Filter by Company</span>
+                                    <span>SELECT COMPANIES</span>
                                     <span id="selectedCountBadge" style="color: var(--accent-cyan); font-size: 0.72rem;">1 Selected</span>
                                 </div>
-                                <div class="crm-company-item selected" onclick="toggleCompanySelection('Ultrawin Technologies', this)">
+                                <div class="crm-company-item" onclick="toggleCompanySelection('Ultrawin Calibration Center Pvt Ltd', this)">
                                     <div class="crm-company-checkbox">
-                                        <i class="fa fa-check"></i>
+                                        <i class="fa fa-check" style="color: #fff; font-size: 0.68rem; display: none;"></i>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
-                                        <i class="fa fa-building" style="color: var(--primary-blue); font-size: 0.85rem;"></i>
-                                        <span>Ultrawin Technologies</span>
-                                    </div>
+                                    <div class="crm-company-avatar">U</div>
+                                    <span>Ultrawin Calibration Center Pvt Ltd</span>
                                 </div>
-                                <div class="crm-company-item" onclick="toggleCompanySelection('Ultrawin Devices &amp; Services', this)">
-                                    <div class="crm-company-checkbox">
-                                        <i class="fa fa-check"></i>
+                                <div class="crm-company-item selected" onclick="toggleCompanySelection('Ultrawin Technolgies', this)">
+                                    <div class="crm-company-checkbox selected">
+                                        <i class="fa fa-check" style="color: #fff; font-size: 0.68rem; display: block;"></i>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
-                                        <i class="fa fa-building" style="color: var(--text-muted); font-size: 0.85rem;"></i>
-                                        <span>Ultrawin Devices &amp; Services</span>
-                                    </div>
+                                    <div class="crm-company-avatar">U</div>
+                                    <span>Ultrawin Technolgies</span>
                                 </div>
-                                <div class="crm-company-item" onclick="toggleCompanySelection('Global Automation Ltd', this)">
+                                <div class="crm-company-item" onclick="toggleCompanySelection('Yantra Dynamics', this)">
                                     <div class="crm-company-checkbox">
-                                        <i class="fa fa-check"></i>
+                                        <i class="fa fa-check" style="color: #fff; font-size: 0.68rem; display: none;"></i>
                                     </div>
-                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
-                                        <i class="fa fa-building" style="color: var(--text-muted); font-size: 0.85rem;"></i>
-                                        <span>Global Automation Ltd</span>
-                                    </div>
+                                    <div class="crm-company-avatar">Y</div>
+                                    <span>Yantra Dynamics</span>
                                 </div>
                             </div>
                         </div>
@@ -1060,12 +1060,12 @@
                                 <span class="crm-action-icon">›</span>
                             </div>
                             <!-- NEW 4th BUTTON: ASSIGN TASK -->
-                            <div class="crm-action-btn" style="background: rgba(2, 132, 199, 0.3); border-color: rgba(56, 189, 248, 0.4);">
+                            <div class="crm-action-btn">
                                 <div>
                                     <div class="crm-action-title">+ Assign Task</div>
                                     <div class="crm-action-sub">Create &amp; assign work item</div>
                                 </div>
-                                <span class="crm-action-icon" style="color: #38bdf8;">›</span>
+                                <span class="crm-action-icon">›</span>
                             </div>
                         </div>
                     </section>
@@ -1453,18 +1453,25 @@
                         dropdown.classList.toggle('open');
                     }
                 }
-                const selectedCompanies = new Set(['Ultrawin Technologies']);
+                const selectedCompanies = new Set(['Ultrawin Technolgies']);
 
                 function toggleCompanySelection(name, elem) {
+                    const checkbox = elem.querySelector('.crm-company-checkbox');
+                    const checkIcon = elem.querySelector('.crm-company-checkbox i');
+
                     if (selectedCompanies.has(name)) {
                         // Prevent unselecting if it's the only one selected
                         if (selectedCompanies.size > 1) {
                             selectedCompanies.delete(name);
                             elem.classList.remove('selected');
+                            if (checkbox) checkbox.classList.remove('selected');
+                            if (checkIcon) checkIcon.style.display = 'none';
                         }
                     } else {
                         selectedCompanies.add(name);
                         elem.classList.add('selected');
+                        if (checkbox) checkbox.classList.add('selected');
+                        if (checkIcon) checkIcon.style.display = 'block';
                     }
 
                     // Update topbar label dynamically
