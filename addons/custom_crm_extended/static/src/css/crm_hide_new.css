@@ -485,3 +485,13 @@ div[name="access_rights"] .o_wrap_input:has([data-id="6"]),
 div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
+
+/* Keep Product Stock dropdown cleanly inside table bounds without covering headers */
+.o_list_table .o_field_many2one .dropdown-menu {
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    top: 100% !important;
+    bottom: auto !important;
+    z-index: 1050 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}

@@ -6,16 +6,17 @@
         <field name="name">crm.product.stock.list</field>
         <field name="model">crm.product.stock</field>
         <field name="arch" type="xml">
-            <list string="Product Stock Registry" create="true" edit="false">
-                <field name="product_id"/>
-                <field name="quantity" class="fw-bold text-primary"/>
-                <field name="last_updated_date" string="Last Updated"/>
-                <field name="user_id" widget="many2one_avatar_user" string="Updated By"/>
-                <button name="action_update_stock_wizard" type="object" icon="fa-pencil" title="Update Stock" class="btn btn-sm btn-outline-primary"/>
+            <list string="Product Stock Registry" editable="bottom" multi_edit="1">
+                <field name="product_id" 
+                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" 
+                       placeholder="Select Product..."
+                       style="min-width: 250px;"/>
+                <field name="quantity" class="fw-bold text-primary" style="max-width: 100px;"/>
+                <field name="last_updated_date" readonly="1" string="Last Updated"/>
+                <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
             </list>
         </field>
     </record>
-
 
     <!-- 2. Wizard Popup Form (Only Product & Quantity) -->
     <record id="view_crm_product_stock_wizard_form" model="ir.ui.view">
