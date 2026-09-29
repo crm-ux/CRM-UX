@@ -6,15 +6,16 @@
         <field name="name">crm.product.stock.list</field>
         <field name="model">crm.product.stock</field>
         <field name="arch" type="xml">
-            <list string="Product Stock Registry" editable="bottom">
-                <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+            <list string="Product Stock Registry" create="true" edit="false">
+                <field name="product_id"/>
                 <field name="quantity" class="fw-bold text-primary"/>
-                <field name="last_updated_date" readonly="1" string="Last Updated"/>
-                <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
-                <button name="action_update_stock_wizard" type="object" icon="fa-pencil" title="Update Stock" class="btn btn-sm btn-outline-secondary"/>
+                <field name="last_updated_date" string="Last Updated"/>
+                <field name="user_id" widget="many2one_avatar_user" string="Updated By"/>
+                <button name="action_update_stock_wizard" type="object" icon="fa-pencil" title="Update Stock" class="btn btn-sm btn-outline-primary"/>
             </list>
         </field>
     </record>
+
 
     <!-- 2. Wizard Popup Form (Only Product & Quantity) -->
     <record id="view_crm_product_stock_wizard_form" model="ir.ui.view">
@@ -48,6 +49,7 @@
     </record>
 
     <!-- 4. Window Action -->
+        <!-- 4. Window Action -->
     <record id="action_crm_product_stock" model="ir.actions.act_window">
         <field name="name">Product Stock Registry</field>
         <field name="res_model">crm.product.stock</field>
@@ -56,9 +58,8 @@
         <field name="search_view_id" ref="view_crm_product_stock_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
-                Track your manual product stock levels here!
+                Click New to add a product to stock registry!
             </p>
         </field>
     </record>
-
 </odoo>
