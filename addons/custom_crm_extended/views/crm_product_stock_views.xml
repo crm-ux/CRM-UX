@@ -1,21 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- 1. Editable List View (No form view) -->
+    <!-- 1. Editable List View with Safety Stock & Red Signal on Low Stock -->
     <record id="view_crm_product_stock_list" model="ir.ui.view">
         <field name="name">crm.product.stock.list</field>
         <field name="model">crm.product.stock</field>
         <field name="arch" type="xml">
             <list string="Product Stock Registry" editable="top">
+                <field name="is_low_stock" column_invisible="True"/>
+                <field name="stock_alert_tooltip" column_invisible="True"/>
                 <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
-                <field name="quantity" class="fw-bold text-primary"/>
+                <field name="safety_stock"/>
+                <!-- Quantity cell: bold red + red background tint + hover tooltip if <= safety_stock -->
+                <field name="quantity" 
+                       class="fw-bold"
+                       decoration-danger="is_low_stock" 
+                       decoration-bf="is_low_stock"
+                       widget="badge" 
+                       options="{'color_field': 'is_low_stock'}"
+                       invisible="0"/>
                 <field name="last_updated_date" readonly="1" string="Last Updated"/>
                 <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
             </list>
         </field>
     </record>
 
-    <!-- 2. Wizard Popup Form (Only Product & Quantity) -->
+    <!-- 2. Wizard Popup Form -->
     <record id="view_crm_product_stock_wizard_form" model="ir.ui.view">
         <field name="name">crm.product.stock.wizard.form</field>
         <field name="model">crm.product.stock.wizard</field>
@@ -24,6 +34,7 @@
                 <field name="stock_id" invisible="1"/>
                 <group>
                     <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="safety_stock"/>
                     <field name="quantity"/>
                 </group>
                 <footer>
@@ -34,7 +45,7 @@
         </field>
     </record>
 
-    <!-- 3. Search View -->
+    <!-- 3. Search View (With Quick Filter for Low Stock) -->
     <record id="view_crm_product_stock_search" model="ir.ui.view">
         <field name="name">crm.product.stock.search</field>
         <field name="model">crm.product.stock</field>
@@ -42,12 +53,13 @@
             <search string="Search Product Stock">
                 <field name="product_id" string="Product"/>
                 <field name="user_id" string="Updated By"/>
+                <separator/>
+                <filter string="⚠️ Low Stock Alert" name="filter_low_stock" domain="[('safety_stock', '>', 0), ('quantity', '&lt;=', self.safety_stock)]"/>
             </search>
         </field>
     </record>
 
     <!-- 4. Window Action -->
-        <!-- 4. Window Action -->
     <record id="action_crm_product_stock" model="ir.actions.act_window">
         <field name="name">Product Stock Registry</field>
         <field name="res_model">crm.product.stock</field>
@@ -60,4 +72,5 @@
             </p>
         </field>
     </record>
+
 </odoo>

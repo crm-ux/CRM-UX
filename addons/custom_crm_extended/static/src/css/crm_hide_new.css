@@ -485,3 +485,21 @@ div[name="access_rights"] .o_wrap_input:has([data-id="6"]),
 div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
+
+/* Product Stock - Low Stock Red Signal */
+.o_list_table tr:has(.text-danger) td[name="quantity"] {
+    position: relative;
+}
+
+.o_list_table td[name="quantity"].text-danger::after {
+    content: " 🔴";
+    font-size: 0.75rem;
+    vertical-align: middle;
+}
+
+.o_list_table td[name="quantity"].text-danger {
+    color: #dc2626 !important;
+    font-weight: 700 !important;
+    background-color: #fef2f2 !important;
+    border-radius: 4px;
+}
