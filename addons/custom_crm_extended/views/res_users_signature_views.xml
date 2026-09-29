@@ -126,6 +126,7 @@
                         <field name="default_manager_id" string="Reporting Manager" readonly="1" force_save="1" options="{'no_create': True, 'no_open': True}"/>
                         <field name="sub_department_ids" widget="many2many_tags" 
                                string="Managed Sub-Departments"
+                               domain="[('parent_id', '!=', False), ('id', '!=', department_id)]"
                                options="{'color_field': 'color', 'no_create': True}"
                                placeholder="Optional: sub-departments managed under this role..."/>
                         <field name="company_id" string="Company" placeholder="Global (All Companies)"/>
