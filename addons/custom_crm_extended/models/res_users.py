@@ -514,8 +514,12 @@ class HrJob(models.Model):
     def _compute_job_hierarchy_html(self):
         all_jobs = self.search([])
         for job in self:
-            top_director = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
-            root = top_director[0] if top_director else (job.parent_job_id or job)
+            directors = all_jobs.filtered(lambda j: not j.parent_job_id and any(w in (j.name or '').lower() for w in ['director', 'managing', 'owner', 'ceo', 'head']))
+            if not directors:
+                directors = all_jobs.filtered(lambda j: not j.parent_job_id and j.is_manager_role)
+            if not directors:
+                directors = all_jobs.filtered(lambda j: j.is_manager_role and (not j.department_id or not j.department_id.parent_id))
+            root = directors[0] if directors else (job.parent_job_id or job)
 
             def render_node(node, current_id, is_child=False):
                 is_active = (node.id == current_id)
@@ -930,8 +934,8 @@ class HrJob(models.Model):
                         elif parent_dept and parent_dept.manager_id and parent_dept.manager_id.user_id:
                             vals['default_manager_id'] = parent_dept.manager_id.user_id.id
                         else:
-                            vals['default_manager_id'] = False
-                else:
+                            admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
+                            vals['default_manager_id'] = admin_user.id if admin_user else False                else:
                     if dept and dept.manager_user_id:
                         vals['default_manager_id'] = dept.manager_user_id.id
                     elif dept and dept.manager_id and dept.manager_id.user_id:
