@@ -586,12 +586,12 @@ class HrJob(models.Model):
         html += '</div>'
         return html
 
-    tree_html = render_node(root, job.id, is_child=False)
-    job.job_hierarchy_html = f'''
-        <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
-            {tree_html}
-        </div>
-    '''
+        tree_html = render_node(root, job.id, is_child=False)
+        job.job_hierarchy_html = f'''
+            <div style="width: 100%; display: block; font-family: inherit; padding: 0.25rem 0 1rem 0;">
+                {tree_html}
+            </div>
+        '''
 
     # 2. Managed Sub-Departments (Smaller departments managed under this role)
     sub_department_ids = fields.Many2many(
