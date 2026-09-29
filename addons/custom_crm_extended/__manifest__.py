@@ -48,6 +48,7 @@
         'views/service_ticket_wizard_views.xml',
         'views/crm_custom_settings_views.xml',
         'views/amc_contract_views.xml',
+        'views/crm_product_stock_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

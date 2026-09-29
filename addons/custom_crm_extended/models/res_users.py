@@ -1018,7 +1018,7 @@ class HrJob(models.Model):
                         'message': f"Cannot select '{invalid_names}' as a managed sub-department!\n\nHierarchy flows downward only: top-level parent departments (like Management) or your own department cannot be managed as sub-departments."
                     }
                 }
-    
+
 
 class HrDepartment(models.Model):
     _inherit = 'hr.department'
@@ -1063,6 +1063,13 @@ class HrDepartment(models.Model):
         if not self.manager_user_id:
             return
         user = self.manager_user_id.sudo()
+        
+        # Auto-link standard hr.department manager_id (Employee) if empty
+        if not self.manager_id:
+            emp = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+            if emp:
+                self.sudo().write({'manager_id': emp.id})
+
         # Find the Manager role for this department
         mgr_job = self.env['hr.job'].search([
             ('department_id', '=', self.id),

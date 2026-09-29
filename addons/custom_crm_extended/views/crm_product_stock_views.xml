@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. Editable List View (No form view) -->
+    <record id="view_crm_product_stock_list" model="ir.ui.view">
+        <field name="name">crm.product.stock.list</field>
+        <field name="model">crm.product.stock</field>
+        <field name="arch" type="xml">
+            <list string="Product Stock Registry" editable="bottom">
+                <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="quantity" class="fw-bold text-primary"/>
+                <field name="last_updated_date" readonly="1" string="Last Updated"/>
+                <field name="user_id" readonly="1" widget="many2one_avatar_user" string="Updated By"/>
+                <button name="action_update_stock_wizard" type="object" icon="fa-pencil" title="Update Stock" class="btn btn-sm btn-outline-secondary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- 2. Wizard Popup Form (Only Product & Quantity) -->
+    <record id="view_crm_product_stock_wizard_form" model="ir.ui.view">
+        <field name="name">crm.product.stock.wizard.form</field>
+        <field name="model">crm.product.stock.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Product Stock">
+                <field name="stock_id" invisible="1"/>
+                <group>
+                    <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="quantity"/>
+                </group>
+                <footer>
+                    <button name="action_save_stock" string="Save Stock" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- 3. Search View -->
+    <record id="view_crm_product_stock_search" model="ir.ui.view">
+        <field name="name">crm.product.stock.search</field>
+        <field name="model">crm.product.stock</field>
+        <field name="arch" type="xml">
+            <search string="Search Product Stock">
+                <field name="product_id" string="Product"/>
+                <field name="user_id" string="Updated By"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- 4. Window Action -->
+    <record id="action_crm_product_stock" model="ir.actions.act_window">
+        <field name="name">Product Stock Registry</field>
+        <field name="res_model">crm.product.stock</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_crm_product_stock_list"/>
+        <field name="search_view_id" ref="view_crm_product_stock_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Track your manual product stock levels here!
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -385,6 +385,16 @@
                     </div>
                     <p class="crm-panel-note">Service requests, complaints &amp; breakdown tracking overview.</p>
                 </div>
+
+                <!-- Product Stock Card -->
+                <div class="crm-pro-panel" style="border-left:4px solid #0284c7; cursor:pointer;" t-on-click="openProductStock">
+                    <div class="crm-panel-head"><div><h2>Product Stock</h2></div><span class="crm-panel-arrow">›</span></div>
+                    <div class="crm-metrics">
+                        <div class="crm-metric"><strong><t t-esc="state.productStockCount || 0"/></strong><span>Products</span></div>
+                    </div>
+                    <p class="crm-panel-note">View and update live stock levels for key products.</p>
+                </div>
+
             </div>
             <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
 

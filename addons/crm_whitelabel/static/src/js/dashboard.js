@@ -31,6 +31,7 @@ class CrmDashboard extends Component {
             greeting: "", todayDate: "",
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
+            productStockCount: 0,
             isAdmin: user.isAdmin || [2, 11].includes(user.userId),
             // Permission flags for Quick Access
             canAccessQuickMenu: false,
@@ -120,6 +121,15 @@ class CrmDashboard extends Component {
                 active_test: false,
                 default_code: "sale.order",
             },
+        });
+    }
+
+    openProductStock() {
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Product Stock Registry",
+            res_model: "crm.product.stock",
+            views: [[false, "list"]],
         });
     }
 
@@ -274,6 +284,13 @@ class CrmDashboard extends Component {
             const amcActive = amcCounts.active || 0;
             const amcExpired = amcCounts.expired || 0;
 
+            let productStockCount = 0;
+            try {
+                productStockCount = await this.ormService.searchCount("crm.product.stock", []);
+            } catch (e) {
+                productStockCount = 0;
+            }
+
             Object.assign(this.state, {
                 exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
                 leads, qualified, opportunity: opp,
@@ -284,6 +301,7 @@ class CrmDashboard extends Component {
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 amcTotal, amcDraft, amcActive, amcExpired,
+                productStockCount,
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,
                 loading: false
