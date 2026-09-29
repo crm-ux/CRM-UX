@@ -111,6 +111,41 @@
                     border-radius: 1rem;
                     font-weight: 700;
                 }
+                /* Submenu Accordion */
+                .crm-submenu-arrow {
+                    margin-left: auto;
+                    font-size: 0.75rem;
+                    transition: transform 0.25s ease;
+                    color: var(--text-muted);
+                }
+                .crm-nav-item.open .crm-submenu-arrow {
+                    transform: rotate(180deg);
+                }
+                .crm-submenu-list {
+                    list-style: none;
+                    padding: 0.25rem 0 0.25rem 2.25rem;
+                    display: none;
+                }
+                .crm-nav-item.open .crm-submenu-list {
+                    display: block;
+                }
+                .crm-sub-link {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 0.45rem 0.75rem;
+                    border-radius: 0.4rem;
+                    color: var(--text-muted);
+                    font-size: 0.82rem;
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: all 0.15s;
+                    cursor: pointer;
+                }
+                .crm-sub-link:hover {
+                    color: var(--primary-blue);
+                    background: #f1f5f9;
+                }
 
                 /* Main Content Area - Full 100% Width Uncompromised */
                 .crm-main-wrapper {
@@ -599,10 +634,41 @@
                             <span>Analytics &amp; Insights</span>
                         </a>
                     </li>
+                    
+                    <!-- EXPANDABLE SUBMENU 1: ORGANIZATION -->
+                    <li class="crm-nav-item" id="navOrg">
+                        <a class="crm-nav-link" onclick="toggleSubmenu('navOrg')">
+                            <i class="fa fa-sitemap"></i>
+                            <span>Organization</span>
+                            <i class="fa fa-chevron-down crm-submenu-arrow"></i>
+                        </a>
+                        <ul class="crm-submenu-list">
+                            <li><a class="crm-sub-link"><i class="fa fa-shield-halved"></i> Roles &amp; Permissions</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-user-group"></i> Users</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-building-user"></i> Departments</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-tags"></i> Employee Tags</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- EXPANDABLE SUBMENU 2: SERIES -->
+                    <li class="crm-nav-item" id="navSeries">
+                        <a class="crm-nav-link" onclick="toggleSubmenu('navSeries')">
+                            <i class="fa fa-arrow-down-1-9"></i>
+                            <span>Series</span>
+                            <i class="fa fa-chevron-down crm-submenu-arrow"></i>
+                        </a>
+                        <ul class="crm-submenu-list">
+                            <li><a class="crm-sub-link"><i class="fa fa-hashtag"></i> Quotation Series</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-hashtag"></i> Equipment Series</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-hashtag"></i> Service Ticket Series</a></li>
+                            <li><a class="crm-sub-link"><i class="fa fa-hashtag"></i> AMC Series</a></li>
+                        </ul>
+                    </li>
+
                     <li class="crm-nav-item" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
                         <a class="crm-nav-link">
                             <i class="fa fa-gear"></i>
-                            <span>Settings &amp; Users</span>
+                            <span>Settings &amp; Configuration</span>
                         </a>
                     </li>
                 </ul>
@@ -727,49 +793,70 @@
                             <span style="color: var(--primary-blue);">Total Active: 39</span>
                         </div>
                         <div class="crm-pipe-track">
-                            <div class="crm-pipe-step">
+                            <!-- 1. New Lead -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #38bdf8;">
                                 <div class="crm-pipe-count">6</div>
                                 <div class="crm-pipe-name">New Lead</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 2. Contacted -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #818cf8;">
                                 <div class="crm-pipe-count">1</div>
                                 <div class="crm-pipe-name">Contacted</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 3. Tech. Discussion -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #c084fc;">
                                 <div class="crm-pipe-count">0</div>
-                                <div class="crm-pipe-name">Tech Disc.</div>
+                                <div class="crm-pipe-name">Tech. Discussion</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 4. Qualified -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #fb7185;">
                                 <div class="crm-pipe-count">0</div>
                                 <div class="crm-pipe-name">Qualified</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 5. Opportunity -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #fb923c;">
                                 <div class="crm-pipe-count">0</div>
                                 <div class="crm-pipe-name">Opportunity</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step active">
+                            <!-- 6. Quotes (Draft) -->
+                            <div class="crm-pipe-step active" style="border-top: 3px solid #0284c7;">
                                 <div class="crm-pipe-count">26</div>
-                                <div class="crm-pipe-name">Quotes Sent</div>
+                                <div class="crm-pipe-name">Quotes</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 7. Sent -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #6366f1;">
+                                <div class="crm-pipe-count">1</div>
+                                <div class="crm-pipe-name">Sent</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <!-- 8. Negotiation -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #a855f7;">
                                 <div class="crm-pipe-count">1</div>
                                 <div class="crm-pipe-name">Negotiation</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step">
+                            <!-- 9. Order Expected -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #ec4899;">
                                 <div class="crm-pipe-count">0</div>
-                                <div class="crm-pipe-name">Order Exp.</div>
+                                <div class="crm-pipe-name">Order Expected</div>
                             </div>
                             <span class="crm-pipe-arrow">›</span>
-                            <div class="crm-pipe-step" style="border-color: #86efac; background: #f0fdf4;">
+                            <!-- 10. Won -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #22c55e; background: #f0fdf4;">
                                 <div class="crm-pipe-count" style="color: #16a34a;">4</div>
-                                <div class="crm-pipe-name" style="color: #16a34a;">Won</div>
+                                <div class="crm-pipe-name" style="color: #16a34a; font-weight: 700;">Won</div>
+                            </div>
+                            <span class="crm-pipe-arrow">›</span>
+                            <!-- 11. Total -->
+                            <div class="crm-pipe-step" style="border-top: 3px solid #0b3d91; background: #eff6ff;">
+                                <div class="crm-pipe-count" style="color: #0b3d91;">39</div>
+                                <div class="crm-pipe-name" style="color: #0b3d91; font-weight: 800;">Total</div>
                             </div>
                         </div>
                     </section>
@@ -958,6 +1045,12 @@
                     const overlay = document.getElementById('crmSidebarOverlay');
                     sidebar.classList.toggle('open');
                     overlay.classList.toggle('active');
+                }
+                function toggleSubmenu(id) {
+                    const item = document.getElementById(id);
+                    if (item) {
+                        item.classList.toggle('open');
+                    }
                 }
             ]]></script>
         </body>
