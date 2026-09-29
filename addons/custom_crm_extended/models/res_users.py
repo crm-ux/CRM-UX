@@ -990,6 +990,30 @@ class HrJob(models.Model):
                 users._apply_job_permissions(job)
         return res
 
+    @api.onchange('sub_department_ids', 'department_id')
+    def _onchange_check_sub_departments(self):
+        if self.department_id and self.sub_department_ids:
+            # Collect all ancestor parent departments
+            ancestor_ids = []
+            curr = self.department_id.parent_id
+            while curr:
+                ancestor_ids.append(curr.id)
+                curr = curr.parent_id
+            
+            # Check if user accidentally selected self or parent department
+            invalid = self.sub_department_ids.filtered(lambda d: d.id == self.department_id.id or d.id in ancestor_ids)
+            if invalid:
+                invalid_names = ", ".join(invalid.mapped('name'))
+                # Auto-remove invalid departments
+                self.sub_department_ids = [(3, d.id) for d in invalid]
+                return {
+                    'warning': {
+                        'title': "Invalid Sub-Department Selection",
+                        'message': f"Cannot select '{invalid_names}' as managed sub-departments because it is either the primary department itself or a higher parent department! Hierarchy only flows downward."
+                    }
+                }
+        
+
 class HrDepartment(models.Model):
     _inherit = 'hr.department'
     company_id = fields.Many2one('res.company', string='Company', default=False)
