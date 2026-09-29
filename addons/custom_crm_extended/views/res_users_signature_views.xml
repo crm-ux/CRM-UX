@@ -294,6 +294,14 @@
             <xpath expr="//field[@name='parent_id']" position="attributes">
                 <attribute name="options">{'no_create': True, 'no_open': True}</attribute>
             </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <div class="alert alert-info d-flex align-items-center mt-2 mb-2 p-2 rounded" role="alert" style="font-size: 0.82rem; border-left: 3px solid #0284c7; background-color: #f0f9ff; color: #0369a1;" colspan="2">
+                    <i class="fa fa-info-circle me-2 fs-5 text-primary"></i>
+                    <div>
+                        <strong>Hierarchy Rule:</strong> Access flows <strong>downward only</strong>. A Parent Department head can view records of this sub-department, but users here <strong>cannot</strong> access Parent or sibling department records.
+                    </div>
+                </div>
+            </xpath>
             <xpath expr="//widget[@name='hr_department_chart']" position="replace">
                 <group string="Department Organization" class="dept_hierarchy_col">
                     <field name="department_hierarchy_html" nolabel="1" widget="html"/>
