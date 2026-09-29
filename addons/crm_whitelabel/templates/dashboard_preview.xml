@@ -80,8 +80,8 @@
                     transition: background 0.2s;
                 }
                 .crm-sidebar-close:hover { background: #e2e8f0; color: var(--text-dark); }
-                .crm-brand { font-size: 1.15rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 0.5rem; }
-                .crm-brand i { font-size: 1.35rem; color: var(--accent-cyan); }
+                .crm-brand { font-size: 1.15rem; font-weight: 800; color: var(--primary-blue); display: flex; align-items: center; gap: 0.65rem; }
+                .crm-brand-logo { width: 32px; height: 32px; border-radius: 50%; object-fit: contain; box-shadow: 0 2px 6px rgba(11, 61, 145, 0.2); }
                 .crm-nav-list { 
                     list-style: none; 
                     padding: 1rem 0.75rem; 
@@ -282,15 +282,26 @@
                     to { opacity: 1; transform: translateY(0); }
                 }
 
-                /* Company Switcher Menu */
+                /* Multi-Company Switcher Menu */
                 .crm-company-menu {
-                    width: 260px;
+                    width: 290px;
                     padding: 0.5rem;
+                }
+                .crm-company-head {
+                    padding: 0.45rem 0.65rem 0.65rem 0.65rem;
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    font-size: 0.76rem;
+                    color: var(--text-muted);
+                    font-weight: 700;
+                    text-transform: uppercase;
                 }
                 .crm-company-item {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
+                    gap: 0.75rem;
                     padding: 0.65rem 0.85rem;
                     border-radius: 0.5rem;
                     cursor: pointer;
@@ -298,17 +309,40 @@
                     font-size: 0.85rem;
                     color: var(--text-dark);
                     font-weight: 500;
+                    margin-top: 0.25rem;
+                    user-select: none;
                 }
                 .crm-company-item:hover {
                     background: #f1f5f9;
                 }
+                .crm-company-checkbox {
+                    width: 1.15rem;
+                    height: 1.15rem;
+                    border-radius: 0.3rem;
+                    border: 2px solid #cbd5e1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.15s;
+                    flex-shrink: 0;
+                    background: #fff;
+                }
+                .crm-company-item.selected .crm-company-checkbox {
+                    background: var(--primary-blue);
+                    border-color: var(--primary-blue);
+                }
+                .crm-company-checkbox i {
+                    color: #fff;
+                    font-size: 0.68rem;
+                    display: none;
+                }
+                .crm-company-item.selected .crm-company-checkbox i {
+                    display: block;
+                }
                 .crm-company-item.selected {
                     background: #eff6ff;
                     color: var(--primary-blue);
-                    font-weight: 700;
-                }
-                .crm-company-item.selected i.fa-check {
-                    color: var(--primary-blue);
+                    font-weight: 600;
                 }
 
                 /* Notifications */
@@ -580,10 +614,10 @@
                 .crm-pipe-name { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); white-space: nowrap; margin-top: 0.15rem; }
                 .crm-pipe-arrow { color: #cbd5e1; font-size: 0.75rem; }
 
-                /* Entity Grid Cards */
+                /* Entity Grid Cards - 4 Columns Across Matching Reference */
                 .crm-cards-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(clamp(280px, 22vw, 340px), 1fr));
+                    grid-template-columns: repeat(4, 1fr);
                     gap: 1.25rem;
                 }
                 .crm-card {
@@ -742,9 +776,12 @@
                 .crm-dot-red { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; }
 
                 /* Responsive Rules */
+                @media (max-width: 1280px) {
+                    .crm-cards-grid { grid-template-columns: repeat(2, 1fr); }
+                }
                 @media (max-width: 1024px) {
                     .crm-analytics-section { grid-template-columns: 1fr; }
-                    .crm-cards-grid { grid-template-columns: repeat(auto-fill, minmax(clamp(250px, 45vw, 320px), 1fr)); }
+                    .crm-cards-grid { grid-template-columns: repeat(2, 1fr); }
                 }
 
                 @media (max-width: 768px) {
@@ -767,7 +804,7 @@
             <aside class="crm-sidebar" id="crmSidebar">
                 <div class="crm-sidebar-header">
                     <div class="crm-brand">
-                        <i class="fa fa-layer-group"></i>
+                        <img src="/crm_whitelabel/static/src/img/custom_logo.png" class="crm-brand-logo" alt="Logo"/>
                         <span>Ultrawin CRM</span>
                     </div>
                     <button class="crm-sidebar-close" onclick="toggleSidebar()" title="Close menu">
@@ -886,7 +923,7 @@
                         </div>
                     </div>
                     <div class="crm-topbar-right">
-                        <!-- Company Selector with Dropdown -->
+                        <!-- Multi-Company Selector with Dropdown -->
                         <div class="crm-dropdown-container">
                             <div class="crm-company-badge" id="crmCompanyBadge" onclick="toggleDropdown('crmCompanyDropdown')">
                                 <i class="fa fa-building" style="color: var(--accent-cyan);"></i>
@@ -894,26 +931,36 @@
                                 <i class="fa fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
                             </div>
                             <div class="crm-dropdown-menu crm-company-menu" id="crmCompanyDropdown">
-                                <div class="crm-company-item selected" onclick="selectCompany('Ultrawin Technologies', this)">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <i class="fa fa-building" style="color: var(--primary-blue);"></i>
+                                <div class="crm-company-head">
+                                    <span>Filter by Company</span>
+                                    <span id="selectedCountBadge" style="color: var(--accent-cyan); font-size: 0.72rem;">1 Selected</span>
+                                </div>
+                                <div class="crm-company-item selected" onclick="toggleCompanySelection('Ultrawin Technologies', this)">
+                                    <div class="crm-company-checkbox">
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <i class="fa fa-building" style="color: var(--primary-blue); font-size: 0.85rem;"></i>
                                         <span>Ultrawin Technologies</span>
                                     </div>
-                                    <i class="fa fa-check"></i>
                                 </div>
-                                <div class="crm-company-item" onclick="selectCompany('Ultrawin Devices &amp; Services', this)">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <i class="fa fa-building" style="color: var(--text-muted);"></i>
+                                <div class="crm-company-item" onclick="toggleCompanySelection('Ultrawin Devices &amp; Services', this)">
+                                    <div class="crm-company-checkbox">
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <i class="fa fa-building" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                                         <span>Ultrawin Devices &amp; Services</span>
                                     </div>
-                                    <i class="fa fa-check" style="display: none;"></i>
                                 </div>
-                                <div class="crm-company-item" onclick="selectCompany('Global Automation Ltd', this)">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <i class="fa fa-building" style="color: var(--text-muted);"></i>
+                                <div class="crm-company-item" onclick="toggleCompanySelection('Global Automation Ltd', this)">
+                                    <div class="crm-company-checkbox">
+                                        <i class="fa fa-check"></i>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                                        <i class="fa fa-building" style="color: var(--text-muted); font-size: 0.85rem;"></i>
                                         <span>Global Automation Ltd</span>
                                     </div>
-                                    <i class="fa fa-check" style="display: none;"></i>
                                 </div>
                             </div>
                         </div>
@@ -1126,10 +1173,10 @@
                         </div>
                     </section>
 
-                    <!-- ENTITY CARDS GRID -->
+                    <!-- ENTITY CARDS GRID (8 Cards Across 2 Rows of 4 Matching Reference) -->
                     <section class="crm-cards-grid">
-                        <!-- Customer Management -->
-                        <div class="crm-card c-blue">
+                        <!-- 1. Customer Management -->
+                        <div class="crm-card c-emerald">
                             <div>
                                 <div class="crm-card-head">
                                     <span class="crm-card-title">Customer Management</span>
@@ -1145,7 +1192,7 @@
                             <p class="crm-card-desc">View customer records, company details and communication history.</p>
                         </div>
 
-                        <!-- Reminders & Targets -->
+                        <!-- 2. This Month Reminders -->
                         <div class="crm-card c-indigo">
                             <div>
                                 <div class="crm-card-head">
@@ -1154,23 +1201,23 @@
                                 </div>
                                 <div class="crm-card-stats">
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">12</span>
-                                        <span class="crm-stat-metric-lbl">Events</span>
+                                        <span class="crm-stat-metric-val">—</span>
+                                        <span class="crm-stat-metric-lbl">Upcoming Events</span>
                                     </div>
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">8</span>
+                                        <span class="crm-stat-metric-val">—</span>
                                         <span class="crm-stat-metric-lbl">Meetings</span>
                                     </div>
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">₹150K</span>
+                                        <span class="crm-stat-metric-val">—</span>
                                         <span class="crm-stat-metric-lbl">Targets</span>
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Upcoming events, meetings and monthly sales targets.</p>
+                            <p class="crm-card-desc">Upcoming events, meetings and monthly targets.</p>
                         </div>
 
-                        <!-- Exhibition Database -->
+                        <!-- 3. Exhibition Database -->
                         <div class="crm-card c-orange">
                             <div>
                                 <div class="crm-card-head">
@@ -1184,11 +1231,36 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Manage exhibition visitors and card-scanned contacts.</p>
+                            <p class="crm-card-desc">Manage exhibition and visitor contacts with card scanning.</p>
                         </div>
 
-                        <!-- Equipment Master -->
+                        <!-- 4. Lead Priority (From Reference) -->
                         <div class="crm-card c-emerald">
+                            <div>
+                                <div class="crm-card-head">
+                                    <span class="crm-card-title">Lead Priority</span>
+                                    <i class="fa fa-chevron-right crm-card-icon"></i>
+                                </div>
+                                <div class="crm-card-stats">
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">1</span>
+                                        <span class="crm-stat-metric-lbl">High</span>
+                                    </div>
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">4</span>
+                                        <span class="crm-stat-metric-lbl">Medium</span>
+                                    </div>
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">2</span>
+                                        <span class="crm-stat-metric-lbl">Low</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="crm-card-desc">Leads grouped by priority level.</p>
+                        </div>
+
+                        <!-- 5. Equipment Master (Total, Active, Inactive, Repair) -->
+                        <div class="crm-card c-blue">
                             <div>
                                 <div class="crm-card-head">
                                     <span class="crm-card-title">Equipment Master</span>
@@ -1205,14 +1277,18 @@
                                     </div>
                                     <div class="crm-stat-metric">
                                         <span class="crm-stat-metric-val">0</span>
+                                        <span class="crm-stat-metric-lbl">Inactive</span>
+                                    </div>
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">Repair</span>
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Equipment tracking, calibration and maintenance status.</p>
+                            <p class="crm-card-desc">Equipment tracking &amp; maintenance overview.</p>
                         </div>
 
-                        <!-- AMC Contracts (With new preview stages: Invoice Pending & Invoice Created) -->
+                        <!-- 6. AMC Contracts (Total, Draft, Active, Expired) -->
                         <div class="crm-card c-purple">
                             <div>
                                 <div class="crm-card-head">
@@ -1221,20 +1297,16 @@
                                 </div>
                                 <div class="crm-card-stats">
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">4</span>
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">Total</span>
                                     </div>
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">2</span>
+                                        <span class="crm-stat-metric-val">0</span>
+                                        <span class="crm-stat-metric-lbl">Draft</span>
+                                    </div>
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">Active</span>
-                                    </div>
-                                    <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">1</span>
-                                        <span class="crm-stat-metric-lbl">Inv. Pending</span>
-                                    </div>
-                                    <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">1</span>
-                                        <span class="crm-stat-metric-lbl">Inv. Created</span>
                                     </div>
                                     <div class="crm-stat-metric">
                                         <span class="crm-stat-metric-val">0</span>
@@ -1242,10 +1314,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Annual maintenance contracts, billing status &amp; renewals.</p>
+                            <p class="crm-card-desc">Annual maintenance contracts &amp; service agreements overview.</p>
                         </div>
 
-                        <!-- Service Tickets -->
+                        <!-- 7. Service Tickets (Total, Open, On Going, Closed) -->
                         <div class="crm-card c-emerald">
                             <div>
                                 <div class="crm-card-head">
@@ -1254,23 +1326,27 @@
                                 </div>
                                 <div class="crm-card-stats">
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">12</span>
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">Total</span>
                                     </div>
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">2</span>
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">Open</span>
                                     </div>
                                     <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">1</span>
+                                        <span class="crm-stat-metric-val">0</span>
                                         <span class="crm-stat-metric-lbl">On Going</span>
+                                    </div>
+                                    <div class="crm-stat-metric">
+                                        <span class="crm-stat-metric-val">0</span>
+                                        <span class="crm-stat-metric-lbl">Closed</span>
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Service requests, complaints &amp; breakdown tracking.</p>
+                            <p class="crm-card-desc">Service requests, complaints &amp; breakdown tracking overview.</p>
                         </div>
 
-                        <!-- Product Stock (NEW) -->
+                        <!-- 8. Product Stock (2 Products) -->
                         <div class="crm-card c-blue">
                             <div>
                                 <div class="crm-card-head">
@@ -1280,19 +1356,11 @@
                                 <div class="crm-card-stats">
                                     <div class="crm-stat-metric">
                                         <span class="crm-stat-metric-val">2</span>
-                                        <span class="crm-stat-metric-lbl">Total Items</span>
-                                    </div>
-                                    <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">1</span>
-                                        <span class="crm-stat-metric-lbl">Low Stock</span>
-                                    </div>
-                                    <div class="crm-stat-metric">
-                                        <span class="crm-stat-metric-val">1</span>
-                                        <span class="crm-stat-metric-lbl">In Stock</span>
+                                        <span class="crm-stat-metric-lbl">Products</span>
                                     </div>
                                 </div>
                             </div>
-                            <p class="crm-card-desc">Live inventory tracking and safety stock alert monitoring.</p>
+                            <p class="crm-card-desc">View and update live stock levels for key products.</p>
                         </div>
                     </section>
 
@@ -1385,17 +1453,34 @@
                         dropdown.classList.toggle('open');
                     }
                 }
-                function selectCompany(name, elem) {
-                    document.getElementById('currentCompanyName').innerText = name;
-                    document.querySelectorAll('.crm-company-item').forEach(item => {
-                        item.classList.remove('selected');
-                        const check = item.querySelector('.fa-check');
-                        if (check) check.style.display = 'none';
-                    });
-                    elem.classList.add('selected');
-                    const activeCheck = elem.querySelector('.fa-check');
-                    if (activeCheck) activeCheck.style.display = 'inline-block';
-                    document.getElementById('crmCompanyDropdown').classList.remove('open');
+                const selectedCompanies = new Set(['Ultrawin Technologies']);
+
+                function toggleCompanySelection(name, elem) {
+                    if (selectedCompanies.has(name)) {
+                        // Prevent unselecting if it's the only one selected
+                        if (selectedCompanies.size > 1) {
+                            selectedCompanies.delete(name);
+                            elem.classList.remove('selected');
+                        }
+                    } else {
+                        selectedCompanies.add(name);
+                        elem.classList.add('selected');
+                    }
+
+                    // Update topbar label dynamically
+                    const count = selectedCompanies.size;
+                    const labelElem = document.getElementById('currentCompanyName');
+                    const badgeElem = document.getElementById('selectedCountBadge');
+
+                    if (count === 1) {
+                        labelElem.innerText = Array.from(selectedCompanies)[0];
+                    } else {
+                        labelElem.innerText = count + ' Companies';
+                    }
+
+                    if (badgeElem) {
+                        badgeElem.innerText = count + ' Selected';
+                    }
                 }
                 function markAllRead() {
                     document.querySelectorAll('.crm-notif-item').forEach(item => {
