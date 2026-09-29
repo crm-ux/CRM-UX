@@ -11,10 +11,7 @@
                 <field name="stock_alert_tooltip" column_invisible="True"/>
                 <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="safety_stock"/>
-                <field name="quantity" 
-                       class="fw-bold"
-                       decoration-danger="is_low_stock" 
-                       decoration-bf="is_low_stock"/>
+                <field name="quantity"/>
                 <field name="stock_status" 
                        widget="badge" 
                        decoration-success="stock_status == 'in_stock'" 
