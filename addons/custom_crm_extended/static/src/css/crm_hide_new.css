@@ -486,12 +486,17 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
 
-/* Keep Product Stock dropdown cleanly inside table bounds without covering headers */
+/* Dynamic, fluid Product Stock autocomplete dropdown */
 .o_list_table .o_field_many2one .dropdown-menu {
-    max-height: 260px !important;
+    max-height: clamp(12rem, 30vh, 22rem) !important;
+    min-width: 100% !important;
+    width: max-content !important;
+    max-width: clamp(18rem, 40vw, 36rem) !important;
     overflow-y: auto !important;
     top: 100% !important;
     bottom: auto !important;
-    z-index: 1050 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: none !important;
+    z-index: var(--o-modal-zindex, 1055) !important;
+    border-radius: var(--border-radius-sm, 6px) !important;
+    box-shadow: 0 clamp(4px, 1vw, 8px) clamp(12px, 2vw, 24px) rgba(0, 0, 0, 0.12) !important;
 }
