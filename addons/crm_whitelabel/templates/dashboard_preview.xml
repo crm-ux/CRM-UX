@@ -862,9 +862,9 @@
                     height: 100%;
                     animation: crmEcgScroll 8s linear infinite;
                 }
-                .crm-wave-track.fast { animation-duration: 3.25s; }
-                .crm-wave-track.slow { animation-duration: 5s; }
-                .crm-wave-track.alert { animation-duration: 4s; }
+                .crm-wave-track.fast { animation-duration: 13s; }
+                .crm-wave-track.slow { animation-duration: 20s; }
+                .crm-wave-track.alert { animation-duration: 16s; }
                 .crm-sla-row {
                     display: flex;
                     align-items: center;
