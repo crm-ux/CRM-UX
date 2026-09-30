@@ -172,12 +172,20 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Ensure Gear / Action dropdown cog has breathing room so it is not clipped */
+/* Ensure Gear / Action dropdown cog is always visible across all views */
+.o_control_panel .o_cp_action_menus,
 .o_control_panel_breadcrumbs .o_cp_action_menus,
-.o_control_panel_breadcrumbs .dropdown_toggle,
+.o_cp_action_menus,
+.o_cp_action_menus .dropdown-toggle,
+.o_cp_action_menus i.fa-cog,
 .o_control_panel_breadcrumbs i.fa-cog,
 .o_control_panel_breadcrumbs .o_cog_btn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     overflow: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
     flex-shrink: 0 !important;
     margin-left: 0.25rem !important;
     margin-right: 0.5rem !important;
