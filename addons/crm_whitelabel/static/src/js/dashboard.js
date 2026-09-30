@@ -31,6 +31,7 @@ class CrmDashboard extends Component {
             greeting: "", todayDate: "",
             companies: [], selectedCompanies: [],
             companyDropdownOpen: false, userDropdownOpen: false,
+            sidebarOpen: false,
             productStockCount: 0,
             isAdmin: user.isAdmin || [2, 11].includes(user.userId),
             // Permission flags for Quick Access
@@ -48,25 +49,22 @@ class CrmDashboard extends Component {
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
             accessModalOpen: false, accessModalModule: "",
-            // Advanced Analytics State
+            // Advanced Analytics State (Populated dynamically from backend get_dashboard_stats)
             salesRangeMonths: 6,
             scrubTooltip: { visible: false, left: 0, top: 0, date: "", val: "" },
-            complaintBreakdown: 8,
-            complaintPm: 3,
-            complaintFreeCall: 1,
-            amcExpiring30: 3,
-            amcExpiring30Val: 420000,
-            amcExpiring30Pct: 45,
-            amcExpiring60: 5,
-            amcExpiring60Val: 780000,
-            amcExpiring60Pct: 65,
-            amcSecure: 14,
-            amcSecureVal: 2250000,
-            amcSecurePct: 85,
-            lowStockItems: [
-                { id: 1, display_name: "1300 A2 0.9 8", stock_label: "Stock: 5.00 (Min: 5.00)", is_critical: true },
-                { id: 2, display_name: "Cartridge Set for Type 1 System", stock_label: "Stock: 66.00 (Safe)", is_critical: false }
-            ],
+            complaintBreakdown: 0,
+            complaintPm: 0,
+            complaintFreeCall: 0,
+            amcExpiring30: 0,
+            amcExpiring30Val: 0,
+            amcExpiring30Pct: 0,
+            amcExpiring60: 0,
+            amcExpiring60Val: 0,
+            amcExpiring60Pct: 0,
+            amcSecure: 0,
+            amcSecureVal: 0,
+            amcSecurePct: 0,
+            lowStockItems: [],
             customSalesTrend: null,
         });
         // Force isAdmin check synchronously using session info
@@ -188,6 +186,7 @@ class CrmDashboard extends Component {
         }
     }
 
+    toggleSidebar() { this.state.sidebarOpen = !this.state.sidebarOpen; }
     toggleAdminMenu() { this.state.adminMenuOpen = !this.state.adminMenuOpen; }
     toggleUserDropdown() { this.state.userDropdownOpen = !this.state.userDropdownOpen; this.state.companyDropdownOpen = false; }
     toggleCompanyDropdown() { this.state.companyDropdownOpen = !this.state.companyDropdownOpen; this.state.userDropdownOpen = false; }
@@ -800,7 +799,7 @@ class CrmDashboard extends Component {
     }
     openLead(notif) { this.state.notifOpen = false; this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' }); }
 
-    // --- ADVANCED ANALYTICS GETTERS & HANDLERS ---
+    // --- ADVANCED ANALYTICS GETTERS & ACTIONS ---
     get salesTrendMonths() {
         const custom = this.state.customSalesTrend;
         const range = this.state.salesRangeMonths;
@@ -809,8 +808,7 @@ class CrmDashboard extends Component {
         if (custom && custom[range]) {
             months = custom[range];
         } else {
-            // Built-in presets with actual won revenue anchoring
-            const currentWon = this.state.wonRevenue || 92600;
+            const currentWon = this.state.wonRevenue || 110000;
             if (range === 3) {
                 months = [
                     { label: 'Jul', total: Math.round(currentWon * 0.6), days: 31, color: '#38bdf8' },
@@ -854,7 +852,7 @@ class CrmDashboard extends Component {
 
     setSalesRange(range) {
         if (range === 'custom') {
-            this.showToast("Custom Date Range filter will be linked with backend date picker.");
+            this.showToast("Custom Date Range filter will open.");
             return;
         }
         this.state.salesRangeMonths = range;
@@ -862,35 +860,51 @@ class CrmDashboard extends Component {
     }
 
     onBarScrub(e, m) {
-        m.isHovered = true;
         const col = e.currentTarget;
+        const pill = col.querySelector('.crm-bar-pill');
+        const valLbl = col.querySelector('.crm-bar-val-lbl');
+        const tooltip = col.parentElement.querySelector('.crm-bar-tooltip');
+
+        if (!pill || !tooltip) return;
+
+        if (valLbl) valLbl.style.opacity = '0';
+        pill.style.transition = 'none';
+
         const rect = col.getBoundingClientRect();
         const parentRect = col.parentElement.getBoundingClientRect();
-
         const trackHeight = Math.max(80, rect.height - 35);
         const relY = Math.max(0, Math.min(trackHeight, rect.bottom - 22 - e.clientY));
         const ratio = Math.max(0.03, Math.min(1, relY / trackHeight));
         const currentDay = Math.min(m.days, Math.max(1, Math.round(ratio * m.days)));
         const currentVal = Math.round(ratio * m.total);
 
-        m.currentHeightPct = Math.round(ratio * m.heightPct);
+        pill.style.height = (ratio * m.heightPct) + '%';
 
         const leftPos = col.offsetLeft + (col.offsetWidth / 2);
-        const topPos = Math.max(10, rect.bottom - parentRect.top - relY - 26);
+        const topPos = (rect.bottom - parentRect.top) - relY - 14;
 
-        this.state.scrubTooltip = {
-            visible: true,
-            left: leftPos,
-            top: topPos,
-            date: `${m.label} · Day ${currentDay}/${m.days}`,
-            val: this.fmt(currentVal),
-        };
+        tooltip.style.display = 'flex';
+        tooltip.style.left = leftPos + 'px';
+        tooltip.style.top = topPos + 'px';
+        tooltip.innerHTML = `<span>${m.label} · Day ${currentDay}/${m.days}</span><strong>${this.fmt(currentVal)}</strong>`;
     }
 
     onBarLeave(e, m) {
-        m.isHovered = false;
-        m.currentHeightPct = m.heightPct;
-        this.state.scrubTooltip.visible = false;
+        const col = e.currentTarget;
+        const pill = col.querySelector('.crm-bar-pill');
+        const valLbl = col.querySelector('.crm-bar-val-lbl');
+        const tooltip = col.parentElement.querySelector('.crm-bar-tooltip');
+
+        if (pill) {
+            pill.style.transition = 'height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            pill.style.height = m.heightPct + '%';
+        }
+        if (tooltip) {
+            tooltip.style.display = 'none';
+        }
+        if (valLbl) {
+            valLbl.style.opacity = '1';
+        }
     }
 
     openMonthlyWon(m) {

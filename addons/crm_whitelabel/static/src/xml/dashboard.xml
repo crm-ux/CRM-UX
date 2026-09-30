@@ -7,395 +7,533 @@
                 <div style="margin-top:16px;color:#1a3d6e;font-weight:600;">Loading...</div>
             </div>
             <style>@keyframes crm-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
-            <div class="crm-topbar">
+            <!-- FLOATING & COLLAPSIBLE LEFT SIDEBAR (DRAWER) -->
+            <div class="crm-sidebar-overlay" t-att-class="state.sidebarOpen ? 'active' : ''" t-on-click="toggleSidebar"></div>
+            <aside class="crm-sidebar" t-att-class="state.sidebarOpen ? 'open' : ''">
+                <div class="crm-sidebar-header">
+                    <div class="crm-brand">
+                        <img t-if="state.companyLogo" t-att-src="state.companyLogo" class="crm-brand-logo" alt="Logo"/>
+                        <span t-else="" class="crm-brand-logo" style="background:#0b3d91;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;">U</span>
+                        <span><t t-esc="state.companyName || 'Ultrawin Technologies'"/></span>
+                    </div>
+                    <button class="crm-sidebar-close" t-on-click="toggleSidebar" title="Close menu">
+                        ✕
+                    </button>
+                </div>
+                <ul class="crm-nav-list">
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link active" t-on-click="toggleSidebar">
+                            <i class="fa fa-pie-chart"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewLeadQuote">
+                        <a class="crm-nav-link" t-on-click="openLeads">
+                            <i class="fa fa-filter"></i>
+                            <span>Leads &amp; Pipeline</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewCustomer">
+                        <a class="crm-nav-link" t-on-click="openContacts">
+                            <i class="fa fa-users"></i>
+                            <span>Customers</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewEquipment">
+                        <a class="crm-nav-link" t-on-click="openEquipment">
+                            <i class="fa fa-cogs"></i>
+                            <span>Equipment Master</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewTicket">
+                        <a class="crm-nav-link" t-on-click="openServiceTickets">
+                            <i class="fa fa-ticket"></i>
+                            <span>Service Tickets</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewAmc">
+                        <a class="crm-nav-link" t-on-click="openAmcContracts">
+                            <i class="fa fa-file-text-o"></i>
+                            <span>AMC Contracts</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
+                        <a class="crm-nav-link" t-on-click="openProductStock">
+                            <i class="fa fa-cubes"></i>
+                            <span>Product Stock</span>
+                            <span class="crm-sidebar-badge" style="background:#fee2e2; color:#ef4444;" t-if="state.lowStockItems and state.lowStockItems.length > 0">1 Low</span>
+                        </a>
+                    </li>
+                    
+                    <!-- EXPANDABLE SUBMENU 1: ORGANIZATION -->
+                    <li class="crm-nav-item" t-if="state.isAdmin" t-att-class="state.orgSubmenuOpen ? 'open' : ''">
+                        <a class="crm-nav-link" t-on-click="toggleOrgSubmenu">
+                            <i class="fa fa-sitemap"></i>
+                            <span>Organization</span>
+                            <i class="fa fa-chevron-down crm-submenu-arrow"></i>
+                        </a>
+                        <ul class="crm-submenu-list">
+                            <li><a class="crm-sub-link" t-on-click="openRolesAndGroups"><i class="fa fa-shield"></i> Roles &amp; Permissions</a></li>
+                            <li><a class="crm-sub-link" href="/app/settings/users"><i class="fa fa-user-circle"></i> Users</a></li>
+                            <li><a class="crm-sub-link" t-on-click="openDepartments"><i class="fa fa-building"></i> Departments</a></li>
+                            <li><a class="crm-sub-link" t-on-click="openEmployeeTags"><i class="fa fa-tags"></i> Employee Tags</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- EXPANDABLE SUBMENU 2: SERIES -->
+                    <li class="crm-nav-item" t-if="state.isAdmin" t-att-class="state.seriesSubmenuOpen ? 'open' : ''">
+                        <a class="crm-nav-link" t-on-click="toggleSeriesSubmenu">
+                            <i class="fa fa-sort-numeric-asc"></i>
+                            <span>Series</span>
+                            <i class="fa fa-chevron-down crm-submenu-arrow"></i>
+                        </a>
+                        <ul class="crm-submenu-list">
+                            <li><a class="crm-sub-link" t-on-click="openQuotationSeries"><i class="fa fa-hashtag"></i> Quotation Series</a></li>
+                            <li><a class="crm-sub-link" t-on-click="openEquipmentSeries"><i class="fa fa-hashtag"></i> Equipment Series</a></li>
+                            <li><a class="crm-sub-link" t-on-click="openServiceTicketSeries"><i class="fa fa-hashtag"></i> Service Ticket Series</a></li>
+                            <li><a class="crm-sub-link" t-on-click="openAmcSeries"><i class="fa fa-hashtag"></i> AMC Series</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="crm-nav-item" t-if="state.isAdmin" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                        <a class="crm-nav-link" t-on-click="openSettings">
+                            <i class="fa fa-cog"></i>
+                            <span>Settings &amp; Configuration</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- MODERN TOP BAR (CLEAN, NO QUICK ACCESS DROPDOWN) -->
+            <header class="crm-topbar">
                 <div class="crm-topbar-left">
-                    <span class="crm-company-name"><t t-esc="state.companyName || 'CRM'"/></span>
-                </div>
-                <div class="crm-search-wrapper" t-if="state.isAdmin">
-                    <input type="text" class="crm-search-input" placeholder="Search internal users..." t-on-input="onSearchInput"/>
-                    <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
-                        <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
-                            <div class="crm-search-item" t-on-click="() => this.openTaskDialog(u)">
-                                <div class="crm-search-avatar"><t t-esc="u.name[0].toUpperCase()"/></div>
-                                <div>
-                                    <div class="crm-search-name"><t t-esc="u.name"/></div>
-                                    <div class="crm-search-email"><t t-esc="u.email"/></div>
-                                </div>
-                            </div>
-                        </t>
-                    </div>
-                </div>
-                <div class="crm-topbar-right">
-                    <!-- Quick Access: visible to Admin or users with assigned permissions -->
-                    <div class="crm-admin-menu-wrapper" t-if="state.isAdmin or state.canAccessQuickMenu">
-                        <div class="crm-admin-multiselect">
-                            <button class="crm-company-toggle-btn" t-on-click="toggleAdminMenu">
-                                <span class="crm-company-toggle-text">Quick Access</span>
-                                <span class="crm-company-arrow">▾</span>
-                            </button>
-                            <div class="crm-company-dropdown dropdown-menu-start" t-if="state.adminMenuOpen">
-                                <div class="crm-company-dropdown-header">Quick Links</div>
-                                
-                                <!-- Customers: visible to Admin or users with Customer permission -->
-                                <a t-if="state.isAdmin or state.canViewCustomer" t-on-click="openContacts" class="crm-admin-menu-item" style="cursor:pointer;">Customers</a>
-                                
-                                <!-- Companies: visible to Admin or users with Company Creation permission -->
-                                <a t-if="state.isAdmin or state.canCreateCompany" t-on-click="openCompanies" class="crm-admin-menu-item" style="cursor:pointer;">Companies</a>
-                                
-                                <!-- Quotations: Admin only -->
-                                <a t-if="state.isAdmin" href="/app/action-383" class="crm-admin-menu-item">Quotations</a>
-                                
-                                <!-- Organization Submenu: Admin only -->
-                                <div class="crm-submenu-wrapper" t-if="state.isAdmin" t-att-class="{'open': state.orgSubmenuOpen}">
-                                    <div class="crm-admin-menu-item d-flex justify-content-between align-items-center" t-on-click.stop="toggleOrgSubmenu" style="cursor:pointer;">
-                                        <span>Organization</span>
-                                        <i class="fa fa-chevron-right crm-submenu-arrow d-none d-md-inline" style="font-size: 10px; opacity: 0.7;"/>
-                                        <i class="fa fa-chevron-down crm-submenu-arrow-mobile d-inline d-md-none" style="font-size: 10px; opacity: 0.7;"/>
+                    <button class="crm-sidebar-toggle" t-on-click="toggleSidebar" title="Toggle Navigation Menu">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <div class="crm-search-box" t-if="state.isAdmin">
+                        <i class="fa fa-search"></i>
+                        <input type="text" placeholder="Search internal users..." t-on-input="onSearchInput"/>
+                        <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
+                            <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
+                                <div class="crm-search-item" t-on-click="() => this.openTaskDialog(u)">
+                                    <div class="crm-search-avatar"><t t-esc="u.name[0].toUpperCase()"/></div>
+                                    <div>
+                                        <div class="crm-search-name"><t t-esc="u.name"/></div>
+                                        <div class="crm-search-email"><t t-esc="u.email"/></div>
                                     </div>
-                                    <div class="crm-submenu-content">
-                                        <a t-on-click="openRolesAndGroups" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Roles &amp; Permissions</a>
-                                        <a href="/app/settings/users" class="crm-admin-menu-item crm-sub-item">Users</a>
-                                        <a t-on-click="openDepartments" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Departments</a>
-                                        <a t-on-click="openEmployeeTags" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Employee Tags</a>
-                                    </div>
-                                </div>
-
-                                <!-- Direct Users link for Managers (non-admins) -->
-                                <a t-if="!state.isAdmin and state.canViewUsers" href="/app/settings/users" class="crm-admin-menu-item">Users</a>
-
-                                <!-- Products: visible to Admin or users with Product permission -->
-                                <a t-if="state.isAdmin or state.canViewProduct" href="/app/inventory/products" class="crm-admin-menu-item">Products</a>
-                                
-                                <!-- Equipment Master: visible to Admin or users with Equipment permission -->
-                                <a t-if="state.isAdmin or state.canViewEquipment" t-on-click="openEquipment" class="crm-admin-menu-item" style="cursor:pointer;">Equipment Master</a>
-                                
-                                <!-- Service Tickets: visible to Admin or users with Ticket permission -->
-                                <a t-if="state.isAdmin or state.canViewTicket" t-on-click="openServiceTickets" class="crm-admin-menu-item" style="cursor:pointer;">Service Tickets</a>
-
-                                <!-- AMC Contracts: visible to Admin or users with AMC permission -->
-                                <a t-if="state.isAdmin or state.canViewAmc" t-on-click="openAmcContracts" class="crm-admin-menu-item" style="cursor:pointer;">AMC Contracts</a>
-
-                                <!-- Terms & Conditions: Admin only -->
-                                <a t-if="state.isAdmin" t-on-click="openTerms" class="crm-admin-menu-item" style="cursor:pointer;">Terms &amp; Conditions</a>
-                                
-                                <!-- Series: Admin only -->
-                                <div class="crm-submenu-wrapper" t-if="state.isAdmin" t-att-class="{'open': state.seriesSubmenuOpen}">
-                                    <div class="crm-admin-menu-item d-flex justify-content-between align-items-center" t-on-click.stop="toggleSeriesSubmenu" style="cursor:pointer;">
-                                        <span>Series</span>
-                                        <i class="fa fa-chevron-right crm-submenu-arrow d-none d-md-inline" style="font-size: 10px; opacity: 0.7;"/>
-                                        <i class="fa fa-chevron-down crm-submenu-arrow-mobile d-inline d-md-none" style="font-size: 10px; opacity: 0.7;"/>
-                                    </div>
-                                    <div class="crm-submenu-content">
-                                        <a t-on-click="openQuotationSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Quotation Series</a>
-                                        <a t-on-click="openEquipmentSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Equipment Series</a>
-                                        <a t-on-click="openServiceTicketSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">Service Ticket Series</a>
-                                        <a t-on-click="openAmcSeries" class="crm-admin-menu-item crm-sub-item" style="cursor:pointer;">AMC Series</a>
-                                    </div>
-                                </div>
-                                
-                                <!-- Contact Categories: Admin only -->
-                                <a t-if="state.isAdmin" t-on-click="openContactCategories" class="crm-admin-menu-item" style="cursor:pointer;">Contact Categories</a>
-                                
-                                <!-- Settings: Admin only -->
-                                <a t-if="state.isAdmin" t-on-click="openSettings" class="crm-admin-menu-item" style="cursor:pointer;">Settings</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="crm-company-wrapper" t-if="state.companies.length > 0">
-                        <div class="crm-company-multiselect">
-                            <button class="crm-company-toggle-btn" t-on-click="toggleCompanyDropdown">
-                                <span class="crm-company-toggle-text"><t t-esc="selectedCompanyLabel"/></span>
-                                <span class="crm-company-arrow">▾</span>
-                            </button>
-                            <div class="crm-company-dropdown" t-if="state.companyDropdownOpen">
-                                <div class="crm-company-dropdown-header">Select Companies</div>
-                                <t t-foreach="state.companies" t-as="co" t-key="co.id">
-                                    <label class="crm-company-option" t-att-class="isCompanySelected(co.id) ? 'selected' : ''">
-                                        <input type="checkbox" t-att-checked="isCompanySelected(co.id)" t-on-change="() => this.toggleCompany(co.id)"/>
-                                        <span class="crm-co-badge"><t t-esc="co.name[0].toUpperCase()"/></span>
-                                        <span class="crm-co-name"><t t-esc="co.name"/></span>
-                                    </label>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="crm-notif-wrapper" style="position:relative;margin-right:clamp(0.2rem, 0.4vw, 0.45rem);display:flex;align-items:center;height:clamp(1.8rem, 3.5vh, 2.2rem);">
-                        <div t-on-click="toggleNotifications" style="cursor:pointer;width:clamp(1.8rem, 3.5vh, 2.2rem);height:clamp(1.8rem, 3.5vh, 2.2rem);display:flex;align-items:center;justify-content:center;position:relative;">
-                            <span style="font-size:clamp(1rem, 1.3vw, 1.2rem);line-height:1;display:inline-block;transform:translateY(-0.12rem);">🔔</span>
-                            <span t-if="state.notifCount > 0" style="position:absolute;top:0;right:0;background:#e74c3c;color:#fff;border-radius:50%;font-size:clamp(0.55rem, 0.75vw, 0.65rem);width:clamp(0.9rem, 1.2vw, 1.1rem);height:clamp(0.9rem, 1.2vw, 1.1rem);display:flex;align-items:center;justify-content:center;font-weight:bold;"><t t-esc="state.notifCount"/></span>
-                        </div>
-                        <div class="crm-notif-dropdown" t-if="state.notifOpen">
-                            <div style="padding:clamp(0.5rem, 1vh, 0.75rem) clamp(0.75rem, 1.2vw, 1rem);border-bottom:1px solid #eee;font-weight:bold;font-size:clamp(0.8rem, 1vw, 0.875rem);">Notifications</div>
-                            <t t-if="state.notifications.length === 0"><div style="padding:clamp(0.8rem, 1.5vh, 1.2rem);text-align:center;color:#888;font-size:clamp(0.8rem, 1vw, 0.875rem);">No notifications</div></t>
-                            <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
-                                <div t-on-click="() => this.openLead(notif)" style="padding:clamp(0.5rem, 1vh, 0.75rem) clamp(0.75rem, 1.2vw, 1rem);border-bottom:1px solid #f5f5f5;cursor:pointer;">
-                                    <div style="font-size:clamp(0.8rem, 1vw, 0.875rem);font-weight:600;color:#0b3d91;"><t t-esc="notif.record_name"/></div>
-                                    <div style="font-size:clamp(0.65rem, 0.8vw, 0.72rem);color:#555;"><t t-esc="notif.body_text"/></div>
-                                    <div style="font-size:clamp(0.6rem, 0.75vw, 0.68rem);color:#999;"><t t-esc="notif.date"/></div>
                                 </div>
                             </t>
                         </div>
                     </div>
-                    <div class="crm-topbar-user crm-user-dropdown-wrapper" t-on-click="toggleUserDropdown">
-                        <div class="crm-topbar-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
-                        <span><t t-esc="state.userName"/></span>
-                        <span class="crm-company-arrow">▾</span>
-                        <div class="crm-user-dropdown" t-if="state.userDropdownOpen">
-                            <div class="crm-user-dropdown-name"><t t-esc="state.userName"/></div>
-                            <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item">Logout</a>
+                </div>
+                <div class="crm-topbar-right">
+                    <!-- Multi-Company Selector Pill -->
+                    <div class="crm-dropdown-container" t-if="state.companies.length > 0">
+                        <div class="crm-company-badge" t-on-click="toggleCompanyDropdown">
+                            <i class="fa fa-building" style="color: var(--accent-cyan);"></i>
+                            <span id="currentCompanyName"><t t-esc="selectedCompanyLabel"/></span>
+                            <i class="fa fa-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                        </div>
+                        <div class="crm-dropdown-menu crm-company-menu" t-att-class="state.companyDropdownOpen ? 'open' : ''">
+                            <div class="crm-company-head">
+                                <span>SELECT COMPANIES</span>
+                                <span style="color: var(--accent-cyan); font-size: 0.72rem;"><t t-esc="state.selectedCompanies.length"/> Selected</span>
+                            </div>
+                            <t t-foreach="state.companies" t-as="co" t-key="co.id">
+                                <div class="crm-company-item" t-att-class="isCompanySelected(co.id) ? 'selected' : ''" t-on-click="() => this.toggleCompany(co.id)">
+                                    <div class="crm-company-checkbox" t-att-class="isCompanySelected(co.id) ? 'selected' : ''">
+                                        <i class="fa fa-check" t-att-style="isCompanySelected(co.id) ? 'color: #fff; font-size: 0.68rem; display: block;' : 'display: none;'"></i>
+                                    </div>
+                                    <div class="crm-company-avatar"><t t-esc="co.name[0].toUpperCase()"/></div>
+                                    <span><t t-esc="co.name"/></span>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Notification Bell with Dropdown Panel -->
+                    <div class="crm-dropdown-container">
+                        <div class="crm-notif-btn" t-on-click="toggleNotifications" title="Notifications">
+                            <i class="fa fa-bell"></i>
+                            <span class="crm-notif-dot" t-if="state.notifCount > 0"><t t-esc="state.notifCount"/></span>
+                        </div>
+                        <div class="crm-dropdown-menu crm-notif-menu" t-att-class="state.notifOpen ? 'open' : ''">
+                            <div class="crm-notif-head">
+                                <h4>Notifications</h4>
+                                <span><t t-esc="state.notifCount"/> Unread</span>
+                            </div>
+                            <ul class="crm-notif-list">
+                                <t t-if="state.notifications.length === 0">
+                                    <li class="crm-notif-item"><div style="padding: 1rem; text-align: center; color: #888;">No notifications</div></li>
+                                </t>
+                                <t t-foreach="state.notifications" t-as="notif" t-key="notif.id">
+                                    <li class="crm-notif-item unread" t-on-click="() => this.openLead(notif)">
+                                        <div class="crm-notif-icon" style="background: #e0f2fe; color: #0284c7;">
+                                            <i class="fa fa-file-text-o"></i>
+                                        </div>
+                                        <div>
+                                            <div class="crm-notif-title"><t t-esc="notif.record_name"/></div>
+                                            <div class="crm-notif-desc"><t t-esc="notif.body_text"/></div>
+                                            <div class="crm-notif-time"><t t-esc="notif.date"/></div>
+                                        </div>
+                                    </li>
+                                </t>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="crm-dropdown-container">
+                        <div class="crm-user-profile" t-on-click="toggleUserDropdown">
+                            <div class="crm-user-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
+                            <div class="crm-user-info">
+                                <span class="crm-user-name"><t t-esc="state.userName"/></span>
+                                <span class="crm-user-role"><t t-esc="state.isAdmin ? 'Administrator' : 'User'"/></span>
+                            </div>
+                        </div>
+                        <div class="crm-dropdown-menu" style="min-width: 160px; padding: 0.5rem;" t-att-class="state.userDropdownOpen ? 'open' : ''">
+                            <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item" style="display: block; padding: 0.5rem 0.75rem; color: #ef4444; text-decoration: none; font-weight: 600;">Logout</a>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- HERO -->
-            <div class="crm-pro-hero flex-column flex-md-row">
-                <div class="crm-pro-hero-left">
-                    <div class="crm-greeting"><t t-esc="state.greeting"/>,</div>
-                    <h1><t t-esc="state.userName"/>!</h1>
-                    <p>Here's an overview of your business performance and important updates for today.</p>
-                    <div class="crm-hero-date mb-3 mb-md-0">
-                        <span>📅 <t t-esc="state.todayDate"/></span>
+            </header>
+
+            <main class="crm-content">
+                <!-- HERO SECTION WITH 4 ACTION BUTTONS -->
+                <section class="crm-hero">
+                    <div class="crm-hero-left">
+                        <div class="crm-hero-date">
+                            <i class="fa fa-calendar-check-o"></i>
+                            <span><t t-esc="state.todayDate"/></span>
+                        </div>
+                        <h1 style="margin-top: 0.5rem;"><t t-esc="state.greeting"/>, <t t-esc="state.userName"/>!</h1>
+                        <p>Here's an overview of your business performance, ongoing operations, and team workload.</p>
                     </div>
-                </div>
-                <div class="crm-pro-hero-right w-100 w-md-auto">
-                    <div class="crm-action-buttons w-100">
-                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="newLead">
+                    <div class="crm-hero-actions">
+                        <div class="crm-action-btn" t-on-click="newLead">
                             <div>
                                 <div class="crm-action-title">+ Create Lead</div>
                                 <div class="crm-action-sub">Add new lead to pipeline</div>
                             </div>
-                            <span>›</span>
-                        </button>
-                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="createAmc">
+                            <span class="crm-action-icon">›</span>
+                        </div>
+                        <div class="crm-action-btn" t-on-click="createAmc">
                             <div>
                                 <div class="crm-action-title">+ Create AMC</div>
                                 <div class="crm-action-sub">Annual Maintenance Contract</div>
                             </div>
-                            <span>›</span>
-                        </button>
-                        <button class="crm-action-btn crm-action-lead w-100 justify-content-between" t-on-click="newServiceTicket">
+                            <span class="crm-action-icon">›</span>
+                        </div>
+                        <div class="crm-action-btn" t-on-click="newServiceTicket">
                             <div>
                                 <div class="crm-action-title">+ Create Service Ticket</div>
-                                <div class="crm-action-sub">Log a service request</div>
+                                <div class="crm-action-sub">Log service request</div>
                             </div>
-                            <span>›</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- STATS BAR (ALWAYS VISIBLE) -->
-            <div class="crm-stats-bar">
-                <div class="crm-stat-item">
-                    <div>
-                        <div class="crm-stat-label">TODAY'S REVENUE</div>
-                        <div class="crm-stat-value"><t t-esc="fmt(state.todayRevenue)"/></div>
-                    </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item crm-stat-monthly">
-                    <div>
-                        <div class="crm-stat-label">MONTHLY SALES</div>
-                        <div class="crm-stat-value"><t t-esc="fmt(state.wonRevenue)"/></div>
-                    </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openWon">
-                    <div>
-                        <div class="crm-stat-label">TOTAL WON</div>
-                        <div class="crm-stat-value"><t t-esc="state.won"/></div>
-                    </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openInvoiceCreated">
-                    <div>
-                        <div class="crm-stat-label">INVOICE CREATED</div>
-                        <div class="crm-stat-value"><t t-esc="state.invoiceCreated || 0"/></div>
-                    </div>
-                </div>
-                <div class="crm-stat-divider"/>
-                <div class="crm-stat-item" style="cursor:pointer;" t-on-click="openInvoicePending">
-                    <div>
-                        <div class="crm-stat-label">INVOICE PENDING</div>
-                        <div class="crm-stat-value"><t t-esc="state.invoicePending || 0"/></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PIPELINE (ALWAYS VISIBLE) -->
-            <div class="crm-pipeline-strip">
-                <div class="crm-pipe-item crm-pipe-c1" t-on-click="openStage" data-seq="0">
-                    <div class="crm-pipe-num"><t t-esc="state.stageLead"/></div>
-                    <div class="crm-pipe-lbl">New Lead</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="openStage" data-seq="5">
-                    <div class="crm-pipe-num"><t t-esc="state.stageContacted"/></div>
-                    <div class="crm-pipe-lbl">Contacted</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c3" t-on-click="openStage" data-seq="7">
-                    <div class="crm-pipe-num"><t t-esc="state.stageTechDisc"/></div>
-                    <div class="crm-pipe-lbl">Tech. Discussion</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c4" t-on-click="openStage" data-seq="10">
-                    <div class="crm-pipe-num"><t t-esc="state.stageQualified"/></div>
-                    <div class="crm-pipe-lbl">Qualified</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c5" t-on-click="openStage" data-seq="20">
-                    <div class="crm-pipe-num"><t t-esc="state.stageOpportunity"/></div>
-                    <div class="crm-pipe-lbl">Opportunity</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c1" t-on-click="() => this.openQuoteStage('draft')" data-seq="30">
-                    <div class="crm-pipe-num"><t t-esc="state.quotesDraft"/></div>
-                    <div class="crm-pipe-lbl">Quotes</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="() => this.openQuoteStage('sent')" data-seq="35">
-                    <div class="crm-pipe-num"><t t-esc="state.quotesSent"/></div>
-                    <div class="crm-pipe-lbl">Sent</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c2" t-on-click="() => this.openQuoteStage('negotiation')" data-seq="40">
-                    <div class="crm-pipe-num"><t t-esc="state.quotesNeg"/></div>
-                    <div class="crm-pipe-lbl">Negotiation</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c3" t-on-click="() => this.openQuoteStage('order_expected')" data-seq="50">
-                    <div class="crm-pipe-num"><t t-esc="state.quotesOrderExp"/></div>
-                    <div class="crm-pipe-lbl">Order Expected</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-c5" t-on-click="() => this.openQuoteStage('won')" data-seq="90">
-                    <div class="crm-pipe-num"><t t-esc="state.won"/></div>
-                    <div class="crm-pipe-lbl">Won</div>
-                </div>
-                <div class="crm-pipe-sep">→</div>
-                <div class="crm-pipe-item crm-pipe-total" t-on-click="openAllPipelineLeads" style="border-top: 3px solid #0b3d91;">
-                    <div class="crm-pipe-num"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></div>
-                    <div class="crm-pipe-lbl" style="font-weight: 700;">Total</div>
-                </div>
-            </div>
-
-            <!-- ALL CARDS DISPLAYED (NEVER REMOVED) -->
-            <div class="crm-pro-grid">
-                <!-- Customer Management Card -->
-                <div class="crm-pro-panel crm-customer-panel" t-on-click="openContacts" style="cursor:pointer;">
-                    <div class="crm-panel-head"><div><h2>Customer Management</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.customers"/></strong><span>Customers</span></div>
-                    </div>
-                    <p class="crm-panel-note">View customer records, company details and communication history.</p>
-                </div>
-
-                <!-- Reminders Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #6366f1;">
-                    <div class="crm-panel-head"><div><h2>This Month Reminders</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong>—</strong><span>Upcoming Events</span></div>
-                        <div class="crm-metric"><strong>—</strong><span>Meetings</span></div>
-                        <div class="crm-metric"><strong>—</strong><span>Targets</span></div>
-                    </div>
-                    <p class="crm-panel-note">Upcoming events, meetings and monthly targets.</p>
-                </div>
-
-                <!-- Exhibition Database Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #ff6b35;" t-on-click="openExhibition">
-                    <div class="crm-panel-head"><div><h2>Exhibition Database</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.exhibitionContacts"/></strong><span>Total Contacts</span></div>
-                    </div>
-                    <p class="crm-panel-note">Manage exhibition and visitor contacts with card scanning.</p>
-                </div>
-
-                <!-- Lead Priority Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #22c55e;">
-                    <div class="crm-panel-head"><div><h2>Lead Priority</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('high')"><strong><t t-esc="state.priorityHigh"/></strong><span>High</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('medium')"><strong><t t-esc="state.priorityMedium"/></strong><span>Medium</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('low')"><strong><t t-esc="state.priorityLow"/></strong><span>Low</span></div>
-                    </div>
-                    <p class="crm-panel-note">Leads grouped by priority level.</p>
-                </div>
-
-                <!-- Equipment Master Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #3b82f6;">
-                    <div class="crm-panel-head" t-on-click="openEquipment" style="cursor:pointer;"><div><h2>Equipment Master</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')"><strong><t t-esc="state.equipmentTotal || 0"/></strong><span>Total</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')"><strong><t t-esc="state.equipmentActive || 0"/></strong><span>Active</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','inactive']], 'Inactive Equipment')"><strong><t t-esc="state.equipmentInactive || 0"/></strong><span>Inactive</span></div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')"><strong><t t-esc="state.equipmentRepair || 0"/></strong><span>Repair</span></div>
-                    </div>
-                    <p class="crm-panel-note">Equipment tracking &amp; maintenance overview.</p>
-                </div>
-
-                <!-- AMC Contracts Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #8b5cf6;">
-                    <div class="crm-panel-head" t-on-click="openAmcContracts" style="cursor:pointer;">
-                        <div><h2>AMC Contracts</h2></div><span class="crm-panel-arrow">›</span>
-                    </div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([], 'All AMC Contracts')">
-                            <strong><t t-esc="state.amcTotal || 0"/></strong>
-                            <span>Total</span>
+                            <span class="crm-action-icon">›</span>
                         </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','draft']], 'Draft Contracts')">
-                            <strong><t t-esc="state.amcDraft || 0"/></strong>
-                            <span>Draft</span>
-                        </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','active']], 'Active Contracts')">
-                            <strong><t t-esc="state.amcActive || 0"/></strong>
-                            <span>Active</span>
-                        </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','expired']], 'Expired Contracts')">
-                            <strong><t t-esc="state.amcExpired || 0"/></strong>
-                            <span>Expired</span>
+                        <div class="crm-action-btn" t-on-click="newQuote">
+                            <div>
+                                <div class="crm-action-title">+ Create Quotation</div>
+                                <div class="crm-action-sub">New commercial quote</div>
+                            </div>
+                            <span class="crm-action-icon">›</span>
                         </div>
                     </div>
-                    <p class="crm-panel-note">Annual maintenance contracts &amp; service agreements overview.</p>
-                </div>
+                </section>
 
-                <!-- Service Tickets Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #10b981;">
-                    <div class="crm-panel-head" t-on-click="openServiceTickets" style="cursor:pointer;">
-                        <div><h2>Service Tickets</h2></div><span class="crm-panel-arrow">›</span>
+                <!-- KPI METRIC BAR -->
+                <section class="crm-stats-bar">
+                    <div class="crm-stat-box">
+                        <span class="crm-stat-label">Today's Revenue</span>
+                        <span class="crm-stat-val"><t t-esc="fmt(state.todayRevenue)"/></span>
                     </div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([], 'All Service Tickets')">
-                            <strong><t t-esc="state.ticketTotal"/></strong>
-                            <span>Total</span>
-                        </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','open']], 'Open Tickets')">
-                            <strong><t t-esc="state.ticketOpen"/></strong>
-                            <span>Open</span>
-                        </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','ongoing']], 'On Going Tickets')">
-                            <strong><t t-esc="state.ticketOngoing"/></strong>
-                            <span>On Going</span>
-                        </div>
-                        <div class="crm-metric" style="cursor:pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','closed']], 'Closed Tickets')">
-                            <strong><t t-esc="state.ticketClosed"/></strong>
-                            <span>Closed</span>
-                        </div>
+                    <div class="crm-stat-sep"></div>
+                    <div class="crm-stat-box">
+                        <span class="crm-stat-label">Monthly Sales</span>
+                        <span class="crm-stat-val" style="color: var(--primary-blue);"><t t-esc="fmt(state.wonRevenue)"/></span>
                     </div>
-                    <p class="crm-panel-note">Service requests, complaints &amp; breakdown tracking overview.</p>
-                </div>
+                    <div class="crm-stat-sep"></div>
+                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openWon">
+                        <span class="crm-stat-label">Total Won Deals</span>
+                        <span class="crm-stat-val"><t t-esc="state.won"/></span>
+                    </div>
+                    <div class="crm-stat-sep"></div>
+                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openInvoiceCreated">
+                        <span class="crm-stat-label">Invoice Created</span>
+                        <span class="crm-stat-val"><t t-esc="state.invoiceCreated || 0"/></span>
+                    </div>
+                    <div class="crm-stat-sep"></div>
+                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openInvoicePending">
+                        <span class="crm-stat-label">Invoice Pending</span>
+                        <span class="crm-stat-val" style="color: #f59e0b;"><t t-esc="state.invoicePending || 0"/></span>
+                    </div>
+                </section>
 
-                <!-- Product Stock Card -->
-                <div class="crm-pro-panel" style="border-left:4px solid #0284c7; cursor:pointer;" t-on-click="openProductStock">
-                    <div class="crm-panel-head"><div><h2>Product Stock</h2></div><span class="crm-panel-arrow">›</span></div>
-                    <div class="crm-metrics">
-                        <div class="crm-metric"><strong><t t-esc="state.productStockCount || 0"/></strong><span>Products</span></div>
+                <!-- PIPELINE STRIP -->
+                <section class="crm-pipeline-card">
+                    <div class="crm-pipeline-header">
+                        <span>Lead &amp; Quotes</span>
+                        <span style="color: var(--primary-blue); font-weight: 700;">Total Active: <t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></span>
                     </div>
-                    <p class="crm-panel-note">View and update live stock levels for key products.</p>
-                </div>
+                    <div class="crm-pipe-track">
+                        <!-- 1. New Lead -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #38bdf8;" t-on-click="openStage" data-seq="0">
+                            <div class="crm-pipe-count"><t t-esc="state.stageLead"/></div>
+                            <div class="crm-pipe-name">New Lead</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 2. Contacted -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #818cf8;" t-on-click="openStage" data-seq="5">
+                            <div class="crm-pipe-count"><t t-esc="state.stageContacted"/></div>
+                            <div class="crm-pipe-name">Contacted</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 3. Tech. Discussion -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #c084fc;" t-on-click="openStage" data-seq="7">
+                            <div class="crm-pipe-count"><t t-esc="state.stageTechDisc"/></div>
+                            <div class="crm-pipe-name">Tech. Discussion</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 4. Qualified -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #fb7185;" t-on-click="openStage" data-seq="10">
+                            <div class="crm-pipe-count"><t t-esc="state.stageQualified"/></div>
+                            <div class="crm-pipe-name">Qualified</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 5. Opportunity -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #fb923c;" t-on-click="openStage" data-seq="20">
+                            <div class="crm-pipe-count"><t t-esc="state.stageOpportunity"/></div>
+                            <div class="crm-pipe-name">Opportunity</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 6. Quotes (Draft) -->
+                        <div class="crm-pipe-step active" style="border-top: 3px solid #0284c7;" t-on-click="() => this.openQuoteStage('draft')">
+                            <div class="crm-pipe-count"><t t-esc="state.quotesDraft"/></div>
+                            <div class="crm-pipe-name">Quotes</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 7. Sent -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #6366f1;" t-on-click="() => this.openQuoteStage('sent')">
+                            <div class="crm-pipe-count"><t t-esc="state.quotesSent"/></div>
+                            <div class="crm-pipe-name">Sent</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 8. Negotiation -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #a855f7;" t-on-click="() => this.openQuoteStage('negotiation')">
+                            <div class="crm-pipe-count"><t t-esc="state.quotesNeg"/></div>
+                            <div class="crm-pipe-name">Negotiation</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 9. Order Expected -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #ec4899;" t-on-click="() => this.openQuoteStage('order_expected')">
+                            <div class="crm-pipe-count"><t t-esc="state.quotesOrderExp"/></div>
+                            <div class="crm-pipe-name">Order Expected</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 10. Won -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #22c55e; background: #f0fdf4;" t-on-click="() => this.openQuoteStage('won')">
+                            <div class="crm-pipe-count" style="color: #16a34a;"><t t-esc="state.won"/></div>
+                            <div class="crm-pipe-name" style="color: #16a34a; font-weight: 700;">Won</div>
+                        </div>
+                        <span class="crm-pipe-arrow">›</span>
+                        <!-- 11. Total -->
+                        <div class="crm-pipe-step" style="border-top: 3px solid #0b3d91; background: #eff6ff;" t-on-click="openAllPipelineLeads">
+                            <div class="crm-pipe-count" style="color: #0b3d91;"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></div>
+                            <div class="crm-pipe-name" style="color: #0b3d91; font-weight: 800;">Total</div>
+                        </div>
+                    </div>
+                </section>
 
-            </div>
+                <!-- ENTITY CARDS GRID (8 Cards Across 2 Rows of 4 Matching Modern Design) -->
+                <section class="crm-cards-grid">
+                    <!-- 1. Customer Management -->
+                    <div class="crm-card c-emerald" t-on-click="openContacts">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Customer Management</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.customers"/></span>
+                                    <span class="crm-stat-metric-lbl">Customers</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">View customer records, company details and communication history.</p>
+                    </div>
+
+                    <!-- 2. This Month Reminders -->
+                    <div class="crm-card c-indigo">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">This Month Reminders</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val">—</span>
+                                    <span class="crm-stat-metric-lbl">Upcoming Events</span>
+                                </div>
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val">—</span>
+                                    <span class="crm-stat-metric-lbl">Meetings</span>
+                                </div>
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val">—</span>
+                                    <span class="crm-stat-metric-lbl">Targets</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Upcoming events, meetings and monthly targets.</p>
+                    </div>
+
+                    <!-- 3. Exhibition Database -->
+                    <div class="crm-card c-orange" t-on-click="openExhibition">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Exhibition Database</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.exhibitionContacts"/></span>
+                                    <span class="crm-stat-metric-lbl">Total Contacts</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Manage exhibition and visitor contacts with card scanning.</p>
+                    </div>
+
+                    <!-- 4. Lead Priority -->
+                    <div class="crm-card c-emerald">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Lead Priority</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('high')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.priorityHigh"/></span>
+                                    <span class="crm-stat-metric-lbl">High</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('medium')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.priorityMedium"/></span>
+                                    <span class="crm-stat-metric-lbl">Medium</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('low')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.priorityLow"/></span>
+                                    <span class="crm-stat-metric-lbl">Low</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Leads grouped by priority level.</p>
+                    </div>
+
+                    <!-- 5. Equipment Master -->
+                    <div class="crm-card c-blue" t-on-click="openEquipment">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Equipment Master</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.equipmentTotal || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Total</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.equipmentActive || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Active</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','inactive']], 'Inactive Equipment')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.equipmentInactive || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Inactive</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.equipmentRepair || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Repair</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Equipment tracking &amp; maintenance overview.</p>
+                    </div>
+
+                    <!-- 6. AMC Contracts -->
+                    <div class="crm-card c-purple" t-on-click="openAmcContracts">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">AMC Contracts</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([], 'All AMC Contracts')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.amcTotal || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Total</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','draft']], 'Draft Contracts')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.amcDraft || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Draft</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','active']], 'Active Contracts')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.amcActive || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Active</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','expired']], 'Expired Contracts')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.amcExpired || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Expired</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Annual maintenance contracts &amp; service agreements overview.</p>
+                    </div>
+
+                    <!-- 7. Service Tickets -->
+                    <div class="crm-card c-emerald" t-on-click="openServiceTickets">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Service Tickets</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([], 'All Service Tickets')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.ticketTotal"/></span>
+                                    <span class="crm-stat-metric-lbl">Total</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','open']], 'Open Tickets')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.ticketOpen"/></span>
+                                    <span class="crm-stat-metric-lbl">Open</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','ongoing']], 'On Going Tickets')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.ticketOngoing"/></span>
+                                    <span class="crm-stat-metric-lbl">On Going</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','closed']], 'Closed Tickets')">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.ticketClosed"/></span>
+                                    <span class="crm-stat-metric-lbl">Closed</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">Service requests, complaints &amp; breakdown tracking overview.</p>
+                    </div>
+
+                    <!-- 8. Product Stock -->
+                    <div class="crm-card c-blue" t-on-click="openProductStock">
+                        <div>
+                            <div class="crm-card-head">
+                                <span class="crm-card-title">Product Stock</span>
+                                <i class="fa fa-chevron-right crm-card-icon"></i>
+                            </div>
+                            <div class="crm-card-stats">
+                                <div class="crm-stat-metric">
+                                    <span class="crm-stat-metric-val"><t t-esc="state.productStockCount || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Products</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="crm-card-desc">View and update live stock levels for key products.</p>
+                    </div>
+                </section>
 
             <!-- 3. ADVANCED ANALYTICS & INSIGHTS -->
             <section class="crm-analytics-section" t-if="state.isAdmin or state.canViewLeadQuote or state.canViewTicket or state.canViewAmc or state.canViewProduct">
@@ -429,9 +567,9 @@
                             </div>
                         </t>
                         <!-- Dynamic Tooltip for Drag/Hover -->
-                        <div class="crm-bar-tooltip" t-if="state.scrubTooltip.visible" t-att-style="'display: flex; left: ' + state.scrubTooltip.left + 'px; top: ' + state.scrubTooltip.top + 'px;'">
-                            <span><t t-esc="state.scrubTooltip.date"/></span>
-                            <strong><t t-esc="state.scrubTooltip.val"/></strong>
+                        <div class="crm-bar-tooltip" style="display: none;">
+                            <span>Sep · Day 15</span>
+                            <strong>₹ 46.3K</strong>
                         </div>
                     </div>
                 </div>
@@ -584,20 +722,9 @@
                             </t>
                         </t>
                         <t t-else="">
-                            <!-- Default Fallback Stock Items from Registry -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 0.5rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: #92400e;">1300 A2 0.9 8</span>
-                                </div>
-                                <span style="font-size: 0.75rem; font-weight: 800; color: #b45309; background: #fde68a; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 5.00 (Min: 5.00)</span>
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 0.5rem;">
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: #166534;">Cartridge Set for Type 1 System</span>
-                                </div>
-                                <span style="font-size: 0.75rem; font-weight: 800; color: #15803d; background: #bbf7d0; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 66.00 (Safe)</span>
+                            <div style="display: flex; align-items: center; justify-content: center; padding: 1.25rem 0.75rem; color: #64748b; font-size: 0.82rem; font-weight: 500;">
+                                <i class="fa fa-check-circle" style="color: #10b981; margin-right: 0.5rem;"></i>
+                                All products are above safety reorder levels.
                             </div>
                         </t>
 
@@ -613,8 +740,9 @@
                     </div>
                 </div>
 
-            </section>
-            <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
+                </section>
+                <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
+            </main>
 
             <!-- TASK DIALOG -->
             <div class="crm-task-overlay" t-if="state.taskDialogOpen" t-on-click="closeTaskDialog">
