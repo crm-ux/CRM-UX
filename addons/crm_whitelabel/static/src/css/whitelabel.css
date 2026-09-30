@@ -281,14 +281,17 @@ div[class*="exhibition"] .dropdown-toggle {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely (Exhibition Contacts, Dashboard, previous links) */
+/* Hide old breadcrumb trail history stack completely (Exhibition Contacts, Dashboard, parent links) */
 .o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
 .o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
 .o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
-.o_control_panel_breadcrumbs .o_breadcrumb_title:not(:last-child),
+.o_control_panel_breadcrumbs .breadcrumb-item:not(.active),
+.o_control_panel_breadcrumbs .o_breadcrumb a.o_back_button,
 .o_control_panel_breadcrumbs .o_back_button,
 .o_breadcrumb li:not(:last-child),
 .o_breadcrumb a:not(:last-child),
+.o_breadcrumb .breadcrumb-item:not(.active),
+.breadcrumb-item:not(.active):not(:last-child),
 .breadcrumb li:not(:last-child) {
     display: none !important;
 }
@@ -296,7 +299,8 @@ div[class*="exhibition"] .dropdown-toggle {
 .o_control_panel_breadcrumbs .o_breadcrumb ol,
 .o_control_panel_breadcrumbs ol.breadcrumb,
 .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_breadcrumb ol {
+.o_breadcrumb ol,
+.o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     margin: 0 !important;
