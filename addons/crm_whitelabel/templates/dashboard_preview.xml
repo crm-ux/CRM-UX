@@ -740,9 +740,69 @@
                     width: 70%;
                     background: linear-gradient(180deg, #38bdf8 0%, var(--primary-blue) 100%);
                     border-radius: 0.35rem 0.35rem 0 0;
-                    transition: height 0.5s ease;
+                    transition: height 0.15s ease;
+                    cursor: pointer;
+                    user-select: none;
                 }
-                .crm-bar-lbl { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+                .crm-bar-lbl { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+
+                /* Range Filter Pills */
+                .crm-range-pills {
+                    display: flex;
+                    gap: 0.3rem;
+                    background: #f1f5f9;
+                    padding: 0.2rem;
+                    border-radius: 0.45rem;
+                }
+                .crm-range-pill {
+                    border: none;
+                    background: transparent;
+                    padding: 0.2rem 0.5rem;
+                    border-radius: 0.35rem;
+                    font-size: 0.72rem;
+                    font-weight: 600;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .crm-range-pill:hover {
+                    color: var(--text-dark);
+                }
+                .crm-range-pill.active {
+                    background: #ffffff;
+                    color: var(--primary-blue);
+                    font-weight: 700;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                }
+
+                /* Tooltip floating over dragged bar */
+                .crm-bar-tooltip {
+                    position: absolute;
+                    display: none;
+                    flex-direction: column;
+                    align-items: center;
+                    background: #0f172a;
+                    color: #ffffff;
+                    padding: 0.3rem 0.6rem;
+                    border-radius: 0.4rem;
+                    font-size: 0.7rem;
+                    line-height: 1.25;
+                    pointer-events: none;
+                    z-index: 10;
+                    transform: translate(-50%, -115%);
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+                    white-space: nowrap;
+                }
+                .crm-bar-tooltip::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -4px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border-width: 4px 4px 0 4px;
+                    border-style: solid;
+                    border-color: #0f172a transparent transparent transparent;
+                }
 
                 /* Donut Ring Mock */
                 .crm-donut-wrap {
@@ -1388,35 +1448,26 @@
                     <!-- 3. ADVANCED ANALYTICS & INSIGHTS (NEW DEMO SECTION) -->
                     <section class="crm-analytics-section">
                         
-                        <!-- Left Chart: Monthly Sales Trend -->
+                        <!-- Left Chart: Monthly Sales Trend with Range Selector & Interactive Scrubber -->
                         <div class="crm-chart-card">
                             <div class="crm-chart-head">
                                 <span class="crm-chart-title">
                                     <i class="fa fa-chart-column"></i>
                                     <span>Monthly Sales &amp; Revenue Growth</span>
                                 </span>
-                                <span class="crm-chart-badge">Past 6 Months</span>
+                                <!-- Frontend Range Buttons -->
+                                <div class="crm-range-pills" id="crmSalesRangePills">
+                                    <button type="button" class="crm-range-pill" onclick="changeSalesRange(3, this)">3M</button>
+                                    <button type="button" class="crm-range-pill active" onclick="changeSalesRange(6, this)">6M</button>
+                                    <button type="button" class="crm-range-pill" onclick="changeSalesRange(12, this)">1Y</button>
+                                    <button type="button" class="crm-range-pill" onclick="toggleCustomRangeModal()">📅 Custom</button>
+                                </div>
                             </div>
-                            <div class="crm-bar-chart">
-                                <div class="crm-bar-col">
-                                    <div class="crm-bar-pill" style="height: 35%;"></div>
-                                    <span class="crm-bar-lbl">May</span>
-                                </div>
-                                <div class="crm-bar-col">
-                                    <div class="crm-bar-pill" style="height: 55%;"></div>
-                                    <span class="crm-bar-lbl">Jun</span>
-                                </div>
-                                <div class="crm-bar-col">
-                                    <div class="crm-bar-pill" style="height: 40%;"></div>
-                                    <span class="crm-bar-lbl">Jul</span>
-                                </div>
-                                <div class="crm-bar-col">
-                                    <div class="crm-bar-pill" style="height: 80%;"></div>
-                                    <span class="crm-bar-lbl">Aug</span>
-                                </div>
-                                <div class="crm-bar-col">
-                                    <div class="crm-bar-pill" style="height: 95%; background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);"></div>
-                                    <span class="crm-bar-lbl" style="font-weight: 700; color: var(--primary-blue);">Sep</span>
+                            <div class="crm-bar-chart" id="crmSalesBarChart" style="position: relative; height: 160px;">
+                                <!-- Dynamic Tooltip for Drag/Hover -->
+                                <div id="crmBarTooltip" class="crm-bar-tooltip">
+                                    <span id="crmTooltipDate">Sep · Day 15</span>
+                                    <strong id="crmTooltipVal">₹ 46.3K</strong>
                                 </div>
                             </div>
                         </div>
@@ -1637,6 +1688,105 @@
                         document.querySelectorAll('.crm-dropdown-menu').forEach(d => d.classList.remove('open'));
                     }
                 });
+
+                // --- INTERACTIVE SALES BAR CHART (FRONTEND-ONLY) ---
+                const salesDataPresets = {
+                    3: [
+                        { label: 'Jul', total: 52000, days: 31, color: '#38bdf8' },
+                        { label: 'Aug', total: 84000, days: 31, color: '#0284c7' },
+                        { label: 'Sep', total: 92600, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)' }
+                    ],
+                    6: [
+                        { label: 'Apr', total: 24000, days: 30 },
+                        { label: 'May', total: 35000, days: 31 },
+                        { label: 'Jun', total: 55000, days: 30 },
+                        { label: 'Jul', total: 40000, days: 31 },
+                        { label: 'Aug', total: 80000, days: 31 },
+                        { label: 'Sep', total: 92600, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)' }
+                    ],
+                    12: [
+                        { label: 'Oct', total: 18000, days: 31 }, { label: 'Nov', total: 22000, days: 30 },
+                        { label: 'Dec', total: 31000, days: 31 }, { label: 'Jan', total: 28000, days: 31 },
+                        { label: 'Feb', total: 36000, days: 28 }, { label: 'Mar', total: 42000, days: 31 },
+                        { label: 'Apr', total: 39000, days: 30 }, { label: 'May', total: 45000, days: 31 },
+                        { label: 'Jun', total: 58000, days: 30 }, { label: 'Jul', total: 64000, days: 31 },
+                        { label: 'Aug', total: 82000, days: 31 }, { label: 'Sep', total: 92600, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 100%)' }
+                    ]
+                };
+
+                function renderSalesBars(months) {
+                    const container = document.getElementById('crmSalesBarChart');
+                    const tooltip = document.getElementById('crmBarTooltip');
+                    if (!container) return;
+
+                    // Clear existing bars but preserve tooltip
+                    container.querySelectorAll('.crm-bar-col').forEach(col => col.remove());
+
+                    const maxVal = Math.max(...months.map(m => m.total));
+
+                    months.forEach(m => {
+                        const heightPct = Math.round((m.total / maxVal) * 90);
+                        const col = document.createElement('div');
+                        col.className = 'crm-bar-col';
+
+                        col.innerHTML = `
+                            <span style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem;">₹ ${(m.total / 1000).toFixed(1)}K</span>
+                            <div class="crm-bar-pill" style="height: ${heightPct}%; width: ${months.length > 6 ? '55%' : '65%'}; background: ${m.color || 'linear-gradient(180deg, #38bdf8 0%, var(--primary-blue) 100%)'};"></div>
+                            <span class="crm-bar-lbl">${m.label}</span>
+                        `;
+
+                        const pill = col.querySelector('.crm-bar-pill');
+
+                        // Click bar: filter alert
+                        col.addEventListener('click', () => {
+                            alert(`Filter Won Deals for: ${m.label} 2026 (Total: ₹ ${(m.total / 1000).toFixed(1)}K)`);
+                        });
+
+                        // Interactive Scrubber (Drag / Hover along Y axis)
+                        function updateScrub(e) {
+                            const rect = pill.getBoundingClientRect();
+                            const relY = Math.max(0, Math.min(rect.height, rect.bottom - e.clientY));
+                            const ratio = Math.max(0.05, relY / rect.height);
+                            const currentDay = Math.min(m.days, Math.max(1, Math.round(ratio * m.days)));
+                            const currentVal = Math.round(ratio * m.total);
+
+                            pill.style.height = (ratio * heightPct) + '%';
+
+                            tooltip.style.display = 'flex';
+                            tooltip.style.left = (col.offsetLeft + (col.offsetWidth / 2)) + 'px';
+                            tooltip.style.top = (col.offsetTop + (rect.height * (1 - ratio))) + 'px';
+                            document.getElementById('crmTooltipDate').innerText = `${m.label} · Day ${currentDay}/${m.days}`;
+                            document.getElementById('crmTooltipVal').innerText = `₹ ${(currentVal / 1000).toFixed(1)}K`;
+                        }
+
+                        pill.addEventListener('mousemove', updateScrub);
+                        pill.addEventListener('mouseleave', () => {
+                            pill.style.height = heightPct + '%';
+                            tooltip.style.display = 'none';
+                        });
+
+                        container.appendChild(col);
+                    });
+                }
+
+                function changeSalesRange(count, btn) {
+                    document.querySelectorAll('#crmSalesRangePills .crm-range-pill').forEach(b => b.classList.remove('active'));
+                    if (btn) btn.classList.add('active');
+                    renderSalesBars(salesDataPresets[count] || salesDataPresets[6]);
+                }
+
+                function toggleCustomRangeModal() {
+                    const rangePrompt = prompt("Enter custom month range (1 - 12):", "4");
+                    if (rangePrompt) {
+                        const n = parseInt(rangePrompt);
+                        if (n >= 1 && n <= 12) {
+                            renderSalesBars(salesDataPresets[12].slice(-n));
+                        }
+                    }
+                }
+
+                // Initial render on page load
+                renderSalesBars(salesDataPresets[6]);
             ]]></script>
         </body>
         </html>
