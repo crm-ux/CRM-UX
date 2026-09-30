@@ -6,7 +6,7 @@
         <head>
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-            <title>Dashboard Preview - Ultrawin CRM</title>
+            <title>Dashboard Preview - Ultrawin Technologies</title>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
             <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
             <style><![CDATA[
@@ -893,7 +893,7 @@
                 <div class="crm-sidebar-header">
                     <div class="crm-brand">
                         <img src="/crm_whitelabel/static/src/img/custom_logo.png" class="crm-brand-logo" alt="Logo"/>
-                        <span>Ultrawin CRM</span>
+                        <span>Ultrawin Technologies</span>
                     </div>
                     <button class="crm-sidebar-close" onclick="toggleSidebar()" title="Close menu">
                         <i class="fa fa-xmark"></i>
@@ -1472,42 +1472,63 @@
                             </div>
                         </div>
 
-                        <!-- Right Widget: Ticket Resolution Health -->
+                        <!-- Right Widget: Equipment Service Telemetry Monitor -->
                         <div class="crm-chart-card">
                             <div class="crm-chart-head">
                                 <span class="crm-chart-title">
-                                    <i class="fa fa-chart-pie"></i>
-                                    <span>Ticket Health</span>
+                                    <i class="fa fa-heart-pulse" style="color: #10b981;"></i>
+                                    <span>Equipment Telemetry &amp; SLA</span>
                                 </span>
-                                <span class="crm-chart-badge">Live SLA</span>
+                                <span class="crm-chart-badge" style="background: #022c22; color: #34d399; font-weight: 700; border: 1px solid #059669;">
+                                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; margin-right: 4px; animation: crmPulse 1.4s infinite;"></span> LIVE MONITOR
+                                </span>
                             </div>
-                            <div class="crm-donut-wrap">
-                                <div style="position: relative; width: 140px; height: 140px;">
-                                    <svg viewBox="-22 -22 44 44" style="width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible;">
-                                        <!-- Closed Slice (9 / 12 = 75%) -->
-                                        <path class="crm-donut-slice" d="M 18 0 A 18 18 0 1 1 -18 0 L -12 0 A 12 12 0 1 0 12 0 Z" fill="#10b981" onclick="alert('Filter Service Tickets: Closed (9)')">
-                                            <title>Closed: 9 Tickets (75%)</title>
-                                        </path>
-                                        <!-- Ongoing Slice (1 / 12 = 8.33%) -->
-                                        <path class="crm-donut-slice" d="M -18 0 A 18 18 0 0 1 -15.58 -9.07 L -10.39 -6.05 A 12 12 0 0 0 -12 0 Z" fill="#f59e0b" onclick="alert('Filter Service Tickets: Ongoing (1)')">
-                                            <title>Ongoing: 1 Ticket (8.3%)</title>
-                                        </path>
-                                        <!-- Open Slice (2 / 12 = 16.67%) -->
-                                        <path class="crm-donut-slice" d="M -15.58 -9.07 A 18 18 0 0 1 18 0 L 12 0 A 12 12 0 0 0 -10.39 -6.05 Z" fill="#ef4444" onclick="alert('Filter Service Tickets: Open (2)')">
-                                            <title>Open: 2 Tickets (16.7%)</title>
-                                        </path>
-                                    </svg>
-                                    <!-- Center Label -->
-                                    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
-                                        <strong style="font-size: 1.15rem; color: #0f172a; font-weight: 800;">85%</strong>
-                                        <span style="font-size: 0.65rem; color: #64748b; font-weight: 600;">Resolved</span>
+
+                            <!-- Dark Medical Telemetry Screen -->
+                            <div style="background: #090d16; border-radius: 0.65rem; padding: 0.85rem; border: 1px solid #1e293b; display: flex; flex-direction: column; gap: 0.75rem; box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);">
+                                
+                                <!-- Channel 1: Closed (Count: 9 -> High Frequency / Fast Peaks) -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1e293b; cursor: pointer;" onclick="alert('Filter Service Tickets: Closed (9)')">
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1;">
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: #10b981; width: 65px;">Closed</span>
+                                        <!-- Fast Wave for 9 -->
+                                        <svg width="150" height="26" viewBox="0 0 150 26" style="stroke: #10b981; fill: none; stroke-width: 1.8; stroke-linecap: round; flex: 1; max-width: 180px;">
+                                            <polyline points="0,13 12,13 16,3 20,23 24,13 36,13 40,3 44,23 48,13 60,13 64,3 68,23 72,13 84,13 88,3 92,23 96,13 108,13 112,3 116,23 120,13 150,13"/>
+                                        </svg>
+                                    </div>
+                                    <div style="text-align: right; min-width: 45px;">
+                                        <span style="font-size: 1.4rem; font-weight: 800; color: #34d399; font-family: monospace;">9</span>
                                     </div>
                                 </div>
-                                <div class="crm-donut-legend">
-                                    <span style="cursor: pointer;" onclick="alert('Filter: Closed (9)')"><span class="crm-dot-green"></span> Closed (9)</span>
-                                    <span style="cursor: pointer;" onclick="alert('Filter: Ongoing (1)')"><span class="crm-dot-yellow"></span> Ongoing (1)</span>
-                                    <span style="cursor: pointer;" onclick="alert('Filter: Open (2)')"><span class="crm-dot-red"></span> Open (2)</span>
+
+                                <!-- Channel 2: Ongoing (Count: 1 -> Low Frequency / Single Gentle Peak) -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 0.5rem; border-bottom: 1px solid #1e293b; cursor: pointer;" onclick="alert('Filter Service Tickets: Ongoing (1)')">
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1;">
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: #f59e0b; width: 65px;">Ongoing</span>
+                                        <!-- Slow Single Pulse for 1 -->
+                                        <svg width="150" height="26" viewBox="0 0 150 26" style="stroke: #f59e0b; fill: none; stroke-width: 1.8; stroke-linecap: round; flex: 1; max-width: 180px;">
+                                            <polyline points="0,13 60,13 67,4 74,22 81,13 150,13"/>
+                                        </svg>
+                                    </div>
+                                    <div style="text-align: right; min-width: 45px;">
+                                        <span style="font-size: 1.4rem; font-weight: 800; color: #fbbf24; font-family: monospace;">1</span>
+                                    </div>
                                 </div>
+
+                                <!-- Channel 3: Open (Count: 2 -> Medium Frequency / 2 Alert Pulses) -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="alert('Filter Service Tickets: Open (2)')">
+                                    <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1;">
+                                        <span style="font-size: 0.75rem; font-weight: 700; color: #ef4444; width: 65px;">Open</span>
+                                        <!-- 2 Alert Pulses for 2 -->
+                                        <svg width="150" height="26" viewBox="0 0 150 26" style="stroke: #ef4444; fill: none; stroke-width: 1.8; stroke-linecap: round; flex: 1; max-width: 180px;">
+                                            <polyline points="0,13 35,13 41,2 47,24 53,13 85,13 91,2 97,24 103,13 150,13"/>
+                                        </svg>
+                                    </div>
+                                    <div style="text-align: right; min-width: 45px;">
+                                        <span style="font-size: 1.4rem; font-weight: 800; color: #f87171; font-family: monospace;">2</span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
 
