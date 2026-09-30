@@ -209,12 +209,12 @@ class CrmDashboard extends Component {
         try {
             user.activateCompanies(this.state.selectedCompanies, {
                 includeChildCompanies: false,
-                reload: true,
+                reload: false,
             });
         } catch (e) {
             console.error("activateCompanies failed:", e);
-            this.loadStats();
         }
+        this.loadStats();
     }
     isCompanySelected(cid) { return this.state.selectedCompanies.includes(cid); }
     get selectedCompanyLabel() {
