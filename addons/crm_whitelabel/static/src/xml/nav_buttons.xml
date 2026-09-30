@@ -3,10 +3,10 @@
     <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
             <!-- 1st: Dashboard button -->
-            <button class="btn btn-secondary me-2 ms-1" t-on-click="goDashboard">Dashboard</button>
+            <button class="btn btn-secondary ms-1" t-on-click="goDashboard">Dashboard</button>
 
             <!-- 2nd: Explicit New button for Lead creation -->
-            <button class="btn btn-primary me-2 ms-1" t-if="isTotalPipelineView" t-on-click="createNewLead">New</button>
+            <button class="btn btn-primary ms-1" t-if="isTotalPipelineView" t-on-click="createNewLead">New</button>
 
             <!-- 3rd: Stage Dropdown with matching 31px height -->
             <div class="ms-1 d-inline-flex align-items-center" t-if="isTotalPipelineView">

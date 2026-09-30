@@ -126,26 +126,31 @@ button.o_form_button_cancel {
 /* 1. Dashboard Button */
 .o_control_panel_breadcrumbs > button.btn-secondary {
     order: 1 !important;
-    margin-right: 0.5rem !important;
+    margin: 0 !important;
 }
 
 /* 2. Main buttons container (New button) */
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
+    gap: 0 !important;
     order: 2 !important;
-    margin-right: 0.5rem !important;
+    margin: 0 !important;
 }
 
-/* 3 & 4. Status Indicator containing Save & Cancel */
+/* 3 & 4. Status Indicator: space ONLY between Save and Cancel */
 .o_control_panel_breadcrumbs .o_form_status_indicator,
 .o_control_panel .o_form_status_indicator {
     order: 3 !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
-    margin: 0 0.5rem 0 0 !important;
+    margin: 0 !important;
+}
+
+.o_form_button_save,
+button.o_form_button_save {
+    margin-right: 0.5rem !important;
 }
 
 /* 5. Breadcrumb record title: comes after all buttons, truncates with ellipsis */
