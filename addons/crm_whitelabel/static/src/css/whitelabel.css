@@ -1,6 +1,6 @@
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
-.o_web_client > header.o_navbar,
-.o_web_client > nav.o_navbar,
+.o_web_client>header.o_navbar,
+.o_web_client>nav.o_navbar,
 header.o_navbar,
 nav.o_navbar,
 .o_navbar {
@@ -123,7 +123,7 @@ button.o_form_button_cancel {
 }
 
 /* Dashboard Button */
-.o_control_panel_breadcrumbs > button.btn-secondary {
+.o_control_panel_breadcrumbs>button.btn-secondary {
     margin-right: 0.5rem !important;
     margin-left: 0 !important;
     flex-shrink: 0 !important;
@@ -138,12 +138,12 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer Name: trims with ellipsis (...) only when name is long */
+/* Record / Customer Name: exactly in 3rd place with clean ellipsis (...) trimming */
 .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     min-width: 0 !important;
-    max-width: clamp(140px, 22vw, 260px) !important;
+    max-width: clamp(110px, 15vw, 175px) !important;
     overflow: hidden !important;
     margin-right: 0.5rem !important;
     margin-left: 0 !important;
@@ -151,10 +151,7 @@ button.o_form_button_cancel {
     flex-shrink: 1 !important;
 }
 
-.o_control_panel_breadcrumbs .o_breadcrumb span,
-.o_control_panel_breadcrumbs .o_breadcrumb .active,
-.o_control_panel_breadcrumbs .o_breadcrumb li,
-.o_control_panel_breadcrumbs .o_breadcrumb a {
+.o_control_panel_breadcrumbs .o_breadcrumb * {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -165,7 +162,7 @@ button.o_form_button_cancel {
     font-weight: 600 !important;
 }
 
-/* Save & Cancel container */
+/* Save & Cancel container: cleanly separated with 0.5rem gap */
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
@@ -175,7 +172,7 @@ button.o_form_button_cancel {
 }
 
 /* Filter dropdowns if present */
-.o_control_panel_breadcrumbs > .d-inline-flex {
+.o_control_panel_breadcrumbs>.d-inline-flex {
     margin-right: 0.5rem !important;
     margin-left: 0 !important;
     flex-shrink: 0 !important;
