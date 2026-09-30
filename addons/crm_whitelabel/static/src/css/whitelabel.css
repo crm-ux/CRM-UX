@@ -120,7 +120,15 @@ button.o_form_button_cancel {
     align-content: center !important;
     flex-wrap: nowrap !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     overflow: visible !important;
+}
+
+/* Allow control panel main breadcrumbs left container to shrink if not enough space */
+.o_control_panel .o_control_panel_breadcrumbs_actions {
+    min-width: 0 !important;
+    overflow: visible !important;
+    flex-shrink: 1 !important;
 }
 
 /* Dashboard Button */
@@ -140,15 +148,15 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer, Exhibition & Equipment Name: exactly in 3rd place with clean ellipsis (...) trimming */
-.o_control_panel_breadcrumbs .o_breadcrumb,
-.o_sale_order .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_res_partner .o_control_panel_breadcrumbs .o_breadcrumb,
-.crm_lead .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_equipment_master .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="equipment"] .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb {
+/* Record / Customer, Exhibition & Equipment Name in Form Detail Views: clean ellipsis (...) trimming */
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+.o_sale_order.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+.o_res_partner.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+.crm_lead.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+.o_equipment_master.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="equipment"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="exhibition"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="partner"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     align-self: center !important;
@@ -161,10 +169,17 @@ div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb {
     flex-shrink: 1 !important;
 }
 
-.o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="equipment"] .o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb * {
+/* Allow list view breadcrumb titles natural room */
+.o_list_view .o_control_panel_breadcrumbs .o_breadcrumb {
+    max-width: none !important;
+    overflow: visible !important;
+    margin-right: 0.5rem !important;
+}
+
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="equipment"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="exhibition"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="partner"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb * {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -266,10 +281,19 @@ div[class*="exhibition"] .dropdown-toggle {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely */
-.o_breadcrumb ol,
-.o_breadcrumb>ol,
-.o_control_panel_breadcrumbs>.o_breadcrumb>ol {
+/* Keep breadcrumb list in a single clean horizontal line without stacking or wrapping */
+.o_control_panel_breadcrumbs .o_breadcrumb ol,
+.o_control_panel_breadcrumbs ol.breadcrumb {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-wrap: nowrap !important;
+    list-style: none !important;
+}
+
+.o_control_panel_breadcrumbs .o_breadcrumb ol li:not(:last-child),
+.o_control_panel_breadcrumbs ol.breadcrumb li:not(:last-child) {
     display: none !important;
 }
 
