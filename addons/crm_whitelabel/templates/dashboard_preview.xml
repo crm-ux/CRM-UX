@@ -1503,6 +1503,15 @@
                                     </div>
                                     <span style="font-size: 0.75rem; font-weight: 800; color: #15803d; background: #bbf7d0; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 66.00 (Safe)</span>
                                 </div>
+
+                                <!-- Card Bottom Action: View filtered list -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.4rem; border-top: 1px dashed #e2e8f0; margin-top: 0.15rem;">
+                                    <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">Showing critical items</span>
+                                    <a href="#" style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem;">
+                                        <span>View All Low Stock Items</span>
+                                        <i class="fa fa-arrow-right" style="font-size: 0.65rem;"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
