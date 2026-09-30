@@ -974,28 +974,31 @@
 .crm-analytics-section {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.15rem;
+    gap: clamp(0.85rem, 1.2vw, 1.35rem);
 }
 
 .crm-chart-card {
     background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 0.85rem;
-    padding: 1.25rem;
+    border-radius: clamp(0.75rem, 1vw, 1rem);
+    padding: clamp(1rem, 1.4vw, 1.5rem);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
+    min-height: clamp(210px, 26vh, 320px);
+    height: 100%;
+    justify-content: space-between;
 }
 
 .crm-chart-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.15rem;
+    margin-bottom: clamp(0.75rem, 1.2vh, 1.25rem);
 }
 
 .crm-chart-title {
-    font-size: 0.95rem;
+    font-size: clamp(0.88rem, 1vw, 1.05rem);
     font-weight: 700;
     color: var(--text-dark);
     display: flex;
@@ -1004,10 +1007,10 @@
 }
 
 .crm-chart-badge {
-    font-size: 0.72rem;
+    font-size: clamp(0.68rem, 0.75vw, 0.78rem);
     background: #f1f5f9;
     color: var(--text-muted);
-    padding: 0.25rem 0.55rem;
+    padding: clamp(0.2rem, 0.3vh, 0.3rem) clamp(0.45rem, 0.6vw, 0.65rem);
     border-radius: 0.35rem;
     font-weight: 600;
 }
@@ -1017,9 +1020,9 @@
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    height: 160px;
-    padding-top: 1.5rem;
-    gap: 0.5rem;
+    height: clamp(140px, 18vh, 220px);
+    padding-top: clamp(1rem, 1.5vh, 1.75rem);
+    gap: clamp(0.35rem, 0.6vw, 0.75rem);
 }
 
 .crm-bar-col {
@@ -1027,7 +1030,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: clamp(0.35rem, 0.5vh, 0.65rem);
     height: 100%;
     justify-content: flex-end;
     cursor: pointer;
@@ -1040,7 +1043,7 @@
 }
 
 .crm-bar-lbl {
-    font-size: 0.72rem;
+    font-size: clamp(0.68rem, 0.75vw, 0.78rem);
     color: var(--text-muted);
     font-weight: 600;
 }
@@ -1056,9 +1059,9 @@
 .crm-range-pill {
     border: none;
     background: transparent;
-    padding: 0.2rem 0.5rem;
+    padding: clamp(0.18rem, 0.3vh, 0.25rem) clamp(0.4rem, 0.5vw, 0.6rem);
     border-radius: 0.35rem;
-    font-size: 0.72rem;
+    font-size: clamp(0.68rem, 0.75vw, 0.78rem);
     font-weight: 600;
     color: var(--text-muted);
     cursor: pointer;
@@ -1118,7 +1121,7 @@
 
 .crm-wave-svg-wrap {
     flex: 1;
-    height: 28px;
+    height: clamp(24px, 2.8vh, 32px);
     overflow: hidden;
     position: relative;
     margin: 0 0.85rem;
@@ -1164,10 +1167,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.65rem 0.85rem;
+    padding: clamp(0.55rem, 0.9vh, 0.85rem) clamp(0.75rem, 1vw, 1rem);
     background: #f8fafc;
     border: 1px solid #f1f5f9;
-    border-radius: 0.55rem;
+    border-radius: clamp(0.45rem, 0.6vw, 0.65rem);
     cursor: pointer;
     transition: all 0.2s ease;
 }
