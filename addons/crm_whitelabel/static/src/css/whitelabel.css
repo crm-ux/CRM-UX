@@ -121,6 +121,7 @@ button.o_form_button_cancel {
     justify-content: center !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
+    margin: 0 !important;
 }
 
 /* 1. Dashboard Button */
@@ -133,15 +134,16 @@ button.o_form_button_cancel {
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0 !important;
+    gap: 0.5rem !important;
     order: 2 !important;
     margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* 3. Stage & Employee Dropdowns inside Control Panel */
 .o_control_panel_breadcrumbs > .d-inline-flex {
     order: 3 !important;
-    margin-left: 0.35rem !important;
+    margin: 0 !important;
 }
 
 /* 4. Status Indicator: space ONLY between Save and Cancel */
@@ -152,11 +154,17 @@ button.o_form_button_cancel {
     align-items: center !important;
     gap: 0.5rem !important;
     margin: 0 !important;
+    padding: 0 !important;
 }
 
 .o_form_button_save,
 button.o_form_button_save {
-    margin-right: 0.5rem !important;
+    margin: 0 !important;
+}
+
+.o_form_button_cancel,
+button.o_form_button_cancel {
+    margin: 0 !important;
 }
 
 /* 5. Breadcrumb record title: comes after buttons and filters, truncates with ellipsis */
@@ -167,7 +175,7 @@ button.o_form_button_save {
     max-width: clamp(140px, 30vw, 420px) !important;
     overflow: hidden !important;
     order: 5 !important;
-    margin: 0 0 0 0.5rem !important;
+    margin: 0 !important;
     padding: 0 !important;
 }
 
