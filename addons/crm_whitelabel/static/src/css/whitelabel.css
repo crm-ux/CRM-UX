@@ -137,8 +137,13 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer Name: exactly in 3rd place with clean ellipsis (...) trimming */
-.o_control_panel_breadcrumbs .o_breadcrumb {
+/* Record / Customer & Exhibition Name: exactly in 3rd place with clean ellipsis (...) trimming */
+.o_control_panel_breadcrumbs .o_breadcrumb,
+.o_sale_order .o_control_panel_breadcrumbs .o_breadcrumb,
+.o_res_partner .o_control_panel_breadcrumbs .o_breadcrumb,
+.crm_lead .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     align-self: center !important;
@@ -151,7 +156,9 @@ button.o_form_button_cancel {
     flex-shrink: 1 !important;
 }
 
-.o_control_panel_breadcrumbs .o_breadcrumb * {
+.o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb * {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
