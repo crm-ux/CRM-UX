@@ -1118,7 +1118,7 @@
 
 .crm-wave-svg-wrap {
     flex: 1;
-    height: 28px;
+    height: 24px;
     overflow: hidden;
     position: relative;
     margin: 0 0.85rem;
@@ -1136,9 +1136,9 @@
 
 .crm-wave-track svg {
     flex-shrink: 0;
-    width: 50%;
-    height: 100%;
-    overflow: visible;
+    width: 50% !important;
+    height: 100% !important;
+    display: block;
 }
 
 .crm-wave-track.fast {

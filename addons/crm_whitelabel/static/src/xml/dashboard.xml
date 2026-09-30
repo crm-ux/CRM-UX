@@ -596,11 +596,11 @@
                             <!-- Full Width Continuous Moving Alert Wave -->
                             <div class="crm-wave-svg-wrap">
                                 <div class="crm-wave-track alert">
-                                    <svg viewBox="0 0 300 28" preserveAspectRatio="none" style="stroke: #ef4444; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                                        <polyline points="0,14 40,14 45,4 51,24 56,14 110,14 115,4 121,24 126,14 190,14 195,4 201,24 206,14 260,14 265,4 271,24 276,14 300,14"/>
+                                    <svg viewBox="0 0 300 24" preserveAspectRatio="none" style="stroke: #ef4444; fill: none; stroke-width: 2; stroke-linecap: round;">
+                                        <polyline points="0,12 40,12 45,2 51,22 56,12 110,12 115,2 121,22 126,12 190,12 195,2 201,22 206,12 260,12 265,2 271,22 276,12 300,12"/>
                                     </svg>
-                                    <svg viewBox="0 0 300 28" preserveAspectRatio="none" style="stroke: #ef4444; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                                        <polyline points="0,14 40,14 45,4 51,24 56,14 110,14 115,4 121,24 126,14 190,14 195,4 201,24 206,14 260,14 265,4 271,24 276,14 300,14"/>
+                                    <svg viewBox="0 0 300 24" preserveAspectRatio="none" style="stroke: #ef4444; fill: none; stroke-width: 2; stroke-linecap: round;">
+                                        <polyline points="0,12 40,12 45,2 51,22 56,12 110,12 115,2 121,22 126,12 190,12 195,2 201,22 206,12 260,12 265,2 271,22 276,12 300,12"/>
                                     </svg>
                                 </div>
                             </div>
