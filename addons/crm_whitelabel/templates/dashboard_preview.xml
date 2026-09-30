@@ -1751,23 +1751,31 @@
                         col.className = 'crm-bar-col';
 
                         col.innerHTML = `
-                            <span style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem;">₹ ${(m.total / 1000).toFixed(1)}K</span>
+                            <span class="crm-bar-val-lbl" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">₹ ${(m.total / 1000).toFixed(1)}K</span>
                             <div class="crm-bar-pill" style="height: ${heightPct}%; width: ${months.length > 6 ? '55%' : '65%'}; background: ${m.color || 'linear-gradient(180deg, #38bdf8 0%, var(--primary-blue) 100%)'};"></div>
                             <span class="crm-bar-lbl">${m.label}</span>
                         `;
 
                         const pill = col.querySelector('.crm-bar-pill');
+                        const valLbl = col.querySelector('.crm-bar-val-lbl');
 
                         // Click bar: filter alert
                         col.addEventListener('click', () => {
                             alert(`Filter Won Deals for: ${m.label} 2026 (Total: ₹ ${(m.total / 1000).toFixed(1)}K)`);
                         });
 
-                        // Interactive Scrubber (Drag / Hover along Y axis)
+                        // Interactive Scrubber attached to whole column (easy to drag down to Day 1)
                         function updateScrub(e) {
-                            const rect = pill.getBoundingClientRect();
-                            const relY = Math.max(0, Math.min(rect.height, rect.bottom - e.clientY));
-                            const ratio = Math.max(0.05, relY / rect.height);
+                            // Hide the static number so client only sees the single tooltip value
+                            if (valLbl) valLbl.style.opacity = '0';
+
+                            // Disable transition during drag for instant responsiveness
+                            pill.style.transition = 'none';
+
+                            const rect = col.getBoundingClientRect();
+                            const trackHeight = Math.max(80, rect.height - 35);
+                            const relY = Math.max(0, Math.min(trackHeight, rect.bottom - 22 - e.clientY));
+                            const ratio = Math.max(0.03, Math.min(1, relY / trackHeight));
                             const currentDay = Math.min(m.days, Math.max(1, Math.round(ratio * m.days)));
                             const currentVal = Math.round(ratio * m.total);
 
@@ -1775,15 +1783,19 @@
 
                             tooltip.style.display = 'flex';
                             tooltip.style.left = (col.offsetLeft + (col.offsetWidth / 2)) + 'px';
-                            tooltip.style.top = (col.offsetTop + (rect.height * (1 - ratio))) + 'px';
+                            tooltip.style.top = (rect.bottom - relY - 26) + 'px';
                             document.getElementById('crmTooltipDate').innerText = `${m.label} · Day ${currentDay}/${m.days}`;
                             document.getElementById('crmTooltipVal').innerText = `₹ ${(currentVal / 1000).toFixed(1)}K`;
                         }
 
-                        pill.addEventListener('mousemove', updateScrub);
-                        pill.addEventListener('mouseleave', () => {
+                        col.addEventListener('mousemove', updateScrub);
+                        col.addEventListener('mouseleave', () => {
+                            // Elegant slow-speed recovery (0.7s smooth fluid bounce)
+                            pill.style.transition = 'height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)';
                             pill.style.height = heightPct + '%';
                             tooltip.style.display = 'none';
+                            // Restore static number smoothly
+                            if (valLbl) valLbl.style.opacity = '1';
                         });
 
                         container.appendChild(col);
