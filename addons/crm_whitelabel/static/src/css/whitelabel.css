@@ -138,10 +138,16 @@ button.o_form_button_cancel {
     margin: 0 !important;
 }
 
-/* 3 & 4. Status Indicator: space ONLY between Save and Cancel */
+/* 3. Stage & Employee Dropdowns inside Control Panel */
+.o_control_panel_breadcrumbs > .d-inline-flex {
+    order: 3 !important;
+    margin-left: 0.35rem !important;
+}
+
+/* 4. Status Indicator: space ONLY between Save and Cancel */
 .o_control_panel_breadcrumbs .o_form_status_indicator,
 .o_control_panel .o_form_status_indicator {
-    order: 3 !important;
+    order: 4 !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
@@ -153,7 +159,7 @@ button.o_form_button_save {
     margin-right: 0.5rem !important;
 }
 
-/* 5. Breadcrumb record title: comes after all buttons, truncates with ellipsis */
+/* 5. Breadcrumb record title: comes after buttons and filters, truncates with ellipsis */
 .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
