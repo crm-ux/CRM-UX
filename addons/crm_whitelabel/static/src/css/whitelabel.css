@@ -20,17 +20,56 @@ nav.o_navbar,
 .o_control_panel .o_form_buttons_edit,
 .o_form_view .o_form_statusbar,
 .o_form_button_save,
-.o_form_button_cancel {
+.o_form_button_cancel,
+.o_form_status_indicator {
     display: inline-flex !important;
+    align-items: center !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-/* Hide entire breadcrumb ol - removes text and slash */
-.o_breadcrumb ol,
-.o_breadcrumb>ol,
-.o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: none !important;
+/* Control Panel layout: Dashboard, New, Save, Cancel, Name */
+.o_control_panel_breadcrumbs {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 0.5rem !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.o_control_panel_breadcrumbs button,
+.o_control_panel_main_buttons button {
+    flex-shrink: 0 !important;
+}
+
+.o_control_panel .o_control_panel_main_buttons {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    order: 2 !important;
+}
+
+/* Breadcrumb record title: comes after buttons, truncates with ellipsis if long */
+.o_control_panel_breadcrumbs .o_breadcrumb {
+    display: inline-flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    max-width: clamp(140px, 30vw, 420px) !important;
+    overflow: hidden !important;
+    order: 10 !important;
+    margin-left: 0.25rem !important;
+}
+
+.o_control_panel_breadcrumbs .o_breadcrumb span,
+.o_control_panel_breadcrumbs .o_breadcrumb .active,
+.o_control_panel_breadcrumbs .o_breadcrumb li,
+.o_control_panel_breadcrumbs .o_breadcrumb a {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    display: inline-block !important;
+    max-width: 100% !important;
 }
 
 /* Terms checkboxes visible */
@@ -66,11 +105,15 @@ nav.o_navbar,
     overflow: visible !important;
 }
 
-/* Hide entire breadcrumb ol - removes text and slash */
+/* Allow breadcrumb ol to display inline */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,
 .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
 }
 
 /* Terms checkboxes visible */

@@ -608,11 +608,11 @@
                             </div>
                         </div>
 
-                        <!-- Channel 2: Preventive Maint. (PM) (Steady Pulse Wave) -->
+                        <!-- Channel 2: PM (Steady Pulse Wave) -->
                         <div class="crm-sla-row" t-on-click="() => this.openComplaintList('preventive', 'Preventive Maintenance')">
                             <div style="display: flex; align-items: center; min-width: 110px;">
                                 <span class="crm-dot-yellow" style="margin-right: 6px;"></span>
-                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Preventive Maint.</span>
+                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">PM</span>
                             </div>
                             <!-- Full Width Continuous Moving Gentle Wave (Left to Right) -->
                             <div class="crm-wave-svg-wrap">
