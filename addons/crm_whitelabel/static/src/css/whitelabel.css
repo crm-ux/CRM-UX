@@ -167,7 +167,8 @@ button.o_form_button_save {
     max-width: clamp(140px, 30vw, 420px) !important;
     overflow: hidden !important;
     order: 5 !important;
-    margin-left: 0.25rem !important;
+    margin: 0 0 0 0.5rem !important;
+    padding: 0 !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb span,
@@ -179,6 +180,14 @@ button.o_form_button_save {
     text-overflow: ellipsis !important;
     display: inline-block !important;
     max-width: 100% !important;
+    line-height: normal !important;
+}
+
+/* Hide historical breadcrumb items and slashes completely */
+.o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
+.o_control_panel_breadcrumbs .o_breadcrumb .breadcrumb-item:not(.active),
+.o_control_panel_breadcrumbs .o_breadcrumb li::before {
+    display: none !important;
 }
 
 /* Terms checkboxes visible */
@@ -214,15 +223,11 @@ button.o_form_button_save {
     overflow: visible !important;
 }
 
-/* Allow breadcrumb ol to display inline */
+/* Hide old breadcrumb trail history stack completely */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,
 .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    list-style: none !important;
+    display: none !important;
 }
 
 /* Terms checkboxes visible */
