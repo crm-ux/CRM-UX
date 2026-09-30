@@ -89,7 +89,6 @@ button.o_form_button_cancel,
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
-    margin-left: 0.5rem !important;
 }
 
 /* Unified Button Dimensions across Control Panel */
@@ -120,12 +119,12 @@ button.o_form_button_cancel {
     align-items: center !important;
     flex-wrap: nowrap !important;
     min-width: 0 !important;
-    overflow: visible !important;
 }
 
 /* Dashboard Button */
-.o_control_panel_breadcrumbs > button.btn-secondary {
-    margin: 0 0.5rem 0 0 !important;
+.o_control_panel_breadcrumbs>button.btn-secondary {
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
     flex-shrink: 0 !important;
 }
 
@@ -133,55 +132,26 @@ button.o_form_button_cancel {
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    margin: 0 0.5rem 0 0 !important;
-    padding: 0 !important;
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
     flex-shrink: 0 !important;
 }
 
-.o_control_panel .o_control_panel_main_buttons button {
-    margin: 0 !important;
-}
-
-/* Save & Cancel status indicator */
-.o_form_status_indicator {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin: 0 0.5rem 0 0 !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-    gap: 0.5rem !important;
-}
-
-.o_form_button_save,
-button.o_form_button_save {
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-}
-
-.o_form_button_cancel,
-button.o_form_button_cancel {
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-}
-
-/* Record / Customer Name: vertically centered in middle, trimmed with clean ellipsis (...) */
+/* Record / Customer Name: exactly in 3rd place with clean ellipsis (...) trimming */
 .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     align-self: center !important;
     min-width: 0 !important;
-    max-width: clamp(140px, 20vw, 240px) !important;
-    overflow: visible !important;
-    margin: 0 0.5rem 0 0 !important;
+    max-width: clamp(110px, 15vw, 175px) !important;
+    overflow: hidden !important;
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
     padding: 0 !important;
     flex-shrink: 1 !important;
-    line-height: 1 !important;
 }
 
-.o_control_panel_breadcrumbs .o_breadcrumb span,
-.o_control_panel_breadcrumbs .o_breadcrumb .active,
-.o_control_panel_breadcrumbs .o_breadcrumb li,
-.o_control_panel_breadcrumbs .o_breadcrumb a {
+.o_control_panel_breadcrumbs .o_breadcrumb * {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -193,23 +163,25 @@ button.o_form_button_cancel {
     font-weight: 600 !important;
 }
 
-/* Ensure Gear / Action dropdown cog is never cut off */
+/* Save & Cancel container: cleanly separated with 0.5rem gap */
+.o_form_status_indicator {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ensure Gear / Action dropdown cog has breathing room so it is not clipped */
 .o_control_panel_breadcrumbs .o_cp_action_menus,
 .o_control_panel_breadcrumbs .dropdown_toggle,
 .o_control_panel_breadcrumbs i.fa-cog,
-.o_control_panel_breadcrumbs .o_cog_btn,
-.o_cp_action_menus .dropdown-toggle {
+.o_control_panel_breadcrumbs .o_cog_btn {
     overflow: visible !important;
     flex-shrink: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    margin: 0 0.5rem 0 0.25rem !important;
-    padding: 0.2rem !important;
-    min-width: 1.25rem !important;
-    min-height: 1.25rem !important;
-    box-sizing: content-box !important;
+    margin-left: 0.25rem !important;
+    margin-right: 0.5rem !important;
+    padding: 0.15rem !important;
 }
 
 /* Filter dropdowns if present */
