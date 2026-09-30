@@ -43,6 +43,7 @@ button.o_form_button_save,
     text-decoration: none !important;
     visibility: visible !important;
     opacity: 1 !important;
+    margin-right: 0.5rem !important;
 }
 
 .o_form_button_save::after {
@@ -88,20 +89,10 @@ button.o_form_button_cancel,
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.35rem !important;
+    margin-left: 0.5rem !important;
 }
 
-/* Control Panel layout: Dashboard (1), New (2), Save (3), Cancel (4), Name (5) */
-.o_control_panel_breadcrumbs {
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    gap: 0.5rem !important;
-    min-width: 0 !important;
-    overflow: hidden !important;
-}
-
-/* Unified Button Dimensions: Dashboard, New, Save, Cancel (Dynamic Fluid Units) */
+/* Unified Button Dimensions across Control Panel */
 .o_control_panel_breadcrumbs button,
 .o_control_panel_main_buttons button,
 .o_form_button_save,
@@ -121,62 +112,24 @@ button.o_form_button_cancel {
     justify-content: center !important;
     box-sizing: border-box !important;
     flex-shrink: 0 !important;
-    margin: 0 !important;
 }
 
-/* 1. Dashboard Button */
+/* Clean space between Dashboard and New buttons */
 .o_control_panel_breadcrumbs > button.btn-secondary {
-    order: 1 !important;
-    margin: 0 !important;
+    margin-right: 0.5rem !important;
 }
 
-/* 2. Main buttons container (New button) */
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.5rem !important;
-    order: 2 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin-right: 0.5rem !important;
 }
 
-/* 3. Stage & Employee Dropdowns inside Control Panel */
-.o_control_panel_breadcrumbs > .d-inline-flex {
-    order: 3 !important;
-    margin: 0 !important;
-}
-
-/* 4. Status Indicator: space ONLY between Save and Cancel */
-.o_control_panel_breadcrumbs .o_form_status_indicator,
-.o_control_panel .o_form_status_indicator {
-    order: 4 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.o_form_button_save,
-button.o_form_button_save {
-    margin: 0 !important;
-}
-
-.o_form_button_cancel,
-button.o_form_button_cancel {
-    margin: 0 !important;
-}
-
-/* 5. Breadcrumb record title: comes after buttons and filters, truncates with ellipsis */
+/* Record title: sits cleanly with normal width, no artificial overflow cut */
 .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
-    min-width: 0 !important;
-    max-width: clamp(140px, 30vw, 420px) !important;
-    overflow: hidden !important;
-    order: 5 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin-left: 0.25rem !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb span,
@@ -184,11 +137,10 @@ button.o_form_button_cancel {
 .o_control_panel_breadcrumbs .o_breadcrumb li,
 .o_control_panel_breadcrumbs .o_breadcrumb a {
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
     display: inline-block !important;
-    max-width: 100% !important;
     line-height: normal !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
 }
 
 /* Hide historical breadcrumb items and slashes completely */
