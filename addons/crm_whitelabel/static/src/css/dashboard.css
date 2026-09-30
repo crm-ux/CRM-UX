@@ -1153,8 +1153,11 @@
     animation-duration: 20s;
 }
 
-.crm-wave-track.alert {
+.crm-wave-track.crm-wave-alert {
     animation-duration: 16s;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .crm-sla-row {
