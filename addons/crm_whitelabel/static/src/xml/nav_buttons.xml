@@ -6,7 +6,6 @@
             <button class="btn btn-secondary" t-on-click="goDashboard">Dashboard</button>
 
             <!-- 2nd: Explicit New button for Lead creation -->
-            <button class="btn btn-primary" t-if="isTotalPipelineView" t-on-click="createNewLead">New</button>
 
             <!-- 3rd: Stage Dropdown with matching 31px height -->
             <div class="ms-1 d-inline-flex align-items-center" t-if="isTotalPipelineView">
