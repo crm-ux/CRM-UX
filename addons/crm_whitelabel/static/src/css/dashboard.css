@@ -1105,14 +1105,14 @@
     border-color: #0f172a transparent transparent transparent;
 }
 
-/* Medical Waveform Infinite Motion: Left to Right */
+/* Medical Waveform Infinite Motion: Seamless Leftward Flow like real ECG */
 @keyframes crmEcgScroll {
     0% {
-        transform: translateX(-50%);
+        transform: translate3d(0, 0, 0);
     }
 
     100% {
-        transform: translateX(0);
+        transform: translate3d(-50%, 0, 0);
     }
 }
 
@@ -1129,14 +1129,17 @@
 .crm-wave-track {
     display: flex;
     width: 200%;
+    min-width: 200%;
     height: 100%;
     align-items: center;
     animation: crmEcgScroll 8s linear infinite;
+    will-change: transform;
 }
 
 .crm-wave-track svg {
     flex-shrink: 0;
     width: 50% !important;
+    min-width: 50% !important;
     height: 100% !important;
     display: block;
 }
