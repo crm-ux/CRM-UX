@@ -1,7 +1,7 @@
 /** @odoo-module **/
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { Component, onMounted, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
 
@@ -71,6 +71,9 @@ class CrmDashboard extends Component {
         const sessionUid = odoo.__session_info__?.uid;
         this.state.isAdmin = [2, 11].includes(sessionUid);
         onMounted(() => {
+            const navbar = document.querySelector('.o_navbar');
+            if (navbar) navbar.style.display = 'none';
+
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
@@ -87,6 +90,10 @@ class CrmDashboard extends Component {
                 if (!e.target.closest('.crm-notif-wrapper')) this.state.notifOpen = false;
                 if (!e.target.closest('.crm-search-wrapper')) this.state.searchOpen = false;
             });
+        });
+        onWillUnmount(() => {
+            const navbar = document.querySelector('.o_navbar');
+            if (navbar) navbar.style.display = '';
         });
     }
     setGreeting() {

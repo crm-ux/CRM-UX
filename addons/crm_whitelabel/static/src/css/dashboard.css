@@ -16,16 +16,16 @@
     --sidebar-collapsed-width: 70px;
 }
 
-.crm-pro-dashboard *,
-.crm-pro-dashboard *::before,
-.crm-pro-dashboard *::after {
-    box-sizing: border-box;
+.crm-pro-dashboard *:not(i):not([class*="fa-"]):not(.fa) {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Ensure Odoo native icons work cleanly inside dashboard */
-.crm-pro-dashboard .fa {
+/* Ensure Odoo native FontAwesome icons render properly */
+.crm-pro-dashboard i,
+.crm-pro-dashboard .fa,
+.crm-pro-dashboard [class*="fa-"] {
     font-family: "FontAwesome" !important;
+    font-style: normal;
     display: inline-block;
 }
 
