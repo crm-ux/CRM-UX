@@ -528,7 +528,7 @@
                         <span class="crm-chart-badge">Next 90 Days</span>
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 40px); padding-top: 0.5rem; padding-bottom: 0.25rem;">
-                        <div style="cursor: pointer;" t-on-click="() => this.openAmcRenewalList('30', 'Expiring in < 30 Days')">
+                        <div style="cursor: pointer;" t-on-click="() => this.openAmcRenewalList('30', 'Expiring in &lt; 30 Days')">
                             <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.45rem;">
                                 <span style="color: #ef4444;"><i class="fa fa-exclamation-triangle" style="margin-right: 4px;"></i> Expiring in &lt; 30 Days</span>
                                 <span style="color: #0f172a; font-weight: 800;"><t t-esc="state.amcExpiring30 || 0"/> Contracts (<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
