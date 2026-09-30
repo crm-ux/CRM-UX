@@ -214,11 +214,15 @@ button.o_form_button_cancel {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely */
+/* Allow breadcrumb ol to display inline */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,
 .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
 }
 
 /* Terms checkboxes visible */
