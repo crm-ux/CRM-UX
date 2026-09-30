@@ -32,10 +32,10 @@ button.o_form_button_save,
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 0.85rem !important;
+    font-size: clamp(0.78rem, 0.88vw, 0.85rem) !important;
     font-weight: 600 !important;
-    padding: 0.35rem 0.75rem !important;
-    border-radius: 4px !important;
+    padding: 0 clamp(0.65rem, 0.9vw, 0.85rem) !important;
+    border-radius: 0.35rem !important;
     background: #0b3d91 !important;
     color: #ffffff !important;
     border: 1px solid #0b3d91 !important;
@@ -47,7 +47,7 @@ button.o_form_button_save,
 
 .o_form_button_save::after {
     content: "Save" !important;
-    margin-left: 2px !important;
+    margin-left: 0.15rem !important;
 }
 
 .o_form_button_save i,
@@ -62,10 +62,10 @@ button.o_form_button_cancel,
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: 0.85rem !important;
+    font-size: clamp(0.78rem, 0.88vw, 0.85rem) !important;
     font-weight: 600 !important;
-    padding: 0.35rem 0.75rem !important;
-    border-radius: 4px !important;
+    padding: 0 clamp(0.65rem, 0.9vw, 0.85rem) !important;
+    border-radius: 0.35rem !important;
     background: #e2e8f0 !important;
     color: #334155 !important;
     border: 1px solid #cbd5e1 !important;
@@ -77,7 +77,7 @@ button.o_form_button_cancel,
 
 .o_form_button_cancel::after {
     content: "Cancel" !important;
-    margin-left: 2px !important;
+    margin-left: 0.15rem !important;
 }
 
 .o_form_button_cancel i,
@@ -101,22 +101,41 @@ button.o_form_button_cancel,
     overflow: hidden !important;
 }
 
+/* Unified Button Dimensions: Dashboard, New, Save, Cancel (Dynamic Fluid Units) */
 .o_control_panel_breadcrumbs button,
-.o_control_panel_main_buttons button {
+.o_control_panel_main_buttons button,
+.o_form_button_save,
+button.o_form_button_save,
+.o_form_button_cancel,
+button.o_form_button_cancel {
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    line-height: 1 !important;
+    font-size: clamp(0.78rem, 0.88vw, 0.85rem) !important;
+    font-weight: 600 !important;
+    padding: 0 clamp(0.65rem, 0.9vw, 0.85rem) !important;
+    border-radius: 0.35rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
     flex-shrink: 0 !important;
 }
 
 /* 1. Dashboard Button */
 .o_control_panel_breadcrumbs > button.btn-secondary {
     order: 1 !important;
+    margin-right: 0.5rem !important;
 }
 
 /* 2. Main buttons container (New button) */
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.35rem !important;
+    gap: 0.5rem !important;
     order: 2 !important;
+    margin-right: 0.5rem !important;
 }
 
 /* 3 & 4. Status Indicator containing Save & Cancel */
@@ -125,8 +144,8 @@ button.o_form_button_cancel,
     order: 3 !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 0.4rem !important;
-    margin: 0 0.25rem !important;
+    gap: 0.5rem !important;
+    margin: 0 0.5rem 0 0 !important;
 }
 
 /* 5. Breadcrumb record title: comes after all buttons, truncates with ellipsis */
