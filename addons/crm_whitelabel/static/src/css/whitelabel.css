@@ -214,24 +214,10 @@ button.o_form_button_cancel {
     overflow: visible !important;
 }
 
-/* Allow breadcrumb ol to display inline and hide old path history (Custom... / Dashboard) */
+/* Hide old breadcrumb trail history stack completely */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,
 .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    list-style: none !important;
-}
-
-.o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
-.o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
-.o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child) {
-    display: none !important;
-}
-
-.o_control_panel_breadcrumbs .breadcrumb-item::before {
     display: none !important;
 }
 
