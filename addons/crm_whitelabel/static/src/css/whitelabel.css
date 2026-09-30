@@ -1,6 +1,6 @@
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
-.o_web_client>header.o_navbar,
-.o_web_client>nav.o_navbar,
+.o_web_client > header.o_navbar,
+.o_web_client > nav.o_navbar,
 header.o_navbar,
 nav.o_navbar,
 .o_navbar {
@@ -89,6 +89,7 @@ button.o_form_button_cancel,
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
+    margin-left: 0.5rem !important;
 }
 
 /* Unified Button Dimensions across Control Panel */
@@ -113,28 +114,18 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Control Panel breadcrumb bar: natural flow with uniform margin and visible overflow for gear icon */
+/* Control Panel breadcrumb bar: natural flow with uniform margin */
 .o_control_panel_breadcrumbs {
     display: flex !important;
     align-items: center !important;
-    align-content: center !important;
     flex-wrap: nowrap !important;
     min-width: 0 !important;
-    max-width: 100% !important;
-    overflow: visible !important;
-}
-
-/* Allow control panel main breadcrumbs left container to shrink if not enough space */
-.o_control_panel .o_control_panel_breadcrumbs_actions {
-    min-width: 0 !important;
-    overflow: visible !important;
-    flex-shrink: 1 !important;
 }
 
 /* Dashboard Button */
-.o_control_panel_breadcrumbs>button.btn-secondary {
-    margin: 0 0.5rem 0 0 !important;
-    align-self: center !important;
+.o_control_panel_breadcrumbs > button.btn-secondary {
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
     flex-shrink: 0 !important;
 }
 
@@ -142,107 +133,49 @@ button.o_form_button_cancel {
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
-    align-self: center !important;
-    margin: 0 0.5rem 0 0 !important;
-    padding: 0 !important;
+    margin-right: 0.5rem !important;
+    margin-left: 0 !important;
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer, Exhibition & Equipment Name in Form Detail Views: clean ellipsis (...) trimming */
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_sale_order.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_res_partner.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-.crm_lead.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-.o_equipment_master.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="equipment"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="exhibition"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb,
-div[class*="partner"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb {
+/* Record / Customer Name: trims with ellipsis (...) only when name is long */
+.o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
-    align-self: center !important;
     min-width: 0 !important;
-    max-width: clamp(70px, 10vw, 125px) !important;
+    max-width: clamp(140px, 22vw, 260px) !important;
     overflow: hidden !important;
-    margin-right: 0.35rem !important;
+    margin-right: 0.5rem !important;
     margin-left: 0 !important;
     padding: 0 !important;
     flex-shrink: 1 !important;
 }
 
-/* Allow list view breadcrumb titles natural room */
-.o_list_view .o_control_panel_breadcrumbs .o_breadcrumb {
-    max-width: none !important;
-    overflow: visible !important;
-    margin-right: 0.5rem !important;
-}
-
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="equipment"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="exhibition"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb *,
-div[class*="partner"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb * {
+.o_control_panel_breadcrumbs .o_breadcrumb span,
+.o_control_panel_breadcrumbs .o_breadcrumb .active,
+.o_control_panel_breadcrumbs .o_breadcrumb li,
+.o_control_panel_breadcrumbs .o_breadcrumb a {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     display: inline-block !important;
     max-width: 100% !important;
     line-height: normal !important;
-    vertical-align: middle !important;
-    font-size: clamp(0.72rem, 0.8vw, 0.8rem) !important;
     color: #1e293b !important;
     font-weight: 600 !important;
 }
 
-/* Save & Cancel container: cleanly separated with 0.5rem gap */
+/* Save & Cancel container */
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
-    align-self: center !important;
-    margin: 0 0.5rem 0 0 !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-}
-
-/* Dedicated rule to strictly show and never hide gear cog icon across Equipment, Customer and Exhibition views */
-.o_control_panel .o_cp_action_menus,
-.o_control_panel_breadcrumbs .o_cp_action_menus,
-.o_cp_action_menus,
-.o_cp_action_menus .dropdown-toggle,
-.o_cp_action_menus i.fa-cog,
-.o_control_panel_breadcrumbs i.fa-cog,
-.o_control_panel_breadcrumbs .o_cog_btn,
-.o_control_panel .o_cp_action_menus .dropdown-toggle,
-.o_control_panel .o_cp_action_menus i.fa-cog,
-div[data-model*="equipment"] .o_cp_action_menus,
-div[data-model*="equipment"] i.fa-cog,
-div[data-model*="equipment"] .dropdown-toggle,
-.o_form_view .o_cp_action_menus,
-.o_form_view .o_cp_action_menus i.fa-cog,
-.o_res_partner .o_cp_action_menus,
-.o_res_partner i.fa-cog,
-.o_res_partner .dropdown-toggle,
-div[class*="partner"] .o_cp_action_menus,
-div[class*="partner"] i.fa-cog,
-div[class*="partner"] .dropdown-toggle,
-div[class*="exhibition"] .o_cp_action_menus,
-div[class*="exhibition"] i.fa-cog,
-div[class*="exhibition"] .dropdown-toggle {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    overflow: visible !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    flex-shrink: 0 !important;
-    min-width: 1.25rem !important;
-    min-height: 1.25rem !important;
-    margin-left: 0.25rem !important;
     margin-right: 0.5rem !important;
-    padding: 0.15rem !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
 }
 
 /* Filter dropdowns if present */
-.o_control_panel_breadcrumbs>.d-inline-flex {
+.o_control_panel_breadcrumbs > .d-inline-flex {
     margin-right: 0.5rem !important;
     margin-left: 0 !important;
     flex-shrink: 0 !important;
@@ -281,41 +214,10 @@ div[class*="exhibition"] .dropdown-toggle {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely in detail views */
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
-.o_form_view .o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
-.o_form_view .o_control_panel_breadcrumbs .breadcrumb-item:not(.active),
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb a.o_back_button,
-.o_form_view .o_control_panel_breadcrumbs .o_back_button,
-.o_form_view .o_breadcrumb li:not(:last-child),
-.o_form_view .o_breadcrumb a:not(:last-child),
-.o_form_view .o_breadcrumb .breadcrumb-item:not(.active),
-.o_form_view .o_breadcrumb a {
-    display: none !important;
-}
-
-/* Ensure only the active span / text is shown in form view breadcrumbs */
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb .active,
-.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb li:last-child {
-    display: inline-block !important;
-}
-
-.o_control_panel_breadcrumbs .o_breadcrumb ol,
-.o_control_panel_breadcrumbs ol.breadcrumb,
-.o_control_panel_breadcrumbs .o_breadcrumb,
+/* Hide old breadcrumb trail history stack completely */
 .o_breadcrumb ol,
-.o_breadcrumb {
-    display: inline-flex !important;
-    align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    flex-wrap: nowrap !important;
-    list-style: none !important;
-}
-
-.o_control_panel_breadcrumbs .breadcrumb-item::before,
-.breadcrumb-item::before {
+.o_breadcrumb>ol,
+.o_control_panel_breadcrumbs>.o_breadcrumb>ol {
     display: none !important;
 }
 
