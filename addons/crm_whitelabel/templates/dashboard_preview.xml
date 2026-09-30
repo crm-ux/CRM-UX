@@ -773,6 +773,15 @@
                     align-items: center;
                     justify-content: center;
                 }
+                .crm-donut-slice {
+                    cursor: pointer;
+                    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), filter 0.22s ease;
+                    transform-origin: 0 0;
+                }
+                .crm-donut-slice:hover {
+                    transform: scale(1.12);
+                    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+                }
                 .crm-donut-inner strong { font-size: 1.15rem; color: var(--text-dark); }
                 .crm-donut-inner span { font-size: 0.65rem; color: var(--text-muted); }
                 .crm-donut-legend { display: flex; gap: 0.85rem; font-size: 0.75rem; color: var(--text-muted); }
@@ -811,7 +820,8 @@
                     border-top: 1px solid #e2e8f0;
                     margin-top: 1rem;
                 }
-            ]]></style>
+            ]]>
+            </style>
         </head>
         <body>
 
@@ -1421,16 +1431,31 @@
                                 <span class="crm-chart-badge">Live SLA</span>
                             </div>
                             <div class="crm-donut-wrap">
-                                <div class="crm-donut">
-                                    <div class="crm-donut-inner">
-                                        <strong>85%</strong>
-                                        <span>Resolved</span>
+                                <div style="position: relative; width: 140px; height: 140px;">
+                                    <svg viewBox="-22 -22 44 44" style="width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible;">
+                                        <!-- Closed Slice (9 / 12 = 75%) -->
+                                        <path class="crm-donut-slice" d="M 18 0 A 18 18 0 1 1 -18 0 L -12 0 A 12 12 0 1 0 12 0 Z" fill="#10b981" onclick="alert('Filter Service Tickets: Closed (9)')">
+                                            <title>Closed: 9 Tickets (75%)</title>
+                                        </path>
+                                        <!-- Ongoing Slice (1 / 12 = 8.33%) -->
+                                        <path class="crm-donut-slice" d="M -18 0 A 18 18 0 0 1 -15.58 -9.07 L -10.39 -6.05 A 12 12 0 0 0 -12 0 Z" fill="#f59e0b" onclick="alert('Filter Service Tickets: Ongoing (1)')">
+                                            <title>Ongoing: 1 Ticket (8.3%)</title>
+                                        </path>
+                                        <!-- Open Slice (2 / 12 = 16.67%) -->
+                                        <path class="crm-donut-slice" d="M -15.58 -9.07 A 18 18 0 0 1 18 0 L 12 0 A 12 12 0 0 0 -10.39 -6.05 Z" fill="#ef4444" onclick="alert('Filter Service Tickets: Open (2)')">
+                                            <title>Open: 2 Tickets (16.7%)</title>
+                                        </path>
+                                    </svg>
+                                    <!-- Center Label -->
+                                    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+                                        <strong style="font-size: 1.15rem; color: #0f172a; font-weight: 800;">85%</strong>
+                                        <span style="font-size: 0.65rem; color: #64748b; font-weight: 600;">Resolved</span>
                                     </div>
                                 </div>
                                 <div class="crm-donut-legend">
-                                    <span><span class="crm-dot-green"></span> Closed (9)</span>
-                                    <span><span class="crm-dot-yellow"></span> Ongoing (1)</span>
-                                    <span><span class="crm-dot-red"></span> Open (2)</span>
+                                    <span style="cursor: pointer;" onclick="alert('Filter: Closed (9)')"><span class="crm-dot-green"></span> Closed (9)</span>
+                                    <span style="cursor: pointer;" onclick="alert('Filter: Ongoing (1)')"><span class="crm-dot-yellow"></span> Ongoing (1)</span>
+                                    <span style="cursor: pointer;" onclick="alert('Filter: Open (2)')"><span class="crm-dot-red"></span> Open (2)</span>
                                 </div>
                             </div>
                         </div>
@@ -1473,7 +1498,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
 
                         <!-- 4. Low Stock Alerts -->
