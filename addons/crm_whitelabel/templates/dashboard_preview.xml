@@ -1113,7 +1113,7 @@
                     <!-- PIPELINE STRIP -->
                     <section class="crm-pipeline-card">
                         <div class="crm-pipeline-header">
-                            <span>Lead & Quotes</span>
+                            <span>Lead &amp; Quotes</span>
                             <span style="color: var(--primary-blue);">Total Active: 39</span>
                         </div>
                         <div class="crm-pipe-track">
