@@ -883,7 +883,7 @@ class CrmDashboard extends Component {
         pill.style.height = (ratio * m.heightPct) + '%';
 
         const leftPos = col.offsetLeft + (col.offsetWidth / 2);
-        const topPos = (rect.bottom - parentRect.top) - relY - 14;
+        const topPos = Math.max(8, (rect.bottom - parentRect.top) - (ratio * (rect.height - 40)) - 36);
 
         tooltip.style.display = 'flex';
         tooltip.style.left = leftPos + 'px';

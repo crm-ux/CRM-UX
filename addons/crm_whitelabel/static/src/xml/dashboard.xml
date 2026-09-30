@@ -14,7 +14,7 @@
                     <div class="crm-brand">
                         <img t-if="state.companyLogo" t-att-src="state.companyLogo" class="crm-brand-logo" alt="Logo"/>
                         <span t-else="" class="crm-brand-logo" style="background:#0b3d91;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;">U</span>
-                        <span><t t-esc="state.companyName || 'Ultrawin Technologies'"/></span>
+                        <span class="crm-brand-name"><t t-esc="state.companyName || 'Ultrawin Technologies'"/></span>
                     </div>
                     <button class="crm-sidebar-close" t-on-click="toggleSidebar" title="Close menu">
                         ✕
