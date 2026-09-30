@@ -214,25 +214,29 @@ button.o_form_button_cancel {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely */
-/* Only hide breadcrumb ol in form detail views so parent trails don't stack */
-.o_form_view .o_breadcrumb ol,
-.o_form_view .o_breadcrumb>ol,
-.o_form_view .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
-    display: none !important;
-}
-
-/* Keep breadcrumbs, title, and gear icon visible in list views */
-.o_list_view .o_breadcrumb,
-.o_list_view .o_breadcrumb ol,
-.o_list_view .o_control_panel_breadcrumbs>.o_breadcrumb>ol {
+/* Show breadcrumb container, title and gear icon everywhere */
+.o_control_panel_breadcrumbs .o_breadcrumb,
+.o_breadcrumb,
+.o_breadcrumb ol,
+.o_breadcrumb li,
+.o_control_panel_breadcrumbs .o_breadcrumb ol {
     display: inline-flex !important;
     align-items: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    list-style: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
+/* Ensure the gear icon (action/cog menu) inside breadcrumbs is displayed */
+.o_breadcrumb .o_cp_action_menus,
+.o_control_panel_breadcrumbs .o_cp_action_menus {
+    display: inline-flex !important;
+    visibility: visible !important;
+}
+
+/* Only hide previous historical parent links in form view (leave current title + gear) */
+.o_form_view .o_breadcrumb ol>li:not(:last-child) {
+    display: none !important;
+}
 
 /* Terms checkboxes visible */
 .o_field_many2many_checkboxes {
