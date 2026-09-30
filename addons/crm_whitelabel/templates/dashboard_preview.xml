@@ -1113,7 +1113,7 @@
                     <!-- PIPELINE STRIP -->
                     <section class="crm-pipeline-card">
                         <div class="crm-pipeline-header">
-                            <span>Sales Pipeline Conversion Stages</span>
+                            <span>Lead & Quotes</span>
                             <span style="color: var(--primary-blue);">Total Active: 39</span>
                         </div>
                         <div class="crm-pipe-track">
@@ -1483,32 +1483,23 @@
                                     <i class="fa fa-boxes-stacked" style="color: #0284c7;"></i>
                                     <span>Low Stock Alerts</span>
                                 </span>
-                                <span class="crm-chart-badge">Reorder Alerts</span>
+                                <span class="crm-chart-badge">Live Levels</span>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 0.75rem; padding-top: 0.25rem;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #fff1f2; border: 1px solid #ffe4e6; border-radius: 0.5rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
-                                        <span style="font-size: 0.8rem; font-weight: 700; color: #9f1239;">Precision Load Cell 50kN</span>
+                                <t t-foreach="stock_items" t-as="item">
+                                    <div t-attf-style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: {{ '#fff1f2' if item.quantity &lt;= 0 else ('#fffbeb' if item.is_low_stock else '#f0fdf4') }}; border: 1px solid {{ '#ffe4e6' if item.quantity &lt;= 0 else ('#fef3c7' if item.is_low_stock else '#dcfce7') }};">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <span t-attf-style="width: 8px; height: 8px; border-radius: 50%; background: {{ '#ef4444' if item.quantity &lt;= 0 else ('#f59e0b' if item.is_low_stock else '#16a34a') }};"></span>
+                                            <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;"><t t-esc="item.product_id.name"/></span>
+                                        </div>
+                                        <span t-attf-style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; background: {{ '#fecdd3' if item.quantity &lt;= 0 else ('#fde68a' if item.is_low_stock else '#bbf7d0') }}; color: {{ '#be123c' if item.quantity &lt;= 0 else ('#b45309' if item.is_low_stock else '#15803d') }};">
+                                            Stock: <t t-esc="int(item.quantity)"/> (Min: <t t-esc="int(item.safety_stock)"/>)
+                                        </span>
                                     </div>
-                                    <span style="font-size: 0.75rem; font-weight: 800; color: #be123c; background: #fecdd3; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 2 (Min: 5)</span>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 0.5rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span>
-                                        <span style="font-size: 0.8rem; font-weight: 700; color: #92400e;">Digital Caliper 150mm</span>
-                                    </div>
-                                    <span style="font-size: 0.75rem; font-weight: 800; color: #b45309; background: #fde68a; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 4 (Min: 4)</span>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 0.5rem;">
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #16a34a;"></span>
-                                        <span style="font-size: 0.8rem; font-weight: 700; color: #166534;">Pressure Gauge 0-600 Bar</span>
-                                    </div>
-                                    <span style="font-size: 0.75rem; font-weight: 800; color: #15803d; background: #bbf7d0; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 18 (Safe)</span>
-                                </div>
+                                </t>
                             </div>
                         </div>
+
 
                     </section>
 
