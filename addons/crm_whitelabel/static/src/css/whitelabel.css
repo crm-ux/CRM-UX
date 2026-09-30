@@ -281,19 +281,24 @@ div[class*="exhibition"] .dropdown-toggle {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely (Exhibition Contacts, Dashboard, parent links) */
-.o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
-.o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
-.o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
-.o_control_panel_breadcrumbs .breadcrumb-item:not(.active),
-.o_control_panel_breadcrumbs .o_breadcrumb a.o_back_button,
-.o_control_panel_breadcrumbs .o_back_button,
-.o_breadcrumb li:not(:last-child),
-.o_breadcrumb a:not(:last-child),
-.o_breadcrumb .breadcrumb-item:not(.active),
-.breadcrumb-item:not(.active):not(:last-child),
-.breadcrumb li:not(:last-child) {
+/* Hide old breadcrumb trail history stack completely in detail views */
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
+.o_form_view .o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
+.o_form_view .o_control_panel_breadcrumbs .breadcrumb-item:not(.active),
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb a.o_back_button,
+.o_form_view .o_control_panel_breadcrumbs .o_back_button,
+.o_form_view .o_breadcrumb li:not(:last-child),
+.o_form_view .o_breadcrumb a:not(:last-child),
+.o_form_view .o_breadcrumb .breadcrumb-item:not(.active),
+.o_form_view .o_breadcrumb a {
     display: none !important;
+}
+
+/* Ensure only the active span / text is shown in form view breadcrumbs */
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb .active,
+.o_form_view .o_control_panel_breadcrumbs .o_breadcrumb li:last-child {
+    display: inline-block !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb ol,
