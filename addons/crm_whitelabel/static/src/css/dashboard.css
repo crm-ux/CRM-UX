@@ -1911,3 +1911,229 @@ body {
     max-height: none !important;
     overflow: visible !important;
 }
+
+/* ==========================================================================
+   ADVANCED ANALYTICS & INSIGHTS (NEW WIDGETS SECTION)
+   Responsive rules strictly isolate new widgets without affecting existing cards
+   ========================================================================== */
+.crm-analytics-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+    margin-bottom: 20px;
+}
+
+.crm-chart-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: clamp(14px, 1.4vw, 20px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.crm-chart-card:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.crm-chart-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.crm-chart-title {
+    font-size: clamp(0.85rem, 1.1vw, 0.95rem);
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.crm-chart-badge {
+    font-size: 0.72rem;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* Bar Chart and Scrubber */
+.crm-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 160px;
+    padding-top: 1.25rem;
+    gap: 0.5rem;
+}
+
+.crm-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    height: 100%;
+    justify-content: flex-end;
+    cursor: pointer;
+}
+
+.crm-bar-pill {
+    width: 65%;
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+}
+
+.crm-bar-lbl {
+    font-size: 0.72rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+/* Range Filter Pills */
+.crm-range-pills {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 8px;
+}
+
+.crm-range-pill {
+    border: none;
+    background: transparent;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.crm-range-pill:hover {
+    color: #0f172a;
+}
+
+.crm-range-pill.active {
+    background: #ffffff;
+    color: #0b3d91;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Tooltip floating over dragged bar */
+.crm-bar-tooltip {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    background: #0f172a;
+    color: #ffffff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    line-height: 1.25;
+    pointer-events: none;
+    z-index: 10;
+    transform: translate(-50%, -115%);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+
+.crm-bar-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px 4px 0 4px;
+    border-style: solid;
+    border-color: #0f172a transparent transparent transparent;
+}
+
+/* Medical Waveform Infinite Motion: Left to Right */
+@keyframes crmEcgScroll {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+.crm-wave-svg-wrap {
+    flex: 1;
+    height: 26px;
+    overflow: hidden;
+    position: relative;
+    margin: 0 0.75rem;
+}
+
+.crm-wave-track {
+    display: flex;
+    width: 200%;
+    height: 100%;
+    animation: crmEcgScroll 8s linear infinite;
+}
+
+.crm-wave-track.fast { animation-duration: 13s; }
+.crm-wave-track.slow { animation-duration: 20s; }
+.crm-wave-track.alert { animation-duration: 16s; }
+
+.crm-sla-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 0.85rem;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.crm-sla-row:hover {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+}
+
+.crm-dot-red {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.crm-dot-yellow {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f59e0b;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.crm-dot-green {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Responsive Rules specifically for Analytics Section */
+@media (max-width: 1024px) {
+    .crm-analytics-section {
+        grid-template-columns: 1fr;
+    }
+}
