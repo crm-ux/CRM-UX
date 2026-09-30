@@ -113,13 +113,14 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Control Panel breadcrumb bar: natural flow with uniform margin */
+/* Control Panel breadcrumb bar: natural flow with uniform margin and visible overflow for gear icon */
 .o_control_panel_breadcrumbs {
     display: flex !important;
     align-items: center !important;
     align-content: center !important;
     flex-wrap: nowrap !important;
     min-width: 0 !important;
+    overflow: visible !important;
 }
 
 /* Dashboard Button */
@@ -139,26 +140,29 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer & Exhibition Name: exactly in 3rd place with clean ellipsis (...) trimming */
+/* Record / Customer, Exhibition & Equipment Name: exactly in 3rd place with clean ellipsis (...) trimming */
 .o_control_panel_breadcrumbs .o_breadcrumb,
 .o_sale_order .o_control_panel_breadcrumbs .o_breadcrumb,
 .o_res_partner .o_control_panel_breadcrumbs .o_breadcrumb,
 .crm_lead .o_control_panel_breadcrumbs .o_breadcrumb,
+.o_equipment_master .o_control_panel_breadcrumbs .o_breadcrumb,
+div[class*="equipment"] .o_control_panel_breadcrumbs .o_breadcrumb,
 div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb,
 div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     align-self: center !important;
     min-width: 0 !important;
-    max-width: clamp(80px, 12vw, 150px) !important;
+    max-width: clamp(70px, 10vw, 125px) !important;
     overflow: hidden !important;
-    margin-right: 0.5rem !important;
+    margin-right: 0.35rem !important;
     margin-left: 0 !important;
     padding: 0 !important;
     flex-shrink: 1 !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb *,
+div[class*="equipment"] .o_control_panel_breadcrumbs .o_breadcrumb *,
 div[class*="exhibition"] .o_control_panel_breadcrumbs .o_breadcrumb *,
 div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb * {
     white-space: nowrap !important;
@@ -183,48 +187,21 @@ div[class*="partner"] .o_control_panel_breadcrumbs .o_breadcrumb * {
     flex-shrink: 0 !important;
 }
 
-/* Ensure Gear / Action dropdown cog is always visible across all views */
+/* Dedicated rule to strictly show and never hide gear cog icon across Equipment, Customer and Exhibition views */
 .o_control_panel .o_cp_action_menus,
 .o_control_panel_breadcrumbs .o_cp_action_menus,
 .o_cp_action_menus,
 .o_cp_action_menus .dropdown-toggle,
 .o_cp_action_menus i.fa-cog,
 .o_control_panel_breadcrumbs i.fa-cog,
-.o_control_panel_breadcrumbs .o_cog_btn {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    overflow: visible !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    flex-shrink: 0 !important;
-    margin-left: 0.25rem !important;
-    margin-right: 0.5rem !important;
-    padding: 0.15rem !important;
-}
-
-/* Separate dedicated class to unhide gear icon specifically in Equipment Master */
+.o_control_panel_breadcrumbs .o_cog_btn,
 .o_equipment_master .o_cp_action_menus,
 .o_equipment_master i.fa-cog,
 .o_equipment_master .dropdown-toggle,
 div[data-model="equipment.master"] .o_cp_action_menus,
 div[data-model="equipment.master"] i.fa-cog,
 div[class*="equipment"] .o_cp_action_menus,
-div[class*="equipment"] i.fa-cog {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    overflow: visible !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    flex-shrink: 0 !important;
-    min-width: 1.25rem !important;
-    min-height: 1.25rem !important;
-}
-
-/* Dedicated rule to strictly show and never hide gear cog icon in Customer and Exhibition views */
+div[class*="equipment"] i.fa-cog,
 .o_res_partner .o_cp_action_menus,
 .o_res_partner i.fa-cog,
 .o_res_partner .dropdown-toggle,
