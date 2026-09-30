@@ -659,7 +659,7 @@
                 <div class="crm-chart-card" t-if="state.isAdmin or state.canViewAmc">
                     <div class="crm-chart-head">
                         <span class="crm-chart-title">
-                            <i class="fa fa-file-text-o" style="color: #8b5cf6;"></i>
+                            <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
                             <span>AMC Renewals</span>
                         </span>
                         <span class="crm-chart-badge">Next 90 Days</span>

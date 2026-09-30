@@ -14,6 +14,18 @@ nav.o_navbar,
     visibility: hidden !important;
 }
 
+/* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible */
+.o_control_panel .o_cp_buttons,
+.o_control_panel .o_form_buttons_view,
+.o_control_panel .o_form_buttons_edit,
+.o_form_view .o_form_statusbar,
+.o_form_button_save,
+.o_form_button_cancel {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Hide entire breadcrumb ol - removes text and slash */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,

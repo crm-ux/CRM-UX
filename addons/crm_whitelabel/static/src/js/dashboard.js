@@ -81,11 +81,13 @@ class CrmDashboard extends Component {
             this.setGreeting();
             this.setDate();
             document.addEventListener('click', (e) => {
-                if (!e.target.closest('.crm-user-dropdown-wrapper')) this.state.userDropdownOpen = false;
-                if (!e.target.closest('.crm-company-multiselect')) this.state.companyDropdownOpen = false;
+                if (!e.target.closest('.crm-dropdown-container')) {
+                    this.state.userDropdownOpen = false;
+                    this.state.companyDropdownOpen = false;
+                    this.state.notifOpen = false;
+                }
                 if (!e.target.closest('.crm-admin-multiselect')) this.state.adminMenuOpen = false;
-                if (!e.target.closest('.crm-notif-wrapper')) this.state.notifOpen = false;
-                if (!e.target.closest('.crm-search-wrapper')) this.state.searchOpen = false;
+                if (!e.target.closest('.crm-search-box')) this.state.searchOpen = false;
             });
         });
     }
@@ -207,12 +209,12 @@ class CrmDashboard extends Component {
         try {
             user.activateCompanies(this.state.selectedCompanies, {
                 includeChildCompanies: false,
-                reload: false,
+                reload: true,
             });
         } catch (e) {
             console.error("activateCompanies failed:", e);
+            this.loadStats();
         }
-        this.loadStats();
     }
     isCompanySelected(cid) { return this.state.selectedCompanies.includes(cid); }
     get selectedCompanyLabel() {
