@@ -281,10 +281,10 @@ div[class*="exhibition"] .dropdown-toggle {
     overflow: visible !important;
 }
 
-/* Hide old breadcrumb trail history stack completely (/ Dashboard, previous links) */
-.o_control_panel_breadcrumbs .o_breadcrumb ol li:not(.active):not(:last-child),
-.o_control_panel_breadcrumbs ol.breadcrumb li:not(.active):not(:last-child),
-.o_control_panel_breadcrumbs .breadcrumb-item:not(.active):not(:last-child),
+/* Hide old breadcrumb trail history stack completely (Exhibition Contacts, Dashboard, previous links) */
+.o_control_panel_breadcrumbs .o_breadcrumb ol li:not(:last-child),
+.o_control_panel_breadcrumbs ol.breadcrumb li:not(:last-child),
+.o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
 .o_control_panel_breadcrumbs .o_back_button {
     display: none !important;
 }
