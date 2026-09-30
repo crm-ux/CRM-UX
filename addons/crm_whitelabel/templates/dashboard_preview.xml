@@ -1444,9 +1444,9 @@
                                 </span>
                                 <span class="crm-chart-badge">Next 90 Days</span>
                             </div>
-                            <div style="display: flex; flex-direction: column; gap: 0.85rem; padding-top: 0.25rem;">
+                            <div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100% - 40px); padding-top: 0.5rem; padding-bottom: 0.25rem;">
                                 <div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.45rem;">
                                         <span style="color: #ef4444;"><i class="fa fa-triangle-exclamation" style="margin-right: 4px;"></i> Expiring in &lt; 30 Days</span>
                                         <span style="color: #0f172a; font-weight: 800;">3 Contracts (₹ 4.2L)</span>
                                     </div>
@@ -1455,7 +1455,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.45rem;">
                                         <span style="color: #f59e0b;"><i class="fa fa-clock" style="margin-right: 4px;"></i> Expiring in 30–60 Days</span>
                                         <span style="color: #0f172a; font-weight: 800;">5 Contracts (₹ 7.8L)</span>
                                     </div>
@@ -1464,7 +1464,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.35rem;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.45rem;">
                                         <span style="color: #10b981;"><i class="fa fa-shield-halved" style="margin-right: 4px;"></i> Renewed / Secure</span>
                                         <span style="color: #0f172a; font-weight: 800;">14 Contracts (₹ 22.5L)</span>
                                     </div>
@@ -1473,6 +1473,7 @@
                                     </div>
                                 </div>
                             </div>
+
                         </div>
 
                         <!-- 4. Low Stock Alerts -->
@@ -1502,7 +1503,7 @@
                                     </div>
                                     <span style="font-size: 0.75rem; font-weight: 800; color: #15803d; background: #bbf7d0; padding: 0.15rem 0.5rem; border-radius: 0.35rem;">Stock: 66.00 (Safe)</span>
                                 </div>
-                                
+                        
                                 <!-- Item 2: [09.2005] Cartridge Set for Type 1 System (In Stock) -->
                                 <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 0.5rem;">
                                     <div style="display: flex; align-items: center; gap: 0.5rem;">
