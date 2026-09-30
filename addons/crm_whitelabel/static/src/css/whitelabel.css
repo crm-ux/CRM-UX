@@ -210,13 +210,13 @@ div[class*="partner"].o_form_view .o_control_panel_breadcrumbs .o_breadcrumb * {
 .o_cp_action_menus i.fa-cog,
 .o_control_panel_breadcrumbs i.fa-cog,
 .o_control_panel_breadcrumbs .o_cog_btn,
-.o_equipment_master .o_cp_action_menus,
-.o_equipment_master i.fa-cog,
-.o_equipment_master .dropdown-toggle,
-div[data-model="equipment.master"] .o_cp_action_menus,
-div[data-model="equipment.master"] i.fa-cog,
-div[class*="equipment"] .o_cp_action_menus,
-div[class*="equipment"] i.fa-cog,
+.o_control_panel .o_cp_action_menus .dropdown-toggle,
+.o_control_panel .o_cp_action_menus i.fa-cog,
+div[data-model*="equipment"] .o_cp_action_menus,
+div[data-model*="equipment"] i.fa-cog,
+div[data-model*="equipment"] .dropdown-toggle,
+.o_form_view .o_cp_action_menus,
+.o_form_view .o_cp_action_menus i.fa-cog,
 .o_res_partner .o_cp_action_menus,
 .o_res_partner i.fa-cog,
 .o_res_partner .dropdown-toggle,
@@ -282,15 +282,21 @@ div[class*="exhibition"] .dropdown-toggle {
 }
 
 /* Hide old breadcrumb trail history stack completely (Exhibition Contacts, Dashboard, previous links) */
-.o_control_panel_breadcrumbs .o_breadcrumb ol li:not(:last-child),
-.o_control_panel_breadcrumbs ol.breadcrumb li:not(:last-child),
+.o_control_panel_breadcrumbs .o_breadcrumb li:not(:last-child),
+.o_control_panel_breadcrumbs .o_breadcrumb a:not(:last-child),
 .o_control_panel_breadcrumbs .breadcrumb-item:not(:last-child),
-.o_control_panel_breadcrumbs .o_back_button {
+.o_control_panel_breadcrumbs .o_breadcrumb_title:not(:last-child),
+.o_control_panel_breadcrumbs .o_back_button,
+.o_breadcrumb li:not(:last-child),
+.o_breadcrumb a:not(:last-child),
+.breadcrumb li:not(:last-child) {
     display: none !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb ol,
-.o_control_panel_breadcrumbs ol.breadcrumb {
+.o_control_panel_breadcrumbs ol.breadcrumb,
+.o_control_panel_breadcrumbs .o_breadcrumb,
+.o_breadcrumb ol {
     display: inline-flex !important;
     align-items: center !important;
     margin: 0 !important;
@@ -299,7 +305,8 @@ div[class*="exhibition"] .dropdown-toggle {
     list-style: none !important;
 }
 
-.o_control_panel_breadcrumbs .breadcrumb-item::before {
+.o_control_panel_breadcrumbs .breadcrumb-item::before,
+.breadcrumb-item::before {
     display: none !important;
 }
 
