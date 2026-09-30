@@ -844,10 +844,10 @@
                 }
                 .crm-donut-inner strong { font-size: 1.15rem; color: var(--text-dark); }
                 .crm-donut-inner span { font-size: 0.65rem; color: var(--text-muted); }
-                /* Medical Waveform Infinite Real-Machine Motion */
+                /* Medical Waveform Infinite Real-Machine Motion: Left to Right */
                 @keyframes crmEcgScroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
+                    0% { transform: translateX(-50%); }
+                    100% { transform: translateX(0); }
                 }
                 .crm-wave-svg-wrap {
                     flex: 1;
@@ -860,11 +860,11 @@
                     display: flex;
                     width: 200%;
                     height: 100%;
-                    animation: crmEcgScroll 3s linear infinite;
+                    animation: crmEcgScroll 8s linear infinite;
                 }
-                .crm-wave-track.fast { animation-duration: 2s; }
-                .crm-wave-track.slow { animation-duration: 5s; }
-                .crm-wave-track.alert { animation-duration: 2.5s; }
+                .crm-wave-track.fast { animation-duration: 6.5s; }
+                .crm-wave-track.slow { animation-duration: 10s; }
+                .crm-wave-track.alert { animation-duration: 8s; }
                 .crm-sla-row {
                     display: flex;
                     align-items: center;
