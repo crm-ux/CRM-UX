@@ -14,21 +14,84 @@ nav.o_navbar,
     visibility: hidden !important;
 }
 
-/* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible */
+/* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible as text buttons */
 .o_control_panel .o_cp_buttons,
 .o_control_panel .o_form_buttons_view,
 .o_control_panel .o_form_buttons_edit,
-.o_form_view .o_form_statusbar,
-.o_form_button_save,
-.o_form_button_cancel,
-.o_form_status_indicator {
+.o_form_view .o_form_statusbar {
     display: inline-flex !important;
     align-items: center !important;
     visibility: visible !important;
     opacity: 1 !important;
 }
 
-/* Control Panel layout: Dashboard, New, Save, Cancel, Name */
+/* Save button as a proper button like New */
+.o_form_button_save,
+button.o_form_button_save,
+.o_form_status_indicator .o_form_button_save {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 4px !important;
+    background: #0b3d91 !important;
+    color: #ffffff !important;
+    border: 1px solid #0b3d91 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.o_form_button_save::after {
+    content: "Save" !important;
+    margin-left: 2px !important;
+}
+
+.o_form_button_save i,
+.o_form_button_save .fa {
+    display: none !important;
+}
+
+/* Discard / Cancel button as a proper button like Dashboard */
+.o_form_button_cancel,
+button.o_form_button_cancel,
+.o_form_status_indicator .o_form_button_cancel {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 4px !important;
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.o_form_button_cancel::after {
+    content: "Cancel" !important;
+    margin-left: 2px !important;
+}
+
+.o_form_button_cancel i,
+.o_form_button_cancel .fa {
+    display: none !important;
+}
+
+.o_form_status_indicator {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+}
+
+/* Control Panel layout: Dashboard (1), New (2), Save (3), Cancel (4), Name (5) */
 .o_control_panel_breadcrumbs {
     display: flex !important;
     align-items: center !important;
@@ -43,6 +106,12 @@ nav.o_navbar,
     flex-shrink: 0 !important;
 }
 
+/* 1. Dashboard Button */
+.o_control_panel_breadcrumbs > button.btn-secondary {
+    order: 1 !important;
+}
+
+/* 2. Main buttons container (New button) */
 .o_control_panel .o_control_panel_main_buttons {
     display: inline-flex !important;
     align-items: center !important;
@@ -50,14 +119,24 @@ nav.o_navbar,
     order: 2 !important;
 }
 
-/* Breadcrumb record title: comes after buttons, truncates with ellipsis if long */
+/* 3 & 4. Status Indicator containing Save & Cancel */
+.o_control_panel_breadcrumbs .o_form_status_indicator,
+.o_control_panel .o_form_status_indicator {
+    order: 3 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    margin: 0 0.25rem !important;
+}
+
+/* 5. Breadcrumb record title: comes after all buttons, truncates with ellipsis */
 .o_control_panel_breadcrumbs .o_breadcrumb {
     display: inline-flex !important;
     align-items: center !important;
     min-width: 0 !important;
     max-width: clamp(140px, 30vw, 420px) !important;
     overflow: hidden !important;
-    order: 10 !important;
+    order: 5 !important;
     margin-left: 0.25rem !important;
 }
 
