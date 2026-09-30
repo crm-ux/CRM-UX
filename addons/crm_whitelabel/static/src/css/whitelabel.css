@@ -1,3 +1,19 @@
+/* Globally hide Odoo native purple navbar across the entire project (all views) */
+.o_web_client > header.o_navbar,
+.o_web_client > nav.o_navbar,
+header.o_navbar,
+nav.o_navbar,
+.o_navbar {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    visibility: hidden !important;
+}
+
 /* Hide entire breadcrumb ol - removes text and slash */
 .o_breadcrumb ol,
 .o_breadcrumb>ol,

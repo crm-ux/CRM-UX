@@ -71,9 +71,6 @@ class CrmDashboard extends Component {
         const sessionUid = odoo.__session_info__?.uid;
         this.state.isAdmin = [2, 11].includes(sessionUid);
         onMounted(() => {
-            const navbar = document.querySelector('.o_navbar');
-            if (navbar) navbar.style.display = 'none';
-
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
@@ -90,10 +87,6 @@ class CrmDashboard extends Component {
                 if (!e.target.closest('.crm-notif-wrapper')) this.state.notifOpen = false;
                 if (!e.target.closest('.crm-search-wrapper')) this.state.searchOpen = false;
             });
-        });
-        onWillUnmount(() => {
-            const navbar = document.querySelector('.o_navbar');
-            if (navbar) navbar.style.display = '';
         });
     }
     setGreeting() {
