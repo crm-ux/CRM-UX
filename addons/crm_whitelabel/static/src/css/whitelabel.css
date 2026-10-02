@@ -310,6 +310,6 @@ div[name="note"] .o-wysiwyg {
 .oe_subtotal_footer span.text-nowrap.ms-2 {
     display: inline-flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
-    min-width: 140px !important;
+    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
+    margin-left: auto !important;
 }
