@@ -949,15 +949,19 @@ class CrmDashboard extends Component {
 
         try {
             if (diffDays <= 1) {
-                // Single Day -> Hours
+                // 1 Day -> 4 Time slots (Hours)
                 this.state.customRangeType = "hour";
                 await this._fetchHourlySales(startStr);
-            } else if (diffDays <= 31) {
-                // A few days / weeks -> Daily
+            } else if (diffDays <= 7) {
+                // Up to 1 Week (<= 7 days) -> 7 Daily Bars
                 this.state.customRangeType = "day";
                 await this._fetchDailySales(startStr, endStr);
+            } else if (diffDays <= 60) {
+                // Between 1 week and 2 months (e.g., 4 or 5 weeks) -> Weekly Bars
+                this.state.customRangeType = "week";
+                await this._fetchWeeklySales(startStr, endStr);
             } else {
-                // Multi-Month -> Monthly
+                // Multi-Month (> 60 days) -> Monthly Bars
                 this.state.customRangeType = "month";
                 await this._fetchMonthlySales(startStr, endStr);
             }
@@ -983,10 +987,10 @@ class CrmDashboard extends Component {
             args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
         const blocks = [
-            { label: "9am-12pm", startH: 9, endH: 12, total: 0, startDt: `${dateStr} 09:00:00`, endDt: `${dateStr} 12:00:00` },
-            { label: "12pm-3pm", startH: 12, endH: 15, total: 0, startDt: `${dateStr} 12:00:00`, endDt: `${dateStr} 15:00:00` },
-            { label: "3pm-6pm", startH: 15, endH: 18, total: 0, startDt: `${dateStr} 15:00:00`, endDt: `${dateStr} 18:00:00` },
-            { label: "6pm-9pm", startH: 18, endH: 21, total: 0, startDt: `${dateStr} 18:00:00`, endDt: `${dateStr} 21:00:00` },
+            { label: "9am-12pm", startH: 9, endH: 12, total: 0, startDt: `${dateStr} 09:00:00`, endDt: `${dateStr} 12:00:00`, days: 1 },
+            { label: "12pm-3pm", startH: 12, endH: 15, total: 0, startDt: `${dateStr} 12:00:00`, endDt: `${dateStr} 15:00:00`, days: 1 },
+            { label: "3pm-6pm", startH: 15, endH: 18, total: 0, startDt: `${dateStr} 15:00:00`, endDt: `${dateStr} 18:00:00`, days: 1 },
+            { label: "6pm-9pm", startH: 18, endH: 21, total: 0, startDt: `${dateStr} 18:00:00`, endDt: `${dateStr} 21:00:00`, days: 1 },
         ];
         orders.forEach(o => {
             if (!o.date_order) return;
@@ -1015,6 +1019,7 @@ class CrmDashboard extends Component {
         const dayMap = {};
         const dCurrent = new Date(startStr);
         const dEnd = new Date(endStr);
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         while (dCurrent <= dEnd) {
             const k = `${dCurrent.getFullYear()}-${String(dCurrent.getMonth() + 1).padStart(2, "0")}-${String(dCurrent.getDate()).padStart(2, "0")}`;
             dayMap[k] = 0;
@@ -1029,11 +1034,76 @@ class CrmDashboard extends Component {
             }
         });
         const dayKeys = Object.keys(dayMap).sort();
-        this.state.customChartData = dayKeys.map(k => ({
-            label: k.substring(5), // MM-DD
-            total: dayMap[k],
-            fullDay: k,
-            days: 1
+        this.state.customChartData = dayKeys.map(k => {
+            const dObj = new Date(k);
+            const wDay = dayNames[dObj.getDay()];
+            return {
+                label: `${wDay} ${k.substring(8)}`, // e.g. Mon 01
+                total: dayMap[k],
+                fullDay: k,
+                days: 1
+            };
+        });
+    }
+
+    async _fetchWeeklySales(startStr, endStr) {
+        const domain = [
+            ["date_order", ">=", startStr + " 00:00:00"],
+            ["date_order", "<=", endStr + " 23:59:59"],
+            "|",
+            ["x_quote_stage", "=", "won"],
+            ["state", "in", ["sale", "done"]]
+        ];
+        if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
+            domain.push(["company_id", "in", this.state.selectedCompanies]);
+        }
+        const orders = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "search_read",
+            args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
+        });
+
+        const weeks = [];
+        const dCurrent = new Date(startStr);
+        const dEnd = new Date(endStr);
+        let weekIdx = 1;
+
+        while (dCurrent <= dEnd) {
+            const wStart = new Date(dCurrent);
+            const wEnd = new Date(dCurrent);
+            wEnd.setDate(wEnd.getDate() + 6);
+            if (wEnd > dEnd) {
+                wEnd.setTime(dEnd.getTime());
+            }
+
+            const wStartStr = `${wStart.getFullYear()}-${String(wStart.getMonth() + 1).padStart(2, "0")}-${String(wStart.getDate()).padStart(2, "0")}`;
+            const wEndStr = `${wEnd.getFullYear()}-${String(wEnd.getMonth() + 1).padStart(2, "0")}-${String(wEnd.getDate()).padStart(2, "0")}`;
+            const daysCount = Math.round((wEnd - wStart) / (1000 * 60 * 60 * 24)) + 1;
+
+            weeks.push({
+                label: `Week ${weekIdx} (${wStartStr.substring(5)} to ${wEndStr.substring(5)})`,
+                shortLabel: `W${weekIdx} (${wStartStr.substring(5)})`,
+                startDt: `${wStartStr} 00:00:00`,
+                endDt: `${wEndStr} 23:59:59`,
+                total: 0,
+                days: daysCount
+            });
+
+            dCurrent.setDate(dCurrent.getDate() + 7);
+            weekIdx++;
+        }
+
+        orders.forEach(o => {
+            if (!o.date_order) return;
+            const oDate = o.date_order;
+            const w = weeks.find(item => oDate >= item.startDt && oDate <= item.endDt);
+            if (w) {
+                w.total += (o.amount_total || o.amount_untaxed || 0);
+            }
+        });
+
+        this.state.customChartData = weeks.map(w => ({
+            ...w,
+            label: w.shortLabel
         }));
     }
 

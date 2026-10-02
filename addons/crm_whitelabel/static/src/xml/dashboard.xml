@@ -567,8 +567,8 @@
                                     <span class="crm-bar-val-lbl" t-att-style="m.isHovered ? 'opacity: 0;' : 'opacity: 1;'" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">
                                         <t t-esc="fmt(m.total)"/>
                                     </span>
-                                    <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (state.salesRangeMonths === 12 ? '55%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
-                                    <span class="crm-bar-lbl"><t t-esc="m.label"/></span>
+                                    <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (salesTrendMonths.length > 8 ? '45%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
+                                    <span class="crm-bar-lbl" style="white-space: nowrap;"><t t-esc="m.label"/></span>
                                 </div>
                             </t>
                             <!-- Dynamic Tooltip for Drag/Hover -->
