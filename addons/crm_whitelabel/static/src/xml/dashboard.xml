@@ -552,23 +552,28 @@
                         </div>
                     </div>
                     <div class="crm-bar-chart" style="position: relative; height: 160px;">
-                        <t t-foreach="salesTrendMonths" t-as="m" t-key="m.label">
-                            <div class="crm-bar-col"
-                                 t-on-click="() => this.openMonthlyWon(m)"
-                                 t-on-mousemove="(e) => this.onBarScrub(e, m)"
-                                 t-on-mouseleave="(e) => this.onBarLeave(e, m)">
-                                <span class="crm-bar-val-lbl" t-att-style="m.isHovered ? 'opacity: 0;' : 'opacity: 1;'" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">
-                                    <t t-esc="fmt(m.total)"/>
-                                </span>
-                                <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (state.salesRangeMonths === 12 ? '55%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
-                                <span class="crm-bar-lbl"><t t-esc="m.label"/></span>
+                        <t t-if="salesTrendMonths.length === 0">
+                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
+                                <i class="fa fa-calendar-times-o" style="font-size: 1.5rem; margin-bottom: 6px; color: #cbd5e1;"></i>
+                                <span>No sales revenue recorded for this period</span>
                             </div>
                         </t>
-                        <!-- Dynamic Tooltip for Drag/Hover -->
-                        <div class="crm-bar-tooltip" style="display: none;">
-                            <span>Sep · Day 15</span>
-                            <strong>₹ 46.3K</strong>
-                        </div>
+                        <t t-else="">
+                            <t t-foreach="salesTrendMonths" t-as="m" t-key="m.label">
+                                <div class="crm-bar-col"
+                                     t-on-click="() => this.openMonthlyWon(m)"
+                                     t-on-mousemove="(e) => this.onBarScrub(e, m)"
+                                     t-on-mouseleave="(e) => this.onBarLeave(e, m)">
+                                    <span class="crm-bar-val-lbl" t-att-style="m.isHovered ? 'opacity: 0;' : 'opacity: 1;'" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">
+                                        <t t-esc="fmt(m.total)"/>
+                                    </span>
+                                    <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (state.salesRangeMonths === 12 ? '55%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
+                                    <span class="crm-bar-lbl"><t t-esc="m.label"/></span>
+                                </div>
+                            </t>
+                            <!-- Dynamic Tooltip for Drag/Hover -->
+                            <div class="crm-bar-tooltip" style="display: none;"></div>
+                        </t>
                     </div>
                 </div>
 

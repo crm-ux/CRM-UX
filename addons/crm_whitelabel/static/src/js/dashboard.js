@@ -71,6 +71,7 @@ class CrmDashboard extends Component {
             amcSecurePct: 0,
             lowStockItems: [],
             customSalesTrend: null,
+            realSalesMonths: [],
         });
         // Force isAdmin check synchronously using session info
         const sessionUid = odoo.__session_info__?.uid;
@@ -79,6 +80,7 @@ class CrmDashboard extends Component {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
+                    this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
                 });
             });
             this.loadNotifCount();
@@ -808,49 +810,15 @@ class CrmDashboard extends Component {
 
     // --- ADVANCED ANALYTICS GETTERS & ACTIONS ---
     get salesTrendMonths() {
-        if (this.state.salesRangeMonths === 'custom' && this.state.customChartData) {
-            const data = this.state.customChartData;
-            const maxVal = Math.max(...data.map(m => m.total), 1);
-            return data.map(m => ({
-                ...m,
-                heightPct: Math.min(95, Math.max(12, Math.round((m.total / maxVal) * 90)))
-            }));
-        }
-        const custom = this.state.customSalesTrend;
-        const range = this.state.salesRangeMonths;
         let months = [];
+        if (this.state.salesRangeMonths === 'custom' && this.state.customChartData) {
+            months = this.state.customChartData;
+        } else if (this.state.realSalesMonths && this.state.realSalesMonths.length > 0) {
+            months = this.state.realSalesMonths;
+        }
 
-        if (custom && custom[range]) {
-            months = custom[range];
-        } else {
-            const currentWon = this.state.wonRevenue || 110000;
-            if (range === 3) {
-                months = [
-                    { label: 'Jul', total: Math.round(currentWon * 0.6), days: 31, color: '#38bdf8' },
-                    { label: 'Aug', total: Math.round(currentWon * 0.9), days: 31, color: '#0284c7' },
-                    { label: 'Sep', total: currentWon, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)' }
-                ];
-            } else if (range === 12) {
-                months = [
-                    { label: 'Oct', total: 18000, days: 31 }, { label: 'Nov', total: 22000, days: 30 },
-                    { label: 'Dec', total: 31000, days: 31 }, { label: 'Jan', total: 28000, days: 31 },
-                    { label: 'Feb', total: 36000, days: 28 }, { label: 'Mar', total: 42000, days: 31 },
-                    { label: 'Apr', total: 39000, days: 30 }, { label: 'May', total: 45000, days: 31 },
-                    { label: 'Jun', total: 58000, days: 30 }, { label: 'Jul', total: 64000, days: 31 },
-                    { label: 'Aug', total: 82000, days: 31 },
-                    { label: 'Sep', total: currentWon, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)' }
-                ];
-            } else {
-                // Default 6M
-                months = [
-                    { label: 'Apr', total: Math.round(currentWon * 0.35), days: 30 },
-                    { label: 'May', total: Math.round(currentWon * 0.45), days: 31 },
-                    { label: 'Jun', total: Math.round(currentWon * 0.65), days: 30 },
-                    { label: 'Jul', total: Math.round(currentWon * 0.55), days: 31 },
-                    { label: 'Aug', total: Math.round(currentWon * 0.88), days: 31 },
-                    { label: 'Sep', total: currentWon, days: 30, color: 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)' }
-                ];
-            }
+        if (!months || months.length === 0) {
+            return [];
         }
 
         const maxVal = Math.max(...months.map(m => m.total), 1);
@@ -865,7 +833,11 @@ class CrmDashboard extends Component {
         });
     }
 
+
+
     openCustomDateModal() {
+        this.state.customStartDateInput = "";
+        this.state.customEndDateInput = "";
         this.state.customDateModalOpen = true;
     }
 
@@ -954,6 +926,7 @@ class CrmDashboard extends Component {
             }
         } catch (err) {
             console.error("Custom date range query error:", err);
+            this.state.customChartData = [];
         }
     }
 
@@ -974,7 +947,8 @@ class CrmDashboard extends Component {
             { label: "6pm-9pm", startH: 18, endH: 21, total: 0, startDt: `${dateStr} 18:00:00`, endDt: `${dateStr} 21:00:00` },
         ];
         orders.forEach(o => {
-            const h = new Date(o.date_order).getHours();
+            if (!o.date_order) return;
+            const h = new Date(o.date_order.replace(' ', 'T')).getHours();
             const blk = blocks.find(b => h >= b.startH && h < b.endH);
             if (blk) blk.total += (o.amount_untaxed || 0);
         });
@@ -987,16 +961,27 @@ class CrmDashboard extends Component {
             ["date_order", "<=", endStr + " 23:59:59"],
             ["state", "in", ["sale", "done"]]
         ];
-        const res = await rpc("/web/dataset/call_kw", {
-            model: "sale.order", method: "read_group",
-            args: [domain, ["amount_untaxed:sum"], ["date_order:day"]],
-            kwargs: { lazy: false }
+        const orders = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "search_read",
+            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
         });
-        this.state.customChartData = res.map(r => ({
-            label: r["date_order:day"] ? r["date_order:day"].split(" ")[0].substring(5) : "Day",
-            total: r.amount_untaxed || 0,
-            fullDay: r["date_order:day"]
-        }));
+        const dayMap = {};
+        orders.forEach(o => {
+            if (!o.date_order) return;
+            const dayKey = o.date_order.substring(0, 10);
+            dayMap[dayKey] = (dayMap[dayKey] || 0) + (o.amount_untaxed || 0);
+        });
+        const dayKeys = Object.keys(dayMap).sort();
+        if (dayKeys.length === 0) {
+            this.state.customChartData = [];
+        } else {
+            this.state.customChartData = dayKeys.map(k => ({
+                label: k.substring(5), // MM-DD
+                total: dayMap[k],
+                fullDay: k,
+                days: 1
+            }));
+        }
     }
 
     async _fetchMonthlySales(startStr, endStr) {
@@ -1005,16 +990,85 @@ class CrmDashboard extends Component {
             ["date_order", "<=", endStr + " 23:59:59"],
             ["state", "in", ["sale", "done"]]
         ];
-        const res = await rpc("/web/dataset/call_kw", {
-            model: "sale.order", method: "read_group",
-            args: [domain, ["amount_untaxed:sum"], ["date_order:month"]],
-            kwargs: { lazy: false }
+        const orders = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "search_read",
+            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
         });
-        this.state.customChartData = res.map(r => ({
-            label: r["date_order:month"] || "Month",
-            total: r.amount_untaxed || 0,
-            fullMonth: r["date_order:month"]
-        }));
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthMap = {};
+        orders.forEach(o => {
+            if (!o.date_order) return;
+            const mKey = o.date_order.substring(0, 7); // YYYY-MM
+            monthMap[mKey] = (monthMap[mKey] || 0) + (o.amount_untaxed || 0);
+        });
+        const sortedMonths = Object.keys(monthMap).sort();
+        if (sortedMonths.length === 0) {
+            this.state.customChartData = [];
+        } else {
+            this.state.customChartData = sortedMonths.map(k => {
+                const parts = k.split("-");
+                const mIndex = parseInt(parts[1], 10) - 1;
+                const label = `${monthNames[mIndex]} '${parts[0].slice(-2)}`;
+                return {
+                    label: label,
+                    total: monthMap[k],
+                    fullMonth: k,
+                    days: 30
+                };
+            });
+        }
+    }
+
+    async loadSalesTrendRange(monthsCount = 6) {
+        try {
+            const now = new Date();
+            const start = new Date(now.getFullYear(), now.getMonth() - (monthsCount - 1), 1);
+            const startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-01`;
+            const endStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`;
+
+            const domain = [
+                ["date_order", ">=", startStr + " 00:00:00"],
+                ["date_order", "<=", endStr + " 23:59:59"],
+                ["state", "in", ["sale", "done"]]
+            ];
+            if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
+                domain.push(["company_id", "in", this.state.selectedCompanies]);
+            }
+            const orders = await rpc("/web/dataset/call_kw", {
+                model: "sale.order", method: "search_read",
+                args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
+            });
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthMap = {};
+            // Initialize each month in the range with 0 so the chart shows the timeline accurately
+            for (let i = monthsCount - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+                monthMap[k] = 0;
+            }
+            orders.forEach(o => {
+                if (!o.date_order) return;
+                const mKey = o.date_order.substring(0, 7);
+                if (monthMap[mKey] !== undefined) {
+                    monthMap[mKey] += (o.amount_untaxed || 0);
+                }
+            });
+            const sortedMonths = Object.keys(monthMap).sort();
+            this.state.realSalesMonths = sortedMonths.map(k => {
+                const parts = k.split("-");
+                const mIndex = parseInt(parts[1], 10) - 1;
+                const daysInMonth = new Date(Number(parts[0]), mIndex + 1, 0).getDate();
+                return {
+                    label: monthNames[mIndex],
+                    total: monthMap[k],
+                    fullMonth: k,
+                    days: daysInMonth
+                };
+            });
+        } catch (err) {
+            console.error("Error loading real sales trend:", err);
+            this.state.realSalesMonths = [];
+        }
     }
 
     setSalesRange(range) {
@@ -1024,6 +1078,7 @@ class CrmDashboard extends Component {
         }
         this.state.salesRangeMonths = range;
         this.state.scrubTooltip.visible = false;
+        this.loadSalesTrendRange(range);
     }
 
     onBarScrub(e, m) {
@@ -1091,6 +1146,12 @@ class CrmDashboard extends Component {
             domain.push(["date_order", "<=", m.fullDay + " 23:59:59"]);
             title = `Orders (${m.label})`;
         } else if (m.fullMonth) {
+            const [yr, mo] = m.fullMonth.split("-").map(Number);
+            const lastDay = new Date(yr, mo, 0).getDate();
+            const startStr = `${m.fullMonth}-01 00:00:00`;
+            const endStr = `${m.fullMonth}-${String(lastDay).padStart(2, "0")} 23:59:59`;
+            domain.push(["date_order", ">=", startStr]);
+            domain.push(["date_order", "<=", endStr]);
             title = `Orders (${m.label})`;
         }
         this.go({
