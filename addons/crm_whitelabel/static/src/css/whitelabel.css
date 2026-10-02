@@ -299,10 +299,9 @@ div[name="note"] .o-wysiwyg {
     border-top: none !important;
 }
 
-/* 2. Align ₹ symbol below each other */
+/* 2. Align ₹ symbol below each other with minus sign right in front */
 .oe_subtotal_footer div[name="x_original_amount"],
-.oe_subtotal_footer div[name="x_net_total"],
-.oe_subtotal_footer div[name="x_amount_after_discount"] {
+.oe_subtotal_footer div[name="x_net_total"] {
     text-align: right !important;
     min-width: 125px !important;
 }
@@ -310,6 +309,12 @@ div[name="note"] .o-wysiwyg {
 .oe_subtotal_footer span.text-nowrap.ms-2 {
     display: inline-flex !important;
     align-items: center !important;
-    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
-    margin-left: auto !important;
+    justify-content: flex-end !important;
+    min-width: 125px !important;
+}
+
+.oe_subtotal_footer div[name="x_amount_after_discount"] {
+    min-width: auto !important;
+    text-align: right !important;
+    margin-left: clamp(0.2rem, 0.35vw, 0.45rem) !important;
 }
