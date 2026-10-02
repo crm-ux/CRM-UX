@@ -658,6 +658,12 @@
                             <!-- Gradient Horizon Line connecting from center of Box 1 (12.5%) to center of Box 4 (87.5%) -->
                             <div style="position: absolute; top: 50%; left: 12.5%; right: 12.5%; height: 4px; transform: translateY(-50%); background: linear-gradient(90deg, #64748b 0%, #ef4444 33.3%, #f59e0b 66.6%, #10b981 100%); border-radius: 999px;"></div>
                             
+                            <!-- 4 Vertical Dotted Connecting Lines from Dot down to each Box -->
+                            <div style="position: absolute; top: 50%; left: 12.5%; width: 1px; height: 16px; border-left: 2px dotted #94a3b8; transform: translateX(-50%); z-index: 1;"></div>
+                            <div style="position: absolute; top: 50%; left: 37.5%; width: 1px; height: 16px; border-left: 2px dotted #f87171; transform: translateX(-50%); z-index: 1;"></div>
+                            <div style="position: absolute; top: 50%; left: 62.5%; width: 1px; height: 16px; border-left: 2px dotted #fbbf24; transform: translateX(-50%); z-index: 1;"></div>
+                            <div style="position: absolute; top: 50%; left: 87.5%; width: 1px; height: 16px; border-left: 2px dotted #34d399; transform: translateX(-50%); z-index: 1;"></div>
+
                             <!-- 4 Milestone Dots exactly centered above each of the 4 boxes -->
                             <div style="position: absolute; top: 50%; left: 12.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2); z-index: 2;"></div>
                             <div style="position: absolute; top: 50%; left: 37.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); z-index: 2;"></div>
