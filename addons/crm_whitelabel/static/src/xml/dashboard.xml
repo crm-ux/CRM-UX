@@ -754,8 +754,8 @@
 
                     <div style="display: flex; flex-direction: column; gap: 0.65rem; flex: 1; justify-content: space-between; padding-top: 0.25rem;">
                         
-                        <!-- When Low Stock items exist: Show Top 3 (product name + units) -->
-                        <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
+                        <!-- TEMPORARY PREVIEW OF EMPTY STATE: set to false to test empty view -->
+                        <t t-if="false and state.lowStockItems and state.lowStockItems.length > 0">
                             <div style="display: flex; flex-direction: column; gap: 0.55rem;">
                                 <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
                                     <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fef3c7; transition: background 0.2s; cursor: pointer;"
@@ -774,7 +774,7 @@
                         </t>
 
                         <!-- When no low stock, but products are registered in database -->
-                        <t t-elif="state.totalRegisteredStock > 0 or state.productStockCount > 0">
+                        <t t-elif="false and (state.totalRegisteredStock > 0 or state.productStockCount > 0)">
                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
                                 <i class="fa fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 0.25rem;"></i>
                                 <span style="font-weight: 700; color: #1e293b;">Stock Levels Healthy</span>
