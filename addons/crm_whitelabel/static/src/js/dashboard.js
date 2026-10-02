@@ -622,12 +622,7 @@ class CrmDashboard extends Component {
     }
 
     assignTaskComingSoon() {
-        if (this.notification) {
-            this.notification.add("Assign Task feature is coming soon!", {
-                title: "Coming Soon",
-                type: "info",
-            });
-        }
+        this.showToast("Assign Task feature is coming soon!");
     }
 
     createAmc() {
