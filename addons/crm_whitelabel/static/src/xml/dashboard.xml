@@ -232,8 +232,8 @@
                         </div>
                         <div class="crm-action-btn" t-on-click="newQuote">
                             <div>
-                                <div class="crm-action-title">+ Create Quotation</div>
-                                <div class="crm-action-sub">New commercial quote</div>
+                                <div class="crm-action-title">+ Assign Task</div>
+                                <div class="crm-action-sub">Assign task to team</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>
