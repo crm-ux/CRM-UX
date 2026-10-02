@@ -1038,6 +1038,13 @@ class DashboardStats(models.Model):
             'closed': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('ticket_status', '=', 'closed')]),
         }
 
+        # Complaint Type Breakdown counts
+        complaint_counts = {
+            'breakdown': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'breakdown')]),
+            'pm': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'pm')]),
+            'free_call': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'free_call')]),
+        }
+
         # AMC Contract counts: filtered by user's hierarchy (own, team, dept, all)
         amc_counts = {
             'total': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter),
@@ -1064,6 +1071,7 @@ class DashboardStats(models.Model):
             'equipment_counts': equipment_counts,
             'ticket_counts': ticket_counts,
             'amc_counts': amc_counts,
+            'complaint_counts': complaint_counts,
             'permissions': {
                 'product_read': bool(
                     target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or

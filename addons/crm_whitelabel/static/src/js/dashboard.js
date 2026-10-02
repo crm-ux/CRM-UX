@@ -334,9 +334,9 @@ class CrmDashboard extends Component {
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,
                 // Advanced Analytics safe bindings (uses backend data if present, otherwise keeps safe state)
-                complaintBreakdown: s.complaint_counts?.breakdown ?? this.state.complaintBreakdown,
-                complaintPm: s.complaint_counts?.preventive ?? this.state.complaintPm,
-                complaintFreeCall: s.complaint_counts?.free_call ?? this.state.complaintFreeCall,
+                complaintBreakdown: s.complaint_counts?.breakdown ?? 0,
+                complaintPm: s.complaint_counts?.pm ?? 0,
+                complaintFreeCall: s.complaint_counts?.free_call ?? 0,
                 amcExpiring30: s.amc_renewals?.expiring_30 ?? this.state.amcExpiring30,
                 amcExpiring30Val: s.amc_renewals?.expiring_30_val ?? this.state.amcExpiring30Val,
                 amcExpiring60: s.amc_renewals?.expiring_60 ?? this.state.amcExpiring60,
@@ -1477,9 +1477,10 @@ class CrmDashboard extends Component {
             return;
         }
         const domainMap = {
-            breakdown: [["ticket_type", "=", "breakdown"]],
-            preventive: [["ticket_type", "=", "preventive"]],
-            free_call: [["ticket_type", "=", "free_call"]]
+            breakdown: [["complaint_type", "=", "breakdown"]],
+            pm: [["complaint_type", "=", "pm"]],
+            preventive: [["complaint_type", "=", "pm"]],
+            free_call: [["complaint_type", "=", "free_call"]]
         };
         const domain = domainMap[type] || [];
         this.openServiceTicketList(domain, title);
