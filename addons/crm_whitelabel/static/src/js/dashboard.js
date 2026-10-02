@@ -817,7 +817,7 @@ class CrmDashboard extends Component {
         }
 
         const totalSum = months.reduce((acc, m) => acc + (m.total || 0), 0);
-        if (!months.length || totalSum === 0) {
+        if (!months.length || (totalSum === 0 && this.state.salesRangeMonths !== 'custom')) {
             // If database has won revenue in total KPI, distribute accurately across the recent months
             const wonRev = this.state.wonRevenue || 0;
             if (wonRev > 0 && this.state.salesRangeMonths !== 'custom') {
@@ -839,7 +839,7 @@ class CrmDashboard extends Component {
                     });
                 }
                 months = generated;
-            } else if (totalSum === 0) {
+            } else {
                 return [];
             }
         }
@@ -887,11 +887,17 @@ class CrmDashboard extends Component {
 
     onDateInputChange(e, fieldName) {
         let val = e.target.value.replace(/[^0-9/]/g, "");
-        // Auto slash after 2 digits
-        if (val.length === 2 && !val.includes("/")) {
-            val = val + "/";
-        } else if (val.length === 5 && (val.match(/\//g) || []).length === 1) {
-            val = val + "/";
+        // Only auto-add slash when typing forward if exactly 2 digits (day) or 5 chars (day/month)
+        const current = this.state[fieldName] || "";
+        if (val.length > current.length) {
+            if (val.length === 2 && !val.includes("/")) {
+                val = val + "/";
+            } else if (val.length === 5 && (val.match(/\//g) || []).length === 1) {
+                val = val + "/";
+            }
+        }
+        if (val.length > 10) {
+            val = val.substring(0, 10);
         }
         this.state[fieldName] = val;
     }
@@ -908,7 +914,15 @@ class CrmDashboard extends Component {
         if (y.length === 2) {
             const currentYearPrefix = String(new Date().getFullYear()).substring(0, 2);
             y = currentYearPrefix + y;
+        } else if (y.length === 4 && y.startsWith("0")) {
+            // Handle case where user typed 0206 by mistyping
+            y = y.replace(/^0+/, "");
+            if (y.length === 2) {
+                const currentYearPrefix = String(new Date().getFullYear()).substring(0, 2);
+                y = currentYearPrefix + y;
+            }
         }
+        if (y.length !== 4) return null;
         return `${y}-${m}-${d}`;
     }
 
@@ -957,11 +971,16 @@ class CrmDashboard extends Component {
         const domain = [
             ["date_order", ">=", dateStr + " 00:00:00"],
             ["date_order", "<=", dateStr + " 23:59:59"],
+            "|",
+            ["x_quote_stage", "=", "won"],
             ["state", "in", ["sale", "done"]]
         ];
+        if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
+            domain.push(["company_id", "in", this.state.selectedCompanies]);
+        }
         const orders = await rpc("/web/dataset/call_kw", {
             model: "sale.order", method: "search_read",
-            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
+            args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
         const blocks = [
             { label: "9am-12pm", startH: 9, endH: 12, total: 0, startDt: `${dateStr} 09:00:00`, endDt: `${dateStr} 12:00:00` },
@@ -973,7 +992,7 @@ class CrmDashboard extends Component {
             if (!o.date_order) return;
             const h = new Date(o.date_order.replace(' ', 'T')).getHours();
             const blk = blocks.find(b => h >= b.startH && h < b.endH);
-            if (blk) blk.total += (o.amount_untaxed || 0);
+            if (blk) blk.total += (o.amount_total || o.amount_untaxed || 0);
         });
         this.state.customChartData = blocks;
     }
@@ -982,64 +1001,91 @@ class CrmDashboard extends Component {
         const domain = [
             ["date_order", ">=", startStr + " 00:00:00"],
             ["date_order", "<=", endStr + " 23:59:59"],
+            "|",
+            ["x_quote_stage", "=", "won"],
             ["state", "in", ["sale", "done"]]
         ];
+        if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
+            domain.push(["company_id", "in", this.state.selectedCompanies]);
+        }
         const orders = await rpc("/web/dataset/call_kw", {
             model: "sale.order", method: "search_read",
-            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
+            args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
         const dayMap = {};
+        const dCurrent = new Date(startStr);
+        const dEnd = new Date(endStr);
+        while (dCurrent <= dEnd) {
+            const k = `${dCurrent.getFullYear()}-${String(dCurrent.getMonth() + 1).padStart(2, "0")}-${String(dCurrent.getDate()).padStart(2, "0")}`;
+            dayMap[k] = 0;
+            dCurrent.setDate(dCurrent.getDate() + 1);
+        }
+
         orders.forEach(o => {
             if (!o.date_order) return;
             const dayKey = o.date_order.substring(0, 10);
-            dayMap[dayKey] = (dayMap[dayKey] || 0) + (o.amount_untaxed || 0);
+            if (dayMap[dayKey] !== undefined) {
+                dayMap[dayKey] += (o.amount_total || o.amount_untaxed || 0);
+            }
         });
         const dayKeys = Object.keys(dayMap).sort();
-        if (dayKeys.length === 0) {
-            this.state.customChartData = [];
-        } else {
-            this.state.customChartData = dayKeys.map(k => ({
-                label: k.substring(5), // MM-DD
-                total: dayMap[k],
-                fullDay: k,
-                days: 1
-            }));
-        }
+        this.state.customChartData = dayKeys.map(k => ({
+            label: k.substring(5), // MM-DD
+            total: dayMap[k],
+            fullDay: k,
+            days: 1
+        }));
     }
 
     async _fetchMonthlySales(startStr, endStr) {
         const domain = [
             ["date_order", ">=", startStr + " 00:00:00"],
             ["date_order", "<=", endStr + " 23:59:59"],
+            "|",
+            ["x_quote_stage", "=", "won"],
             ["state", "in", ["sale", "done"]]
         ];
+        if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
+            domain.push(["company_id", "in", this.state.selectedCompanies]);
+        }
         const orders = await rpc("/web/dataset/call_kw", {
             model: "sale.order", method: "search_read",
-            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
+            args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const monthMap = {};
+
+        // Pre-fill all months between startStr and endStr so every month appears in the chart
+        const [startY, startM] = startStr.split("-").map(Number);
+        const [endY, endM] = endStr.split("-").map(Number);
+        let cur = new Date(startY, startM - 1, 1);
+        const stop = new Date(endY, endM - 1, 1);
+        while (cur <= stop) {
+            const k = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`;
+            monthMap[k] = 0;
+            cur.setMonth(cur.getMonth() + 1);
+        }
+
         orders.forEach(o => {
             if (!o.date_order) return;
             const mKey = o.date_order.substring(0, 7); // YYYY-MM
-            monthMap[mKey] = (monthMap[mKey] || 0) + (o.amount_untaxed || 0);
+            if (monthMap[mKey] !== undefined) {
+                monthMap[mKey] += (o.amount_total || o.amount_untaxed || 0);
+            }
         });
         const sortedMonths = Object.keys(monthMap).sort();
-        if (sortedMonths.length === 0) {
-            this.state.customChartData = [];
-        } else {
-            this.state.customChartData = sortedMonths.map(k => {
-                const parts = k.split("-");
-                const mIndex = parseInt(parts[1], 10) - 1;
-                const label = `${monthNames[mIndex]} '${parts[0].slice(-2)}`;
-                return {
-                    label: label,
-                    total: monthMap[k],
-                    fullMonth: k,
-                    days: 30
-                };
-            });
-        }
+        this.state.customChartData = sortedMonths.map(k => {
+            const parts = k.split("-");
+            const mIndex = parseInt(parts[1], 10) - 1;
+            const label = `${monthNames[mIndex]} '${parts[0].slice(-2)}`;
+            const daysInMonth = new Date(Number(parts[0]), mIndex + 1, 0).getDate();
+            return {
+                label: label,
+                total: monthMap[k],
+                fullMonth: k,
+                days: daysInMonth
+            };
+        });
     }
 
     async loadSalesTrendRange(monthsCount = 6) {
