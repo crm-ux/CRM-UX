@@ -669,7 +669,7 @@
                             
                             <!-- Step 1: < 30 Days (Urgent) -->
                             <div class="crm-timeline-step" style="cursor: pointer; padding: 0.6rem 0.4rem; border-radius: 8px; background: #fff; border: 1px solid #fee2e2; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('30', 'AMC Expiring in &lt; 30 Days')">
+                                 t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
                                 <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fee2e2; color: #ef4444; font-size: 0.65rem; margin-bottom: 0.35rem;">
                                     <i class="fa fa-exclamation"></i>
                                 </div>
@@ -684,7 +684,7 @@
 
                             <!-- Step 2: 30–60 Days (Upcoming) -->
                             <div class="crm-timeline-step" style="cursor: pointer; padding: 0.6rem 0.4rem; border-radius: 8px; background: #fff; border: 1px solid #fef3c7; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('60', 'AMC Expiring in 30–60 Days')">
+                                 t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
                                 <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef3c7; color: #d97706; font-size: 0.65rem; margin-bottom: 0.35rem;">
                                     <i class="fa fa-clock-o"></i>
                                 </div>
@@ -699,7 +699,7 @@
 
                             <!-- Step 3: > 60 Days / Secure -->
                             <div class="crm-timeline-step" style="cursor: pointer; padding: 0.6rem 0.4rem; border-radius: 8px; background: #fff; border: 1px solid #dcfce7; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('secure', 'Secure Active AMC Contracts')">
+                                 t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
                                 <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 0.65rem; margin-bottom: 0.35rem;">
                                     <i class="fa fa-shield"></i>
                                 </div>
