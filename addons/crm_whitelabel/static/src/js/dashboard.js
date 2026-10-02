@@ -1290,7 +1290,7 @@ class CrmDashboard extends Component {
         let dayValue = Math.round(ratio * m.total);
 
         if (m.dayTotals && m.wStart) {
-            // Week bar scrubbing: shows e.g. Day 3 (10-09) · Day 3/7
+            // Week bar scrubbing: shows date e.g. Day 3 (10-09)
             const targetDate = new Date(m.wStart);
             targetDate.setDate(targetDate.getDate() + (currentDay - 1));
             const dayKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, "0")}-${String(targetDate.getDate()).padStart(2, "0")}`;
@@ -1299,11 +1299,9 @@ class CrmDashboard extends Component {
             dayHeader = `Day ${currentDay} (${indianDayDate})`;
             dayValue = realDayRevenue;
         } else if (m.fullMonth) {
-            // Month bar scrubbing: shows e.g. Sep · Day 15/30
-            const totalDays = m.days || 30;
-            const parts = m.fullMonth.split("-");
-            const indianMonthDate = `${String(currentDay).padStart(2, "0")}-${parts[1]}`;
-            dayHeader = `${m.label} · Day ${currentDay}/${totalDays} (${indianMonthDate})`;
+            // Month bar scrubbing: shows only day e.g. Aug · Day 13/31
+            const totalDays = m.days || 31;
+            dayHeader = `${m.label} · Day ${currentDay}/${totalDays}`;
             dayValue = Math.round(ratio * m.total);
         } else if (m.tooltipLabel) {
             dayHeader = m.days > 1 ? `${m.tooltipLabel} · Day ${currentDay}/${m.days}` : m.tooltipLabel;
