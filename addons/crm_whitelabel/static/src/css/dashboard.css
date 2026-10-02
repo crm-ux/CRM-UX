@@ -1415,13 +1415,13 @@
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1280px) {
+@media (max-width: 1100px) {
     .crm-cards-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
     .crm-analytics-section {
         grid-template-columns: 1fr;
     }
