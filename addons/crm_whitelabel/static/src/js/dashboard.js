@@ -896,6 +896,17 @@ class CrmDashboard extends Component {
             return;
         }
 
+        // If user types '/' but 2 slashes already exist, or typing consecutive slashes
+        if (e.key === "/") {
+            const val = this.state[fieldName] || "";
+            const slashCount = (val.match(/\//g) || []).length;
+            if (slashCount >= 2 || val.endsWith("/") || val.length === 0) {
+                e.preventDefault();
+                this.showToast("Cannot add extra '/'");
+                return;
+            }
+        }
+
         // If typing a single character that is NOT a number and NOT slash, show warning toast
         if (e.key.length === 1 && !/[0-9/]/.test(e.key)) {
             e.preventDefault();
