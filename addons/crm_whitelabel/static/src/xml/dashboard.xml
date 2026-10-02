@@ -739,39 +739,66 @@
                             <i class="fa fa-cubes" style="color: #0284c7;"></i>
                             <span>Low Stock Alerts</span>
                         </span>
-                        <span class="crm-chart-badge">Reorder Alerts</span>
+                        <!-- Direct Out of Stock trigger pill (red) when items exist, or grey badge -->
+                        <span class="crm-chart-badge" style="cursor: pointer; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; transition: all 0.2s;"
+                              t-if="state.outOfStockCount > 0"
+                              t-on-click="openOutOfStockFiltered"
+                              title="Click to view all out of stock products">
+                            <i class="fa fa-exclamation-circle" style="margin-right: 3px;"></i>
+                            <t t-esc="state.outOfStockCount"/> Out of Stock ↗
+                        </span>
+                        <span class="crm-chart-badge" t-else="">
+                            Reorder Alerts
+                        </span>
                     </div>
+
                     <div style="display: flex; flex-direction: column; gap: 0.65rem; flex: 1; justify-content: space-between; padding-top: 0.25rem;">
+                        
+                        <!-- When Low Stock items exist: Show Top 3 (product name + units) -->
                         <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
                             <div style="display: flex; flex-direction: column; gap: 0.55rem;">
                                 <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem;"
-                                         t-att-style="item.is_critical ? 'background: #fffbeb; border: 1px solid #fef3c7;' : 'background: #f0fdf4; border: 1px solid #dcfce7;'">
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                            <span t-att-style="'width: 8px; height: 8px; border-radius: 50%; background: ' + (item.is_critical ? '#f59e0b' : '#16a34a') + '; flex-shrink: 0;'"></span>
-                                            <span style="font-size: 0.8rem; font-weight: 700;" t-att-style="item.is_critical ? 'color: #92400e;' : 'color: #166534;'"><t t-esc="item.display_name"/></span>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fef3c7; transition: background 0.2s; cursor: pointer;"
+                                         class="crm-sla-row"
+                                         t-on-click="openLowStockFiltered">
+                                        <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 0.5rem;">
+                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span>
+                                            <span style="font-size: 0.8rem; font-weight: 700; color: #92400e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
                                         </div>
-                                        <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; flex-shrink: 0;"
-                                              t-att-style="item.is_critical ? 'color: #b45309; background: #fde68a;' : 'color: #15803d; background: #bbf7d0;'">
+                                        <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; flex-shrink: 0; color: #b45309; background: #fde68a;">
                                             <t t-esc="item.stock_label"/>
                                         </span>
                                     </div>
                                 </t>
                             </div>
                         </t>
-                        <t t-else="">
+
+                        <!-- When no low stock, but products are registered in database -->
+                        <t t-elif="state.totalRegisteredStock > 0 or state.productStockCount > 0">
                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
                                 <i class="fa fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 0.25rem;"></i>
-                                <span style="font-weight: 600; color: #334155;">Stock Levels Safe</span>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">All products are currently above minimum safety reorder thresholds.</span>
+                                <span style="font-weight: 700; color: #1e293b;">Stock Levels Healthy</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8;">All registered products are currently above their safety thresholds.</span>
+                            </div>
+                        </t>
+
+                        <!-- When empty / zero products registered yet in stock registry -->
+                        <t t-else="">
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
+                                <i class="fa fa-cubes" style="font-size: 1.5rem; color: #94a3b8; margin-bottom: 0.25rem;"></i>
+                                <span style="font-weight: 700; color: #334155;">No Products Registered</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8;">No stock entries found. Add products in Product Stock to begin monitoring.</span>
                             </div>
                         </t>
 
                         <!-- Card Bottom Action: View filtered list -->
                         <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.4rem; border-top: 1px dashed #e2e8f0; margin-top: 0.15rem;">
-                            <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">Showing critical items</span>
+                            <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">
+                                <t t-if="state.lowStockItems and state.lowStockItems.length > 0">Showing top 3 items</t>
+                                <t t-else="">Live Inventory</t>
+                            </span>
                             <a style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;"
-                               t-on-click="openLowStockRegistry">
+                               t-on-click="openLowStockFiltered">
                                 <span>View All Low Stock Items</span>
                                 <i class="fa fa-arrow-right" style="font-size: 0.65rem;"></i>
                             </a>

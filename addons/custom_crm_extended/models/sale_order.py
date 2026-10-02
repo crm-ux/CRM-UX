@@ -1102,6 +1102,29 @@ class DashboardStats(models.Model):
             'secure_val': secure_val,
         }
 
+        # Low Stock & Out of Stock from crm.product.stock
+        out_of_stock_count = self.env['crm.product.stock'].sudo().search_count([('stock_status', '=', 'out_of_stock')])
+        low_stock_count = self.env['crm.product.stock'].sudo().search_count([('stock_status', '=', 'low_stock')])
+        total_registered_stock = self.env['crm.product.stock'].sudo().search_count([])
+
+        # Top 3 low stock records (ordered by lowest quantity vs safety stock ratio)
+        low_stock_recs = self.env['crm.product.stock'].sudo().search(
+            [('stock_status', '=', 'low_stock')],
+            order='quantity asc, id asc',
+            limit=3
+        )
+        low_stock_items = []
+        for r in low_stock_recs:
+            low_stock_items.append({
+                'id': r.id,
+                'product_id': r.product_id.id,
+                'display_name': r.product_id.display_name or r.product_id.name or 'Product',
+                'quantity': r.quantity,
+                'safety_stock': r.safety_stock,
+                'stock_label': f"{r.quantity:g} / {r.safety_stock:g} Units" if r.safety_stock > 0 else f"{r.quantity:g} Units",
+                'stock_status': r.stock_status,
+            })
+
         return {
             'lead_counts': lead_counts,
             'quote_counts': quote_counts,
@@ -1122,6 +1145,10 @@ class DashboardStats(models.Model):
             'amc_counts': amc_counts,
             'complaint_counts': complaint_counts,
             'amc_renewals': amc_renewals,
+            'low_stock_items': low_stock_items,
+            'out_of_stock_count': out_of_stock_count,
+            'low_stock_count': low_stock_count,
+            'total_registered_stock': total_registered_stock,
             'permissions': {
                 'product_read': bool(
                     target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or

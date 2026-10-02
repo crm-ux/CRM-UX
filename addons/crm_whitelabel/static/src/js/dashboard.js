@@ -73,6 +73,9 @@ class CrmDashboard extends Component {
             amcSecureVal: 0,
             amcSecurePct: 0,
             lowStockItems: [],
+            outOfStockCount: 0,
+            lowStockCount: 0,
+            totalRegisteredStock: 0,
             customSalesTrend: null,
             realSalesMonths: [],
         });
@@ -347,7 +350,10 @@ class CrmDashboard extends Component {
                 amcExpiring60Val: s.amc_renewals?.expiring_60_val ?? this.state.amcExpiring60Val,
                 amcSecure: s.amc_renewals?.secure ?? this.state.amcSecure,
                 amcSecureVal: s.amc_renewals?.secure_val ?? this.state.amcSecureVal,
-                lowStockItems: (s.low_stock_items && s.low_stock_items.length) ? s.low_stock_items : this.state.lowStockItems,
+                lowStockItems: s.low_stock_items !== undefined ? s.low_stock_items : this.state.lowStockItems,
+                outOfStockCount: s.out_of_stock_count ?? 0,
+                lowStockCount: s.low_stock_count ?? 0,
+                totalRegisteredStock: s.total_registered_stock ?? 0,
                 customSalesTrend: s.sales_trend || null,
                 loading: false
             });
@@ -1538,7 +1544,37 @@ class CrmDashboard extends Component {
             this.showAccessDenied("Products");
             return;
         }
-        this.openProductStock();
+        this.openLowStockFiltered();
+    }
+
+    openLowStockFiltered() {
+        if (!this.state.isAdmin && !this.state.canViewProduct) {
+            this.showAccessDenied("Products");
+            return;
+        }
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Low Stock",
+            res_model: "crm.product.stock",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["stock_status", "=", "low_stock"]],
+            target: "current"
+        });
+    }
+
+    openOutOfStockFiltered() {
+        if (!this.state.isAdmin && !this.state.canViewProduct) {
+            this.showAccessDenied("Products");
+            return;
+        }
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Out of Stock",
+            res_model: "crm.product.stock",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["stock_status", "=", "out_of_stock"]],
+            target: "current"
+        });
     }
 }
 registry.category("actions").add("crm_dashboard", CrmDashboard);
