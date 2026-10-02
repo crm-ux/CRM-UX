@@ -1454,12 +1454,13 @@ class CrmDashboard extends Component {
             title = m.label;
         } else if (m.fullMonth) {
             const [yr, mo] = m.fullMonth.split("-").map(Number);
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const lastDay = new Date(yr, mo, 0).getDate();
             const startStr = `${m.fullMonth}-01 00:00:00`;
             const endStr = `${m.fullMonth}-${String(lastDay).padStart(2, "0")} 23:59:59`;
             domain.push(["date_order", ">=", startStr]);
             domain.push(["date_order", "<=", endStr]);
-            title = m.label;
+            title = `${monthNames[mo - 1]} ${yr}`;
         }
         this.go({
             type: "ir.actions.act_window",
