@@ -307,14 +307,15 @@ div[name="note"] .o-wysiwyg {
 }
 
 .oe_subtotal_footer span.text-nowrap.ms-2 {
-    display: inline-flex !important;
+    display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    min-width: 125px !important;
+    gap: 0 !important;
 }
 
 .oe_subtotal_footer div[name="x_amount_after_discount"] {
-    min-width: auto !important;
+    display: inline-block !important;
     text-align: right !important;
-    margin-left: clamp(0.2rem, 0.35vw, 0.45rem) !important;
+    min-width: 0 !important;
+    margin-left: 4px !important;
 }
