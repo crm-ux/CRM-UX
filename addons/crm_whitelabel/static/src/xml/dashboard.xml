@@ -540,7 +540,7 @@
                 <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote">
                     <div class="crm-chart-head">
                         <span class="crm-chart-title">
-                            <i class="fa fa-chart-column" style="color: #0b3d91;"></i>
+                            <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
                             <span>Monthly Sales &amp; Revenue Growth</span>
                         </span>
                         <!-- Frontend Range Buttons -->
@@ -601,9 +601,8 @@
                             <div style="flex: 1; height: 10px; background: #fee2e2; border-radius: 999px; overflow: hidden; position: relative;">
                                 <div t-att-style="'width: ' + complaintBreakdownPct + '%; height: 100%; background: #ef4444; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                             </div>
-                            <div style="min-width: 55px; text-align: right;">
-                                <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
-                                <small style="font-size: 0.7rem; color: #64748b; font-weight: 600; margin-left: 2px;" t-if="totalComplaints > 0">(<t t-esc="complaintBreakdownPct"/>%)</small>
+                            <div style="min-width: 40px; text-align: right;">
+                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
                             </div>
                         </div>
 
@@ -618,9 +617,8 @@
                             <div style="flex: 1; height: 10px; background: #fef3c7; border-radius: 999px; overflow: hidden; position: relative;">
                                 <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #f59e0b; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                             </div>
-                            <div style="min-width: 55px; text-align: right;">
-                                <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
-                                <small style="font-size: 0.7rem; color: #64748b; font-weight: 600; margin-left: 2px;" t-if="totalComplaints > 0">(<t t-esc="complaintPmPct"/>%)</small>
+                            <div style="min-width: 40px; text-align: right;">
+                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
                             </div>
                         </div>
 
@@ -635,9 +633,8 @@
                             <div style="flex: 1; height: 10px; background: #dcfce7; border-radius: 999px; overflow: hidden; position: relative;">
                                 <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #10b981; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                             </div>
-                            <div style="min-width: 55px; text-align: right;">
-                                <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
-                                <small style="font-size: 0.7rem; color: #64748b; font-weight: 600; margin-left: 2px;" t-if="totalComplaints > 0">(<t t-esc="complaintFreeCallPct"/>%)</small>
+                            <div style="min-width: 40px; text-align: right;">
+                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
                             </div>
                         </div>
 
