@@ -319,3 +319,16 @@ div[name="note"] .o-wysiwyg {
     min-width: 0 !important;
     margin-left: 4px !important;
 }
+
+/* Keep Flat Discount amount and minus sign in one clean line */
+.oe_subtotal_footer div[name="x_flat_discount"],
+.oe_subtotal_footer div[name="x_flat_discount"] span {
+    display: inline-block !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+.oe_subtotal_footer .d-flex.justify-content-between {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+}
