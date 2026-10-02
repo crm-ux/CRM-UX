@@ -288,7 +288,7 @@ div[name="order_line"] table tfoot.o_list_footer {
     display: none !important;
 }
 
-/* 3. Reduce extra margin between table and terms/totals section */
+/* 3. Reduce extra margin between and table and terms/totals section */
 .o_field_sol_o2m .o_x2m_control_panel,
 div[name="order_line"] .o_x2m_control_panel {
     margin-bottom: 0 !important;
