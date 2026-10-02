@@ -861,6 +861,28 @@ class CrmDashboard extends Component {
         });
     }
 
+    get totalComplaints() {
+        return (this.state.complaintBreakdown || 0) + (this.state.complaintPm || 0) + (this.state.complaintFreeCall || 0);
+    }
+
+    get complaintBreakdownPct() {
+        const total = this.totalComplaints;
+        if (!total) return 0;
+        return Math.round(((this.state.complaintBreakdown || 0) / total) * 100);
+    }
+
+    get complaintPmPct() {
+        const total = this.totalComplaints;
+        if (!total) return 0;
+        return Math.round(((this.state.complaintPm || 0) / total) * 100);
+    }
+
+    get complaintFreeCallPct() {
+        const total = this.totalComplaints;
+        if (!total) return 0;
+        return Math.round(((this.state.complaintFreeCall || 0) / total) * 100);
+    }
+
 
 
     openCustomDateModal() {
