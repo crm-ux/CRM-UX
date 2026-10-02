@@ -886,6 +886,20 @@ class CrmDashboard extends Component {
                 const month = parts[1].padStart(2, "0");
                 this.state[fieldName] = parts[0] + "/" + month + "/";
             }
+            return;
+        }
+
+        // Allow navigation, control keys, Tab, Enter, Backspace, Delete
+        if (e.ctrlKey || e.metaKey || e.altKey || [
+            "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"
+        ].includes(e.key)) {
+            return;
+        }
+
+        // If typing a single character that is NOT a number and NOT slash, show warning toast
+        if (e.key.length === 1 && !/[0-9/]/.test(e.key)) {
+            e.preventDefault();
+            this.showToast("Only numbers and '/' are allowed");
         }
     }
 
