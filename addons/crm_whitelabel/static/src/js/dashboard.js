@@ -928,6 +928,7 @@ class CrmDashboard extends Component {
         if (val.length > 10) {
             val = val.substring(0, 10);
         }
+        e.target.value = val;
         this.state[fieldName] = val;
     }
 

@@ -584,7 +584,6 @@
                             <i class="fa fa-wrench" style="color: #0284c7;"></i>
                             <span>Complaint Types</span>
                         </span>
-                        <span class="crm-chart-badge">This Month</span>
                     </div>
 
                     <!-- Clean White Panel with Live Continuous Waving Lines -->
@@ -795,7 +794,7 @@
                     <div class="crm-task-body" style="display:flex;flex-direction:column;gap:1rem;">
                         <div>
                             <label style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:4px;display:block;">Start Date (DD/MM/YYYY):</label>
-                            <input type="text" class="form-control" placeholder="DD/MM/YYYY" 
+                            <input type="text" class="form-control" placeholder="DD/MM/YYYY" maxlength="10"
                                    t-att-value="state.customStartDateInput" 
                                    t-on-keydown="(e) => this.onDateInputKeydown(e, 'customStartDateInput')"
                                    t-on-input="(e) => this.onDateInputChange(e, 'customStartDateInput')" 
@@ -804,7 +803,7 @@
                         </div>
                         <div>
                             <label style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:4px;display:block;">End Date (DD/MM/YYYY):</label>
-                            <input type="text" class="form-control" placeholder="DD/MM/YYYY" 
+                            <input type="text" class="form-control" placeholder="DD/MM/YYYY" maxlength="10"
                                    t-att-value="state.customEndDateInput" 
                                    t-on-keydown="(e) => this.onDateInputKeydown(e, 'customEndDateInput')"
                                    t-on-input="(e) => this.onDateInputChange(e, 'customEndDateInput')" 
