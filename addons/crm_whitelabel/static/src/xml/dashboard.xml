@@ -655,7 +655,7 @@
                                 <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
                                 <span>AMC Renewals</span>
                             </span>
-                            <span class="crm-chart-badge">Next 90 Days</span>
+                            <span class="crm-chart-badge"><t t-esc="(state.amcExpired || 0) + (state.amcExpiring30 || 0) + (state.amcExpiring60 || 0) + (state.amcSecure || 0)"/> Total</span>
                         </div>
                 
                         <!-- Horizontal Renewal Timeline / Countdown Track (Boxes stay in place with space-between) -->
