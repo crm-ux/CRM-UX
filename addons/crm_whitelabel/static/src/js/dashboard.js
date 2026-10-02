@@ -985,19 +985,33 @@ class CrmDashboard extends Component {
             model: "sale.order", method: "search_read",
             args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
+        // Blocks covering business and full operating day
         const blocks = [
-            { label: "9am-12pm", startH: 9, endH: 12, total: 0, startDt: `${dateStr} 09:00:00`, endDt: `${dateStr} 12:00:00`, days: 1 },
-            { label: "12pm-3pm", startH: 12, endH: 15, total: 0, startDt: `${dateStr} 12:00:00`, endDt: `${dateStr} 15:00:00`, days: 1 },
-            { label: "3pm-6pm", startH: 15, endH: 18, total: 0, startDt: `${dateStr} 15:00:00`, endDt: `${dateStr} 18:00:00`, days: 1 },
-            { label: "6pm-9pm", startH: 18, endH: 21, total: 0, startDt: `${dateStr} 18:00:00`, endDt: `${dateStr} 21:00:00`, days: 1 },
+            { label: "Morning (9am-12pm)", shortLabel: "9am-12pm", startH: 0, endH: 12, total: 0, startDt: `${dateStr} 00:00:00`, endDt: `${dateStr} 12:00:00`, days: 1 },
+            { label: "Afternoon (12pm-3pm)", shortLabel: "12pm-3pm", startH: 12, endH: 15, total: 0, startDt: `${dateStr} 12:00:01`, endDt: `${dateStr} 15:00:00`, days: 1 },
+            { label: "Late Afternoon (3pm-6pm)", shortLabel: "3pm-6pm", startH: 15, endH: 18, total: 0, startDt: `${dateStr} 15:00:01`, endDt: `${dateStr} 18:00:00`, days: 1 },
+            { label: "Evening (6pm-9pm+)", shortLabel: "6pm-9pm", startH: 18, endH: 24, total: 0, startDt: `${dateStr} 18:00:01`, endDt: `${dateStr} 23:59:59`, days: 1 },
         ];
         orders.forEach(o => {
             if (!o.date_order) return;
-            const h = new Date(o.date_order.replace(' ', 'T')).getHours();
+            // Parse Odoo UTC datetime string "YYYY-MM-DD HH:MM:SS" into local Date
+            const isoStr = o.date_order.includes("T") ? o.date_order : o.date_order.replace(" ", "T") + "Z";
+            const orderDate = new Date(isoStr);
+            const h = orderDate.getHours();
             const blk = blocks.find(b => h >= b.startH && h < b.endH);
-            if (blk) blk.total += (o.amount_total || o.amount_untaxed || 0);
+            if (blk) {
+                blk.total += (o.amount_total || o.amount_untaxed || 0);
+            } else if (blocks.length > 0) {
+                // If before 9am, attribute to morning block; if after 9pm, evening block
+                if (h < 12) blocks[0].total += (o.amount_total || o.amount_untaxed || 0);
+                else blocks[blocks.length - 1].total += (o.amount_total || o.amount_untaxed || 0);
+            }
         });
-        this.state.customChartData = blocks;
+        this.state.customChartData = blocks.map(b => ({
+            ...b,
+            label: b.shortLabel,
+            tooltipLabel: b.label
+        }));
     }
 
     async _fetchDailySales(startStr, endStr) {
@@ -1282,7 +1296,11 @@ class CrmDashboard extends Component {
             this.showAccessDenied("Quotations & Deals");
             return;
         }
-        let domain = [["state", "in", ["sale", "done"]]];
+        let domain = [
+            "|",
+            ["x_quote_stage", "=", "won"],
+            ["state", "in", ["sale", "done"]]
+        ];
         let title = "Orders";
 
         if (m.startDt && m.endDt) {
