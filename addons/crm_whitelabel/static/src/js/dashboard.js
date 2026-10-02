@@ -1442,16 +1442,16 @@ class CrmDashboard extends Component {
             ["x_quote_stage", "=", "won"],
             ["state", "in", ["sale", "done"]]
         ];
-        let title = "Orders";
+        let title = m.label || "Orders";
 
         if (m.startDt && m.endDt) {
             domain.push(["date_order", ">=", m.startDt]);
             domain.push(["date_order", "<=", m.endDt]);
-            title = `Orders (${m.label})`;
+            title = m.label;
         } else if (m.fullDay) {
             domain.push(["date_order", ">=", m.fullDay + " 00:00:00"]);
             domain.push(["date_order", "<=", m.fullDay + " 23:59:59"]);
-            title = `Orders (${m.label})`;
+            title = m.label;
         } else if (m.fullMonth) {
             const [yr, mo] = m.fullMonth.split("-").map(Number);
             const lastDay = new Date(yr, mo, 0).getDate();
@@ -1459,7 +1459,7 @@ class CrmDashboard extends Component {
             const endStr = `${m.fullMonth}-${String(lastDay).padStart(2, "0")} 23:59:59`;
             domain.push(["date_order", ">=", startStr]);
             domain.push(["date_order", "<=", endStr]);
-            title = `Orders (${m.label})`;
+            title = m.label;
         }
         this.go({
             type: "ir.actions.act_window",
@@ -1482,8 +1482,15 @@ class CrmDashboard extends Component {
             preventive: [["complaint_type", "=", "pm"]],
             free_call: [["complaint_type", "=", "free_call"]]
         };
+        const titleMap = {
+            breakdown: "Breakdown",
+            pm: "PM",
+            preventive: "PM",
+            free_call: "Free Call"
+        };
         const domain = domainMap[type] || [];
-        this.openServiceTicketList(domain, title);
+        const cleanTitle = titleMap[type] || title;
+        this.openServiceTicketList(domain, cleanTitle);
     }
 
     openAmcRenewalList(type, title = "AMC Renewals") {

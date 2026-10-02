@@ -592,7 +592,7 @@
                         
                         <!-- Channel 1: Breakdown -->
                         <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('breakdown', 'Breakdown Complaints')">
+                             t-on-click="() => this.openComplaintList('breakdown', 'Breakdown')">
                             <div style="display: flex; align-items: center; min-width: 95px;">
                                 <span class="crm-dot-red" style="margin-right: 6px;"></span>
                                 <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Breakdown</span>
@@ -608,7 +608,7 @@
 
                         <!-- Channel 2: PM -->
                         <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('preventive', 'Preventive Maintenance')">
+                             t-on-click="() => this.openComplaintList('preventive', 'PM')">
                             <div style="display: flex; align-items: center; min-width: 95px;">
                                 <span class="crm-dot-yellow" style="margin-right: 6px;"></span>
                                 <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">PM</span>
@@ -624,7 +624,7 @@
 
                         <!-- Channel 3: Free Call -->
                         <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('free_call', 'Free Call Tickets')">
+                             t-on-click="() => this.openComplaintList('free_call', 'Free Call')">
                             <div style="display: flex; align-items: center; min-width: 95px;">
                                 <span class="crm-dot-green" style="margin-right: 6px;"></span>
                                 <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Free Call</span>
