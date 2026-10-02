@@ -983,10 +983,9 @@
 
 /* Analytics Section */
 .crm-analytics-section {
-    display: none !important;
-    /* display: grid;
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: clamp(0.85rem, 1.2vw, 1.35rem); */
+    gap: clamp(0.85rem, 1.2vw, 1.35rem);
 }
 
 .crm-chart-card {
