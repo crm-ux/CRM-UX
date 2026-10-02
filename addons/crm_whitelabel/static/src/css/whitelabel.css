@@ -266,25 +266,27 @@ th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
     overflow-y: auto !important;
 }
 
-/* Sleek thin scrollbar for wide order line tables */
-.o_form_view .o_field_one2many .o_list_renderer,
-.o_form_view .o_field_x2many .o_list_renderer {
-    scrollbar-width: thin !important;
-    scrollbar-color: #cbd5e1 transparent !important;
+/* Fix order lines table: hide scrollbars and remove extra empty bottom gap */
+.o_form_view .o_field_widget[name="order_line"],
+.o_form_view .o_field_widget[name="order_line"] .o_list_renderer,
+.o_form_view .o_field_widget[name="order_line"] .table-responsive {
+    scrollbar-width: none !important;
+    /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE/Edge */
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
-.o_form_view .o_field_one2many .o_list_renderer::-webkit-scrollbar,
-.o_form_view .o_field_x2many .o_list_renderer::-webkit-scrollbar {
-    height: 5px !important;
+.o_form_view .o_field_widget[name="order_line"]::-webkit-scrollbar,
+.o_form_view .o_field_widget[name="order_line"] .o_list_renderer::-webkit-scrollbar,
+.o_form_view .o_field_widget[name="order_line"] .table-responsive::-webkit-scrollbar {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
 }
 
-.o_form_view .o_field_one2many .o_list_renderer::-webkit-scrollbar-thumb,
-.o_form_view .o_field_x2many .o_list_renderer::-webkit-scrollbar-thumb {
-    background: #cbd5e1 !important;
-    border-radius: 4px !important;
-}
-
-.o_form_view .o_field_one2many .o_list_renderer::-webkit-scrollbar-track,
-.o_form_view .o_field_x2many .o_list_renderer::-webkit-scrollbar-track {
-    background: transparent !important;
+/* Keep the terms and totals tight and cleanly aligned below the table */
+.o_form_view .oe_subtotal_footer {
+    margin-top: 0.5rem !important;
 }
