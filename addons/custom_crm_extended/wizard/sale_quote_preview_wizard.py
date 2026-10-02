@@ -641,11 +641,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Totals as closing rows inside the table, all styled consistently (plain, no bold/background)
         totals_rows = ''
+        line_disc_amt = original_amount - untaxed
+        has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct)
+
+        if has_any_disc:
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Gross Amount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
+            if line_disc_amt > 0.01:
+                totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Product Discount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">- %s</td></tr>' % (col - 1, _indian_format(line_disc_amt))
         if overall_disc_pct:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, int(overall_disc_pct), _indian_format(overall_disc_amt))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct), _indian_format(overall_disc_amt))
         if gst_on and tax_rates:
             totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">GST (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;"></td></tr>' % (col - 1, int(total_tax_rate))
-        final_label = 'Final Discount Amount' if overall_disc_pct else 'Total Amount'
+        final_label = 'Final Total Amount' if has_any_disc else 'Total Amount'
         totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
 
         table_html = (
@@ -1155,11 +1162,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
             vr.bold = True
             vr.font.name = 'Calibri'
             vr.font.size = Pt(11)
+        original_amount_d = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
+        line_disc_amt_d = original_amount_d - untaxed
+        has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d)
+
+        if has_any_disc_d:
+            _add_total_row('Gross Amount', _indian_format(original_amount_d))
+            if line_disc_amt_d > 0.01:
+                _add_total_row('Product Discount', '- ' + _indian_format(line_disc_amt_d))
         if overall_disc_pct_d:
-            _add_total_row('Overall Discount (%s%%)' % int(overall_disc_pct_d), _indian_format(overall_disc_amt_d))
+            _add_total_row('Overall Discount (%s%%)' % int(overall_disc_pct_d), '- ' + _indian_format(overall_disc_amt_d))
         if gst_on_d and tax_rates_d:
             _add_total_row('GST (%s%%)' % int(total_tax_rate_d), '')
-        final_label_d = 'Final Discount Amount' if overall_disc_pct_d else 'Total Amount'
+        final_label_d = 'Final Total Amount' if has_any_disc_d else 'Total Amount'
         _add_total_row(final_label_d, _indian_format(grand_total_d))
 
         # Terms & Conditions - new page if no tech specs or images
