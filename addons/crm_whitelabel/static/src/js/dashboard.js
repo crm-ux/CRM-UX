@@ -859,8 +859,7 @@ class CrmDashboard extends Component {
 
 
     openCustomDateModal() {
-        this.state.customStartDateInput = "";
-        this.state.customEndDateInput = "";
+        // Preserving custom date fields during testing so user doesn't have to re-enter
         this.state.customDateModalOpen = true;
     }
 
@@ -1079,9 +1078,14 @@ class CrmDashboard extends Component {
             const wEndStr = `${wEnd.getFullYear()}-${String(wEnd.getMonth() + 1).padStart(2, "0")}-${String(wEnd.getDate()).padStart(2, "0")}`;
             const daysCount = Math.round((wEnd - wStart) / (1000 * 60 * 60 * 24)) + 1;
 
+            const startDay = wStart.getDate();
+            const endDay = wEnd.getDate();
+            const weekRangeLabel = `W${weekIdx}(${startDay}-${endDay})`;
+
             weeks.push({
-                label: `Week ${weekIdx} (${wStartStr.substring(5)} to ${wEndStr.substring(5)})`,
-                shortLabel: `W${weekIdx} (${wStartStr.substring(5)})`,
+                label: weekRangeLabel,
+                shortLabel: weekRangeLabel,
+                tooltipLabel: `Week ${weekIdx} (${wStartStr.substring(5)} to ${wEndStr.substring(5)})`,
                 startDt: `${wStartStr} 00:00:00`,
                 endDt: `${wEndStr} 23:59:59`,
                 total: 0,
@@ -1101,10 +1105,7 @@ class CrmDashboard extends Component {
             }
         });
 
-        this.state.customChartData = weeks.map(w => ({
-            ...w,
-            label: w.shortLabel
-        }));
+        this.state.customChartData = weeks;
     }
 
     async _fetchMonthlySales(startStr, endStr) {
@@ -1249,7 +1250,8 @@ class CrmDashboard extends Component {
         tooltip.style.display = 'flex';
         tooltip.style.left = leftPos + 'px';
         tooltip.style.top = topPos + 'px';
-        tooltip.innerHTML = `<span>${m.label} · Day ${currentDay}/${m.days}</span><strong>${this.fmt(currentVal)}</strong>`;
+        const titleText = m.tooltipLabel || (m.days > 1 ? `${m.label} · Day ${currentDay}/${m.days}` : m.label);
+        tooltip.innerHTML = `<span>${titleText}</span><strong>${this.fmt(currentVal)}</strong>`;
     }
 
     onBarLeave(e, m) {
