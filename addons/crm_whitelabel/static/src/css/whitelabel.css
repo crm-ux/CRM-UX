@@ -293,3 +293,23 @@ div[name="note"] .o-wysiwyg {
     width: 100% !important;
     min-width: 0 !important;
 }
+
+/* 1. Remove extra top line */
+.oe_subtotal_footer .row .d-flex.border-top:first-child {
+    border-top: none !important;
+}
+
+/* 2. Align ₹ symbol below each other */
+.oe_subtotal_footer div[name="x_original_amount"],
+.oe_subtotal_footer div[name="x_net_total"],
+.oe_subtotal_footer div[name="x_amount_after_discount"] {
+    text-align: right !important;
+    min-width: 125px !important;
+}
+
+.oe_subtotal_footer span.text-nowrap.ms-2 {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    min-width: 140px !important;
+}
