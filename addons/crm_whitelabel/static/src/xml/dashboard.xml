@@ -653,16 +653,17 @@
                     <!-- Horizontal Renewal Timeline / Countdown Track -->
                     <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; padding: 0.6rem 0.25rem 0.25rem 0.25rem;">
                         
-                        <!-- Connecting Continuous Track Bar (4 Milestones) -->
-                        <div style="position: relative; margin: 0.5rem 1.25rem 1.25rem 1.25rem;">
-                            <!-- Gradient Horizon Line -->
-                            <div style="height: 4px; background: linear-gradient(90deg, #64748b 0%, #ef4444 33%, #f59e0b 66%, #10b981 100%); border-radius: 999px;"></div>
+                        <!-- Connecting Continuous Track Bar (4 Milestones precisely centered over 4 boxes) -->
+                        <div style="position: relative; margin: 0.5rem 0 1.25rem 0;">
+                            <!-- Gradient Horizon Line connecting from center of Box 1 (12.5%) to center of Box 4 (87.5%) -->
+                            <div style="position: absolute; top: 50%; left: 12.5%; right: 12.5%; height: 4px; transform: translateY(-50%); background: linear-gradient(90deg, #64748b 0%, #ef4444 33.3%, #f59e0b 66.6%, #10b981 100%); border-radius: 999px;"></div>
                             
-                            <!-- 4 Milestone Dots on the Line -->
-                            <div style="position: absolute; top: 50%; left: 0%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2);"></div>
-                            <div style="position: absolute; top: 50%; left: 33.33%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2);"></div>
-                            <div style="position: absolute; top: 50%; left: 66.66%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(245,158,11,0.2);"></div>
-                            <div style="position: absolute; top: 50%; left: 100%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.2);"></div>
+                            <!-- 4 Milestone Dots exactly centered above each of the 4 boxes -->
+                            <div style="position: absolute; top: 50%; left: 12.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2); z-index: 2;"></div>
+                            <div style="position: absolute; top: 50%; left: 37.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); z-index: 2;"></div>
+                            <div style="position: absolute; top: 50%; left: 62.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); z-index: 2;"></div>
+                            <div style="position: absolute; top: 50%; left: 87.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); z-index: 2;"></div>
+                            <div style="height: 14px;"></div>
                         </div>
 
                         <!-- 4 Milestone Columns (Clickable to Filter) -->
