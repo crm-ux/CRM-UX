@@ -266,27 +266,30 @@ th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
     overflow-y: auto !important;
 }
 
-/* Fix order lines table: hide scrollbars and remove extra empty bottom gap */
-.o_form_view .o_field_widget[name="order_line"],
-.o_form_view .o_field_widget[name="order_line"] .o_list_renderer,
-.o_form_view .o_field_widget[name="order_line"] .table-responsive {
+/* 1. Hide the ugly horizontal scrollbar on the order lines table */
+.o_field_sol_o2m .table-responsive,
+.o_field_sol_o2m .o_list_renderer,
+div[name="order_line"] .table-responsive {
+    overflow-x: hidden !important;
     scrollbar-width: none !important;
-    /* Firefox */
     -ms-overflow-style: none !important;
-    /* IE/Edge */
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
 }
 
-.o_form_view .o_field_widget[name="order_line"]::-webkit-scrollbar,
-.o_form_view .o_field_widget[name="order_line"] .o_list_renderer::-webkit-scrollbar,
-.o_form_view .o_field_widget[name="order_line"] .table-responsive::-webkit-scrollbar {
+.o_field_sol_o2m .table-responsive::-webkit-scrollbar,
+div[name="order_line"] .table-responsive::-webkit-scrollbar {
     display: none !important;
     height: 0 !important;
     width: 0 !important;
 }
 
-/* Keep the terms and totals tight and cleanly aligned below the table */
-.o_form_view .oe_subtotal_footer {
-    margin-top: 0.5rem !important;
+/* 2. Remove the empty ghost row and empty footer taking up white space */
+div[name="order_line"] table tbody tr:last-child:not(.o_data_row):not(.d-print-none),
+div[name="order_line"] table tfoot.o_list_footer {
+    display: none !important;
+}
+
+/* 3. Reduce extra margin between table and terms/totals section */
+.o_field_sol_o2m .o_x2m_control_panel,
+div[name="order_line"] .o_x2m_control_panel {
+    margin-bottom: 0 !important;
 }
