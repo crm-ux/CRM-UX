@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime, date, timedelta
+import calendar as _calendar
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -983,8 +985,6 @@ class DashboardStats(models.Model):
             ('state', '!=', 'cancel')
         ] + company_filter + user_filter)
         quote_revenue = sum(pending_orders.mapped('amount_total'))
-
-        from datetime import date
         today = date.today().strftime('%Y-%m-%d')
         today_orders = self.env['sale.order'].sudo().search([
             ('x_quote_stage', '=', 'won'),
@@ -997,8 +997,6 @@ class DashboardStats(models.Model):
         products = self.env['product.template'].search_count([('sale_ok', '=', True)] + shared_company_filter)
         users = self.env['res.users'].search_count([('active', '=', True), ('share', '=', False)])
         exhibition = self.env['exhibition.contact'].search_count([])
-        from datetime import datetime
-        import calendar as _calendar
         now = datetime.now()
         month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
         last_day = _calendar.monthrange(now.year, now.month)[1]
@@ -1053,6 +1051,50 @@ class DashboardStats(models.Model):
             'expired': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'expired')]),
         }
 
+        # AMC Renewals timeline calculation (Next 90 Days)
+        d_today = date.today()
+        d_30 = d_today + timedelta(days=30)
+        d_60 = d_today + timedelta(days=60)
+
+        active_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter + [('contract_status', 'in', ['active', 'renewed'])])
+        expiring_30 = 0
+        expiring_30_val = 0.0
+        expiring_60 = 0
+        expiring_60_val = 0.0
+        secure = 0
+        secure_val = 0.0
+
+        for a in active_amcs:
+            try:
+                raw_val = (a.contract_value or '0').replace(',', '').replace('₹', '').strip()
+                c_val = float(raw_val) if raw_val else 0.0
+            except Exception:
+                c_val = 0.0
+
+            end_dt = a.contract_end_date
+            if end_dt:
+                if d_today <= end_dt <= d_30:
+                    expiring_30 += 1
+                    expiring_30_val += c_val
+                elif d_30 < end_dt <= d_60:
+                    expiring_60 += 1
+                    expiring_60_val += c_val
+                elif end_dt > d_60:
+                    secure += 1
+                    secure_val += c_val
+            else:
+                secure += 1
+                secure_val += c_val
+
+        amc_renewals = {
+            'expiring_30': expiring_30,
+            'expiring_30_val': expiring_30_val,
+            'expiring_60': expiring_60,
+            'expiring_60_val': expiring_60_val,
+            'secure': secure,
+            'secure_val': secure_val,
+        }
+
         return {
             'lead_counts': lead_counts,
             'quote_counts': quote_counts,
@@ -1072,6 +1114,7 @@ class DashboardStats(models.Model):
             'ticket_counts': ticket_counts,
             'amc_counts': amc_counts,
             'complaint_counts': complaint_counts,
+            'amc_renewals': amc_renewals,
             'permissions': {
                 'product_read': bool(
                     target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or

@@ -1139,6 +1139,11 @@
     transform: translateY(-1px);
 }
 
+.crm-timeline-step:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
 .crm-dot-red {
     width: 8px;
     height: 8px;
