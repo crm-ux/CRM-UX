@@ -1510,7 +1510,7 @@ class CrmDashboard extends Component {
         let cleanTitle = title;
         if (type === 'expired') {
             cleanTitle = "Expired";
-            domain = ["|", ["contract_status", "=", "expired"], ["&", ["contract_status", "in", ["active", "renewed"]], ["contract_end_date", "<", fmtDate(today)]]];
+            domain = ["|", ["contract_status", "=", "expired"], "&", ["contract_status", "in", ["active", "renewed"]], ["contract_end_date", "<", fmtDate(today)]];
         } else if (type === '30') {
             cleanTitle = "< 30 Days";
             const target = new Date();
