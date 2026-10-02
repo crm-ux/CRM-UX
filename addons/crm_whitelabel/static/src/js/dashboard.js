@@ -1498,15 +1498,17 @@ class CrmDashboard extends Component {
         if (type === '30') {
             const target = new Date();
             target.setDate(today.getDate() + 30);
-            domain = [["contract_status", "=", "active"], ["date_end", ">=", fmtDate(today)], ["date_end", "<=", fmtDate(target)]];
+            domain = [["contract_status", "in", ["active", "renewed"]], ["contract_end_date", ">=", fmtDate(today)], ["contract_end_date", "<=", fmtDate(target)]];
         } else if (type === '60') {
             const start = new Date();
             start.setDate(today.getDate() + 31);
             const target = new Date();
             target.setDate(today.getDate() + 60);
-            domain = [["contract_status", "=", "active"], ["date_end", ">=", fmtDate(start)], ["date_end", "<=", fmtDate(target)]];
+            domain = [["contract_status", "in", ["active", "renewed"]], ["contract_end_date", ">=", fmtDate(start)], ["contract_end_date", "<=", fmtDate(target)]];
         } else if (type === 'secure') {
-            domain = [["contract_status", "=", "active"]];
+            const minDate = new Date();
+            minDate.setDate(today.getDate() + 60);
+            domain = ["|", ["contract_end_date", "=", false], ["contract_end_date", ">", fmtDate(minDate)], ["contract_status", "in", ["active", "renewed"]]];
         }
 
         this.openAmcList(domain, title);
