@@ -635,6 +635,10 @@ class CrmDashboard extends Component {
         this.showToast("Assign Task feature is coming soon!");
     }
 
+    openInsightsComingSoon() {
+        this.showToast("Advanced Insights & Analytics are coming soon!");
+    }
+
     createAmc() {
         this.actionService.doAction({
             type: "ir.actions.act_window",

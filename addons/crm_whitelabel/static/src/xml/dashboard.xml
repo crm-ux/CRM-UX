@@ -63,6 +63,13 @@
                             <span class="crm-sidebar-badge" style="background:#fee2e2; color:#ef4444;" t-if="state.lowStockItems and state.lowStockItems.length > 0">1 Low</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link" t-on-click="openInsightsComingSoon">
+                            <i class="fa fa-line-chart"></i>
+                            <span>Insights</span>
+                            <span class="crm-sidebar-badge" style="background: #e0f2fe; color: #0284c7; font-size: 0.68rem;">Soon</span>
+                        </a>
+                    </li>
                     
                     <!-- EXPANDABLE SUBMENU 1: ORGANIZATION -->
                     <li class="crm-nav-item" t-if="state.isAdmin" t-att-class="state.orgSubmenuOpen ? 'open' : ''">
@@ -533,281 +540,291 @@
                     </div>
                 </section>
 
-            <!-- 3. ADVANCED ANALYTICS & INSIGHTS -->
-            <section class="crm-analytics-section" t-if="state.isAdmin or state.canViewLeadQuote or state.canViewTicket or state.canViewAmc or state.canViewProduct">
-                
-                <!-- Left Chart: Monthly Sales Trend with Range Selector & Interactive Scrubber -->
-                <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote">
-                    <div class="crm-chart-head">
-                        <span class="crm-chart-title">
-                            <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
-                            <span>Monthly Sales &amp; Revenue Growth</span>
-                        </span>
-                        <!-- Frontend Range Buttons -->
-                        <div class="crm-range-pills">
-                            <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 3 ? 'active' : ''" t-on-click="() => this.setSalesRange(3)">3M</button>
-                            <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 6 ? 'active' : ''" t-on-click="() => this.setSalesRange(6)">6M</button>
-                            <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 12 ? 'active' : ''" t-on-click="() => this.setSalesRange(12)">1Y</button>
-                            <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal">📅 Custom</button>
-                        </div>
-                    </div>
-                    <div class="crm-bar-chart" style="position: relative; height: 160px;">
-                        <t t-if="salesTrendMonths.length === 0">
-                            <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
-                                <i class="fa fa-calendar-times-o" style="font-size: 1.5rem; margin-bottom: 6px; color: #cbd5e1;"></i>
-                                <span>No sales revenue recorded for this period</span>
+                <!-- 3. ADVANCED ANALYTICS & INSIGHTS -->
+                <section class="crm-analytics-section" t-if="state.isAdmin or state.canViewLeadQuote or state.canViewTicket or state.canViewAmc or state.canViewProduct">
+                    
+                    <!-- Left Chart: Monthly Sales Trend with Range Selector & Interactive Scrubber -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote">
+                        <div class="crm-chart-head">
+                            <span class="crm-chart-title">
+                                <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
+                                <span>Monthly Sales &amp; Revenue Growth</span>
+                            </span>
+                            <!-- Frontend Range Buttons -->
+                            <div class="crm-range-pills">
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 3 ? 'active' : ''" t-on-click="() => this.setSalesRange(3)">3M</button>
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 6 ? 'active' : ''" t-on-click="() => this.setSalesRange(6)">6M</button>
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 12 ? 'active' : ''" t-on-click="() => this.setSalesRange(12)">1Y</button>
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal">📅 Custom</button>
                             </div>
-                        </t>
-                        <t t-else="">
-                            <t t-foreach="salesTrendMonths" t-as="m" t-key="m.label">
-                                <div class="crm-bar-col"
-                                     t-on-click="() => this.openMonthlyWon(m)"
-                                     t-on-mousemove="(e) => this.onBarScrub(e, m)"
-                                     t-on-mouseleave="(e) => this.onBarLeave(e, m)">
-                                    <span class="crm-bar-val-lbl" t-att-style="m.isHovered ? 'opacity: 0;' : 'opacity: 1;'" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">
-                                        <t t-esc="fmt(m.total)"/>
-                                    </span>
-                                    <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (salesTrendMonths.length > 8 ? '45%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
-                                    <span class="crm-bar-lbl" style="white-space: nowrap;"><t t-esc="m.label"/></span>
+                        </div>
+                        <div class="crm-bar-chart" style="position: relative; height: 160px;">
+                            <t t-if="salesTrendMonths.length === 0">
+                                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; font-size: 0.85rem; font-weight: 500;">
+                                    <i class="fa fa-calendar-times-o" style="font-size: 1.5rem; margin-bottom: 6px; color: #cbd5e1;"></i>
+                                    <span>No sales revenue recorded for this period</span>
                                 </div>
                             </t>
-                            <!-- Dynamic Tooltip for Drag/Hover -->
-                            <div class="crm-bar-tooltip" style="display: none;"></div>
-                        </t>
-                    </div>
-                </div>
-
-                <!-- Right Widget: Complaint Types with Clean Horizontal Bars -->
-                <div class="crm-chart-card" t-if="state.isAdmin or state.canViewTicket">
-                    <div class="crm-chart-head">
-                        <span class="crm-chart-title">
-                            <i class="fa fa-wrench" style="color: #0284c7;"></i>
-                            <span>Complaint Types</span>
-                        </span>
-                        <span class="crm-chart-badge" t-if="totalComplaints > 0"><t t-esc="totalComplaints"/> Total</span>
-                    </div>
-
-                    <!-- Clean Horizontal Progress Bars (Option B: Shows 0 when empty) -->
-                    <div style="display: flex; flex-direction: column; justify-content: space-around; height: calc(100% - 40px); gap: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.25rem;">
-                        
-                        <!-- Channel 1: Breakdown -->
-                        <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('breakdown', 'Breakdown')">
-                            <div style="display: flex; align-items: center; min-width: 95px;">
-                                <span class="crm-dot-red" style="margin-right: 6px;"></span>
-                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Breakdown</span>
-                            </div>
-                            <!-- Static Horizontal Progress Bar Track -->
-                            <div style="flex: 1; height: 10px; background: #fee2e2; border-radius: 999px; overflow: hidden; position: relative;">
-                                <div t-att-style="'width: ' + complaintBreakdownPct + '%; height: 100%; background: #ef4444; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
-                            </div>
-                            <div style="min-width: 40px; text-align: right;">
-                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
-                            </div>
-                        </div>
-
-                        <!-- Channel 2: PM -->
-                        <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('preventive', 'PM')">
-                            <div style="display: flex; align-items: center; min-width: 95px;">
-                                <span class="crm-dot-yellow" style="margin-right: 6px;"></span>
-                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">PM</span>
-                            </div>
-                            <!-- Static Horizontal Progress Bar Track -->
-                            <div style="flex: 1; height: 10px; background: #fef3c7; border-radius: 999px; overflow: hidden; position: relative;">
-                                <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #f59e0b; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
-                            </div>
-                            <div style="min-width: 40px; text-align: right;">
-                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
-                            </div>
-                        </div>
-
-                        <!-- Channel 3: Free Call -->
-                        <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
-                             t-on-click="() => this.openComplaintList('free_call', 'Free Call')">
-                            <div style="display: flex; align-items: center; min-width: 95px;">
-                                <span class="crm-dot-green" style="margin-right: 6px;"></span>
-                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Free Call</span>
-                            </div>
-                            <!-- Static Horizontal Progress Bar Track -->
-                            <div style="flex: 1; height: 10px; background: #dcfce7; border-radius: 999px; overflow: hidden; position: relative;">
-                                <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #10b981; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
-                            </div>
-                            <div style="min-width: 40px; text-align: right;">
-                                <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- 3. AMC Renewals -->
-                <div class="crm-chart-card" t-if="state.isAdmin or state.canViewAmc">
-                    <div class="crm-chart-head">
-                        <span class="crm-chart-title">
-                            <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
-                            <span>AMC Renewals</span>
-                        </span>
-                        <span class="crm-chart-badge">Next 90 Days</span>
-                    </div>
-            
-                    <!-- Horizontal Renewal Timeline / Countdown Track (Boxes stay in place with space-between) -->
-                    <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; padding: 0.6rem 0.25rem 0.25rem 0.25rem;">
-                        
-                        <!-- Connecting Continuous Track Bar -->
-                        <div style="position: relative; margin: 0.5rem 0 1.25rem 0;">
-                            <!-- Gradient Horizon Line -->
-                            <div style="position: absolute; top: 50%; left: 12.5%; right: 12.5%; height: 4px; transform: translateY(-50%); background: linear-gradient(90deg, #64748b 0%, #ef4444 33.3%, #f59e0b 66.6%, #10b981 100%); border-radius: 999px;"></div>
-                            
-                            <!-- 4 Milestone Dots -->
-                            <div style="position: absolute; top: 50%; left: 12.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2); z-index: 2;"></div>
-                            <div style="position: absolute; top: 50%; left: 37.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); z-index: 2;"></div>
-                            <div style="position: absolute; top: 50%; left: 62.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); z-index: 2;"></div>
-                            <div style="position: absolute; top: 50%; left: 87.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); z-index: 2;"></div>
-                            <div style="height: 14px;"></div>
-                        </div>
-
-                        <!-- 4 Milestone Columns (Original comfortable position) -->
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; text-align: center;">
-                            
-                            <!-- Step 0: Expired (Grey) -->
-                            <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('expired', 'Expired')">
-                                <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                    <i class="fa fa-times-circle"></i>
-                                </div>
-                                <div style="font-size: 0.7rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.02em;">Expired</div>
-                                <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                    <t t-esc="state.amcExpired || 0"/>
-                                </div>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
-                                    <t t-esc="fmt(state.amcExpiredVal || 0)"/>
-                                </div>
-                            </div>
-
-                            <!-- Step 1: < 30 Days (Urgent) -->
-                            <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fee2e2; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
-                                <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fee2e2; color: #ef4444; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                    <i class="fa fa-exclamation"></i>
-                                </div>
-                                <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.02em;">&lt; 30 Days</div>
-                                <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                    <t t-esc="state.amcExpiring30 || 0"/>
-                                </div>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: #dc2626;">
-                                    <t t-esc="fmt(state.amcExpiring30Val || 0)"/>
-                                </div>
-                            </div>
-
-                            <!-- Step 2: 30–60 Days (Upcoming) -->
-                            <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fef3c7; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
-                                <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef3c7; color: #d97706; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                    <i class="fa fa-clock-o"></i>
-                                </div>
-                                <div style="font-size: 0.7rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.02em;">30–60 Days</div>
-                                <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                    <t t-esc="state.amcExpiring60 || 0"/>
-                                </div>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: #d97706;">
-                                    <t t-esc="fmt(state.amcExpiring60Val || 0)"/>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: > 60 Days / Secure -->
-                            <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #dcfce7; transition: all 0.2s ease;"
-                                 t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
-                                <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                    <i class="fa fa-shield"></i>
-                                </div>
-                                <div style="font-size: 0.7rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.02em;">&gt; 60 Days</div>
-                                <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                    <t t-esc="state.amcSecure || 0"/>
-                                </div>
-                                <div style="font-size: 0.72rem; font-weight: 700; color: #16a34a;">
-                                    <t t-esc="fmt(state.amcSecureVal || 0)"/>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. Low Stock Alerts -->
-                <div class="crm-chart-card" t-if="state.isAdmin or state.canViewProduct">
-                    <div class="crm-chart-head">
-                        <span class="crm-chart-title">
-                            <i class="fa fa-cubes" style="color: #0284c7;"></i>
-                            <span>Low Stock Alerts</span>
-                        </span>
-                        <!-- Direct Out of Stock trigger pill (red) when items exist, or grey badge -->
-                        <span class="crm-chart-badge" style="cursor: pointer; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; transition: all 0.2s;"
-                              t-if="state.outOfStockCount > 0"
-                              t-on-click="openOutOfStockFiltered"
-                              title="Click to view all out of stock products">
-                            <i class="fa fa-exclamation-circle" style="margin-right: 3px;"></i>
-                            <t t-esc="state.outOfStockCount"/> Out of Stock ↗
-                        </span>
-                        <span class="crm-chart-badge" t-else="">
-                            Reorder Alerts
-                        </span>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 0.65rem; flex: 1; justify-content: space-between; padding-top: 0.25rem;">
-                        
-                        <!-- When Low Stock items exist: Show Top 3 (product name + units) -->
-                        <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
-                            <div style="display: flex; flex-direction: column; gap: 0.55rem;">
-                                <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fef3c7; transition: background 0.2s; cursor: pointer;"
-                                         class="crm-sla-row"
-                                         t-on-click="openLowStockFiltered">
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 0.5rem;">
-                                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span>
-                                            <span style="font-size: 0.8rem; font-weight: 700; color: #92400e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
-                                        </div>
-                                        <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; flex-shrink: 0; color: #b45309; background: #fde68a;">
-                                            <t t-esc="item.stock_label"/>
+                            <t t-else="">
+                                <t t-foreach="salesTrendMonths" t-as="m" t-key="m.label">
+                                    <div class="crm-bar-col"
+                                        t-on-click="() => this.openMonthlyWon(m)"
+                                        t-on-mousemove="(e) => this.onBarScrub(e, m)"
+                                        t-on-mouseleave="(e) => this.onBarLeave(e, m)">
+                                        <span class="crm-bar-val-lbl" t-att-style="m.isHovered ? 'opacity: 0;' : 'opacity: 1;'" style="font-size: 0.68rem; font-weight: 700; color: #475569; margin-bottom: 0.25rem; transition: opacity 0.3s ease;">
+                                            <t t-esc="fmt(m.total)"/>
                                         </span>
+                                        <div class="crm-bar-pill" t-att-style="'height: ' + (m.currentHeightPct || m.heightPct) + '%; width: ' + (salesTrendMonths.length > 8 ? '45%' : '65%') + '; background: ' + (m.color || 'linear-gradient(180deg, #38bdf8 0%, #0b3d91 100%)') + ';' + (m.isHovered ? 'transition: none;' : 'transition: height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);')"></div>
+                                        <span class="crm-bar-lbl" style="white-space: nowrap;"><t t-esc="m.label"/></span>
                                     </div>
                                 </t>
-                            </div>
-                        </t>
-
-                        <!-- When no low stock, but products are registered in database -->
-                        <t t-elif="state.totalRegisteredStock > 0 or state.productStockCount > 0">
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
-                                <i class="fa fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 0.25rem;"></i>
-                                <span style="font-weight: 700; color: #1e293b;">Stock Levels Healthy</span>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">All registered products are currently above their safety thresholds.</span>
-                            </div>
-                        </t>
-
-                        <!-- When empty / zero products registered yet in stock registry -->
-                        <t t-else="">
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
-                                <i class="fa fa-cubes" style="font-size: 1.5rem; color: #94a3b8; margin-bottom: 0.25rem;"></i>
-                                <span style="font-weight: 700; color: #334155;">No Products Registered</span>
-                                <span style="font-size: 0.75rem; color: #94a3b8;">No stock entries found. Add products in Product Stock to begin monitoring.</span>
-                            </div>
-                        </t>
-
-                        <!-- Card Bottom Action: View filtered list -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.4rem; border-top: 1px dashed #e2e8f0; margin-top: 0.15rem;">
-                            <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">
-                                <t t-if="state.lowStockItems and state.lowStockItems.length > 0">Showing top 3 items</t>
-                                <t t-else="">Live Inventory</t>
-                            </span>
-                            <a style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;"
-                               t-on-click="openLowStockFiltered">
-                                <span>View All Low Stock Items</span>
-                                <i class="fa fa-arrow-right" style="font-size: 0.65rem;"></i>
-                            </a>
+                                <!-- Dynamic Tooltip for Drag/Hover -->
+                                <div class="crm-bar-tooltip" style="display: none;"></div>
+                            </t>
                         </div>
                     </div>
-                </div>
 
+                    <!-- Right Widget: Complaint Types with Clean Horizontal Bars -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewTicket">
+                        <div class="crm-chart-head">
+                            <span class="crm-chart-title">
+                                <i class="fa fa-wrench" style="color: #0284c7;"></i>
+                                <span>Complaint Types</span>
+                            </span>
+                            <span class="crm-chart-badge" t-if="totalComplaints > 0"><t t-esc="totalComplaints"/> Total</span>
+                        </div>
+
+                        <!-- Clean Horizontal Progress Bars (Option B: Shows 0 when empty) -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-around; height: calc(100% - 40px); gap: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.25rem;">
+                            
+                            <!-- Channel 1: Breakdown -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                                t-on-click="() => this.openComplaintList('breakdown', 'Breakdown')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span class="crm-dot-red" style="margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Breakdown</span>
+                                </div>
+                                <!-- Static Horizontal Progress Bar Track -->
+                                <div style="flex: 1; height: 10px; background: #fee2e2; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + complaintBreakdownPct + '%; height: 100%; background: #ef4444; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                </div>
+                                <div style="min-width: 40px; text-align: right;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
+                                </div>
+                            </div>
+
+                            <!-- Channel 2: PM -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                                t-on-click="() => this.openComplaintList('preventive', 'PM')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span class="crm-dot-yellow" style="margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">PM</span>
+                                </div>
+                                <!-- Static Horizontal Progress Bar Track -->
+                                <div style="flex: 1; height: 10px; background: #fef3c7; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #f59e0b; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                </div>
+                                <div style="min-width: 40px; text-align: right;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
+                                </div>
+                            </div>
+
+                            <!-- Channel 3: Free Call -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                                t-on-click="() => this.openComplaintList('free_call', 'Free Call')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span class="crm-dot-green" style="margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Free Call</span>
+                                </div>
+                                <!-- Static Horizontal Progress Bar Track -->
+                                <div style="flex: 1; height: 10px; background: #dcfce7; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #10b981; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                </div>
+                                <div style="min-width: 40px; text-align: right;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- 3. AMC Renewals -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewAmc">
+                        <div class="crm-chart-head">
+                            <span class="crm-chart-title">
+                                <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
+                                <span>AMC Renewals</span>
+                            </span>
+                            <span class="crm-chart-badge">Next 90 Days</span>
+                        </div>
+                
+                        <!-- Horizontal Renewal Timeline / Countdown Track (Boxes stay in place with space-between) -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; padding: 0.6rem 0.25rem 0.25rem 0.25rem;">
+                            
+                            <!-- Connecting Continuous Track Bar -->
+                            <div style="position: relative; margin: 0.5rem 0 1.25rem 0;">
+                                <!-- Gradient Horizon Line -->
+                                <div style="position: absolute; top: 50%; left: 12.5%; right: 12.5%; height: 4px; transform: translateY(-50%); background: linear-gradient(90deg, #64748b 0%, #ef4444 33.3%, #f59e0b 66.6%, #10b981 100%); border-radius: 999px;"></div>
+                                
+                                <!-- 4 Milestone Dots -->
+                                <div style="position: absolute; top: 50%; left: 12.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2); z-index: 2;"></div>
+                                <div style="position: absolute; top: 50%; left: 37.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); z-index: 2;"></div>
+                                <div style="position: absolute; top: 50%; left: 62.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); z-index: 2;"></div>
+                                <div style="position: absolute; top: 50%; left: 87.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); z-index: 2;"></div>
+                                <div style="height: 14px;"></div>
+                            </div>
+
+                            <!-- 4 Milestone Columns (Original comfortable position) -->
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; text-align: center;">
+                                
+                                <!-- Step 0: Expired (Grey) -->
+                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0; transition: all 0.2s ease;"
+                                    t-on-click="() => this.openAmcRenewalList('expired', 'Expired')">
+                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.65rem; margin-bottom: 0.35rem;">
+                                        <i class="fa fa-times-circle"></i>
+                                    </div>
+                                    <div style="font-size: 0.7rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.02em;">Expired</div>
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
+                                        <t t-esc="state.amcExpired || 0"/>
+                                    </div>
+                                    <div style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
+                                        <t t-esc="fmt(state.amcExpiredVal || 0)"/>
+                                    </div>
+                                </div>
+
+                                <!-- Step 1: < 30 Days (Urgent) -->
+                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fee2e2; transition: all 0.2s ease;"
+                                    t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
+                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fee2e2; color: #ef4444; font-size: 0.65rem; margin-bottom: 0.35rem;">
+                                        <i class="fa fa-exclamation"></i>
+                                    </div>
+                                    <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.02em;">&lt; 30 Days</div>
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
+                                        <t t-esc="state.amcExpiring30 || 0"/>
+                                    </div>
+                                    <div style="font-size: 0.72rem; font-weight: 700; color: #dc2626;">
+                                        <t t-esc="fmt(state.amcExpiring30Val || 0)"/>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: 30–60 Days (Upcoming) -->
+                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fef3c7; transition: all 0.2s ease;"
+                                    t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
+                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef3c7; color: #d97706; font-size: 0.65rem; margin-bottom: 0.35rem;">
+                                        <i class="fa fa-clock-o"></i>
+                                    </div>
+                                    <div style="font-size: 0.7rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.02em;">30–60 Days</div>
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
+                                        <t t-esc="state.amcExpiring60 || 0"/>
+                                    </div>
+                                    <div style="font-size: 0.72rem; font-weight: 700; color: #d97706;">
+                                        <t t-esc="fmt(state.amcExpiring60Val || 0)"/>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3: > 60 Days / Secure -->
+                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #dcfce7; transition: all 0.2s ease;"
+                                    t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
+                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 0.65rem; margin-bottom: 0.35rem;">
+                                        <i class="fa fa-shield"></i>
+                                    </div>
+                                    <div style="font-size: 0.7rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.02em;">&gt; 60 Days</div>
+                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
+                                        <t t-esc="state.amcSecure || 0"/>
+                                    </div>
+                                    <div style="font-size: 0.72rem; font-weight: 700; color: #16a34a;">
+                                        <t t-esc="fmt(state.amcSecureVal || 0)"/>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Low Stock Alerts -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewProduct">
+                        <div class="crm-chart-head">
+                            <span class="crm-chart-title">
+                                <i class="fa fa-cubes" style="color: #0284c7;"></i>
+                                <span>Low Stock Alerts</span>
+                            </span>
+                            <!-- Direct Out of Stock trigger pill (red) when items exist, or grey badge -->
+                            <span class="crm-chart-badge" style="cursor: pointer; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; transition: all 0.2s;"
+                                t-if="state.outOfStockCount > 0"
+                                t-on-click="openOutOfStockFiltered"
+                                title="Click to view all out of stock products">
+                                <i class="fa fa-exclamation-circle" style="margin-right: 3px;"></i>
+                                <t t-esc="state.outOfStockCount"/> Out of Stock ↗
+                            </span>
+                            <span class="crm-chart-badge" t-else="">
+                                Reorder Alerts
+                            </span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 0.65rem; flex: 1; justify-content: space-between; padding-top: 0.25rem;">
+                            
+                            <!-- When Low Stock items exist: Show Top 3 (product name + units) -->
+                            <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
+                                <div style="display: flex; flex-direction: column; gap: 0.55rem;">
+                                    <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fef3c7; transition: background 0.2s; cursor: pointer;"
+                                            class="crm-sla-row"
+                                            t-on-click="openLowStockFiltered">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 0.5rem;">
+                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span>
+                                                <span style="font-size: 0.8rem; font-weight: 700; color: #92400e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
+                                            </div>
+                                            <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; flex-shrink: 0; color: #b45309; background: #fde68a;">
+                                                <t t-esc="item.stock_label"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+
+                            <!-- When no low stock, but products are registered in database -->
+                            <t t-elif="state.totalRegisteredStock > 0 or state.productStockCount > 0">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
+                                    <i class="fa fa-check-circle" style="font-size: 1.5rem; color: #10b981; margin-bottom: 0.25rem;"></i>
+                                    <span style="font-weight: 700; color: #1e293b;">Stock Levels Healthy</span>
+                                    <span style="font-size: 0.75rem; color: #94a3b8;">All registered products are currently above their safety thresholds.</span>
+                                </div>
+                            </t>
+
+                            <!-- When empty / zero products registered yet in stock registry -->
+                            <t t-else="">
+                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 1.5rem 0.75rem; color: #64748b; font-size: 0.82rem; text-align: center; gap: 0.35rem;">
+                                    <i class="fa fa-cubes" style="font-size: 1.5rem; color: #94a3b8; margin-bottom: 0.25rem;"></i>
+                                    <span style="font-weight: 700; color: #334155;">No Products Registered</span>
+                                    <span style="font-size: 0.75rem; color: #94a3b8;">No stock entries found. Add products in Product Stock to begin monitoring.</span>
+                                </div>
+                            </t>
+
+                            <!-- Card Bottom Action: View filtered list -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.4rem; border-top: 1px dashed #e2e8f0; margin-top: 0.15rem;">
+                                <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">
+                                    <t t-if="state.lowStockItems and state.lowStockItems.length > 0">Showing top 3 items</t>
+                                    <t t-else="">Live Inventory</t>
+                                </span>
+                                <a style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;"
+                                t-on-click="openLowStockFiltered">
+                                    <span>View All Low Stock Items</span>
+                                    <i class="fa fa-arrow-right" style="font-size: 0.65rem;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- VIEW MORE ANALYTICS ACTION BAR -->
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                        <button type="button" 
+                                t-on-click="openInsightsComingSoon"
+                                style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid #cbd5e1; color: #1a3d6e; font-size: 0.82rem; font-weight: 700; padding: 0.6rem 1.4rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.2s ease;">
+                            <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
+                            <span>View More Analytics</span>
+                            <span style="background: #f1f5f9; color: #64748b; font-size: 0.65rem; font-weight: 800; padding: 0.15rem 0.45rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Soon</span>
+                            <i class="fa fa-arrow-right" style="font-size: 0.75rem; color: #94a3b8; margin-left: 2px;"></i>
+                        </button>
+                    </div>
                 </section>
                 <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM · Connect. Manage. Grow.</div>
             </main>
