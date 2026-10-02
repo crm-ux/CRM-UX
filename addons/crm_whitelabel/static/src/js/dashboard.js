@@ -931,43 +931,86 @@ class CrmDashboard extends Component {
         this.state[fieldName] = val;
     }
 
-    parseDateInput(str) {
-        if (!str) return null;
-        const parts = str.split("/");
-        if (parts.length !== 3) return null;
-        let [d, m, y] = parts.map(p => p.trim());
-        if (!d || !m || !y) return null;
-        d = d.padStart(2, "0");
-        m = m.padStart(2, "0");
-        // If 2 digits year entered e.g. 26 -> 2026
-        if (y.length === 2) {
+    validateDateInput(rawStr, fieldLabel) {
+        if (!rawStr || !rawStr.trim()) {
+            return { error: `Please enter ${fieldLabel}` };
+        }
+        const parts = rawStr.trim().split("/");
+        if (parts.length !== 3) {
+            return { error: `${fieldLabel} must be in DD/MM/YYYY format` };
+        }
+        let [dStr, mStr, yStr] = parts.map(p => p.trim());
+        if (!dStr || !mStr || !yStr) {
+            return { error: `Please complete ${fieldLabel} in DD/MM/YYYY format` };
+        }
+
+        // Smart year parsing (2 digits -> 4 digits)
+        if (yStr.length === 2) {
             const currentYearPrefix = String(new Date().getFullYear()).substring(0, 2);
-            y = currentYearPrefix + y;
-        } else if (y.length === 4 && y.startsWith("0")) {
-            // Handle case where user typed 0206 by mistyping
-            y = y.replace(/^0+/, "");
-            if (y.length === 2) {
+            yStr = currentYearPrefix + yStr;
+        } else if (yStr.length === 4 && yStr.startsWith("0")) {
+            yStr = yStr.replace(/^0+/, "");
+            if (yStr.length === 2) {
                 const currentYearPrefix = String(new Date().getFullYear()).substring(0, 2);
-                y = currentYearPrefix + y;
+                yStr = currentYearPrefix + yStr;
             }
         }
-        if (y.length !== 4) return null;
-        return `${y}-${m}-${d}`;
+        if (yStr.length !== 4) {
+            return { error: `Please enter a 4-digit year for ${fieldLabel}` };
+        }
+
+        const day = parseInt(dStr, 10);
+        const month = parseInt(mStr, 10);
+        const year = parseInt(yStr, 10);
+
+        if (isNaN(day) || isNaN(month) || isNaN(year)) {
+            return { error: `Please enter valid numbers for ${fieldLabel}` };
+        }
+
+        // Check month bounds
+        if (month < 1 || month > 12) {
+            return { error: `Invalid month in ${fieldLabel}! Month must be between 01 and 12` };
+        }
+
+        // Check day bounds for specific month & leap year
+        const maxDaysInMonth = new Date(year, month, 0).getDate();
+        if (day < 1 || day > maxDaysInMonth) {
+            return { error: `Invalid day in ${fieldLabel}! Maximum day for this month is ${maxDaysInMonth}` };
+        }
+
+        const padD = String(day).padStart(2, "0");
+        const padM = String(month).padStart(2, "0");
+        const dateStr = `${year}-${padM}-${padD}`;
+        const dateObj = new Date(year, month - 1, day, 23, 59, 59);
+
+        // Check future date
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+        if (dateObj > today) {
+            return { error: `${fieldLabel} cannot be in the future` };
+        }
+
+        return { dateStr: dateStr, dateObj: dateObj };
     }
 
     async applyCustomDateRange() {
-        const startStr = this.parseDateInput(this.state.customStartDateInput);
-        const endStr = this.parseDateInput(this.state.customEndDateInput);
-
-        if (!startStr || !endStr) {
-            this.showToast("Please enter valid dates in DD/MM/YYYY format.");
+        const startCheck = this.validateDateInput(this.state.customStartDateInput, "Start Date");
+        if (startCheck.error) {
+            this.showToast(startCheck.error);
             return;
         }
 
-        const d1 = new Date(startStr);
-        const d2 = new Date(endStr);
-        if (d1 > d2) {
-            this.showToast("Start date cannot be after end date.");
+        const endCheck = this.validateDateInput(this.state.customEndDateInput, "End Date");
+        if (endCheck.error) {
+            this.showToast(endCheck.error);
+            return;
+        }
+
+        const startStr = startCheck.dateStr;
+        const endStr = endCheck.dateStr;
+
+        if (startStr > endStr) {
+            this.showToast("Start date cannot be after End date");
             return;
         }
 
