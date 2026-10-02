@@ -1310,7 +1310,12 @@ class CrmDashboard extends Component {
         }
 
         const formattedVal = this.fmt(dayValue);
-        tooltip.innerHTML = `<span>${dayHeader}</span><strong>${formattedVal}</strong>`;
+        if (m.days === 1) {
+            // For single day bar (e.g. Thu 03): date is already right on the bar label below, show only amount in tooltip
+            tooltip.innerHTML = `<strong>${formattedVal}</strong>`;
+        } else {
+            tooltip.innerHTML = `<span>${dayHeader}</span><strong>${formattedVal}</strong>`;
+        }
     }
 
     onBarLeave(e, m) {
