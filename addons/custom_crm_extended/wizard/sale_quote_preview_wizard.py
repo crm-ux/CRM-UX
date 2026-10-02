@@ -628,7 +628,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
         flat_disc = getattr(order, 'x_flat_discount', 0) or 0
         overall_disc_amt = untaxed * overall_disc_pct / 100 if overall_disc_pct else 0
-        net = untaxed - overall_disc_amt
+        net = max(0.0, untaxed - overall_disc_amt - flat_disc)
 
         # Get unique tax rates
         tax_rates = set()
@@ -1138,7 +1138,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         overall_disc_pct_d = getattr(order, 'x_flat_discount_pct', 0) or 0
         flat_disc_d = getattr(order, 'x_flat_discount', 0) or 0
         overall_disc_amt_d = untaxed * overall_disc_pct_d / 100 if overall_disc_pct_d else 0
-        net_d = untaxed - overall_disc_amt_d
+        net_d = max(0.0, untaxed - overall_disc_amt_d - flat_disc_d)
         tax_rates_d = set()
         for line in order.order_line.filtered(lambda x: not x.display_type):
             for tax in line.tax_ids:
