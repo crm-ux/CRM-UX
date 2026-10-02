@@ -61,6 +61,8 @@ class CrmDashboard extends Component {
             complaintBreakdown: 0,
             complaintPm: 0,
             complaintFreeCall: 0,
+            amcExpired: 0,
+            amcExpiredVal: 0,
             amcExpiring30: 0,
             amcExpiring30Val: 0,
             amcExpiring30Pct: 0,
@@ -337,6 +339,8 @@ class CrmDashboard extends Component {
                 complaintBreakdown: s.complaint_counts?.breakdown ?? 0,
                 complaintPm: s.complaint_counts?.pm ?? 0,
                 complaintFreeCall: s.complaint_counts?.free_call ?? 0,
+                amcExpired: s.amc_renewals?.expired ?? this.state.amcExpired,
+                amcExpiredVal: s.amc_renewals?.expired_val ?? this.state.amcExpiredVal,
                 amcExpiring30: s.amc_renewals?.expiring_30 ?? this.state.amcExpiring30,
                 amcExpiring30Val: s.amc_renewals?.expiring_30_val ?? this.state.amcExpiring30Val,
                 amcExpiring60: s.amc_renewals?.expiring_60 ?? this.state.amcExpiring60,
@@ -1504,7 +1508,10 @@ class CrmDashboard extends Component {
         const fmtDate = (d) => d.toISOString().split('T')[0];
 
         let cleanTitle = title;
-        if (type === '30') {
+        if (type === 'expired') {
+            cleanTitle = "Expired";
+            domain = ["|", ["contract_status", "=", "expired"], ["&", ["contract_status", "in", ["active", "renewed"]], ["contract_end_date", "<", fmtDate(today)]]];
+        } else if (type === '30') {
             cleanTitle = "< 30 Days";
             const target = new Date();
             target.setDate(today.getDate() + 30);

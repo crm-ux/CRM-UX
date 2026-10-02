@@ -1056,7 +1056,9 @@ class DashboardStats(models.Model):
         d_30 = d_today + timedelta(days=30)
         d_60 = d_today + timedelta(days=60)
 
-        active_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter + [('contract_status', 'in', ['active', 'renewed'])])
+        active_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter + [('contract_status', 'in', ['active', 'renewed', 'expired'])])
+        expired_count = 0
+        expired_val = 0.0
         expiring_30 = 0
         expiring_30_val = 0.0
         expiring_60 = 0
@@ -1072,7 +1074,10 @@ class DashboardStats(models.Model):
                 c_val = 0.0
 
             end_dt = a.contract_end_date
-            if end_dt:
+            if a.contract_status == 'expired' or (end_dt and end_dt < d_today):
+                expired_count += 1
+                expired_val += c_val
+            elif end_dt:
                 if d_today <= end_dt <= d_30:
                     expiring_30 += 1
                     expiring_30_val += c_val
@@ -1087,6 +1092,8 @@ class DashboardStats(models.Model):
                 secure_val += c_val
 
         amc_renewals = {
+            'expired': expired_count,
+            'expired_val': expired_val,
             'expiring_30': expiring_30,
             'expiring_30_val': expiring_30_val,
             'expiring_60': expiring_60,
