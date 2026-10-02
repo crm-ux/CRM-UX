@@ -620,6 +620,15 @@ class CrmDashboard extends Component {
         });
     }
 
+    assignTaskComingSoon() {
+        if (this.notification) {
+            this.notification.add("Assign Task feature is coming soon!", {
+                title: "Coming Soon",
+                type: "info",
+            });
+        }
+    }
+
     createAmc() {
         this.actionService.doAction({
             type: "ir.actions.act_window",
