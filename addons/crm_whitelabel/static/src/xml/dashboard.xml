@@ -12,9 +12,8 @@
             <aside class="crm-sidebar" t-att-class="state.sidebarOpen ? 'open' : ''">
                 <div class="crm-sidebar-header">
                     <div class="crm-brand">
-                        <img t-if="state.companyLogo" t-att-src="state.companyLogo" class="crm-brand-logo" alt="Logo"/>
-                        <span t-else="" class="crm-brand-logo" style="background:#0b3d91;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;">U</span>
-                        <span class="crm-brand-name"><t t-esc="state.companyName || 'Ultrawin Technologies'"/></span>
+                        <img src="/crm_whitelabel/static/src/img/sidebar_logo.png" class="crm-brand-logo" alt="Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 50%;"/>
+                        <span class="crm-brand-name">Ultrawin Technologies</span>
                     </div>
                     <button class="crm-sidebar-close" t-on-click="toggleSidebar" title="Close menu">
                         ✕
@@ -306,7 +305,7 @@
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 6. Quotes (Draft) -->
-                        <div class="crm-pipe-step active" style="border-top: 3px solid #0284c7;" t-on-click="() => this.openQuoteStage('draft')">
+                        <div class="crm-pipe-step" style="border-top: 3px solid #0284c7;" t-on-click="() => this.openQuoteStage('draft')">
                             <div class="crm-pipe-count"><t t-esc="state.quotesDraft"/></div>
                             <div class="crm-pipe-name">Quotes</div>
                         </div>
