@@ -1034,10 +1034,13 @@ class CrmDashboard extends Component {
         });
         const dayKeys = Object.keys(dayMap).sort();
         this.state.customChartData = dayKeys.map(k => {
+            const parts = k.split("-"); // [YYYY, MM, DD]
             const dObj = new Date(k);
             const wDay = dayNames[dObj.getDay()];
+            const indianDate = `${parts[2]}-${parts[1]}`;
             return {
-                label: `${wDay} ${k.substring(8)}`, // e.g. Mon 01
+                label: `${wDay} ${parts[2]}`, // e.g. Mon 01
+                tooltipLabel: `${wDay}, ${indianDate}`,
                 total: dayMap[k],
                 fullDay: k,
                 days: 1
@@ -1078,14 +1081,16 @@ class CrmDashboard extends Component {
             const wEndStr = `${wEnd.getFullYear()}-${String(wEnd.getMonth() + 1).padStart(2, "0")}-${String(wEnd.getDate()).padStart(2, "0")}`;
             const daysCount = Math.round((wEnd - wStart) / (1000 * 60 * 60 * 24)) + 1;
 
-            const startDay = wStart.getDate();
-            const endDay = wEnd.getDate();
-            const weekRangeLabel = `W${weekIdx}(${startDay}-${endDay})`;
+            const startDay = String(wStart.getDate()).padStart(2, "0");
+            const startMonth = String(wStart.getMonth() + 1).padStart(2, "0");
+            const endDay = String(wEnd.getDate()).padStart(2, "0");
+            const endMonth = String(wEnd.getMonth() + 1).padStart(2, "0");
+            const weekRangeLabel = `W${weekIdx}(${wStart.getDate()}-${wEnd.getDate()})`;
 
             weeks.push({
                 label: weekRangeLabel,
                 shortLabel: weekRangeLabel,
-                tooltipLabel: `Week ${weekIdx} (${wStartStr.substring(5)} to ${wEndStr.substring(5)})`,
+                tooltipLabel: `Week ${weekIdx} (${startDay}-${startMonth} to ${endDay}-${endMonth})`,
                 startDt: `${wStartStr} 00:00:00`,
                 endDt: `${wEndStr} 23:59:59`,
                 total: 0,
