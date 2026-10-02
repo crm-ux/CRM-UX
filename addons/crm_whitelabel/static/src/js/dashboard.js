@@ -1495,23 +1495,27 @@ class CrmDashboard extends Component {
         const today = new Date();
         const fmtDate = (d) => d.toISOString().split('T')[0];
 
+        let cleanTitle = title;
         if (type === '30') {
+            cleanTitle = "< 30 Days";
             const target = new Date();
             target.setDate(today.getDate() + 30);
             domain = [["contract_status", "in", ["active", "renewed"]], ["contract_end_date", ">=", fmtDate(today)], ["contract_end_date", "<=", fmtDate(target)]];
         } else if (type === '60') {
+            cleanTitle = "30–60 Days";
             const start = new Date();
             start.setDate(today.getDate() + 31);
             const target = new Date();
             target.setDate(today.getDate() + 60);
             domain = [["contract_status", "in", ["active", "renewed"]], ["contract_end_date", ">=", fmtDate(start)], ["contract_end_date", "<=", fmtDate(target)]];
         } else if (type === 'secure') {
+            cleanTitle = "> 60 Days";
             const minDate = new Date();
             minDate.setDate(today.getDate() + 60);
             domain = ["|", ["contract_end_date", "=", false], ["contract_end_date", ">", fmtDate(minDate)], ["contract_status", "in", ["active", "renewed"]]];
         }
 
-        this.openAmcList(domain, title);
+        this.openAmcList(domain, cleanTitle);
     }
 
     openLowStockRegistry() {
