@@ -49,9 +49,14 @@ class CrmDashboard extends Component {
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
             accessModalOpen: false, accessModalModule: "",
-            // Advanced Analytics State (Populated dynamically from backend get_dashboard_stats)
+            // Analytics State
             salesRangeMonths: 6,
             scrubTooltip: { visible: false, left: 0, top: 0, date: "", val: "" },
+            customDateModalOpen: false,
+            customStartDateInput: "",
+            customEndDateInput: "",
+            customRangeType: "month",
+            customChartData: null,
             complaintBreakdown: 0,
             complaintPm: 0,
             complaintFreeCall: 0,
@@ -803,6 +808,14 @@ class CrmDashboard extends Component {
 
     // --- ADVANCED ANALYTICS GETTERS & ACTIONS ---
     get salesTrendMonths() {
+        if (this.state.salesRangeMonths === 'custom' && this.state.customChartData) {
+            const data = this.state.customChartData;
+            const maxVal = Math.max(...data.map(m => m.total), 1);
+            return data.map(m => ({
+                ...m,
+                heightPct: Math.min(95, Math.max(12, Math.round((m.total / maxVal) * 90)))
+            }));
+        }
         const custom = this.state.customSalesTrend;
         const range = this.state.salesRangeMonths;
         let months = [];
@@ -852,9 +865,161 @@ class CrmDashboard extends Component {
         });
     }
 
+    openCustomDateModal() {
+        this.state.customDateModalOpen = true;
+    }
+
+    closeCustomDateModal() {
+        this.state.customDateModalOpen = false;
+    }
+
+    onDateInputKeydown(e, fieldName) {
+        if (e.key === " " || e.key === "Spacebar") {
+            e.preventDefault();
+            let val = (this.state[fieldName] || "").trim();
+            const parts = val.split("/");
+            if (parts.length === 1 && parts[0].length >= 1 && parts[0].length <= 2) {
+                // Autopad day with 0 if needed
+                const day = parts[0].padStart(2, "0");
+                this.state[fieldName] = day + "/";
+            } else if (parts.length === 2 && parts[1].length >= 1 && parts[1].length <= 2) {
+                // Autopad month with 0 if needed
+                const month = parts[1].padStart(2, "0");
+                this.state[fieldName] = parts[0] + "/" + month + "/";
+            }
+        }
+    }
+
+    onDateInputChange(e, fieldName) {
+        let val = e.target.value.replace(/[^0-9/]/g, "");
+        // Auto slash after 2 digits
+        if (val.length === 2 && !val.includes("/")) {
+            val = val + "/";
+        } else if (val.length === 5 && (val.match(/\//g) || []).length === 1) {
+            val = val + "/";
+        }
+        this.state[fieldName] = val;
+    }
+
+    parseDateInput(str) {
+        if (!str) return null;
+        const parts = str.split("/");
+        if (parts.length !== 3) return null;
+        let [d, m, y] = parts.map(p => p.trim());
+        if (!d || !m || !y) return null;
+        d = d.padStart(2, "0");
+        m = m.padStart(2, "0");
+        // If 2 digits year entered e.g. 26 -> 2026
+        if (y.length === 2) {
+            const currentYearPrefix = String(new Date().getFullYear()).substring(0, 2);
+            y = currentYearPrefix + y;
+        }
+        return `${y}-${m}-${d}`;
+    }
+
+    async applyCustomDateRange() {
+        const startStr = this.parseDateInput(this.state.customStartDateInput);
+        const endStr = this.parseDateInput(this.state.customEndDateInput);
+
+        if (!startStr || !endStr) {
+            this.showToast("Please enter valid dates in DD/MM/YYYY format.");
+            return;
+        }
+
+        const d1 = new Date(startStr);
+        const d2 = new Date(endStr);
+        if (d1 > d2) {
+            this.showToast("Start date cannot be after end date.");
+            return;
+        }
+
+        this.closeCustomDateModal();
+        this.state.salesRangeMonths = 'custom';
+
+        const diffDays = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
+
+        try {
+            if (diffDays <= 1) {
+                // Single Day -> Hours
+                this.state.customRangeType = "hour";
+                await this._fetchHourlySales(startStr);
+            } else if (diffDays <= 31) {
+                // A few days / weeks -> Daily
+                this.state.customRangeType = "day";
+                await this._fetchDailySales(startStr, endStr);
+            } else {
+                // Multi-Month -> Monthly
+                this.state.customRangeType = "month";
+                await this._fetchMonthlySales(startStr, endStr);
+            }
+        } catch (err) {
+            console.error("Custom date range query error:", err);
+        }
+    }
+
+    async _fetchHourlySales(dateStr) {
+        const domain = [
+            ["date_order", ">=", dateStr + " 00:00:00"],
+            ["date_order", "<=", dateStr + " 23:59:59"],
+            ["state", "in", ["sale", "done"]]
+        ];
+        const orders = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "search_read",
+            args: [domain], kwargs: { fields: ["date_order", "amount_untaxed"] }
+        });
+        const blocks = [
+            { label: "9am-12pm", startH: 9, endH: 12, total: 0, startDt: `${dateStr} 09:00:00`, endDt: `${dateStr} 12:00:00` },
+            { label: "12pm-3pm", startH: 12, endH: 15, total: 0, startDt: `${dateStr} 12:00:00`, endDt: `${dateStr} 15:00:00` },
+            { label: "3pm-6pm", startH: 15, endH: 18, total: 0, startDt: `${dateStr} 15:00:00`, endDt: `${dateStr} 18:00:00` },
+            { label: "6pm-9pm", startH: 18, endH: 21, total: 0, startDt: `${dateStr} 18:00:00`, endDt: `${dateStr} 21:00:00` },
+        ];
+        orders.forEach(o => {
+            const h = new Date(o.date_order).getHours();
+            const blk = blocks.find(b => h >= b.startH && h < b.endH);
+            if (blk) blk.total += (o.amount_untaxed || 0);
+        });
+        this.state.customChartData = blocks;
+    }
+
+    async _fetchDailySales(startStr, endStr) {
+        const domain = [
+            ["date_order", ">=", startStr + " 00:00:00"],
+            ["date_order", "<=", endStr + " 23:59:59"],
+            ["state", "in", ["sale", "done"]]
+        ];
+        const res = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "read_group",
+            args: [domain, ["amount_untaxed:sum"], ["date_order:day"]],
+            kwargs: { lazy: false }
+        });
+        this.state.customChartData = res.map(r => ({
+            label: r["date_order:day"] ? r["date_order:day"].split(" ")[0].substring(5) : "Day",
+            total: r.amount_untaxed || 0,
+            fullDay: r["date_order:day"]
+        }));
+    }
+
+    async _fetchMonthlySales(startStr, endStr) {
+        const domain = [
+            ["date_order", ">=", startStr + " 00:00:00"],
+            ["date_order", "<=", endStr + " 23:59:59"],
+            ["state", "in", ["sale", "done"]]
+        ];
+        const res = await rpc("/web/dataset/call_kw", {
+            model: "sale.order", method: "read_group",
+            args: [domain, ["amount_untaxed:sum"], ["date_order:month"]],
+            kwargs: { lazy: false }
+        });
+        this.state.customChartData = res.map(r => ({
+            label: r["date_order:month"] || "Month",
+            total: r.amount_untaxed || 0,
+            fullMonth: r["date_order:month"]
+        }));
+    }
+
     setSalesRange(range) {
         if (range === 'custom') {
-            this.showToast("Custom Date Range filter will open.");
+            this.openCustomDateModal();
             return;
         }
         this.state.salesRangeMonths = range;
@@ -914,7 +1079,28 @@ class CrmDashboard extends Component {
             this.showAccessDenied("Quotations & Deals");
             return;
         }
-        this.openWon();
+        let domain = [["state", "in", ["sale", "done"]]];
+        let title = "Orders";
+
+        if (m.startDt && m.endDt) {
+            domain.push(["date_order", ">=", m.startDt]);
+            domain.push(["date_order", "<=", m.endDt]);
+            title = `Orders (${m.label})`;
+        } else if (m.fullDay) {
+            domain.push(["date_order", ">=", m.fullDay + " 00:00:00"]);
+            domain.push(["date_order", "<=", m.fullDay + " 23:59:59"]);
+            title = `Orders (${m.label})`;
+        } else if (m.fullMonth) {
+            title = `Orders (${m.label})`;
+        }
+        this.go({
+            type: "ir.actions.act_window",
+            name: title,
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+            target: "current"
+        });
     }
 
     openComplaintList(type, title = "Service Tickets") {
