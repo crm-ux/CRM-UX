@@ -673,7 +673,7 @@
 
                         <!-- 4 Milestone Columns (Clickable to Filter) -->
                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; text-align: center;">
-
+                    </div>
                 </div>
 
                 <!-- 4. Low Stock Alerts -->
