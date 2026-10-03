@@ -1564,12 +1564,12 @@
         cursor: pointer;
     }
 
-    /* Mobile Vertical Pipeline Strip - No Scrollbar, Connected with Dotted Line */
+    /* Mobile Pipeline - Individual Card Boxes Connected with Dotted Line */
     .crm-pipe-track {
         flex-direction: column !important;
         align-items: stretch !important;
         overflow-x: visible !important;
-        gap: 0 !important;
+        gap: 0.65rem !important;
         padding-bottom: 0 !important;
         position: relative;
     }
@@ -1579,36 +1579,42 @@
         display: none !important;
     }
 
-    .crm-pipe-step {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        min-width: 0 !important;
-        width: 100% !important;
-        border: none !important;
-        border-top: none !important;
-        border-radius: 0 !important;
-        padding: 0.65rem 0.75rem 0.65rem 1.75rem !important;
-        margin: 0 !important;
-        background: transparent !important;
-        position: relative;
-        text-align: left !important;
-        box-sizing: border-box;
-    }
-
-    /* Vertical Dotted Line connecting each step */
-    .crm-pipe-step:not(:last-child)::before {
+    /* The continuous vertical dotted connecting line */
+    .crm-pipe-track::before {
         content: "";
         position: absolute;
-        left: 0.65rem;
-        top: 50%;
-        bottom: -50%;
+        left: 1.15rem;
+        top: 1.25rem;
+        bottom: 1.25rem;
         width: 0;
         border-left: 2px dashed #cbd5e1;
         z-index: 1;
     }
 
-    /* Bullet Dot for each stage */
+    .crm-pipe-step {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        border: 1px solid var(--border-color) !important;
+        border-left-width: 4px !important;
+        /* Preserves stage color on the left accent */
+        border-top: 1px solid var(--border-color) !important;
+        border-radius: 0.65rem !important;
+        padding: 0.65rem 0.85rem 0.65rem 1.85rem !important;
+        margin: 0 !important;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        box-sizing: border-box;
+        text-align: left !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Small connecting circle node on the dotted line */
     .crm-pipe-step::after {
         content: "";
         position: absolute;
@@ -1619,7 +1625,8 @@
         height: 8px;
         border-radius: 50%;
         background: #0284c7;
-        z-index: 2;
+        box-shadow: 0 0 0 2px #ffffff;
+        z-index: 3;
     }
 
     /* Stage Name on Left */
@@ -1627,42 +1634,52 @@
         order: 1;
         margin: 0 !important;
         font-size: 0.85rem !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         color: var(--text-dark) !important;
     }
 
-    /* Stage Count Pill on Right */
+    /* Stage Count on Right */
     .crm-pipe-count {
         order: 2;
-        font-size: 0.95rem !important;
+        font-size: 1.05rem !important;
         font-weight: 800 !important;
-        padding: 0.15rem 0.6rem;
-        border-radius: 999px;
-        background: #f1f5f9;
+        color: var(--primary-blue);
     }
 
-    /* Row hover effect */
+    /* Active / Tap effect */
+    .crm-pipe-step:active,
     .crm-pipe-step:hover {
         background: #f8fafc !important;
-        border-radius: 6px !important;
-        transform: none !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
     }
 
-    /* Special styling for Total Row on Mobile */
+    /* Special Card Highlight for Won */
+    .crm-pipe-step[data-seq="won"],
+    .crm-pipe-step:nth-last-child(3) {
+        border-left-color: #22c55e !important;
+    }
+
+    /* Special Total Pipeline Card at the Bottom */
     .crm-pipe-step:last-child {
-        margin-top: 0.35rem !important;
-        padding-top: 0.75rem !important;
-        border-top: 1px solid var(--border-color) !important;
+        background: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        border-left: 4px solid var(--primary-blue) !important;
+        margin-top: 0.25rem !important;
     }
 
     .crm-pipe-step:last-child::after {
-        background: #0b3d91;
+        background: var(--primary-blue);
         border-radius: 2px;
     }
 
+    .crm-pipe-step:last-child .crm-pipe-name {
+        color: var(--primary-blue) !important;
+        font-weight: 800 !important;
+    }
+
     .crm-pipe-step:last-child .crm-pipe-count {
-        background: #eff6ff;
-        color: #0b3d91;
+        color: var(--primary-blue) !important;
     }
 }
 
