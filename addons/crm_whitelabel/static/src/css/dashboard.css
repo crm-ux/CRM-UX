@@ -1563,6 +1563,107 @@
         color: var(--text-muted);
         cursor: pointer;
     }
+
+    /* Mobile Vertical Pipeline Strip - No Scrollbar, Connected with Dotted Line */
+    .crm-pipe-track {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        overflow-x: visible !important;
+        gap: 0 !important;
+        padding-bottom: 0 !important;
+        position: relative;
+    }
+
+    /* Hide the horizontal arrow '>' on mobile */
+    .crm-pipe-arrow {
+        display: none !important;
+    }
+
+    .crm-pipe-step {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        min-width: 0 !important;
+        width: 100% !important;
+        border: none !important;
+        border-top: none !important;
+        border-radius: 0 !important;
+        padding: 0.65rem 0.75rem 0.65rem 1.75rem !important;
+        margin: 0 !important;
+        background: transparent !important;
+        position: relative;
+        text-align: left !important;
+        box-sizing: border-box;
+    }
+
+    /* Vertical Dotted Line connecting each step */
+    .crm-pipe-step:not(:last-child)::before {
+        content: "";
+        position: absolute;
+        left: 0.65rem;
+        top: 50%;
+        bottom: -50%;
+        width: 0;
+        border-left: 2px dashed #cbd5e1;
+        z-index: 1;
+    }
+
+    /* Bullet Dot for each stage */
+    .crm-pipe-step::after {
+        content: "";
+        position: absolute;
+        left: 0.45rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #0284c7;
+        z-index: 2;
+    }
+
+    /* Stage Name on Left */
+    .crm-pipe-name {
+        order: 1;
+        margin: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: var(--text-dark) !important;
+    }
+
+    /* Stage Count Pill on Right */
+    .crm-pipe-count {
+        order: 2;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        background: #f1f5f9;
+    }
+
+    /* Row hover effect */
+    .crm-pipe-step:hover {
+        background: #f8fafc !important;
+        border-radius: 6px !important;
+        transform: none !important;
+    }
+
+    /* Special styling for Total Row on Mobile */
+    .crm-pipe-step:last-child {
+        margin-top: 0.35rem !important;
+        padding-top: 0.75rem !important;
+        border-top: 1px solid var(--border-color) !important;
+    }
+
+    .crm-pipe-step:last-child::after {
+        background: #0b3d91;
+        border-radius: 2px;
+    }
+
+    .crm-pipe-step:last-child .crm-pipe-count {
+        background: #eff6ff;
+        color: #0b3d91;
+    }
 }
 
 /* Mobile Search Button Hidden by default on Desktop */
