@@ -664,6 +664,16 @@ class CrmDashboard extends Component {
         this.state.searchQuery = "";
         this.state.searchResults = [];
 
+        // If user was clicked, open the Assign Task modal!
+        if (item.type === 'User' || item.model === 'res.users') {
+            this.state.selectedUser = item;
+            this.state.taskTitle = "";
+            this.state.taskNote = "";
+            this.state.taskDialogOpen = true;
+            return;
+        }
+
+        // Otherwise (Customer, Lead, AMC, etc.) open its form view
         if (item.model && item.id) {
             this.actionService.doAction({
                 type: "ir.actions.act_window",
@@ -674,6 +684,7 @@ class CrmDashboard extends Component {
             });
         }
     }
+
 
     createAmc() {
         this.actionService.doAction({
