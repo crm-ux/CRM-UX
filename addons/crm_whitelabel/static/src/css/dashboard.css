@@ -1189,26 +1189,35 @@
 
 /* Dialogs & Modals */
 .crm-task-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(3px);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    z-index: 9999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1rem !important;
 }
 
 .crm-task-dialog {
-    background: #fff;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    animation: crmFadeSlide 0.2s ease-out;
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    max-width: 480px !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35) !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 10000000 !important;
+    animation: crmFadeSlide 0.2s ease-out !important;
 }
+
 
 .crm-task-header {
     display: flex;
