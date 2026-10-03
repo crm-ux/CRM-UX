@@ -37,8 +37,6 @@ class ResUsers(models.Model):
             return []
 
         uids = set([u.id])
-        if perm in ('department', 'all', 'admin') and perm_field in ('perm_equipment', 'perm_service_ticket', 'perm_amc'):
-            return self.env['res.users'].sudo().search([('share', '=', False)]).ids
         if perm in ('subordinates', 'department', 'all', 'admin'):
             # 1. Direct and indirect subordinates
             uids.update(u.crm_subordinate_ids.ids)
