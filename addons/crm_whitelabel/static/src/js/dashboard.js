@@ -418,11 +418,11 @@ class CrmDashboard extends Component {
                 if (['crm.lead', 'sale.order'].includes(m)) {
                     action.domain.push(["user_id", "in", uids]);
                 } else if (m === 'service.ticket') {
-                    action.domain.push(["|", ["engineer_id", "in", uids], ["create_uid", "in", uids]]);
+                    action.domain.push("|", ["engineer_id", "in", uids], ["create_uid", "in", uids]);
                 } else if (['amc.contract', 'equipment.master', 'exhibition.contact'].includes(m)) {
                     action.domain.push(["create_uid", "in", uids]);
                 } else if (m === 'calendar.event') {
-                    action.domain.push(["|", ["user_id", "in", uids], ["partner_ids.user_ids", "in", uids]]);
+                    action.domain.push("|", ["user_id", "in", uids], ["partner_ids.user_ids", "in", uids]);
                 }
             }
         }
