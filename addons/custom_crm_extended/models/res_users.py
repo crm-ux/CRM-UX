@@ -779,7 +779,6 @@ class HrJob(models.Model):
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
         ('all', 'All: All Company Records'),
-        ('admin', 'Administrator (Full Access)'),
     ], string='Lead & Quotation', default='own')
 
     perm_service_ticket = fields.Selection([
@@ -788,7 +787,6 @@ class HrJob(models.Model):
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
         ('all', 'All: All Company Records'),
-        ('admin', 'Administrator (Full Access)'),
     ], string='Service Ticket', default='none')
 
     perm_amc = fields.Selection([
@@ -797,7 +795,6 @@ class HrJob(models.Model):
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
         ('all', 'All: All Company Records'),
-        ('admin', 'Administrator (Full Access)'),
     ], string='AMC Contract', default='none')
 
     perm_equipment = fields.Selection([
@@ -806,7 +803,6 @@ class HrJob(models.Model):
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
         ('all', 'All: All Company Records'),
-        ('admin', 'Administrator (Full Access)'),
     ], string='Equipment Master', default='own')
 
     perm_product_create = fields.Boolean(string='Create Product', default=False)
