@@ -1600,9 +1600,6 @@
         width: 100% !important;
         background: #ffffff !important;
         border: 1px solid var(--border-color) !important;
-        border-left-width: 4px !important;
-        /* Preserves stage color on the left accent */
-        border-top: 1px solid var(--border-color) !important;
         border-radius: 0.65rem !important;
         padding: 0.65rem 0.85rem 0.65rem 1.85rem !important;
         margin: 0 !important;
@@ -1656,30 +1653,39 @@
 
     /* Special Card Highlight for Won */
     .crm-pipe-step[data-seq="won"],
+    /* 1. Won Card (2nd from last) */
     .crm-pipe-step:nth-last-child(3) {
-        border-left-color: #22c55e !important;
+        background: #f0fdf4 !important;
+        border: 1px solid #bbf7d0 !important;
+        border-left: 4px solid #22c55e !important;
     }
 
-    /* Special Total Pipeline Card at the Bottom */
+    .crm-pipe-step:nth-last-child(3)::after {
+        background: #22c55e !important;
+    }
+
+    .crm-pipe-step:nth-last-child(3) .crm-pipe-name,
+    .crm-pipe-step:nth-last-child(3) .crm-pipe-count {
+        color: #16a34a !important;
+    }
+
+    /* 2. Total Card (Last) */
     .crm-pipe-step:last-child {
         background: #eff6ff !important;
-        border-color: #bfdbfe !important;
+        border: 1px solid #bfdbfe !important;
         border-left: 4px solid var(--primary-blue) !important;
         margin-top: 0.25rem !important;
     }
 
     .crm-pipe-step:last-child::after {
-        background: var(--primary-blue);
+        background: var(--primary-blue) !important;
         border-radius: 2px;
     }
 
-    .crm-pipe-step:last-child .crm-pipe-name {
-        color: var(--primary-blue) !important;
-        font-weight: 800 !important;
-    }
-
+    .crm-pipe-step:last-child .crm-pipe-name,
     .crm-pipe-step:last-child .crm-pipe-count {
         color: var(--primary-blue) !important;
+        font-weight: 800 !important;
     }
 }
 
