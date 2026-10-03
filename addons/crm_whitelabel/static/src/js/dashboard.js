@@ -265,16 +265,17 @@ class CrmDashboard extends Component {
             });
             // Permissions unpacked
             const perms = s.permissions || {};
-            const canViewLeadQuote = Boolean(perms.lead_quote_read || isAdmin);
-            const canViewCustomer = Boolean(perms.customer_read || isAdmin);
-            const canViewProduct = Boolean(perms.product_read || isAdmin);
-            const canViewEquipment = Boolean(perms.equipment_read || isAdmin);
-            const canViewTicket = Boolean(perms.ticket_read || isAdmin);
-            const canViewAmc = Boolean(perms.amc_read || isAdmin);
-            const canViewUsers = Boolean(perms.is_manager || isAdmin);
-            const canCreateCompany = Boolean(perms.can_create_company || isAdmin);
-            const canExport = Boolean(perms.can_export || isAdmin);
-            const canAccessQuickMenu = Boolean(isAdmin || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers || canCreateCompany);
+            const isAdm = Boolean(isAdmin || user.isAdmin || this.state.isAdmin);
+            const canViewLeadQuote = Boolean(perms.lead_quote_read || isAdm);
+            const canViewCustomer = Boolean(perms.customer_read || isAdm);
+            const canViewProduct = Boolean(perms.product_read || isAdm);
+            const canViewEquipment = Boolean(perms.equipment_read || isAdm);
+            const canViewTicket = Boolean(perms.ticket_read || isAdm);
+            const canViewAmc = Boolean(perms.amc_read || isAdm);
+            const canViewUsers = Boolean(perms.is_manager || isAdm);
+            const canCreateCompany = Boolean(perms.can_create_company || isAdm);
+            const canExport = Boolean(perms.can_export || isAdm);
+            const canAccessQuickMenu = Boolean(isAdm || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers || canCreateCompany);
 
             const lc = canViewLeadQuote ? (s.lead_counts || {}) : {}, qc = canViewLeadQuote ? (s.quote_counts || {}) : {};
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
