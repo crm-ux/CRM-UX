@@ -1756,22 +1756,18 @@
     }
 
     /* 3. AMC Renewals: Convert 4 cramped columns into a neat 2x2 Grid on mobile */
-    .crm-chart-card div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    .crm-amc-horizon-track {
+        display: none !important;
+    }
+
+    .crm-amc-timeline-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 0.65rem !important;
     }
 
-    /* Hide the horizontal 4-dot milestone line on mobile since it's 2x2 */
-    .crm-chart-card div[style*="margin: 0.5rem 0 1.25rem 0"] {
-        display: none !important;
-    }
-
     .crm-timeline-step {
-        padding: 0.65rem 0.5rem !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
+        padding: 0.75rem 0.5rem !important;
+        min-height: 80px !important;
     }
 }
 
