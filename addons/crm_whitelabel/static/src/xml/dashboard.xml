@@ -194,7 +194,6 @@
                             <div class="crm-user-avatar"><t t-esc="state.userName[0].toUpperCase()"/></div>
                             <div class="crm-user-info">
                                 <span class="crm-user-name"><t t-esc="state.userName"/></span>
-                                <span class="crm-user-role"><t t-esc="state.isAdmin ? 'Administrator' : 'User'"/></span>
                             </div>
                         </div>
                         <div class="crm-dropdown-menu" style="min-width: 170px; padding: 0.4rem;" t-att-class="state.userDropdownOpen ? 'open' : ''">
