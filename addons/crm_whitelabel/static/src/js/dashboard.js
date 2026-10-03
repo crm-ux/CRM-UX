@@ -85,15 +85,15 @@ class CrmDashboard extends Component {
             realSalesMonths: [],
         });
 
-        // Force isAdmin check synchronously using session info
-        const sessionUid = odoo.__session_info__?.uid;
-        this.state.isAdmin = [2, 11].includes(sessionUid);
+        // Check admin status reliably using user service
+        const isAdm = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
+        this.state.isAdmin = isAdm;
 
-        // Restore View As user from sessionStorage if active
+        // Restore View As user from storage if active
         try {
-            const savedUid = sessionStorage.getItem("crm_view_as_uid");
-            const savedName = sessionStorage.getItem("crm_view_as_uname");
-            if (savedUid && this.state.isAdmin) {
+            const savedUid = sessionStorage.getItem("crm_view_as_uid") || localStorage.getItem("crm_view_as_uid");
+            const savedName = sessionStorage.getItem("crm_view_as_uname") || localStorage.getItem("crm_view_as_uname");
+            if (savedUid && isAdm) {
                 this.state.viewAsUserId = parseInt(savedUid, 10);
                 this.state.viewAsUserName = savedName || "";
                 this.state.selectedViewAsId = parseInt(savedUid, 10);
@@ -713,6 +713,8 @@ class CrmDashboard extends Component {
         try {
             sessionStorage.setItem("crm_view_as_uid", String(u.id));
             sessionStorage.setItem("crm_view_as_uname", u.name);
+            localStorage.setItem("crm_view_as_uid", String(u.id));
+            localStorage.setItem("crm_view_as_uname", u.name);
         } catch (e) { }
         this.showToast("Now viewing dashboard as " + u.name);
         await this.loadStats();
@@ -725,6 +727,8 @@ class CrmDashboard extends Component {
         try {
             sessionStorage.removeItem("crm_view_as_uid");
             sessionStorage.removeItem("crm_view_as_uname");
+            localStorage.removeItem("crm_view_as_uid");
+            localStorage.removeItem("crm_view_as_uname");
         } catch (e) { }
         this.showToast("Returned to Administrator view");
         await this.loadStats();

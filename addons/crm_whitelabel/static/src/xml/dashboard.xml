@@ -267,7 +267,7 @@
                             <i class="fa fa-calendar-check-o"></i>
                             <span><t t-esc="state.todayDate"/></span>
                         </div>
-                        <h1 style="margin-top: 0.5rem;"><t t-esc="state.greeting"/>, <t t-esc="state.userName"/>!</h1>
+                        <h1 style="margin-top: 0.5rem;"><t t-esc="state.greeting"/>, <t t-esc="state.viewAsUserName or state.userName"/>!</h1>
                         <p>Here's an overview of your business performance, ongoing operations, and team workload.</p>
                     </div>
                     <div class="crm-hero-actions">
