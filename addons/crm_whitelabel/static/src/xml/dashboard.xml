@@ -208,7 +208,7 @@
                             </div>
                         </div>
                         <div class="crm-dropdown-menu" style="min-width: 170px; padding: 0.4rem;" t-att-class="state.userDropdownOpen ? 'open' : ''">
-                            <a class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openViewAsComingSoon">View As...</a>
+                            <a t-if="state.isAdmin" class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openViewAsModal">View As...</a>
                             <a class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openChangePasswordComingSoon">Change Password</a>
                             <div style="height: 1px; background: #e2e8f0; margin: 0.3rem 0;"></div>
                             <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item" style="display: block; padding: 0.5rem 0.75rem; color: #ef4444; text-decoration: none; font-weight: 600; border-radius: 4px;">Logout</a>
@@ -247,6 +247,17 @@
                     </div>
                 </div>
             </header>
+
+            <!-- VIEW AS USER BANNER -->
+            <div t-if="state.viewAsUserId" style="background: #fef3c7; color: #92400e; padding: 0.65rem 1.25rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 600; z-index: 100;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.1rem;">👁</span>
+                    <span>Currently viewing dashboard with permissions of: <strong><t t-esc="state.viewAsUserName"/></strong></span>
+                </div>
+                <button type="button" t-on-click="exitViewAs" style="background: #b45309; color: #fff; border: none; padding: 0.35rem 0.85rem; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-weight: 700; transition: background 0.15s;">
+                    ✕ Exit View As
+                </button>
+            </div>
 
             <main class="crm-content">
                 <!-- HERO SECTION WITH 4 ACTION BUTTONS -->
@@ -951,6 +962,37 @@
                     </div>
                     <div class="crm-access-modal-footer">
                         <button class="crm-access-modal-btn" t-on-click="closeAccessModal">Understand</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW AS USER MODAL DIALOG (ADMIN ONLY) -->
+            <div class="crm-task-overlay" t-if="state.viewAsModalOpen" t-on-click="closeViewAsModal">
+                <div class="crm-task-dialog" style="max-width: 420px;" t-on-click.stop="">
+                    <div class="crm-task-header">
+                        <h3 style="display:flex;align-items:center;gap:8px;">
+                            <span>👁</span>
+                            <span>View Dashboard As User</span>
+                        </h3>
+                        <button class="crm-task-close" t-on-click="closeViewAsModal">✕</button>
+                    </div>
+                    <div class="crm-task-body" style="padding: 1.25rem;">
+                        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem;">
+                            Select an internal user to preview the dashboard with their exact permissions, hierarchy visibility, and restricted menus.
+                        </p>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Select User:</label>
+                        <select class="crm-task-input" t-on-change="onViewAsSelect" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.88rem; outline: none;">
+                            <option value="">-- Choose a user --</option>
+                            <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
+                                <option t-att-value="u.id" t-att-selected="u.id === state.selectedViewAsId ? 'selected' : undefined">
+                                    <t t-esc="u.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="crm-task-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.25rem;border-top:1px solid var(--border-color);background:#f8fafc;">
+                        <button class="crm-task-cancel-btn" t-on-click="closeViewAsModal">Cancel</button>
+                        <button class="crm-task-submit-btn" t-on-click="applyViewAs" style="background:#0b3d91;color:#fff;">Switch View</button>
                     </div>
                 </div>
             </div>

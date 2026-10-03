@@ -44,6 +44,11 @@ class CrmDashboard extends Component {
             canCreateCompany: false,
             canExport: false,
             loading: false,
+            viewAsUserId: null,
+            viewAsUserName: "",
+            viewAsModalOpen: false,
+            internalUsers: [],
+            selectedViewAsId: null,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false, mobileSearchOpen: false,
@@ -78,11 +83,10 @@ class CrmDashboard extends Component {
             totalRegisteredStock: 0,
             customSalesTrend: null,
             realSalesMonths: [],
-        });
-        // Force isAdmin check synchronously using session info
-        const sessionUid = odoo.__session_info__?.uid;
-        this.state.isAdmin = [2, 11].includes(sessionUid);
-        onMounted(() => {
+            // Force isAdmin check synchronously using session info
+            const sessionUid = odoo.__session_info__?.uid;
+            this.state.isAdmin = [2, 11].includes(sessionUid);
+            onMounted(() => {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
@@ -257,15 +261,17 @@ class CrmDashboard extends Component {
     }
     async loadStats() {
         try {
-            const isAdmin = this.state.isAdmin;
+            const activeUserId = this.state.viewAsUserId || user.userId;
+            const activeIsAdmin = this.state.viewAsUserId ? false : (this.state.isAdmin || user.isAdmin);
+
             // Single RPC call for all stats & user permissions
             const s = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead", method: "get_dashboard_stats",
-                args: [user.userId, isAdmin, this.state.selectedCompanies], kwargs: {}
+                args: [activeUserId, activeIsAdmin, this.state.selectedCompanies], kwargs: {}
             });
             // Permissions unpacked
             const perms = s.permissions || {};
-            const isAdm = Boolean(isAdmin || user.isAdmin || this.state.isAdmin);
+            const isAdm = activeIsAdmin;
             const canViewLeadQuote = Boolean(perms.lead_quote_read || isAdm);
             const canViewCustomer = Boolean(perms.customer_read || isAdm);
             const canViewProduct = Boolean(perms.product_read || isAdm);
@@ -640,9 +646,46 @@ class CrmDashboard extends Component {
         this.showToast("Advanced Insights & Analytics are coming soon!");
     }
 
-    openViewAsComingSoon() {
+    async openViewAsModal() {
         this.state.userDropdownOpen = false;
-        this.showToast("View As feature is coming soon!");
+        try {
+            const users = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "search_read",
+                args: [[["active", "=", true], ["share", "=", false]]],
+                kwargs: { fields: ["id", "name"], limit: 50 }
+            });
+            this.state.internalUsers = users || [];
+            this.state.selectedViewAsId = this.state.viewAsUserId || (users[0] ? users[0].id : null);
+            this.state.viewAsModalOpen = true;
+        } catch (e) { }
+    }
+
+    closeViewAsModal() {
+        this.state.viewAsModalOpen = false;
+    }
+
+    onViewAsSelect(ev) {
+        this.state.selectedViewAsId = parseInt(ev.target.value, 10);
+    }
+
+    async applyViewAs() {
+        if (!this.state.selectedViewAsId) return;
+        const u = this.state.internalUsers.find(x => x.id === this.state.selectedViewAsId);
+        if (!u) return;
+        this.state.viewAsUserId = u.id;
+        this.state.viewAsUserName = u.name;
+        this.state.viewAsModalOpen = false;
+        this.showToast("Now viewing dashboard as " + u.name);
+        await this.loadStats();
+    }
+
+    async exitViewAs() {
+        this.state.viewAsUserId = null;
+        this.state.viewAsUserName = "";
+        this.state.selectedViewAsId = null;
+        this.showToast("Returned to Administrator view");
+        await this.loadStats();
     }
 
     openChangePasswordComingSoon() {
