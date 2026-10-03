@@ -639,6 +639,16 @@ class CrmDashboard extends Component {
         this.showToast("Advanced Insights & Analytics are coming soon!");
     }
 
+    openViewAsComingSoon() {
+        this.state.userDropdownOpen = false;
+        this.showToast("View As feature is coming soon!");
+    }
+
+    openChangePasswordComingSoon() {
+        this.state.userDropdownOpen = false;
+        this.showToast("Change Password feature is coming soon!");
+    }
+
     createAmc() {
         this.actionService.doAction({
             type: "ir.actions.act_window",
