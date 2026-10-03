@@ -83,10 +83,12 @@ class CrmDashboard extends Component {
             totalRegisteredStock: 0,
             customSalesTrend: null,
             realSalesMonths: [],
-            // Force isAdmin check synchronously using session info
-            const sessionUid = odoo.__session_info__?.uid;
-            this.state.isAdmin = [2, 11].includes(sessionUid);
-            onMounted(() => {
+        });
+
+        // Force isAdmin check synchronously using session info
+        const sessionUid = odoo.__session_info__?.uid;
+        this.state.isAdmin = [2, 11].includes(sessionUid);
+        onMounted(() => {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
