@@ -1009,7 +1009,7 @@ class DashboardStats(models.Model):
 
         # Hierarchy domains for Equipment, Service Ticket, AMC
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
-            eq_filter = target_user._get_hierarchy_domain('perm_equipment', 'user_id')
+            eq_filter = target_user._get_hierarchy_domain('perm_equipment', False)
             ticket_filter = target_user._get_hierarchy_domain('perm_service_ticket', 'engineer_id')
             amc_filter = target_user._get_hierarchy_domain('perm_amc', False)
         else:

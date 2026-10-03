@@ -408,10 +408,6 @@ class CrmDashboard extends Component {
                     action.domain.push(["user_id", "=", uid]);
                 } else if (m === 'service.ticket') {
                     action.domain.push(["engineer_id", "=", uid]);
-                } else if (m === 'equipment.master') {
-                    action.domain.push(["user_id", "=", uid]);
-                } else if (m === 'amc.contract') {
-                    action.domain.push(["user_id", "=", uid]);
                 }
             }
         }

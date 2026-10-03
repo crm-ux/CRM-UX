@@ -88,7 +88,7 @@
             <field name="model_id" ref="model_equipment_master"/>
             <field name="global" eval="True"/>
             <field name="domain_force">
-                user._get_hierarchy_domain('perm_equipment', 'user_id')
+                user._get_hierarchy_domain('perm_equipment', False)
             </field>
         </record>
     </data>

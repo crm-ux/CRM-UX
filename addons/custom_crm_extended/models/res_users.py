@@ -37,6 +37,8 @@ class ResUsers(models.Model):
             return []
 
         uids = set([u.id])
+        if perm in ('department', 'all', 'admin') and perm_field in ('perm_equipment', 'perm_service_ticket', 'perm_amc'):
+            return self.env['res.users'].sudo().search([('share', '=', False)]).ids
         if perm in ('subordinates', 'department', 'all', 'admin'):
             # 1. Direct and indirect subordinates
             uids.update(u.crm_subordinate_ids.ids)
@@ -72,8 +74,10 @@ class ResUsers(models.Model):
         uids = self._get_accessible_user_ids(perm_field)
         if not uids:
             return [(0, '=', 1)]
+        if perm_field == 'perm_lead_quote':
+            return [(user_field or 'user_id', 'in', uids)]
         if user_field:
-            return [(user_field, 'in', uids)]
+            return ['|', (user_field, 'in', uids), ('create_uid', 'in', uids)]
         return [('create_uid', 'in', uids)]
 
     @api.model
