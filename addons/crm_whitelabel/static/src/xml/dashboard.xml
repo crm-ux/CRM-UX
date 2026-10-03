@@ -57,6 +57,12 @@
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
+                        <a class="crm-nav-link" t-on-click="openProductMaster">
+                            <i class="fa fa-tags"></i>
+                            <span>Product Master</span>
+                        </a>
+                    </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
                         <a class="crm-nav-link" t-on-click="openProductStock">
                             <i class="fa fa-cubes"></i>
                             <span>Product Stock</span>

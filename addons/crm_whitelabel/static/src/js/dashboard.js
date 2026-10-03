@@ -1560,6 +1560,19 @@ class CrmDashboard extends Component {
         this.openServiceTicketList(domain, cleanTitle);
     }
 
+    openProductMaster() {
+        this.actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Product Master",
+            res_model: "product.template",
+            view_mode: "kanban,list,form",
+            views: [[false, "kanban"], [false, "list"], [false, "form"]],
+            target: "current",
+            context: { search_default_filter_to_sell: 1 },
+        });
+    }
+
+
     openAmcRenewalList(type, title = "AMC Renewals") {
         if (!this.state.isAdmin && !this.state.canViewAmc) {
             this.showAccessDenied("AMC Contracts");
