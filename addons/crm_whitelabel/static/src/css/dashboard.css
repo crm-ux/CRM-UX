@@ -1488,7 +1488,7 @@
 
     /* Mobile Search Trigger Button */
     .crm-mobile-search-btn {
-        display: flex;
+        display: flex !important;
         background: #f8fafc;
         border: 1px solid var(--border-color);
         width: 2.25rem;
