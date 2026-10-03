@@ -130,6 +130,7 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Lead & Quotation', default='own')
 
@@ -138,6 +139,7 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Service Ticket', default='own')
 
@@ -146,6 +148,7 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='AMC Contract', default='own')
 
@@ -154,6 +157,7 @@ class ResUsers(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Equipment Master', default='own')
 
@@ -778,6 +782,7 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Lead & Quotation', default='own')
 
@@ -786,6 +791,7 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Service Ticket', default='none')
 
@@ -794,6 +800,7 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='AMC Contract', default='none')
 
@@ -802,6 +809,7 @@ class HrJob(models.Model):
         ('own', 'User: Own Documents Only'),
         ('subordinates', 'Manager: Assigned Team Only'),
         ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
         ('admin', 'Administrator (Full Access)'),
     ], string='Equipment Master', default='own')
 
