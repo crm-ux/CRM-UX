@@ -1204,4 +1204,5 @@ class DashboardStats(models.Model):
                     is_admin or target_user.has_group('base.group_system')
                 ),
             },
+            'accessible_uids': target_user._get_accessible_user_ids('perm_equipment') if (target_user.perm_equipment not in ('all', 'admin')) else [],
         }

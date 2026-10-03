@@ -376,6 +376,7 @@ class CrmDashboard extends Component {
                 lowStockCount: s.low_stock_count ?? 0,
                 totalRegisteredStock: s.total_registered_stock ?? 0,
                 customSalesTrend: s.sales_trend || null,
+                viewAsAccessibleUids: s.accessible_uids || [],
                 loading: false
             });
 
@@ -398,16 +399,25 @@ class CrmDashboard extends Component {
             action.domain = action.domain ? [...action.domain] : [];
             action.context = action.context ? { ...action.context } : {};
 
-            // If Admin is in 'View As' mode, filter the opened list by that user's records!
+            // Universal 'View As' Filtering: Applies to EVERY card and model!
             if (this.state.viewAsUserId) {
                 const uid = this.state.viewAsUserId;
+                const uids = (this.state.viewAsAccessibleUids && this.state.viewAsAccessibleUids.length)
+                    ? this.state.viewAsAccessibleUids
+                    : [uid];
                 const m = action.res_model;
-                if (m === 'crm.lead') {
-                    action.domain.push(["user_id", "=", uid]);
-                } else if (m === 'sale.order') {
-                    action.domain.push(["user_id", "=", uid]);
+
+                action.context = action.context || {};
+                action.context.filter_employee_user_id = String(uid);
+
+                if (['crm.lead', 'sale.order'].includes(m)) {
+                    action.domain.push(["user_id", "in", uids]);
                 } else if (m === 'service.ticket') {
-                    action.domain.push(["engineer_id", "=", uid]);
+                    action.domain.push(["|", ["engineer_id", "in", uids], ["create_uid", "in", uids]]);
+                } else if (['amc.contract', 'equipment.master', 'exhibition.contact'].includes(m)) {
+                    action.domain.push(["create_uid", "in", uids]);
+                } else if (m === 'calendar.event') {
+                    action.domain.push(["|", ["user_id", "in", uids], ["partner_ids.user_ids", "in", uids]]);
                 }
             }
         }
