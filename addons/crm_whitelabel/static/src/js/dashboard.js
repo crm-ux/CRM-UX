@@ -392,7 +392,31 @@ class CrmDashboard extends Component {
         return "\u20B9" + n.toLocaleString('en-IN');
     }
 
-    go(action) { this.actionService.doAction(action, { clearBreadcrumbs: true }); }
+    go(action) {
+        if (typeof action === 'object' && action !== null) {
+            action = { ...action };
+            action.domain = action.domain ? [...action.domain] : [];
+            action.context = action.context ? { ...action.context } : {};
+
+            // If Admin is in 'View As' mode, filter the opened list by that user's records!
+            if (this.state.viewAsUserId) {
+                const uid = this.state.viewAsUserId;
+                const m = action.res_model;
+                if (m === 'crm.lead') {
+                    action.domain.push("|", ["user_id", "=", uid], ["create_uid", "=", uid]);
+                } else if (m === 'sale.order') {
+                    action.domain.push("|", ["user_id", "=", uid], ["create_uid", "=", uid]);
+                } else if (m === 'service.ticket') {
+                    action.domain.push("|", ["engineer_id", "=", uid], ["create_uid", "=", uid]);
+                } else if (m === 'equipment.master') {
+                    action.domain.push("|", ["user_id", "=", uid], ["create_uid", "=", uid]);
+                } else if (m === 'amc.contract') {
+                    action.domain.push("|", ["user_id", "=", uid], ["create_uid", "=", uid]);
+                }
+            }
+        }
+        this.actionService.doAction(action, { clearBreadcrumbs: true });
+    }
     openLeads() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
             this.showAccessDenied("Leads & Pipeline");
