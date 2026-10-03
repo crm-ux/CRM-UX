@@ -1388,6 +1388,14 @@
 }
 
 @media (max-width: 768px) {
+    .crm-company-menu {
+        left: 0 !important;
+        right: auto !important;
+        transform: none !important;
+        width: min(85vw, 290px) !important;
+        margin-left: 0.5rem;
+    }
+
     .crm-sidebar {
         width: min(85vw, 310px);
     }
