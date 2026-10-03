@@ -46,7 +46,7 @@ class CrmDashboard extends Component {
             loading: false,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
-            searchQuery: "", searchResults: [], searchOpen: false,
+            searchQuery: "", searchResults: [], searchOpen: false, mobileSearchOpen: false,
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
             accessModalOpen: false, accessModalModule: "",
@@ -647,6 +647,15 @@ class CrmDashboard extends Component {
     openChangePasswordComingSoon() {
         this.state.userDropdownOpen = false;
         this.showToast("Change Password feature is coming soon!");
+    }
+
+    toggleMobileSearch() {
+        this.state.mobileSearchOpen = !this.state.mobileSearchOpen;
+        if (!this.state.mobileSearchOpen) {
+            this.state.searchQuery = "";
+            this.state.searchResults = [];
+            this.state.searchOpen = false;
+        }
     }
 
     createAmc() {

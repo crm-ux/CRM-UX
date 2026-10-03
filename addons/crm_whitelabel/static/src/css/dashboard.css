@@ -1485,4 +1485,71 @@
     .crm-search-box {
         display: none;
     }
+
+    /* Mobile Search Trigger Button */
+    .crm-mobile-search-btn {
+        display: flex;
+        background: #f8fafc;
+        border: 1px solid var(--border-color);
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.5rem;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        cursor: pointer;
+    }
+}
+
+/* Mobile Search Button Hidden by default on Desktop */
+.crm-mobile-search-btn {
+    display: none;
+}
+
+/* Mobile Search Dialog Modal */
+.crm-mobile-search-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0.75rem;
+}
+
+.crm-mobile-search-dialog {
+    background: #ffffff;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    height: fit-content;
+    animation: crmFadeSlide 0.2s ease-out;
+}
+
+.crm-mobile-search-head {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.crm-mobile-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.crm-mobile-search-close {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0.25rem;
 }

@@ -157,6 +157,11 @@
                         </div>
                     </div>
 
+                    <!-- Mobile Search Trigger Button -->
+                    <button type="button" class="crm-mobile-search-btn" t-on-click="toggleMobileSearch" title="Search">
+                        <i class="fa fa-search"></i>
+                    </button>
+
                     <!-- Notification Bell with Dropdown Panel -->
                     <div class="crm-dropdown-container">
                         <div class="crm-notif-btn" t-on-click="toggleNotifications" title="Notifications">
@@ -201,6 +206,37 @@
                             <a class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openChangePasswordComingSoon">Change Password</a>
                             <div style="height: 1px; background: #e2e8f0; margin: 0.3rem 0;"></div>
                             <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item" style="display: block; padding: 0.5rem 0.75rem; color: #ef4444; text-decoration: none; font-weight: 600; border-radius: 4px;">Logout</a>
+                        </div>
+                    </div>
+                    <!-- Mobile Search Wizard / Modal -->
+                    <div class="crm-mobile-search-overlay" t-if="state.mobileSearchOpen" t-on-click="toggleMobileSearch">
+                        <div class="crm-mobile-search-dialog" t-on-click.stop="">
+                            <div class="crm-mobile-search-head">
+                                <i class="fa fa-search" style="color: #64748b; font-size: 0.95rem;"></i>
+                                <input type="text" 
+                                       placeholder="Search records..." 
+                                       t-model="state.searchQuery" 
+                                       t-on-input="onSearchInput" 
+                                       autofocus="autofocus"
+                                       class="crm-mobile-search-input"/>
+                                <button type="button" class="crm-mobile-search-close" t-on-click="toggleMobileSearch">✕</button>
+                            </div>
+                            
+                            <!-- Search Results List -->
+                            <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0" style="position: static; box-shadow: none; border: none; max-height: 350px;">
+                                <t t-foreach="state.searchResults" t-as="item" t-key="item.id">
+                                    <div class="crm-search-item" t-on-click="() => this.openSearchResult(item)">
+                                        <div class="crm-search-avatar"><t t-esc="item.name[0].toUpperCase()"/></div>
+                                        <div>
+                                            <div class="crm-search-name"><t t-esc="item.name"/></div>
+                                            <div class="crm-search-email"><t t-esc="item.type"/> · <t t-esc="item.extra"/></div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                            <div t-elif="state.searchQuery and state.searchResults.length === 0" style="padding: 1.5rem; text-align: center; color: #94a3b8; font-size: 0.82rem;">
+                                No records found for "<t t-esc="state.searchQuery"/>"
+                            </div>
                         </div>
                     </div>
                 </div>
