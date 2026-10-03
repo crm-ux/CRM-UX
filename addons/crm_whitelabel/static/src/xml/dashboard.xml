@@ -398,7 +398,7 @@
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 11. Total -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #0b3d91; background: #eff6ff;" t-on-click="openAllPipelineLeads">
-                            <div class="crm-pipe-count" style="color: #0b3d91;"><t t-esc="state.stageLead + state.stageContacted + state.stageTechDisc + state.stageQualified + state.stageOpportunity + state.quotesDraft + state.quotesSent + state.quotesNeg + state.quotesOrderExp + state.won"/></div>
+                            <div class="crm-pipe-count" style="color: #0b3d91;"><t t-esc="state.leadsTotal"/></div>
                             <div class="crm-pipe-name" style="color: #0b3d91; font-weight: 800;">Total</div>
                         </div>
                     </div>
