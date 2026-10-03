@@ -88,6 +88,18 @@ class CrmDashboard extends Component {
         // Force isAdmin check synchronously using session info
         const sessionUid = odoo.__session_info__?.uid;
         this.state.isAdmin = [2, 11].includes(sessionUid);
+
+        // Restore View As user from sessionStorage if active
+        try {
+            const savedUid = sessionStorage.getItem("crm_view_as_uid");
+            const savedName = sessionStorage.getItem("crm_view_as_uname");
+            if (savedUid && this.state.isAdmin) {
+                this.state.viewAsUserId = parseInt(savedUid, 10);
+                this.state.viewAsUserName = savedName || "";
+                this.state.selectedViewAsId = parseInt(savedUid, 10);
+            }
+        } catch (e) { }
+
         onMounted(() => {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
@@ -678,6 +690,10 @@ class CrmDashboard extends Component {
         this.state.viewAsUserId = u.id;
         this.state.viewAsUserName = u.name;
         this.state.viewAsModalOpen = false;
+        try {
+            sessionStorage.setItem("crm_view_as_uid", String(u.id));
+            sessionStorage.setItem("crm_view_as_uname", u.name);
+        } catch (e) { }
         this.showToast("Now viewing dashboard as " + u.name);
         await this.loadStats();
     }
@@ -686,6 +702,10 @@ class CrmDashboard extends Component {
         this.state.viewAsUserId = null;
         this.state.viewAsUserName = "";
         this.state.selectedViewAsId = null;
+        try {
+            sessionStorage.removeItem("crm_view_as_uid");
+            sessionStorage.removeItem("crm_view_as_uname");
+        } catch (e) { }
         this.showToast("Returned to Administrator view");
         await this.loadStats();
     }
