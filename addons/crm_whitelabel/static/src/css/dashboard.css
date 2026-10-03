@@ -1411,12 +1411,13 @@
     }
 
     /* Compact Company Dropdown */
-    .crm-company-menu {
-        left: 0 !important;
-        right: auto !important;
+    .crm-company-menu,
+    .crm-notif-menu {
+        left: auto !important;
+        right: 0 !important;
         transform: none !important;
-        width: min(85vw, 280px) !important;
-        margin-left: 0.5rem;
+        width: min(88vw, 300px) !important;
+        max-width: calc(100vw - 24px) !important;
         padding: 0.35rem;
     }
 
@@ -1436,6 +1437,18 @@
     .crm-company-checkbox {
         width: 1rem;
         height: 1rem;
+    }
+
+    .crm-notif-item {
+        padding: 0.6rem 0.75rem;
+    }
+
+    .crm-notif-title {
+        font-size: 0.78rem;
+    }
+
+    .crm-notif-desc {
+        font-size: 0.7rem;
     }
 
     /* Existing Rules (Preserved) */
