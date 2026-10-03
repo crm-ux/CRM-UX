@@ -229,7 +229,7 @@
                                         <div class="crm-search-avatar"><t t-esc="item.name[0].toUpperCase()"/></div>
                                         <div>
                                             <div class="crm-search-name"><t t-esc="item.name"/></div>
-                                            <div class="crm-search-email"><t t-esc="item.type"/> · <t t-esc="item.extra"/></div>
+                                            <div class="crm-search-email"><t t-esc="item.email or item.extra or item.type"/></div>
                                         </div>
                                     </div>
                                 </t>

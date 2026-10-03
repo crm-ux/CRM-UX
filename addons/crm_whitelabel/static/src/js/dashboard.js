@@ -651,7 +651,12 @@ class CrmDashboard extends Component {
 
     toggleMobileSearch() {
         this.state.mobileSearchOpen = !this.state.mobileSearchOpen;
-        if (!this.state.mobileSearchOpen) {
+        if (this.state.mobileSearchOpen) {
+            setTimeout(() => {
+                const inp = document.querySelector(".crm-mobile-search-input");
+                if (inp) inp.focus();
+            }, 100);
+        } else {
             this.state.searchQuery = "";
             this.state.searchResults = [];
             this.state.searchOpen = false;
