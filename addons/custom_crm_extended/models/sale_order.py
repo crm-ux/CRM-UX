@@ -939,13 +939,10 @@ class DashboardStats(models.Model):
         if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
             if perm in ('all', 'admin'):
                 user_filter = []
-            else:
+              else:
                 allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
-                user_filter = [
-                    '|',
-                    ('user_id', 'in', allowed_uids),
-                    ('create_uid', 'in', allowed_uids)
-                ]
+                # Strictly filter by assigned user_id (Salesperson) only
+                user_filter = [('user_id', 'in', allowed_uids)]
 
         # Lead stage counts (evaluated with sudo to avoid double-filtering with ir.rule)
         lead_domain = [('active', '=', True)] + company_filter + user_filter
