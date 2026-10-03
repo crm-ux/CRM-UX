@@ -658,6 +658,23 @@ class CrmDashboard extends Component {
         }
     }
 
+    openSearchResult(item) {
+        this.state.searchOpen = false;
+        this.state.mobileSearchOpen = false;
+        this.state.searchQuery = "";
+        this.state.searchResults = [];
+
+        if (item.model && item.id) {
+            this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: item.model,
+                res_id: item.id,
+                views: [[false, "form"]],
+                target: "current",
+            });
+        }
+    }
+
     createAmc() {
         this.actionService.doAction({
             type: "ir.actions.act_window",
