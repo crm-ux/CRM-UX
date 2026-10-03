@@ -434,8 +434,12 @@
 }
 
 .crm-company-menu {
-    width: 290px;
+    width: min(90vw, 320px);
+    min-width: 240px;
     padding: 0.5rem;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
 }
 
 .crm-company-head {
