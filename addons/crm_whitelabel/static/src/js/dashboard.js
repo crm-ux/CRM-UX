@@ -720,6 +720,7 @@ class CrmDashboard extends Component {
         this.state.viewAsUserId = u.id;
         this.state.viewAsUserName = u.name;
         this.state.viewAsModalOpen = false;
+        this.state.isAdmin = false;
         try {
             sessionStorage.setItem("crm_view_as_uid", String(u.id));
             sessionStorage.setItem("crm_view_as_uname", u.name);
@@ -734,6 +735,7 @@ class CrmDashboard extends Component {
         this.state.viewAsUserId = null;
         this.state.viewAsUserName = "";
         this.state.selectedViewAsId = null;
+        this.state.isAdmin = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
         try {
             sessionStorage.removeItem("crm_view_as_uid");
             sessionStorage.removeItem("crm_view_as_uname");
