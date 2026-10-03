@@ -1600,6 +1600,8 @@
         width: 100% !important;
         background: #ffffff !important;
         border: 1px solid var(--border-color) !important;
+        border-left: 4px solid var(--border-color) !important;
+        /* Left color strip */
         border-radius: 0.65rem !important;
         padding: 0.65rem 0.85rem 0.65rem 1.85rem !important;
         margin: 0 !important;
@@ -1611,68 +1613,99 @@
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
 
-    /* Small connecting circle node on the dotted line */
-    .crm-pipe-step::after {
-        content: "";
-        position: absolute;
-        left: 0.45rem;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: #0284c7;
-        box-shadow: 0 0 0 2px #ffffff;
-        z-index: 3;
+    /* Match exact stage colors from web view for the left border & node dot */
+    .crm-pipe-step:nth-child(1) {
+        border-left-color: #38bdf8 !important;
     }
 
-    /* Stage Name on Left */
-    .crm-pipe-name {
-        order: 1;
-        margin: 0 !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        color: var(--text-dark) !important;
+    .crm-pipe-step:nth-child(1)::after {
+        background: #38bdf8 !important;
     }
 
-    /* Stage Count on Right */
-    .crm-pipe-count {
-        order: 2;
-        font-size: 1.05rem !important;
-        font-weight: 800 !important;
-        color: var(--primary-blue);
+    .crm-pipe-step:nth-child(3) {
+        border-left-color: #818cf8 !important;
     }
 
-    /* Active / Tap effect */
-    .crm-pipe-step:active,
-    .crm-pipe-step:hover {
-        background: #f8fafc !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+    .crm-pipe-step:nth-child(3)::after {
+        background: #818cf8 !important;
     }
 
-    /* Special Card Highlight for Won */
-    .crm-pipe-step[data-seq="won"],
-    /* 1. Won Card (2nd from last) */
-    .crm-pipe-step:nth-last-child(3) {
+    .crm-pipe-step:nth-child(5) {
+        border-left-color: #c084fc !important;
+    }
+
+    .crm-pipe-step:nth-child(5)::after {
+        background: #c084fc !important;
+    }
+
+    .crm-pipe-step:nth-child(7) {
+        border-left-color: #fb7185 !important;
+    }
+
+    .crm-pipe-step:nth-child(7)::after {
+        background: #fb7185 !important;
+    }
+
+    .crm-pipe-step:nth-child(9) {
+        border-left-color: #fb923c !important;
+    }
+
+    .crm-pipe-step:nth-child(9)::after {
+        background: #fb923c !important;
+    }
+
+    .crm-pipe-step:nth-child(11) {
+        border-left-color: #0284c7 !important;
+    }
+
+    .crm-pipe-step:nth-child(11)::after {
+        background: #0284c7 !important;
+    }
+
+    .crm-pipe-step:nth-child(13) {
+        border-left-color: #6366f1 !important;
+    }
+
+    .crm-pipe-step:nth-child(13)::after {
+        background: #6366f1 !important;
+    }
+
+    .crm-pipe-step:nth-child(15) {
+        border-left-color: #a855f7 !important;
+    }
+
+    .crm-pipe-step:nth-child(15)::after {
+        background: #a855f7 !important;
+    }
+
+    .crm-pipe-step:nth-child(17) {
+        border-left-color: #ec4899 !important;
+    }
+
+    .crm-pipe-step:nth-child(17)::after {
+        background: #ec4899 !important;
+    }
+
+    /* Won */
+    .crm-pipe-step:nth-child(19) {
         background: #f0fdf4 !important;
-        border: 1px solid #bbf7d0 !important;
+        border-color: #bbf7d0 !important;
         border-left: 4px solid #22c55e !important;
     }
 
-    .crm-pipe-step:nth-last-child(3)::after {
+    .crm-pipe-step:nth-child(19)::after {
         background: #22c55e !important;
     }
 
-    .crm-pipe-step:nth-last-child(3) .crm-pipe-name,
-    .crm-pipe-step:nth-last-child(3) .crm-pipe-count {
+    .crm-pipe-step:nth-child(19) .crm-pipe-name,
+    .crm-pipe-step:nth-child(19) .crm-pipe-count {
         color: #16a34a !important;
     }
 
-    /* 2. Total Card (Last) */
+    /* Total */
     .crm-pipe-step:last-child {
         background: #eff6ff !important;
-        border: 1px solid #bfdbfe !important;
+        border-color: #bfdbfe !important;
         border-left: 4px solid var(--primary-blue) !important;
         margin-top: 0.25rem !important;
     }
