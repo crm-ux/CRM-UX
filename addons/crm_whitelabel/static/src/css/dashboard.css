@@ -1413,12 +1413,14 @@
     /* Compact Company Dropdown */
     .crm-company-menu,
     .crm-notif-menu {
-        left: auto !important;
-        right: 0 !important;
-        transform: none !important;
-        width: min(88vw, 300px) !important;
-        max-width: calc(100vw - 24px) !important;
-        padding: 0.35rem;
+        position: fixed !important;
+        top: 60px !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        width: min(90vw, 320px) !important;
+        padding: 0.5rem;
+        z-index: 1000 !important;
     }
 
     .crm-company-item {
