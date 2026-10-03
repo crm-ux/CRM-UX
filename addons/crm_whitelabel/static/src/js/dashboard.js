@@ -97,6 +97,7 @@ class CrmDashboard extends Component {
                 this.state.viewAsUserId = parseInt(savedUid, 10);
                 this.state.viewAsUserName = savedName || "";
                 this.state.selectedViewAsId = parseInt(savedUid, 10);
+                this.state.isAdmin = false;
             }
         } catch (e) { }
 
@@ -185,7 +186,11 @@ class CrmDashboard extends Component {
     }
 
     async checkAdminStatus() {
-        this.state.isAdmin = user.isAdmin || [2, 11].includes(user.userId);
+        if (this.state.viewAsUserId) {
+            this.state.isAdmin = false;
+        } else {
+            this.state.isAdmin = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
+        }
     }
 
     async loadCompanyInfo() {
