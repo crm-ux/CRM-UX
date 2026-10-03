@@ -825,7 +825,7 @@ class CrmDashboard extends Component {
         const amcCompDomain = this.state.selectedCompanies.length
             ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]]
             : [];
-        this.actionService.doAction({
+        this.go({
             type: "ir.actions.act_window",
             name: title,
             res_model: "amc.contract",
