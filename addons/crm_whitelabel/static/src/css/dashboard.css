@@ -872,10 +872,9 @@
     font-size: 0.75rem;
 }
 
-/* Entity Grid Cards - 4 Columns Across Matching Reference */
 .crm-cards-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 18vw, 300px), 1fr));
     gap: 1.25rem;
 }
 
