@@ -382,6 +382,16 @@ class CrmDashboard extends Component {
                 totalRegisteredStock: s.total_registered_stock ?? 0,
                 customSalesTrend: s.sales_trend || null,
                 viewAsAccessibleUids: s.accessible_uids || [],
+                viewAsLeadUids: s.lead_uids || null,
+                viewAsEqUids: s.eq_uids || null,
+                viewAsTicketUids: s.ticket_uids || null,
+                viewAsAmcUids: s.amc_uids || null,
+                viewAsScopes: {
+                    lead: s.permissions?.scope_lead_quote,
+                    equipment: s.permissions?.scope_equipment,
+                    ticket: s.permissions?.scope_service_ticket,
+                    amc: s.permissions?.scope_amc,
+                },
                 loading: false
             });
 
@@ -410,19 +420,36 @@ class CrmDashboard extends Component {
                 const uids = (this.state.viewAsAccessibleUids && this.state.viewAsAccessibleUids.length)
                     ? this.state.viewAsAccessibleUids
                     : [uid];
+                const scopes = this.state.viewAsScopes || {};
                 const m = action.res_model;
 
                 action.context = action.context || {};
                 action.context.filter_employee_user_id = String(uid);
 
                 if (['crm.lead', 'sale.order'].includes(m)) {
-                    action.domain.push(["user_id", "in", uids]);
+                    if (scopes.lead !== 'all' && scopes.lead !== 'admin') {
+                        const leadUids = (this.state.viewAsLeadUids && this.state.viewAsLeadUids.length) ? this.state.viewAsLeadUids : [uid];
+                        action.domain.push(["user_id", "in", leadUids]);
+                    }
                 } else if (m === 'service.ticket') {
-                    action.domain.push("|", ["engineer_id", "in", uids], ["create_uid", "in", uids]);
-                } else if (['amc.contract', 'equipment.master', 'exhibition.contact'].includes(m)) {
-                    action.domain.push(["create_uid", "in", uids]);
+                    if (scopes.ticket !== 'all' && scopes.ticket !== 'admin') {
+                        const ticketUids = (this.state.viewAsTicketUids && this.state.viewAsTicketUids.length) ? this.state.viewAsTicketUids : [uid];
+                        action.domain.push("|", ["engineer_id", "in", ticketUids], ["create_uid", "in", ticketUids]);
+                    }
+                } else if (m === 'equipment.master') {
+                    if (scopes.equipment !== 'all' && scopes.equipment !== 'admin') {
+                        const eqUids = (this.state.viewAsEqUids && this.state.viewAsEqUids.length) ? this.state.viewAsEqUids : (this.state.viewAsAccessibleUids?.length ? this.state.viewAsAccessibleUids : [uid]);
+                        action.domain.push(["create_uid", "in", eqUids]);
+                    }
+                } else if (m === 'amc.contract') {
+                    if (scopes.amc !== 'all' && scopes.amc !== 'admin') {
+                        const amcUids = (this.state.viewAsAmcUids && this.state.viewAsAmcUids.length) ? this.state.viewAsAmcUids : [uid];
+                        action.domain.push(["create_uid", "in", amcUids]);
+                    }
+                } else if (m === 'exhibition.contact') {
+                    // Exhibition contacts are shared or personal
                 } else if (m === 'calendar.event') {
-                    action.domain.push("|", ["user_id", "in", uids], ["partner_ids.user_ids", "in", uids]);
+                    action.domain.push("|", ["user_id", "in", [uid]], ["partner_ids.user_ids", "in", [uid]]);
                 }
             }
         }

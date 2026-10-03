@@ -1203,6 +1203,14 @@ class DashboardStats(models.Model):
                     )) or
                     is_admin or target_user.has_group('base.group_system')
                 ),
+                'scope_lead_quote': target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own'),
+                'scope_equipment': target_user.perm_equipment or (target_user.crm_job_id.perm_equipment if target_user.crm_job_id else 'own'),
+                'scope_service_ticket': target_user.perm_service_ticket or (target_user.crm_job_id.perm_service_ticket if target_user.crm_job_id else 'own'),
+                'scope_amc': target_user.perm_amc or (target_user.crm_job_id.perm_amc if target_user.crm_job_id else 'own'),
             },
             'accessible_uids': target_user._get_accessible_user_ids('perm_equipment') if (target_user.perm_equipment not in ('all', 'admin')) else [],
+            'lead_uids': target_user._get_accessible_user_ids('perm_lead_quote') if ((target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
+            'eq_uids': target_user._get_accessible_user_ids('perm_equipment') if ((target_user.perm_equipment or (target_user.crm_job_id.perm_equipment if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
+            'ticket_uids': target_user._get_accessible_user_ids('perm_service_ticket') if ((target_user.perm_service_ticket or (target_user.crm_job_id.perm_service_ticket if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
+            'amc_uids': target_user._get_accessible_user_ids('perm_amc') if ((target_user.perm_amc or (target_user.crm_job_id.perm_amc if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
         }
