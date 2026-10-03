@@ -1720,6 +1720,59 @@
         color: var(--primary-blue) !important;
         font-weight: 800 !important;
     }
+
+    /* ==========================================
+       Mobile Analytics Cards Optimization
+       ========================================== */
+    .crm-chart-card {
+        padding: 0.85rem !important;
+        min-height: auto !important;
+    }
+
+    /* 1. Monthly Sales Header: Wrap title & pills nicely */
+    .crm-chart-head {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+
+    .crm-range-pills {
+        overflow-x: auto !important;
+        max-width: 100% !important;
+    }
+
+    /* 2. Monthly Sales Bar Chart: Give bars comfortable spacing */
+    .crm-bar-chart {
+        height: 150px !important;
+        padding-top: 1.25rem !important;
+        gap: 0.35rem !important;
+    }
+
+    .crm-bar-val-lbl {
+        font-size: 0.6rem !important;
+    }
+
+    .crm-bar-lbl {
+        font-size: 0.65rem !important;
+    }
+
+    /* 3. AMC Renewals: Convert 4 cramped columns into a neat 2x2 Grid on mobile */
+    .crm-chart-card div[style*="grid-template-columns: repeat(4, 1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.65rem !important;
+    }
+
+    /* Hide the horizontal 4-dot milestone line on mobile since it's 2x2 */
+    .crm-chart-card div[style*="margin: 0.5rem 0 1.25rem 0"] {
+        display: none !important;
+    }
+
+    .crm-timeline-step {
+        padding: 0.65rem 0.5rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
 }
 
 /* Mobile Search Button Hidden by default on Desktop */
