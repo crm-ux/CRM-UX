@@ -1492,8 +1492,8 @@
 
     .crm-stat-box {
         padding: 0.5rem 0.25rem;
-        background: #f8fafc;
-        border: 1px solid #f1f5f9;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
         border-radius: 0.5rem;
     }
 
@@ -1512,30 +1512,34 @@
 
     .crm-stat-inv-pending {
         order: 4;
-        background: #fffbeb !important;
-        border-color: #fef3c7 !important;
     }
 
+    /* Total Won Deals centered on full-width bottom row with simple neutral styling */
     .crm-stat-won {
         order: 5;
         grid-column: 1 / -1 !important;
         display: flex !important;
-        flex-direction: row !important;
-        justify-content: space-between !important;
+        flex-direction: column !important;
+        justify-content: center !important;
         align-items: center !important;
+        text-align: center !important;
         padding: 0.65rem 1rem !important;
-        background: #f0fdf4 !important;
-        border-color: #dcfce7 !important;
+        background: #ffffff !important;
+        border: 1px solid var(--border-color) !important;
     }
 
     .crm-stat-won .crm-stat-label {
-        font-size: 0.75rem;
-        color: #166534;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
     }
 
     .crm-stat-won .crm-stat-val {
-        font-size: 1.25rem;
-        color: #16a34a;
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-dark);
     }
 
     .crm-stat-sep {
