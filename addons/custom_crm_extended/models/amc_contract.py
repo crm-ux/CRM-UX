@@ -60,6 +60,31 @@ class AmcContract(models.Model):
     def action_set_cancelled(self):
         self.write({'contract_status': 'cancelled'})
 
+    @api.onchange('contract_value')
+    def _onchange_format_contract_value(self):
+        if not self.contract_value:
+            return
+        clean = self.contract_value.replace(',', '').replace('₹', '').strip()
+        if not clean or not clean.replace('.', '', 1).isdigit():
+            return
+        
+        parts = clean.split('.')
+        int_part = parts[0]
+        dec_part = f".{parts[1]}" if len(parts) > 1 else ""
+
+        if len(int_part) > 3:
+            last_three = int_part[-3:]
+            remaining = int_part[:-3]
+            pairs = []
+            while remaining:
+                pairs.insert(0, remaining[-2:])
+                remaining = remaining[:-2]
+            formatted = ','.join(pairs) + ',' + last_three
+        else:
+            formatted = int_part
+
+        self.contract_value = f"{formatted}{dec_part}"
+
     @api.constrains('pm', 'cm')
     def _check_pm_cm_numeric(self):
         for rec in self:
