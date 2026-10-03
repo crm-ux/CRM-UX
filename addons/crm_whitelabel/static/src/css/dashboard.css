@@ -1483,12 +1483,63 @@
     }
 
     .crm-stats-bar {
-        justify-content: flex-start;
-        gap: 1.25rem;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+        padding: 0.85rem !important;
+        justify-content: stretch;
+    }
+
+    .crm-stat-box {
+        padding: 0.5rem 0.25rem;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 0.5rem;
+    }
+
+    /* Grid layout order: Row 1: Today's Rev & Monthly Sales. Row 2: Inv Created & Inv Pending. Row 3: Total Won Deals */
+    .crm-stat-today-rev {
+        order: 1;
+    }
+
+    .crm-stat-monthly-sales {
+        order: 2;
+    }
+
+    .crm-stat-inv-created {
+        order: 3;
+    }
+
+    .crm-stat-inv-pending {
+        order: 4;
+        background: #fffbeb !important;
+        border-color: #fef3c7 !important;
+    }
+
+    .crm-stat-won {
+        order: 5;
+        grid-column: 1 / -1 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.65rem 1rem !important;
+        background: #f0fdf4 !important;
+        border-color: #dcfce7 !important;
+    }
+
+    .crm-stat-won .crm-stat-label {
+        font-size: 0.75rem;
+        color: #166534;
+    }
+
+    .crm-stat-won .crm-stat-val {
+        font-size: 1.25rem;
+        color: #16a34a;
     }
 
     .crm-stat-sep {
-        display: none;
+        display: none !important;
     }
 
     .crm-search-box {

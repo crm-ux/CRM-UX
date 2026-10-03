@@ -293,27 +293,27 @@
 
                 <!-- KPI METRIC BAR -->
                 <section class="crm-stats-bar">
-                    <div class="crm-stat-box">
+                    <div class="crm-stat-box crm-stat-today-rev">
                         <span class="crm-stat-label">Today's Revenue</span>
                         <span class="crm-stat-val"><t t-esc="fmt(state.todayRevenue)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
-                    <div class="crm-stat-box">
+                    <div class="crm-stat-box crm-stat-monthly-sales">
                         <span class="crm-stat-label">Monthly Sales</span>
                         <span class="crm-stat-val" style="color: var(--primary-blue);"><t t-esc="fmt(state.wonRevenue)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
-                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openWon">
+                    <div class="crm-stat-box crm-stat-won" style="cursor: pointer;" t-on-click="openWon">
                         <span class="crm-stat-label">Total Won Deals</span>
                         <span class="crm-stat-val"><t t-esc="state.won"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
-                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openInvoiceCreated">
+                    <div class="crm-stat-box crm-stat-inv-created" style="cursor: pointer;" t-on-click="openInvoiceCreated">
                         <span class="crm-stat-label">Invoice Created</span>
                         <span class="crm-stat-val"><t t-esc="state.invoiceCreated || 0"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
-                    <div class="crm-stat-box" style="cursor: pointer;" t-on-click="openInvoicePending">
+                    <div class="crm-stat-box crm-stat-inv-pending" style="cursor: pointer;" t-on-click="openInvoicePending">
                         <span class="crm-stat-label">Invoice Pending</span>
                         <span class="crm-stat-val" style="color: #f59e0b;"><t t-esc="state.invoicePending || 0"/></span>
                     </div>
