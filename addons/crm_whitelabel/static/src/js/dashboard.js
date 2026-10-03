@@ -804,6 +804,21 @@ class CrmDashboard extends Component {
     }
     openTaskDialog(u) { this.state.selectedUser = u; this.state.taskTitle = ""; this.state.taskNote = ""; this.state.taskDialogOpen = true; this.state.searchOpen = false; this.state.searchQuery = ""; }
     closeTaskDialog() { this.state.taskDialogOpen = false; this.state.selectedUser = null; }
+
+    toggleMobileSearch() {
+        this.state.mobileSearchOpen = !this.state.mobileSearchOpen;
+        if (!this.state.mobileSearchOpen) {
+            this.state.searchResults = [];
+            this.state.searchQuery = "";
+            this.state.searchOpen = false;
+        }
+    }
+
+    openSearchResult(item) {
+        this.state.mobileSearchOpen = false;
+        this.openTaskDialog(item);
+    }
+
     async assignTask() {
         if (!this.state.taskTitle) { alert("Please enter a task title"); return; }
         try {
