@@ -73,7 +73,7 @@ class ResUsers(models.Model):
         if not uids:
             return [(0, '=', 1)]
         if user_field:
-            return ['|', (user_field, 'in', uids), ('create_uid', 'in', uids)]
+            return [(user_field, 'in', uids)]
         return [('create_uid', 'in', uids)]
 
     @api.model
