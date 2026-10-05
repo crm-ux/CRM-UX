@@ -89,10 +89,12 @@ class CrmDashboard extends Component {
         const isAdm = Boolean(user.isAdmin);
         this.state.isAdmin = isAdm;
 
-        // Restore View As user from storage if active
+        // Restore View As user from sessionStorage only (resets when website/tab is closed)
         try {
-            const savedUid = sessionStorage.getItem("crm_view_as_uid") || localStorage.getItem("crm_view_as_uid");
-            const savedName = sessionStorage.getItem("crm_view_as_uname") || localStorage.getItem("crm_view_as_uname");
+            localStorage.removeItem("crm_view_as_uid");
+            localStorage.removeItem("crm_view_as_uname");
+            const savedUid = sessionStorage.getItem("crm_view_as_uid");
+            const savedName = sessionStorage.getItem("crm_view_as_uname");
             if (savedUid && isAdm) {
                 this.state.viewAsUserId = parseInt(savedUid, 10);
                 this.state.viewAsUserName = savedName || "";
@@ -739,6 +741,7 @@ class CrmDashboard extends Component {
 
     async openViewAsModal() {
         this.state.userDropdownOpen = false;
+        this.state.selectedViewAsId = false;
         try {
             // Exclude current logged in user
             const excludeIds = [user.userId];
@@ -779,8 +782,8 @@ class CrmDashboard extends Component {
         try {
             sessionStorage.setItem("crm_view_as_uid", String(u.id));
             sessionStorage.setItem("crm_view_as_uname", u.name);
-            localStorage.setItem("crm_view_as_uid", String(u.id));
-            localStorage.setItem("crm_view_as_uname", u.name);
+            localStorage.removeItem("crm_view_as_uid");
+            localStorage.removeItem("crm_view_as_uname");
         } catch (e) { }
         this.showToast("Now viewing dashboard as " + u.name);
         await this.loadStats();

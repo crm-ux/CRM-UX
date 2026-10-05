@@ -976,7 +976,7 @@
                         </h3>
                         <button class="crm-task-close" t-on-click="closeViewAsModal">✕</button>
                     </div>
-                    <div class="crm-task-body" style="padding: 1.25rem;">
+                    <div class="crm-task-body" style="padding: clamp(1rem, 2.5vw, 1.25rem); padding-bottom: clamp(2.5rem, 6vh, 4rem);">
                         <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem;">
                             Select an internal user to preview the dashboard with their exact permissions, hierarchy visibility, and restricted menus.
                         </p>
@@ -984,7 +984,7 @@
                         <div style="position: relative; width: 100%;">
                             <select class="form-select" t-on-change="onViewAsSelect" 
                                     style="width: 100%; padding: 0.65rem 2.2rem 0.65rem 0.9rem; border-radius: 8px; border: 1.5px solid #cbd5e1; background-color: #f8fafc; font-size: 0.9rem; font-weight: 500; appearance: none; outline: none; cursor: pointer;">
-                                <option value="">-- Choose a user --</option>
+                                <option value="" t-att-selected="!state.selectedViewAsId">-- Choose a user --</option>
                                 <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
                                     <option t-att-value="u.id" t-att-selected="state.selectedViewAsId === u.id">
                                         <t t-esc="u.name"/>
