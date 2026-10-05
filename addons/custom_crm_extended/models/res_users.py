@@ -32,12 +32,14 @@ class ResUsers(models.Model):
         self.ensure_one()
         u = self.sudo()
         # 2. Check permission level
-        perm = getattr(u, perm_field, None) or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
+        perm = u.perm_lead_quote or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
+        if not perm and perm_field != 'perm_lead_quote':
+            perm = getattr(u, perm_field, None) or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
         if perm == 'none':
             return []
 
         uids = set([u.id])
-        if perm in ('all', 'admin'):
+        if perm in ('all', 'admin') or u.perm_lead_quote in ('all', 'admin'):
             all_users = self.env['res.users'].sudo().search([('share', '=', False)])
             return all_users.ids
 
@@ -80,7 +82,7 @@ class ResUsers(models.Model):
         """Return the exact record-rule domain based on user hierarchy permission."""
         self.ensure_one()
         perm = getattr(self, perm_field, None) or (getattr(self.crm_job_id, perm_field, None) if self.crm_job_id else 'own')
-        if self._is_admin() or self.has_group('base.group_system') or perm in ('all', 'admin'):
+        if self._is_admin() or self.has_group('base.group_system') or perm in ('all', 'admin') or getattr(self, perm_field, None) in ('all', 'admin'):
             return [(1, '=', 1)]
         if perm in ('none', False):
             return [(0, '=', 1)]
