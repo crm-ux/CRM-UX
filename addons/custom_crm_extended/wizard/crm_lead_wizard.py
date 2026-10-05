@@ -420,11 +420,32 @@ class CrmLeadWizard(models.TransientModel):
             "priority": "3" if self.x_lead_priority == "high" else ("1" if self.x_lead_priority == "low" else "2"),
         }
 
-        lead = self.env["crm.lead"].create(vals)
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "crm.lead",
-            "res_id": lead.id,
-            "view_mode": "form",
-            "target": "current",
-        }
+        lead = self.env["crm.lead"].sudo().create(vals)
+        # If lead was assigned to someone else, check if current user can read it
+        try:
+            lead.with_user(self.env.user).check_access_rights('read')
+            lead.with_user(self.env.user).check_access_rule('read')
+            can_read = True
+        except Exception:
+            can_read = False
+
+        if can_read:
+            return {
+                "type": "ir.actions.act_window",
+                "res_model": "crm.lead",
+                "res_id": lead.id,
+                "view_mode": "form",
+                "target": "current",
+            }
+        else:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Lead Created & Assigned'),
+                    'message': _('Lead "%s" was successfully created and assigned.') % lead.name,
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.act_window_close'},
+                }
+            }
