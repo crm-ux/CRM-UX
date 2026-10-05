@@ -313,13 +313,16 @@ class CrmDashboard extends Component {
 
             const lc = canViewLeadQuote ? (s.lead_counts || {}) : {}, qc = canViewLeadQuote ? (s.quote_counts || {}) : {};
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
-            const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0, stageQuotes = lc[30] || 0;
-            const stageSent = lc[35] || 0, stageNegotiation = lc[40] || 0, stageOrderExp = lc[50] || 0;
-            const stageWon = lc[90] || 0;
+            const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0;
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
-            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
+            const stageQuotes = quotesDraft;
+            const stageSent = quotesSent;
+            const stageNegotiation = quotesNeg;
+            const stageOrderExp = quotesOrderExp;
+            const stageWon = won;
+            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
             const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
