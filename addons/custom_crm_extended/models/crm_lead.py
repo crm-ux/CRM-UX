@@ -518,6 +518,13 @@ class CrmLead(models.Model):
             'target': 'current',
         }
 
+    def write(self, vals):
+        if 'x_assign_to_id' in vals:
+            vals['user_id'] = vals['x_assign_to_id']
+        elif 'user_id' in vals and 'x_assign_to_id' not in vals:
+            vals['x_assign_to_id'] = vals['user_id']
+        return super().write(vals)
+
     def get_formview_action(self, access_uid=None):
         if not self:
             return self.action_new_lead_wizard()

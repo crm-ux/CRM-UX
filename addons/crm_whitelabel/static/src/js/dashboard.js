@@ -443,7 +443,7 @@ class CrmDashboard extends Component {
                         action.domain.push(["id", "=", -1]);
                     } else if (scopes.lead !== 'all' && scopes.lead !== 'admin') {
                         const leadUids = (this.state.viewAsLeadUids && this.state.viewAsLeadUids.length) ? this.state.viewAsLeadUids : [uid];
-                        action.domain.push("|", ["user_id", "in", leadUids], ["create_uid", "in", leadUids]);
+                        action.domain.push("|", ["user_id", "in", leadUids], "&", ["user_id", "=", false], ["create_uid", "in", leadUids]);
                     }
                 } else if (m === 'service.ticket') {
                     if (scopes.ticket !== 'all' && scopes.ticket !== 'admin') {
