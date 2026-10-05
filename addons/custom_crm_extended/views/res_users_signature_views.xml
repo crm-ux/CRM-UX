@@ -16,6 +16,11 @@
                             <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True, 'no_open': True}"/>
                             <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
                             <field name="crm_department_id" string="Department" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="crm_department_ids" widget="many2many_tags"
+                                   string="Managed Sub-Departments"
+                                   domain="[('id', '!=', crm_department_id)]"
+                                   options="{'color_field': 'color', 'no_create': True}"
+                                   placeholder="Select sub-departments managed by this employee..."/>
                         </group>
                         <!-- Right Column --> 
                         <group string="Employee Profile &amp; Tags">

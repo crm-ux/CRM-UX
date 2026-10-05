@@ -11,7 +11,7 @@ class ResUsers(models.Model):
     crm_expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
-    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Allowed Departments', compute='_compute_department_scope', store=True)
+    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
 
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
@@ -391,23 +391,6 @@ class ResUsers(models.Model):
             except Exception as e:
                 pass
 
-    @api.depends('crm_job_id', 'crm_job_id.department_id', 'crm_job_id.sub_department_ids', 'crm_department_id')
-    def _compute_department_scope(self):
-        for user in self:
-            scope_ids = set()
-            if user.crm_job_id:
-                if user.crm_job_id.department_id:
-                    scope_ids.add(user.crm_job_id.department_id.id)
-                if user.crm_job_id.sub_department_ids:
-                    scope_ids.update(user.crm_job_id.sub_department_ids.ids)
-            elif user.crm_department_id:
-                scope_ids.add(user.crm_department_id.id)
-
-            if scope_ids:
-                user.crm_department_ids = [(6, 0, list(scope_ids))]
-            else:
-                user.crm_department_ids = [(5, 0, 0)]
-
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_defaults(self):
         if self.crm_job_id:
@@ -415,6 +398,10 @@ class ResUsers(models.Model):
             # Auto-assign Primary Department from Job Role
             if dept:
                 self.crm_department_id = dept.id
+
+            # Pre-fill Managed Sub-Departments from Job Role if defined
+            if self.crm_job_id.sub_department_ids:
+                self.crm_department_ids = [(6, 0, self.crm_job_id.sub_department_ids.ids)]
 
             # Directly use the Job Role's configured Reporting Manager (e.g. Administrator for Managers)
             if self.crm_job_id.default_manager_id:
