@@ -1164,9 +1164,10 @@ class DashboardStats(models.Model):
                     target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'lead_quote_read': bool(
-                    (target_user.perm_lead_quote and target_user.perm_lead_quote != 'none') or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_lead_quote and target_user.crm_job_id.perm_lead_quote != 'none') or
-                    target_user._is_admin() or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        target_user.perm_lead_quote not in ('none', False) if target_user.perm_lead_quote
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_lead_quote and target_user.crm_job_id.perm_lead_quote != 'none')
+                    )
                 ),
                 'equipment_read': bool(
                     (target_user.perm_equipment and target_user.perm_equipment != 'none' and target_user.perm_equipment_read) or

@@ -271,21 +271,21 @@
                         <p>Here's an overview of your business performance, ongoing operations, and team workload.</p>
                     </div>
                     <div class="crm-hero-actions">
-                        <div class="crm-action-btn" t-on-click="newLead">
+                        <div class="crm-action-btn" t-if="state.isAdmin or state.canViewLeadQuote" t-on-click="newLead">
                             <div>
                                 <div class="crm-action-title">+ Create Lead</div>
                                 <div class="crm-action-sub">Add new lead to pipeline</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>
-                        <div class="crm-action-btn" t-on-click="createAmc">
+                        <div class="crm-action-btn" t-if="state.isAdmin or state.canViewAmc" t-on-click="createAmc">
                             <div>
                                 <div class="crm-action-title">+ Create AMC</div>
                                 <div class="crm-action-sub">Annual Maintenance Contract</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>
-                        <div class="crm-action-btn" t-on-click="newServiceTicket">
+                        <div class="crm-action-btn" t-if="state.isAdmin or state.canViewTicket" t-on-click="newServiceTicket">
                             <div>
                                 <div class="crm-action-title">+ Create Service Ticket</div>
                                 <div class="crm-action-sub">Log service request</div>
@@ -331,7 +331,7 @@
                 </section>
 
                 <!-- PIPELINE STRIP -->
-                <section class="crm-pipeline-card">
+                <section class="crm-pipeline-card" t-if="state.isAdmin or state.canViewLeadQuote">
                     <div class="crm-pipeline-header">
                         <span>Lead &amp; Quotes</span>
                     </div>

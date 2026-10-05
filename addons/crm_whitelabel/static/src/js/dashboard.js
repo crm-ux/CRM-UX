@@ -427,7 +427,9 @@ class CrmDashboard extends Component {
                 action.context.filter_employee_user_id = String(uid);
 
                 if (['crm.lead', 'sale.order'].includes(m)) {
-                    if (scopes.lead !== 'all' && scopes.lead !== 'admin') {
+                    if (scopes.lead === 'none' || !this.state.canViewLeadQuote) {
+                        action.domain.push(["id", "=", -1]);
+                    } else if (scopes.lead !== 'all' && scopes.lead !== 'admin') {
                         const leadUids = (this.state.viewAsLeadUids && this.state.viewAsLeadUids.length) ? this.state.viewAsLeadUids : [uid];
                         action.domain.push(["user_id", "in", leadUids]);
                     }
