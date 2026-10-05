@@ -184,9 +184,12 @@ class CrmLead(models.Model):
         for lead in self:
             if is_manager:
                 lead.x_assign_to_readonly = False
-            elif not lead.user_id and (lead.create_uid == user or lead.x_created_by_id == user):
-                # Creator can assign until an assignee is decided
-                lead.x_assign_to_readonly = False
+            elif lead.create_uid == user or lead.x_created_by_id == user:
+                # Creator can assign if unassigned or if still owned by creator
+                if not lead.user_id or lead.user_id == user:
+                    lead.x_assign_to_readonly = False
+                else:
+                    lead.x_assign_to_readonly = True
             else:
                 lead.x_assign_to_readonly = True
 
