@@ -931,6 +931,28 @@ class DashboardStats(models.Model):
         company_filter = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)] if company_ids else []
         shared_company_filter = company_filter
 
+        # Auto-sync unlinked direct quotations into crm.lead so all quotes exist in the pipeline list view
+        try:
+            unlinked_quotes = self.env['sale.order'].sudo().search([
+                ('opportunity_id', '=', False),
+                ('state', '!=', 'cancel')
+            ])
+            for q in unlinked_quotes:
+                lead_stage_seq = 90 if q.x_quote_stage == 'won' else 30
+                lead_vals = {
+                    'name': q.name or 'Direct Quotation',
+                    'partner_id': q.partner_id.id if q.partner_id else False,
+                    'user_id': q.user_id.id if q.user_id else False,
+                    'company_id': q.company_id.id if q.company_id else False,
+                    'expected_revenue': q.amount_total or 0.0,
+                    'x_stage_sequence': lead_stage_seq,
+                    'type': 'opportunity',
+                }
+                new_lead = self.env['crm.lead'].sudo().create(lead_vals)
+                q.sudo().write({'opportunity_id': new_lead.id})
+        except Exception:
+            pass
+
         # 2. Hierarchy & Department filter
         target_user = self.env['res.users'].sudo().browse(uid)
         perm = target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')
