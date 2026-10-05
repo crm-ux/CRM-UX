@@ -34,7 +34,7 @@ class CrmDashboard extends Component {
             companyDropdownOpen: false, userDropdownOpen: false,
             sidebarOpen: false,
             productStockCount: 0,
-            isAdmin: user.isAdmin || [2, 11].includes(user.userId),
+            isAdmin: Boolean(user.isAdmin),
             // Permission flags for Quick Access
             canAccessQuickMenu: false,
             canViewCustomer: false,
@@ -177,6 +177,10 @@ class CrmDashboard extends Component {
     }
 
     openProductStock() {
+        if (!this.state.isAdmin && !this.state.canViewProduct) {
+            this.showAccessDenied("Products");
+            return;
+        }
         this.go({
             type: "ir.actions.act_window",
             name: "Product Stock Registry",
@@ -1754,6 +1758,10 @@ class CrmDashboard extends Component {
     }
 
     openProductMaster() {
+        if (!this.state.isAdmin && !this.state.canViewProduct) {
+            this.showAccessDenied("Products");
+            return;
+        }
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "Product Master",

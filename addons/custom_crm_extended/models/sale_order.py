@@ -1170,19 +1170,22 @@ class DashboardStats(models.Model):
                     )
                 ),
                 'equipment_read': bool(
-                    (target_user.perm_equipment and target_user.perm_equipment != 'none' and target_user.perm_equipment_read) or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_equipment and target_user.crm_job_id.perm_equipment != 'none' and target_user.crm_job_id.perm_equipment_read) or
-                    target_user._is_admin() or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        (target_user.perm_equipment not in ('none', False) and target_user.perm_equipment_read) if target_user.perm_equipment
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_equipment not in ('none', False) and target_user.crm_job_id.perm_equipment_read)
+                    )
                 ),
                 'ticket_read': bool(
-                    (target_user.perm_service_ticket and target_user.perm_service_ticket != 'none' and target_user.perm_ticket_read) or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_service_ticket and target_user.crm_job_id.perm_service_ticket != 'none' and target_user.crm_job_id.perm_ticket_read) or
-                    target_user._is_admin() or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        (target_user.perm_service_ticket not in ('none', False) and target_user.perm_ticket_read) if target_user.perm_service_ticket
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_service_ticket not in ('none', False) and target_user.crm_job_id.perm_ticket_read)
+                    )
                 ),
                 'amc_read': bool(
-                    (target_user.perm_amc and target_user.perm_amc != 'none' and target_user.perm_amc_read) or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_amc and target_user.crm_job_id.perm_amc != 'none' and target_user.crm_job_id.perm_amc_read) or
-                    target_user._is_admin() or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        (target_user.perm_amc not in ('none', False) and target_user.perm_amc_read) if target_user.perm_amc
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_amc not in ('none', False) and target_user.crm_job_id.perm_amc_read)
+                    )
                 ),
                 'can_create_company': bool(
                     target_user._is_admin() or target_user.has_group('base.group_system') or (
