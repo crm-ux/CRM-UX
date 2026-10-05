@@ -282,6 +282,7 @@ class CrmDashboard extends Component {
         try {
             const activeUserId = this.state.viewAsUserId || user.userId;
             const activeIsAdmin = this.state.viewAsUserId ? false : (this.state.isAdmin || user.isAdmin);
+            this.state.isAdmin = activeIsAdmin;
 
             // Single RPC call for all stats & user permissions
             const s = await rpc("/web/dataset/call_kw", {
