@@ -366,33 +366,33 @@
                             <div class="crm-pipe-name">Opportunity</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
-                        <!-- 6. Quotes (Draft) -->
+                        <!-- 6. Quotes -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #0284c7;" t-on-click="() => this.openQuoteStage('draft')">
-                            <div class="crm-pipe-count"><t t-esc="state.quotesDraft"/></div>
+                            <div class="crm-pipe-count"><t t-esc="state.stageQuotes"/></div>
                             <div class="crm-pipe-name">Quotes</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 7. Sent -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #6366f1;" t-on-click="() => this.openQuoteStage('sent')">
-                            <div class="crm-pipe-count"><t t-esc="state.quotesSent"/></div>
+                            <div class="crm-pipe-count"><t t-esc="state.stageSent"/></div>
                             <div class="crm-pipe-name">Sent</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 8. Negotiation -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #a855f7;" t-on-click="() => this.openQuoteStage('negotiation')">
-                            <div class="crm-pipe-count"><t t-esc="state.quotesNeg"/></div>
+                            <div class="crm-pipe-count"><t t-esc="state.stageNegotiation"/></div>
                             <div class="crm-pipe-name">Negotiation</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 9. Order Expected -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #ec4899;" t-on-click="() => this.openQuoteStage('order_expected')">
-                            <div class="crm-pipe-count"><t t-esc="state.quotesOrderExp"/></div>
+                            <div class="crm-pipe-count"><t t-esc="state.stageOrderExp"/></div>
                             <div class="crm-pipe-name">Order Expected</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 10. Won -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #22c55e; background: #f0fdf4;" t-on-click="() => this.openQuoteStage('won')">
-                            <div class="crm-pipe-count" style="color: #16a34a;"><t t-esc="state.won"/></div>
+                            <div class="crm-pipe-count" style="color: #16a34a;"><t t-esc="state.stageWon"/></div>
                             <div class="crm-pipe-name" style="color: #16a34a; font-weight: 700;">Won</div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
