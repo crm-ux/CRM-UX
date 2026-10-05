@@ -16,6 +16,7 @@ class CrmDashboard extends Component {
             leads: 0, qualified: 0, opportunity: 0, won: 0,
             stageLead: 0, stageContacted: 0, stageTechDisc: 0, stageQualified: 0, stageSent: 0,
             stageOpportunity: 0, stageQuotes: 0, stageNegotiation: 0, stageOrderExp: 0, stageWon: 0,
+            leadsTotal: 0,
             quotesDraft: 0, quotesSent: 0, quotesNeg: 0, quotesOrderExp: 0, exhibitionContacts: 0,
             priorityLow: 0, priorityMedium: 0, priorityHigh: 0,
             meetingsThisMonth: 0, upcomingEvents: 0,
