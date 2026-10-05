@@ -91,13 +91,13 @@ class ResUsers(models.Model):
             return [
                 '|',
                 (user_field or 'user_id', 'in', uids),
-                ('&', (user_field or 'user_id', '=', False), ('create_uid', 'in', uids))
+                '&', (user_field or 'user_id', '=', False), ('create_uid', 'in', uids)
             ]
         if user_field:
             return [
                 '|',
                 (user_field, 'in', uids),
-                ('&', (user_field, '=', False), ('create_uid', 'in', uids))
+                '&', (user_field, '=', False), ('create_uid', 'in', uids)
             ]
         return [('create_uid', 'in', uids)]
 
