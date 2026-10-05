@@ -84,7 +84,13 @@ class ResUsers(models.Model):
         if not uids:
             return [(0, '=', 1)]
         if perm_field == 'perm_lead_quote':
-            return [(user_field or 'user_id', 'in', uids)]
+            return [
+                '|',
+                (user_field or 'user_id', 'in', uids),
+                '&',
+                (user_field or 'user_id', '=', False),
+                ('create_uid', 'in', uids)
+            ]
         if user_field:
             return ['|', (user_field, 'in', uids), ('create_uid', 'in', uids)]
         return [('create_uid', 'in', uids)]
