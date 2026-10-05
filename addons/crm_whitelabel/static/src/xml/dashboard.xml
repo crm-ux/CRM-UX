@@ -993,19 +993,19 @@
                                 <i class="fa fa-chevron-down" style="color: #64748b; font-size: 0.75rem;"></i>
                             </div>
 
-                            <!-- Modern Glassmorphism Scrollable List with Dark Blur & Spacing -->
+                            <!-- Clean Scrollable List with Dark Blue Hover on User Row Only -->
                             <div t-if="state.viewAsDropdownOpen" 
                                  class="crm-view-as-menu"
-                                 style="position: absolute; top: calc(100% + 6px); left: 0; width: 100%; max-height: 190px; overflow-y: auto; background: rgba(15, 23, 42, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 10px; box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.35); z-index: 10000; padding: 6px; display: flex; flex-direction: column; gap: 3px;">
-                                <div class="crm-view-as-item"
-                                     style="padding: 0.6rem 0.9rem; font-size: 0.86rem; font-weight: 500; cursor: pointer; color: #94a3b8; border-radius: 6px; transition: all 0.2s ease;"
+                                 style="position: absolute; top: calc(100% + 4px); left: 0; width: 100%; max-height: 190px; overflow-y: auto; background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15); z-index: 10000; padding: 4px; display: flex; flex-direction: column; gap: 2px;">
+                                <div class="crm-view-as-row"
+                                     style="padding: 0.55rem 0.85rem; font-size: 0.88rem; cursor: pointer; color: #64748b; border-radius: 6px; font-weight: 500;"
                                      t-on-click="() => { this.state.selectedViewAsId = null; this.state.viewAsDropdownOpen = false; }">
                                     -- Choose a user --
                                 </div>
                                 <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
-                                    <div class="crm-view-as-item"
-                                         style="padding: 0.6rem 0.9rem; font-size: 0.86rem; font-weight: 500; cursor: pointer; color: #f1f5f9; border-radius: 6px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;"
-                                         t-att-style="state.selectedViewAsId === u.id ? 'background: #0284c7; color: #ffffff; font-weight: 600;' : ''"
+                                    <div class="crm-view-as-row"
+                                         t-att-class="state.selectedViewAsId === u.id ? 'crm-view-as-active' : ''"
+                                         style="padding: 0.55rem 0.85rem; font-size: 0.88rem; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: space-between;"
                                          t-on-click="() => { this.state.selectedViewAsId = u.id; this.state.viewAsDropdownOpen = false; }">
                                         <span><t t-esc="u.name"/></span>
                                         <i class="fa fa-check" t-if="state.selectedViewAsId === u.id" style="font-size: 0.75rem;"></i>
