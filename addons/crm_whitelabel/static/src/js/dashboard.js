@@ -318,7 +318,7 @@ class CrmDashboard extends Component {
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
-            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
+            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + quotesDraft + quotesSent + quotesNeg + quotesOrderExp + won;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
             const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
