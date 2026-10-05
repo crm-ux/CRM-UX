@@ -168,13 +168,26 @@ class CrmLead(models.Model):
 
     def _compute_assign_to_readonly(self):
         """
-        Normal sales reps cannot change x_assign_to_id.
-        Team Leaders (CRM: manage) and Admins can.
+        Managers, Admins, and Hierarchy Leaders can always assign.
+        The CREATOR can assign if the lead is still unassigned.
+        Once assigned, it locks to read-only for regular sales reps.
         """
-        is_manager = self.env.user.has_group('crm.group_crm_manager') or \
-                     self.env.user.has_group('base.group_system')
+        user = self.env.user
+        perm = user.perm_lead_quote or (user.crm_job_id.perm_lead_quote if user.crm_job_id else 'own')
+        is_manager = (
+            user._is_admin() or 
+            user.has_group('base.group_system') or 
+            user.has_group('crm.group_crm_manager') or 
+            perm in ('subordinates', 'department', 'all', 'admin')
+        )
         for lead in self:
-            lead.x_assign_to_readonly = not is_manager
+            if is_manager:
+                lead.x_assign_to_readonly = False
+            elif not lead.user_id and lead.create_uid == user:
+                # Creator can assign until an assignee is decided
+                lead.x_assign_to_readonly = False
+            else:
+                lead.x_assign_to_readonly = True
 
     # ==================================================================
     # ONCHANGE – auto-set priority based on lead source
@@ -287,6 +300,11 @@ class CrmLead(models.Model):
             if not self.x_original_owner_id:
                 self.x_original_owner_id = self.user_id
             self.user_id = self.x_assign_to_id
+
+    def write(self, vals):
+        if 'x_assign_to_id' in vals and vals['x_assign_to_id'] and not vals.get('user_id'):
+            vals['user_id'] = vals['x_assign_to_id']
+        return super().write(vals)
 
     # PO fields synced from won quotation
     x_po_number = fields.Char(string='PO Number', readonly=True, copy=False)
