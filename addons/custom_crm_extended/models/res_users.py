@@ -37,12 +37,16 @@ class ResUsers(models.Model):
             return []
 
         uids = set([u.id])
-        if perm in ('subordinates', 'department', 'all', 'admin'):
+        if perm in ('all', 'admin'):
+            all_users = self.env['res.users'].sudo().search([('share', '=', False)])
+            return all_users.ids
+
+        if perm in ('subordinates', 'department'):
             # 1. Direct and indirect subordinates
             uids.update(u.crm_subordinate_ids.ids)
             uids.update(u._get_all_subordinates().ids)
 
-        if perm in ('department', 'all', 'admin'):
+        if perm == 'department':
             depts = u.crm_department_ids | u.crm_department_id
             if u.crm_job_id:
                 if u.crm_job_id.department_id:
@@ -75,9 +79,9 @@ class ResUsers(models.Model):
     def _get_hierarchy_domain(self, perm_field, user_field='user_id'):
         """Return the exact record-rule domain based on user hierarchy permission."""
         self.ensure_one()
-        if self._is_admin() or self.has_group('base.group_system') or getattr(self, perm_field, None) in ('all', 'admin'):
-            return [(1, '=', 1)]
         perm = getattr(self, perm_field, None) or (getattr(self.crm_job_id, perm_field, None) if self.crm_job_id else 'own')
+        if self._is_admin() or self.has_group('base.group_system') or perm in ('all', 'admin'):
+            return [(1, '=', 1)]
         if perm in ('none', False):
             return [(0, '=', 1)]
         uids = self._get_accessible_user_ids(perm_field)
