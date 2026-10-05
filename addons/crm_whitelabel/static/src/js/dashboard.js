@@ -761,6 +761,7 @@ class CrmDashboard extends Component {
         } catch (e) { }
         this.showToast("Now viewing dashboard as " + u.name);
         await this.loadStats();
+        await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }
 
     async exitViewAs() {
@@ -776,6 +777,7 @@ class CrmDashboard extends Component {
         } catch (e) { }
         this.showToast("Returned to Administrator view");
         await this.loadStats();
+        await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }
 
     openChangePasswordComingSoon() {
@@ -1281,13 +1283,24 @@ class CrmDashboard extends Component {
         }
     }
 
+    _getSalesChartUserDomain() {
+        if (this.state.viewAsUserId && this.state.viewAsScopes?.lead !== 'all' && this.state.viewAsScopes?.lead !== 'admin') {
+            const allowed = (this.state.viewAsLeadUids && this.state.viewAsLeadUids.length)
+                ? this.state.viewAsLeadUids
+                : [this.state.viewAsUserId];
+            return [["user_id", "in", allowed]];
+        }
+        return [];
+    }
+
     async _fetchHourlySales(dateStr) {
         const domain = [
             ["date_order", ">=", dateStr + " 00:00:00"],
             ["date_order", "<=", dateStr + " 23:59:59"],
             "|",
             ["x_quote_stage", "=", "won"],
-            ["state", "in", ["sale", "done"]]
+            ["state", "in", ["sale", "done"]],
+            ...this._getSalesChartUserDomain()
         ];
         if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
             domain.push(["company_id", "in", this.state.selectedCompanies]);
@@ -1331,7 +1344,8 @@ class CrmDashboard extends Component {
             ["date_order", "<=", endStr + " 23:59:59"],
             "|",
             ["x_quote_stage", "=", "won"],
-            ["state", "in", ["sale", "done"]]
+            ["state", "in", ["sale", "done"]],
+            ...this._getSalesChartUserDomain()
         ];
         if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
             domain.push(["company_id", "in", this.state.selectedCompanies]);
@@ -1379,7 +1393,8 @@ class CrmDashboard extends Component {
             ["date_order", "<=", endStr + " 23:59:59"],
             "|",
             ["x_quote_stage", "=", "won"],
-            ["state", "in", ["sale", "done"]]
+            ["state", "in", ["sale", "done"]],
+            ...this._getSalesChartUserDomain()
         ];
         if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
             domain.push(["company_id", "in", this.state.selectedCompanies]);
@@ -1461,7 +1476,8 @@ class CrmDashboard extends Component {
             ["date_order", "<=", endStr + " 23:59:59"],
             "|",
             ["x_quote_stage", "=", "won"],
-            ["state", "in", ["sale", "done"]]
+            ["state", "in", ["sale", "done"]],
+            ...this._getSalesChartUserDomain()
         ];
         if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
             domain.push(["company_id", "in", this.state.selectedCompanies]);
@@ -1518,7 +1534,8 @@ class CrmDashboard extends Component {
                 ["date_order", "<=", endStr + " 23:59:59"],
                 "|",
                 ["x_quote_stage", "=", "won"],
-                ["state", "in", ["sale", "done"]]
+                ["state", "in", ["sale", "done"]],
+                ...this._getSalesChartUserDomain()
             ];
             if (this.state.selectedCompanies && this.state.selectedCompanies.length) {
                 domain.push(["company_id", "in", this.state.selectedCompanies]);
