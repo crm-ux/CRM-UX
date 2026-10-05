@@ -3,6 +3,7 @@
 import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 import { download } from "@web/core/network/download";
+import { user } from "@web/core/user";
 import { Component, xml } from "@odoo/owl";
 
 const cogMenuRegistry = registry.category("cogMenu");
@@ -141,11 +142,17 @@ class ExportAllFieldsMenuItem extends Component {
 }
 
 cogMenuRegistry.add("export_all_form_fields", {
-    isDisplayed: (env) => {
+    isDisplayed: async (env) => {
         const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
         const viewType = env.config?.viewType;
         const isListOrTree = !viewType || viewType === "list" || viewType === "tree";
-        return isListOrTree && TARGET_MODELS.includes(resModel);
+        if (!isListOrTree || !TARGET_MODELS.includes(resModel)) {
+            return false;
+        }
+        if (user.isAdmin) {
+            return true;
+        }
+        return await user.hasGroup("base.group_allow_export");
     },
     Component: ExportAllFieldsMenuItem,
     groupNumber: 20,

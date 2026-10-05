@@ -321,6 +321,10 @@ class ResUsers(models.Model):
             if sales_grp and self.ids:
                 sales_grp.sudo().write({'user_ids': [(4, uid) for uid in self.ids]})
 
+        if 'crm_job_id' in vals and vals['crm_job_id']:
+            job = self.env['hr.job'].browse(vals['crm_job_id'])
+            self._apply_job_permissions(job)
+
         if 'perm_export' in vals:
             export_grp = self.env.ref('base.group_allow_export', raise_if_not_found=False)
             if export_grp and self.ids:
@@ -329,9 +333,6 @@ class ResUsers(models.Model):
                 else:
                     export_grp.sudo().write({'user_ids': [(3, uid) for uid in self.ids]})
 
-        if 'crm_job_id' in vals and vals['crm_job_id']:
-            job = self.env['hr.job'].browse(vals['crm_job_id'])
-            self._apply_job_permissions(job)
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
         return res

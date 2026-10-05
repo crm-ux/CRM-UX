@@ -1189,9 +1189,10 @@ class DashboardStats(models.Model):
                     is_admin or target_user.has_group('base.group_system')
                 ),
                 'can_export': bool(
-                    target_user.perm_export == 'export' or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_export == 'export') or
-                    is_admin or target_user.has_group('base.group_system')
+                    is_admin or target_user.has_group('base.group_system') or (
+                        target_user.perm_export == 'export' if target_user.perm_export in ('export', 'none')
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_export == 'export')
+                    )
                 ),
                 'is_manager': bool(
                     target_user.crm_subordinate_ids or

@@ -11,7 +11,13 @@ class CustomExport(Export):
         user = request.env.user
         if user._is_admin() or user.has_group('base.group_system'):
             return True
-        perm = user.perm_export or (user.crm_job_id.perm_export if user.crm_job_id else 'none')
+        # User-specific form setting takes priority over Master Role (Job Position)
+        if user.perm_export in ('export', 'none'):
+            perm = user.perm_export
+        elif user.crm_job_id and user.crm_job_id.perm_export:
+            perm = user.crm_job_id.perm_export
+        else:
+            perm = 'none'
         if perm != 'export':
             raise UserError(_("Access Denied: You do not have permission to export Excel data."))
         return True
@@ -24,7 +30,7 @@ class CustomExport(Export):
         try:
             params = json.loads(data) if isinstance(data, str) else data
             model = params.get('model')
-            
+
             TARGET_FILENAMES = {
                 'equipment.master': 'Equipment Master.xlsx',
                 'service.ticket': 'Service Ticket.xlsx',
