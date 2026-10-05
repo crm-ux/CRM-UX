@@ -11,7 +11,7 @@ class ProductTemplate(models.Model):
     @api.model
     def _user_can(self, perm_name, default=False):
         user = self.env.user
-        if user.has_group('base.group_system') or user.id in (2, 10, 11):
+        if user._is_admin() or user.has_group('base.group_system'):
             return True
         if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
             return bool(getattr(user.crm_job_id, perm_name))
@@ -22,7 +22,7 @@ class ProductTemplate(models.Model):
     def get_views(self, views, options=None):
         res = super(ProductTemplate, self).get_views(views, options=options)
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             can_create = self._user_can('perm_product_create', False)
             can_write = self._user_can('perm_product_write', False)
             can_delete = self._user_can('perm_product_unlink', False)
@@ -44,7 +44,7 @@ class ProductTemplate(models.Model):
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if operation == 'create' and not self._user_can('perm_product_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create Product records."))
@@ -62,14 +62,14 @@ class ProductTemplate(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_product_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Product records."))
         return super(ProductTemplate, self).create(vals_list)
 
     def write(self, vals):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_product_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Product records."))
         return super(ProductTemplate, self).write(vals)
@@ -77,7 +77,7 @@ class ProductTemplate(models.Model):
     def unlink(self):
         for rec in self:
             user = self.env.user
-            if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+            if not user._is_admin() and not user.has_group('base.group_system'):
                 if not self._user_can('perm_product_unlink', False):
                     raise UserError(_("Access Denied: You do not have permission to delete Product Catalog records."))
         return super(ProductTemplate, self).unlink()

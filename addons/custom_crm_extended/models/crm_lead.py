@@ -519,9 +519,15 @@ class ResPartnerRestrict(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        allowed_ids = [2, 10, 11]  # Admin, Dhruvil and Himanshu Patel
-        if self.env.uid not in allowed_ids and not self.env.su:
+        user = self.env.user
+        can_create = (
+            user._is_admin() or 
+            user.has_group('base.group_system') or 
+            user.perm_company == 'create' or 
+            (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+        )
+        if not can_create and not self.env.su:
             for vals in vals_list:
                 if vals.get('is_company'):
-                    raise UserError('Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.')
+                    raise UserError(_("Access Denied: You do not have permission to create company records. Please contact your Administrator."))
         return super().create(vals_list) 

@@ -240,7 +240,7 @@ class EquipmentMasterWizard(models.TransientModel):
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             can_create = user.perm_equipment_create or (user.crm_job_id and user.crm_job_id.perm_equipment_create)
             if not can_create:
                 raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
@@ -249,7 +249,7 @@ class EquipmentMasterWizard(models.TransientModel):
     def action_save_equipment(self):
         self.ensure_one()
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             can_create = user.perm_equipment_create or (user.crm_job_id and user.crm_job_id.perm_equipment_create)
             if not can_create:
                 raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))

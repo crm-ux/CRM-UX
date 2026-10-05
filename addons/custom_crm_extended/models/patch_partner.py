@@ -29,7 +29,7 @@ class ResCompanyDefaultCard(models.Model):
 
     def _user_can_create_company(self):
         user = self.env.user
-        if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+        if user._is_admin() or user.has_group('base.group_system'):
             return True
         perm = user.perm_company or (user.crm_job_id.perm_company if user.crm_job_id else 'none')
         return perm == 'create'

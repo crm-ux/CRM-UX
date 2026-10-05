@@ -936,7 +936,7 @@ class DashboardStats(models.Model):
         perm = target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')
 
         user_filter = []
-        if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
+        if not is_admin and not target_user._is_admin() and not target_user.has_group('base.group_system'):
             if perm in ('all', 'admin'):
                 user_filter = []
             else:
@@ -1008,7 +1008,7 @@ class DashboardStats(models.Model):
         ])
 
         # Hierarchy domains for Equipment, Service Ticket, AMC
-        if not is_admin and uid not in (2, 10, 11) and not target_user.has_group('base.group_system'):
+        if not is_admin and not target_user._is_admin() and not target_user.has_group('base.group_system'):
             eq_filter = target_user._get_hierarchy_domain('perm_equipment', False)
             ticket_filter = target_user._get_hierarchy_domain('perm_service_ticket', 'engineer_id')
             amc_filter = target_user._get_hierarchy_domain('perm_amc', False)

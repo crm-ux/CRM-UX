@@ -75,7 +75,7 @@ class ResUsers(models.Model):
     def _get_hierarchy_domain(self, perm_field, user_field='user_id'):
         """Return the exact record-rule domain based on user hierarchy permission."""
         self.ensure_one()
-        if self.id in (2, 10, 11) or getattr(self, perm_field, None) in ('all', 'admin'):
+        if self._is_admin() or self.has_group('base.group_system') or getattr(self, perm_field, None) in ('all', 'admin'):
             return [(1, '=', 1)]
         perm = getattr(self, perm_field, None) or (getattr(self.crm_job_id, perm_field, None) if self.crm_job_id else 'own')
         if perm in ('none', False):
@@ -93,7 +93,7 @@ class ResUsers(models.Model):
     def get_accessible_employees(self, perm_field='perm_lead_quote'):
         """Returns list of {id, name} of accessible users for the current user if more than 1 user is accessible."""
         user = self.env.user
-        if user.id in (2, 10, 11) or user.has_group('base.group_system'):
+        if user._is_admin() or user.has_group('base.group_system'):
             all_users = self.sudo().search([('share', '=', False), ('active', '=', True)], order='name asc')
             return [{'id': u.id, 'name': u.name} for u in all_users]
 
@@ -205,7 +205,7 @@ class ResUsers(models.Model):
         """Applies permissions defined on hr.job down to this user (1-way sync)."""
         sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
         for user in self:
-            if not user.id or user.id in (2, 10, 11) or user.has_group('base.group_system'):
+            if not user.id or user._is_admin() or user.has_group('base.group_system'):
                 continue
 
             user_vals = {
@@ -341,7 +341,7 @@ class ResUsers(models.Model):
         try:
             all_companies = self.env['res.company'].sudo().search([])
             for user in users:
-                if user.share or user.id in (2, 10, 11):
+                if user.share or user._is_admin() or user.has_group('base.group_system'):
                     continue
                 # Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]

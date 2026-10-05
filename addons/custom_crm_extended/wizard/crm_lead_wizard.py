@@ -20,8 +20,9 @@ class CrmLeadWizard(models.TransientModel):
     partner_name = fields.Char(string="Company Name")
     @api.model
     def _get_company_field_options(self):
-        allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
-        if self.env.uid in allowed_ids:
+        user = self.env.user
+        can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+        if can_create:
             return {'quick_create': True, 'no_open': False}
         return {'quick_create': False, 'no_create': True, 'no_open': False}
 
@@ -38,9 +39,10 @@ class CrmLeadWizard(models.TransientModel):
 
     @api.depends_context('uid')
     def _compute_can_create_company(self):
-        allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
+        user = self.env.user
+        can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
         for rec in self:
-            rec.can_create_company = self.env.uid in allowed_ids
+            rec.can_create_company = bool(can_create)
     x_customer_type = fields.Selection([
         ("new_new", "New Customer - New Product"),
         ("new_existing", "New Customer - Existing Product"),
@@ -134,8 +136,9 @@ class CrmLeadWizard(models.TransientModel):
     @api.onchange('partner_company_id')
     def _onchange_partner_company_id(self):
         if self.partner_company_id:
-            allowed_ids = [2, 10, 11]  # Admin, Dhruvil and Himanshu
-            if self.env.uid not in allowed_ids:
+            user = self.env.user
+            can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            if not can_create:
                 # Check if this partner was just created (not in original domain)
                 partner = self.partner_company_id
                 existing = self.env['res.partner'].search([
@@ -153,8 +156,8 @@ class CrmLeadWizard(models.TransientModel):
                         self.partner_company_id = False
                         self.partner_name = False
                         return {'warning': {
-                            'title': 'Not Allowed',
-                            'message': 'Only Admin, Dhruvil Shah and Himanshu Patel can create new companies.'
+                            'title': 'Access Denied',
+                            'message': 'You do not have permission to create new companies. Please select an existing company or contact your Administrator.'
                         }}
             self.partner_name = self.partner_company_id.name
 
@@ -220,16 +223,17 @@ class CrmLeadWizard(models.TransientModel):
             self.x_mobile = child_mobile or child_phone
 
             # Check if newly created by unauthorized user
-            allowed_ids = [2, 10, 11]  # Admin, Dhruvil, Himanshu
-            if self.env.uid not in allowed_ids:
+            user = self.env.user
+            can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            if not can_create:
                 # Check if this is a new record (just created)
                 # Check if the record is completely new and unsaved
                 if not self.partner_company_id.id:
                     self.partner_company_id = False
                     self.partner_name = False
                     return {'warning': {
-                        'title': 'Not Allowed',
-                        'message': 'You are not allowed to create new companies. Please select an existing one.'
+                        'title': 'Access Denied',
+                        'message': 'You do not have permission to create new companies. Please select an existing company or contact your Administrator.'
                     }}
 
     @api.onchange("partner_id")

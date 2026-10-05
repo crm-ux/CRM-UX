@@ -86,7 +86,7 @@ class CrmDashboard extends Component {
         });
 
         // Check admin status reliably using user service
-        const isAdm = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
+        const isAdm = Boolean(user.isAdmin);
         this.state.isAdmin = isAdm;
 
         // Restore View As user from storage if active
@@ -189,7 +189,7 @@ class CrmDashboard extends Component {
         if (this.state.viewAsUserId) {
             this.state.isAdmin = false;
         } else {
-            this.state.isAdmin = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
+            this.state.isAdmin = Boolean(user.isAdmin);
         }
     }
 
@@ -725,14 +725,22 @@ class CrmDashboard extends Component {
     async openViewAsModal() {
         this.state.userDropdownOpen = false;
         try {
+            // Exclude current logged in user
+            const excludeIds = [user.userId];
             const users = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
                 method: "search_read",
-                args: [[["active", "=", true], ["share", "=", false]]],
-                kwargs: { fields: ["id", "name"], limit: 50 }
+                args: [[
+                    ["active", "=", true],
+                    ["share", "=", false],
+                    ["id", "not in", excludeIds]
+                ]],
+                kwargs: { fields: ["id", "name"], limit: 100, order: "name asc" }
             });
-            this.state.internalUsers = users || [];
-            this.state.selectedViewAsId = this.state.viewAsUserId || (users[0] ? users[0].id : null);
+            this.state.internalUsers = (users || []).filter(u =>
+                u.id !== user.userId && u.name.toLowerCase() !== "administrator"
+            );
+            this.state.selectedViewAsId = this.state.viewAsUserId || (this.state.internalUsers[0] ? this.state.internalUsers[0].id : null);
             this.state.viewAsModalOpen = true;
         } catch (e) { }
     }
@@ -768,7 +776,7 @@ class CrmDashboard extends Component {
         this.state.viewAsUserId = null;
         this.state.viewAsUserName = "";
         this.state.selectedViewAsId = null;
-        this.state.isAdmin = Boolean(user.isAdmin || [2, 10, 11].includes(user.userId));
+        this.state.isAdmin = Boolean(user.isAdmin);
         try {
             sessionStorage.removeItem("crm_view_as_uid");
             sessionStorage.removeItem("crm_view_as_uname");

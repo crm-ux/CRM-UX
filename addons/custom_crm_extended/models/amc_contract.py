@@ -211,7 +211,7 @@ class AmcContract(models.Model):
 
     def _user_can(self, perm_name, default=False):
         user = self.env.user
-        if user.has_group('base.group_system') or user.id in (2, 10, 11):
+        if user._is_admin() or user.has_group('base.group_system'):
             return True
         if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
             return bool(getattr(user.crm_job_id, perm_name))
@@ -222,7 +222,7 @@ class AmcContract(models.Model):
     def get_views(self, views, options=None):
         res = super(AmcContract, self).get_views(views, options=options)
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             can_create = self._user_can('perm_amc_create', False)
             can_write = self._user_can('perm_amc_write', False)
             can_delete = self._user_can('perm_amc_unlink', False)
@@ -244,7 +244,7 @@ class AmcContract(models.Model):
     @api.model
     def check_access_rights(self, operation, raise_exception=True):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if operation == 'create' and not self._user_can('perm_amc_create', False):
                 if raise_exception:
                     raise UserError(_("Access Denied: You do not have permission to create AMC Contracts."))
@@ -262,7 +262,7 @@ class AmcContract(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_amc_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create AMC Contracts."))
         for vals in vals_list:
@@ -277,7 +277,7 @@ class AmcContract(models.Model):
 
     def write(self, vals):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_amc_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update AMC Contracts."))
         new_status = vals.get('contract_status')
@@ -294,7 +294,7 @@ class AmcContract(models.Model):
 
     def unlink(self):
         user = self.env.user
-        if not user.has_group('base.group_system') and user.id not in (2, 10, 11):
+        if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_amc_unlink', False):
                 raise UserError(_("Access Denied: You do not have permission to delete AMC Contracts."))
         return super().unlink()
