@@ -1755,19 +1755,32 @@
         font-size: 0.65rem !important;
     }
 
-    /* 3. AMC Renewals: Convert 4 cramped columns into a neat 2x2 Grid on mobile */
+    /* 3. AMC Renewals: Keep exact same 4-column timeline & track like web & tablet */
     .crm-amc-horizon-track {
-        display: none !important;
+        display: block !important;
+        margin: 0.35rem 0 1rem 0 !important;
     }
 
     .crm-amc-timeline-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.65rem !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 0.35rem !important;
     }
 
     .crm-timeline-step {
-        padding: 0.75rem 0.5rem !important;
-        min-height: 80px !important;
+        padding: 0.45rem 0.25rem !important;
+        min-height: auto !important;
+    }
+
+    .crm-timeline-step div:nth-child(2) {
+        font-size: 0.62rem !important;
+    }
+
+    .crm-timeline-step div:nth-child(3) {
+        font-size: 0.95rem !important;
+    }
+
+    .crm-timeline-step div:nth-child(4) {
+        font-size: 0.65rem !important;
     }
 }
 
@@ -1842,7 +1855,8 @@
 }
 
 .crm-view-as-row:hover {
-    background: #0b3d91 !important; /* Premium Dark Navy Blue */
+    background: #0b3d91 !important;
+    /* Premium Dark Navy Blue */
     color: #ffffff !important;
 }
 
