@@ -967,30 +967,47 @@
             </div>
 
             <!-- VIEW AS USER MODAL DIALOG (ADMIN ONLY) -->
-            <div class="crm-task-overlay" t-if="state.viewAsModalOpen" t-on-click="closeViewAsModal" style="align-items: flex-start; padding-top: 12vh;">
-                <div class="crm-task-dialog" style="max-width: 420px;" t-on-click.stop="">
+            <div class="crm-task-overlay" t-if="state.viewAsModalOpen" t-on-click="closeViewAsModal">
+                <div class="crm-task-dialog" style="max-width: 420px; position: relative;" t-on-click.stop="">
                     <div class="crm-task-header">
                         <h3 style="display:flex;align-items:center;gap:8px;">
                             <span>View Dashboard As User</span>
                         </h3>
                         <button class="crm-task-close" t-on-click="closeViewAsModal">✕</button>
                     </div>
-                    <div class="crm-task-body" style="padding: clamp(1rem, 2.5vw, 1.25rem); padding-bottom: clamp(2.5rem, 6vh, 4rem);">
+                    <div class="crm-task-body" style="padding: 1.25rem;">
                         <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 0.75rem;">
                             Select an internal user to preview the dashboard with their exact permissions, hierarchy visibility, and restricted menus.
                         </p>
                         <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Select User:</label>
-                        <div style="position: relative; width: 100%;">
-                            <select class="form-select" t-on-change="onViewAsSelect" 
-                                    style="width: 100%; padding: 0.65rem 2.2rem 0.65rem 0.9rem; border-radius: 8px; border: 1.5px solid #cbd5e1; background-color: #f8fafc; font-size: 0.9rem; font-weight: 500; appearance: none; outline: none; cursor: pointer;">
-                                <option value="" disabled="disabled" t-att-selected="!state.selectedViewAsId ? 'selected' : undefined">-- Choose a user --</option>
+                        <div class="crm-custom-select-box" style="position: relative; width: 100%;">
+                            <!-- Input trigger showing selected name or placeholder -->
+                            <div style="width: 100%; padding: 0.65rem 0.9rem; border-radius: 8px; border: 1.5px solid #cbd5e1; background-color: #f8fafc; font-size: 0.9rem; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;"
+                                 t-on-click="() => { this.state.viewAsDropdownOpen = !this.state.viewAsDropdownOpen; }">
+                                <span t-att-style="state.selectedViewAsId ? 'color: #0f172a;' : 'color: #64748b;'">
+                                    <t t-if="state.selectedViewAsId">
+                                        <t t-esc="(state.internalUsers.find(u => u.id === state.selectedViewAsId) || {}).name || '-- Choose a user --'"/>
+                                    </t>
+                                    <t t-else="">-- Choose a user --</t>
+                                </span>
+                                <i class="fa fa-chevron-down" style="color: #64748b; font-size: 0.75rem;"></i>
+                            </div>
+
+                            <!-- Scrollable list with fixed max height -->
+                            <div t-if="state.viewAsDropdownOpen" 
+                                 style="position: absolute; top: calc(100% + 4px); left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000;">
+                                <div style="padding: 0.55rem 0.9rem; font-size: 0.88rem; cursor: pointer; color: #64748b; border-bottom: 1px solid #f1f5f9;"
+                                     t-on-click="() => { this.state.selectedViewAsId = null; this.state.viewAsDropdownOpen = false; }">
+                                    -- Choose a user --
+                                </div>
                                 <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
-                                    <option t-att-value="u.id" t-att-selected="state.selectedViewAsId === u.id ? 'selected' : undefined">
+                                    <div style="padding: 0.55rem 0.9rem; font-size: 0.88rem; cursor: pointer; color: #1e293b; border-bottom: 1px solid #f1f5f9;"
+                                         t-att-style="state.selectedViewAsId === u.id ? 'background: #e0f2fe; font-weight: 600;' : ''"
+                                         t-on-click="() => { this.state.selectedViewAsId = u.id; this.state.viewAsDropdownOpen = false; }">
                                         <t t-esc="u.name"/>
-                                    </option>
+                                    </div>
                                 </t>
-                            </select>
-                            <i class="fa fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #64748b; font-size: 0.75rem;"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="crm-task-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.25rem;border-top:1px solid var(--border-color);background:#f8fafc;">

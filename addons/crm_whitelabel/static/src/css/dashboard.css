@@ -1201,9 +1201,9 @@
     -webkit-backdrop-filter: blur(4px) !important;
     z-index: 9999999 !important;
     display: flex !important;
-    align-items: flex-start !important;
+    align-items: center !important;
     justify-content: center !important;
-    padding-top: 12vh !important;
+    padding: 1rem !important;
 }
 
 .crm-task-dialog {

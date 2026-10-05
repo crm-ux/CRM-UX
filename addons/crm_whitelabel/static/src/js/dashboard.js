@@ -49,6 +49,7 @@ class CrmDashboard extends Component {
             viewAsModalOpen: false,
             internalUsers: [],
             selectedViewAsId: null,
+            viewAsDropdownOpen: false,
             adminMenuOpen: false, notifOpen: false,
             notifCount: 0, notifications: [],
             searchQuery: "", searchResults: [], searchOpen: false, mobileSearchOpen: false,
@@ -741,7 +742,8 @@ class CrmDashboard extends Component {
 
     async openViewAsModal() {
         this.state.userDropdownOpen = false;
-        this.state.selectedViewAsId = false;
+        this.state.selectedViewAsId = null;
+        this.state.viewAsDropdownOpen = false;
         try {
             // Exclude current logged in user
             const excludeIds = [user.userId];
