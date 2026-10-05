@@ -45,17 +45,28 @@ class ResUsers(models.Model):
         if perm in ('department', 'all', 'admin'):
             depts = u.crm_department_ids | u.crm_department_id
             if u.crm_job_id:
-                depts |= u.crm_job_id.department_id | u.crm_job_id.sub_department_ids
+                if u.crm_job_id.department_id:
+                    depts |= u.crm_job_id.department_id
+                if u.crm_job_id.sub_department_ids:
+                    depts |= u.crm_job_id.sub_department_ids
             if u.employee_id and u.employee_id.department_id:
                 depts |= u.employee_id.department_id
 
             all_dept_ids = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)]).ids if depts else []
             if all_dept_ids:
+                # 1. Direct from hr.employee (where Odoo stores real employee departments)
+                dept_emps = self.env['hr.employee'].sudo().search([
+                    ('department_id', 'in', all_dept_ids),
+                    ('user_id', '!=', False)
+                ])
+                uids.update(dept_emps.mapped('user_id').ids)
+
+                # 2. From res.users fields
                 dept_users = self.env['res.users'].sudo().search([
                     '|', '|',
                     ('crm_department_id', 'in', all_dept_ids),
                     ('crm_job_id.department_id', 'in', all_dept_ids),
-                    ('employee_ids.department_id', 'in', all_dept_ids)
+                    ('crm_job_id.sub_department_ids', 'in', all_dept_ids)
                 ])
                 uids.update(dept_users.ids)
 
