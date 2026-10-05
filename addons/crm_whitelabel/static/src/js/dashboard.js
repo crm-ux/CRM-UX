@@ -317,12 +317,12 @@ class CrmDashboard extends Component {
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
-            const stageQuotes = quotesDraft;
-            const stageSent = quotesSent;
-            const stageNegotiation = quotesNeg;
-            const stageOrderExp = quotesOrderExp;
-            const stageWon = won;
-            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
+            const stageQuotes = lc[30] || 0;
+            const stageSent = lc[35] || 0;
+            const stageNegotiation = lc[40] || 0;
+            const stageOrderExp = lc[50] || 0;
+            const stageWon = lc[90] || 0;
+            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
             const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
@@ -499,27 +499,26 @@ class CrmDashboard extends Component {
             won: "Won"
         };
 
-        // Mutually exclusive strict domains for each quote stage:
-        let stageDomain = [];
-        if (stage === 'won') {
-            // ONLY truly Won quotes/orders, never cancelled
-            stageDomain = [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"]];
-        } else {
-            // In-progress quote stages: exact stage match, exclude confirmed sale, won, lost, and cancelled
-            stageDomain = [
-                ["x_quote_stage", "=", stage],
-                ["state", "not in", ["sale", "cancel"]],
-                ["x_quote_stage", "not in", ["won", "lost"]]
-            ];
+        const seqMap = {
+            draft: 30,
+            sent: 35,
+            negotiation: 40,
+            order_expected: 50,
+            won: 90
+        };
+        const seq = seqMap[stage] || 30;
+        let leadDomain = [["active", "=", true], ["x_stage_sequence", "=", seq]];
+        if (seq !== 90) {
+            leadDomain.push(["x_stage_sequence", "!=", 90]);
         }
 
         this.go({
             type: "ir.actions.act_window",
-            name: (labels[stage] || stage) + " Quotations",
-            res_model: "sale.order",
+            name: (labels[stage] || stage) + " Leads & Deals",
+            res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
-            domain: [...stageDomain, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies, create: false, hide_invoice_status: stage !== 'won' }
+            domain: [...leadDomain, ...cd],
+            context: { allowed_company_ids: this.state.selectedCompanies }
         });
     }
 
