@@ -760,7 +760,7 @@ class CrmDashboard extends Component {
             this.state.internalUsers = (users || []).filter(u =>
                 u.id !== user.userId && u.name.toLowerCase() !== "administrator"
             );
-            this.state.selectedViewAsId = this.state.viewAsUserId || (this.state.internalUsers[0] ? this.state.internalUsers[0].id : null);
+            this.state.selectedViewAsId = null;
             this.state.viewAsModalOpen = true;
         } catch (e) { }
     }

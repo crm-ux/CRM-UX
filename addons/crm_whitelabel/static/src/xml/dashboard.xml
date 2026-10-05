@@ -968,7 +968,7 @@
 
             <!-- VIEW AS USER MODAL DIALOG (ADMIN ONLY) -->
             <div class="crm-task-overlay" t-if="state.viewAsModalOpen" t-on-click="closeViewAsModal">
-                <div class="crm-task-dialog" style="max-width: 420px; position: relative;" t-on-click.stop="">
+                <div class="crm-task-dialog" style="max-width: 420px; position: relative; overflow: visible !important;" t-on-click.stop="">
                     <div class="crm-task-header">
                         <h3 style="display:flex;align-items:center;gap:8px;">
                             <span>View Dashboard As User</span>
