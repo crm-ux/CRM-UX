@@ -44,6 +44,7 @@ class CrmLead(models.Model):
     # ------------------------------------------------------------------
     # 1. ASSIGNMENT & OWNERSHIP
     # ------------------------------------------------------------------
+    x_created_by_id = fields.Many2one('res.users', string='Created By', default=lambda self: self.env.user, readonly=True, store=True)
     x_original_owner_id = fields.Many2one('res.users', string='Original Owner', store=True)
     x_assign_to_id = fields.Many2one(
         'res.users',
@@ -183,7 +184,7 @@ class CrmLead(models.Model):
         for lead in self:
             if is_manager:
                 lead.x_assign_to_readonly = False
-            elif not lead.user_id and lead.create_uid == user:
+            elif not lead.user_id and (lead.create_uid == user or lead.x_created_by_id == user):
                 # Creator can assign until an assignee is decided
                 lead.x_assign_to_readonly = False
             else:
