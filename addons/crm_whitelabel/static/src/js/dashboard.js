@@ -322,7 +322,7 @@ class CrmDashboard extends Component {
             const stageNegotiation = quotesNeg;
             const stageOrderExp = quotesOrderExp;
             const stageWon = won;
-            const leadsTotal = Object.values(lc).reduce((a, b) => a + b, 0);
+            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
             const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
@@ -642,7 +642,13 @@ class CrmDashboard extends Component {
             name: "All Pipeline Leads",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
-            domain: [["active", "=", true], ...cd],
+            domain: [
+                ["active", "=", true],
+                "|",
+                ["x_stage_sequence", "<", 30],
+                ["order_ids.state", "!=", "cancel"],
+                ...cd
+            ],
             context: {
                 allowed_company_ids: this.state.selectedCompanies,
                 from_total_pipeline: true,
