@@ -31,7 +31,12 @@ class ResCompanyDefaultCard(models.Model):
         user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):
             return True
-        perm = user.perm_company or (user.crm_job_id.perm_company if user.crm_job_id else 'none')
+        if user.perm_company in ('create', 'none'):
+            perm = user.perm_company
+        elif user.crm_job_id and user.crm_job_id.perm_company:
+            perm = user.crm_job_id.perm_company
+        else:
+            perm = 'none'
         return perm == 'create'
 
     @api.model

@@ -1156,40 +1156,41 @@ class DashboardStats(models.Model):
                 'product_read': bool(
                     target_user.perm_product_read or target_user.perm_product_write or target_user.perm_product_create or
                     (target_user.crm_job_id and (target_user.crm_job_id.perm_product_read or target_user.crm_job_id.perm_product_write or target_user.crm_job_id.perm_product_create)) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'customer_read': bool(
                     target_user.perm_customer_read or target_user.perm_customer_write or target_user.perm_customer_create or
                     (target_user.crm_job_id and (target_user.crm_job_id.perm_customer_read or target_user.crm_job_id.perm_customer_write or target_user.crm_job_id.perm_customer_create)) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'lead_quote_read': bool(
                     (target_user.perm_lead_quote and target_user.perm_lead_quote != 'none') or
                     (target_user.crm_job_id and target_user.crm_job_id.perm_lead_quote and target_user.crm_job_id.perm_lead_quote != 'none') or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'equipment_read': bool(
                     (target_user.perm_equipment and target_user.perm_equipment != 'none' and target_user.perm_equipment_read) or
                     (target_user.crm_job_id and target_user.crm_job_id.perm_equipment and target_user.crm_job_id.perm_equipment != 'none' and target_user.crm_job_id.perm_equipment_read) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'ticket_read': bool(
                     (target_user.perm_service_ticket and target_user.perm_service_ticket != 'none' and target_user.perm_ticket_read) or
                     (target_user.crm_job_id and target_user.crm_job_id.perm_service_ticket and target_user.crm_job_id.perm_service_ticket != 'none' and target_user.crm_job_id.perm_ticket_read) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'amc_read': bool(
                     (target_user.perm_amc and target_user.perm_amc != 'none' and target_user.perm_amc_read) or
                     (target_user.crm_job_id and target_user.crm_job_id.perm_amc and target_user.crm_job_id.perm_amc != 'none' and target_user.crm_job_id.perm_amc_read) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'can_create_company': bool(
-                    target_user.perm_company == 'create' or
-                    (target_user.crm_job_id and target_user.crm_job_id.perm_company == 'create') or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        target_user.perm_company == 'create' if target_user.perm_company in ('create', 'none')
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_company == 'create')
+                    )
                 ),
                 'can_export': bool(
-                    is_admin or target_user.has_group('base.group_system') or (
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
                         target_user.perm_export == 'export' if target_user.perm_export in ('export', 'none')
                         else (target_user.crm_job_id and target_user.crm_job_id.perm_export == 'export')
                     )
@@ -1202,7 +1203,7 @@ class DashboardStats(models.Model):
                         target_user.crm_job_id.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or
                         target_user.crm_job_id.perm_equipment in ('subordinates', 'department', 'all', 'admin')
                     )) or
-                    is_admin or target_user.has_group('base.group_system')
+                    target_user._is_admin() or target_user.has_group('base.group_system')
                 ),
                 'scope_lead_quote': target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own'),
                 'scope_equipment': target_user.perm_equipment or (target_user.crm_job_id.perm_equipment if target_user.crm_job_id else 'own'),

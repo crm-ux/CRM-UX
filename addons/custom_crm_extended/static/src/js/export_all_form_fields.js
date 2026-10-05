@@ -142,17 +142,11 @@ class ExportAllFieldsMenuItem extends Component {
 }
 
 cogMenuRegistry.add("export_all_form_fields", {
-    isDisplayed: async (env) => {
+    isDisplayed: (env) => {
         const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
         const viewType = env.config?.viewType;
         const isListOrTree = !viewType || viewType === "list" || viewType === "tree";
-        if (!isListOrTree || !TARGET_MODELS.includes(resModel)) {
-            return false;
-        }
-        if (user.isAdmin) {
-            return true;
-        }
-        return await user.hasGroup("base.group_allow_export");
+        return isListOrTree && TARGET_MODELS.includes(resModel);
     },
     Component: ExportAllFieldsMenuItem,
     groupNumber: 20,

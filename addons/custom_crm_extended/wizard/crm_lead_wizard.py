@@ -40,7 +40,13 @@ class CrmLeadWizard(models.TransientModel):
     @api.depends_context('uid')
     def _compute_can_create_company(self):
         user = self.env.user
-        can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+        can_create = (
+            user._is_admin() or 
+            user.has_group('base.group_system') or (
+                user.perm_company == 'create' if user.perm_company in ('create', 'none')
+                else (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            )
+        )
         for rec in self:
             rec.can_create_company = bool(can_create)
     x_customer_type = fields.Selection([
@@ -137,7 +143,13 @@ class CrmLeadWizard(models.TransientModel):
     def _onchange_partner_company_id(self):
         if self.partner_company_id:
             user = self.env.user
-            can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            can_create = (
+                user._is_admin() or 
+                user.has_group('base.group_system') or (
+                    user.perm_company == 'create' if user.perm_company in ('create', 'none')
+                    else (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+                )
+            )
             if not can_create:
                 # Check if this partner was just created (not in original domain)
                 partner = self.partner_company_id

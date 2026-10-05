@@ -691,6 +691,10 @@ class CrmDashboard extends Component {
     }
 
     openEquipmentMaster() {
+        if (!this.state.isAdmin && !this.state.canViewEquipment) {
+            this.showAccessDenied("Equipment Master");
+            return;
+        }
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "Equipment Master Creation",
@@ -703,6 +707,10 @@ class CrmDashboard extends Component {
     }
 
     newServiceTicket() {
+        if (!this.state.isAdmin && !this.state.canViewTicket) {
+            this.showAccessDenied("Service Tickets");
+            return;
+        }
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "Service Ticket Creation",
@@ -836,6 +844,10 @@ class CrmDashboard extends Component {
 
 
     createAmc() {
+        if (!this.state.isAdmin && !this.state.canViewAmc) {
+            this.showAccessDenied("AMC Contracts");
+            return;
+        }
         this.actionService.doAction({
             type: "ir.actions.act_window",
             name: "New AMC Contract",
@@ -910,6 +922,10 @@ class CrmDashboard extends Component {
     }
 
     async newLead() {
+        if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
+            this.showAccessDenied("Leads & Pipeline");
+            return;
+        }
         const selected = this.state.selectedCompanies;
         const companyId = (selected && selected.length === 1) ? selected[0] : user.activeCompanies[0].id;
         const wizardId = await this.ormService.create("crm.lead.wizard", [{ company_id: companyId, step: 1 }]);

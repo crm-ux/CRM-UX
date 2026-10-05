@@ -522,9 +522,10 @@ class ResPartnerRestrict(models.Model):
         user = self.env.user
         can_create = (
             user._is_admin() or 
-            user.has_group('base.group_system') or 
-            user.perm_company == 'create' or 
-            (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            user.has_group('base.group_system') or (
+                user.perm_company == 'create' if user.perm_company in ('create', 'none')
+                else (user.crm_job_id and user.crm_job_id.perm_company == 'create')
+            )
         )
         if not can_create and not self.env.su:
             for vals in vals_list:
