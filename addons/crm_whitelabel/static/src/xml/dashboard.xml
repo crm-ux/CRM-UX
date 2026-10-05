@@ -249,7 +249,7 @@
             </header>
 
             <!-- VIEW AS USER BANNER -->
-            <div t-if="state.viewAsUserId" style="background: #fef3c7; color: #92400e; padding: 0.65rem 1.25rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 600; z-index: 100;">
+            <div t-if="state.viewAsUserId" style="background: #fef3c7; color: #92400e; padding: 0.65rem 1.25rem; border-bottom: 1px solid #fde68a; display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; font-weight: 600; position: relative; z-index: 10;">
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <span style="font-size: 1.1rem;">👁</span>
                     <span>Currently viewing dashboard with permissions of: <strong><t t-esc="state.viewAsUserName"/></strong></span>

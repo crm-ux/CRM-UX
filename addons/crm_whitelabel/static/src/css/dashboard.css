@@ -267,7 +267,7 @@
     justify-content: space-between;
     position: sticky;
     top: 0;
-    z-index: 90;
+    z-index: 900;
 }
 
 .crm-topbar-left {
@@ -413,7 +413,7 @@
     border-radius: 0.75rem;
     box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
     display: none;
-    z-index: 100;
+    z-index: 1050;
     animation: crmFadeSlide 0.2s ease-out;
 }
 
