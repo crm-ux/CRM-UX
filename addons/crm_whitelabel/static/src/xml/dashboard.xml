@@ -981,14 +981,18 @@
                             Select an internal user to preview the dashboard with their exact permissions, hierarchy visibility, and restricted menus.
                         </p>
                         <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Select User:</label>
-                        <select class="crm-task-input" t-on-change="onViewAsSelect" style="width: 100%; padding: 0.6rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.88rem; outline: none;">
-                            <option value="">-- Choose a user --</option>
-                            <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
-                                <option t-att-value="u.id" t-att-selected="u.id === state.selectedViewAsId ? 'selected' : undefined">
-                                    <t t-esc="u.name"/>
-                                </option>
-                            </t>
-                        </select>
+                        <div style="position: relative; width: 100%;">
+                            <select class="form-select" t-on-change="onViewAsSelect" 
+                                    style="width: 100%; padding: 0.65rem 2.2rem 0.65rem 0.9rem; border-radius: 8px; border: 1.5px solid #cbd5e1; background-color: #f8fafc; font-size: 0.9rem; font-weight: 500; appearance: none; outline: none; cursor: pointer;">
+                                <option value="">-- Choose a user --</option>
+                                <t t-foreach="state.internalUsers" t-as="u" t-key="u.id">
+                                    <option t-att-value="u.id" t-att-selected="state.selectedViewAsId === u.id">
+                                        <t t-esc="u.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <i class="fa fa-chevron-down" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #64748b; font-size: 0.75rem;"></i>
+                        </div>
                     </div>
                     <div class="crm-task-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.25rem;border-top:1px solid var(--border-color);background:#f8fafc;">
                         <button class="crm-task-cancel-btn" t-on-click="closeViewAsModal">Cancel</button>
