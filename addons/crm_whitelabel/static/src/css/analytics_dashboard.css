@@ -1,6 +1,6 @@
 /* ==========================================================================
    CUSTOM ANALYTICS & INSIGHTS DASHBOARD PAGE
-   Modern Fluid & Responsive Tokens (rem, clamp, relative units)
+   Modern Fluid & Responsive Tokens (Full Width Edge-to-Edge Layout)
    ========================================================================== */
 
 :root {
@@ -11,7 +11,8 @@
     --crm-an-primary-soft: #eff6ff;
     --crm-an-text-dark: var(--text-dark, #0f172a);
     --crm-an-text-muted: var(--text-muted, #64748b);
-    --crm-an-header-h: 3rem; /* 48px standard Odoo control panel */
+    --crm-an-header-h: 3rem;
+    /* 48px standard Odoo control panel */
     --crm-an-radius-sm: 0.375rem;
     --crm-an-radius-md: 0.5rem;
     --crm-an-radius-lg: 0.875rem;
@@ -20,16 +21,18 @@
 .crm-analytics-page {
     background-color: var(--crm-an-bg);
     min-height: 100vh;
+    height: 100%;
     font-family: inherit;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
 }
 
 /* Match exact Odoo ControlPanel Navbar height & alignment with fluid rem */
 .crm-analytics-page .o_control_panel {
     background: var(--crm-an-card-bg) !important;
     border-bottom: 1px solid var(--crm-an-border) !important;
-    padding: 0 clamp(0.75rem, 1.5vw, 1.25rem) !important;
+    padding: 0 clamp(0.75rem, 1.5vw, 1.5rem) !important;
     height: var(--crm-an-header-h) !important;
     min-height: var(--crm-an-header-h) !important;
     max-height: var(--crm-an-header-h) !important;
@@ -62,16 +65,17 @@
     padding: 0 !important;
 }
 
-/* Page Container - Fluid Width & Clamp Padding */
+/* Page Container - 100% FULL WIDTH Edge-to-Edge with Consistent Padding */
 .crm-analytics-container {
-    max-width: min(92vw, 1440px);
-    width: 100%;
-    margin: 0 auto;
-    padding: clamp(0.85rem, 2vw, 1.5rem);
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: 1 1 auto;
+    margin: 0 !important;
+    padding: clamp(0.85rem, 1.5vw, 1.5rem) clamp(1rem, 2vw, 1.75rem) clamp(1.25rem, 2.5vw, 2rem) clamp(1rem, 2vw, 1.75rem);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: clamp(0.85rem, 1.5vw, 1.35rem);
+    gap: clamp(0.85rem, 1.25vw, 1.25rem);
 }
 
 /* Header & Tabs */
@@ -79,12 +83,14 @@
     background: var(--crm-an-card-bg);
     border: 1px solid var(--crm-an-border);
     border-radius: var(--crm-an-radius-lg);
-    padding: clamp(1rem, 1.8vw, 1.35rem) clamp(1rem, 2vw, 1.6rem) 0 clamp(1rem, 2vw, 1.6rem);
+    padding: clamp(1rem, 1.6vw, 1.35rem) clamp(1.25rem, 2vw, 1.75rem) 0 clamp(1.25rem, 2vw, 1.75rem);
     box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .crm-analytics-title-box h2 {
-    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+    font-size: clamp(1.15rem, 1.6vw, 1.45rem);
     font-weight: 800;
     color: var(--crm-an-text-dark);
     margin: 0 0 0.25rem 0;
@@ -94,7 +100,7 @@
 .crm-analytics-title-box p {
     font-size: clamp(0.78rem, 0.9vw, 0.88rem);
     color: var(--crm-an-text-muted);
-    margin: 0 0 clamp(0.85rem, 1.5vw, 1.25rem) 0;
+    margin: 0 0 clamp(0.85rem, 1.3vw, 1.25rem) 0;
 }
 
 /* Tab Bar */
@@ -140,14 +146,17 @@
     border-radius: var(--crm-an-radius-md) var(--crm-an-radius-md) 0 0;
 }
 
-/* Tab Content Body */
+/* Tab Content Body - Expands vertically and horizontally */
 .crm-analytics-body {
     background: var(--crm-an-card-bg);
     border: 1px solid var(--crm-an-border);
     border-radius: var(--crm-an-radius-lg);
-    padding: clamp(1.5rem, 3vw, 2.5rem);
-    min-height: min(60vh, 450px);
+    padding: clamp(1.5rem, 2.5vw, 2.5rem);
+    flex: 1 1 auto;
+    min-height: calc(100vh - 260px);
     box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Blank Placeholder Inside Tab */
@@ -157,7 +166,8 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: clamp(2rem, 5vw, 3.5rem) 1rem;
+    min-height: clamp(240px, 35vh, 400px);
+    padding: clamp(2rem, 4vw, 3.5rem) 1rem;
     color: var(--crm-an-text-muted);
 }
 
@@ -203,5 +213,6 @@
 
     .crm-analytics-body {
         padding: 1.5rem 1rem;
+        min-height: auto;
     }
 }
