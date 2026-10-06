@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="crm_whitelabel.AnalyticsDashboard" owl="1">
+        <div class="crm-analytics-page">
+            <!-- TOP NAVBAR -->
+            <header class="crm-topbar">
+                <div class="crm-topbar-left">
+                    <button type="button" class="crm-nav-back-btn" t-on-click="goToDashboard" title="Back to Dashboard">
+                        <i class="fa fa-arrow-left"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <div class="crm-topbar-brand">
+                        <span class="crm-topbar-title">Analytics &amp; Insights</span>
+                    </div>
+                </div>
+
+                <div class="crm-topbar-right">
+                    <!-- Current Company Display -->
+                    <div class="crm-company-badge" t-if="state.currentCompany">
+                        <i class="fa fa-building-o"></i>
+                        <span><t t-esc="state.currentCompany"/></span>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="crm-user-profile">
+                        <div class="crm-avatar">
+                            <i class="fa fa-user"></i>
+                        </div>
+                        <div class="crm-user-info">
+                            <span class="crm-user-name"><t t-esc="state.userName"/></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN CONTENT CONTAINER -->
+            <main class="crm-analytics-container">
+                <!-- HEADER TITLE & TAB NAVIGATION -->
+                <div class="crm-analytics-header">
+                    <div class="crm-analytics-title-box">
+                        <h2>Business Performance &amp; Reports</h2>
+                        <p>Detailed breakdown and metrics across departments</p>
+                    </div>
+
+                    <!-- TAB BAR -->
+                    <div class="crm-analytics-tabs">
+                        <button type="button" 
+                                class="crm-analytics-tab-btn" 
+                                t-att-class="state.activeTab === 'sales' ? 'active' : ''" 
+                                t-on-click="() => this.setTab('sales')">
+                            <i class="fa fa-line-chart"></i>
+                            <span>Sales &amp; Revenue</span>
+                        </button>
+                        <button type="button" 
+                                class="crm-analytics-tab-btn" 
+                                t-att-class="state.activeTab === 'leads' ? 'active' : ''" 
+                                t-on-click="() => this.setTab('leads')">
+                            <i class="fa fa-filter"></i>
+                            <span>Lead Funnel</span>
+                        </button>
+                        <button type="button" 
+                                class="crm-analytics-tab-btn" 
+                                t-att-class="state.activeTab === 'amc' ? 'active' : ''" 
+                                t-on-click="() => this.setTab('amc')">
+                            <i class="fa fa-shield"></i>
+                            <span>AMC &amp; Contracts</span>
+                        </button>
+                        <button type="button" 
+                                class="crm-analytics-tab-btn" 
+                                t-att-class="state.activeTab === 'service' ? 'active' : ''" 
+                                t-on-click="() => this.setTab('service')">
+                            <i class="fa fa-wrench"></i>
+                            <span>Service &amp; Operations</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB PANELS (BLANK / PLACEHOLDER FOR NOW) -->
+                <div class="crm-analytics-body">
+                    <!-- TAB 1: Sales & Revenue -->
+                    <div t-if="state.activeTab === 'sales'" class="crm-tab-panel">
+                        <div class="crm-tab-placeholder">
+                            <div class="crm-tab-placeholder-icon">
+                                <i class="fa fa-line-chart"></i>
+                            </div>
+                            <h3>Sales &amp; Revenue Analytics</h3>
+                            <p>This tab is ready. We will add the custom sales analytics here.</p>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Lead Funnel -->
+                    <div t-if="state.activeTab === 'leads'" class="crm-tab-panel">
+                        <div class="crm-tab-placeholder">
+                            <div class="crm-tab-placeholder-icon">
+                                <i class="fa fa-filter"></i>
+                            </div>
+                            <h3>Lead Funnel Analytics</h3>
+                            <p>This tab is ready. We will add the custom lead analytics here.</p>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: AMC & Contracts -->
+                    <div t-if="state.activeTab === 'amc'" class="crm-tab-panel">
+                        <div class="crm-tab-placeholder">
+                            <div class="crm-tab-placeholder-icon">
+                                <i class="fa fa-shield"></i>
+                            </div>
+                            <h3>AMC &amp; Contracts Analytics</h3>
+                            <p>This tab is ready. We will add the custom AMC analytics here.</p>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Service & Operations -->
+                    <div t-if="state.activeTab === 'service'" class="crm-tab-panel">
+                        <div class="crm-tab-placeholder">
+                            <div class="crm-tab-placeholder-icon">
+                                <i class="fa fa-wrench"></i>
+                            </div>
+                            <h3>Service &amp; Operations Analytics</h3>
+                            <p>This tab is ready. We will add the custom service analytics here.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </t>
+</templates>
