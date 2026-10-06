@@ -133,49 +133,24 @@
                                 </div>
                             </div>
 
-                            <!-- Horizontal Segmented Progress Bar -->
-                            <div class="crm-an-disc-bar-container">
-                                <div class="crm-an-disc-bar">
-                                    <div class="crm-an-bar-seg crm-seg-green" 
-                                         t-attf-style="width: {{ state.quoteDiscount.tiers.full_price.pct }}%;"
-                                         t-att-title="'Full Price: ' + state.quoteDiscount.tiers.full_price.pct + '%'"
-                                         t-on-click="() => this.openDiscountQuotes('full_price', 'Full Price (0% Disc)')">
-                                        <span t-if="state.quoteDiscount.tiers.full_price.pct > 12" class="crm-seg-label">
-                                            <t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%
-                                        </span>
-                                    </div>
-                                    <div class="crm-an-bar-seg crm-seg-yellow" 
-                                         t-attf-style="width: {{ state.quoteDiscount.tiers.small_disc.pct }}%;"
-                                         t-att-title="'1-5% Disc: ' + state.quoteDiscount.tiers.small_disc.pct + '%'"
-                                         t-on-click="() => this.openDiscountQuotes('small_disc', '1-5% Discount')">
-                                        <span t-if="state.quoteDiscount.tiers.small_disc.pct > 12" class="crm-seg-label">
-                                            <t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%
-                                        </span>
-                                    </div>
-                                    <div class="crm-an-bar-seg crm-seg-orange" 
-                                         t-attf-style="width: {{ state.quoteDiscount.tiers.med_disc.pct }}%;"
-                                         t-att-title="'5-10% Disc: ' + state.quoteDiscount.tiers.med_disc.pct + '%'"
-                                         t-on-click="() => this.openDiscountQuotes('med_disc', '5-10% Discount')">
-                                        <span t-if="state.quoteDiscount.tiers.med_disc.pct > 12" class="crm-seg-label">
-                                            <t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%
-                                        </span>
-                                    </div>
-                                    <div class="crm-an-bar-seg crm-seg-red" 
-                                         t-attf-style="width: {{ state.quoteDiscount.tiers.heavy_disc.pct }}%;"
-                                         t-att-title="'>10% Disc: ' + state.quoteDiscount.tiers.heavy_disc.pct + '%'"
-                                         t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10% ')">
-                                        <span t-if="state.quoteDiscount.tiers.heavy_disc.pct > 10" class="crm-seg-label">
-                                            <t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%
-                                        </span>
+                            <!-- SPLIT LAYOUT: Donut Chart on Left, Clean Details on Right -->
+                            <div class="crm-an-disc-split">
+                                <!-- LEFT SIDE: Pure Clean Donut Chart (Nothing added inside/over it) -->
+                                <div class="crm-an-donut-col">
+                                    <div class="crm-an-donut-chart-box">
+                                        <div class="crm-an-donut-ring" t-att-style="state.quoteDiscount.donutStyle || ''">
+                                            <div class="crm-an-donut-hole">
+                                                <div class="crm-an-donut-center">
+                                                    <span class="crm-an-center-num"><t t-esc="state.quoteDiscount.totalQuotes"/></span>
+                                                    <span class="crm-an-center-lbl">Quotes</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="crm-an-bar-ticks">
-                                    <span>No Discount (<t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%)</span>
-                                    <span>1-5% Disc (<t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%)</span>
-                                    <span>5-10% Disc (<t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%)</span>
-                                    <span>&gt;10% Heavy (<t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%)</span>
-                                </div>
-                            </div>
+
+                                <!-- RIGHT SIDE: Details List & Breakdown -->
+                                <div class="crm-an-details-col">
 
                             <!-- 4 Classification Rows with Values -->
                             <div class="crm-an-disc-list">
@@ -224,13 +199,15 @@
                                 </div>
                             </div>
 
-                            <!-- Bottom Summary Strip: Total Discount Given -->
-                            <div class="crm-an-disc-footer clickable" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
-                                <div class="crm-an-footer-content">
-                                    <i class="fa fa-tag crm-an-footer-icon"></i>
-                                    <span>Total Discount Given: <strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
+                                    <!-- Bottom Summary Strip: Total Discount Given -->
+                                    <div class="crm-an-disc-footer clickable" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
+                                        <div class="crm-an-footer-content">
+                                            <i class="fa fa-tag crm-an-footer-icon"></i>
+                                            <span>Total Discount Given: <strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
+                                        </div>
+                                        <span class="crm-an-footer-hint">View Deals →</span>
+                                    </div>
                                 </div>
-                                <span class="crm-an-footer-hint">View Discounted Deals →</span>
                             </div>
                         </div>
                     </div>

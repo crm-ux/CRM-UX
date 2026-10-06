@@ -305,17 +305,38 @@ export class CrmAnalyticsDashboard extends Component {
                 kwargs: {},
             });
 
+            const tiers = res.tiers || {
+                full_price: { count: 0, value: 0, discount: 0, pct: 0 },
+                small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
+                heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+            };
+
+            // Compute SVG conic-gradient for the pure Donut ring on left side
+            const fp = tiers.full_price.pct || 0;
+            const sm = tiers.small_disc.pct || 0;
+            const md = tiers.med_disc.pct || 0;
+            const hv = tiers.heavy_disc.pct || 0;
+
+            const p1 = fp;
+            const p2 = p1 + sm;
+            const p3 = p2 + md;
+            const p4 = 100;
+
+            const donutStyle = `background: conic-gradient(
+                #16a34a 0% ${p1}%,
+                #eab308 ${p1}% ${p2}%,
+                #f97316 ${p2}% ${p3}%,
+                #dc2626 ${p3}% ${p4}%
+            );`;
+
             this.state.quoteDiscount = {
                 totalQuotes: res.total_quotes || 0,
                 totalQuoteValue: res.total_quote_value || 0,
                 totalDiscountAmount: res.total_discount_amount || 0,
                 discountedQuotesCount: res.discounted_quotes_count || 0,
-                tiers: res.tiers || {
-                    full_price: { count: 0, value: 0, discount: 0, pct: 0 },
-                    small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
-                    med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
-                    heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
-                }
+                tiers: tiers,
+                donutStyle: donutStyle,
             };
         } catch (e) {
             console.error("Failed to load quote discount analytics:", e);
