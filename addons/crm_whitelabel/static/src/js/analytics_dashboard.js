@@ -75,7 +75,7 @@ export class CrmAnalyticsDashboard extends Component {
         if (!this.state.unclassifiedCount) return;
         this.action.doAction({
             type: "ir.actions.act_window",
-            name: "Unclassified Leads (Set Customer Type)",
+            name: "Unclassified Leads",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [["active", "=", true], ["x_customer_type", "=", false]],

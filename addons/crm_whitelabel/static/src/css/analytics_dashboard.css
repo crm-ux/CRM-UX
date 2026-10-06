@@ -383,13 +383,57 @@
 
 /* Mobile Responsiveness */
 @media (max-width: 48rem) {
-    .crm-an-quad-box {
-        grid-template-columns: 1fr;
+    /* Visible sleek horizontal scrollbar for tabs */
+    .crm-analytics-tabs {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+        padding-bottom: 4px;
     }
-}
 
-/* Mobile Responsiveness */
-@media (max-width: 48rem) {
+    .crm-analytics-tabs::-webkit-scrollbar {
+        display: block !important;
+        height: 4px;
+    }
+
+    .crm-analytics-tabs::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+
+    .crm-analytics-tabs::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+
+    /* KEEP SAME 2x2 MATRIX AS WEB (NOT VERTICAL 1 COLUMN) */
+    .crm-an-quad-box {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .crm-an-quad-cell {
+        padding: 0.85rem 0.65rem !important;
+        min-height: 125px !important;
+    }
+
+    .crm-an-cell-title {
+        font-size: 0.78rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 0.45rem !important;
+    }
+
+    .crm-an-cell-count {
+        font-size: 1.15rem !important;
+    }
+
+    .crm-an-cell-badge {
+        font-size: 0.7rem !important;
+        padding: 0.1rem 0.4rem !important;
+    }
+
+    .crm-an-cell-value {
+        font-size: 0.72rem !important;
+    }
+
     .crm-analytics-container {
         padding: 0.75rem;
     }
@@ -403,12 +447,8 @@
         font-size: 0.8rem;
     }
 
-    .crm-an-2x2-grid {
-        grid-template-columns: 1fr;
-    }
-
     .crm-analytics-body {
-        padding: 1.5rem 1rem;
+        padding: 1.25rem 0.75rem;
         min-height: auto;
     }
 }
