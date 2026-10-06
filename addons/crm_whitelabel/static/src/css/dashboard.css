@@ -1721,66 +1721,115 @@
         font-weight: 800 !important;
     }
 
-    /* ==========================================
-       Mobile Analytics Cards Optimization
-       ========================================== */
-    .crm-chart-card {
-        padding: 0.85rem !important;
-        min-height: auto !important;
+    /* =====================================================================
+       ALL 4 ANALYTIC CARDS - MOBILE AUTO-FIT OPTIMIZATION
+       (Preserves exact same layout & design, scales dynamic width & compacts)
+       ===================================================================== */
+    .crm-analytics-section {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
     }
 
-    /* 1. Monthly Sales Header: Wrap title & pills nicely */
+    .crm-chart-card {
+        padding: 0.75rem !important;
+        min-height: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
     .crm-chart-head {
         flex-wrap: wrap !important;
-        gap: 0.5rem !important;
+        gap: 0.4rem !important;
+        margin-bottom: 0.65rem !important;
     }
 
+    .crm-chart-title {
+        font-size: 0.85rem !important;
+    }
+
+    .crm-chart-badge {
+        font-size: 0.68rem !important;
+        padding: 0.15rem 0.45rem !important;
+    }
+
+    /* CARD 1: Monthly Sales & Revenue Growth */
     .crm-range-pills {
         overflow-x: auto !important;
         max-width: 100% !important;
+        padding: 0.15rem !important;
+        gap: 0.2rem !important;
     }
 
-    /* 2. Monthly Sales Bar Chart: Give bars comfortable spacing */
+    .crm-range-pill {
+        padding: 0.15rem 0.4rem !important;
+        font-size: 0.68rem !important;
+    }
+
     .crm-bar-chart {
-        height: 150px !important;
-        padding-top: 1.25rem !important;
-        gap: 0.35rem !important;
+        height: 140px !important;
+        padding-top: 1rem !important;
+        gap: 0.25rem !important;
+        width: 100% !important;
     }
 
     .crm-bar-val-lbl {
-        font-size: 0.6rem !important;
+        font-size: 0.58rem !important;
     }
 
     .crm-bar-lbl {
-        font-size: 0.65rem !important;
+        font-size: 0.62rem !important;
     }
 
-    /* 3. AMC Renewals: Keep exact same 4-column timeline & track like web & tablet, scaled to fit mobile */
+    /* CARD 2: Complaint Types (Breakdown, PM, Free Call) */
+    .crm-sla-row {
+        padding: 0.35rem 0.5rem !important;
+        gap: 0.45rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+
+    .crm-sla-row>div:first-child {
+        min-width: 75px !important;
+        font-size: 0.75rem !important;
+    }
+
+    .crm-sla-row>div:last-child {
+        min-width: 30px !important;
+    }
+
+    .crm-sla-row>div:last-child span {
+        font-size: 0.95rem !important;
+    }
+
+    /* CARD 3: AMC Renewals (Exact 4 Columns & Horizon Track) */
     .crm-amc-horizon-track {
         display: block !important;
         margin: 0.25rem 0 0.85rem 0 !important;
     }
 
     .crm-amc-timeline-grid {
+        display: grid !important;
         grid-template-columns: repeat(4, 1fr) !important;
         gap: 0.2rem !important;
+        width: 100% !important;
     }
 
     .crm-timeline-step {
-        padding: 0.35rem 0.15rem !important;
+        padding: 0.35rem 0.12rem !important;
         min-height: auto !important;
         overflow: hidden !important;
     }
 
-    .crm-timeline-step > div:first-child {
+    .crm-timeline-step>div:first-child {
         width: 18px !important;
         height: 18px !important;
-        font-size: 0.58rem !important;
+        font-size: 0.55rem !important;
         margin-bottom: 0.2rem !important;
     }
 
     .crm-timeline-step div:nth-child(2) {
-        font-size: 0.56rem !important;
+        font-size: 0.55rem !important;
         letter-spacing: -0.02em !important;
         white-space: nowrap !important;
         overflow: hidden !important;
@@ -1788,15 +1837,41 @@
     }
 
     .crm-timeline-step div:nth-child(3) {
-        font-size: 0.88rem !important;
+        font-size: 0.85rem !important;
         margin: 0.1rem 0 !important;
         font-weight: 800 !important;
     }
 
     .crm-timeline-step div:nth-child(4) {
-        font-size: 0.58rem !important;
+        font-size: 0.56rem !important;
         font-weight: 700 !important;
         white-space: nowrap !important;
+    }
+
+    /* CARD 4: Low Stock Alerts */
+    .crm-stock-badge-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.35rem !important;
+        margin-bottom: 0.65rem !important;
+    }
+
+    .crm-stock-badge-box {
+        padding: 0.4rem 0.25rem !important;
+        font-size: 0.7rem !important;
+    }
+
+    .crm-stock-badge-val {
+        font-size: 0.95rem !important;
+    }
+
+    .crm-stock-table-wrap {
+        max-height: 160px !important;
+        overflow-x: auto !important;
+    }
+
+    .crm-stock-table {
+        font-size: 0.72rem !important;
     }
 }
 
