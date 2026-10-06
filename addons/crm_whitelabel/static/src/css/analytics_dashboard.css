@@ -443,29 +443,17 @@
         font-size: 0.72rem !important;
     }
 
-    /* Mobile Strip Layout: Clean 2x2 mini-grid */
+    /* Mobile Strip Layout: Only for small mobile screens (max-width: 576px) */
     .crm-an-quad-strip {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.5rem !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.35rem 0.65rem !important;
         width: 100% !important;
-        padding: 0.65rem !important;
+        box-sizing: border-box !important;
     }
 
-    .crm-an-strip-divider {
-        display: none !important;
-    }
-
-    .crm-an-strip-stat {
-        padding: 0.25rem 0.35rem !important;
-    }
-
-    .crm-an-strip-label {
-        font-size: 0.64rem !important;
-    }
-
-    .crm-an-strip-val {
-        font-size: 0.82rem !important;
+    .crm-an-strip-dot {
+        color: #cbd5e1;
     }
 
     .crm-analytics-container {
