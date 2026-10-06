@@ -1844,7 +1844,7 @@
         background: #eff6ff !important;
         border-color: #bfdbfe !important;
         border-left: 4px solid var(--primary-blue) !important;
-        margin-top: 0.05rem !important;
+        margin-top: 0.30rem !important;
     }
 
     .crm-pipe-step:last-child::after {
