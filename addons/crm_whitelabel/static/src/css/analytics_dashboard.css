@@ -237,15 +237,18 @@
 
 /* Strip EMBEDDED INSIDE the box */
 .crm-an-quad-strip {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
     background: #f8fafc;
     border: 1px solid var(--crm-an-border);
-    padding: 0.35rem 0.85rem;
+    padding: 0.35rem 0.75rem;
     border-radius: var(--crm-an-radius-md);
-    font-size: clamp(0.8rem, 0.92vw, 0.88rem);
+    font-size: clamp(0.78rem, 0.9vw, 0.88rem);
     color: var(--crm-an-text-dark);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .crm-an-quad-strip strong {
@@ -258,28 +261,31 @@
 
 /* Single Connected 2x2 Rounded Box */
 .crm-an-quad-box {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, auto);
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    grid-template-rows: repeat(2, auto) !important;
     border-radius: 1.25rem;
     overflow: hidden;
     gap: 2px;
     background: #ffffff;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Individual Quadrant Cell */
 .crm-an-quad-cell {
-    padding: clamp(1.4rem, 2vw, 2rem);
+    padding: clamp(1rem, 1.8vw, 1.8rem);
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-content: center;
-    min-height: clamp(150px, 18vh, 200px);
+    min-height: clamp(130px, 16vh, 180px);
     color: #ffffff;
     transition: filter 0.15s ease;
     box-sizing: border-box;
+    word-break: break-word;
 }
 
 .crm-an-quad-cell:hover {
@@ -337,24 +343,24 @@
 
 /* Title in cell */
 .crm-an-cell-title {
-    font-size: clamp(0.95rem, 1.2vw, 1.12rem);
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
     font-weight: 700;
-    line-height: 1.3;
-    margin-bottom: 0.75rem;
+    line-height: 1.25;
+    margin-bottom: 0.6rem;
     color: #ffffff;
-    max-width: 90%;
+    max-width: 95%;
 }
 
 /* Stats (Count + Percent Pill) */
 .crm-an-cell-stats {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.4rem;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
 }
 
 .crm-an-cell-count {
-    font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+    font-size: clamp(1.1rem, 1.6vw, 1.5rem);
     font-weight: 800;
     line-height: 1;
 }
@@ -363,26 +369,26 @@
     background: rgba(255, 255, 255, 0.28);
     border: 1px solid rgba(255, 255, 255, 0.4);
     color: #ffffff;
-    font-size: clamp(0.72rem, 0.85vw, 0.82rem);
+    font-size: clamp(0.68rem, 0.8vw, 0.78rem);
     font-weight: 800;
-    padding: 0.15rem 0.5rem;
+    padding: 0.12rem 0.45rem;
     border-radius: 999px;
 }
 
 /* Value row */
 .crm-an-cell-value {
-    font-size: clamp(0.76rem, 0.9vw, 0.86rem);
-    opacity: 0.92;
+    font-size: clamp(0.72rem, 0.85vw, 0.82rem);
+    opacity: 0.95;
     color: #ffffff;
 }
 
 .crm-an-cell-value strong {
     font-weight: 800;
-    font-size: clamp(0.84rem, 1vw, 0.96rem);
+    font-size: clamp(0.78rem, 0.95vw, 0.92rem);
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 48rem) {
+@media (max-width: 768px) {
     /* Visible sleek horizontal scrollbar for tabs */
     .crm-analytics-tabs {
         scrollbar-width: thin;
@@ -405,50 +411,61 @@
         border-radius: 4px;
     }
 
-    /* KEEP SAME 2x2 MATRIX AS WEB (NOT VERTICAL 1 COLUMN) */
+    /* KEEP EXACT 2x2 MATRIX AS WEB */
     .crm-an-quad-box {
         grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-rows: repeat(2, auto) !important;
     }
 
     .crm-an-quad-cell {
-        padding: 0.85rem 0.65rem !important;
-        min-height: 125px !important;
+        padding: 0.75rem 0.45rem !important;
+        min-height: 110px !important;
     }
 
     .crm-an-cell-title {
-        font-size: 0.78rem !important;
-        line-height: 1.2 !important;
-        margin-bottom: 0.45rem !important;
+        font-size: 0.74rem !important;
+        line-height: 1.15 !important;
+        margin-bottom: 0.35rem !important;
+        max-width: 100% !important;
     }
 
     .crm-an-cell-count {
-        font-size: 1.15rem !important;
+        font-size: 1.05rem !important;
     }
 
     .crm-an-cell-badge {
-        font-size: 0.7rem !important;
-        padding: 0.1rem 0.4rem !important;
+        font-size: 0.65rem !important;
+        padding: 0.08rem 0.35rem !important;
     }
 
     .crm-an-cell-value {
+        font-size: 0.68rem !important;
+    }
+
+    .crm-an-cell-value strong {
         font-size: 0.72rem !important;
     }
 
+    .crm-an-quad-strip {
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+
     .crm-analytics-container {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 
     .crm-analytics-header {
-        padding: 1rem 1rem 0 1rem;
+        padding: 0.85rem 0.75rem 0 0.75rem;
     }
 
     .crm-analytics-tab-btn {
-        padding: 0.6rem 0.85rem;
-        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.78rem;
     }
 
     .crm-analytics-body {
-        padding: 1.25rem 0.75rem;
+        padding: 0.85rem 0.5rem;
         min-height: auto;
     }
 }
