@@ -655,6 +655,57 @@
 
     .crm-an-donut-col {
         padding: 0.25rem 0 !important;
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+
+    /* Keep list rows on a single clean row on mobile without breaking words */
+    .crm-an-disc-row {
+        padding: 0.55rem 0.65rem !important;
+        font-size: 0.78rem !important;
+        gap: 0.35rem !important;
+    }
+
+    .crm-an-row-left {
+        gap: 0.4rem !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        white-space: nowrap !important;
+    }
+
+    .crm-an-row-name {
+        white-space: nowrap !important;
+        font-size: 0.78rem !important;
+    }
+
+    .crm-an-row-right {
+        gap: 0.35rem !important;
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+    }
+
+    .crm-an-row-pct {
+        font-size: 0.7rem !important;
+        padding: 0.1rem 0.35rem !important;
+    }
+
+    .crm-an-row-count {
+        font-size: 0.75rem !important;
+    }
+
+    .crm-an-row-val {
+        font-size: 0.75rem !important;
+    }
+
+    .crm-an-disc-footer {
+        padding: 0.55rem 0.65rem !important;
+        font-size: 0.76rem !important;
+        flex-wrap: wrap !important;
+        gap: 0.35rem !important;
+    }
+
+    .crm-an-footer-content {
+        gap: 0.35rem !important;
     }
 
     /* Visible sleek horizontal scrollbar for tabs */
