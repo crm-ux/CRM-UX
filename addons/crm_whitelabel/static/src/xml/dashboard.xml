@@ -342,88 +342,88 @@
                     <div class="crm-pipe-track">
                         <!-- 1. New Lead -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #38bdf8;" t-on-click="openStage" data-seq="0">
-                            <div class="crm-pipe-name">New Lead</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageLead"/></div>
+                            <div class="crm-pipe-name">New Lead</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageLeadVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 2. Contacted -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #818cf8;" t-on-click="openStage" data-seq="5">
-                            <div class="crm-pipe-name">Contacted</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageContacted"/></div>
+                            <div class="crm-pipe-name">Contacted</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageContactedVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 3. Tech. Discussion -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #c084fc;" t-on-click="openStage" data-seq="7">
-                            <div class="crm-pipe-name">Tech. Discussion</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageTechDisc"/></div>
+                            <div class="crm-pipe-name">Tech. Discussion</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageTechDiscVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 4. Qualified -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #fb7185;" t-on-click="openStage" data-seq="10">
-                            <div class="crm-pipe-name">Qualified</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageQualified"/></div>
+                            <div class="crm-pipe-name">Qualified</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageQualifiedVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 5. Opportunity -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #fb923c;" t-on-click="openStage" data-seq="20">
-                            <div class="crm-pipe-name">Opportunity</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageOpportunity"/></div>
+                            <div class="crm-pipe-name">Opportunity</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageOpportunityVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 6. Quotes -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #0284c7;" t-on-click="() => this.openQuoteStage('draft')">
-                            <div class="crm-pipe-name">Quotes</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageQuotes"/></div>
+                            <div class="crm-pipe-name">Quotes</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageQuotesVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 7. Sent -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #6366f1;" t-on-click="() => this.openQuoteStage('sent')">
-                            <div class="crm-pipe-name">Sent</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageSent"/></div>
+                            <div class="crm-pipe-name">Sent</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageSentVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 8. Negotiation -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #a855f7;" t-on-click="() => this.openQuoteStage('negotiation')">
-                            <div class="crm-pipe-name">Negotiation</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageNegotiation"/></div>
+                            <div class="crm-pipe-name">Negotiation</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageNegotiationVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 9. Order Expected -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #ec4899;" t-on-click="() => this.openQuoteStage('order_expected')">
-                            <div class="crm-pipe-name">Order Expected</div>
                             <div class="crm-pipe-count"><t t-esc="state.stageOrderExp"/></div>
+                            <div class="crm-pipe-name">Order Expected</div>
                             <div class="crm-pipe-val-divider"></div>
                             <div class="crm-pipe-val"><t t-esc="fmt(state.stageOrderExpVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 10. Won -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #22c55e; background: #f0fdf4;" t-on-click="() => this.openQuoteStage('won')">
-                            <div class="crm-pipe-name" style="color: #16a34a; font-weight: 700;">Won</div>
                             <div class="crm-pipe-count" style="color: #16a34a;"><t t-esc="state.stageWon"/></div>
+                            <div class="crm-pipe-name" style="color: #16a34a; font-weight: 700;">Won</div>
                             <div class="crm-pipe-val-divider" style="border-color: rgba(34, 197, 94, 0.4);"></div>
                             <div class="crm-pipe-val" style="color: #16a34a; font-weight: 700;"><t t-esc="fmt(state.stageWonVal)"/></div>
                         </div>
                         <span class="crm-pipe-arrow">›</span>
                         <!-- 11. Total -->
                         <div class="crm-pipe-step" style="border-top: 3px solid #0b3d91; background: #eff6ff;" t-on-click="openAllPipelineLeads">
-                            <div class="crm-pipe-name" style="color: #0b3d91; font-weight: 800;">Total</div>
                             <div class="crm-pipe-count" style="color: #0b3d91;"><t t-esc="state.leadsTotal || 0"/></div>
+                            <div class="crm-pipe-name" style="color: #0b3d91; font-weight: 800;">Total</div>
                             <div class="crm-pipe-val-divider" style="border-color: rgba(11, 61, 145, 0.35);"></div>
                             <div class="crm-pipe-val" style="color: #0b3d91; font-weight: 800;"><t t-esc="fmt(state.pipelineTotalVal)"/></div>
                         </div>
