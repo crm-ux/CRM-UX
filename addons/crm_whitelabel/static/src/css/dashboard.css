@@ -1652,17 +1652,18 @@
     }
 
     .crm-pipe-step {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
+        display: grid !important;
+        grid-template-columns: auto 1fr auto !important;
+        grid-template-rows: 1fr 1fr !important;
+        align-items: center !important;
+        column-gap: 0.6rem !important;
         min-width: 0 !important;
         width: 100% !important;
         background: #ffffff !important;
         border: 1px solid var(--border-color) !important;
         border-left: 4px solid var(--border-color) !important;
         border-radius: 0.65rem !important;
-        padding: 0.75rem 1rem 0.75rem 1.85rem !important;
+        padding: 0.5rem 0.85rem 0.5rem 1.85rem !important;
         margin: 0 !important;
         position: relative;
         z-index: 2;
@@ -1670,10 +1671,12 @@
         box-sizing: border-box;
     }
 
-    /* Top Row: Name on Left, Count on Right */
+    /* Title: centered vertically across both rows on the left */
     .crm-pipe-step .crm-pipe-name {
-        order: 1 !important;
-        font-size: 0.88rem !important;
+        grid-column: 1 !important;
+        grid-row: 1 / span 2 !important;
+        align-self: center !important;
+        font-size: 0.86rem !important;
         font-weight: 700 !important;
         color: var(--text-dark) !important;
         height: auto !important;
@@ -1681,49 +1684,55 @@
         display: block !important;
         text-align: left !important;
         width: auto !important;
-        padding-right: 3rem !important;
+        white-space: nowrap !important;
+        padding-right: 0 !important;
     }
 
-    .crm-pipe-step .crm-pipe-count {
-        order: 2 !important;
-        position: absolute !important;
-        top: 0.75rem !important;
-        right: 1rem !important;
-        font-size: 1.15rem !important;
-        font-weight: 800 !important;
-        color: var(--primary-blue) !important;
-        line-height: 1 !important;
-    }
-
-    /* Middle: Dashed line full width */
+    /* Dashed line: stretches horizontally in the center between title and numbers */
     .crm-pipe-step .crm-pipe-val-divider {
-        order: 3 !important;
+        grid-column: 2 !important;
+        grid-row: 1 / span 2 !important;
         display: block !important;
         width: 100% !important;
         border-top: 1px dashed #cbd5e1 !important;
-        margin: 0.5rem 0 0.4rem 0 !important;
+        align-self: center !important;
+        margin: 0 !important;
     }
 
-    /* Bottom Row: Value on the Right */
+    /* Count: Top Right */
+    .crm-pipe-step .crm-pipe-count {
+        grid-column: 3 !important;
+        grid-row: 1 !important;
+        justify-self: end !important;
+        position: static !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: var(--primary-blue) !important;
+        line-height: 1.1 !important;
+        margin: 0 !important;
+    }
+
+    /* Value: Bottom Right */
     .crm-pipe-step .crm-pipe-val {
-        order: 4 !important;
+        grid-column: 3 !important;
+        grid-row: 2 !important;
+        justify-self: end !important;
         display: flex !important;
-        justify-content: flex-end !important;
-        font-size: 0.82rem !important;
+        font-size: 0.76rem !important;
         font-weight: 700 !important;
         color: var(--text-muted) !important;
         background: transparent !important;
         padding: 0 !important;
         margin: 0 !important;
         border-radius: 0 !important;
-        text-align: right !important;
+        line-height: 1.1 !important;
     }
 
     .crm-pipe-step .crm-pipe-val::before {
         content: "Value: ";
         font-weight: 600;
         color: var(--text-muted);
-        margin-right: 0.25rem;
+        margin-right: 0.2rem;
     }
 
     /* Match exact stage colors from web view for the left border & node dot */
