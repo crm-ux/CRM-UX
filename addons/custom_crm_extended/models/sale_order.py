@@ -969,8 +969,10 @@ class DashboardStats(models.Model):
         # Lead stage counts (evaluated with sudo to avoid double-filtering with ir.rule)
         lead_domain = [('active', '=', True)] + company_filter + user_filter
         leads = self.env['crm.lead'].sudo().read_group(
-            lead_domain, ['x_stage_sequence'], ['x_stage_sequence'])
+            lead_domain, ['x_stage_sequence', 'expected_revenue:sum'], ['x_stage_sequence'])
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
+        lead_values = {r['x_stage_sequence']: (r.get('expected_revenue') or 0.0) for r in leads}
+
         # Lead priority counts
         lead_priority_domain = lead_domain + [('x_stage_sequence', '<', 30)]
         priority_groups = self.env['crm.lead'].sudo().read_group(
@@ -978,26 +980,30 @@ class DashboardStats(models.Model):
         )
         priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
 
-        # Quote stage counts
+        # Quote stage counts and values
         quote_domain = [('state', '!=', 'cancel')] + company_filter + user_filter
-        quotes = self.env['sale.order'].sudo().read_group(
-            quote_domain, ['x_quote_stage'], ['x_quote_stage'])
+        quotes = self.env['sale.order'].sudo().read_group(quote_domain, ['x_quote_stage', 'amount_total:sum'], ['x_quote_stage'])
         quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
+        quote_values = {r['x_quote_stage']: (r.get('amount_total') or 0.0) for r in quotes}
 
         # Revenue
         won_orders = self.env['sale.order'].sudo().search([('x_quote_stage', '=', 'won')] + company_filter + user_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
-        # Check invoice date for Won orders
+        # Check invoice date for Won orders & sum amounts
         invoice_created = 0
+        invoice_created_val = 0.0
         invoice_pending = 0
+        invoice_pending_val = 0.0
         for order in won_orders:
-            # Check if any linked customer invoice has an invoice_date set
             inv_date = getattr(order, 'x_invoice_date', False) or getattr(order, 'invoice_date', False)
+            amt = order.amount_total or 0.0
             if inv_date:
                 invoice_created += 1
+                invoice_created_val += amt
             else:
                 invoice_pending += 1
+                invoice_pending_val += amt
 
         pending_orders = self.env['sale.order'].sudo().search([
             ('x_quote_stage', 'not in', ['won', 'lost']),
@@ -1150,9 +1156,25 @@ class DashboardStats(models.Model):
                 'stock_status': r.stock_status,
             })
 
+        # AMC Contract status values (summing contract_value for total, draft, active, expired)
+        amc_values = {'total': 0.0, 'draft': 0.0, 'active': 0.0, 'expired': 0.0}
+        all_user_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter)
+        for a in all_user_amcs:
+            try:
+                raw_cval = (a.contract_value or '0').replace(',', '').replace('₹', '').strip()
+                c_num = float(raw_cval) if raw_cval else 0.0
+            except Exception:
+                c_num = 0.0
+            amc_values['total'] += c_num
+            st = a.contract_status or 'draft'
+            if st in amc_values:
+                amc_values[st] += c_num
+
         return {
             'lead_counts': lead_counts,
+            'lead_values': lead_values,
             'quote_counts': quote_counts,
+            'quote_values': quote_values,
             'won_revenue': won_revenue,
             'quote_revenue': quote_revenue,
             'today_revenue': today_revenue,
@@ -1164,10 +1186,13 @@ class DashboardStats(models.Model):
             'meetings_this_month': meetings_this_month,
             'upcoming_events': upcoming_events,
             'invoice_created': invoice_created,
+            'invoice_created_val': invoice_created_val,
             'invoice_pending': invoice_pending,
+            'invoice_pending_val': invoice_pending_val,
             'equipment_counts': equipment_counts,
             'ticket_counts': ticket_counts,
             'amc_counts': amc_counts,
+            'amc_values': amc_values,
             'complaint_counts': complaint_counts,
             'amc_renewals': amc_renewals,
             'low_stock_items': low_stock_items,

@@ -25,7 +25,11 @@ class CrmDashboard extends Component {
             quoteRevenue: 0, wonRevenue: 0, todayRevenue: 0,
             ticketTotal: 0, ticketOpen: 0, ticketOngoing: 0, ticketClosed: 0,
             invoiceCreated: 0, invoicePending: 0,
-            amcTotal: 0, amcDraft: 0, amcActive: 0, amcExpired: 0,
+            stageLeadVal: 0, stageContactedVal: 0, stageTechDiscVal: 0, stageQualifiedVal: 0, stageOpportunityVal: 0,
+            stageQuotesVal: 0, stageSentVal: 0, stageNegotiationVal: 0, stageOrderExpVal: 0, stageWonVal: 0,
+            pipelineTotalVal: 0,
+            invoiceCreatedVal: 0, invoicePendingVal: 0,
+            amcTotalVal: 0, amcDraftVal: 0, amcActiveVal: 0, amcExpiredVal: 0,
             seriesSubmenuOpen: false,
             orgSubmenuOpen: false,
             userName: user.name || "User",
@@ -322,10 +326,20 @@ class CrmDashboard extends Component {
             const stageNegotiation = lc[40] || 0;
             const stageOrderExp = lc[50] || 0;
             const stageWon = lc[90] || 0;
-            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
-            const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
+            const lv = canViewLeadQuote ? (s.lead_values || {}) : {}, qv = canViewLeadQuote ? (s.quote_values || {}) : {};
+            const stageLeadVal = lv[0] || 0, stageContactedVal = lv[5] || 0, stageTechDiscVal = lv[7] || 0;
+            const stageQualifiedVal = lv[10] || 0, stageOpportunityVal = lv[20] || 0;
+            const stageQuotesVal = qv['draft'] || lv[30] || 0;
+            const stageSentVal = qv['sent'] || lv[35] || 0;
+            const stageNegotiationVal = qv['negotiation'] || lv[40] || 0;
+            const stageOrderExpVal = qv['order_expected'] || lv[50] || 0;
+            const stageWonVal = qv['won'] || lv[90] || wonRevenue || 0;
+            const pipelineTotalVal = stageLeadVal + stageContactedVal + stageTechDiscVal + stageQualifiedVal + stageOpportunityVal + stageQuotesVal + stageSentVal + stageNegotiationVal + stageOrderExpVal + stageWonVal;
+
             const invoiceCreated = canViewLeadQuote ? (s.invoice_created || 0) : 0;
+            const invoiceCreatedVal = canViewLeadQuote ? (s.invoice_created_val || 0) : 0;
             const invoicePending = canViewLeadQuote ? (s.invoice_pending || 0) : 0;
+            const invoicePendingVal = canViewLeadQuote ? (s.invoice_pending_val || 0) : 0;
             const customers = canViewCustomer ? (s.customers || 0) : 0;
             const products = canViewProduct ? (s.products || 0) : 0;
             const users = canViewUsers ? (s.users || 0) : 0;
@@ -351,10 +365,15 @@ class CrmDashboard extends Component {
             const ticketClosed = tckCounts.closed || 0;
 
             const amcCounts = canViewAmc ? (s.amc_counts || {}) : {};
+            const amcVals = canViewAmc ? (s.amc_values || {}) : {};
             const amcTotal = amcCounts.total || 0;
             const amcDraft = amcCounts.draft || 0;
             const amcActive = amcCounts.active || 0;
             const amcExpired = amcCounts.expired || 0;
+            const amcTotalVal = amcVals.total || 0;
+            const amcDraftVal = amcVals.draft || 0;
+            const amcActiveVal = amcVals.active || 0;
+            const amcExpiredVal = amcVals.expired || 0;
 
             let productStockCount = 0;
             try {
@@ -368,11 +387,16 @@ class CrmDashboard extends Component {
                 leads, qualified, opportunity: opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,
-                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, leadsTotal, invoiceCreated, invoicePending,
+                stageLeadVal, stageContactedVal, stageTechDiscVal, stageQualifiedVal,
+                stageOpportunityVal, stageQuotesVal, stageSentVal, stageNegotiationVal, stageOrderExpVal, stageWonVal,
+                pipelineTotalVal,
+                quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, leadsTotal,
+                invoiceCreated, invoiceCreatedVal, invoicePending, invoicePendingVal,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 amcTotal, amcDraft, amcActive, amcExpired,
+                amcTotalVal, amcDraftVal, amcActiveVal, amcExpiredVal,
                 productStockCount,
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,

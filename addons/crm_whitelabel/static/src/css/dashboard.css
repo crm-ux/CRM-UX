@@ -804,6 +804,18 @@
     background: var(--border-color);
 }
 
+.crm-stat-val-divider {
+    width: 70%;
+    border-top: 1px dashed #cbd5e1;
+    margin: 0.35rem auto 0.25rem;
+}
+
+.crm-stat-subval {
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
 /* Pipeline Strip */
 .crm-pipeline-card {
     background: #ffffff;
@@ -882,6 +894,23 @@
     height: 1.85rem;
     overflow: hidden;
     word-break: normal;
+}
+
+.crm-pipe-val-divider {
+    width: 80%;
+    border-top: 1px dashed #cbd5e1;
+    margin: 0.25rem auto 0.2rem;
+}
+
+.crm-pipe-val {
+    font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .crm-pipe-arrow {
@@ -1740,6 +1769,20 @@
     .crm-pipe-step:last-child .crm-pipe-count {
         color: var(--primary-blue) !important;
         font-weight: 800 !important;
+    }
+
+    .crm-pipe-step .crm-pipe-val-divider {
+        display: none !important;
+    }
+
+    .crm-pipe-step .crm-pipe-val {
+        font-size: 0.8rem !important;
+        color: var(--text-dark) !important;
+        background: #f1f5f9;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+        margin-left: auto;
+        margin-right: 0.5rem;
     }
 
     /* =====================================================================
