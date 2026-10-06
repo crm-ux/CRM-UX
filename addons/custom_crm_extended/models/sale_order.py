@@ -1408,3 +1408,101 @@ class DashboardStats(models.Model):
             'allowed_uids': user_filter[0][2] if user_filter else [],
         }
 
+    @api.model
+    def get_quote_discount_analytics(self, user_id=None, is_admin=False, company_ids=None):
+        """Return Quote Pricing & Discount Impact analytics strictly respecting company, permissions and View As."""
+        uid = user_id or self.env.uid
+        target_user = self.env['res.users'].sudo().browse(uid)
+
+        # 1. Company filter
+        company_filter = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)] if company_ids else []
+
+        # 2. User permissions filter
+        user_filter = []
+        is_user_admin = bool(is_admin) or (not user_id and (target_user._is_admin() or target_user.has_group('base.group_system')))
+        if not is_user_admin:
+            perm = target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')
+            if perm not in ('all', 'admin'):
+                allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
+                user_filter = [('user_id', 'in', allowed_uids)]
+
+        # 3. Query all active quotations (draft, sent, negotiation, order_expected, won)
+        quote_domain = [
+            ('state', '!=', 'cancel'),
+            ('x_quote_stage', 'in', ['draft', 'sent', 'negotiation', 'order_expected', 'won'])
+        ] + company_filter + user_filter
+
+        quotes = self.env['sale.order'].sudo().search_read(
+            quote_domain,
+            ['id', 'amount_total', 'amount_untaxed', 'x_flat_discount_pct', 'x_flat_discount', 'x_amount_after_discount']
+        )
+
+        total_quotes = len(quotes)
+        total_discount_amount = 0.0
+        total_quote_value = 0.0
+        discounted_quotes_count = 0
+
+        tiers = {
+            'full_price': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
+            'small_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
+            'med_disc':   {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
+            'heavy_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
+        }
+
+        for q in quotes:
+            val = q.get('amount_total') or 0.0
+            untaxed = q.get('amount_untaxed') or val
+            disc_pct = float(q.get('x_flat_discount_pct') or 0.0)
+            flat_disc = float(q.get('x_flat_discount') or 0.0)
+            stored_disc = float(q.get('x_amount_after_discount') or 0.0)
+
+            # Compute actual discount amount
+            disc_amount = 0.0
+            if flat_disc > 0:
+                disc_amount = flat_disc
+            elif stored_disc > 0 and disc_pct > 0:
+                disc_amount = stored_disc
+            elif disc_pct > 0:
+                disc_amount = untaxed * (disc_pct / 100.0)
+
+            total_quote_value += val
+            total_discount_amount += disc_amount
+
+            # Classify into 4 tiers
+            if disc_pct <= 0.0 and flat_disc <= 0.0:
+                tiers['full_price']['count'] += 1
+                tiers['full_price']['value'] += val
+            elif disc_pct <= 5.0 or (disc_pct == 0.0 and flat_disc > 0 and (val > 0 and (flat_disc / val) <= 0.05)):
+                tiers['small_disc']['count'] += 1
+                tiers['small_disc']['value'] += val
+                tiers['small_disc']['discount'] += disc_amount
+                discounted_quotes_count += 1
+            elif disc_pct <= 10.0 or (disc_pct == 0.0 and flat_disc > 0 and (val > 0 and (flat_disc / val) <= 0.10)):
+                tiers['med_disc']['count'] += 1
+                tiers['med_disc']['value'] += val
+                tiers['med_disc']['discount'] += disc_amount
+                discounted_quotes_count += 1
+            else:
+                tiers['heavy_disc']['count'] += 1
+                tiers['heavy_disc']['value'] += val
+                tiers['heavy_disc']['discount'] += disc_amount
+                discounted_quotes_count += 1
+
+        # Compute percentages for segmented meter
+        if total_quotes > 0:
+            tiers['full_price']['pct'] = round((tiers['full_price']['count'] / float(total_quotes)) * 100, 1)
+            tiers['small_disc']['pct'] = round((tiers['small_disc']['count'] / float(total_quotes)) * 100, 1)
+            tiers['med_disc']['pct'] = round((tiers['med_disc']['count'] / float(total_quotes)) * 100, 1)
+            tiers['heavy_disc']['pct'] = round((tiers['heavy_disc']['count'] / float(total_quotes)) * 100, 1)
+
+        return {
+            'total_quotes': total_quotes,
+            'total_quote_value': total_quote_value,
+            'total_discount_amount': total_discount_amount,
+            'discounted_quotes_count': discounted_quotes_count,
+            'tiers': tiers,
+            'allowed_uids': user_filter[0][2] if user_filter else [],
+            'user_filter_applied': bool(user_filter),
+        }
+
+

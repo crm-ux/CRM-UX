@@ -59,10 +59,28 @@ export class CrmAnalyticsDashboard extends Component {
             totalWonValue: 0,
             userFilterDomain: [],
             selectedCompanies: [],
+
+            // Quote Pricing & Discount Impact
+            quoteDiscount: {
+                totalQuotes: 0,
+                totalQuoteValue: 0,
+                totalDiscountAmount: 0,
+                discountedQuotesCount: 0,
+                tiers: {
+                    full_price: { count: 0, value: 0, discount: 0, pct: 0 },
+                    small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                    med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
+                    heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                }
+            },
+            loadingQuoteDiscount: false,
         });
 
         onWillStart(async () => {
-            await this.loadCustomerTypeAnalytics();
+            await Promise.all([
+                this.loadCustomerTypeAnalytics(),
+                this.loadQuoteDiscountAnalytics(),
+            ]);
         });
     }
 
@@ -234,6 +252,76 @@ export class CrmAnalyticsDashboard extends Component {
             console.error("Failed to load customer classification analytics:", e);
         } finally {
             this.state.loadingLeads = false;
+        }
+    }
+
+    openDiscountQuotes(tierKey, tierTitle) {
+        const companyIds = this._getActiveCompanyIds();
+        const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
+        let tierDomain = [];
+        if (tierKey === 'full_price') {
+            tierDomain = [["x_flat_discount_pct", "<=", 0]];
+        } else if (tierKey === 'small_disc') {
+            tierDomain = [["x_flat_discount_pct", ">", 0], ["x_flat_discount_pct", "<=", 5]];
+        } else if (tierKey === 'med_disc') {
+            tierDomain = [["x_flat_discount_pct", ">", 5], ["x_flat_discount_pct", "<=", 10]];
+        } else if (tierKey === 'heavy_disc') {
+            tierDomain = [["x_flat_discount_pct", ">", 10]];
+        } else if (tierKey === 'all_discounted') {
+            tierDomain = [["x_flat_discount_pct", ">", 0]];
+        }
+
+        const domain = [
+            ["state", "!=", "cancel"],
+            ["x_quote_stage", "in", ["draft", "sent", "negotiation", "order_expected", "won"]],
+            ...tierDomain,
+            ...companyDomain,
+            ...this.state.userFilterDomain
+        ];
+
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: (tierTitle || "Quotes") + " Deals",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+            context: {
+                allowed_company_ids: companyIds,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
+        });
+    }
+
+    async loadQuoteDiscountAnalytics() {
+        this.state.loadingQuoteDiscount = true;
+        try {
+            const companyIds = this._getActiveCompanyIds();
+            const { activeUserId, isAdmin } = this._getViewAsContext();
+
+            const res = await rpc("/web/dataset/call_kw", {
+                model: "crm.lead",
+                method: "get_quote_discount_analytics",
+                args: [activeUserId, isAdmin, companyIds],
+                kwargs: {},
+            });
+
+            this.state.quoteDiscount = {
+                totalQuotes: res.total_quotes || 0,
+                totalQuoteValue: res.total_quote_value || 0,
+                totalDiscountAmount: res.total_discount_amount || 0,
+                discountedQuotesCount: res.discounted_quotes_count || 0,
+                tiers: res.tiers || {
+                    full_price: { count: 0, value: 0, discount: 0, pct: 0 },
+                    small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                    med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
+                    heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                }
+            };
+        } catch (e) {
+            console.error("Failed to load quote discount analytics:", e);
+        } finally {
+            this.state.loadingQuoteDiscount = false;
         }
     }
 }

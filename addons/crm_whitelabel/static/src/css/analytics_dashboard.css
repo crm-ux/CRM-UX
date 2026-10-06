@@ -387,6 +387,222 @@
     font-size: clamp(0.78rem, 0.95vw, 0.92rem);
 }
 
+/* ==========================================================================
+   QUOTE PRICING & DISCOUNT IMPACT COMPONENT
+   ========================================================================== */
+
+.crm-an-disc-wrapper {
+    background: #ffffff;
+    border: 1px solid var(--crm-an-border);
+    border-radius: var(--crm-an-radius-lg);
+    padding: clamp(1rem, 1.6vw, 1.5rem);
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 1.25rem;
+}
+
+.crm-an-disc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.crm-an-disc-title {
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    font-weight: 800;
+    color: var(--crm-an-text-dark);
+    margin: 0;
+}
+
+.crm-an-disc-subtitle {
+    font-size: clamp(0.78rem, 0.88vw, 0.84rem);
+    color: var(--crm-an-text-muted);
+    margin: 0.2rem 0 0 0;
+}
+
+.crm-an-disc-header-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #f8fafc;
+    border: 1px solid var(--crm-an-border);
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--crm-an-radius-md);
+    font-size: 0.82rem;
+    color: var(--crm-an-text-dark);
+}
+
+.crm-an-disc-stat-val {
+    color: var(--crm-an-primary);
+}
+
+/* Horizontal Segmented Bar */
+.crm-an-disc-bar-container {
+    margin: 1.15rem 0 1.25rem 0;
+}
+
+.crm-an-disc-bar {
+    display: flex;
+    height: 28px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f1f5f9;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.crm-an-bar-seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 700;
+    transition: filter 0.15s ease, opacity 0.15s ease;
+    cursor: pointer;
+    min-width: 2px;
+}
+
+.crm-an-bar-seg:hover {
+    filter: brightness(1.08);
+}
+
+.crm-seg-green {
+    background: #16a34a; /* Full Price */
+}
+
+.crm-seg-yellow {
+    background: #eab308; /* 1-5% */
+}
+
+.crm-seg-orange {
+    background: #f97316; /* 5-10% */
+}
+
+.crm-seg-red {
+    background: #dc2626; /* >10% */
+}
+
+.crm-an-bar-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.45rem;
+    font-size: 0.74rem;
+    color: var(--crm-an-text-muted);
+    font-weight: 600;
+}
+
+/* 4 Rows List */
+.crm-an-disc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.crm-an-disc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: var(--crm-an-radius-md);
+    transition: all 0.15s ease;
+    font-size: clamp(0.82rem, 0.9vw, 0.88rem);
+}
+
+.crm-an-disc-row:hover {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    transform: translateX(2px);
+}
+
+.crm-an-row-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.crm-an-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.crm-dot-green { background: #16a34a; }
+.crm-dot-yellow { background: #eab308; }
+.crm-dot-orange { background: #f97316; }
+.crm-dot-red { background: #dc2626; }
+
+.crm-an-row-name {
+    font-weight: 600;
+    color: var(--crm-an-text-dark);
+}
+
+.crm-an-row-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.crm-an-row-count {
+    color: var(--crm-an-text-muted);
+}
+
+.crm-an-row-count strong {
+    color: var(--crm-an-text-dark);
+}
+
+.crm-an-row-val {
+    font-size: 0.82rem;
+    color: var(--crm-an-text-muted);
+}
+
+.crm-an-row-val strong {
+    color: var(--crm-an-text-dark);
+}
+
+/* Bottom Strip: Total Discount */
+.crm-an-disc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.85rem;
+    padding: 0.65rem 0.85rem;
+    background: #fef2f2;
+    border: 1px dashed #fca5a5;
+    border-radius: var(--crm-an-radius-md);
+    font-size: clamp(0.8rem, 0.9vw, 0.86rem);
+    color: #991b1b;
+    transition: background 0.15s ease;
+}
+
+.crm-an-disc-footer:hover {
+    background: #fee2e2;
+}
+
+.crm-an-footer-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.crm-an-footer-icon {
+    color: #dc2626;
+}
+
+.crm-an-footer-hint {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #b91c1c;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     /* Visible sleek horizontal scrollbar for tabs */
