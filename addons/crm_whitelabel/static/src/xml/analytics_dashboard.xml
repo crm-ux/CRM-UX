@@ -102,7 +102,9 @@
                             <!-- Single Connected 2x2 Rounded Matrix Box (No random icons, pure clean layout) -->
                             <div class="crm-an-quad-box">
                                 <t t-foreach="state.matrixData" t-as="item" t-key="item.key">
-                                    <div class="crm-an-quad-cell" t-att-class="item.colorClass">
+                                    <div class="crm-an-quad-cell" 
+                                         t-att-class="item.colorClass"
+                                         t-on-click="() => this.openQuadrantLeads(item.key, item.name)">
                                         <div class="crm-an-cell-title">
                                             <t t-esc="item.name"/>
                                         </div>

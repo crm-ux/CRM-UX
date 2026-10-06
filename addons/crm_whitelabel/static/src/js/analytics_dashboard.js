@@ -12,6 +12,7 @@ export class CrmAnalyticsDashboard extends Component {
 
     setup() {
         this.action = useService("action");
+        this.companyService = useService("company");
 
         this.state = useState({
             activeTab: "leads",
@@ -57,6 +58,8 @@ export class CrmAnalyticsDashboard extends Component {
             classifiedLeadsCount: 0,
             unclassifiedCount: 0,
             totalWonValue: 0,
+            userFilterDomain: [],
+            selectedCompanies: [],
         });
 
         onWillStart(async () => {
@@ -72,24 +75,70 @@ export class CrmAnalyticsDashboard extends Component {
         this.action.doAction("crm_dashboard", { clearBreadcrumbs: true });
     }
 
-    _getCompanyFilter() {
-        const cId = session.user_companies?.current_company_id || session.user_context?.allowed_company_ids?.[0];
-        if (cId) {
-            return ['|', ['company_id', '=', false], ['company_id', '=', cId]];
+    _getActiveCompanyIds() {
+        if (this.companyService?.activeCompanyIds?.length) {
+            return this.companyService.activeCompanyIds;
         }
-        return [];
+        if (this.companyService?.currentCompany?.id) {
+            return [this.companyService.currentCompany.id];
+        }
+        if (user.activeCompanies?.length) {
+            return user.activeCompanies.map(c => c.id);
+        }
+        const cId = session.user_companies?.current_company_id || session.user_context?.allowed_company_ids?.[0];
+        return cId ? [cId] : [];
+    }
+
+    _getViewAsContext() {
+        let viewAsUid = null;
+        try {
+            const savedUid = sessionStorage.getItem("crm_view_as_uid");
+            if (savedUid) {
+                viewAsUid = parseInt(savedUid, 10);
+            }
+        } catch (e) {}
+
+        const activeUserId = viewAsUid || user.userId;
+        const isAdmin = !viewAsUid && Boolean(user.isAdmin);
+        return { activeUserId, isAdmin, viewAsUid };
     }
 
     openUnclassifiedLeads() {
         if (!this.state.unclassifiedCount) return;
-        const companyDomain = this._getCompanyFilter();
-        const domain = [["active", "=", true], ["x_customer_type", "=", false], ...companyDomain];
+        const companyIds = this._getActiveCompanyIds();
+        const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
+        const domain = [["active", "=", true], ["x_customer_type", "=", false], ...companyDomain, ...this.state.userFilterDomain];
+        
         this.action.doAction({
             type: "ir.actions.act_window",
             name: "Unclassified Leads",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: domain,
+            context: {
+                allowed_company_ids: companyIds,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
+        });
+    }
+
+    openQuadrantLeads(quadrantKey, quadrantName) {
+        const companyIds = this._getActiveCompanyIds();
+        const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
+        const domain = [["active", "=", true], ["x_customer_type", "=", quadrantKey], ...companyDomain, ...this.state.userFilterDomain];
+        
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: quadrantName + " Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: domain,
+            context: {
+                allowed_company_ids: companyIds,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
         });
     }
 
@@ -104,66 +153,30 @@ export class CrmAnalyticsDashboard extends Component {
     async loadCustomerTypeAnalytics() {
         this.state.loadingLeads = true;
         try {
-            const companyFilter = this._getCompanyFilter();
+            const companyIds = this._getActiveCompanyIds();
+            const { activeUserId, isAdmin } = this._getViewAsContext();
+            this.state.selectedCompanies = companyIds;
 
-            // 1. Fetch leads filtered by Active Company & User's standard access rights
-            const leadDomain = [['active', '=', true], ...companyFilter];
-            const allLeads = await rpc("/web/dataset/call_kw", {
+            // Fetch statistics from backend with company, user permissions and View As
+            const res = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead",
-                method: "search_read",
-                args: [leadDomain],
-                kwargs: { fields: ['id', 'x_customer_type'], limit: 1000 },
+                method: "get_customer_classification_stats",
+                args: [activeUserId, isAdmin, companyIds],
+                kwargs: {},
             });
 
-            const totalPipelineLeads = allLeads.length;
-            let unclassifiedCount = 0;
-            const dataMap = {
-                existing_existing: { count: 0, wonValue: 0 },
-                existing_new: { count: 0, wonValue: 0 },
-                new_existing: { count: 0, wonValue: 0 },
-                new_new: { count: 0, wonValue: 0 },
-            };
+            const totalPipelineLeads = res.total_pipeline || 0;
+            const classifiedLeadsCount = res.classified_count || 0;
+            const unclassifiedCount = res.unclassified_count || 0;
+            const totalWonValue = res.total_won_val || 0;
+            const counts = res.counts || {};
+            const wonVals = res.won_values || {};
 
-            const leadCustomerTypeMap = {};
-            for (const lead of allLeads) {
-                const cType = lead.x_customer_type;
-                if (!cType) {
-                    unclassifiedCount++;
-                } else if (dataMap[cType] !== undefined) {
-                    dataMap[cType].count++;
-                    leadCustomerTypeMap[lead.id] = cType;
-                }
-            }
-
-            const classifiedLeadsCount = totalPipelineLeads - unclassifiedCount;
-
-            // 2. Fetch WON orders filtered by Active Company
-            const orderDomain = [
-                ['x_quote_stage', '=', 'won'],
-                ['amount_total', '>', 0],
-                ['state', '!=', 'cancel'],
-                ...companyFilter
-            ];
-
-            const wonOrders = await rpc("/web/dataset/call_kw", {
-                model: "sale.order",
-                method: "search_read",
-                args: [orderDomain],
-                kwargs: { fields: ['id', 'amount_total', 'opportunity_id'], limit: 500 },
-            });
-
-            let totalWonValue = 0;
-            for (const order of wonOrders) {
-                const leadId = order.opportunity_id ? order.opportunity_id[0] : false;
-                const amt = order.amount_total || 0;
-                totalWonValue += amt;
-
-                if (leadId && leadCustomerTypeMap[leadId]) {
-                    const cType = leadCustomerTypeMap[leadId];
-                    if (dataMap[cType]) {
-                        dataMap[cType].wonValue += amt;
-                    }
-                }
+            // Store user filter domain for list view clicks (e.g. rep views)
+            if (res.user_filter_applied && res.allowed_uids && res.allowed_uids.length) {
+                this.state.userFilterDomain = [["user_id", "in", res.allowed_uids]];
+            } else {
+                this.state.userFilterDomain = [];
             }
 
             this.state.totalPipelineLeads = totalPipelineLeads;
@@ -171,43 +184,43 @@ export class CrmAnalyticsDashboard extends Component {
             this.state.unclassifiedCount = unclassifiedCount;
             this.state.totalWonValue = totalWonValue;
 
-            // 3. Map into 4 quadrants
+            // Update 4 quadrants
             this.state.matrixData = [
                 {
                     key: 'existing_existing',
                     name: 'Existing Customer – Existing Product',
-                    count: dataMap.existing_existing.count,
-                    wonValue: dataMap.existing_existing.wonValue,
-                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.existing_existing.count / classifiedLeadsCount) * 100) : 0,
+                    count: counts.existing_existing || 0,
+                    wonValue: wonVals.existing_existing || 0,
+                    percent: classifiedLeadsCount > 0 ? Math.round(((counts.existing_existing || 0) / classifiedLeadsCount) * 100) : 0,
                     colorClass: 'crm-quad-sky',
                 },
                 {
                     key: 'existing_new',
                     name: 'Existing Customer – New Product',
-                    count: dataMap.existing_new.count,
-                    wonValue: dataMap.existing_new.wonValue,
-                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.existing_new.count / classifiedLeadsCount) * 100) : 0,
+                    count: counts.existing_new || 0,
+                    wonValue: wonVals.existing_new || 0,
+                    percent: classifiedLeadsCount > 0 ? Math.round(((counts.existing_new || 0) / classifiedLeadsCount) * 100) : 0,
                     colorClass: 'crm-quad-indigo',
                 },
                 {
                     key: 'new_existing',
                     name: 'New Customer – Existing Product',
-                    count: dataMap.new_existing.count,
-                    wonValue: dataMap.new_existing.wonValue,
-                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.new_existing.count / classifiedLeadsCount) * 100) : 0,
+                    count: counts.new_existing || 0,
+                    wonValue: wonVals.new_existing || 0,
+                    percent: classifiedLeadsCount > 0 ? Math.round(((counts.new_existing || 0) / classifiedLeadsCount) * 100) : 0,
                     colorClass: 'crm-quad-emerald',
                 },
                 {
                     key: 'new_new',
                     name: 'New Customer – New Product',
-                    count: dataMap.new_new.count,
-                    wonValue: dataMap.new_new.wonValue,
-                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.new_new.count / classifiedLeadsCount) * 100) : 0,
+                    count: counts.new_new || 0,
+                    wonValue: wonVals.new_new || 0,
+                    percent: classifiedLeadsCount > 0 ? Math.round(((counts.new_new || 0) / classifiedLeadsCount) * 100) : 0,
                     colorClass: 'crm-quad-orange',
                 },
             ];
         } catch (e) {
-            console.error("Failed to load customer type analytics:", e);
+            console.error("Failed to load customer classification analytics:", e);
         } finally {
             this.state.loadingLeads = false;
         }

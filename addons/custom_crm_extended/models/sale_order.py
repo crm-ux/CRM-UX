@@ -1327,3 +1327,84 @@ class DashboardStats(models.Model):
             'ticket_uids': target_user._get_accessible_user_ids('perm_service_ticket') if ((target_user.perm_service_ticket or (target_user.crm_job_id.perm_service_ticket if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
             'amc_uids': target_user._get_accessible_user_ids('perm_amc') if ((target_user.perm_amc or (target_user.crm_job_id.perm_amc if target_user.crm_job_id else 'own')) not in ('all', 'admin')) else [],
         }
+
+    @api.model
+    def get_customer_classification_stats(self, user_id=None, is_admin=False, company_ids=None):
+        """Return customer classification analytics strictly respecting company and user permissions / View As."""
+        uid = user_id or self.env.uid
+        target_user = self.env['res.users'].sudo().browse(uid)
+
+        # 1. Company filter (always allow unassigned / global records)
+        company_filter = ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)] if company_ids else []
+
+        # 2. User permissions filter (View As / Rep vs Admin)
+        user_filter = []
+        is_user_admin = bool(is_admin) or (not user_id and (target_user._is_admin() or target_user.has_group('base.group_system')))
+        if not is_user_admin:
+            perm = target_user.perm_lead_quote or (target_user.crm_job_id.perm_lead_quote if target_user.crm_job_id else 'own')
+            if perm not in ('all', 'admin'):
+                allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
+                user_filter = [('user_id', 'in', allowed_uids)]
+
+        # 3. Query leads
+        lead_domain = [('active', '=', True)] + company_filter + user_filter
+        leads = self.env['crm.lead'].sudo().search_read(
+            lead_domain, ['id', 'x_customer_type']
+        )
+
+        total_pipeline = len(leads)
+        unclassified_count = 0
+        quad_counts = {
+            'existing_existing': 0,
+            'existing_new': 0,
+            'new_existing': 0,
+            'new_new': 0,
+        }
+        lead_type_map = {}
+        for l in leads:
+            ctype = l.get('x_customer_type')
+            if not ctype:
+                unclassified_count += 1
+            elif ctype in quad_counts:
+                quad_counts[ctype] += 1
+                lead_type_map[l['id']] = ctype
+
+        classified_count = total_pipeline - unclassified_count
+
+        # 4. Query Won Orders strictly matching company and user permissions
+        order_domain = [
+            ('x_quote_stage', '=', 'won'),
+            ('amount_total', '>', 0),
+            ('state', '!=', 'cancel'),
+        ] + company_filter + user_filter
+        won_orders = self.env['sale.order'].sudo().search_read(
+            order_domain, ['id', 'amount_total', 'opportunity_id']
+        )
+
+        total_won_val = 0.0
+        quad_won = {
+            'existing_existing': 0.0,
+            'existing_new': 0.0,
+            'new_existing': 0.0,
+            'new_new': 0.0,
+        }
+        for o in won_orders:
+            amt = o.get('amount_total') or 0.0
+            total_won_val += amt
+            opp = o.get('opportunity_id')
+            opp_id = opp[0] if opp else False
+            if opp_id and opp_id in lead_type_map:
+                ctype = lead_type_map[opp_id]
+                quad_won[ctype] += amt
+
+        return {
+            'total_pipeline': total_pipeline,
+            'classified_count': classified_count,
+            'unclassified_count': unclassified_count,
+            'total_won_val': total_won_val,
+            'counts': quad_counts,
+            'won_values': quad_won,
+            'user_filter_applied': bool(user_filter),
+            'allowed_uids': user_filter[0][2] if user_filter else [],
+        }
+

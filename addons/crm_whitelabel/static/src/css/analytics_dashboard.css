@@ -280,13 +280,16 @@
     justify-content: center;
     min-height: clamp(130px, 16vh, 180px);
     color: #ffffff;
-    transition: filter 0.15s ease;
+    transition: filter 0.15s ease, transform 0.15s ease;
     box-sizing: border-box;
     word-break: break-word;
+    cursor: pointer;
+    user-select: none;
 }
 
 .crm-an-quad-cell:hover {
-    filter: brightness(1.04);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
 }
 
 /* 4 Quadrant Colors matching Pipeline Theme:
