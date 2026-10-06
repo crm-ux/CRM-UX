@@ -160,6 +160,7 @@
                                         <span class="crm-an-row-name">Full Price (0% Disc)</span>
                                     </div>
                                     <div class="crm-an-row-right">
+                                        <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%</span>
                                         <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.full_price.count"/></strong> Quotes</span>
                                         <span class="crm-an-row-val">(<strong style="color: #16a34a;">₹0 Disc</strong>)</span>
                                     </div>
@@ -171,6 +172,7 @@
                                         <span class="crm-an-row-name">Small Disc (1–5%)</span>
                                     </div>
                                     <div class="crm-an-row-right">
+                                        <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%</span>
                                         <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.small_disc.count"/></strong> Quotes</span>
                                         <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
                                     </div>
@@ -182,6 +184,7 @@
                                         <span class="crm-an-row-name">Med Disc (5–10%)</span>
                                     </div>
                                     <div class="crm-an-row-right">
+                                        <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%</span>
                                         <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.med_disc.count"/></strong> Quotes</span>
                                         <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
                                     </div>
@@ -193,6 +196,7 @@
                                         <span class="crm-an-row-name">Heavy Disc (&gt;10%)</span>
                                     </div>
                                     <div class="crm-an-row-right">
+                                        <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%</span>
                                         <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.heavy_disc.count"/></strong> Quotes</span>
                                         <span class="crm-an-row-val">(<strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
                                     </div>
