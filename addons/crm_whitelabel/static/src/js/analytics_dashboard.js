@@ -13,11 +13,11 @@ export class CrmAnalyticsDashboard extends Component {
         this.action = useService("action");
 
         this.state = useState({
-            activeTab: "leads", // default to leads to inspect the new matrix
+            activeTab: "leads",
             userName: user.name || "User",
             currentCompany: "",
             loadingLeads: false,
-            // 2x2 Customer Classification Analytics Data
+            // 2x2 Customer Classification Quad Box
             matrixData: [
                 {
                     key: 'existing_existing',
@@ -25,7 +25,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: 0,
                     value: 0,
                     percent: 0,
-                    shadeClass: 'crm-an-shade-4', // Top shade
+                    icon: 'fa-cubes',
+                    colorClass: 'crm-quad-blue',
                 },
                 {
                     key: 'existing_new',
@@ -33,7 +34,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: 0,
                     value: 0,
                     percent: 0,
-                    shadeClass: 'crm-an-shade-3',
+                    icon: 'fa-line-chart',
+                    colorClass: 'crm-quad-red',
                 },
                 {
                     key: 'new_existing',
@@ -41,7 +43,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: 0,
                     value: 0,
                     percent: 0,
-                    shadeClass: 'crm-an-shade-2',
+                    icon: 'fa-bar-chart',
+                    colorClass: 'crm-quad-green',
                 },
                 {
                     key: 'new_new',
@@ -49,7 +52,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: 0,
                     value: 0,
                     percent: 0,
-                    shadeClass: 'crm-an-shade-1',
+                    icon: 'fa-rocket',
+                    colorClass: 'crm-quad-orange',
                 },
             ],
             totalLeadsCount: 0,
@@ -80,7 +84,6 @@ export class CrmAnalyticsDashboard extends Component {
     async loadCustomerTypeAnalytics() {
         this.state.loadingLeads = true;
         try {
-            // Group by x_customer_type from crm.lead
             const res = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead",
                 method: "read_group",
@@ -116,14 +119,15 @@ export class CrmAnalyticsDashboard extends Component {
             this.state.totalLeadsCount = totalCount;
             this.state.totalPipelineValue = totalVal;
 
-            // Map and calculate percentage
-            const items = [
+            this.state.matrixData = [
                 {
                     key: 'existing_existing',
                     name: 'Existing Customer – Existing Product',
                     count: dataMap.existing_existing.count,
                     value: dataMap.existing_existing.value,
                     percent: totalCount > 0 ? Math.round((dataMap.existing_existing.count / totalCount) * 100) : 0,
+                    icon: 'fa-cubes',
+                    colorClass: 'crm-quad-blue',
                 },
                 {
                     key: 'existing_new',
@@ -131,6 +135,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: dataMap.existing_new.count,
                     value: dataMap.existing_new.value,
                     percent: totalCount > 0 ? Math.round((dataMap.existing_new.count / totalCount) * 100) : 0,
+                    icon: 'fa-line-chart',
+                    colorClass: 'crm-quad-red',
                 },
                 {
                     key: 'new_existing',
@@ -138,6 +144,8 @@ export class CrmAnalyticsDashboard extends Component {
                     count: dataMap.new_existing.count,
                     value: dataMap.new_existing.value,
                     percent: totalCount > 0 ? Math.round((dataMap.new_existing.count / totalCount) * 100) : 0,
+                    icon: 'fa-bar-chart',
+                    colorClass: 'crm-quad-green',
                 },
                 {
                     key: 'new_new',
@@ -145,19 +153,10 @@ export class CrmAnalyticsDashboard extends Component {
                     count: dataMap.new_new.count,
                     value: dataMap.new_new.value,
                     percent: totalCount > 0 ? Math.round((dataMap.new_new.count / totalCount) * 100) : 0,
+                    icon: 'fa-rocket',
+                    colorClass: 'crm-quad-orange',
                 },
             ];
-
-            // Dynamically assign shade: highest count gets darkest, lowest gets lightest
-            const sortedCounts = [...items].map(it => it.count).sort((a, b) => b - a);
-            const shadeClasses = ['crm-an-shade-4', 'crm-an-shade-3', 'crm-an-shade-2', 'crm-an-shade-1'];
-
-            for (const item of items) {
-                const rank = sortedCounts.indexOf(item.count);
-                item.shadeClass = shadeClasses[rank >= 0 && rank < 4 ? rank : 3];
-            }
-
-            this.state.matrixData = items;
         } catch (e) {
             console.error("Failed to load customer type analytics:", e);
         } finally {

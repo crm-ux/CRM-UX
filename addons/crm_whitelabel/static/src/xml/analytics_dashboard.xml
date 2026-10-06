@@ -73,37 +73,36 @@
 
                     <!-- TAB 2: Lead Funnel -->
                     <div t-if="state.activeTab === 'leads'" class="crm-tab-panel">
-                        <div class="crm-an-section-card">
-                            <div class="crm-an-section-head">
-                                <div>
-                                    <h3 class="crm-an-section-title">Customer Classification Breakdown</h3>
-                                    <p class="crm-an-section-sub">Customer vs Product occupancy and pipeline distribution</p>
+                        <div class="crm-an-quad-wrapper">
+                            <!-- Inner Header & Embedded Strip INSIDE the box -->
+                            <div class="crm-an-quad-header">
+                                <div class="crm-an-quad-title-group">
+                                    <h3 class="crm-an-quad-title">Customer Classification</h3>
+                                    <p class="crm-an-quad-subtitle">Customer vs Product occupancy and pipeline distribution</p>
                                 </div>
-                                <div class="crm-an-matrix-summary">
-                                    <span>Total: <strong><t t-esc="state.totalLeadsCount"/> Leads</strong></span>
-                                    <span class="crm-an-bullet">•</span>
-                                    <span>Pipeline: <strong><t t-esc="fmt(state.totalPipelineValue)"/></strong></span>
+                                <div class="crm-an-quad-strip">
+                                    <span class="crm-an-strip-item">Total: <strong><t t-esc="state.totalLeadsCount"/> Leads</strong></span>
+                                    <span class="crm-an-strip-dot">•</span>
+                                    <span class="crm-an-strip-item">Pipeline: <strong><t t-esc="fmt(state.totalPipelineValue)"/></strong></span>
                                 </div>
                             </div>
 
-                            <!-- 2x2 Matrix Grid (No outer borders/labels, only 4 pure cards) -->
-                            <div class="crm-an-2x2-grid">
+                            <!-- Single Connected 2x2 Rounded Matrix Box (Matching Image Exactly) -->
+                            <div class="crm-an-quad-box">
                                 <t t-foreach="state.matrixData" t-as="item" t-key="item.key">
-                                    <div class="crm-an-matrix-card" t-att-class="item.shadeClass">
-                                        <div class="crm-an-card-top-title">
+                                    <div class="crm-an-quad-cell" t-att-class="item.colorClass">
+                                        <div class="crm-an-cell-icon">
+                                            <i t-att-class="'fa ' + item.icon"></i>
+                                        </div>
+                                        <div class="crm-an-cell-title">
                                             <t t-esc="item.name"/>
                                         </div>
-                                        <div class="crm-an-card-mid-row">
-                                            <div class="crm-an-card-count">
-                                                <t t-esc="item.count"/> <span class="crm-an-unit">Leads</span>
-                                            </div>
-                                            <div class="crm-an-card-pill">
-                                                <t t-esc="item.percent"/>%
-                                            </div>
+                                        <div class="crm-an-cell-stats">
+                                            <span class="crm-an-cell-count"><t t-esc="item.count"/> Leads</span>
+                                            <span class="crm-an-cell-badge"><t t-esc="item.percent"/>%</span>
                                         </div>
-                                        <div class="crm-an-card-val-row">
-                                            <span class="crm-an-val-label">Value:</span>
-                                            <span class="crm-an-val-amount"><t t-esc="fmt(item.value)"/></span>
+                                        <div class="crm-an-cell-value">
+                                            Value: <strong><t t-esc="fmt(item.value)"/></strong>
                                         </div>
                                     </div>
                                 </t>

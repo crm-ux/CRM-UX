@@ -197,173 +197,171 @@
 }
 
 /* ==========================================================================
-   2x2 CUSTOMER CLASSIFICATION MATRIX STYLES
-   Single Unified Theme Color (Deep Navy Blue) with 4 Adaptive Depth Shades
+   2x2 CUSTOMER CLASSIFICATION QUAD BOX (MATCHING IMAGE)
+   Single unified rounded container with 4 quadrants & embedded top strip
    ========================================================================== */
 
-.crm-an-section-sub {
+.crm-an-quad-wrapper {
+    background: #ffffff;
+    border: 1px solid var(--crm-an-border);
+    border-radius: var(--crm-an-radius-lg);
+    padding: clamp(1rem, 1.6vw, 1.5rem);
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.crm-an-quad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.crm-an-quad-title {
+    font-size: clamp(1rem, 1.25vw, 1.2rem);
+    font-weight: 800;
+    color: var(--crm-an-text-dark);
+    margin: 0;
+}
+
+.crm-an-quad-subtitle {
     font-size: clamp(0.78rem, 0.9vw, 0.86rem);
     color: var(--crm-an-text-muted);
     margin: 0.2rem 0 0 0;
 }
 
-.crm-an-matrix-summary {
-    display: flex;
+/* Strip EMBEDDED INSIDE the box */
+.crm-an-quad-strip {
+    display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
-    font-size: clamp(0.8rem, 0.92vw, 0.9rem);
-    color: var(--crm-an-text-dark);
+    gap: 0.75rem;
     background: #f8fafc;
     border: 1px solid var(--crm-an-border);
-    padding: 0.4rem 0.85rem;
+    padding: 0.35rem 0.85rem;
     border-radius: var(--crm-an-radius-md);
+    font-size: clamp(0.8rem, 0.92vw, 0.88rem);
+    color: var(--crm-an-text-dark);
 }
 
-.crm-an-matrix-summary strong {
+.crm-an-quad-strip strong {
     color: var(--crm-an-primary);
 }
 
-.crm-an-bullet {
+.crm-an-strip-dot {
     color: #cbd5e1;
 }
 
-/* Pure 2x2 Matrix Grid (No outer table lines) */
-.crm-an-2x2-grid {
+/* Single Connected 2x2 Rounded Box */
+.crm-an-quad-box {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: clamp(1rem, 1.5vw, 1.35rem);
-    width: 100%;
-    box-sizing: border-box;
+    grid-template-rows: repeat(2, auto);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    gap: 2px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
-/* Individual Matrix Card */
-.crm-an-matrix-card {
-    border-radius: var(--crm-an-radius-lg);
-    padding: clamp(1.25rem, 1.8vw, 1.6rem);
+/* Individual Quadrant Cell */
+.crm-an-quad-cell {
+    padding: clamp(1.4rem, 2vw, 2rem);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: clamp(140px, 16vh, 180px);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-    border: 1px solid transparent;
-    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.03);
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    min-height: clamp(150px, 18vh, 200px);
+    color: #ffffff;
+    transition: filter 0.15s ease;
     box-sizing: border-box;
 }
 
-.crm-an-matrix-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.06);
+.crm-an-quad-cell:hover {
+    filter: brightness(1.04);
 }
 
-/* 4 Shades of Single Primary Color (Highest = Darkest, Lowest = Lightest) */
-
-/* Shade 4 (Highest Share / #1 Winner) - Dark Deep Blue with crisp white text */
-.crm-an-shade-4 {
-    background: linear-gradient(135deg, #0b3d91 0%, #082d6e 100%);
-    border-color: #082d6e;
-    color: #ffffff;
-}
-.crm-an-shade-4 .crm-an-card-top-title { color: #f8fafc; font-weight: 700; }
-.crm-an-shade-4 .crm-an-card-count { color: #ffffff; }
-.crm-an-shade-4 .crm-an-unit { color: #93c5fd; }
-.crm-an-shade-4 .crm-an-card-pill { background: rgba(255, 255, 255, 0.22); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.35); }
-.crm-an-shade-4 .crm-an-card-val-row { border-top: 1px solid rgba(255, 255, 255, 0.18); }
-.crm-an-shade-4 .crm-an-val-label { color: #bfdbfe; }
-.crm-an-shade-4 .crm-an-val-amount { color: #ffffff; }
-
-/* Shade 3 (#2 Share) - Rich Medium Blue */
-.crm-an-shade-3 {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    border-color: #1e40af;
-    color: #ffffff;
-}
-.crm-an-shade-3 .crm-an-card-top-title { color: #f8fafc; font-weight: 700; }
-.crm-an-shade-3 .crm-an-card-count { color: #ffffff; }
-.crm-an-shade-3 .crm-an-unit { color: #bfdbfe; }
-.crm-an-shade-3 .crm-an-card-pill { background: rgba(255, 255, 255, 0.2); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.3); }
-.crm-an-shade-3 .crm-an-card-val-row { border-top: 1px solid rgba(255, 255, 255, 0.16); }
-.crm-an-shade-3 .crm-an-val-label { color: #dbeafe; }
-.crm-an-shade-3 .crm-an-val-amount { color: #ffffff; }
-
-/* Shade 2 (#3 Share) - Soft Light Blue with dark readable text */
-.crm-an-shade-2 {
-    background: #e0f2fe;
-    border-color: #bae6fd;
-    color: #0f172a;
-}
-.crm-an-shade-2 .crm-an-card-top-title { color: #0369a1; font-weight: 700; }
-.crm-an-shade-2 .crm-an-card-count { color: #0c4a6e; }
-.crm-an-shade-2 .crm-an-unit { color: #0284c7; }
-.crm-an-shade-2 .crm-an-card-pill { background: #0284c7; color: #ffffff; font-weight: 700; }
-.crm-an-shade-2 .crm-an-card-val-row { border-top: 1px solid #bae6fd; }
-.crm-an-shade-2 .crm-an-val-label { color: #0284c7; }
-.crm-an-shade-2 .crm-an-val-amount { color: #0c4a6e; }
-
-/* Shade 1 (Lowest Share) - Very Soft Tint with high contrast dark text */
-.crm-an-shade-1 {
-    background: #f0f9ff;
-    border-color: #e0f2fe;
-    color: #0f172a;
-}
-.crm-an-shade-1 .crm-an-card-top-title { color: #0284c7; font-weight: 700; }
-.crm-an-shade-1 .crm-an-card-count { color: #0369a1; }
-.crm-an-shade-1 .crm-an-unit { color: #64748b; }
-.crm-an-shade-1 .crm-an-card-pill { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; font-weight: 700; }
-.crm-an-shade-1 .crm-an-card-val-row { border-top: 1px solid #e0f2fe; }
-.crm-an-shade-1 .crm-an-val-label { color: #64748b; }
-.crm-an-shade-1 .crm-an-val-amount { color: #0369a1; }
-
-/* Typography inside card */
-.crm-an-card-top-title {
-    font-size: clamp(0.92rem, 1.1vw, 1.05rem);
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    margin-bottom: clamp(0.5rem, 1vw, 0.85rem);
+/* 4 Quadrant Colors matching image exactly:
+   Top-Left: Blue | Top-Right: Red | Bottom-Left: Green | Bottom-Right: Orange */
+.crm-quad-blue {
+    background: #0284c7; /* Bright modern blue */
 }
 
-.crm-an-card-mid-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: clamp(0.5rem, 0.8vw, 0.75rem);
+.crm-quad-red {
+    background: #e11d48; /* Vibrant red */
 }
 
-.crm-an-card-count {
-    font-size: clamp(1.45rem, 2.2vw, 2rem);
-    font-weight: 800;
-    line-height: 1;
+.crm-quad-green {
+    background: #65a30d; /* Crisp lime green */
 }
 
-.crm-an-unit {
-    font-size: clamp(0.76rem, 0.9vw, 0.84rem);
-    font-weight: 600;
-    margin-left: 0.25rem;
+.crm-quad-orange {
+    background: #ea580c; /* Rich energetic orange */
 }
 
-.crm-an-card-pill {
-    font-size: clamp(0.78rem, 0.95vw, 0.88rem);
-    font-weight: 800;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    line-height: 1;
+/* Icon in cell */
+.crm-an-cell-icon {
+    font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+    margin-bottom: 0.6rem;
+    opacity: 0.95;
 }
 
-.crm-an-card-val-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: clamp(0.45rem, 0.7vw, 0.65rem);
-    font-size: clamp(0.82rem, 0.95vw, 0.92rem);
-}
-
-.crm-an-val-label {
-    font-weight: 600;
-}
-
-.crm-an-val-amount {
-    font-weight: 800;
+/* Title in cell */
+.crm-an-cell-title {
     font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 0.65rem;
+    color: #ffffff;
+    max-width: 90%;
+}
+
+/* Stats (Count + Percent Pill) */
+.crm-an-cell-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.crm-an-cell-count {
+    font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+    font-weight: 800;
+    line-height: 1;
+}
+
+.crm-an-cell-badge {
+    background: rgba(255, 255, 255, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+    font-size: clamp(0.72rem, 0.85vw, 0.82rem);
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+}
+
+/* Value row */
+.crm-an-cell-value {
+    font-size: clamp(0.76rem, 0.9vw, 0.86rem);
+    opacity: 0.92;
+    color: #ffffff;
+}
+
+.crm-an-cell-value strong {
+    font-weight: 800;
+    font-size: clamp(0.84rem, 1vw, 0.96rem);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 48rem) {
+    .crm-an-quad-box {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Mobile Responsiveness */
