@@ -239,24 +239,42 @@
 .crm-an-quad-strip {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.65rem;
     background: #f8fafc;
     border: 1px solid var(--crm-an-border);
-    padding: 0.35rem 0.75rem;
+    padding: 0.4rem 0.85rem;
     border-radius: var(--crm-an-radius-md);
-    font-size: clamp(0.78rem, 0.9vw, 0.88rem);
-    color: var(--crm-an-text-dark);
-    max-width: 100%;
     box-sizing: border-box;
 }
 
-.crm-an-quad-strip strong {
-    color: var(--crm-an-primary);
+.crm-an-strip-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 0.5rem;
 }
 
-.crm-an-strip-dot {
-    color: #cbd5e1;
+.crm-an-strip-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--crm-an-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    margin-bottom: 0.15rem;
+}
+
+.crm-an-strip-val {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--crm-an-text-dark);
+    line-height: 1;
+}
+
+.crm-an-strip-divider {
+    width: 1px;
+    height: 1.5rem;
+    background: #e2e8f0;
+    margin: 0 0.25rem;
 }
 
 /* Single Connected 2x2 Rounded Box */
@@ -446,9 +464,29 @@
         font-size: 0.72rem !important;
     }
 
+    /* Mobile Strip Layout: Clean 2x2 mini-grid */
     .crm-an-quad-strip {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
         width: 100% !important;
-        justify-content: flex-start !important;
+        padding: 0.65rem !important;
+    }
+
+    .crm-an-strip-divider {
+        display: none !important;
+    }
+
+    .crm-an-strip-stat {
+        padding: 0.25rem 0.35rem !important;
+    }
+
+    .crm-an-strip-label {
+        font-size: 0.64rem !important;
+    }
+
+    .crm-an-strip-val {
+        font-size: 0.82rem !important;
     }
 
     .crm-analytics-container {

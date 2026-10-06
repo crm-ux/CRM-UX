@@ -81,22 +81,33 @@
                                     <p class="crm-an-quad-subtitle">Customer vs Product occupancy and Won revenue distribution</p>
                                 </div>
                                 <div class="crm-an-quad-strip">
-                                    <span class="crm-an-strip-item">Total Pipeline: <strong><t t-esc="state.totalPipelineLeads"/> Leads</strong></span>
-                                    <span class="crm-an-strip-dot">•</span>
-                                    <span class="crm-an-strip-item">Classified: <strong><t t-esc="state.classifiedLeadsCount"/></strong></span>
-                                    <span class="crm-an-strip-dot">•</span>
-                                    <!-- Clickable Unclassified Badge (shows only if unclassified count > 0) -->
-                                    <span t-if="state.unclassifiedCount > 0" 
-                                          class="crm-an-unclass-badge clickable" 
-                                          t-on-click="openUnclassifiedLeads" 
-                                          title="Click to view unclassified leads">
-                                        <t t-esc="state.unclassifiedCount"/> Unclassified
-                                    </span>
-                                    <span t-else="" class="crm-an-unclass-badge zero">
-                                        0 Unclassified
-                                    </span>
-                                    <span class="crm-an-strip-dot">•</span>
-                                    <span class="crm-an-strip-item">Won Revenue: <strong style="color: #16a34a;"><t t-esc="fmt(state.totalWonValue)"/></strong></span>
+                                    <div class="crm-an-strip-stat">
+                                        <span class="crm-an-strip-label">Total Pipeline</span>
+                                        <span class="crm-an-strip-val"><t t-esc="state.totalPipelineLeads"/> Leads</span>
+                                    </div>
+                                    <div class="crm-an-strip-divider"></div>
+                                    <div class="crm-an-strip-stat">
+                                        <span class="crm-an-strip-label">Classified</span>
+                                        <span class="crm-an-strip-val"><t t-esc="state.classifiedLeadsCount"/></span>
+                                    </div>
+                                    <div class="crm-an-strip-divider"></div>
+                                    <div class="crm-an-strip-stat">
+                                        <span class="crm-an-strip-label">Unclassified</span>
+                                        <span t-if="state.unclassifiedCount > 0" 
+                                              class="crm-an-unclass-badge clickable" 
+                                              t-on-click="openUnclassifiedLeads" 
+                                              title="Click to view unclassified leads">
+                                            <t t-esc="state.unclassifiedCount"/>
+                                        </span>
+                                        <span t-else="" class="crm-an-unclass-badge zero">
+                                            0
+                                        </span>
+                                    </div>
+                                    <div class="crm-an-strip-divider"></div>
+                                    <div class="crm-an-strip-stat">
+                                        <span class="crm-an-strip-label">Won Revenue</span>
+                                        <span class="crm-an-strip-val" style="color: #16a34a;"><t t-esc="fmt(state.totalWonValue)"/></span>
+                                    </div>
                                 </div>
                             </div>
 

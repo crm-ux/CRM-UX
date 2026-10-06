@@ -4,6 +4,7 @@ import { registry } from "@web/core/registry";
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { user } from "@web/core/user";
+import { session } from "@web/session";
 import { rpc } from "@web/core/network/rpc";
 
 export class CrmAnalyticsDashboard extends Component {
@@ -71,14 +72,24 @@ export class CrmAnalyticsDashboard extends Component {
         this.action.doAction("crm_dashboard", { clearBreadcrumbs: true });
     }
 
+    _getCompanyFilter() {
+        const cId = session.user_companies?.current_company_id || session.user_context?.allowed_company_ids?.[0];
+        if (cId) {
+            return ['|', ['company_id', '=', false], ['company_id', '=', cId]];
+        }
+        return [];
+    }
+
     openUnclassifiedLeads() {
         if (!this.state.unclassifiedCount) return;
+        const companyDomain = this._getCompanyFilter();
+        const domain = [["active", "=", true], ["x_customer_type", "=", false], ...companyDomain];
         this.action.doAction({
             type: "ir.actions.act_window",
             name: "Unclassified Leads",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
-            domain: [["active", "=", true], ["x_customer_type", "=", false]],
+            domain: domain,
         });
     }
 
@@ -93,11 +104,14 @@ export class CrmAnalyticsDashboard extends Component {
     async loadCustomerTypeAnalytics() {
         this.state.loadingLeads = true;
         try {
-            // 1. Fetch ALL active leads to calculate total pipeline count & unclassified count
+            const companyFilter = this._getCompanyFilter();
+
+            // 1. Fetch leads filtered by Active Company & User's standard access rights
+            const leadDomain = [['active', '=', true], ...companyFilter];
             const allLeads = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead",
                 method: "search_read",
-                args: [[['active', '=', true]]],
+                args: [leadDomain],
                 kwargs: { fields: ['id', 'x_customer_type'], limit: 1000 },
             });
 
@@ -123,15 +137,18 @@ export class CrmAnalyticsDashboard extends Component {
 
             const classifiedLeadsCount = totalPipelineLeads - unclassifiedCount;
 
-            // 2. Fetch WON orders strictly to calculate actual Won Revenue per customer type
+            // 2. Fetch WON orders filtered by Active Company
+            const orderDomain = [
+                ['x_quote_stage', '=', 'won'],
+                ['amount_total', '>', 0],
+                ['state', '!=', 'cancel'],
+                ...companyFilter
+            ];
+
             const wonOrders = await rpc("/web/dataset/call_kw", {
                 model: "sale.order",
                 method: "search_read",
-                args: [[
-                    ['x_quote_stage', '=', 'won'],
-                    ['amount_total', '>', 0],
-                    ['state', '!=', 'cancel']
-                ]],
+                args: [orderDomain],
                 kwargs: { fields: ['id', 'amount_total', 'opportunity_id'], limit: 500 },
             });
 
@@ -154,7 +171,7 @@ export class CrmAnalyticsDashboard extends Component {
             this.state.unclassifiedCount = unclassifiedCount;
             this.state.totalWonValue = totalWonValue;
 
-            // 3. Map into 4 quadrants with pipeline theme colors & NO icons
+            // 3. Map into 4 quadrants
             this.state.matrixData = [
                 {
                     key: 'existing_existing',
