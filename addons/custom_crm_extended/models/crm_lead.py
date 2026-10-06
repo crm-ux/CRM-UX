@@ -500,7 +500,7 @@ class CrmLead(models.Model):
             self.partner_id = partner.id
             partner_id = partner.id
 
-        new_quote = self.env['sale.order'].create({
+        new_quote = self.env['sale.order'].sudo().create({
             'opportunity_id': self.id,
             'partner_id': partner_id,
             'order_line': order_lines,

@@ -19,7 +19,7 @@ class CrmLeadWonPoWizard(models.TransientModel):
         lead = self.lead_id
 
         # Sync PO to linked quotation if exists
-        quotation = self.env['sale.order'].search([
+        quotation = self.env['sale.order'].sudo().search([
             ('opportunity_id', '=', lead.id),
             ('state', 'in', ['draft', 'sent'])
         ], order='id desc', limit=1)
@@ -30,11 +30,13 @@ class CrmLeadWonPoWizard(models.TransientModel):
                     "Cannot mark as Won: The linked quotation '%s' has total amount of ₹0.00!\n\n"
                     "Please add at least one product with a valid price in the quotation first."
                 ) % quotation.name)
-            quotation.x_po_number = self.po_number
-            quotation.x_po_date = self.po_date
-            quotation.x_final_quote_locked = True
-            quotation.x_quote_stage = 'won'
-            quotation.message_post(
+            quotation.sudo().write({
+                'x_po_number': self.po_number,
+                'x_po_date': self.po_date,
+                'x_final_quote_locked': True,
+                'x_quote_stage': 'won',
+            })
+            quotation.sudo().message_post(
                 body=_('Quote marked as <b>Won</b> via Lead. PO: <b>%s</b>') % (self.po_number or '')
             )
 
