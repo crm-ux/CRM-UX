@@ -973,23 +973,22 @@ class DashboardStats(models.Model):
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
         lead_values = {r['x_stage_sequence']: (r.get('expected_revenue') or 0.0) for r in leads}
 
-        # Lead priority counts and values
+        # Lead priority counts and values (strictly matching list view filter: [('x_lead_priority', '=', level)])
         lead_priority_domain = lead_domain + [('x_stage_sequence', '<', 30)]
         priority_counts = {'high': 0, 'medium': 0, 'low': 0}
         priority_values = {'high': 0.0, 'medium': 0.0, 'low': 0.0}
         p_leads = self.env['crm.lead'].sudo().search(lead_priority_domain)
         for pl in p_leads:
-            p_level = pl.x_lead_priority or ('high' if pl.priority == '3' else ('low' if pl.priority in ('0', '1') else 'medium'))
-            if p_level not in priority_counts:
-                p_level = 'medium'
-            priority_counts[p_level] += 1
-            # Revenue calculation: expected_revenue or fallback to order/products
-            rev = pl.expected_revenue or 0.0
-            if not rev and hasattr(pl, 'order_ids') and pl.order_ids:
-                rev = sum(pl.order_ids.filtered(lambda o: o.state != 'cancel').mapped('amount_total'))
-            if not rev and hasattr(pl, 'lead_product_ids') and pl.lead_product_ids:
-                rev = sum(pl.lead_product_ids.mapped('x_subtotal') if hasattr(pl.lead_product_ids[0], 'x_subtotal') else [0.0])
-            priority_values[p_level] += rev
+            p_level = pl.x_lead_priority
+            if p_level in priority_counts:
+                priority_counts[p_level] += 1
+                # Revenue calculation: expected_revenue or fallback to order/products
+                rev = pl.expected_revenue or 0.0
+                if not rev and hasattr(pl, 'order_ids') and pl.order_ids:
+                    rev = sum(pl.order_ids.filtered(lambda o: o.state != 'cancel').mapped('amount_total'))
+                if not rev and hasattr(pl, 'lead_product_ids') and pl.lead_product_ids:
+                    rev = sum(pl.lead_product_ids.mapped('x_subtotal') if hasattr(pl.lead_product_ids[0], 'x_subtotal') else [0.0])
+                priority_values[p_level] += rev
 
         # Quote stage counts and values
         quote_domain = [('state', '!=', 'cancel')] + company_filter + user_filter
