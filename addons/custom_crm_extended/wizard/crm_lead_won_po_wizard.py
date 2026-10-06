@@ -25,6 +25,11 @@ class CrmLeadWonPoWizard(models.TransientModel):
         ], order='id desc', limit=1)
 
         if quotation:
+            if not quotation.order_line or (quotation.amount_total or 0.0) <= 0:
+                raise UserError(_(
+                    "Cannot mark as Won: The linked quotation '%s' has total amount of ₹0.00!\n\n"
+                    "Please add at least one product with a valid price in the quotation first."
+                ) % quotation.name)
             quotation.x_po_number = self.po_number
             quotation.x_po_date = self.po_date
             quotation.x_final_quote_locked = True

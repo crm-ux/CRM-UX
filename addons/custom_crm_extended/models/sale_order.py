@@ -272,10 +272,11 @@ class SaleOrder(models.Model):
     # COMPUTE
     # ==================================================================
     
-    @api.depends('x_quote_stage', 'x_invoice_date', 'x_invoice_number', 'invoice_ids', 'invoice_ids.state')
+    @api.depends('x_quote_stage', 'x_invoice_date', 'x_invoice_number', 'invoice_ids', 'invoice_ids.state', 'amount_total')
     def _compute_custom_invoice_status(self):
         for order in self:
-            if order.x_quote_stage == 'won':
+            # Only won orders with actual billable value can have invoice status
+            if order.x_quote_stage == 'won' and (order.amount_total or 0.0) > 0:
                 has_inv = (
                     bool(order.x_invoice_date) or 
                     bool(order.x_invoice_number) or 
@@ -582,6 +583,11 @@ class SaleOrder(models.Model):
     def action_mark_won(self):
         """Mark quote as Won - opens PO entry popup if PO number missing, else confirms directly."""
         self.ensure_one()
+        if not self.order_line or (self.amount_total or 0.0) <= 0:
+            raise UserError(_(
+                "Cannot mark quotation as Won: Total amount is ₹0.00!\n\n"
+                "Please add at least one product with a valid price before marking this quote as Won."
+            ))
         if not self.x_po_number:
             return {
                 'type': 'ir.actions.act_window',
@@ -597,6 +603,11 @@ class SaleOrder(models.Model):
     def action_confirm_won(self):
         """Called from the PO popup form - validates PO number then confirms Won."""
         self.ensure_one()
+        if not self.order_line or (self.amount_total or 0.0) <= 0:
+            raise UserError(_(
+                "Cannot mark quotation as Won: Total amount is ₹0.00!\n\n"
+                "Please add at least one product with a valid price before marking this quote as Won."
+            ))
         if not self.x_po_number:
             raise UserError(_('Please enter the PO Number before marking this quote as Won.'))
         self._confirm_won()
@@ -997,7 +1008,10 @@ class DashboardStats(models.Model):
         quote_values = {r['x_quote_stage']: (r.get('amount_total') or 0.0) for r in quotes}
 
         # Revenue
-        won_orders = self.env['sale.order'].sudo().search([('x_quote_stage', '=', 'won')] + company_filter + user_filter)
+        won_orders = self.env['sale.order'].sudo().search([
+            ('x_quote_stage', '=', 'won'),
+            ('amount_total', '>', 0)
+        ] + company_filter + user_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 
         # Check invoice date for Won orders & sum amounts

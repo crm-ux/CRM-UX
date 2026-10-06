@@ -961,7 +961,7 @@ class CrmDashboard extends Component {
             name: "Invoiced Orders",
             res_model: "sale.order",
             views: [[false, "list"], [false, "form"]],
-            domain: [["x_quote_stage", "=", "won"], ["x_invoice_date", "!=", false], ...cd],
+            domain: [["x_quote_stage", "=", "won"], ["amount_total", ">", 0], ["x_invoice_date", "!=", false], ...cd],
             context: { allowed_company_ids: this.state.selectedCompanies }
         });
     }
@@ -979,7 +979,7 @@ class CrmDashboard extends Component {
             name: "Invoice Pending Orders",
             res_model: "sale.order",
             views: [[false, "list"], [false, "form"]],
-            domain: [["x_quote_stage", "=", "won"], ["x_invoice_date", "=", false], ...cd],
+            domain: [["x_quote_stage", "=", "won"], ["amount_total", ">", 0], ["x_invoice_date", "=", false], ...cd],
             context: { allowed_company_ids: this.state.selectedCompanies }
         });
     }
