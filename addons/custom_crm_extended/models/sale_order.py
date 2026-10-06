@@ -1157,6 +1157,38 @@ class DashboardStats(models.Model):
                 'stock_status': r.stock_status,
             })
 
+        # Equipment values (summing list_price of linked product model)
+        equipment_values = {'total': 0.0, 'active': 0.0, 'inactive': 0.0, 'repair': 0.0}
+        all_user_eqs = self.env['equipment.master'].sudo().search(shared_company_filter + eq_filter)
+        for eq in all_user_eqs:
+            eq_val = eq.name.list_price if eq.name else 0.0
+            equipment_values['total'] += eq_val
+            st = eq.equipment_status or 'active'
+            if st == 'under_repair':
+                equipment_values['repair'] += eq_val
+            elif st in equipment_values:
+                equipment_values[st] += eq_val
+
+        # Service Ticket voucher expense values (summing service.ticket.voucher.line amount)
+        ticket_values = {'total': 0.0, 'open': 0.0, 'ongoing': 0.0, 'closed': 0.0}
+        all_user_tickets = self.env['service.ticket'].sudo().search(shared_company_filter + ticket_filter)
+        for t in all_user_tickets:
+            t_val = sum(t.voucher_line_ids.mapped('amount')) or 0.0
+            ticket_values['total'] += t_val
+            st = t.ticket_status or 'new'
+            if st in ('new', 'contacted', 'open'):
+                ticket_values['open'] += t_val
+            elif st in ('ongoing', 'pending'):
+                ticket_values['ongoing'] += t_val
+            elif st == 'closed':
+                ticket_values['closed'] += t_val
+
+        # Product Stock total inventory valuation
+        stock_total_val = 0.0
+        all_user_stocks = self.env['crm.product.stock'].sudo().search([])
+        for srec in all_user_stocks:
+            stock_total_val += (srec.quantity or 0.0) * (srec.product_id.list_price or 0.0)
+
         # AMC Contract status values (summing contract_value for total, draft, active, expired)
         amc_values = {'total': 0.0, 'draft': 0.0, 'active': 0.0, 'expired': 0.0}
         all_user_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter)
@@ -1192,7 +1224,10 @@ class DashboardStats(models.Model):
             'invoice_pending': invoice_pending,
             'invoice_pending_val': invoice_pending_val,
             'equipment_counts': equipment_counts,
+            'equipment_values': equipment_values,
             'ticket_counts': ticket_counts,
+            'ticket_values': ticket_values,
+            'stock_total_val': stock_total_val,
             'amc_counts': amc_counts,
             'amc_values': amc_values,
             'complaint_counts': complaint_counts,

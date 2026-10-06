@@ -532,18 +532,22 @@
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([], 'All Equipment')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.equipmentTotal || 0"/></span>
                                     <span class="crm-stat-metric-lbl">Total</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.equipmentTotalVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','active']], 'Active Equipment')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.equipmentActive || 0"/></span>
                                     <span class="crm-stat-metric-lbl">Active</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.equipmentActiveVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','inactive']], 'Inactive Equipment')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.equipmentInactive || 0"/></span>
                                     <span class="crm-stat-metric-lbl">Inactive</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.equipmentInactiveVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openEquipmentList([['equipment_status','=','under_repair']], 'Under Repair')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.equipmentRepair || 0"/></span>
                                     <span class="crm-stat-metric-lbl">Repair</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.equipmentRepairVal || 0)"/>)</span>
                                 </div>
                             </div>
                         </div>
@@ -594,18 +598,22 @@
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([], 'All Service Tickets')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.ticketTotal"/></span>
                                     <span class="crm-stat-metric-lbl">Total</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.ticketTotalVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','open']], 'Open Tickets')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.ticketOpen"/></span>
                                     <span class="crm-stat-metric-lbl">Open</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.ticketOpenVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','ongoing']], 'On Going Tickets')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.ticketOngoing"/></span>
                                     <span class="crm-stat-metric-lbl">On Going</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.ticketOngoingVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openServiceTicketList([['ticket_status','=','closed']], 'Closed Tickets')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.ticketClosed"/></span>
                                     <span class="crm-stat-metric-lbl">Closed</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.ticketClosedVal || 0)"/>)</span>
                                 </div>
                             </div>
                         </div>
@@ -623,6 +631,7 @@
                                 <div class="crm-stat-metric">
                                     <span class="crm-stat-metric-val"><t t-esc="state.productStockCount || 0"/></span>
                                     <span class="crm-stat-metric-lbl">Products</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.stockTotalVal || 0)"/>)</span>
                                 </div>
                             </div>
                         </div>

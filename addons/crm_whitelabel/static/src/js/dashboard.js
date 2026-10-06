@@ -31,6 +31,9 @@ class CrmDashboard extends Component {
             pipelineTotalVal: 0,
             invoiceCreatedVal: 0, invoicePendingVal: 0,
             amcTotalVal: 0, amcDraftVal: 0, amcActiveVal: 0, amcExpiredVal: 0,
+            equipmentTotalVal: 0, equipmentActiveVal: 0, equipmentInactiveVal: 0, equipmentRepairVal: 0,
+            ticketTotalVal: 0, ticketOpenVal: 0, ticketOngoingVal: 0, ticketClosedVal: 0,
+            stockTotalVal: 0,
             seriesSubmenuOpen: false,
             orgSubmenuOpen: false,
             userName: user.name || "User",
@@ -359,16 +362,26 @@ class CrmDashboard extends Component {
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
 
             const eqCounts = canViewEquipment ? (s.equipment_counts || {}) : {};
+            const eqVals = canViewEquipment ? (s.equipment_values || {}) : {};
             const equipmentTotal = eqCounts.total || 0;
             const equipmentActive = eqCounts.active || 0;
             const equipmentInactive = eqCounts.inactive || 0;
             const equipmentRepair = eqCounts.repair || 0;
+            const equipmentTotalVal = eqVals.total || 0;
+            const equipmentActiveVal = eqVals.active || 0;
+            const equipmentInactiveVal = eqVals.inactive || 0;
+            const equipmentRepairVal = eqVals.repair || 0;
 
             const tckCounts = canViewTicket ? (s.ticket_counts || {}) : {};
+            const tckVals = canViewTicket ? (s.ticket_values || {}) : {};
             const ticketTotal = tckCounts.total || 0;
             const ticketOpen = tckCounts.open || 0;
             const ticketOngoing = tckCounts.ongoing || 0;
             const ticketClosed = tckCounts.closed || 0;
+            const ticketTotalVal = tckVals.total || 0;
+            const ticketOpenVal = tckVals.open || 0;
+            const ticketOngoingVal = tckVals.ongoing || 0;
+            const ticketClosedVal = tckVals.closed || 0;
 
             const amcCounts = canViewAmc ? (s.amc_counts || {}) : {};
             const amcVals = canViewAmc ? (s.amc_values || {}) : {};
@@ -387,6 +400,7 @@ class CrmDashboard extends Component {
             } catch (e) {
                 productStockCount = 0;
             }
+            const stockTotalVal = s.stock_total_val || 0;
 
             Object.assign(this.state, {
                 exhibitionContacts, priorityLow, priorityMedium, priorityHigh,
@@ -401,10 +415,12 @@ class CrmDashboard extends Component {
                 invoiceCreated, invoiceCreatedVal, invoicePending, invoicePendingVal,
                 customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
+                equipmentTotalVal, equipmentActiveVal, equipmentInactiveVal, equipmentRepairVal,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
+                ticketTotalVal, ticketOpenVal, ticketOngoingVal, ticketClosedVal,
                 amcTotal, amcDraft, amcActive, amcExpired,
                 amcTotalVal, amcDraftVal, amcActiveVal, amcExpiredVal,
-                productStockCount,
+                productStockCount, stockTotalVal,
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,
                 // Advanced Analytics safe bindings (uses backend data if present, otherwise keeps safe state)
