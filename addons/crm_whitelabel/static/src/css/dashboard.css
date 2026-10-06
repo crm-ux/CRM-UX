@@ -1989,7 +1989,7 @@
     .crm-stock-badge-grid {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
-        gap: 0.35rem !important;
+        gap: 0.70rem !important;
         margin-bottom: 0.65rem !important;
     }
 
