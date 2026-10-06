@@ -19,6 +19,7 @@ class CrmDashboard extends Component {
             leadsTotal: 0,
             quotesDraft: 0, quotesSent: 0, quotesNeg: 0, quotesOrderExp: 0, exhibitionContacts: 0,
             priorityLow: 0, priorityMedium: 0, priorityHigh: 0,
+            priorityLowVal: 0, priorityMediumVal: 0, priorityHighVal: 0,
             meetingsThisMonth: 0, upcomingEvents: 0,
             customers: 0, quotes: 0, products: 0, users: 0,
             equipmentTotal: 0, equipmentActive: 0, equipmentInactive: 0, equipmentRepair: 0, equipmentStopped: 0,
@@ -321,11 +322,17 @@ class CrmDashboard extends Component {
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
             const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const won = qc['won'] || 0;
+            const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
+            const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
+            const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
             const stageQuotes = lc[30] || 0;
             const stageSent = lc[35] || 0;
             const stageNegotiation = lc[40] || 0;
             const stageOrderExp = lc[50] || 0;
             const stageWon = lc[90] || 0;
+            const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
+            const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
+
             const lv = canViewLeadQuote ? (s.lead_values || {}) : {}, qv = canViewLeadQuote ? (s.quote_values || {}) : {};
             const stageLeadVal = lv[0] || 0, stageContactedVal = lv[5] || 0, stageTechDiscVal = lv[7] || 0;
             const stageQualifiedVal = lv[10] || 0, stageOpportunityVal = lv[20] || 0;
@@ -343,12 +350,11 @@ class CrmDashboard extends Component {
             const customers = canViewCustomer ? (s.customers || 0) : 0;
             const products = canViewProduct ? (s.products || 0) : 0;
             const users = canViewUsers ? (s.users || 0) : 0;
-            const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
-            const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
-            const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
             const exhibitionContacts = s.exhibition || 0;
             const pc = canViewLeadQuote ? (s.priority_counts || {}) : {};
+            const pv = canViewLeadQuote ? (s.priority_values || {}) : {};
             const priorityLow = pc['low'] || 0, priorityMedium = pc['medium'] || 0, priorityHigh = pc['high'] || 0;
+            const priorityLowVal = pv['low'] || 0, priorityMediumVal = pv['medium'] || 0, priorityHighVal = pv['high'] || 0;
             const meetingsThisMonth = s.meetings_this_month || 0, upcomingEvents = s.upcoming_events || 0;
             const leads = stageLead, qualified = stageQualified, opp = stageOpportunity;
 
@@ -383,7 +389,8 @@ class CrmDashboard extends Component {
             }
 
             Object.assign(this.state, {
-                exhibitionContacts, priorityLow, priorityMedium, priorityHigh, meetingsThisMonth, upcomingEvents,
+                exhibitionContacts, priorityLow, priorityMedium, priorityHigh,
+                priorityLowVal, priorityMediumVal, priorityHighVal, meetingsThisMonth, upcomingEvents,
                 leads, qualified, opportunity: opp,
                 stageLead, stageContacted, stageTechDisc, stageQualified,
                 stageOpportunity, stageQuotes, stageSent, stageNegotiation, stageOrderExp, stageWon,

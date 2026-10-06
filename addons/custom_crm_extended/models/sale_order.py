@@ -973,12 +973,13 @@ class DashboardStats(models.Model):
         lead_counts = {r['x_stage_sequence']: r['x_stage_sequence_count'] for r in leads}
         lead_values = {r['x_stage_sequence']: (r.get('expected_revenue') or 0.0) for r in leads}
 
-        # Lead priority counts
+        # Lead priority counts and values
         lead_priority_domain = lead_domain + [('x_stage_sequence', '<', 30)]
         priority_groups = self.env['crm.lead'].sudo().read_group(
-            lead_priority_domain, ['x_lead_priority'], ['x_lead_priority']
+            lead_priority_domain, ['x_lead_priority', 'expected_revenue:sum'], ['x_lead_priority']
         )
         priority_counts = {r['x_lead_priority']: r['x_lead_priority_count'] for r in priority_groups}
+        priority_values = {r['x_lead_priority']: (r.get('expected_revenue') or 0.0) for r in priority_groups}
 
         # Quote stage counts and values
         quote_domain = [('state', '!=', 'cancel')] + company_filter + user_filter
@@ -1183,6 +1184,7 @@ class DashboardStats(models.Model):
             'users': users,
             'exhibition': exhibition,
             'priority_counts': priority_counts,
+            'priority_values': priority_values,
             'meetings_this_month': meetings_this_month,
             'upcoming_events': upcoming_events,
             'invoice_created': invoice_created,

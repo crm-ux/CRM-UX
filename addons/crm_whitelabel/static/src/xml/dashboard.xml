@@ -504,14 +504,17 @@
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('high')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.priorityHigh"/></span>
                                     <span class="crm-stat-metric-lbl">High</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.priorityHighVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('medium')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.priorityMedium"/></span>
                                     <span class="crm-stat-metric-lbl">Medium</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.priorityMediumVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openLeadPriorityFilter('low')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.priorityLow"/></span>
                                     <span class="crm-stat-metric-lbl">Low</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.priorityLowVal || 0)"/>)</span>
                                 </div>
                             </div>
                         </div>
@@ -557,19 +560,23 @@
                             <div class="crm-card-stats">
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([], 'All AMC Contracts')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.amcTotal || 0"/></span>
-                                    <span class="crm-stat-metric-lbl">Total (<t t-esc="fmt(state.amcTotalVal || 0)"/>)</span>
+                                    <span class="crm-stat-metric-lbl">Total</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcTotalVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','draft']], 'Draft Contracts')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.amcDraft || 0"/></span>
-                                    <span class="crm-stat-metric-lbl">Draft (<t t-esc="fmt(state.amcDraftVal || 0)"/>)</span>
+                                    <span class="crm-stat-metric-lbl">Draft</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcDraftVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','active']], 'Active Contracts')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.amcActive || 0"/></span>
-                                    <span class="crm-stat-metric-lbl">Active (<t t-esc="fmt(state.amcActiveVal || 0)"/>)</span>
+                                    <span class="crm-stat-metric-lbl">Active</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcActiveVal || 0)"/>)</span>
                                 </div>
                                 <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['contract_status','=','expired']], 'Expired Contracts')">
                                     <span class="crm-stat-metric-val"><t t-esc="state.amcExpired || 0"/></span>
-                                    <span class="crm-stat-metric-lbl">Expired (<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
+                                    <span class="crm-stat-metric-lbl">Expired</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
                                 </div>
                             </div>
                         </div>

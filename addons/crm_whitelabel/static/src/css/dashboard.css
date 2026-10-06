@@ -1026,6 +1026,16 @@
     color: var(--text-muted);
     font-weight: 600;
     text-transform: capitalize;
+    line-height: 1.2;
+}
+
+.crm-stat-metric-subval {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-top: 0.15rem;
+    line-height: 1.1;
 }
 
 .crm-card-desc {
