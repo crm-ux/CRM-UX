@@ -10,26 +10,41 @@
     flex-direction: column;
 }
 
-/* Back to Dashboard Navigation Button */
-.crm-nav-back-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: #f8fafc;
-    border: 1px solid var(--border-color, #e2e8f0);
-    padding: 0.45rem 0.85rem;
-    border-radius: 0.5rem;
-    color: var(--text-dark, #0f172a);
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s ease;
+/* Match exact Odoo ControlPanel Navbar height & alignment */
+.crm-analytics-page .o_control_panel {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding: 0 1rem !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-.crm-nav-back-btn:hover {
-    background: #eff6ff;
-    border-color: #93c5fd;
-    color: var(--primary-blue, #0b3d91);
+.crm-analytics-page .o_control_panel_main {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.crm-analytics-page .o_control_panel_breadcrumbs {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    gap: 0.5rem !important;
+}
+
+.crm-analytics-page .o_breadcrumb {
+    display: flex !important;
+    align-items: center !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Page Container */
