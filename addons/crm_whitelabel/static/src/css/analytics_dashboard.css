@@ -286,37 +286,61 @@
     filter: brightness(1.04);
 }
 
-/* 4 Quadrant Colors matching image exactly:
-   Top-Left: Blue | Top-Right: Red | Bottom-Left: Green | Bottom-Right: Orange */
-.crm-quad-blue {
-    background: #0284c7; /* Bright modern blue */
+/* 4 Quadrant Colors matching Pipeline Theme:
+   Top-Left: Sky Blue (#38bdf8) | Top-Right: Indigo (#6366f1) | Bottom-Left: Emerald (#16a34a) | Bottom-Right: Amber/Orange (#ea580c) */
+.crm-quad-sky {
+    background: #0284c7; /* Sky Blue header tone */
 }
 
-.crm-quad-red {
-    background: #e11d48; /* Vibrant red */
+.crm-quad-indigo {
+    background: #4f46e5; /* Rich Indigo */
 }
 
-.crm-quad-green {
-    background: #65a30d; /* Crisp lime green */
+.crm-quad-emerald {
+    background: #16a34a; /* Pipeline Won Emerald Green */
 }
 
 .crm-quad-orange {
-    background: #ea580c; /* Rich energetic orange */
+    background: #ea580c; /* Warm Pipeline Orange */
 }
 
-/* Icon in cell */
-.crm-an-cell-icon {
-    font-size: clamp(1.6rem, 2.2vw, 2.2rem);
-    margin-bottom: 0.6rem;
-    opacity: 0.95;
+/* Unclassified Badge in Header Strip */
+.crm-an-unclass-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: clamp(0.72rem, 0.82vw, 0.8rem);
+    font-weight: 700;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.crm-an-unclass-badge.clickable {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    cursor: pointer;
+}
+
+.crm-an-unclass-badge.clickable:hover {
+    background: #fee2e2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
+}
+
+.crm-an-unclass-badge.zero {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
 }
 
 /* Title in cell */
 .crm-an-cell-title {
-    font-size: clamp(0.9rem, 1.1vw, 1.05rem);
+    font-size: clamp(0.95rem, 1.2vw, 1.12rem);
     font-weight: 700;
-    line-height: 1.25;
-    margin-bottom: 0.65rem;
+    line-height: 1.3;
+    margin-bottom: 0.75rem;
     color: #ffffff;
     max-width: 90%;
 }

@@ -78,22 +78,32 @@
                             <div class="crm-an-quad-header">
                                 <div class="crm-an-quad-title-group">
                                     <h3 class="crm-an-quad-title">Customer Classification</h3>
-                                    <p class="crm-an-quad-subtitle">Customer vs Product occupancy and pipeline distribution</p>
+                                    <p class="crm-an-quad-subtitle">Customer vs Product occupancy and Won revenue distribution</p>
                                 </div>
                                 <div class="crm-an-quad-strip">
-                                    <span class="crm-an-strip-item">Total: <strong><t t-esc="state.totalLeadsCount"/> Leads</strong></span>
+                                    <span class="crm-an-strip-item">Total Pipeline: <strong><t t-esc="state.totalPipelineLeads"/> Leads</strong></span>
                                     <span class="crm-an-strip-dot">•</span>
-                                    <span class="crm-an-strip-item">Pipeline: <strong><t t-esc="fmt(state.totalPipelineValue)"/></strong></span>
+                                    <span class="crm-an-strip-item">Classified: <strong><t t-esc="state.classifiedLeadsCount"/></strong></span>
+                                    <span class="crm-an-strip-dot">•</span>
+                                    <!-- Clickable Unclassified Badge (shows only if unclassified count > 0) -->
+                                    <span t-if="state.unclassifiedCount > 0" 
+                                          class="crm-an-unclass-badge clickable" 
+                                          t-on-click="openUnclassifiedLeads" 
+                                          title="Click to view unclassified leads">
+                                        <t t-esc="state.unclassifiedCount"/> Unclassified
+                                    </span>
+                                    <span t-else="" class="crm-an-unclass-badge zero">
+                                        0 Unclassified
+                                    </span>
+                                    <span class="crm-an-strip-dot">•</span>
+                                    <span class="crm-an-strip-item">Won Revenue: <strong style="color: #16a34a;"><t t-esc="fmt(state.totalWonValue)"/></strong></span>
                                 </div>
                             </div>
 
-                            <!-- Single Connected 2x2 Rounded Matrix Box (Matching Image Exactly) -->
+                            <!-- Single Connected 2x2 Rounded Matrix Box (No random icons, pure clean layout) -->
                             <div class="crm-an-quad-box">
                                 <t t-foreach="state.matrixData" t-as="item" t-key="item.key">
                                     <div class="crm-an-quad-cell" t-att-class="item.colorClass">
-                                        <div class="crm-an-cell-icon">
-                                            <i t-att-class="'fa ' + item.icon"></i>
-                                        </div>
                                         <div class="crm-an-cell-title">
                                             <t t-esc="item.name"/>
                                         </div>
@@ -102,7 +112,7 @@
                                             <span class="crm-an-cell-badge"><t t-esc="item.percent"/>%</span>
                                         </div>
                                         <div class="crm-an-cell-value">
-                                            Value: <strong><t t-esc="fmt(item.value)"/></strong>
+                                            Won Value: <strong><t t-esc="fmt(item.wonValue)"/></strong>
                                         </div>
                                     </div>
                                 </t>

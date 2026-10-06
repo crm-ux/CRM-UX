@@ -17,47 +17,45 @@ export class CrmAnalyticsDashboard extends Component {
             userName: user.name || "User",
             currentCompany: "",
             loadingLeads: false,
-            // 2x2 Customer Classification Quad Box
+            // 4 Quadrants matching exact pipeline colors, NO random icons
             matrixData: [
                 {
                     key: 'existing_existing',
                     name: 'Existing Customer – Existing Product',
                     count: 0,
-                    value: 0,
+                    wonValue: 0,
                     percent: 0,
-                    icon: 'fa-cubes',
-                    colorClass: 'crm-quad-blue',
+                    colorClass: 'crm-quad-sky', // Pipeline #38bdf8
                 },
                 {
                     key: 'existing_new',
                     name: 'Existing Customer – New Product',
                     count: 0,
-                    value: 0,
+                    wonValue: 0,
                     percent: 0,
-                    icon: 'fa-line-chart',
-                    colorClass: 'crm-quad-red',
+                    colorClass: 'crm-quad-indigo', // Pipeline #818cf8
                 },
                 {
                     key: 'new_existing',
                     name: 'New Customer – Existing Product',
                     count: 0,
-                    value: 0,
+                    wonValue: 0,
                     percent: 0,
-                    icon: 'fa-bar-chart',
-                    colorClass: 'crm-quad-green',
+                    colorClass: 'crm-quad-emerald', // Pipeline #22c55e
                 },
                 {
                     key: 'new_new',
                     name: 'New Customer – New Product',
                     count: 0,
-                    value: 0,
+                    wonValue: 0,
                     percent: 0,
-                    icon: 'fa-rocket',
-                    colorClass: 'crm-quad-orange',
+                    colorClass: 'crm-quad-orange', // Pipeline #fb923c
                 },
             ],
-            totalLeadsCount: 0,
-            totalPipelineValue: 0,
+            totalPipelineLeads: 0,
+            classifiedLeadsCount: 0,
+            unclassifiedCount: 0,
+            totalWonValue: 0,
         });
 
         onWillStart(async () => {
@@ -73,6 +71,17 @@ export class CrmAnalyticsDashboard extends Component {
         this.action.doAction("crm_dashboard", { clearBreadcrumbs: true });
     }
 
+    openUnclassifiedLeads() {
+        if (!this.state.unclassifiedCount) return;
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: "Unclassified Leads (Set Customer Type)",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ["x_customer_type", "=", false]],
+        });
+    }
+
     fmt(n) {
         if (!n) return "₹0";
         if (n >= 10000000) return "₹" + (n / 10000000).toFixed(1) + "Cr";
@@ -84,76 +93,99 @@ export class CrmAnalyticsDashboard extends Component {
     async loadCustomerTypeAnalytics() {
         this.state.loadingLeads = true;
         try {
-            const res = await rpc("/web/dataset/call_kw", {
+            // 1. Fetch ALL active leads to calculate total pipeline count & unclassified count
+            const allLeads = await rpc("/web/dataset/call_kw", {
                 model: "crm.lead",
-                method: "read_group",
-                args: [
-                    [['active', '=', true], ['x_customer_type', '!=', false]],
-                    ['expected_revenue:sum'],
-                    ['x_customer_type'],
-                ],
-                kwargs: {},
+                method: "search_read",
+                args: [[['active', '=', true]]],
+                kwargs: { fields: ['id', 'x_customer_type'], limit: 1000 },
             });
 
-            let totalCount = 0;
-            let totalVal = 0;
+            const totalPipelineLeads = allLeads.length;
+            let unclassifiedCount = 0;
             const dataMap = {
-                existing_existing: { count: 0, value: 0 },
-                existing_new: { count: 0, value: 0 },
-                new_existing: { count: 0, value: 0 },
-                new_new: { count: 0, value: 0 },
+                existing_existing: { count: 0, wonValue: 0 },
+                existing_new: { count: 0, wonValue: 0 },
+                new_existing: { count: 0, wonValue: 0 },
+                new_new: { count: 0, wonValue: 0 },
             };
 
-            if (res && Array.isArray(res)) {
-                for (const row of res) {
-                    const cType = row.x_customer_type;
-                    if (dataMap[cType] !== undefined) {
-                        dataMap[cType].count = row.x_customer_type_count || 0;
-                        dataMap[cType].value = row.expected_revenue || 0;
-                        totalCount += row.x_customer_type_count || 0;
-                        totalVal += row.expected_revenue || 0;
+            const leadCustomerTypeMap = {};
+            for (const lead of allLeads) {
+                const cType = lead.x_customer_type;
+                if (!cType) {
+                    unclassifiedCount++;
+                } else if (dataMap[cType] !== undefined) {
+                    dataMap[cType].count++;
+                    leadCustomerTypeMap[lead.id] = cType;
+                }
+            }
+
+            const classifiedLeadsCount = totalPipelineLeads - unclassifiedCount;
+
+            // 2. Fetch WON orders strictly to calculate actual Won Revenue per customer type
+            const wonOrders = await rpc("/web/dataset/call_kw", {
+                model: "sale.order",
+                method: "search_read",
+                args: [[
+                    ['x_quote_stage', '=', 'won'],
+                    ['amount_total', '>', 0],
+                    ['state', '!=', 'cancel']
+                ]],
+                kwargs: { fields: ['id', 'amount_total', 'opportunity_id'], limit: 500 },
+            });
+
+            let totalWonValue = 0;
+            for (const order of wonOrders) {
+                const leadId = order.opportunity_id ? order.opportunity_id[0] : false;
+                const amt = order.amount_total || 0;
+                totalWonValue += amt;
+
+                if (leadId && leadCustomerTypeMap[leadId]) {
+                    const cType = leadCustomerTypeMap[leadId];
+                    if (dataMap[cType]) {
+                        dataMap[cType].wonValue += amt;
                     }
                 }
             }
 
-            this.state.totalLeadsCount = totalCount;
-            this.state.totalPipelineValue = totalVal;
+            this.state.totalPipelineLeads = totalPipelineLeads;
+            this.state.classifiedLeadsCount = classifiedLeadsCount;
+            this.state.unclassifiedCount = unclassifiedCount;
+            this.state.totalWonValue = totalWonValue;
 
+            // 3. Map into 4 quadrants with pipeline theme colors & NO icons
             this.state.matrixData = [
                 {
                     key: 'existing_existing',
                     name: 'Existing Customer – Existing Product',
                     count: dataMap.existing_existing.count,
-                    value: dataMap.existing_existing.value,
-                    percent: totalCount > 0 ? Math.round((dataMap.existing_existing.count / totalCount) * 100) : 0,
-                    icon: 'fa-cubes',
-                    colorClass: 'crm-quad-blue',
+                    wonValue: dataMap.existing_existing.wonValue,
+                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.existing_existing.count / classifiedLeadsCount) * 100) : 0,
+                    colorClass: 'crm-quad-sky',
                 },
                 {
                     key: 'existing_new',
                     name: 'Existing Customer – New Product',
                     count: dataMap.existing_new.count,
-                    value: dataMap.existing_new.value,
-                    percent: totalCount > 0 ? Math.round((dataMap.existing_new.count / totalCount) * 100) : 0,
-                    icon: 'fa-line-chart',
-                    colorClass: 'crm-quad-red',
+                    wonValue: dataMap.existing_new.wonValue,
+                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.existing_new.count / classifiedLeadsCount) * 100) : 0,
+                    colorClass: 'crm-quad-indigo',
                 },
                 {
                     key: 'new_existing',
                     name: 'New Customer – Existing Product',
                     count: dataMap.new_existing.count,
-                    value: dataMap.new_existing.value,
-                    percent: totalCount > 0 ? Math.round((dataMap.new_existing.count / totalCount) * 100) : 0,
-                    icon: 'fa-bar-chart',
-                    colorClass: 'crm-quad-green',
+                    wonValue: dataMap.new_existing.wonValue,
+                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.new_existing.count / classifiedLeadsCount) * 100) : 0,
+                    colorClass: 'crm-quad-emerald',
                 },
                 {
                     key: 'new_new',
                     name: 'New Customer – New Product',
                     count: dataMap.new_new.count,
-                    value: dataMap.new_new.value,
-                    percent: totalCount > 0 ? Math.round((dataMap.new_new.count / totalCount) * 100) : 0,
-                    icon: 'fa-rocket',
+                    wonValue: dataMap.new_new.wonValue,
+                    percent: classifiedLeadsCount > 0 ? Math.round((dataMap.new_new.count / classifiedLeadsCount) * 100) : 0,
                     colorClass: 'crm-quad-orange',
                 },
             ];
