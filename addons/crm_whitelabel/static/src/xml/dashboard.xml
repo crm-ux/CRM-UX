@@ -318,14 +318,14 @@
                         <span class="crm-stat-label">Total Won Deals</span>
                         <span class="crm-stat-val"><t t-esc="state.won"/></span>
                         <div class="crm-stat-val-divider"></div>
-                        <span class="crm-stat-subval" style="color: #16a34a;"><t t-esc="fmt(state.wonRevenue)"/></span>
+                        <span class="crm-stat-subval"><t t-esc="fmt(state.wonRevenue)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
                     <div class="crm-stat-box crm-stat-inv-created" style="cursor: pointer;" t-on-click="openInvoiceCreated">
                         <span class="crm-stat-label">Invoice Created</span>
                         <span class="crm-stat-val"><t t-esc="state.invoiceCreated || 0"/></span>
                         <div class="crm-stat-val-divider"></div>
-                        <span class="crm-stat-subval" style="color: #0284c7;"><t t-esc="fmt(state.invoiceCreatedVal || 0)"/></span>
+                        <span class="crm-stat-subval"><t t-esc="fmt(state.invoiceCreatedVal || 0)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
                     <div class="crm-stat-box crm-stat-inv-pending" style="cursor: pointer;" t-on-click="openInvoicePending">
