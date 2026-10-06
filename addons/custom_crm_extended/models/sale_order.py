@@ -1426,10 +1426,12 @@ class DashboardStats(models.Model):
                 allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
                 user_filter = [('user_id', 'in', allowed_uids)]
 
-        # 3. Query all active quotations (draft, sent, negotiation, order_expected, won)
+        # 3. Query only quotes linked to active pipeline deals (last 5 stages: Quotes, Sent, Negotiation, Order Expected, Won)
         quote_domain = [
             ('state', '!=', 'cancel'),
-            ('x_quote_stage', 'in', ['draft', 'sent', 'negotiation', 'order_expected', 'won'])
+            ('opportunity_id', '!=', False),
+            ('opportunity_id.active', '=', True),
+            ('x_quote_stage', 'in', ['draft', 'sent', 'negotiation', 'order_expected', 'won']),
         ] + company_filter + user_filter
 
         quotes = self.env['sale.order'].sudo().search_read(

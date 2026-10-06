@@ -163,7 +163,7 @@
                                     <div class="crm-an-bar-seg crm-seg-red" 
                                          t-attf-style="width: {{ state.quoteDiscount.tiers.heavy_disc.pct }}%;"
                                          t-att-title="'>10% Disc: ' + state.quoteDiscount.tiers.heavy_disc.pct + '%'"
-                                         t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10% Heavy Discount')">
+                                         t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10% ')">
                                         <span t-if="state.quoteDiscount.tiers.heavy_disc.pct > 10" class="crm-seg-label">
                                             <t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%
                                         </span>
@@ -190,7 +190,7 @@
                                     </div>
                                 </div>
 
-                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('small_disc', '1-5% Discount')">
+                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('small_disc', '1-5%')">
                                     <div class="crm-an-row-left">
                                         <span class="crm-an-dot crm-dot-yellow"></span>
                                         <span class="crm-an-row-name">Small Disc (1–5%)</span>
@@ -201,7 +201,7 @@
                                     </div>
                                 </div>
 
-                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('med_disc', '5-10% Discount')">
+                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('med_disc', '5-10%')">
                                     <div class="crm-an-row-left">
                                         <span class="crm-an-dot crm-dot-orange"></span>
                                         <span class="crm-an-row-name">Med Disc (5–10%)</span>
@@ -212,7 +212,7 @@
                                     </div>
                                 </div>
 
-                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10% Heavy Discount')">
+                                <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10%')">
                                     <div class="crm-an-row-left">
                                         <span class="crm-an-dot crm-dot-red"></span>
                                         <span class="crm-an-row-name">Heavy Disc (&gt;10%)</span>

@@ -273,6 +273,7 @@ export class CrmAnalyticsDashboard extends Component {
 
         const domain = [
             ["state", "!=", "cancel"],
+            ["opportunity_id", "!=", false],
             ["x_quote_stage", "in", ["draft", "sent", "negotiation", "order_expected", "won"]],
             ...tierDomain,
             ...companyDomain,
