@@ -1688,15 +1688,9 @@
         padding-right: 0 !important;
     }
 
-    /* Dashed line: stretches horizontally in the center between title and numbers */
+    /* Hide dashed line on mobile */
     .crm-pipe-step .crm-pipe-val-divider {
-        grid-column: 2 !important;
-        grid-row: 1 / span 2 !important;
-        display: block !important;
-        width: 100% !important;
-        border-top: 1px dashed #cbd5e1 !important;
-        align-self: center !important;
-        margin: 0 !important;
+        display: none !important;
     }
 
     /* Count: Top Right */
