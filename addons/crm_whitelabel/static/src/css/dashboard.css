@@ -1675,7 +1675,8 @@
     .crm-pipe-step {
         display: grid !important;
         grid-template-columns: auto 1fr auto !important;
-        grid-template-rows: 1fr 1fr !important;
+        grid-template-rows: auto auto !important;
+        row-gap: 0.1rem !important;
         align-items: center !important;
         column-gap: 0.6rem !important;
         min-width: 0 !important;
