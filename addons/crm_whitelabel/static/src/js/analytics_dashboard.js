@@ -258,24 +258,22 @@ export class CrmAnalyticsDashboard extends Component {
     openDiscountQuotes(tierKey, tierTitle) {
         const companyIds = this._getActiveCompanyIds();
         const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
-        let tierDomain = [];
-        if (tierKey === 'full_price') {
-            tierDomain = [["x_flat_discount_pct", "<=", 0]];
-        } else if (tierKey === 'small_disc') {
-            tierDomain = [["x_flat_discount_pct", ">", 0], ["x_flat_discount_pct", "<=", 5]];
-        } else if (tierKey === 'med_disc') {
-            tierDomain = [["x_flat_discount_pct", ">", 5], ["x_flat_discount_pct", "<=", 10]];
-        } else if (tierKey === 'heavy_disc') {
-            tierDomain = [["x_flat_discount_pct", ">", 10]];
-        } else if (tierKey === 'all_discounted') {
-            tierDomain = [["x_flat_discount_pct", ">", 0]];
+        const tierData = this.state.quoteDiscount?.tiers?.[tierKey];
+        let idDomain = [];
+        if (tierKey === 'all_discounted') {
+            const allDiscIds = [
+                ...(this.state.quoteDiscount?.tiers?.small_disc?.ids || []),
+                ...(this.state.quoteDiscount?.tiers?.med_disc?.ids || []),
+                ...(this.state.quoteDiscount?.tiers?.heavy_disc?.ids || []),
+            ];
+            idDomain = [["id", "in", allDiscIds.length ? allDiscIds : [0]]];
+        } else if (tierData && tierData.ids) {
+            idDomain = [["id", "in", tierData.ids.length ? tierData.ids : [0]]];
         }
 
         const domain = [
             ["state", "!=", "cancel"],
-            ["opportunity_id", "!=", false],
-            ["x_quote_stage", "in", ["draft", "sent", "negotiation", "order_expected", "won"]],
-            ...tierDomain,
+            ...idDomain,
             ...companyDomain,
             ...this.state.userFilterDomain
         ];

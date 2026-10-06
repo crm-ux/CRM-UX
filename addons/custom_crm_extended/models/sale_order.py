@@ -1426,7 +1426,7 @@ class DashboardStats(models.Model):
                 allowed_uids = target_user._get_accessible_user_ids('perm_lead_quote')
                 user_filter = [('user_id', 'in', allowed_uids)]
 
-        # 3. Query only quotes linked to active pipeline deals (last 5 stages: Quotes, Sent, Negotiation, Order Expected, Won)
+        # 3. Query quotes linked to active pipeline deals (last 5 stages: Quotes, Sent, Negotiation, Order Expected, Won)
         quote_domain = [
             ('state', '!=', 'cancel'),
             ('opportunity_id', '!=', False),
@@ -1434,10 +1434,36 @@ class DashboardStats(models.Model):
             ('x_quote_stage', 'in', ['draft', 'sent', 'negotiation', 'order_expected', 'won']),
         ] + company_filter + user_filter
 
-        quotes = self.env['sale.order'].sudo().search_read(
+        raw_quotes = self.env['sale.order'].sudo().search_read(
             quote_domain,
-            ['id', 'amount_total', 'amount_untaxed', 'x_flat_discount_pct', 'x_flat_discount', 'x_amount_after_discount']
+            ['id', 'opportunity_id', 'amount_total', 'amount_untaxed', 'x_flat_discount_pct', 'x_flat_discount', 'x_amount_after_discount', 'x_quote_stage', 'x_quote_version', 'write_date'],
+            order='write_date desc, id desc'
         )
+
+        # Pick only ONE final quotation per deal (opportunity)
+        # Priority: 'won' quote first, otherwise latest revised/written quote
+        opp_quote_map = {}
+        for q in raw_quotes:
+            opp = q.get('opportunity_id')
+            opp_id = opp[0] if opp else False
+            if not opp_id:
+                continue
+            if opp_id not in opp_quote_map:
+                opp_quote_map[opp_id] = q
+            else:
+                existing = opp_quote_map[opp_id]
+                # If current quote is 'won' and existing is not, prefer the won quote
+                if q.get('x_quote_stage') == 'won' and existing.get('x_quote_stage') != 'won':
+                    opp_quote_map[opp_id] = q
+                elif existing.get('x_quote_stage') != 'won':
+                    # Prefer higher quote version
+                    q_ver = q.get('x_quote_version') or 1
+                    ex_ver = existing.get('x_quote_version') or 1
+                    if q_ver > ex_ver:
+                        opp_quote_map[opp_id] = q
+
+        quotes = list(opp_quote_map.values())
+        final_quote_ids = [q['id'] for q in quotes]
 
         total_quotes = len(quotes)
         total_discount_amount = 0.0
@@ -1445,10 +1471,10 @@ class DashboardStats(models.Model):
         discounted_quotes_count = 0
 
         tiers = {
-            'full_price': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
-            'small_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
-            'med_disc':   {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
-            'heavy_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0},
+            'full_price': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0, 'ids': []},
+            'small_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0, 'ids': []},
+            'med_disc':   {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0, 'ids': []},
+            'heavy_disc': {'count': 0, 'value': 0.0, 'discount': 0.0, 'pct': 0, 'ids': []},
         }
 
         for q in quotes:
@@ -1474,20 +1500,24 @@ class DashboardStats(models.Model):
             if disc_pct <= 0.0 and flat_disc <= 0.0:
                 tiers['full_price']['count'] += 1
                 tiers['full_price']['value'] += val
+                tiers['full_price']['ids'].append(q['id'])
             elif disc_pct <= 5.0 or (disc_pct == 0.0 and flat_disc > 0 and (val > 0 and (flat_disc / val) <= 0.05)):
                 tiers['small_disc']['count'] += 1
                 tiers['small_disc']['value'] += val
                 tiers['small_disc']['discount'] += disc_amount
+                tiers['small_disc']['ids'].append(q['id'])
                 discounted_quotes_count += 1
             elif disc_pct <= 10.0 or (disc_pct == 0.0 and flat_disc > 0 and (val > 0 and (flat_disc / val) <= 0.10)):
                 tiers['med_disc']['count'] += 1
                 tiers['med_disc']['value'] += val
                 tiers['med_disc']['discount'] += disc_amount
+                tiers['med_disc']['ids'].append(q['id'])
                 discounted_quotes_count += 1
             else:
                 tiers['heavy_disc']['count'] += 1
                 tiers['heavy_disc']['value'] += val
                 tiers['heavy_disc']['discount'] += disc_amount
+                tiers['heavy_disc']['ids'].append(q['id'])
                 discounted_quotes_count += 1
 
         # Compute percentages for segmented meter
@@ -1503,6 +1533,7 @@ class DashboardStats(models.Model):
             'total_discount_amount': total_discount_amount,
             'discounted_quotes_count': discounted_quotes_count,
             'tiers': tiers,
+            'final_quote_ids': final_quote_ids,
             'allowed_uids': user_filter[0][2] if user_filter else [],
             'user_filter_applied': bool(user_filter),
         }
