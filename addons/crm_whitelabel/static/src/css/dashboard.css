@@ -840,25 +840,46 @@
     align-items: stretch;
     gap: 0.35rem;
     overflow-x: auto;
-    padding-bottom: 0.25rem;
+    overflow-y: hidden;
+    padding-bottom: 0.45rem;
     width: 100%;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+.crm-pipe-track::-webkit-scrollbar {
+    height: 5px;
+}
+
+.crm-pipe-track::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+.crm-pipe-track::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.crm-pipe-track::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .crm-pipe-step {
-    flex: 1 1 0;
-    min-width: 0;
-    min-height: 68px;
+    flex: 1 0 72px;
+    min-width: 72px;
+    min-height: 80px;
     background: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    padding: 0.45rem 0.2rem;
+    padding: 0.5rem 0.35rem;
     text-align: center;
     position: relative;
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     box-sizing: border-box;
 }
@@ -874,39 +895,38 @@
 }
 
 .crm-pipe-count {
-    font-size: clamp(1rem, 1.3vw, 1.18rem);
+    font-size: clamp(0.95rem, 1.2vw, 1.15rem);
     font-weight: 800;
     color: var(--primary-blue);
-    line-height: 1.1;
+    line-height: 1;
 }
 
 .crm-pipe-name {
-    font-size: clamp(0.58rem, 0.7vw, 0.7rem);
+    font-size: clamp(0.6rem, 0.72vw, 0.72rem);
     font-weight: 600;
     color: var(--text-muted);
     white-space: normal;
     text-align: center;
     line-height: 1.15;
-    margin-top: 0.2rem;
+    margin: 0.15rem 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 1.85rem;
-    overflow: hidden;
+    min-height: 1.8rem;
     word-break: normal;
 }
 
 .crm-pipe-val-divider {
     width: 80%;
     border-top: 1px dashed #cbd5e1;
-    margin: 0.25rem auto 0.2rem;
+    margin: 0.2rem auto 0.25rem;
 }
 
 .crm-pipe-val {
-    font-size: clamp(0.6rem, 0.75vw, 0.75rem);
+    font-size: clamp(0.64rem, 0.75vw, 0.76rem);
     font-weight: 700;
     color: var(--text-dark);
-    line-height: 1.1;
+    line-height: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1639,11 +1659,12 @@
         display: none !important;
     }
 
-    /* The continuous vertical dotted connecting line */
+    /* The continuous vertical dotted connecting line running down the CENTER */
     .crm-pipe-track::before {
         content: "";
         position: absolute;
-        left: 1.15rem;
+        left: 50%;
+        transform: translateX(-50%);
         top: 1.25rem;
         bottom: 1.25rem;
         width: 0;
@@ -1652,67 +1673,65 @@
     }
 
     .crm-pipe-step {
-        display: grid !important;
-        grid-template-columns: auto 1fr auto !important;
-        grid-template-rows: 1fr 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
         align-items: center !important;
-        column-gap: 0.6rem !important;
+        justify-content: center !important;
+        text-align: center !important;
         min-width: 0 !important;
         width: 100% !important;
         background: #ffffff !important;
         border: 1px solid var(--border-color) !important;
-        border-left: 4px solid var(--border-color) !important;
+        border-top: 3px solid var(--border-color) !important;
+        border-left: 1px solid var(--border-color) !important;
         border-radius: 0.65rem !important;
-        padding: 0.5rem 0.85rem 0.5rem 1.85rem !important;
+        padding: 0.65rem 1rem !important;
         margin: 0 !important;
         position: relative;
         z-index: 2;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         box-sizing: border-box;
+        gap: 0.2rem !important;
     }
 
-    /* Title: centered vertically across both rows on the left */
+    /* Count: Top Center */
+    .crm-pipe-step .crm-pipe-count {
+        order: 1 !important;
+        font-size: 1.15rem !important;
+        font-weight: 800 !important;
+        color: var(--primary-blue) !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    /* Title: Middle Center */
     .crm-pipe-step .crm-pipe-name {
-        grid-column: 1 !important;
-        grid-row: 1 / span 2 !important;
-        align-self: center !important;
-        font-size: 0.86rem !important;
+        order: 2 !important;
+        font-size: 0.85rem !important;
         font-weight: 700 !important;
         color: var(--text-dark) !important;
         height: auto !important;
-        margin: 0 !important;
+        margin: 0.1rem 0 !important;
         display: block !important;
-        text-align: left !important;
-        width: auto !important;
-        white-space: nowrap !important;
-        padding-right: 0 !important;
+        text-align: center !important;
+        width: 100% !important;
+        white-space: normal !important;
+        padding: 0 !important;
     }
 
-    /* Hide dashed line on mobile */
+    /* Hide dashed divider inside card */
     .crm-pipe-step .crm-pipe-val-divider {
         display: none !important;
     }
 
-    /* Count: Top Right */
-    .crm-pipe-step .crm-pipe-count {
-        grid-column: 3 !important;
-        grid-row: 1 !important;
-        justify-self: end !important;
-        position: static !important;
-        font-size: 0.95rem !important;
-        font-weight: 800 !important;
-        color: var(--primary-blue) !important;
-        line-height: 1.1 !important;
-        margin: 0 !important;
-    }
-
-    /* Value: Bottom Right */
+    /* Value: Bottom Center */
     .crm-pipe-step .crm-pipe-val {
-        grid-column: 3 !important;
-        grid-row: 2 !important;
-        justify-self: end !important;
+        order: 3 !important;
         display: flex !important;
-        font-size: 0.76rem !important;
+        justify-content: center !important;
+        font-size: 0.78rem !important;
         font-weight: 700 !important;
         color: var(--text-muted) !important;
         background: transparent !important;
@@ -1720,6 +1739,8 @@
         margin: 0 !important;
         border-radius: 0 !important;
         line-height: 1.1 !important;
+        text-align: center !important;
+        width: 100% !important;
     }
 
     .crm-pipe-step .crm-pipe-val::before {
