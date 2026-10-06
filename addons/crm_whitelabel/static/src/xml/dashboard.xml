@@ -317,8 +317,6 @@
                     <div class="crm-stat-box crm-stat-won" style="cursor: pointer;" t-on-click="openWon">
                         <span class="crm-stat-label">Total Won Deals</span>
                         <span class="crm-stat-val"><t t-esc="state.won"/></span>
-                        <div class="crm-stat-val-divider"></div>
-                        <span class="crm-stat-subval"><t t-esc="fmt(state.wonRevenue)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
                     <div class="crm-stat-box crm-stat-inv-created" style="cursor: pointer;" t-on-click="openInvoiceCreated">
