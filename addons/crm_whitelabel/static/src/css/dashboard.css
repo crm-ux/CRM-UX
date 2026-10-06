@@ -1649,7 +1649,7 @@
         flex-direction: column !important;
         align-items: stretch !important;
         overflow-x: visible !important;
-        gap: 0.65rem !important;
+        gap: 0.35rem !important;
         padding-bottom: 0 !important;
         position: relative;
     }
@@ -1684,7 +1684,7 @@
         border: 1px solid var(--border-color) !important;
         border-left: 4px solid var(--border-color) !important;
         border-radius: 0.65rem !important;
-        padding: 0.5rem 0.85rem !important;
+        padding: 0.35rem 0.75rem !important;
         margin: 0 !important;
         position: relative;
         z-index: 2;
@@ -1844,7 +1844,7 @@
         background: #eff6ff !important;
         border-color: #bfdbfe !important;
         border-left: 4px solid var(--primary-blue) !important;
-        margin-top: 0.25rem !important;
+        margin-top: 0.05rem !important;
     }
 
     .crm-pipe-step:last-child::after {
