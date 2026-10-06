@@ -652,7 +652,7 @@
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 3 ? 'active' : ''" t-on-click="() => this.setSalesRange(3)">3M</button>
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 6 ? 'active' : ''" t-on-click="() => this.setSalesRange(6)">6M</button>
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 12 ? 'active' : ''" t-on-click="() => this.setSalesRange(12)">1Y</button>
-                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal">📅 Custom</button>
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal"><i class="fa fa-calendar"></i> Custom</button>
                             </div>
                         </div>
                         <div class="crm-bar-chart" style="position: relative; height: 160px;">
