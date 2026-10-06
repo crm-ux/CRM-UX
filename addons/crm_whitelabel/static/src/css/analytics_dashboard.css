@@ -1,23 +1,38 @@
 /* ==========================================================================
    CUSTOM ANALYTICS & INSIGHTS DASHBOARD PAGE
+   Modern Fluid & Responsive Tokens (rem, clamp, relative units)
    ========================================================================== */
 
+:root {
+    --crm-an-bg: var(--bg-dashboard, #f1f5f9);
+    --crm-an-card-bg: #ffffff;
+    --crm-an-border: var(--border-color, #e2e8f0);
+    --crm-an-primary: var(--primary-blue, #0b3d91);
+    --crm-an-primary-soft: #eff6ff;
+    --crm-an-text-dark: var(--text-dark, #0f172a);
+    --crm-an-text-muted: var(--text-muted, #64748b);
+    --crm-an-header-h: 3rem; /* 48px standard Odoo control panel */
+    --crm-an-radius-sm: 0.375rem;
+    --crm-an-radius-md: 0.5rem;
+    --crm-an-radius-lg: 0.875rem;
+}
+
 .crm-analytics-page {
-    background-color: var(--bg-dashboard, #f1f5f9);
+    background-color: var(--crm-an-bg);
     min-height: 100vh;
-    font-family: var(--font-family, inherit);
+    font-family: inherit;
     display: flex;
     flex-direction: column;
 }
 
-/* Match exact Odoo ControlPanel Navbar height & alignment */
+/* Match exact Odoo ControlPanel Navbar height & alignment with fluid rem */
 .crm-analytics-page .o_control_panel {
-    background: #ffffff !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    padding: 0 1rem !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
+    background: var(--crm-an-card-bg) !important;
+    border-bottom: 1px solid var(--crm-an-border) !important;
+    padding: 0 clamp(0.75rem, 1.5vw, 1.25rem) !important;
+    height: var(--crm-an-header-h) !important;
+    min-height: var(--crm-an-header-h) !important;
+    max-height: var(--crm-an-header-h) !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
@@ -40,52 +55,53 @@
 .crm-analytics-page .o_breadcrumb {
     display: flex !important;
     align-items: center !important;
-    font-size: 0.88rem !important;
+    font-size: clamp(0.82rem, 0.9vw, 0.92rem) !important;
     font-weight: 600 !important;
-    color: #1e293b !important;
+    color: var(--crm-an-text-dark) !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* Page Container */
+/* Page Container - Fluid Width & Clamp Padding */
 .crm-analytics-container {
-    max-width: 1400px;
+    max-width: min(92vw, 1440px);
     width: 100%;
     margin: 0 auto;
-    padding: 1.5rem;
+    padding: clamp(0.85rem, 2vw, 1.5rem);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: clamp(0.85rem, 1.5vw, 1.35rem);
 }
 
 /* Header & Tabs */
 .crm-analytics-header {
-    background: #ffffff;
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 0.85rem;
-    padding: 1.25rem 1.5rem 0 1.5rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    background: var(--crm-an-card-bg);
+    border: 1px solid var(--crm-an-border);
+    border-radius: var(--crm-an-radius-lg);
+    padding: clamp(1rem, 1.8vw, 1.35rem) clamp(1rem, 2vw, 1.6rem) 0 clamp(1rem, 2vw, 1.6rem);
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
 }
 
 .crm-analytics-title-box h2 {
-    font-size: 1.35rem;
+    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
     font-weight: 800;
-    color: var(--text-dark, #0f172a);
+    color: var(--crm-an-text-dark);
     margin: 0 0 0.25rem 0;
+    line-height: 1.25;
 }
 
 .crm-analytics-title-box p {
-    font-size: 0.85rem;
-    color: var(--text-muted, #64748b);
-    margin: 0 0 1.25rem 0;
+    font-size: clamp(0.78rem, 0.9vw, 0.88rem);
+    color: var(--crm-an-text-muted);
+    margin: 0 0 clamp(0.85rem, 1.5vw, 1.25rem) 0;
 }
 
 /* Tab Bar */
 .crm-analytics-tabs {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: clamp(0.25rem, 0.6vw, 0.5rem);
     border-bottom: 2px solid #f1f5f9;
     overflow-x: auto;
     scrollbar-width: none;
@@ -102,10 +118,10 @@
     background: transparent;
     border: none;
     border-bottom: 3px solid transparent;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.88rem;
+    padding: clamp(0.6rem, 1vw, 0.8rem) clamp(0.85rem, 1.4vw, 1.35rem);
+    font-size: clamp(0.8rem, 0.92vw, 0.9rem);
     font-weight: 600;
-    color: var(--text-muted, #64748b);
+    color: var(--crm-an-text-muted);
     cursor: pointer;
     transition: all 0.15s ease;
     white-space: nowrap;
@@ -113,25 +129,25 @@
 }
 
 .crm-analytics-tab-btn:hover {
-    color: var(--primary-blue, #0b3d91);
+    color: var(--crm-an-primary);
 }
 
 .crm-analytics-tab-btn.active {
-    color: var(--primary-blue, #0b3d91);
+    color: var(--crm-an-primary);
     font-weight: 700;
-    border-bottom-color: var(--primary-blue, #0b3d91);
-    background: #eff6ff;
-    border-radius: 0.5rem 0.5rem 0 0;
+    border-bottom-color: var(--crm-an-primary);
+    background: var(--crm-an-primary-soft);
+    border-radius: var(--crm-an-radius-md) var(--crm-an-radius-md) 0 0;
 }
 
 /* Tab Content Body */
 .crm-analytics-body {
-    background: #ffffff;
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 0.85rem;
-    padding: 2.5rem;
-    min-height: 400px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    background: var(--crm-an-card-bg);
+    border: 1px solid var(--crm-an-border);
+    border-radius: var(--crm-an-radius-lg);
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    min-height: min(60vh, 450px);
+    box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.02);
 }
 
 /* Blank Placeholder Inside Tab */
@@ -141,37 +157,37 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-muted, #64748b);
+    padding: clamp(2rem, 5vw, 3.5rem) 1rem;
+    color: var(--crm-an-text-muted);
 }
 
 .crm-tab-placeholder-icon {
-    width: 4rem;
-    height: 4rem;
+    width: clamp(3.5rem, 5vw, 4.5rem);
+    height: clamp(3.5rem, 5vw, 4.5rem);
     border-radius: 50%;
     background: #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
-    color: var(--primary-blue, #0b3d91);
+    font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+    color: var(--crm-an-primary);
     margin-bottom: 1rem;
 }
 
 .crm-tab-placeholder h3 {
-    font-size: 1.15rem;
+    font-size: clamp(1.05rem, 1.5vw, 1.25rem);
     font-weight: 700;
-    color: var(--text-dark, #0f172a);
+    color: var(--crm-an-text-dark);
     margin: 0 0 0.4rem 0;
 }
 
 .crm-tab-placeholder p {
-    font-size: 0.85rem;
+    font-size: clamp(0.8rem, 0.95vw, 0.9rem);
     margin: 0;
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
     .crm-analytics-container {
         padding: 0.75rem;
     }
