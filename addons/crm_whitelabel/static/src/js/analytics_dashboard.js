@@ -12,7 +12,6 @@ export class CrmAnalyticsDashboard extends Component {
 
     setup() {
         this.action = useService("action");
-        this.companyService = useService("company");
 
         this.state = useState({
             activeTab: "leads",
@@ -76,17 +75,29 @@ export class CrmAnalyticsDashboard extends Component {
     }
 
     _getActiveCompanyIds() {
-        if (this.companyService?.activeCompanyIds?.length) {
-            return this.companyService.activeCompanyIds;
-        }
-        if (this.companyService?.currentCompany?.id) {
-            return [this.companyService.currentCompany.id];
-        }
-        if (user.activeCompanies?.length) {
+        if (user.activeCompanies && user.activeCompanies.length) {
             return user.activeCompanies.map(c => c.id);
         }
-        const cId = session.user_companies?.current_company_id || session.user_context?.allowed_company_ids?.[0];
-        return cId ? [cId] : [];
+        if (user.currentCompany?.id) {
+            return [user.currentCompany.id];
+        }
+        const curCid = session.user_companies?.current_company_id;
+        if (curCid) {
+            return [curCid];
+        }
+        const allowed = session.user_context?.allowed_company_ids;
+        if (allowed && allowed.length) {
+            return allowed;
+        }
+        // Fallback to cids in cookie
+        try {
+            const match = document.cookie.match(/(?:^|;\s*)cids=([^;]+)/);
+            if (match) {
+                const ids = decodeURIComponent(match[1]).split(',').map(Number).filter(Boolean);
+                if (ids.length) return ids;
+            }
+        } catch (e) {}
+        return [];
     }
 
     _getViewAsContext() {
