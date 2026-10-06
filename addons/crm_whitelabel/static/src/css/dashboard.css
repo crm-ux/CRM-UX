@@ -1649,7 +1649,7 @@
         flex-direction: column !important;
         align-items: stretch !important;
         overflow-x: visible !important;
-        gap: 0.35rem !important;
+        gap: 0.70rem !important;
         padding-bottom: 0 !important;
         position: relative;
     }
@@ -1989,7 +1989,7 @@
     .crm-stock-badge-grid {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr) !important;
-        gap: 0.70rem !important;
+        gap: 0.35rem !important;
         margin-bottom: 0.65rem !important;
     }
 
