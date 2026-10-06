@@ -825,27 +825,35 @@
 
 .crm-pipe-track {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: stretch;
+    gap: 0.35rem;
     overflow-x: auto;
-    padding-bottom: 0.35rem;
+    padding-bottom: 0.25rem;
+    width: 100%;
 }
 
 .crm-pipe-step {
-    flex: 1;
-    min-width: 80px;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 68px;
     background: #f8fafc;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    padding: 0.55rem 0.45rem;
+    padding: 0.45rem 0.2rem;
     text-align: center;
     position: relative;
     cursor: pointer;
-    transition: transform 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .crm-pipe-step:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .crm-pipe-step.active {
@@ -854,22 +862,35 @@
 }
 
 .crm-pipe-count {
-    font-size: 1.15rem;
+    font-size: clamp(1rem, 1.3vw, 1.18rem);
     font-weight: 800;
     color: var(--primary-blue);
+    line-height: 1.1;
 }
 
 .crm-pipe-name {
-    font-size: 0.7rem;
+    font-size: clamp(0.58rem, 0.7vw, 0.7rem);
     font-weight: 600;
     color: var(--text-muted);
-    white-space: nowrap;
-    margin-top: 0.15rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.15;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.85rem;
+    overflow: hidden;
+    word-break: normal;
 }
 
 .crm-pipe-arrow {
     color: #cbd5e1;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    padding: 0 0.1rem;
+    flex-shrink: 0;
 }
 
 .crm-cards-grid {
