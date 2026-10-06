@@ -295,19 +295,23 @@
 /* 4 Quadrant Colors matching Pipeline Theme:
    Top-Left: Sky Blue (#38bdf8) | Top-Right: Indigo (#6366f1) | Bottom-Left: Emerald (#16a34a) | Bottom-Right: Amber/Orange (#ea580c) */
 .crm-quad-sky {
-    background: #0284c7; /* Sky Blue header tone */
+    background: #0284c7;
+    /* Sky Blue header tone */
 }
 
 .crm-quad-indigo {
-    background: #4f46e5; /* Rich Indigo */
+    background: #4f46e5;
+    /* Rich Indigo */
 }
 
 .crm-quad-emerald {
-    background: #16a34a; /* Pipeline Won Emerald Green */
+    background: #16a34a;
+    /* Pipeline Won Emerald Green */
 }
 
 .crm-quad-orange {
-    background: #ea580c; /* Warm Pipeline Orange */
+    background: #ea580c;
+    /* Warm Pipeline Orange */
 }
 
 /* Unclassified Badge in Header Strip */
@@ -451,17 +455,17 @@
 
 /* Donut Chart Column */
 .crm-an-donut-col {
-    flex: 0 0 auto;
+    flex: 0 0 clamp(240px, 24vw, 290px);
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
 }
 
 .crm-an-donut-chart-box {
     position: relative;
-    width: clamp(140px, 15vw, 175px);
-    height: clamp(140px, 15vw, 175px);
+    width: clamp(190px, 18vw, 225px);
+    height: clamp(190px, 18vw, 225px);
 }
 
 .crm-an-donut-ring {
@@ -471,19 +475,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
     transition: transform 0.2s ease;
 }
 
 .crm-an-donut-hole {
-    width: 68%;
-    height: 68%;
+    width: 66%;
+    height: 66%;
     background: #ffffff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .crm-an-donut-center {
@@ -495,18 +499,18 @@
 }
 
 .crm-an-center-num {
-    font-size: clamp(1.1rem, 1.4vw, 1.35rem);
+    font-size: clamp(1.4rem, 1.8vw, 1.85rem);
     font-weight: 800;
     color: var(--crm-an-text-dark);
 }
 
 .crm-an-center-lbl {
-    font-size: 0.72rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 700;
     color: var(--crm-an-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
+    letter-spacing: 0.8px;
+    margin-top: 3px;
 }
 
 /* Details Column */
@@ -554,10 +558,21 @@
     flex-shrink: 0;
 }
 
-.crm-dot-green { background: #16a34a; }
-.crm-dot-yellow { background: #eab308; }
-.crm-dot-orange { background: #f97316; }
-.crm-dot-red { background: #dc2626; }
+.crm-dot-green {
+    background: #16a34a;
+}
+
+.crm-dot-yellow {
+    background: #eab308;
+}
+
+.crm-dot-orange {
+    background: #f97316;
+}
+
+.crm-dot-red {
+    background: #dc2626;
+}
 
 .crm-an-row-name {
     font-weight: 600;
@@ -721,6 +736,7 @@
     .crm-an-quad-strip .crm-an-strip-item:first-of-type {
         order: 1;
     }
+
     .crm-an-quad-strip .crm-an-strip-item:nth-of-type(2) {
         order: 2;
     }
@@ -729,6 +745,7 @@
     .crm-an-quad-strip .crm-an-unclass-badge {
         order: 3;
     }
+
     .crm-an-quad-strip .crm-an-strip-item:last-of-type {
         order: 4;
     }

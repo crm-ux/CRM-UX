@@ -69,7 +69,7 @@ export class CrmAnalyticsDashboard extends Component {
                 tiers: {
                     full_price: { count: 0, value: 0, discount: 0, pct: 0 },
                     small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
-                    med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
+                    med_disc: { count: 0, value: 0, discount: 0, pct: 0 },
                     heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
                 }
             },
@@ -114,7 +114,7 @@ export class CrmAnalyticsDashboard extends Component {
                 const ids = decodeURIComponent(match[1]).split(',').map(Number).filter(Boolean);
                 if (ids.length) return ids;
             }
-        } catch (e) {}
+        } catch (e) { }
         return [];
     }
 
@@ -125,7 +125,7 @@ export class CrmAnalyticsDashboard extends Component {
             if (savedUid) {
                 viewAsUid = parseInt(savedUid, 10);
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const activeUserId = viewAsUid || user.userId;
         const isAdmin = !viewAsUid && Boolean(user.isAdmin);
@@ -137,7 +137,7 @@ export class CrmAnalyticsDashboard extends Component {
         const companyIds = this._getActiveCompanyIds();
         const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
         const domain = [["active", "=", true], ["x_customer_type", "=", false], ...companyDomain, ...this.state.userFilterDomain];
-        
+
         this.action.doAction({
             type: "ir.actions.act_window",
             name: "Unclassified Leads",
@@ -156,7 +156,7 @@ export class CrmAnalyticsDashboard extends Component {
         const companyIds = this._getActiveCompanyIds();
         const companyDomain = companyIds.length ? ["|", ["company_id", "=", false], ["company_id", "in", companyIds]] : [];
         const domain = [["active", "=", true], ["x_customer_type", "=", quadrantKey], ...companyDomain, ...this.state.userFilterDomain];
-        
+
         this.action.doAction({
             type: "ir.actions.act_window",
             name: quadrantName + " Leads",
@@ -308,7 +308,7 @@ export class CrmAnalyticsDashboard extends Component {
             const tiers = res.tiers || {
                 full_price: { count: 0, value: 0, discount: 0, pct: 0 },
                 small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
-                med_disc:   { count: 0, value: 0, discount: 0, pct: 0 },
+                med_disc: { count: 0, value: 0, discount: 0, pct: 0 },
                 heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
             };
 
