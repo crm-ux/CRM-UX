@@ -58,6 +58,14 @@ def post_init_hook(env):
         acc.write({'perm_create': False, 'perm_unlink': False, 'perm_write': False})
         _logger.info('Restricted utm.source create/write/unlink for regular users.')
 
+    # Permanently deactivate conflicting personal rules so hierarchy permissions govern access
+    Rule = env['ir.rule'].sudo()
+    for rule_xml_id in ['crm.crm_rule_personal_lead', 'sale.sale_order_personal_rule']:
+        rule = env.ref(rule_xml_id, raise_if_not_found=False)
+        if rule and rule.active:
+            rule.write({'active': False})
+            _logger.info('Deactivated conflicting built-in rule %s', rule_xml_id)
+
     # Auto-create linked hr.employee for all existing internal users
     internal_group = env.ref('base.group_user', raise_if_not_found=False)
     if internal_group:

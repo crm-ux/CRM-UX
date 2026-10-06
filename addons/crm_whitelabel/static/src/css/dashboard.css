@@ -1755,32 +1755,48 @@
         font-size: 0.65rem !important;
     }
 
-    /* 3. AMC Renewals: Keep exact same 4-column timeline & track like web & tablet */
+    /* 3. AMC Renewals: Keep exact same 4-column timeline & track like web & tablet, scaled to fit mobile */
     .crm-amc-horizon-track {
         display: block !important;
-        margin: 0.35rem 0 1rem 0 !important;
+        margin: 0.25rem 0 0.85rem 0 !important;
     }
 
     .crm-amc-timeline-grid {
         grid-template-columns: repeat(4, 1fr) !important;
-        gap: 0.35rem !important;
+        gap: 0.2rem !important;
     }
 
     .crm-timeline-step {
-        padding: 0.45rem 0.25rem !important;
+        padding: 0.35rem 0.15rem !important;
         min-height: auto !important;
+        overflow: hidden !important;
+    }
+
+    .crm-timeline-step > div:first-child {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 0.58rem !important;
+        margin-bottom: 0.2rem !important;
     }
 
     .crm-timeline-step div:nth-child(2) {
-        font-size: 0.62rem !important;
+        font-size: 0.56rem !important;
+        letter-spacing: -0.02em !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .crm-timeline-step div:nth-child(3) {
-        font-size: 0.95rem !important;
+        font-size: 0.88rem !important;
+        margin: 0.1rem 0 !important;
+        font-weight: 800 !important;
     }
 
     .crm-timeline-step div:nth-child(4) {
-        font-size: 0.65rem !important;
+        font-size: 0.58rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
     }
 }
 
