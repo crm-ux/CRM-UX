@@ -443,9 +443,38 @@
         font-size: 0.72rem !important;
     }
 
-    /* Hide the summary strip completely on mobile screens (Keeps it clean and uncluttered) */
+    /* Mobile Strip Layout: 2 balanced rows, ALL bullet dots removed in mobile only */
     .crm-an-quad-strip {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        row-gap: 0.5rem !important;
+        width: 100% !important;
+        padding: 0.5rem 0.65rem !important;
+        box-sizing: border-box !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* REMOVE ALL DOTS in mobile only */
+    .crm-an-quad-strip .crm-an-strip-dot {
         display: none !important;
+    }
+
+    /* Row 1 items on mobile */
+    .crm-an-quad-strip .crm-an-strip-item:first-of-type {
+        order: 1;
+    }
+    .crm-an-quad-strip .crm-an-strip-item:nth-of-type(2) {
+        order: 2;
+    }
+
+    /* Row 2 items on mobile */
+    .crm-an-quad-strip .crm-an-unclass-badge {
+        order: 3;
+    }
+    .crm-an-quad-strip .crm-an-strip-item:last-of-type {
+        order: 4;
     }
 
     .crm-analytics-container {
