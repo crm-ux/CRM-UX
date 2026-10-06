@@ -19,6 +19,12 @@ class CrmWhitelabelController(http.Controller):
     def dashboard_preview(self, **kw):
         return request.render('crm_whitelabel.dashboard_preview_template', {})
 
+    @http.route('/crm/analytics', type='http', auth='user', website=False)
+    def crm_analytics(self, **kw):
+        action = request.env.ref('crm_whitelabel.action_crm_analytics_dashboard', raise_if_not_found=False)
+        action_id = action.id if action else ''
+        return request.redirect(f'/web#action={action_id}')
+
 class PersistentHome(Home):
     @http.route('/', type='http', auth="none")
     def index(self, s_action=None, **kw):
