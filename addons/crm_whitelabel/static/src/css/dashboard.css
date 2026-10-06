@@ -1659,7 +1659,7 @@
         display: none !important;
     }
 
-    /* The continuous vertical dotted connecting line running down the CENTER */
+    /* The continuous vertical dotted connecting line running down the CENTER behind cards */
     .crm-pipe-track::before {
         content: "";
         position: absolute;
@@ -1673,52 +1673,40 @@
     }
 
     .crm-pipe-step {
-        display: flex !important;
-        flex-direction: column !important;
+        display: grid !important;
+        grid-template-columns: auto 1fr auto !important;
+        grid-template-rows: 1fr 1fr !important;
         align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
+        column-gap: 0.6rem !important;
         min-width: 0 !important;
         width: 100% !important;
         background: #ffffff !important;
         border: 1px solid var(--border-color) !important;
-        border-top: 3px solid var(--border-color) !important;
-        border-left: 1px solid var(--border-color) !important;
+        border-left: 4px solid var(--border-color) !important;
         border-radius: 0.65rem !important;
-        padding: 0.65rem 1rem !important;
+        padding: 0.5rem 0.85rem !important;
         margin: 0 !important;
         position: relative;
         z-index: 2;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         box-sizing: border-box;
-        gap: 0.2rem !important;
     }
 
-    /* Count: Top Center */
-    .crm-pipe-step .crm-pipe-count {
-        order: 1 !important;
-        font-size: 1.15rem !important;
-        font-weight: 800 !important;
-        color: var(--primary-blue) !important;
-        line-height: 1 !important;
-        margin: 0 !important;
-        text-align: center !important;
-        width: 100% !important;
-    }
-
-    /* Title: Middle Center */
+    /* Title: centered vertically on Left */
     .crm-pipe-step .crm-pipe-name {
-        order: 2 !important;
-        font-size: 0.85rem !important;
+        grid-column: 1 !important;
+        grid-row: 1 / span 2 !important;
+        align-self: center !important;
+        font-size: 0.86rem !important;
         font-weight: 700 !important;
         color: var(--text-dark) !important;
         height: auto !important;
-        margin: 0.1rem 0 !important;
+        margin: 0 !important;
         display: block !important;
-        text-align: center !important;
-        width: 100% !important;
-        white-space: normal !important;
-        padding: 0 !important;
+        text-align: left !important;
+        width: auto !important;
+        white-space: nowrap !important;
+        padding-right: 0 !important;
     }
 
     /* Hide dashed divider inside card */
@@ -1726,12 +1714,26 @@
         display: none !important;
     }
 
-    /* Value: Bottom Center */
+    /* Count: Top Right */
+    .crm-pipe-step .crm-pipe-count {
+        grid-column: 3 !important;
+        grid-row: 1 !important;
+        justify-self: end !important;
+        position: static !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        color: var(--primary-blue) !important;
+        line-height: 1.1 !important;
+        margin: 0 !important;
+    }
+
+    /* Value: Bottom Right */
     .crm-pipe-step .crm-pipe-val {
-        order: 3 !important;
+        grid-column: 3 !important;
+        grid-row: 2 !important;
+        justify-self: end !important;
         display: flex !important;
-        justify-content: center !important;
-        font-size: 0.78rem !important;
+        font-size: 0.76rem !important;
         font-weight: 700 !important;
         color: var(--text-muted) !important;
         background: transparent !important;
@@ -1739,8 +1741,6 @@
         margin: 0 !important;
         border-radius: 0 !important;
         line-height: 1.1 !important;
-        text-align: center !important;
-        width: 100% !important;
     }
 
     .crm-pipe-step .crm-pipe-val::before {
