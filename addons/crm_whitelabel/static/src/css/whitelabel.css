@@ -56,61 +56,29 @@ button.o_form_button_save,
     display: none !important;
 }
 
-/* 1. Prevent control panel left & right sides from colliding on zoom */
+/* Keep control panel breadcrumbs and actions neatly separated with dynamic gap */
 .o_control_panel .o_control_panel_main {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex-wrap: wrap !important;
-    gap: clamp(0.35rem, 0.6vw, 0.75rem) !important;
+    gap: clamp(0.75rem, 1.2vw, 1.5rem) !important;
+}
+
+/* Ensure breadcrumbs never push into search box */
+.o_control_panel .o_control_panel_breadcrumbs {
+    flex: 0 1 auto !important;
     min-width: 0 !important;
 }
 
-/* 2. Keep buttons and dropdowns grouped together with dynamic spacing */
-.o_control_panel_breadcrumbs {
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
-    min-width: 0 !important;
+/* Dynamic margin after New button so search bar never touches or overlaps it */
+.o_control_panel .o_control_panel_main_buttons {
+    margin-right: clamp(0.75rem, 1.2vw, 1.5rem) !important;
     flex-shrink: 0 !important;
 }
 
-/* 3. Search View scales dynamically: shrinks fluidly, never overlaps buttons */
-.o_control_panel .o_searchview,
+/* Search bar dynamically scales with viewport, never touches buttons */
 .o_control_panel .o_control_panel_actions {
-    min-width: clamp(140px, 16vw, 280px) !important;
-    max-width: 100% !important;
-    flex: 1 1 auto !important;
+    flex: 0 1 clamp(10rem, 22vw, 28rem) !important;
+    max-width: clamp(14rem, 28vw, 32rem) !important;
+    min-width: clamp(9rem, 12vw, 15rem) !important;
     margin-left: auto !important;
-}
-
-/* 4. Dropdowns automatically scale dynamically with screen size & zoom level */
-.o_control_panel_breadcrumbs select.form-select {
-    width: auto !important;
-    max-width: clamp(110px, 12vw, 190px) !important;
-    font-size: clamp(0.74rem, 0.85vw, 0.85rem) !important;
-    padding-right: clamp(1.4rem, 1.8vw, 2.2rem) !important;
-}
-
-/* Align Search dropdown (Filters / Group By / Favorites) to the RIGHT edge of search input */
-.o_control_panel .o_search_bar_menu,
-.o_searchview .dropdown-menu {
-    right: 0 !important;
-    left: auto !important;
-    max-width: clamp(280px, 45vw, 550px) !important;
-    max-height: clamp(300px, 70vh, 550px) !important;
-    overflow-y: auto !important;
-    transform: none !important;
-    margin-top: 4px !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-    border-radius: 8px !important;
-    border: 1px solid #e2e8f0 !important;
-}
-
-/* Ensure search bar parent acts as the relative anchor */
-.o_control_panel .o_searchview {
-    position: relative !important;
 }
 
 /* Discard / Cancel button as a proper button like Dashboard */
