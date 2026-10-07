@@ -148,19 +148,22 @@ class SaleOrder(models.Model):
             # 1. If lead partner itself is an individual contact under this customer
             if lead.partner_id and not lead.partner_id.is_company:
                 found_cp = lead.partner_id
-            # 2. Match by contact name under customer company
+            # 2. Match contact under customer company (exact, case-insensitive, or ignore spacing)
             elif rec.partner_id and lead.contact_name:
-                found_cp = self.env['res.partner'].sudo().search([
-                    ('parent_id', '=', rec.partner_id.id),
-                    ('name', '=', lead.contact_name),
-                    ('is_company', '=', False),
-                ], limit=1)
+                company_contacts = rec.partner_id.child_ids.filtered(lambda c: not c.is_company)
+                clean_target = lead.contact_name.replace(' ', '').lower()
+                for c in company_contacts:
+                    if c.name and (c.name.replace(' ', '').lower() == clean_target or lead.contact_name.lower() in c.name.lower() or c.name.lower() in lead.contact_name.lower()):
+                        found_cp = c
+                        break
             # 3. Match any child contact by name under lead company
             elif lead.contact_name:
-                found_cp = self.env['res.partner'].sudo().search([
-                    ('name', '=', lead.contact_name),
-                    ('is_company', '=', False),
-                ], limit=1)
+                clean_target = lead.contact_name.replace(' ', '').lower()
+                all_candidates = self.env['res.partner'].sudo().search([('is_company', '=', False)], limit=100)
+                for c in all_candidates:
+                    if c.name and c.name.replace(' ', '').lower() == clean_target:
+                        found_cp = c
+                        break
 
             if found_cp:
                 rec.x_contact_person_id = found_cp.id

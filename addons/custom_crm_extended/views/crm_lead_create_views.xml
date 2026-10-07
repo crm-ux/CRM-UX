@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <odoo>
 
     <!-- List / Kanban: New opens Lead Creation wizard (no invalid label tags) -->
@@ -14,8 +15,11 @@
             <xpath expr="//field[@name='priority']" position="attributes">
                 <attribute name="readonly">1</attribute>
             </xpath>
-            <xpath expr="//field[@name='expected_revenue']" position="replace">
+            <xpath expr="//field[@name='user_id']" position="after">
                 <field name="x_display_revenue" string="Expected Revenue" widget="monetary" options="{'currency_field': 'company_currency'}" sum="Expected Revenues" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='expected_revenue']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
             </xpath>
         </field>
     </record>
