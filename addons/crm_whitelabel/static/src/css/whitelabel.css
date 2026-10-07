@@ -56,6 +56,44 @@ button.o_form_button_save,
     display: none !important;
 }
 
+/* 1. Prevent control panel left & right sides from colliding on zoom */
+.o_control_panel .o_control_panel_main {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    /* Allows search bar to drop nicely to next line or fit without overlapping */
+    gap: 0.5rem !important;
+    min-width: 0 !important;
+}
+
+/* 2. Keep buttons and dropdowns grouped together without shrinking into each other */
+.o_control_panel_breadcrumbs {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
+    min-width: 0 !important;
+    flex-shrink: 0 !important;
+}
+
+/* 3. Give the Search View flex flexibility so it shrinks instead of overlapping buttons */
+.o_control_panel .o_searchview,
+.o_control_panel .o_control_panel_actions {
+    min-width: 180px !important;
+    flex-shrink: 1 !important;
+    margin-left: auto !important;
+}
+
+/* 4. On high zoom / narrow widths, adjust dropdown sizes slightly */
+@media (max-width: 1200px) {
+    .o_control_panel_breadcrumbs select.form-select {
+        max-width: 130px !important;
+        font-size: 0.78rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
 /* Discard / Cancel button as a proper button like Dashboard */
 .o_form_button_cancel,
 button.o_form_button_cancel,
