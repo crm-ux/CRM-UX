@@ -41,6 +41,9 @@
         <record id="sale.sale_order_personal_rule" model="ir.rule">
             <field name="active" eval="False"/>
         </record>
+        <record id="sale.sale_order_line_personal_rule" model="ir.rule">
+            <field name="active" eval="False"/>
+        </record>
 
         <!-- Global Hierarchy Record Rule for CRM Leads -->
         <record id="rule_crm_lead_hierarchy" model="ir.rule">
