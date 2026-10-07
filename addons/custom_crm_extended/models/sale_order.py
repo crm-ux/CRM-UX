@@ -585,7 +585,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         if not self.order_line or (self.amount_total or 0.0) <= 0:
             raise UserError(_(
-                "Cannot mark quotation as Won: Total amount is â‚¹0.00!\n\n"
+                "Cannot mark quotation as Won: Total amount is ₹0.00!\n\n"
                 "Please add at least one product with a valid price before marking this quote as Won."
             ))
         if not self.x_po_number:
