@@ -62,36 +62,35 @@ button.o_form_button_save,
     align-items: center !important;
     justify-content: space-between !important;
     flex-wrap: wrap !important;
-    /* Allows search bar to drop nicely to next line or fit without overlapping */
-    gap: 0.5rem !important;
+    gap: clamp(0.35rem, 0.6vw, 0.75rem) !important;
     min-width: 0 !important;
 }
 
-/* 2. Keep buttons and dropdowns grouped together without shrinking into each other */
+/* 2. Keep buttons and dropdowns grouped together with dynamic spacing */
 .o_control_panel_breadcrumbs {
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    gap: 0.35rem !important;
+    gap: clamp(0.25rem, 0.4vw, 0.5rem) !important;
     min-width: 0 !important;
     flex-shrink: 0 !important;
 }
 
-/* 3. Give the Search View flex flexibility so it shrinks instead of overlapping buttons */
+/* 3. Search View scales dynamically: shrinks fluidly, never overlaps buttons */
 .o_control_panel .o_searchview,
 .o_control_panel .o_control_panel_actions {
-    min-width: 180px !important;
-    flex-shrink: 1 !important;
+    min-width: clamp(140px, 16vw, 280px) !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
     margin-left: auto !important;
 }
 
-/* 4. On high zoom / narrow widths, adjust dropdown sizes slightly */
-@media (max-width: 1200px) {
-    .o_control_panel_breadcrumbs select.form-select {
-        max-width: 130px !important;
-        font-size: 0.78rem !important;
-        padding-right: 1.5rem !important;
-    }
+/* 4. Dropdowns automatically scale dynamically with screen size & zoom level */
+.o_control_panel_breadcrumbs select.form-select {
+    width: auto !important;
+    max-width: clamp(110px, 12vw, 190px) !important;
+    font-size: clamp(0.74rem, 0.85vw, 0.85rem) !important;
+    padding-right: clamp(1.4rem, 1.8vw, 2.2rem) !important;
 }
 
 /* Discard / Cancel button as a proper button like Dashboard */
