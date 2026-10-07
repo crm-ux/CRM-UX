@@ -93,6 +93,26 @@ button.o_form_button_save,
     padding-right: clamp(1.4rem, 1.8vw, 2.2rem) !important;
 }
 
+/* Align Search dropdown (Filters / Group By / Favorites) to the RIGHT edge of search input */
+.o_control_panel .o_search_bar_menu,
+.o_searchview .dropdown-menu {
+    right: 0 !important;
+    left: auto !important;
+    max-width: clamp(280px, 45vw, 550px) !important;
+    max-height: clamp(300px, 70vh, 550px) !important;
+    overflow-y: auto !important;
+    transform: none !important;
+    margin-top: 4px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Ensure search bar parent acts as the relative anchor */
+.o_control_panel .o_searchview {
+    position: relative !important;
+}
+
 /* Discard / Cancel button as a proper button like Dashboard */
 .o_form_button_cancel,
 button.o_form_button_cancel,
