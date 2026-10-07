@@ -129,7 +129,44 @@ class SaleOrder(models.Model):
         domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]",
         help='Select contact person from customer contacts',
         context={'show_address': False, 'no_display_parent': True},
+        compute='_compute_contact_person_id',
+        inverse='_inverse_contact_person_id',
+        store=True,
+        readonly=False,
     )
+
+    @api.depends('opportunity_id', 'opportunity_id.partner_id', 'opportunity_id.contact_name', 'partner_id')
+    def _compute_contact_person_id(self):
+        for rec in self:
+            if rec.x_contact_person_id:
+                continue
+            if not rec.opportunity_id:
+                continue
+
+            lead = rec.opportunity_id
+            found_cp = False
+            # 1. If lead partner itself is an individual contact under this customer
+            if lead.partner_id and not lead.partner_id.is_company:
+                found_cp = lead.partner_id
+            # 2. Match by contact name under customer company
+            elif rec.partner_id and lead.contact_name:
+                found_cp = self.env['res.partner'].sudo().search([
+                    ('parent_id', '=', rec.partner_id.id),
+                    ('name', '=', lead.contact_name),
+                    ('is_company', '=', False),
+                ], limit=1)
+            # 3. Match any child contact by name under lead company
+            elif lead.contact_name:
+                found_cp = self.env['res.partner'].sudo().search([
+                    ('name', '=', lead.contact_name),
+                    ('is_company', '=', False),
+                ], limit=1)
+
+            if found_cp:
+                rec.x_contact_person_id = found_cp.id
+
+    def _inverse_contact_person_id(self):
+        pass
 
     def write(self, vals):
         res = super(SaleOrder, self).write(vals)
