@@ -369,3 +369,54 @@ div[name="note"] .o-wysiwyg {
     margin-left: 4px !important;
     white-space: nowrap !important;
 }
+
+/* ── Selection Action Toolbar (List View Records Selected) ── */
+.o_control_panel .o_cp_action_menus,
+.o_control_panel div:has(> .o_list_selection_box),
+.o_list_selection_box {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    vertical-align: middle !important;
+}
+
+/* 1. Clean 'X selected' box */
+.o_list_selection_box,
+.o_control_panel .o_list_selection_box {
+    background: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: 4px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 2px 10px !important;
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    box-sizing: border-box !important;
+    margin: 0 4px !important;
+}
+
+/* 2. Action buttons (Mark Lost, Email, SMS, Actions gear) */
+.o_control_panel .o_cp_action_menus .btn,
+.o_control_panel div:has(> .o_list_selection_box) ~ .btn,
+.o_control_panel .o_action_manager_buttons .btn {
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+    padding: 0 10px !important;
+    border-radius: 4px !important;
+    border: 1px solid #d1d5db !important;
+    background: #f8fafc !important;
+    color: #374151 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    transition: all 0.15s ease-in-out !important;
+    margin: 0 2px !important;
+}
+
+.o_control_panel .o_cp_action_menus .btn:hover {
+    background: #f1f5f9 !important;
+    border-color: #9ca3af !important;
+    color: #111827 !important;
+}
