@@ -39,7 +39,7 @@
                                 t-att-class="state.activeTab === 'leads' ? 'active' : ''" 
                                 t-on-click="() => this.setTab('leads')">
                             <i class="fa fa-filter"></i>
-                            <span>Lead Funnel</span>
+                            <span>Pipeline Insights</span>
                         </button>
                         <button type="button" 
                                 class="crm-analytics-tab-btn" 

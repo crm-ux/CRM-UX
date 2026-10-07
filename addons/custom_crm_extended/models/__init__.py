@@ -15,4 +15,5 @@ from . import service_ticket
 from . import crm_custom_settings
 from . import amc_contract
 from . import crm_product_stock
+from . import crm_analytics
 
