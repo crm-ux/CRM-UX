@@ -5,6 +5,8 @@ access_crm_lead_product_line_manager,crm.lead.product.line.manager,model_crm_lea
 access_crm_lead_csv_wizard_user,crm.lead.csv.import.wizard.user,model_crm_lead_csv_import_wizard,base.group_user,1,1,1,1
 access_crm_lead_wizard,crm.lead.wizard,model_crm_lead_wizard,base.group_user,1,1,1,1
 
+access_sale_order_user,sale.order.user,sale.model_sale_order,base.group_user,1,1,1,1
+access_sale_order_line_user,sale.order.line.user,sale.model_sale_order_line,base.group_user,1,1,1,1
 access_sale_quote_preview_wizard,sale.quote.preview.wizard,model_sale_quote_preview_wizard,base.group_user,1,1,1,1
 access_sale_line_media_wizard,sale.line.media.wizard,model_sale_line_media_wizard,base.group_user,1,1,1,1
 access_sale_line_media_wizard_line,sale.line.media.wizard.line,model_sale_line_media_wizard_line,base.group_user,1,1,1,1

@@ -70,6 +70,20 @@
             </field>
         </record>
 
+        <!-- Global Hierarchy Record Rule for Quotation Lines -->
+        <record id="rule_sale_order_line_hierarchy" model="ir.rule">
+            <field name="name">Sale Order Line: Hierarchy &amp; Permission Access</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+            <field name="global" eval="True"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">
+                user._get_hierarchy_domain('perm_lead_quote', 'order_id.user_id')
+            </field>
+        </record>
+
         <!-- Global Hierarchy Record Rule for Service Tickets -->
         <record id="rule_service_ticket_hierarchy" model="ir.rule">
             <field name="name">Service Ticket: Hierarchy &amp; Permission Access</field>
