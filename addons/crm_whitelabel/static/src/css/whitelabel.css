@@ -379,20 +379,30 @@ div[name="note"] .o-wysiwyg {
     vertical-align: middle !important;
 }
 
-/* 1. Target the '1 selected X' box - remove outer borders, keep clean light blue */
+/* 1. Target the '1 selected X' box - eliminate the outer double-box completely */
 .o_control_panel div:has(> .o_list_selection_box),
-.o_control_panel div:has(> [class*="selection_box"]) {
+.o_control_panel div:has(> [class*="selection_box"]),
+.o_control_panel .o_cp_action_menus > div:first-child {
     border: none !important;
     background: transparent !important;
+    background-color: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Ensure any internal spans/containers don't create a second colored background */
+.o_list_selection_box *,
+.o_control_panel [class*="selection_box"] * {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .o_list_selection_box,
 .o_control_panel .o_list_selection_box,
-.o_control_panel [class*="selection_box"],
-.o_control_panel span:has(> a.fa-times),
-.o_control_panel div:has(> a.fa-times) {
+.o_control_panel [class*="selection_box"] {
     background-color: #e0f2fe !important;
     color: #0369a1 !important;
     border: none !important;
