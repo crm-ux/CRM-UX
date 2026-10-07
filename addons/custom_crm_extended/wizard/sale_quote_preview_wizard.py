@@ -489,10 +489,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         cp = order.x_contact_person_id
         lead = order.opportunity_id
         eff_phone = (
-            (cp.mobile or cp.phone) if cp else ''
+            (getattr(cp, 'mobile', '') or getattr(cp, 'phone', '')) if cp else ''
         ) or (
-            (lead.x_mobile or lead.phone) if lead else ''
-        ) or p.phone or p.mobile or ''
+            (getattr(lead, 'x_mobile', '') or getattr(lead, 'phone', '')) if lead else ''
+        ) or getattr(p, 'phone', '') or getattr(p, 'mobile', '') or ''
 
         eff_email = (
             cp.email if cp else ''
@@ -891,10 +891,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         ) or p.email or ''
 
         eff_phone = (
-            (cp.mobile or cp.phone) if cp else ''
+            (getattr(cp, 'mobile', '') or getattr(cp, 'phone', '')) if cp else ''
         ) or (
-            (lead.x_mobile or lead.phone) if lead else ''
-        ) or p.phone or p.mobile or ''
+            (getattr(lead, 'x_mobile', '') or getattr(lead, 'phone', '')) if lead else ''
+        ) or getattr(p, 'phone', '') or getattr(p, 'mobile', '') or ''
 
         if eff_email:
             doc.add_paragraph('Email: %s' % eff_email)
