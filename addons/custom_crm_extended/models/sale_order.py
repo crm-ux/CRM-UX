@@ -548,7 +548,6 @@ class SaleOrder(models.Model):
             'tag': 'reload',
         }
 
-
     def action_admin_move_back(self):
         self.ensure_one()
         stage_order = ['draft', 'sent', 'negotiation', 'order_expected', 'won']
