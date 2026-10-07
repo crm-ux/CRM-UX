@@ -500,13 +500,29 @@ class CrmLead(models.Model):
             self.partner_id = partner.id
             partner_id = partner.id
 
+        # Resolve contact person if lead was linked to a specific contact or contact name
+        contact_person_id = False
+        if self.partner_id and not self.partner_id.is_company:
+            # The lead partner itself was a contact person
+            contact_person_id = self.partner_id.id
+        elif partner_id and self.contact_name:
+            # Find contact child under this company
+            found_cp = self.env['res.partner'].sudo().search([
+                ('parent_id', '=', partner_id),
+                ('name', '=', self.contact_name),
+                ('is_company', '=', False),
+            ], limit=1)
+            if found_cp:
+                contact_person_id = found_cp.id
+
         new_quote = self.env['sale.order'].sudo().create({
             'opportunity_id': self.id,
             'partner_id': partner_id,
             'order_line': order_lines,
             'user_id': self.user_id.id,
             'company_id': self.company_id.id if self.company_id else self.env.company.id,
-            'x_contact_person': self.contact_name or '',
+            'x_contact_person': self.contact_name or (self.partner_id.name if self.partner_id and not self.partner_id.is_company else ''),
+            'x_contact_person_id': contact_person_id,
         })
 
         return {

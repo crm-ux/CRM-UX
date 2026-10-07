@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from datetime import datetime, date, timedelta
 import calendar as _calendar
 from odoo import api, fields, models, _
@@ -130,6 +130,47 @@ class SaleOrder(models.Model):
         help='Select contact person from customer contacts',
         context={'show_address': False, 'no_display_parent': True},
     )
+
+    def write(self, vals):
+        res = super(SaleOrder, self).write(vals)
+        for order in self:
+            if not order.opportunity_id:
+                continue
+
+            # If partner or contact person changed on quote, sync back to linked CRM Lead
+            lead_sync = {}
+            if 'partner_id' in vals and order.partner_id:
+                lead_sync['partner_id'] = order.partner_id.id
+                lead_sync['partner_name'] = order.partner_id.name or ''
+                if order.partner_id.street:
+                    lead_sync['street'] = order.partner_id.street
+                if order.partner_id.street2:
+                    lead_sync['street2'] = order.partner_id.street2
+                if order.partner_id.city:
+                    lead_sync['city'] = order.partner_id.city
+                if order.partner_id.state_id:
+                    lead_sync['state_id'] = order.partner_id.state_id.id
+                if order.partner_id.zip:
+                    lead_sync['zip'] = order.partner_id.zip
+
+            if 'x_contact_person_id' in vals:
+                cp = order.x_contact_person_id
+                if cp:
+                    lead_sync['contact_name'] = cp.name or ''
+                    if cp.function:
+                        lead_sync['function'] = cp.function
+                    if cp.email:
+                        lead_sync['email_from'] = cp.email
+                    if cp.mobile:
+                        lead_sync['mobile'] = cp.mobile
+                    elif cp.phone:
+                        lead_sync['phone'] = cp.phone
+                else:
+                    lead_sync['contact_name'] = False
+
+            if lead_sync:
+                order.opportunity_id.sudo().write(lead_sync)
+        return res
 
     x_po_number = fields.Char(
         string='PO Number',

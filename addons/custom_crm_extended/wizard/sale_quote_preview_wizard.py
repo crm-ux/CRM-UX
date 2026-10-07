@@ -304,8 +304,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'signature_photo': order.x_draft_signature_photo or (order.user_id.x_signature_card if order.user_id else False) or order._get_default_signature_card(),
             'seller_name': order.company_id.name or '',
             'buyer_name': order.x_draft_buyer_name or order.partner_id.name or '',
-            'contact_person': order.x_draft_contact_person or order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
-            'contact_function': order.x_draft_contact_function or (order.opportunity_id.function if order.opportunity_id else ''),
+            'contact_person': order.x_draft_contact_person or (order.x_contact_person_id.name if order.x_contact_person_id else False) or order.x_contact_person or (order.opportunity_id.contact_name if order.opportunity_id else '') or '',
+            'contact_function': order.x_draft_contact_function or (order.x_contact_person_id.function if order.x_contact_person_id else False) or (order.opportunity_id.function if order.opportunity_id else '') or '',
             'quote_name': order.x_draft_quote_name or order.name or '',
             'quote_date': order.x_draft_quote_date or (order.date_order.date() if order.date_order else fields.Date.today()),
             'valid_until': order.x_draft_valid_until or order.validity_date,
@@ -485,12 +485,25 @@ class SaleQuotePreviewWizard(models.TransientModel):
             p.state_id.name if p.state_id else '',
         ] if x]
         addr_html = ''.join('<p style="margin:0 0 1px 0;font-size:11px;">%s</p>' % a for a in addr_parts)
-        addr_html += '<br/>'
+        # Determine effective Phone and Email (prioritize Contact Person -> Lead -> Company)
+        cp = order.x_contact_person_id
+        lead = order.opportunity_id
+        eff_phone = (
+            (cp.mobile or cp.phone) if cp else ''
+        ) or (
+            (lead.x_mobile or lead.phone) if lead else ''
+        ) or p.phone or p.mobile or ''
 
-        if p.phone:
-            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Ph: %s</p>' % p.phone
-        if p.email:
-            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Email: %s</p>' % p.email
+        eff_email = (
+            cp.email if cp else ''
+        ) or (
+            lead.email_from if lead else ''
+        ) or p.email or ''
+
+        if eff_phone:
+            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Ph: %s</p>' % eff_phone
+        if eff_email:
+            addr_html += '<p style="margin:0 0 1px 0;font-size:11px;">Email: %s</p>' % eff_email
 
         # ── PAGE 1: INTRO ──
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
@@ -868,11 +881,25 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Blank line after GST
         doc.add_paragraph('')
-        # Email and Phone
-        if order.partner_id.email:
-            doc.add_paragraph(order.partner_id.email)
-        if order.partner_id.phone:
-            doc.add_paragraph(order.partner_id.phone)
+        # Email and Phone (prioritize Contact Person -> Lead -> Company)
+        cp = order.x_contact_person_id
+        lead = order.opportunity_id
+        eff_email = (
+            cp.email if cp else ''
+        ) or (
+            lead.email_from if lead else ''
+        ) or p.email or ''
+
+        eff_phone = (
+            (cp.mobile or cp.phone) if cp else ''
+        ) or (
+            (lead.x_mobile or lead.phone) if lead else ''
+        ) or p.phone or p.mobile or ''
+
+        if eff_email:
+            doc.add_paragraph('Email: %s' % eff_email)
+        if eff_phone:
+            doc.add_paragraph('Ph: %s' % eff_phone)
         # Subject
         subj_para = doc.add_paragraph()
         subj_para.add_run('Subject: ').bold = True
