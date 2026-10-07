@@ -355,13 +355,21 @@ class ResUsers(models.Model):
     def _assign_default_groups(self, users):
         try:
             all_companies = self.env['res.company'].sudo().search([])
+            sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
             for user in users:
                 if user.share or user._is_admin() or user.has_group('base.group_system'):
                     continue
                 # Assign all companies if not already assigned
                 c_ops = [(4, c.id) for c in all_companies if c not in user.company_ids]
+                vals_to_sync = {}
                 if c_ops:
-                    user.sudo().with_context(skip_sync=True).write({'company_ids': c_ops})
+                    vals_to_sync['company_ids'] = c_ops
+                if vals_to_sync:
+                    user.sudo().with_context(skip_sync=True).write(vals_to_sync)
+
+                # Ensure base sales group is always active so quotation line access is never blocked
+                if sales_grp and user not in sales_grp.users:
+                    sales_grp.sudo().write({'user_ids': [(4, user.id)]})
         except Exception:
             pass
 
