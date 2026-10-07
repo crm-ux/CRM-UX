@@ -81,6 +81,38 @@ button.o_form_button_save,
     margin-left: auto !important;
 }
 
+/* Keep search bar on a clean single line with filter badges matching button height */
+.o_control_panel .o_searchview {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    padding: 0 clamp(0.4rem, 0.6vw, 0.6rem) !important;
+}
+
+.o_control_panel .o_searchview::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Ensure filter badges stay compact and vertically centered */
+.o_control_panel .o_searchview .o_searchview_facet {
+    margin: 0 3px !important;
+    height: clamp(1.4rem, 1.8vh, 1.65rem) !important;
+    font-size: clamp(0.72rem, 0.8vw, 0.8rem) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+.o_control_panel .o_searchview .o_searchview_input {
+    min-width: 60px !important;
+    height: 100% !important;
+    padding: 0 4px !important;
+}
+
 /* Discard / Cancel button as a proper button like Dashboard */
 .o_form_button_cancel,
 button.o_form_button_cancel,
