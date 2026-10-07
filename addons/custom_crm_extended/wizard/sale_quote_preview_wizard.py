@@ -583,8 +583,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if extra_name_lines:
                 desc += '<br/><b>Description:</b> %s' % '<br/>'.join(extra_name_lines)
             if make: desc += '<br/><b>Make:</b> %s' % make
-            for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#333;">%s</i>' % n
+            row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
             # Always show effective unit price after any line discount
             effective_unit_price = (amount / qty) if qty else unit_price
             rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(effective_unit_price), _indian_format(amount))
