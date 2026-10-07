@@ -379,19 +379,29 @@ div[name="note"] .o-wysiwyg {
     vertical-align: middle !important;
 }
 
-/* 1. Target the '1 selected X' box via all class and text variations */
+/* 1. Target the '1 selected X' box - remove outer borders, keep clean light blue */
+.o_control_panel div:has(> .o_list_selection_box),
+.o_control_panel div:has(> [class*="selection_box"]) {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
 .o_list_selection_box,
 .o_control_panel .o_list_selection_box,
 .o_control_panel [class*="selection_box"],
 .o_control_panel span:has(> a.fa-times),
 .o_control_panel div:has(> a.fa-times) {
-    background-color: #f1f5f9 !important;
-    color: #0f172a !important;
-    border: 1px solid #cbd5e1 !important;
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
     border-radius: 4px !important;
     font-size: 0.82rem !important;
     font-weight: 600 !important;
-    padding: 0 8px !important;
+    padding: 0 10px !important;
     height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     line-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     display: inline-flex !important;
