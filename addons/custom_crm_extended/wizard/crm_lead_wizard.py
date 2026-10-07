@@ -234,20 +234,6 @@ class CrmLeadWizard(models.TransientModel):
             self.phone = child_phone or child_mobile
             self.x_mobile = child_mobile or child_phone
 
-            # Check if newly created by unauthorized user
-            user = self.env.user
-            can_create = user._is_admin() or user.has_group('base.group_system') or user.perm_company == 'create' or (user.crm_job_id and user.crm_job_id.perm_company == 'create')
-            if not can_create:
-                # Check if this is a new record (just created)
-                # Check if the record is completely new and unsaved
-                if not self.partner_company_id.id:
-                    self.partner_company_id = False
-                    self.partner_name = False
-                    return {'warning': {
-                        'title': 'Access Denied',
-                        'message': 'You do not have permission to create new companies. Please select an existing company or contact your Administrator.'
-                    }}
-
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if self.partner_id:
