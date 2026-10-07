@@ -198,10 +198,12 @@ class SaleOrder(models.Model):
                         lead_sync['function'] = cp.function
                     if cp.email:
                         lead_sync['email_from'] = cp.email
-                    if cp.mobile:
-                        lead_sync['mobile'] = cp.mobile
-                    elif cp.phone:
-                        lead_sync['phone'] = cp.phone
+                    cp_mob = getattr(cp, 'mobile', '')
+                    cp_ph = getattr(cp, 'phone', '')
+                    if cp_mob:
+                        lead_sync['x_mobile'] = cp_mob
+                    elif cp_ph:
+                        lead_sync['phone'] = cp_ph
                 else:
                     lead_sync['contact_name'] = False
 
