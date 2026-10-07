@@ -788,7 +788,7 @@ class CrmDashboard extends Component {
     }
 
     openInsightsComingSoon() {
-        this.showToast("Advanced Insights & Analytics are coming soon!");
+        this.actionService.doAction("crm_analytics_dashboard");
     }
 
     async openViewAsModal() {
