@@ -586,20 +586,32 @@ class SaleQuotePreviewWizard(models.TransientModel):
             for n in note_map.get(line.id, []):
                 desc += '<br/><i style="color:#333;">%s</i>' % n
             row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
-            # Always show effective unit price after any line discount
-            effective_unit_price = (amount / qty) if qty else unit_price
-            rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(effective_unit_price), _indian_format(amount))
+            if has_discount_pdf:
+                disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
+            else:
+                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
         # ── PAGE 2: QUOTATION TABLE (new page) ──
-        # Standard 6 columns: SR No, Item Description, HSN, Qty, Unit Price, Amount
-        th_html = (
-            '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
-            '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-            '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-            '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
-            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
-            '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
-        )
+        if has_discount_pdf:
+            th_html = (
+                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
+                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount %</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
+            )
+        else:
+            th_html = (
+                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
+                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
+                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
+                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
+            )
 
         # Overall discount totals
         totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>%s</b></p>' % int(order.amount_untaxed)
@@ -609,7 +621,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
         totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
-        col = 6
+        col = 7 if has_discount_pdf else 6
+        original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         untaxed = order.amount_untaxed
         overall_disc_pct = getattr(order, 'x_flat_discount_pct', 0) or 0
         flat_disc = getattr(order, 'x_flat_discount', 0) or 0
@@ -628,10 +641,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Totals as closing rows inside the table: Gross, Overall Discount, Flat Discount, GST, Final Total
         totals_rows = ''
-        has_any_disc = bool(overall_disc_pct) or bool(flat_disc)
+        line_disc_amt = original_amount - untaxed
+        has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct) or bool(flat_disc)
 
         if has_any_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Gross Amount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(untaxed))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Gross Amount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
         if overall_disc_pct:
             totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
         if flat_disc:
@@ -1011,13 +1025,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_discount = any(l.discount for l in order_lines)
         has_overall_discount = getattr(order, 'x_flat_discount_pct', 0) or 0
 
-        headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Amount']
+        if has_discount:
+            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Discount %', 'Amount']
+        else:
+            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Amount']
 
         from docx.shared import Inches as _Inches
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
         # Set column widths
-        col_widths = [0.4, 3.8, 0.8, 0.4, 0.9, 0.8]
+        if has_discount:
+            col_widths = [0.4, 3.3, 0.8, 0.4, 0.9, 0.7, 0.8]
+        else:
+            col_widths = [0.4, 3.8, 0.8, 0.4, 0.9, 0.8]
         for i, width in enumerate(col_widths):
             if i < len(table.columns):
                 for cell in table.columns[i].cells:
@@ -1065,11 +1085,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '\n' + n
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
+            disc_pct = line.discount or 0
             qty = int(line.product_uom_qty or 0)
             amount = line.price_subtotal or 0
-            effective_unit_price = (amount / qty) if qty else unit_price
 
-            row_data = [str(idx), desc, hsn, str(qty), _indian_format(effective_unit_price), _indian_format(amount)]
+            if has_discount:
+                disc_str = '(%s%%)' % int(disc_pct) if disc_pct else '-'
+                row_data = [str(idx), desc, hsn, str(qty), _indian_format(unit_price), disc_str, _indian_format(amount)]
+            else:
+                row_data = [str(idx), desc, hsn, str(qty), _indian_format(unit_price), _indian_format(amount)]
 
             for i, val in enumerate(row_data):
                 cell = row_cells[i]
@@ -1139,10 +1163,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             vr.bold = True
             vr.font.name = 'Calibri'
             vr.font.size = Pt(11)
-        has_any_disc_d = bool(overall_disc_pct_d) or bool(flat_disc_d)
+        original_amount_d = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
+        line_disc_amt_d = original_amount_d - untaxed
+        has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d) or bool(flat_disc_d)
 
         if has_any_disc_d:
-            _add_total_row('Gross Amount', _indian_format(untaxed))
+            _add_total_row('Gross Amount', _indian_format(original_amount_d))
         if overall_disc_pct_d:
             _add_total_row('Overall Discount (%s%%)' % (int(overall_disc_pct_d) if overall_disc_pct_d == int(overall_disc_pct_d) else overall_disc_pct_d), '- ' + _indian_format(overall_disc_amt_d))
         if flat_disc_d:
