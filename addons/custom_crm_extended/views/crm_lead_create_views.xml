@@ -14,6 +14,9 @@
             <xpath expr="//field[@name='priority']" position="attributes">
                 <attribute name="readonly">1</attribute>
             </xpath>
+            <xpath expr="//field[@name='expected_revenue']" position="replace">
+                <field name="x_display_revenue" string="Expected Revenue" widget="monetary" options="{'currency_field': 'company_currency'}" sum="Expected Revenues" optional="show"/>
+            </xpath>
         </field>
     </record>
 

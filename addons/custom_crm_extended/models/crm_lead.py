@@ -292,6 +292,28 @@ class CrmLead(models.Model):
         store=True
     )
 
+    x_display_revenue = fields.Monetary(
+        string='Expected Revenue',
+        currency_field='company_currency',
+        compute='_compute_display_revenue',
+        store=False,
+    )
+
+    @api.depends('stage_id', 'expected_revenue')
+    def _compute_display_revenue(self):
+        for rec in self:
+            seq = rec.stage_id.sequence if rec.stage_id else (rec.x_stage_sequence or 0)
+            if seq >= 30:
+                # Last 5 quotation stages: fetch latest quotation's amount_total
+                quote = self.env['sale.order'].sudo().search([
+                    ('opportunity_id', '=', rec.id),
+                    ('state', '!=', 'cancel')
+                ], order='id desc', limit=1)
+                rec.x_display_revenue = (quote.amount_total or 0.0) if quote else 0.0
+            else:
+                # First 5 lead stages: show lead's expected revenue
+                rec.x_display_revenue = rec.expected_revenue or 0.0
+
     @api.depends('stage_id')
     def _compute_stage_sequence(self):
         for rec in self:
