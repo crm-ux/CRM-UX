@@ -32,6 +32,36 @@ class EquipmentMaster(models.Model):
     invoice_filename = fields.Char(string='Invoice Filename')
     invoice_date = fields.Date(string='Invoice Date', tracking=True)
 
+    SUPPORTED_EXTENSIONS = (
+        'pdf',
+        'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg',
+        'docx', 'doc',
+        'xlsx', 'xls', 'csv',
+        'txt',
+        'zip', 'rar', '7z', 'tar', 'gz'
+    )
+
+    @api.constrains('invoice_attachment', 'invoice_filename')
+    def _check_invoice_file_format(self):
+        for rec in self:
+            if rec.invoice_attachment and rec.invoice_filename:
+                fn = rec.invoice_filename.strip().lower()
+                ext = fn.split('.')[-1] if '.' in fn else ''
+                if ext in ('exe', 'bat', 'cmd', 'sh', 'bin', 'msi', 'com', 'scr', 'vbs', 'js', 'py'):
+                    raise ValidationError(_(
+                        "Executable files (.%s) are strictly prohibited for security reasons!\n"
+                        "Please upload a supported document (PDF, Images, DOCX, XLSX, TXT, ZIP)."
+                    ) % ext)
+                if ext not in self.SUPPORTED_EXTENSIONS:
+                    raise ValidationError(_(
+                        "The file format '%s' is not supported!\n"
+                        "Supported formats are: PDF, Images (PNG, JPG, WEBP, SVG), Word (DOCX), Excel (XLSX, CSV), Text (TXT), and Archives (ZIP, RAR)."
+                    ) % (ext.upper() if ext else 'Unknown'))
+
+    def action_preview_invoice(self):
+        """Action button method for form view (UI preview intercepted in JS)."""
+        return True
+
     @api.model
     def action_get_invoice_preview_content(self, res_id=None, raw_b64=None, filename=None):
         """Extract previewable content for DOCX (text/HTML) or ZIP (list of files)."""
