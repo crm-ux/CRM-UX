@@ -369,6 +369,11 @@ class DashboardStats(models.Model):
                         else (target_user.crm_job_id and target_user.crm_job_id.perm_amc not in ('none', False) and target_user.crm_job_id.perm_amc_read)
                     )
                 ),
+                'exhibition_read': bool(
+                    target_user.perm_exhibition_read or target_user.perm_exhibition_write or target_user.perm_exhibition_create or
+                    (target_user.crm_job_id and (target_user.crm_job_id.perm_exhibition_read or target_user.crm_job_id.perm_exhibition_write or target_user.crm_job_id.perm_exhibition_create)) or
+                    target_user._is_admin() or target_user.has_group('base.group_system')
+                ),
                 'can_create_company': bool(
                     target_user._is_admin() or target_user.has_group('base.group_system') or (
                         target_user.perm_company == 'create' if target_user.perm_company in ('create', 'none')

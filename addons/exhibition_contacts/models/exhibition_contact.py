@@ -399,3 +399,78 @@ class ExhibitionContact(models.Model):
                 'domain': [('id', 'in', duplicates.ids)],
                 'target': 'new',
             }
+
+    @api.model
+    def _user_can(self, perm_name, default=False):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
+
+    @api.model
+    def get_views(self, views, options=None):
+        from lxml import etree
+        res = super(ExhibitionContact, self).get_views(views, options=options)
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            can_create = self._user_can('perm_exhibition_create', False)
+            can_write = self._user_can('perm_exhibition_write', False)
+            can_delete = self._user_can('perm_exhibition_unlink', False)
+
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        if not can_create:
+                            doc.attrib['create'] = 'false'
+                        if not can_write:
+                            doc.attrib['edit'] = 'false'
+                        if not can_delete:
+                            doc.attrib['delete'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if operation == 'create' and not self._user_can('perm_exhibition_create', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to create Exhibition Contact records."))
+                return False
+            if operation == 'write' and not self._user_can('perm_exhibition_write', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to update Exhibition Contact records."))
+                return False
+            if operation == 'unlink' and not self._user_can('perm_exhibition_unlink', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to delete Exhibition Contact records."))
+                return False
+        return super(ExhibitionContact, self).check_access_rights(operation, raise_exception=raise_exception)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if not self._user_can('perm_exhibition_create', False):
+                raise UserError(_("Access Denied: You do not have permission to create Exhibition Contact records."))
+        return super(ExhibitionContact, self).create(vals_list)
+
+    def write(self, vals):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if not self._user_can('perm_exhibition_write', False):
+                raise UserError(_("Access Denied: You do not have permission to update Exhibition Contact records."))
+        return super(ExhibitionContact, self).write(vals)
+
+    def unlink(self):
+        for rec in self:
+            user = self.env.user
+            if not user._is_admin() and not user.has_group('base.group_system'):
+                if not self._user_can('perm_exhibition_unlink', False):
+                    raise UserError(_("Access Denied: You do not have permission to delete Exhibition Contact records."))
+        return super(ExhibitionContact, self).unlink()

@@ -48,6 +48,7 @@ class CrmDashboard extends Component {
             canAccessQuickMenu: false,
             canViewCustomer: false,
             canViewProduct: false,
+            canViewExhibition: false,
             canViewEquipment: false,
             canViewUsers: false,
             canCreateCompany: false,
@@ -321,13 +322,14 @@ class CrmDashboard extends Component {
             const canViewLeadQuote = Boolean(perms.lead_quote_read || isAdm);
             const canViewCustomer = Boolean(perms.customer_read || isAdm);
             const canViewProduct = Boolean(perms.product_read || isAdm);
+            const canViewExhibition = Boolean(perms.exhibition_read || isAdm);
             const canViewEquipment = Boolean(perms.equipment_read || isAdm);
             const canViewTicket = Boolean(perms.ticket_read || isAdm);
             const canViewAmc = Boolean(perms.amc_read || isAdm);
             const canViewUsers = Boolean(perms.is_manager || isAdm);
             const canCreateCompany = Boolean(perms.can_create_company || isAdm);
             const canExport = Boolean(perms.can_export || isAdm);
-            const canAccessQuickMenu = Boolean(isAdm || canViewCustomer || canViewProduct || canViewEquipment || canViewTicket || canViewAmc || canViewUsers || canCreateCompany);
+            const canAccessQuickMenu = Boolean(isAdm || canViewCustomer || canViewProduct || canViewExhibition || canViewEquipment || canViewTicket || canViewAmc || canViewUsers || canCreateCompany);
 
             const lc = canViewLeadQuote ? (s.lead_counts || {}) : {}, qc = canViewLeadQuote ? (s.quote_counts || {}) : {};
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
@@ -431,7 +433,7 @@ class CrmDashboard extends Component {
                 amcTotal, amcDraft, amcActive, amcExpired,
                 amcTotalVal, amcDraftVal, amcActiveVal, amcExpiredVal,
                 productStockCount, stockTotalVal,
-                canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
+                canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewExhibition, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,
                 // Advanced Analytics safe bindings (uses backend data if present, otherwise keeps safe state)
                 complaintBreakdown: s.complaint_counts?.breakdown ?? 0,
@@ -1079,7 +1081,13 @@ class CrmDashboard extends Component {
         const wizardId = await this.ormService.create("crm.lead.wizard", [{ company_id: companyId, step: 1 }]);
         this.go({ type: "ir.actions.act_window", res_model: "crm.lead.wizard", res_id: wizardId[0], views: [[false, "form"]], target: "new", name: "Lead Creation" });
     }
-    openExhibition() { this.go({ type: "ir.actions.act_window", name: "Exhibition Contacts", res_model: "exhibition.contact", views: [[false, "list"], [false, "form"]] }); }
+    openExhibition() {
+        if (!this.state.isAdmin && !this.state.canViewExhibition) {
+            this.showAccessDenied("Exhibition Database");
+            return;
+        }
+        this.go({ type: "ir.actions.act_window", name: "Exhibition Contacts", res_model: "exhibition.contact", views: [[false, "list"], [false, "form"]] });
+    }
     openMeetings() { const now = new Date(); const start = new Date(now.getFullYear(), now.getMonth(), 1); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Meetings This Month", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(start)], ["start", "<=", fmt(end)]] }); }
     openUpcomingEvents() { const now = new Date(); const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59); const fmt = (d) => d.toISOString().slice(0, 19).replace('T', ' '); this.go({ type: "ir.actions.act_window", name: "Upcoming Events", res_model: "calendar.event", views: [[false, "list"], [false, "form"], [false, "calendar"]], domain: [["start", ">=", fmt(now)], ["start", "<=", fmt(end)]] }); }
     openLeadPriorityFilter(level) {
