@@ -26,33 +26,25 @@ class InvoicePreviewDialog extends Component {
                     <iframe t-att-src="pdfBlobUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice PDF"/>
                 </t>
 
-                <!-- 3. Word Document Content Preview (Real paragraphs extracted) -->
-                <t t-elif="isOffice and docxParagraphs">
-                    <div class="w-100 p-4" style="max-width: 850px;">
-                        <div class="card shadow-sm border-0 bg-white p-4 p-md-5 my-2" style="border-radius: 8px;">
+                <!-- 3. Word Document Content Preview (Rich HTML with Tables, Images & Formatting) -->
+                <t t-elif="isOffice and docxHtml">
+                    <div class="w-100 p-3 p-md-4" style="max-width: 900px;">
+                        <div class="card shadow-sm border-0 bg-white p-4 p-md-5 my-2" style="border-radius: 10px;">
                             <div class="border-bottom pb-3 mb-4 d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-center gap-2">
-                                    <i class="fa fa-file-word-o text-primary fs-3"></i>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center rounded" style="width: 42px; height: 42px; background: #e8f0fe; color: #1a73e8;">
+                                        <i class="fa fa-file-word-o fs-4"></i>
+                                    </div>
                                     <div>
                                         <h5 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
-                                        <small class="text-muted"><t t-esc="docxParagraphs.length"/> Paragraphs</small>
+                                        <small class="text-muted">Document Preview</small>
                                     </div>
                                 </div>
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">DOCX PREVIEW</span>
+                                <span class="badge px-3 py-2 fw-semibold" style="background-color: #0b3d91 !important; color: #ffffff !important; border-radius: 6px;">
+                                    DOCX
+                                </span>
                             </div>
-                            <div class="docx-body text-start border rounded p-4 bg-light bg-opacity-25" style="max-height: 65vh; overflow-y: auto; font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #212529;">
-                                <t t-if="docxParagraphs.length">
-                                    <t t-foreach="docxParagraphs" t-as="para" t-key="para_index">
-                                        <p class="mb-3 text-break" t-esc="para"/>
-                                    </t>
-                                </t>
-                                <t t-else="">
-                                    <div class="text-center text-muted py-5">
-                                        <i class="fa fa-info-circle fs-4 mb-2"></i>
-                                        <p class="mb-0">No readable text found in this document.</p>
-                                    </div>
-                                </t>
-                            </div>
+                            <div class="docx-body text-start border rounded p-4 bg-white" style="max-height: 68vh; overflow-y: auto; overflow-x: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14.5px; line-height: 1.6; color: #202124;" t-out="docxHtml"/>
                         </div>
                     </div>
                 </t>
@@ -143,9 +135,9 @@ class InvoicePreviewDialog extends Component {
         close: { type: Function },
     };
 
-    get docxParagraphs() {
+    get docxHtml() {
         if (this.props.previewContent?.type === "docx_content") {
-            return this.props.previewContent.paragraphs;
+            return this.props.previewContent.html || null;
         }
         return null;
     }

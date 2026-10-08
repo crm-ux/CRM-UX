@@ -108,22 +108,98 @@ class EquipmentMaster(models.Model):
 
             # 2. Parse Word Document (.docx is a ZIP containing word/document.xml)
             elif ext in ('docx', 'doc'):
-                text_paragraphs = []
                 with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
-                    if 'word/document.xml' in z.namelist():
-                        xml_content = z.read('word/document.xml')
-                        tree = ET.fromstring(xml_content)
-                        # XML namespace for Word
-                        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-                        for p in tree.iterfind('.//w:p', ns):
-                            texts = [node.text for node in p.iterfind('.//w:t', ns) if node.text]
-                            if texts:
-                                text_paragraphs.append(''.join(texts))
-                return {
-                    'type': 'docx_content',
-                    'filename': fname,
-                    'paragraphs': text_paragraphs,
-                }
+                    if 'word/document.xml' not in z.namelist():
+                        return {'type': 'docx_content', 'filename': fname, 'html': '<p class="text-muted">Empty document.</p>'}
+
+                    xml_content = z.read('word/document.xml')
+                    tree = ET.fromstring(xml_content)
+
+                    # Extract embedded images and map r:id -> base64 data URI
+                    media_map = {}
+                    if 'word/_rels/document.xml.rels' in z.namelist():
+                        try:
+                            rels_xml = z.read('word/_rels/document.xml.rels')
+                            rels_tree = ET.fromstring(rels_xml)
+                            for rel in rels_tree:
+                                r_id = rel.get('Id')
+                                target = rel.get('Target', '')
+                                if 'media/' in target:
+                                    img_path = 'word/' + target.lstrip('/')
+                                    if img_path in z.namelist():
+                                        img_bytes = z.read(img_path)
+                                        img_ext = img_path.split('.')[-1].lower()
+                                        mime = 'image/jpeg' if img_ext in ('jpg', 'jpeg') else f'image/{img_ext}'
+                                        media_map[r_id] = f"data:{mime};base64,{base64.b64encode(img_bytes).decode('ascii')}"
+                        except Exception:
+                            pass
+
+                    # Parse elements in document body preserving order of tables, paragraphs, and images
+                    ns = {
+                        'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
+                        'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+                        'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+                    }
+
+                    body = tree.find('.//w:body', ns)
+                    html_parts = []
+
+                    def extract_p_html(p_elem):
+                        p_html = []
+                        # Look for drawings/images in this paragraph
+                        for blip in p_elem.iterfind('.//a:blip', ns):
+                            embed_id = blip.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed')
+                            if embed_id and embed_id in media_map:
+                                p_html.append(f'<div class="my-2 text-center"><img src="{media_map[embed_id]}" class="img-fluid rounded shadow-sm" style="max-height: 280px; max-width: 100%; object-fit: contain;" /></div>')
+
+                        # Text runs
+                        runs_text = []
+                        for r_node in p_elem.iterfind('.//w:r', ns):
+                            r_is_bold = r_node.find('.//w:b', ns) is not None
+                            t_nodes = [t.text for t in r_node.iterfind('.//w:t', ns) if t.text]
+                            if t_nodes:
+                                text_val = ''.join(t_nodes).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                                if r_is_bold:
+                                    runs_text.append(f"<strong>{text_val}</strong>")
+                                else:
+                                    runs_text.append(text_val)
+
+                        if runs_text:
+                            p_html.append(''.join(runs_text))
+
+                        return ''.join(p_html)
+
+                    if body is not None:
+                        for child in body:
+                            tag = child.tag.split('}')[-1]
+                            if tag == 'p':
+                                inner = extract_p_html(child)
+                                if inner.strip():
+                                    html_parts.append(f'<p class="mb-2" style="line-height: 1.5;">{inner}</p>')
+                            elif tag == 'tbl':
+                                # Render real HTML table
+                                rows_html = []
+                                for tr in child.iterfind('.//w:tr', ns):
+                                    cells_html = []
+                                    for tc in tr.iterfind('.//w:tc', ns):
+                                        cell_paragraphs = []
+                                        for p in tc.iterfind('.//w:p', ns):
+                                            p_text = extract_p_html(p)
+                                            if p_text:
+                                                cell_paragraphs.append(p_text)
+                                        cell_content = '<br/>'.join(cell_paragraphs) if cell_paragraphs else '&nbsp;'
+                                        cells_html.append(f'<td class="border p-2 align-middle">{cell_content}</td>')
+                                    if cells_html:
+                                        rows_html.append(f'<tr>{"".join(cells_html)}</tr>')
+                                if rows_html:
+                                    html_parts.append(f'<div class="table-responsive my-3"><table class="table table-bordered table-sm mb-0 text-dark" style="font-size: 13.5px; border-color: #dee2e6;"><tbody>{"".join(rows_html)}</tbody></table></div>')
+
+                    rendered_html = ''.join(html_parts) if html_parts else '<p class="text-muted">No readable content found in document.</p>'
+                    return {
+                        'type': 'docx_content',
+                        'filename': fname,
+                        'html': rendered_html,
+                    }
         except Exception as e:
             return {'type': 'error', 'error': str(e)}
 

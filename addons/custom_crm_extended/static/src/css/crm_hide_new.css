@@ -563,4 +563,30 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     transform: scale(1.15);
     transition: transform 0.15s ease-in-out;
 }
+
+/* Override default Odoo purple on binary buttons inside Invoice field & modal */
+.crm_invoice_field_box .btn-primary,
+.crm_invoice_field_box .o_select_file_button,
+.crm_invoice_field_box button.btn-secondary:hover {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+/* Brand blue for Word preview documents */
+.docx-body table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+}
+
+.docx-body td, .docx-body th {
+    border: 1px solid #dee2e6 !important;
+    padding: 8px 12px !important;
+    vertical-align: middle;
+}
+
+.docx-body tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
 
