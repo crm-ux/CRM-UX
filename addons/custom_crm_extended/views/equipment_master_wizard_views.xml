@@ -53,6 +53,8 @@
                                 <field name="invoice_number" placeholder="e.g. INV/2026/001" class="flex-grow-1"/>
                                 <field name="invoice_filename" invisible="1"/>
                                 <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True, 'accepted_file_extensions': '.pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar'}" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar" class="m-0 p-0"/>
+                                <button name="action_preview_invoice" type="object" icon="fa-eye" title="View Invoice"
+                                        invisible="not invoice_attachment" class="btn btn-sm btn-link text-primary p-0 ms-1" style="font-size: 1.1rem;"/>
                             </div>
                             <field name="invoice_date" string="Invoice Date"/>
                         </group>
