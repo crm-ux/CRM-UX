@@ -573,6 +573,21 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     color: #ffffff !important;
 }
 
+/* Completely remove and hide any download icon or download button on invoice field & preview */
+.crm_invoice_field_box .fa-download,
+.crm_invoice_field_box .o_download_file_button,
+.crm_invoice_field_box a[download],
+.crm_invoice_field_box button[title*="Download" i],
+.crm_invoice_field_box a[title*="Download" i],
+.o_dialog .fa-download,
+.o_dialog [title*="Download" i],
+.o_dialog [aria-label*="Download" i],
+.o_dialog a[download] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 /* Brand blue for Word preview documents */
 .docx-body table {
     border-collapse: collapse;

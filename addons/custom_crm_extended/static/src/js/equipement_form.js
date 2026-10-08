@@ -34,7 +34,7 @@ class InvoicePreviewDialog extends Component {
                 
                 <!-- 2. PDF Viewer -->
                 <t t-elif="isPdf">
-                    <iframe t-att-src="pdfBlobUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice PDF"/>
+                    <iframe t-att-src="pdfBlobUrl ? (pdfBlobUrl + '#toolbar=0&amp;navpanes=0') : ''" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice PDF"/>
                 </t>
 
                 <!-- 3. Word Document Content Preview (Rich HTML with Tables, Images & Formatting) -->
