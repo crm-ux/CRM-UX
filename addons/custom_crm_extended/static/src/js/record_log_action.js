@@ -8,14 +8,17 @@ import { _t } from "@web/core/l10n/translation";
 import { Component, xml, useState, onWillStart } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 
-async function checkUserCanLog() {
+// Track canLog per controller instance synchronously
+let _currentCanLog = null;
+
+async function fetchUserCanLog() {
     let viewAsUid = null;
     try {
         const saved = sessionStorage.getItem("crm_view_as_uid");
         if (saved) {
             viewAsUid = parseInt(saved, 10);
         }
-    } catch (e) {}
+    } catch (e) { }
 
     if (!viewAsUid && Boolean(user.isAdmin)) {
         return true;
@@ -33,6 +36,16 @@ async function checkUserCanLog() {
         return false;
     }
 }
+
+// Pre-fetch permission synchronously into state when form mounts/updates
+patch(FormController.prototype, {
+    setup() {
+        super.setup(...arguments);
+        fetchUserCanLog().then((val) => {
+            _currentCanLog = val;
+        });
+    },
+});
 
 /**
  * Audit / Change History Dialog Component
@@ -240,14 +253,23 @@ import { registry } from "@web/core/registry";
 const cogMenuRegistry = registry.category("cogMenu");
 
 cogMenuRegistry.add("record_log_view", {
-    isDisplayed: async (env) => {
+    isDisplayed: (env) => {
         const viewType = env.config?.viewType;
         const isForm = viewType === "form";
         const resId = env.model?.root?.resId || env.config?.currentId;
         if (!isForm || !resId) {
             return false;
         }
-        return await checkUserCanLog();
+        let viewAsUid = null;
+        try {
+            const saved = sessionStorage.getItem("crm_view_as_uid");
+            if (saved) viewAsUid = parseInt(saved, 10);
+        } catch (e) {}
+
+        if (!viewAsUid && Boolean(user.isAdmin)) {
+            return true;
+        }
+        return Boolean(_currentCanLog);
     },
     Component: RecordLogMenuItem,
     groupNumber: 20,
