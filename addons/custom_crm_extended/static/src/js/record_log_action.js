@@ -208,41 +208,45 @@ class RecordLogDialog extends Component {
     }
 }
 
-/**
- * Patch FormController to inject "Log" action in gear button when permitted
- */
-patch(FormController.prototype, {
-    async getActionMenuItems() {
-        const menuItems = await super.getActionMenuItems(...arguments);
-        const resId = this.model?.root?.resId;
-        const resModel = this.model?.root?.resModel;
+class RecordLogMenuItem extends Component {
+    static template = xml`
+        <span class="dropdown-item d-flex align-items-center cursor-pointer" role="menuitem" t-on-click="onSelected">
+            <i class="fa fa-history me-2 text-primary"/>
+            <span>Log</span>
+        </span>
+    `;
 
-        if (!resId || !resModel) {
-            return menuItems;
+    async onSelected() {
+        const env = this.env;
+        const resModel = env.config?.resModel || env.searchModel?.resModel || env.model?.root?.resModel;
+        const resId = env.model?.root?.resId || env.config?.currentId;
+        const recordName = env.model?.root?.data?.display_name || env.model?.root?.data?.name || "";
+
+        if (resModel && resId) {
+            env.services.dialog.add(RecordLogDialog, {
+                resModel: resModel,
+                resId: resId,
+                recordName: recordName,
+            });
         }
+    }
+}
 
-        const canLog = await checkUserCanLog();
-        if (!canLog) {
-            return menuItems;
+import { registry } from "@web/core/registry";
+const cogMenuRegistry = registry.category("cogMenu");
+
+cogMenuRegistry.add("record_log_view", {
+    isDisplayed: async (env) => {
+        const viewType = env.config?.viewType;
+        const isForm = viewType === "form";
+        const resId = env.model?.root?.resId || env.config?.currentId;
+        if (!isForm || !resId) {
+            return false;
         }
-
-        const recordName = this.model?.root?.data?.display_name || this.model?.root?.data?.name || "";
-
-        menuItems.other = menuItems.other || [];
-        menuItems.other.push({
-            key: "view_audit_log",
-            description: _t("Log"),
-            callback: () => {
-                this.dialogService.add(RecordLogDialog, {
-                    resModel: resModel,
-                    resId: resId,
-                    recordName: recordName,
-                });
-            },
-            groupNumber: 20,
-            sequence: 45,
-        });
-
-        return menuItems;
+        return await checkUserCanLog();
     },
+    Component: RecordLogMenuItem,
+    groupNumber: 20,
+    sequence: 50,
 });
+

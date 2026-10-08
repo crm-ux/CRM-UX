@@ -53,6 +53,7 @@ class CrmDashboard extends Component {
             canViewUsers: false,
             canCreateCompany: false,
             canExport: false,
+            canLog: false,
             loading: false,
             viewAsUserId: null,
             viewAsUserName: "",
