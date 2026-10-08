@@ -73,8 +73,8 @@ class RecordLogDialog extends Component {
                 <div t-if="!state.loading and state.logs.length > 0" class="crm-log-timeline">
                     <div t-foreach="state.logs" t-as="entry" t-key="entry.id" class="border-bottom py-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-semibold text-primary">
-                                <i class="fa fa-user-circle me-1"/>
+                            <span class="fw-bold" style="color: #0b3d91;">
+                                <i class="fa fa-user-circle me-1" style="color: #0b3d91;"/>
                                 <span t-esc="entry.author"/>
                             </span>
                             <span class="text-muted small" t-esc="entry.date"/>
@@ -169,6 +169,8 @@ class RecordLogDialog extends Component {
                             fields: [
                                 "id",
                                 "field_info",
+                                "field_desc",
+                                "field_id",
                                 "old_value_char",
                                 "new_value_char",
                                 "old_value_integer",
@@ -181,7 +183,7 @@ class RecordLogDialog extends Component {
                         },
                     });
                     for (const tr of trackingRecords) {
-                        const fieldDesc = tr.field_info?.desc || tr.field_info?.name || "Field";
+                        const fieldDesc = tr.field_desc || (tr.field_id ? tr.field_id[1] : null) || tr.field_info?.desc || tr.field_info?.name || "Field";
                         const oldVal = tr.old_value_char || tr.old_value_integer || tr.old_value_float || tr.old_value_datetime || "";
                         const newVal = tr.new_value_char || tr.new_value_integer || tr.new_value_float || tr.new_value_datetime || "";
                         trackingMap[tr.id] = {
