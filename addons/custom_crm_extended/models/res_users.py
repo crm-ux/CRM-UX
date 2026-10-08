@@ -449,9 +449,46 @@ class ResUsers(models.Model):
             return {'success': False, 'message': 'New password and Confirm password do not match.'}
 
         # Verify old password
+        verified = False
+        db = self.env.cr.dbname
+
+        # 1. Try standard ResUsers authenticate
         try:
-            user.sudo()._check_credentials(old_passwd, {'interactive': True})
+            uid = type(self).authenticate(db, user.login, old_passwd, {'interactive': True})
+            if uid == user.id:
+                verified = True
         except Exception:
+            pass
+
+        # 2. Try _check_credentials with interactive dict
+        if not verified:
+            try:
+                user.sudo()._check_credentials(old_passwd, {'interactive': True})
+                verified = True
+            except Exception:
+                pass
+
+        # 3. Try _check_credentials with single password argument
+        if not verified:
+            try:
+                user.sudo()._check_credentials(old_passwd)
+                verified = True
+            except Exception:
+                pass
+
+        # 4. Try passlib CryptContext directly against user password hash
+        if not verified:
+            try:
+                from passlib.context import CryptContext
+                crypt_context = CryptContext(schemes=['pbkdf2_sha512', 'plaintext'], deprecated=['plaintext'])
+                self.env.cr.execute("SELECT password FROM res_users WHERE id = %s", (user.id,))
+                row = self.env.cr.fetchone()
+                if row and row[0]:
+                    verified = crypt_context.verify(old_passwd, row[0])
+            except Exception:
+                pass
+
+        if not verified:
             return {'success': False, 'message': 'Incorrect current password. Please try again.'}
 
         # Update password
