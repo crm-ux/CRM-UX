@@ -231,6 +231,32 @@ class ResUsers(models.Model):
     perm_exhibition_read = fields.Boolean(string='View Exhibition Contact', default=False)
     perm_exhibition_unlink = fields.Boolean(string='Delete Exhibition Contact', default=False)
 
+    is_left_employee = fields.Boolean(
+        string='Employee Left',
+        default=False,
+        tracking=True,
+        copy=False,
+        help='Indicates whether this employee has left the company.'
+    )
+
+    def action_mark_employee_left(self):
+        """Mark employee as left, deactivate login, but preserve all links (job, manager, dept, employee profile)."""
+        for user in self:
+            if user._is_admin() or user.id == 2:
+                continue
+            user.write({
+                'is_left_employee': True,
+                'active': False,
+            })
+
+    def action_mark_employee_active(self):
+        """Re-activate left employee, restore login, and remove the Left Employee ribbon."""
+        for user in self:
+            user.write({
+                'is_left_employee': False,
+                'active': True,
+            })
+
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_sync_permissions(self):
@@ -767,15 +793,16 @@ class HrJob(models.Model):
         compute='_compute_assigned_employee_ids'
     )
 
-    @api.depends('user_ids', 'department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
+    @api.depends('user_ids', 'user_ids.is_left_employee', 'department_id', 'department_id.manager_id', 'department_id.manager_id.user_id')
     def _compute_assigned_employee_ids(self):
         for job in self:
             mgr_user_id = job.department_id.manager_id.user_id.id if (job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id) else False
+            active_users = job.user_ids.filtered(lambda u: not u.is_left_employee)
             if mgr_user_id and not job.is_manager_role:
                 # Exclude the department manager from regular employee list!
-                emps = job.user_ids.filtered(lambda u: u.id != mgr_user_id)
+                emps = active_users.filtered(lambda u: u.id != mgr_user_id)
             else:
-                emps = job.user_ids
+                emps = active_users
             job.assigned_employee_ids = emps
             job.assigned_employee_count = len(emps)
 
