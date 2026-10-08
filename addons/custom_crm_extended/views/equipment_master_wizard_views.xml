@@ -48,7 +48,12 @@
                         <group>
                             <field name="part_number" string="Part Number" placeholder="e.g. TSV336RLGF"/>
                             <field name="child_part_no" string="Child Part No" placeholder="e.g. 09.2005, 09.1003"/>
-                            <field name="invoice_number" string="Invoice No" placeholder="e.g. INV/2026/001"/>
+                            <label for="invoice_number" string="Invoice No"/>
+                            <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
+                                <field name="invoice_number" placeholder="e.g. INV/2026/001" class="flex-grow-1"/>
+                                <field name="invoice_filename" invisible="1"/>
+                                <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True}" class="m-0 p-0"/>
+                            </div>
                             <field name="invoice_date" string="Invoice Date"/>
                         </group>
                         <group>

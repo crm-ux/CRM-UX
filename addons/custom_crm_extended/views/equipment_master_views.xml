@@ -25,7 +25,16 @@
                             <field name="serial_number"/>
                             <field name="part_number"/>
                             <field name="child_part_no"/>
-                            <field name="invoice_number" string="Invoice No"/>
+                            <label for="invoice_number" string="Invoice No"/>
+                            <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
+                                <field name="invoice_number" placeholder="e.g. INV/2026/001" class="flex-grow-1"/>
+                                <field name="invoice_filename" invisible="1"/>
+                                <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True}" class="m-0 p-0"/>
+                                <button name="action_preview_invoice" type="object" icon="fa-eye" title="View Invoice"
+                                        invisible="not invoice_attachment" class="btn btn-sm btn-link text-primary p-0 ms-1" style="font-size: 1.1rem;"/>
+                                <button name="action_delete_invoice" type="object" icon="fa-times-circle" title="Remove Invoice Attachment"
+                                        invisible="not invoice_attachment" class="btn btn-sm btn-link text-danger p-0 ms-1" style="font-size: 1.1rem;"/>
+                            </div>
                             <field name="invoice_date" string="Invoice Date"/>
                             <field name="criticality" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                             <field name="equipment_status" widget="radio" options="{'horizontal': true}" class="custom_radio_clean" string="Equipment Status"/>

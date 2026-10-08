@@ -28,7 +28,28 @@ class EquipmentMaster(models.Model):
     part_number = fields.Char(string='Part Number', tracking=True)
     child_part_no = fields.Char(string='Child Part No', tracking=True)
     invoice_number = fields.Char(string='Invoice No', tracking=True)
+    invoice_attachment = fields.Binary(string='Invoice Attachment', tracking=True)
+    invoice_filename = fields.Char(string='Invoice Filename')
     invoice_date = fields.Date(string='Invoice Date', tracking=True)
+
+    def action_preview_invoice(self):
+        """Open uploaded invoice PDF or image in a new tab."""
+        self.ensure_one()
+        if not self.invoice_attachment:
+            return
+        filename = self.invoice_filename or f"Invoice_{self.invoice_number or self.id}.pdf"
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{self._name}/{self.id}/invoice_attachment/{filename}?download=false',
+            'target': 'new',
+        }
+
+    def action_delete_invoice(self):
+        """Remove the uploaded invoice attachment."""
+        self.write({
+            'invoice_attachment': False,
+            'invoice_filename': False,
+        })
     equipment_status = fields.Selection([
         ('active', 'Active'),
         ('inactive', 'Inactive'),

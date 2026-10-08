@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, xml, onMounted, onWillUnmount } from "@odoo/owl";
+import { Dialog } from "@web/core/dialog/dialog";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
@@ -8,6 +9,36 @@ import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_d
 import { _t } from "@web/core/l10n/translation";
 import { ListController } from "@web/views/list/list_controller";
 import { patch } from "@web/core/utils/patch";
+
+class InvoicePreviewDialog extends Component {
+    static template = xml`
+        <Dialog title="props.title" size="'xl'">
+            <div class="p-0 text-center bg-dark" style="min-height: 75vh; max-height: 85vh; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <t t-if="isImage">
+                    <img t-att-src="props.fileUrl" class="img-fluid" style="max-height: 80vh; object-fit: contain; border-radius: 4px;" alt="Invoice Preview"/>
+                </t>
+                <t t-else="">
+                    <iframe t-att-src="props.fileUrl" style="width: 100%; height: 80vh; border: none;" title="Invoice Document"/>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <!-- No download button and no extra close button - only top-right cross icon -->
+            </t>
+        </Dialog>
+    `;
+    static components = { Dialog };
+    static props = {
+        title: { type: String, optional: true },
+        fileUrl: { type: String },
+        filename: { type: String, optional: true },
+        close: { type: Function },
+    };
+
+    get isImage() {
+        const fn = (this.props.filename || "").toLowerCase();
+        return fn.endsWith(".png") || fn.endsWith(".jpg") || fn.endsWith(".jpeg") || fn.endsWith(".webp") || fn.endsWith(".gif");
+    }
+}
 
 const EQUIPMENT_MODEL = "equipment.master";
 const WIZARD_ACTION = "custom_crm_extended.action_equipment_master_wizard";
@@ -100,8 +131,63 @@ export class EquipmentFormController extends FormController {
                     }
                 };
 
+                // Clipboard Paste Handler: Paste image or document directly
+                const handlePasteInvoice = async (e) => {
+                    const target = e.target;
+                    const invoiceBox = target.closest('.crm_invoice_field_box') || target.closest('[name="invoice_number"]');
+                    if (!invoiceBox) return;
+
+                    const clipboardData = e.clipboardData || window.clipboardData;
+                    if (!clipboardData || !clipboardData.items) return;
+
+                    for (let i = 0; i < clipboardData.items.length; i++) {
+                        const item = clipboardData.items[i];
+                        if (item.kind === "file") {
+                            const file = item.getAsFile();
+                            if (file) {
+                                e.preventDefault();
+                                const reader = new FileReader();
+                                reader.onload = async (uploadEvent) => {
+                                    const base64Data = uploadEvent.target.result.split(",")[1];
+                                    let filename = file.name || `invoice_pasted_${Date.now()}.${file.type.split("/")[1] || "png"}`;
+                                    if (this.model?.root) {
+                                        await this.model.root.update({
+                                            invoice_attachment: base64Data,
+                                            invoice_filename: filename,
+                                        });
+                                    }
+                                };
+                                reader.readAsDataURL(file);
+                                break;
+                            }
+                        }
+                    }
+                };
+
+                // Intercept Preview Invoice click to open In-Page Dialog (without download/close footer)
+                const handlePreviewClick = (e) => {
+                    const btn = e.target.closest('button[name="action_preview_invoice"]');
+                    if (btn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const record = this.model?.root;
+                        const resId = record?.resId;
+                        const filename = record?.data?.invoice_filename || "invoice.pdf";
+                        if (resId) {
+                            const url = `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false`;
+                            this.dialogService.add(InvoicePreviewDialog, {
+                                title: _t("Invoice Preview"),
+                                fileUrl: url,
+                                filename: filename,
+                            });
+                        }
+                    }
+                };
+
                 document.addEventListener("click", scrollForDate);
                 document.addEventListener("focusin", scrollForDate);
+                document.addEventListener("paste", handlePasteInvoice);
+                document.addEventListener("click", handlePreviewClick, true);
             });
 
             onWillUnmount(() => {

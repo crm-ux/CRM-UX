@@ -544,4 +544,23 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     font-weight: 700 !important;
     letter-spacing: 0.05em !important;
     box-shadow: 0 2px 6px rgba(207, 19, 34, 0.3) !important;
-}
+}
+
+/* ── Invoice field with attachment in Equipment Master ── */
+.crm_invoice_field_box {
+    width: 100%;
+}
+
+.crm_invoice_field_box .o_field_binary {
+    margin-bottom: 0 !important;
+}
+
+.crm_invoice_field_box .btn-link {
+    text-decoration: none !important;
+}
+
+.crm_invoice_field_box .btn-link:hover {
+    transform: scale(1.15);
+    transition: transform 0.15s ease-in-out;
+}
+
