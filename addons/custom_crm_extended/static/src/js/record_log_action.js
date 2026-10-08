@@ -264,7 +264,7 @@ cogMenuRegistry.add("record_log_view", {
         try {
             const saved = sessionStorage.getItem("crm_view_as_uid");
             if (saved) viewAsUid = parseInt(saved, 10);
-        } catch (e) {}
+        } catch (e) { }
 
         if (!viewAsUid && Boolean(user.isAdmin)) {
             return true;
