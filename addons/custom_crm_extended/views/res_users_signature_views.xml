@@ -104,7 +104,7 @@
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_amc_unlink" nolabel="1"/> Delete</span>
                         </div>
 
-                        <label for="perm_product_create" string="Product Catalog"/>
+                        <label for="perm_product_create" string="Product"/>
                         <div class="d-flex align-items-center gap-3">
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_create" nolabel="1"/> Create</span>
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_product_write" nolabel="1"/> Update</span>
@@ -258,7 +258,7 @@
                                 <span class="perm-checkbox-item"><field name="perm_amc_unlink" nolabel="1"/> <span>Delete</span></span>
                             </div>
 
-                            <label for="perm_product_create" string="Product Catalog"/>
+                            <label for="perm_product_create" string="Product"/>
                             <div class="perm-checkbox-group">
                                 <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_product_all" nolabel="1"/> <span>All</span></span>
                                 <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
