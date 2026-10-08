@@ -513,9 +513,9 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 .crm_btn_mark_active {
-    background-color: #f6ffed !important;
-    color: #389e0d !important;
-    border: 1px solid #b7eb8f !important;
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #ced4da !important;
     font-weight: 500 !important;
     border-radius: 6px !important;
     padding: 4px 14px !important;
@@ -524,9 +524,16 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 .crm_btn_mark_active:hover {
-    background-color: #389e0d !important;
-    color: #ffffff !important;
-    border-color: #389e0d !important;
+    background-color: #e9ecef !important;
+    color: #212529 !important;
+    border-color: #adb5bd !important;
+}
+
+/* Hide standard blue Odoo alert banner ("The contact linked to this user is still active") */
+.o_form_view .alert-info:has(a[name="action_archive_partner"]),
+.o_form_view div.alert:has(a[name="action_archive_partner"]),
+.o_form_view .alert.alert-info {
+    display: none !important;
 }
 
 /* Ribbon custom styling matching brand aesthetics */
