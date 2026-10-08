@@ -13,22 +13,20 @@ import { patch } from "@web/core/utils/patch";
 class InvoicePreviewDialog extends Component {
     static template = xml`
         <Dialog title="props.title" size="'xl'">
-            <div class="p-0 text-center" style="background-color: #1e1e1e; min-height: 75vh; max-height: 85vh; overflow: auto; display: flex; align-items: center; justify-content: center;">
-                <!-- 1. Image Viewer -->
+            <div class="p-0 text-center bg-light" style="min-height: 75vh; max-height: 85vh; overflow: auto; display: flex; align-items: center; justify-content: center;">
+                <!-- 1. Image Viewer (Clean light backdrop) -->
                 <t t-if="isImage">
-                    <img t-att-src="fileSource" class="img-fluid p-2" style="max-height: 80vh; max-width: 100%; object-fit: contain; border-radius: 6px;" alt="Invoice Preview"/>
+                    <img t-att-src="imageSource" class="img-fluid p-3 shadow-sm rounded" style="max-height: 80vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Invoice Preview"/>
                 </t>
                 
-                <!-- 2. PDF Viewer (Native PDF Viewer in iframe with data URL / object) -->
+                <!-- 2. PDF Viewer (Clean native browser PDF reader via blob URL) -->
                 <t t-elif="isPdf">
-                    <object t-att-data="fileSource" type="application/pdf" style="width: 100%; height: 80vh; border: none;">
-                        <iframe t-att-src="fileSource" style="width: 100%; height: 80vh; border: none;" title="Invoice PDF"/>
-                    </object>
+                    <iframe t-att-src="pdfBlobUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice PDF"/>
                 </t>
 
-                <!-- 3. ZIP / Archive / Other Documents (Clean Modern Inspector Card - 0 Download) -->
+                <!-- 3. ZIP / Archive / Other Documents (Clean Modern Card - 0 Download) -->
                 <t t-else="">
-                    <div class="card border-0 text-white p-4 mx-auto my-5 shadow-lg" style="background-color: #2b2b2b; max-width: 520px; border-radius: 12px;">
+                    <div class="card border border-2 border-secondary border-opacity-25 bg-white text-dark p-4 mx-auto my-5 shadow-sm" style="max-width: 520px; border-radius: 12px;">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <t t-if="isArchive">
@@ -38,16 +36,16 @@ class InvoicePreviewDialog extends Component {
                                     <i class="fa fa-file-word-o text-primary" style="font-size: 4.5rem;"></i>
                                 </t>
                                 <t t-else="">
-                                    <i class="fa fa-file-text-o text-info" style="font-size: 4.5rem;"></i>
+                                    <i class="fa fa-file-text-o text-secondary" style="font-size: 4.5rem;"></i>
                                 </t>
                             </div>
-                            <h4 class="fw-bold mb-2 text-break" t-esc="props.filename || 'Attached Invoice'"/>
-                            <p class="text-white-50 small mb-3">
+                            <h4 class="fw-bold mb-2 text-dark text-break" t-esc="props.filename || 'Attached Invoice'"/>
+                            <p class="text-muted small mb-3">
                                 <span class="badge bg-secondary px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
                                 <span>Attached to Equipment Record</span>
                             </p>
-                            <div class="alert alert-secondary text-white-50 small border-0 mb-0 py-2" style="background-color: #383838;">
-                                <i class="fa fa-shield me-1 text-success"></i>
+                            <div class="alert alert-light border text-muted small mb-0 py-2">
+                                <i class="fa fa-check-circle me-1 text-success"></i>
                                 <span>File is securely attached and stored in the database.</span>
                             </div>
                         </div>
@@ -74,29 +72,6 @@ class InvoicePreviewDialog extends Component {
         return parts.length > 1 ? parts.pop() : "";
     }
 
-    get mimeType() {
-        const ext = this.fileExtension;
-        const mimeMap = {
-            pdf: "application/pdf",
-            png: "image/png",
-            jpg: "image/jpeg",
-            jpeg: "image/jpeg",
-            webp: "image/webp",
-            gif: "image/gif",
-            bmp: "image/bmp",
-            svg: "image/svg+xml",
-        };
-        return mimeMap[ext] || "application/octet-stream";
-    }
-
-    get fileSource() {
-        if (this.props.fileData) {
-            // Raw base64 data URI
-            return `data:${this.mimeType};base64,${this.props.fileData}`;
-        }
-        return this.props.fileUrl;
-    }
-
     get isImage() {
         return ["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"].includes(this.fileExtension);
     }
@@ -111,6 +86,32 @@ class InvoicePreviewDialog extends Component {
 
     get isArchive() {
         return ["zip", "rar", "7z", "tar", "gz"].includes(this.fileExtension);
+    }
+
+    get imageSource() {
+        if (this.props.fileData) {
+            const ext = this.fileExtension || "png";
+            return `data:image/${ext === "svg" ? "svg+xml" : ext};base64,${this.props.fileData}`;
+        }
+        return this.props.fileUrl;
+    }
+
+    get pdfBlobUrl() {
+        if (this.props.fileData) {
+            try {
+                const byteCharacters = atob(this.props.fileData);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: "application/pdf" });
+                return URL.createObjectURL(blob);
+            } catch (e) {
+                console.error("Error creating PDF blob URL:", e);
+            }
+        }
+        return this.props.fileUrl;
     }
 }
 
