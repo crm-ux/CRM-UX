@@ -14,15 +14,48 @@ class InvoicePreviewDialog extends Component {
     static template = xml`
         <Dialog title="props.title" size="'xl'">
             <div class="p-0 text-center bg-dark" style="min-height: 75vh; max-height: 85vh; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <!-- 1. Image Viewer -->
                 <t t-if="isImage">
                     <img t-att-src="props.fileUrl" class="img-fluid" style="max-height: 80vh; object-fit: contain; border-radius: 4px;" alt="Invoice Preview"/>
                 </t>
+                
+                <!-- 2. PDF Viewer -->
+                <t t-elif="isPdf">
+                    <iframe t-att-src="props.fileUrl" style="width: 100%; height: 80vh; border: none;" title="Invoice PDF"/>
+                </t>
+
+                <!-- 3. Office Document Viewer (DOCX / XLSX) -->
+                <t t-elif="isOffice">
+                    <iframe t-att-src="officeViewerUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice Office Document"/>
+                </t>
+
+                <!-- 4. Archive / ZIP / Other Files (Inspector Card - No Download) -->
                 <t t-else="">
-                    <iframe t-att-src="props.fileUrl" style="width: 100%; height: 80vh; border: none;" title="Invoice Document"/>
+                    <div class="card border-0 bg-secondary bg-opacity-25 text-white p-4 mx-auto my-5 shadow" style="max-width: 520px; border-radius: 12px;">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <t t-if="isArchive">
+                                    <i class="fa fa-file-archive-o text-warning" style="font-size: 4rem;"></i>
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-file-text-o text-info" style="font-size: 4rem;"></i>
+                                </t>
+                            </div>
+                            <h5 class="fw-bold mb-2 text-break" t-esc="props.filename || 'Attached File'"/>
+                            <p class="text-white-50 small mb-3">
+                                <span class="badge bg-dark px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
+                                <span>Attached to Equipment Master</span>
+                            </p>
+                            <div class="alert alert-dark bg-opacity-50 text-white-50 small border-0 mb-0">
+                                <i class="fa fa-info-circle me-1"></i>
+                                <span>This file format is archived and securely stored on the record. Direct visual preview is not supported for this format.</span>
+                            </div>
+                        </div>
+                    </div>
                 </t>
             </div>
             <t t-set-slot="footer">
-                <!-- No download button and no extra close button - only top-right cross icon -->
+                <!-- No download button and no extra close button - only top-right cross icon [X] -->
             </t>
         </Dialog>
     `;
@@ -34,9 +67,31 @@ class InvoicePreviewDialog extends Component {
         close: { type: Function },
     };
 
-    get isImage() {
+    get fileExtension() {
         const fn = (this.props.filename || "").toLowerCase();
-        return fn.endsWith(".png") || fn.endsWith(".jpg") || fn.endsWith(".jpeg") || fn.endsWith(".webp") || fn.endsWith(".gif");
+        const parts = fn.split(".");
+        return parts.length > 1 ? parts.pop() : "";
+    }
+
+    get isImage() {
+        return ["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"].includes(this.fileExtension);
+    }
+
+    get isPdf() {
+        return this.fileExtension === "pdf";
+    }
+
+    get isOffice() {
+        return ["docx", "doc", "xlsx", "xls", "pptx", "ppt"].includes(this.fileExtension);
+    }
+
+    get isArchive() {
+        return ["zip", "rar", "7z", "tar", "gz"].includes(this.fileExtension);
+    }
+
+    get officeViewerUrl() {
+        const fullUrl = window.location.origin + this.props.fileUrl;
+        return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
     }
 }
 

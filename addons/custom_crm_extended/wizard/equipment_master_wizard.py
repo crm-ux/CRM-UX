@@ -315,8 +315,6 @@ class EquipmentMasterWizard(models.TransientModel):
             "part_number": self.part_number,
             "child_part_no": self.child_part_no,
             "invoice_number": self.invoice_number,
-            "invoice_attachment": self.invoice_attachment,
-            "invoice_filename": self.invoice_filename,
             "invoice_date": self.invoice_date,
             "equipment_status": self.equipment_status,
             "criticality": self.criticality,
