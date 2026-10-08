@@ -432,6 +432,35 @@ class ResUsers(models.Model):
             else:
                 self.crm_manager_id = False
 
+    @api.model
+    def action_change_own_password(self, old_passwd, new_passwd, confirm_passwd):
+        """Allows the currently logged in user to safely change their own password."""
+        user = self.env.user
+        if not user or user._is_public():
+            return {'success': False, 'message': 'You must be logged in to change your password.'}
+
+        if not old_passwd:
+            return {'success': False, 'message': 'Please enter your current password.'}
+        if not new_passwd:
+            return {'success': False, 'message': 'Please enter a new password.'}
+        if len(new_passwd) < 4:
+            return {'success': False, 'message': 'New password must be at least 4 characters.'}
+        if new_passwd != confirm_passwd:
+            return {'success': False, 'message': 'New password and Confirm password do not match.'}
+
+        # Verify old password
+        try:
+            user.sudo()._check_credentials(old_passwd, {'interactive': True})
+        except Exception:
+            return {'success': False, 'message': 'Incorrect current password. Please try again.'}
+
+        # Update password
+        try:
+            user.sudo().write({'password': new_passwd})
+            return {'success': True, 'message': 'Password changed successfully!'}
+        except Exception as e:
+            return {'success': False, 'message': f'Failed to update password: {str(e)}'}
+
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 

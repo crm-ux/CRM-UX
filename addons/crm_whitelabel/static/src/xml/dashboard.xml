@@ -208,7 +208,7 @@
                         </div>
                         <div class="crm-dropdown-menu" style="min-width: 170px; padding: 0.4rem;" t-att-class="state.userDropdownOpen ? 'open' : ''">
                             <a t-if="state.isAdmin" class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openViewAsModal">View As...</a>
-                            <a class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openChangePasswordComingSoon">Change Password</a>
+                            <a class="crm-user-dropdown-item" style="display: block; padding: 0.5rem 0.75rem; color: #1e293b; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px;" t-on-click="openChangePasswordModal">Change Password</a>
                             <div style="height: 1px; background: #e2e8f0; margin: 0.3rem 0;"></div>
                             <a href="/web/session/logout" class="crm-user-dropdown-item crm-logout-item" style="display: block; padding: 0.5rem 0.75rem; color: #ef4444; text-decoration: none; font-weight: 600; border-radius: 4px;">Logout</a>
                         </div>
@@ -1055,6 +1055,85 @@
                     <div class="crm-task-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:1rem 1.25rem;border-top:1px solid var(--border-color);background:#f8fafc;">
                         <button class="crm-task-cancel-btn" t-on-click="closeViewAsModal">Cancel</button>
                         <button class="crm-task-submit-btn" t-on-click="applyViewAs" style="background:#0b3d91;color:#fff;">Switch View</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password Modal / Wizard -->
+            <div class="crm-task-overlay crm-password-modal-overlay" t-if="state.passwordModalOpen" t-on-click="closeChangePasswordModal">
+                <div class="crm-task-dialog crm-password-modal-dialog" t-on-click.stop="" style="max-width: 440px;">
+                    <div class="crm-task-header">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(11,61,145,0.08); display: flex; align-items: center; justify-content: center; color: #0b3d91; font-size: 0.95rem;">
+                                <i class="fa fa-key"></i>
+                            </div>
+                            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Change Password</h3>
+                        </div>
+                        <button class="crm-task-close" t-on-click="closeChangePasswordModal" style="cursor: pointer;">✕</button>
+                    </div>
+
+                    <div class="crm-task-body" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Error Message Banner -->
+                        <div t-if="state.passwordError" style="padding: 0.65rem 0.85rem; border-radius: 8px; background-color: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; font-size: 0.82rem; font-weight: 600; display: flex; align-items: flex-start; gap: 8px; animation: crmFadeSlide 0.2s ease;">
+                            <i class="fa fa-exclamation-circle" style="margin-top: 2px;"></i>
+                            <span style="flex: 1;"><t t-esc="state.passwordError"/></span>
+                        </div>
+
+                        <!-- Old Password -->
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Old Password <span style="color: #ef4444;">*</span></label>
+                            <div class="crm-password-input-wrapper">
+                                <i class="fa fa-lock crm-password-field-icon"></i>
+                                <input t-att-type="state.showOldPassword ? 'text' : 'password'"
+                                       t-model="state.oldPassword"
+                                       placeholder="Enter your current password"
+                                       class="crm-password-input"
+                                       autocomplete="current-password"/>
+                                <button type="button" class="crm-password-toggle-btn" t-on-click="toggleShowOldPassword" tabindex="-1">
+                                    <i t-att-class="state.showOldPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- New Password -->
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">New Password <span style="color: #ef4444;">*</span></label>
+                            <div class="crm-password-input-wrapper">
+                                <i class="fa fa-lock crm-password-field-icon"></i>
+                                <input t-att-type="state.showNewPassword ? 'text' : 'password'"
+                                       t-model="state.newPassword"
+                                       placeholder="Enter new password (min. 4 characters)"
+                                       class="crm-password-input"
+                                       autocomplete="new-password"/>
+                                <button type="button" class="crm-password-toggle-btn" t-on-click="toggleShowNewPassword" tabindex="-1">
+                                    <i t-att-class="state.showNewPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div>
+                            <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Confirm New Password <span style="color: #ef4444;">*</span></label>
+                            <div class="crm-password-input-wrapper">
+                                <i class="fa fa-shield crm-password-field-icon"></i>
+                                <input t-att-type="state.showConfirmPassword ? 'text' : 'password'"
+                                       t-model="state.confirmPassword"
+                                       placeholder="Re-enter new password"
+                                       class="crm-password-input"
+                                       autocomplete="new-password"/>
+                                <button type="button" class="crm-password-toggle-btn" t-on-click="toggleShowConfirmPassword" tabindex="-1">
+                                    <i t-att-class="state.showConfirmPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="crm-task-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:0.9rem 1.25rem;border-top:1px solid var(--border-color);background:#f8fafc;">
+                        <button class="crm-task-cancel-btn" t-on-click="closeChangePasswordModal" t-att-disabled="state.passwordLoading">Cancel</button>
+                        <button class="crm-task-submit-btn" t-on-click="submitChangePassword" t-att-disabled="state.passwordLoading" style="background:#0b3d91;color:#fff;display:flex;align-items:center;gap:6px;">
+                            <i t-if="state.passwordLoading" class="fa fa-spinner fa-spin"></i>
+                            <span><t t-if="state.passwordLoading">Updating...</t><t t-else="">Update Password</t></span>
+                        </button>
                     </div>
                 </div>
             </div>

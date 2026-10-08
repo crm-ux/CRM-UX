@@ -2113,3 +2113,102 @@
 .crm-view-as-menu::-webkit-scrollbar-thumb:hover {
     background: #64748b;
 }
+
+/* =========================================================================
+   Change Password Modal & Form Styling (Web & Mobile Responsive)
+   ========================================================================= */
+.crm-password-modal-dialog {
+    width: 100% !important;
+    max-width: 440px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 25px 60px -15px rgba(11, 61, 145, 0.25), 0 10px 25px -5px rgba(0, 0, 0, 0.12) !important;
+}
+
+.crm-password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.crm-password-field-icon {
+    position: absolute;
+    left: 12px;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.crm-password-input {
+    width: 100% !important;
+    padding: 0.65rem 2.5rem 0.65rem 2.35rem !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+    color: #1e293b !important;
+    background-color: #f8fafc !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+
+.crm-password-input:focus {
+    border-color: #0b3d91 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.12) !important;
+}
+
+.crm-password-input:focus ~ .crm-password-field-icon {
+    color: #0b3d91 !important;
+}
+
+.crm-password-toggle-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    font-size: 0.92rem !important;
+    cursor: pointer !important;
+    padding: 6px !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: color 0.15s ease, background 0.15s ease !important;
+}
+
+.crm-password-toggle-btn:hover {
+    color: #0b3d91 !important;
+    background: rgba(11, 61, 145, 0.08) !important;
+}
+
+/* Mobile Responsive Optimization for Wizard */
+@media (max-width: 640px) {
+    .crm-password-modal-dialog {
+        max-width: 92% !important;
+        margin: 0 auto !important;
+        border-radius: 12px !important;
+    }
+
+    .crm-password-modal-dialog .crm-task-header {
+        padding: 0.85rem 1rem !important;
+    }
+
+    .crm-password-modal-dialog .crm-task-body {
+        padding: 1rem !important;
+        gap: 0.85rem !important;
+    }
+
+    .crm-password-input {
+        padding: 0.6rem 2.3rem 0.6rem 2.2rem !important;
+        font-size: 0.88rem !important;
+    }
+
+    .crm-password-modal-dialog .crm-task-footer {
+        padding: 0.75rem 1rem !important;
+    }
+}

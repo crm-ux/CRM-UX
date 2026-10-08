@@ -65,6 +65,16 @@ class CrmDashboard extends Component {
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
             accessModalOpen: false, accessModalModule: "",
+            // Change Password Modal State
+            passwordModalOpen: false,
+            oldPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+            passwordError: "",
+            passwordLoading: false,
+            showOldPassword: false,
+            showNewPassword: false,
+            showConfirmPassword: false,
             // Analytics State
             salesRangeMonths: 6,
             scrubTooltip: { visible: false, left: 0, top: 0, date: "", val: "" },
@@ -859,9 +869,84 @@ class CrmDashboard extends Component {
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }
 
-    openChangePasswordComingSoon() {
+    openChangePasswordModal() {
         this.state.userDropdownOpen = false;
-        this.showToast("Change Password feature is coming soon!");
+        this.state.oldPassword = "";
+        this.state.newPassword = "";
+        this.state.confirmPassword = "";
+        this.state.passwordError = "";
+        this.state.passwordLoading = false;
+        this.state.showOldPassword = false;
+        this.state.showNewPassword = false;
+        this.state.showConfirmPassword = false;
+        this.state.passwordModalOpen = true;
+    }
+
+    closeChangePasswordModal() {
+        this.state.passwordModalOpen = false;
+        this.state.oldPassword = "";
+        this.state.newPassword = "";
+        this.state.confirmPassword = "";
+        this.state.passwordError = "";
+        this.state.passwordLoading = false;
+    }
+
+    toggleShowOldPassword() {
+        this.state.showOldPassword = !this.state.showOldPassword;
+    }
+
+    toggleShowNewPassword() {
+        this.state.showNewPassword = !this.state.showNewPassword;
+    }
+
+    toggleShowConfirmPassword() {
+        this.state.showConfirmPassword = !this.state.showConfirmPassword;
+    }
+
+    async submitChangePassword() {
+        this.state.passwordError = "";
+        const oldP = (this.state.oldPassword || "").trim();
+        const newP = (this.state.newPassword || "").trim();
+        const confP = (this.state.confirmPassword || "").trim();
+
+        if (!oldP) {
+            this.state.passwordError = "Please enter your current password.";
+            return;
+        }
+        if (!newP) {
+            this.state.passwordError = "Please enter a new password.";
+            return;
+        }
+        if (newP.length < 4) {
+            this.state.passwordError = "New password must be at least 4 characters.";
+            return;
+        }
+        if (newP !== confP) {
+            this.state.passwordError = "New password and Confirm password do not match.";
+            return;
+        }
+
+        this.state.passwordLoading = true;
+        try {
+            const res = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "action_change_own_password",
+                args: [oldP, newP, confP],
+                kwargs: {},
+            });
+
+            this.state.passwordLoading = false;
+            if (res && res.success) {
+                this.closeChangePasswordModal();
+                this.showToast(res.message || "Password changed successfully!");
+            } else {
+                this.state.passwordError = (res && res.message) ? res.message : "Failed to change password.";
+            }
+        } catch (err) {
+            this.state.passwordLoading = false;
+            const errMsg = err?.data?.message || err?.message || "An unexpected error occurred.";
+            this.state.passwordError = errMsg;
+        }
     }
 
     toggleMobileSearch() {
