@@ -211,7 +211,7 @@ class RecordLogDialog extends Component {
 class RecordLogMenuItem extends Component {
     static template = xml`
         <span class="dropdown-item d-flex align-items-center cursor-pointer" role="menuitem" t-on-click="onSelected">
-            <i class="fa fa-history me-2 text-primary"/>
+            <i class="fa fa-history me-2"/>
             <span>Log</span>
         </span>
     `;
