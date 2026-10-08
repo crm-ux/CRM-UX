@@ -13,42 +13,42 @@ import { patch } from "@web/core/utils/patch";
 class InvoicePreviewDialog extends Component {
     static template = xml`
         <Dialog title="props.title" size="'xl'">
-            <div class="p-0 text-center bg-dark" style="min-height: 75vh; max-height: 85vh; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <div class="p-0 text-center" style="background-color: #1e1e1e; min-height: 75vh; max-height: 85vh; overflow: auto; display: flex; align-items: center; justify-content: center;">
                 <!-- 1. Image Viewer -->
                 <t t-if="isImage">
-                    <img t-att-src="props.fileUrl" class="img-fluid" style="max-height: 80vh; object-fit: contain; border-radius: 4px;" alt="Invoice Preview"/>
+                    <img t-att-src="fileSource" class="img-fluid p-2" style="max-height: 80vh; max-width: 100%; object-fit: contain; border-radius: 6px;" alt="Invoice Preview"/>
                 </t>
                 
-                <!-- 2. PDF Viewer -->
+                <!-- 2. PDF Viewer (Native PDF Viewer in iframe with data URL / object) -->
                 <t t-elif="isPdf">
-                    <iframe t-att-src="props.fileUrl" style="width: 100%; height: 80vh; border: none;" title="Invoice PDF"/>
+                    <object t-att-data="fileSource" type="application/pdf" style="width: 100%; height: 80vh; border: none;">
+                        <iframe t-att-src="fileSource" style="width: 100%; height: 80vh; border: none;" title="Invoice PDF"/>
+                    </object>
                 </t>
 
-                <!-- 3. Office Document Viewer (DOCX / XLSX) -->
-                <t t-elif="isOffice">
-                    <iframe t-att-src="officeViewerUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice Office Document"/>
-                </t>
-
-                <!-- 4. Archive / ZIP / Other Files (Inspector Card - No Download) -->
+                <!-- 3. ZIP / Archive / Other Documents (Clean Modern Inspector Card - 0 Download) -->
                 <t t-else="">
-                    <div class="card border-0 bg-secondary bg-opacity-25 text-white p-4 mx-auto my-5 shadow" style="max-width: 520px; border-radius: 12px;">
+                    <div class="card border-0 text-white p-4 mx-auto my-5 shadow-lg" style="background-color: #2b2b2b; max-width: 520px; border-radius: 12px;">
                         <div class="card-body text-center">
                             <div class="mb-3">
                                 <t t-if="isArchive">
-                                    <i class="fa fa-file-archive-o text-warning" style="font-size: 4rem;"></i>
+                                    <i class="fa fa-file-archive-o text-warning" style="font-size: 4.5rem;"></i>
+                                </t>
+                                <t t-elif="isOffice">
+                                    <i class="fa fa-file-word-o text-primary" style="font-size: 4.5rem;"></i>
                                 </t>
                                 <t t-else="">
-                                    <i class="fa fa-file-text-o text-info" style="font-size: 4rem;"></i>
+                                    <i class="fa fa-file-text-o text-info" style="font-size: 4.5rem;"></i>
                                 </t>
                             </div>
-                            <h5 class="fw-bold mb-2 text-break" t-esc="props.filename || 'Attached File'"/>
+                            <h4 class="fw-bold mb-2 text-break" t-esc="props.filename || 'Attached Invoice'"/>
                             <p class="text-white-50 small mb-3">
-                                <span class="badge bg-dark px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
-                                <span>Attached to Equipment Master</span>
+                                <span class="badge bg-secondary px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
+                                <span>Attached to Equipment Record</span>
                             </p>
-                            <div class="alert alert-dark bg-opacity-50 text-white-50 small border-0 mb-0">
-                                <i class="fa fa-info-circle me-1"></i>
-                                <span>This file format is archived and securely stored on the record. Direct visual preview is not supported for this format.</span>
+                            <div class="alert alert-secondary text-white-50 small border-0 mb-0 py-2" style="background-color: #383838;">
+                                <i class="fa fa-shield me-1 text-success"></i>
+                                <span>File is securely attached and stored in the database.</span>
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,8 @@ class InvoicePreviewDialog extends Component {
     static components = { Dialog };
     static props = {
         title: { type: String, optional: true },
-        fileUrl: { type: String },
+        fileUrl: { type: String, optional: true },
+        fileData: { type: String, optional: true },
         filename: { type: String, optional: true },
         close: { type: Function },
     };
@@ -71,6 +72,29 @@ class InvoicePreviewDialog extends Component {
         const fn = (this.props.filename || "").toLowerCase();
         const parts = fn.split(".");
         return parts.length > 1 ? parts.pop() : "";
+    }
+
+    get mimeType() {
+        const ext = this.fileExtension;
+        const mimeMap = {
+            pdf: "application/pdf",
+            png: "image/png",
+            jpg: "image/jpeg",
+            jpeg: "image/jpeg",
+            webp: "image/webp",
+            gif: "image/gif",
+            bmp: "image/bmp",
+            svg: "image/svg+xml",
+        };
+        return mimeMap[ext] || "application/octet-stream";
+    }
+
+    get fileSource() {
+        if (this.props.fileData) {
+            // Raw base64 data URI
+            return `data:${this.mimeType};base64,${this.props.fileData}`;
+        }
+        return this.props.fileUrl;
     }
 
     get isImage() {
@@ -87,11 +111,6 @@ class InvoicePreviewDialog extends Component {
 
     get isArchive() {
         return ["zip", "rar", "7z", "tar", "gz"].includes(this.fileExtension);
-    }
-
-    get officeViewerUrl() {
-        const fullUrl = window.location.origin + this.props.fileUrl;
-        return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
     }
 }
 
@@ -220,7 +239,7 @@ export class EquipmentFormController extends FormController {
                 };
 
                 // Intercept Preview Invoice click to open In-Page Dialog (without download/close footer)
-                const handlePreviewClick = (e) => {
+                const handlePreviewClick = async (e) => {
                     const btn = e.target.closest('button[name="action_preview_invoice"]');
                     if (btn) {
                         e.preventDefault();
@@ -228,11 +247,30 @@ export class EquipmentFormController extends FormController {
                         const record = this.model?.root;
                         const resId = record?.resId;
                         const filename = record?.data?.invoice_filename || "invoice.pdf";
-                        if (resId) {
-                            const url = `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false`;
+                        let fileData = record?.data?.invoice_attachment;
+
+                        // If fileData is not loaded in current record cache, read directly via ORM
+                        if (!fileData && resId) {
+                            try {
+                                const [fetched] = await this.env.services.orm.read(
+                                    "equipment.master",
+                                    [resId],
+                                    ["invoice_attachment", "invoice_filename"]
+                                );
+                                if (fetched) {
+                                    fileData = fetched.invoice_attachment;
+                                }
+                            } catch (err) {
+                                console.error("Error reading invoice_attachment:", err);
+                            }
+                        }
+
+                        if (resId || fileData) {
+                            const url = resId ? `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false` : null;
                             this.dialogService.add(InvoicePreviewDialog, {
                                 title: _t("Invoice Preview"),
                                 fileUrl: url,
+                                fileData: fileData,
                                 filename: filename,
                             });
                         }
