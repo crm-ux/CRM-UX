@@ -240,22 +240,29 @@ class ResUsers(models.Model):
     )
 
     def action_mark_employee_left(self):
-        """Mark employee as left, deactivate login, but preserve all links (job, manager, dept, employee profile)."""
+        """Mark employee as left, disable login, but keep active=True so record stays visible in list view."""
         for user in self:
             if user._is_admin() or user.id == 2:
                 continue
             user.write({
                 'is_left_employee': True,
-                'active': False,
+                'active': True,
             })
 
     def action_mark_employee_active(self):
-        """Re-activate left employee, restore login, and remove the Left Employee ribbon."""
+        """Re-activate left employee and remove the Left Employee ribbon."""
         for user in self:
             user.write({
                 'is_left_employee': False,
                 'active': True,
             })
+
+    def _check_credentials(self, password, env):
+        """Prevent login if employee has been marked as left."""
+        if self.is_left_employee:
+            from odoo.exceptions import AccessDenied
+            raise AccessDenied("This employee account has been deactivated (Marked as Left).")
+        return super()._check_credentials(password, env)
 
 
     @api.onchange('crm_job_id')
