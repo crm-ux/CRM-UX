@@ -300,6 +300,40 @@ export class EquipmentFormController extends FormController {
                     }
                 };
 
+                const SUPPORTED_EXTS = ["pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "docx", "doc", "xlsx", "xls", "csv", "txt", "zip", "rar", "7z", "tar", "gz"];
+
+                const validateInvoiceFile = (filename) => {
+                    const ext = (filename || "").toLowerCase().split(".").pop();
+                    if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py"].includes(ext)) {
+                        this.env.services.notification.add(
+                            _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext),
+                            { type: "danger", title: _t("File Upload Blocked") }
+                        );
+                        return false;
+                    }
+                    if (!SUPPORTED_EXTS.includes(ext)) {
+                        this.env.services.notification.add(
+                            _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed."),
+                            { type: "danger", title: _t("Invalid File Format") }
+                        );
+                        return false;
+                    }
+                    return true;
+                };
+
+                // Intercept file input change in browser directly to block prohibited files immediately
+                const handleFileInputChange = (e) => {
+                    const input = e.target;
+                    if (input.type === "file" && input.closest(".crm_invoice_field_box")) {
+                        const file = input.files && input.files[0];
+                        if (file && !validateInvoiceFile(file.name)) {
+                            input.value = ""; // Clear file immediately
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                };
+
                 // Clipboard Paste Handler: Paste image or document directly
                 const handlePasteInvoice = async (e) => {
                     const target = e.target;
@@ -315,6 +349,7 @@ export class EquipmentFormController extends FormController {
                             const file = item.getAsFile();
                             if (file) {
                                 e.preventDefault();
+                                if (!validateInvoiceFile(file.name)) return;
                                 const reader = new FileReader();
                                 reader.onload = async (uploadEvent) => {
                                     const base64Data = uploadEvent.target.result.split(",")[1];
@@ -397,12 +432,16 @@ export class EquipmentFormController extends FormController {
 
                 document.addEventListener("click", scrollForDate);
                 document.addEventListener("focusin", scrollForDate);
+                document.addEventListener("change", handleFileInputChange, true);
                 document.addEventListener("paste", handlePasteInvoice);
                 document.addEventListener("click", handlePreviewClick, true);
             });
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
+                document.removeEventListener("change", handleFileInputChange, true);
+                document.removeEventListener("paste", handlePasteInvoice);
+                document.removeEventListener("click", handlePreviewClick, true);
             });
         }
     }

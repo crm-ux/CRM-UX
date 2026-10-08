@@ -52,7 +52,7 @@
                             <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
                                 <field name="invoice_number" placeholder="e.g. INV/2026/001" class="flex-grow-1"/>
                                 <field name="invoice_filename" invisible="1"/>
-                                <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True}" class="m-0 p-0"/>
+                                <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True, 'accepted_file_extensions': '.pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar'}" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar" class="m-0 p-0"/>
                             </div>
                             <field name="invoice_date" string="Invoice Date"/>
                         </group>
