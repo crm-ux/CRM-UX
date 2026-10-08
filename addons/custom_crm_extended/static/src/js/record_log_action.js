@@ -8,28 +8,30 @@ import { _t } from "@web/core/l10n/translation";
 import { Component, xml, useState, onWillStart } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 
-// Cache for user's perm_log status
-let _userCanLogCache = null;
-
 async function checkUserCanLog() {
-    if (Boolean(user.isAdmin)) {
+    let viewAsUid = null;
+    try {
+        const saved = sessionStorage.getItem("crm_view_as_uid");
+        if (saved) {
+            viewAsUid = parseInt(saved, 10);
+        }
+    } catch (e) {}
+
+    if (!viewAsUid && Boolean(user.isAdmin)) {
         return true;
     }
-    if (_userCanLogCache !== null) {
-        return _userCanLogCache;
-    }
+
     try {
         const canLog = await rpc("/web/dataset/call_kw", {
             model: "res.users",
             method: "check_perm_log",
-            args: [],
+            args: viewAsUid ? [viewAsUid] : [],
             kwargs: {},
         });
-        _userCanLogCache = Boolean(canLog);
+        return Boolean(canLog);
     } catch (e) {
-        _userCanLogCache = false;
+        return false;
     }
-    return _userCanLogCache;
 }
 
 /**

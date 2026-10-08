@@ -141,9 +141,11 @@ class ResUsers(models.Model):
         return True
 
     @api.model
-    def check_perm_log(self):
-        """Returns True if current user is admin or has perm_log == 'log'."""
-        user = self.env.user
+    def check_perm_log(self, target_user_id=None):
+        """Returns True if user is admin or has perm_log == 'log'."""
+        user = self.browse(target_user_id) if target_user_id else self.env.user
+        if not user or not user.exists():
+            user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):
             return True
         if user.perm_log in ('log', 'none'):
