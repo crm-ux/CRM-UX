@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, xml, onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, xml, onMounted, onPatched, onWillUnmount, useRef } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
@@ -11,6 +11,17 @@ import { ListController } from "@web/views/list/list_controller";
 import { patch } from "@web/core/utils/patch";
 
 class InvoicePreviewDialog extends Component {
+    setup() {
+        this.docxContainerRef = useRef("docxContainer");
+        const injectHtml = () => {
+            if (this.docxContainerRef?.el && this.docxHtml) {
+                this.docxContainerRef.el.innerHTML = this.docxHtml;
+            }
+        };
+        onMounted(injectHtml);
+        onPatched(injectHtml);
+    }
+
     static template = xml`
         <Dialog title="props.title" size="'xl'">
             <div class="p-0 bg-light" style="min-height: 75vh; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
@@ -44,7 +55,7 @@ class InvoicePreviewDialog extends Component {
                                     DOCX
                                 </span>
                             </div>
-                            <div class="docx-body text-start border rounded p-4 bg-white" style="max-height: 68vh; overflow-y: auto; overflow-x: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14.5px; line-height: 1.6; color: #202124;" t-out="docxHtml"/>
+                            <div t-ref="docxContainer" class="docx-body text-start border rounded p-4 bg-white" style="max-height: 68vh; overflow-y: auto; overflow-x: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14.5px; line-height: 1.6; color: #202124;"/>
                         </div>
                     </div>
                 </t>
