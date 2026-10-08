@@ -32,17 +32,72 @@ class EquipmentMaster(models.Model):
     invoice_filename = fields.Char(string='Invoice Filename')
     invoice_date = fields.Date(string='Invoice Date', tracking=True)
 
-    def action_preview_invoice(self):
-        """Open uploaded invoice PDF or image in a new tab."""
-        self.ensure_one()
-        if not self.invoice_attachment:
-            return
-        filename = self.invoice_filename or f"Invoice_{self.invoice_number or self.id}.pdf"
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content/{self._name}/{self.id}/invoice_attachment/{filename}?download=false',
-            'target': 'new',
-        }
+    @api.model
+    def action_get_invoice_preview_content(self, res_id=None, raw_b64=None, filename=None):
+        """Extract previewable content for DOCX (text/HTML) or ZIP (list of files)."""
+        import base64
+        import io
+        import zipfile
+        import xml.etree.ElementTree as ET
+
+        attachment_b64 = raw_b64
+        fname = filename or ''
+
+        if res_id:
+            rec = self.browse(res_id)
+            if rec.exists():
+                attachment_b64 = attachment_b64 or rec.invoice_attachment
+                fname = fname or rec.invoice_filename or ''
+        elif self and len(self) == 1:
+            attachment_b64 = attachment_b64 or self.invoice_attachment
+            fname = fname or self.invoice_filename or ''
+
+        if not attachment_b64:
+            return {'type': 'empty'}
+
+        try:
+            raw_bytes = base64.b64decode(attachment_b64)
+            ext = fname.lower().split('.')[-1] if '.' in fname else ''
+
+            # 1. Parse ZIP archive: return clean list of files with sizes
+            if ext in ('zip', 'rar', '7z', 'tar', 'gz'):
+                file_list = []
+                with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
+                    for info in z.infolist():
+                        file_list.append({
+                            'name': info.filename,
+                            'size': round(info.file_size / 1024, 1),
+                            'is_dir': info.is_dir(),
+                        })
+                return {
+                    'type': 'zip_content',
+                    'filename': fname,
+                    'files': file_list,
+                    'total_count': len(file_list),
+                }
+
+            # 2. Parse Word Document (.docx is a ZIP containing word/document.xml)
+            elif ext in ('docx', 'doc'):
+                text_paragraphs = []
+                with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
+                    if 'word/document.xml' in z.namelist():
+                        xml_content = z.read('word/document.xml')
+                        tree = ET.fromstring(xml_content)
+                        # XML namespace for Word
+                        ns = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
+                        for p in tree.iterfind('.//w:p', ns):
+                            texts = [node.text for node in p.iterfind('.//w:t', ns) if node.text]
+                            if texts:
+                                text_paragraphs.append(''.join(texts))
+                return {
+                    'type': 'docx_content',
+                    'filename': fname,
+                    'paragraphs': text_paragraphs,
+                }
+        except Exception as e:
+            return {'type': 'error', 'error': str(e)}
+
+        return {'type': 'unsupported'}
     equipment_status = fields.Selection([
         ('active', 'Active'),
         ('inactive', 'Inactive'),

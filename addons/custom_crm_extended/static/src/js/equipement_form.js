@@ -13,41 +13,117 @@ import { patch } from "@web/core/utils/patch";
 class InvoicePreviewDialog extends Component {
     static template = xml`
         <Dialog title="props.title" size="'xl'">
-            <div class="p-0 text-center bg-light" style="min-height: 75vh; max-height: 85vh; overflow: auto; display: flex; align-items: center; justify-content: center;">
-                <!-- 1. Image Viewer (Clean light backdrop) -->
+            <div class="p-0 bg-light" style="min-height: 75vh; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+                <!-- 1. Image Viewer -->
                 <t t-if="isImage">
-                    <img t-att-src="imageSource" class="img-fluid p-3 shadow-sm rounded" style="max-height: 80vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Invoice Preview"/>
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center p-3">
+                        <img t-att-src="imageSource" class="img-fluid p-3 shadow-sm rounded" style="max-height: 80vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Invoice Preview"/>
+                    </div>
                 </t>
                 
-                <!-- 2. PDF Viewer (Clean native browser PDF reader via blob URL) -->
+                <!-- 2. PDF Viewer -->
                 <t t-elif="isPdf">
                     <iframe t-att-src="pdfBlobUrl" style="width: 100%; height: 80vh; border: none; background: #fff;" title="Invoice PDF"/>
                 </t>
 
-                <!-- 3. ZIP / Archive / Other Documents (Clean Modern Card - 0 Download) -->
+                <!-- 3. Word Document Content Preview (Real paragraphs extracted) -->
+                <t t-elif="isOffice and docxParagraphs">
+                    <div class="w-100 p-4" style="max-width: 850px;">
+                        <div class="card shadow-sm border-0 bg-white p-4 p-md-5 my-2" style="border-radius: 8px;">
+                            <div class="border-bottom pb-3 mb-4 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa fa-file-word-o text-primary fs-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
+                                        <small class="text-muted"><t t-esc="docxParagraphs.length"/> Paragraphs</small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">DOCX PREVIEW</span>
+                            </div>
+                            <div class="docx-body text-start border rounded p-4 bg-light bg-opacity-25" style="max-height: 65vh; overflow-y: auto; font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 15px; line-height: 1.6; color: #212529;">
+                                <t t-if="docxParagraphs.length">
+                                    <t t-foreach="docxParagraphs" t-as="para" t-key="para_index">
+                                        <p class="mb-3 text-break" t-esc="para"/>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fa fa-info-circle fs-4 mb-2"></i>
+                                        <p class="mb-0">No readable text found in this document.</p>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- 4. ZIP Archive Content Preview (Scrollable File List) -->
+                <t t-elif="isArchive and zipFiles">
+                    <div class="w-100 p-4" style="max-width: 850px;">
+                        <div class="card shadow-sm border-0 bg-white p-4 my-2" style="border-radius: 8px;">
+                            <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa fa-file-archive-o text-warning fs-3"></i>
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
+                                        <small class="text-muted"><t t-esc="zipFiles.length"/> Files inside package</small>
+                                    </div>
+                                </div>
+                                <span class="badge bg-warning bg-opacity-25 text-dark px-3 py-2">ZIP ARCHIVE</span>
+                            </div>
+                            
+                            <!-- Scrollable file table -->
+                            <div class="table-responsive border rounded" style="max-height: 60vh; overflow-y: auto;">
+                                <table class="table table-hover table-striped mb-0 text-start align-middle">
+                                    <thead class="table-light sticky-top">
+                                        <tr>
+                                            <th style="width: 40px;">#</th>
+                                            <th>File Name</th>
+                                            <th class="text-end" style="width: 120px;">Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="zipFiles" t-as="file" t-key="file_index">
+                                            <tr>
+                                                <td class="text-muted small" t-esc="file_index + 1"/>
+                                                <td>
+                                                    <t t-if="file.is_dir">
+                                                        <i class="fa fa-folder text-warning me-2"></i>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <i class="fa fa-file-text-o text-secondary me-2"></i>
+                                                    </t>
+                                                    <span class="font-monospace" t-esc="file.name"/>
+                                                </td>
+                                                <td class="text-end text-muted small">
+                                                    <t t-if="file.is_dir">
+                                                        <span class="badge bg-light text-muted">Folder</span>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span t-esc="file.size"/> KB
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- 5. Fallback -->
                 <t t-else="">
                     <div class="card border border-2 border-secondary border-opacity-25 bg-white text-dark p-4 mx-auto my-5 shadow-sm" style="max-width: 520px; border-radius: 12px;">
                         <div class="card-body text-center">
                             <div class="mb-3">
-                                <t t-if="isArchive">
-                                    <i class="fa fa-file-archive-o text-warning" style="font-size: 4.5rem;"></i>
-                                </t>
-                                <t t-elif="isOffice">
-                                    <i class="fa fa-file-word-o text-primary" style="font-size: 4.5rem;"></i>
-                                </t>
-                                <t t-else="">
-                                    <i class="fa fa-file-text-o text-secondary" style="font-size: 4.5rem;"></i>
-                                </t>
+                                <i class="fa fa-file-text-o text-secondary" style="font-size: 4.5rem;"></i>
                             </div>
                             <h4 class="fw-bold mb-2 text-dark text-break" t-esc="props.filename || 'Attached Invoice'"/>
                             <p class="text-muted small mb-3">
                                 <span class="badge bg-secondary px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
                                 <span>Attached to Equipment Record</span>
                             </p>
-                            <div class="alert alert-light border text-muted small mb-0 py-2">
-                                <i class="fa fa-check-circle me-1 text-success"></i>
-                                <span>File is securely attached and stored in the database.</span>
-                            </div>
                         </div>
                     </div>
                 </t>
@@ -63,8 +139,23 @@ class InvoicePreviewDialog extends Component {
         fileUrl: { type: String, optional: true },
         fileData: { type: String, optional: true },
         filename: { type: String, optional: true },
+        previewContent: { type: Object, optional: true },
         close: { type: Function },
     };
+
+    get docxParagraphs() {
+        if (this.props.previewContent?.type === "docx_content") {
+            return this.props.previewContent.paragraphs;
+        }
+        return null;
+    }
+
+    get zipFiles() {
+        if (this.props.previewContent?.type === "zip_content") {
+            return this.props.previewContent.files;
+        }
+        return null;
+    }
 
     get fileExtension() {
         const fn = (this.props.filename || "").toLowerCase();
@@ -267,12 +358,35 @@ export class EquipmentFormController extends FormController {
                         }
 
                         if (resId || fileData) {
+                            let previewContent = null;
+                            const isDocOrZip = ["docx", "doc", "zip", "rar", "7z", "tar", "gz"].some((e) =>
+                                (filename || "").toLowerCase().endsWith("." + e)
+                            );
+
+                            if (isDocOrZip) {
+                                try {
+                                    previewContent = await this.env.services.orm.call(
+                                        "equipment.master",
+                                        "action_get_invoice_preview_content",
+                                        [],
+                                        {
+                                            res_id: resId || null,
+                                            raw_b64: fileData || null,
+                                            filename: filename,
+                                        }
+                                    );
+                                } catch (callErr) {
+                                    console.error("Error retrieving preview content:", callErr);
+                                }
+                            }
+
                             const url = resId ? `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false` : null;
                             this.dialogService.add(InvoicePreviewDialog, {
                                 title: _t("Invoice Preview"),
                                 fileUrl: url,
                                 fileData: fileData,
                                 filename: filename,
+                                previewContent: previewContent,
                             });
                         }
                     }
