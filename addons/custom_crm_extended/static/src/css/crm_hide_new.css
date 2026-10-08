@@ -485,3 +485,56 @@ div[name="access_rights"] .o_wrap_input:has([data-id="6"]),
 div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: none !important;
 }
+
+/* ── User Form: Header & Left/Active Buttons ── */
+.crm_user_header_bar {
+    background-color: transparent !important;
+    border-bottom: 1px solid #e9ecef !important;
+    padding: 6px 12px !important;
+    display: flex !important;
+    gap: 8px !important;
+}
+
+.crm_btn_mark_left {
+    background-color: #fff1f0 !important;
+    color: #cf1322 !important;
+    border: 1px solid #ffa39e !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    padding: 4px 14px !important;
+    font-size: 13px !important;
+    transition: all 0.2s ease !important;
+}
+
+.crm_btn_mark_left:hover {
+    background-color: #cf1322 !important;
+    color: #ffffff !important;
+    border-color: #cf1322 !important;
+}
+
+.crm_btn_mark_active {
+    background-color: #f6ffed !important;
+    color: #389e0d !important;
+    border: 1px solid #b7eb8f !important;
+    font-weight: 500 !important;
+    border-radius: 6px !important;
+    padding: 4px 14px !important;
+    font-size: 13px !important;
+    transition: all 0.2s ease !important;
+}
+
+.crm_btn_mark_active:hover {
+    background-color: #389e0d !important;
+    color: #ffffff !important;
+    border-color: #389e0d !important;
+}
+
+/* Ribbon custom styling matching brand aesthetics */
+.o_ribbon.bg-danger,
+.o_ribbon.text-bg-danger {
+    background-color: #cf1322 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 6px rgba(207, 19, 34, 0.3) !important;
+}
