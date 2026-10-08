@@ -240,7 +240,7 @@ class ResUsers(models.Model):
     )
 
     def action_mark_employee_left(self):
-        """Mark employee as left, disable login, but keep active=True so record stays visible in list view."""
+        """Mark employee as left, disable login, and auto-unassign from active managerial roles."""
         for user in self:
             if user._is_admin() or user.id == 2:
                 continue
@@ -248,6 +248,32 @@ class ResUsers(models.Model):
                 'is_left_employee': True,
                 'active': True,
             })
+            # 1. Auto-unassign as Department Head
+            depts_as_head = self.env['hr.department'].sudo().search([('manager_user_id', '=', user.id)])
+            if depts_as_head:
+                depts_as_head.write({'manager_user_id': False})
+
+            # 2. Auto-unassign as Senior Manager on Department
+            depts_as_senior = self.env['hr.department'].sudo().search([('senior_manager_user_id', '=', user.id)])
+            if depts_as_senior:
+                depts_as_senior.write({'senior_manager_user_id': False})
+
+            # 3. Auto-unassign as standard hr.department manager
+            if user.employee_id:
+                depts_as_emp_mgr = self.env['hr.department'].sudo().search([('manager_id', '=', user.employee_id.id)])
+                if depts_as_emp_mgr:
+                    depts_as_emp_mgr.write({'manager_id': False})
+
+            # 4. Trigger recomputation of default_manager_id on all roles linked to their department
+            if user.crm_department_id:
+                jobs = self.env['hr.job'].sudo().search([('department_id', '=', user.crm_department_id.id)])
+                if jobs:
+                    jobs._compute_default_manager_id()
+
+            # 5. Clear as direct manager on any subordinates
+            subordinates = self.env['res.users'].sudo().search([('crm_manager_id', '=', user.id)])
+            if subordinates:
+                subordinates.write({'crm_manager_id': False})
 
     def action_mark_employee_active(self):
         """Re-activate left employee and remove the Left Employee ribbon."""
@@ -876,21 +902,21 @@ class HrJob(models.Model):
             top_director_user = (dept.manager_user_id or dept.senior_manager_user_id) if (top_director and top_director.id == rec.id) else (top_director.default_manager_id if top_director else False)
 
             if rec.is_manager_role:
-                if dept.senior_manager_user_id:
+                if dept.senior_manager_user_id and not dept.senior_manager_user_id.is_left_employee:
                     rec.default_manager_id = dept.senior_manager_user_id.id
-                elif dept.parent_id and dept.parent_id.manager_user_id:
+                elif dept.parent_id and dept.parent_id.manager_user_id and not dept.parent_id.manager_user_id.is_left_employee:
                     rec.default_manager_id = dept.parent_id.manager_user_id.id
-                elif dept.parent_id and dept.parent_id.manager_id and dept.parent_id.manager_id.user_id:
+                elif dept.parent_id and dept.parent_id.manager_id and dept.parent_id.manager_id.user_id and not dept.parent_id.manager_id.user_id.is_left_employee:
                     rec.default_manager_id = dept.parent_id.manager_id.user_id.id
-                elif dept.manager_user_id and dept.manager_user_id.id != self.env.user.id:
+                elif dept.manager_user_id and not dept.manager_user_id.is_left_employee and dept.manager_user_id.id != self.env.user.id:
                     rec.default_manager_id = dept.manager_user_id.id
                 else:
                     admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
                     rec.default_manager_id = self.env.ref('base.user_admin').id
             else:
-                if dept.manager_user_id:
+                if dept.manager_user_id and not dept.manager_user_id.is_left_employee:
                     rec.default_manager_id = dept.manager_user_id.id
-                elif dept.manager_id and dept.manager_id.user_id:
+                elif dept.manager_id and dept.manager_id.user_id and not dept.manager_id.user_id.is_left_employee:
                     rec.default_manager_id = dept.manager_id.user_id.id
                 else:
                     admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].browse(2)
