@@ -140,10 +140,27 @@ class ResUsers(models.Model):
             user.sudo().write({'crm_job_id': False})
         return True
 
+    @api.model
+    def check_perm_log(self):
+        """Returns True if current user is admin or has perm_log == 'log'."""
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        if user.perm_log in ('log', 'none'):
+            return user.perm_log == 'log'
+        if user.crm_job_id and user.crm_job_id.perm_log:
+            return user.crm_job_id.perm_log == 'log'
+        return False
+
     perm_export = fields.Selection([
         ('none', 'No'),
         ('export', 'Yes'),
     ], string='Excel Export', default='none')
+
+    perm_log = fields.Selection([
+        ('none', 'No'),
+        ('log', 'Yes'),
+    ], string='Log View', default='none')
 
     perm_company = fields.Selection([
         ('none', 'No'),
@@ -230,6 +247,7 @@ class ResUsers(models.Model):
             user_vals = {
                 'perm_lead_quote': job.perm_lead_quote,
                 'perm_export': job.perm_export,
+                'perm_log': job.perm_log,
                 'perm_company': job.perm_company,
                 'perm_service_ticket': job.perm_service_ticket,
                 'perm_amc': job.perm_amc,
@@ -936,6 +954,11 @@ class HrJob(models.Model):
         ('export', 'Yes'),
     ], string='Excel Export', default='none')
 
+    perm_log = fields.Selection([
+        ('none', 'No'),
+        ('log', 'Yes'),
+    ], string='Log View', default='none')
+
     perm_company = fields.Selection([
         ('none', 'No'),
         ('create', 'Yes'),
@@ -1094,7 +1117,7 @@ class HrJob(models.Model):
             'perm_ticket_create', 'perm_ticket_write', 'perm_ticket_read', 'perm_ticket_unlink',
             'perm_amc_create', 'perm_amc_write', 'perm_amc_read', 'perm_amc_unlink',
             'perm_exhibition_create', 'perm_exhibition_write', 'perm_exhibition_read', 'perm_exhibition_unlink',
-            'perm_export', 'perm_company'
+            'perm_export', 'perm_log', 'perm_company'
         ]
         if any(k in vals for k in perm_keys):
             for job in self:

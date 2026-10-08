@@ -64,6 +64,7 @@
             'custom_crm_extended/static/src/js/amc_form.js',
             'custom_crm_extended/static/src/js/export_all_form_fields.js',
             'custom_crm_extended/static/src/js/user_access_labels.js',
+            'custom_crm_extended/static/src/js/record_log_action.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',

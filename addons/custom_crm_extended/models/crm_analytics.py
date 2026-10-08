@@ -386,6 +386,12 @@ class DashboardStats(models.Model):
                         else (target_user.crm_job_id and target_user.crm_job_id.perm_export == 'export')
                     )
                 ),
+                'can_log': bool(
+                    target_user._is_admin() or target_user.has_group('base.group_system') or (
+                        target_user.perm_log == 'log' if target_user.perm_log in ('log', 'none')
+                        else (target_user.crm_job_id and target_user.crm_job_id.perm_log == 'log')
+                    )
+                ),
                 'is_manager': bool(
                     target_user.crm_subordinate_ids or
                     target_user.perm_lead_quote in ('subordinates', 'department', 'all', 'admin') or

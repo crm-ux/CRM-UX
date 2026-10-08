@@ -68,6 +68,7 @@
                         <field name="perm_equipment" string="Equipment Master"/>
                         <field name="perm_company" string="Company Creation"/>
                         <field name="perm_export" string="Excel Export"/>
+                        <field name="perm_log" string="Log View"/>
                     </group>
                     
                     <group>
@@ -282,6 +283,7 @@
                         </div>
                         <group class="custom_radio_clean">
                             <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
+                            <field name="perm_log" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
                         </group>
                     </page>
