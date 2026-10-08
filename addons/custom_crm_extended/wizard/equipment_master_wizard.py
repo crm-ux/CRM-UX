@@ -77,6 +77,7 @@ class EquipmentMasterWizard(models.TransientModel):
                         "Executable files (.%s) are strictly prohibited for security reasons!\n"
                         "Please upload a supported document (PDF, Images, DOCX, XLSX, TXT, ZIP)."
                     ) % ext)
+                if ext not in self.SUPPORTED_EXTENSIONS:
                     raise ValidationError(_(
                         "The file format '%s' is not supported!\n"
                         "Supported formats are: PDF, Images (PNG, JPG, WEBP, SVG), Word (DOCX), Excel (XLSX, CSV), Text (TXT), and Archives (ZIP, RAR)."
