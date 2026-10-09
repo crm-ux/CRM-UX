@@ -1100,10 +1100,15 @@
                                             <i class="fa fa-envelope" style="color: #0b3d91; width: 14px;" title="Email"></i>
                                             <span style="word-break: break-all;" t-esc="state.profileData.email || 'No email specified'"/>
                                         </div>
-                                        <!-- Phone -->
-                                        <div t-if="state.profileData.phone or state.profileData.mobile" style="display: flex; align-items: center; gap: 8px;">
-                                            <i class="fa fa-phone" style="color: #0b3d91; width: 14px;" title="Phone"></i>
-                                            <span t-esc="state.profileData.mobile || state.profileData.phone"/>
+                                        <!-- Work Phone -->
+                                        <div t-if="state.profileData.phone" style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-phone" style="color: #0b3d91; width: 14px;" title="Work Phone"></i>
+                                            <span t-esc="state.profileData.phone"/>
+                                        </div>
+                                        <!-- Mobile -->
+                                        <div t-if="state.profileData.mobile" style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-mobile-phone" style="color: #0b3d91; width: 14px; font-size: 1.15rem;" title="Mobile"></i>
+                                            <span t-esc="state.profileData.mobile"/>
                                         </div>
                                     </div>
                                 </div>
@@ -1162,10 +1167,10 @@
                                         <small style="color: #64748b;">Update your personal login password if needed.</small>
                                     </div>
                                     <button type="button" 
-                                            class="btn btn-sm btn-outline-primary"
+                                            class="btn btn-sm"
                                             t-on-click="() => { this.closeMyProfileModal(); this.openChangePasswordModal(); }"
-                                            style="font-weight: 600; padding: 0.4rem 1rem; border-radius: 6px;">
-                                        <i class="fa fa-key me-1"></i> Change password
+                                            style="background: #0b3d91; color: #ffffff; border: 1px solid #0b3d91; font-weight: 600; padding: 0.45rem 1.1rem; border-radius: 6px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease;">
+                                        Change Password
                                     </button>
                                 </div>
                             </div>
