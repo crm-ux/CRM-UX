@@ -121,20 +121,9 @@
                     <button class="crm-sidebar-toggle" t-on-click="toggleSidebar" title="Toggle Navigation Menu">
                         <i class="fa fa-bars"></i>
                     </button>
-                    <div class="crm-search-box" t-if="state.isAdmin">
+                    <div class="crm-search-box">
                         <i class="fa fa-search"></i>
-                        <input type="text" placeholder="Search internal users..." t-on-input="onSearchInput"/>
-                        <div class="crm-search-results" t-if="state.searchOpen and state.searchResults.length > 0">
-                            <t t-foreach="state.searchResults" t-as="u" t-key="u.id">
-                                <div class="crm-search-item" t-on-click="() => this.openTaskDialog(u)">
-                                    <div class="crm-search-avatar"><t t-esc="u.name[0].toUpperCase()"/></div>
-                                    <div>
-                                        <div class="crm-search-name"><t t-esc="u.name"/></div>
-                                        <div class="crm-search-email"><t t-esc="u.email"/></div>
-                                    </div>
-                                </div>
-                            </t>
-                        </div>
+                        <input type="text" placeholder="Search..." readonly="readonly" style="cursor: default;"/>
                     </div>
                 </div>
                 <div class="crm-topbar-right">
