@@ -1328,9 +1328,42 @@ class CrmDashboard extends Component {
     }
 
     async assignTask() {
-        if (!this.state.taskTitle) { alert("Please enter a task title"); return; }
+        if (!this.state.selectedUser) {
+            this.showToast("Please select a team member to assign the task to.");
+            return;
+        }
+        if (!this.state.taskTitle || !this.state.taskTitle.trim()) {
+            this.showToast("Please enter a task title.");
+            return;
+        }
+
+        this.state.taskSubmitting = true;
         try {
-            // Create a proper Odoo Activity (To-Do) assigned to the user - shows in their Activities menu + sends notification
+            let attachmentIds = [];
+            // If attachment is uploaded, save it to ir.attachment
+            if (this.state.taskAttachmentName && this.state.taskAttachmentData) {
+                try {
+                    const attId = await rpc("/web/dataset/call_kw", {
+                        model: "ir.attachment",
+                        method: "create",
+                        args: [{
+                            name: this.state.taskAttachmentName,
+                            datas: this.state.taskAttachmentData,
+                            res_model: "mail.activity",
+                            res_id: 0,
+                            type: "binary",
+                        }],
+                        kwargs: {},
+                    });
+                    if (attId) attachmentIds.push(attId);
+                } catch (attErr) {
+                    console.error("Attachment upload error:", attErr);
+                }
+            }
+
+            const deadline = this.state.taskDeadline || new Date().toISOString().split('T')[0];
+
+            // 1. Create proper Odoo Activity (To-Do) assigned to user
             await rpc("/web/dataset/call_kw", {
                 model: "mail.activity",
                 method: "create",
@@ -1338,31 +1371,44 @@ class CrmDashboard extends Component {
                     res_model: "res.users",
                     res_id: this.state.selectedUser.id,
                     activity_type_id: 1,
-                    summary: this.state.taskTitle,
-                    note: this.state.taskNote || "",
+                    summary: this.state.taskTitle.trim(),
+                    note: this.state.taskNote ? this.state.taskNote.trim() : "",
                     user_id: this.state.selectedUser.id,
-                    date_deadline: new Date().toISOString().split('T')[0],
+                    date_deadline: deadline,
                 }],
                 kwargs: {},
             });
-            // Also post a direct notification message so it appears in the dashboard bell
+
+            // 2. Post notification chatter comment to trigger bell alert
+            let bodyText = "<b>New Task: " + this.state.taskTitle.trim() + "</b>";
+            if (this.state.taskNote) {
+                bodyText += "<br/>" + this.state.taskNote.trim();
+            }
+            if (this.state.taskAttachmentName) {
+                bodyText += "<br/><small style='color:#0b3d91;'>📎 Attached: " + this.state.taskAttachmentName + "</small>";
+            }
+
             await rpc("/web/dataset/call_kw", {
                 model: "res.partner",
                 method: "message_post",
                 args: [[this.state.selectedUser.partner_id || this.state.selectedUser.id]],
                 kwargs: {
-                    body: "<b>New Task: " + this.state.taskTitle + "</b><br/>" + (this.state.taskNote || ""),
+                    body: bodyText,
                     message_type: "comment",
                     subtype_xmlid: "mail.mt_comment",
                     partner_ids: [this.state.selectedUser.partner_id || this.state.selectedUser.id],
+                    attachment_ids: attachmentIds,
                 },
             });
+
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         } catch (e) {
-            console.log("Assign task error:", e);
+            console.error("Assign task error:", e);
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
+        } finally {
+            this.state.taskSubmitting = false;
         }
     }
 
