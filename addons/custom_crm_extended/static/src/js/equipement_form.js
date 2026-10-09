@@ -135,9 +135,9 @@ class InvoicePreviewDialog extends Component {
                     </div>
                 </t>
 
-                <!-- 5. ZIP Archive Content Preview (Scrollable File List) -->
+                <!-- 5. ZIP Archive Content Preview (Clean 2-Column List, No Horizontal Scroll) -->
                 <t t-elif="isArchive and zipFiles">
-                    <div class="w-100 p-4" style="max-width: 850px;">
+                    <div class="w-100 p-3 p-md-4" style="max-width: 850px;">
                         <div class="card shadow-sm border-0 bg-white p-4 my-2" style="border-radius: 8px;">
                             <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-center gap-2">
@@ -150,30 +150,28 @@ class InvoicePreviewDialog extends Component {
                                 <span class="badge bg-warning bg-opacity-25 text-dark px-3 py-2">ZIP ARCHIVE</span>
                             </div>
                             
-                            <!-- Scrollable file table -->
-                            <div class="table-responsive border rounded" style="max-height: 60vh; overflow-y: auto;">
-                                <table class="table table-hover table-striped mb-0 text-start align-middle">
+                            <!-- Clean 2-Column Table, No Horizontal Scroll -->
+                            <div class="border rounded" style="max-height: 60vh; overflow-y: auto; overflow-x: hidden;">
+                                <table class="table table-hover table-striped mb-0 text-start align-middle" style="table-layout: fixed; width: 100%;">
                                     <thead class="table-light sticky-top">
                                         <tr>
-                                            <th style="width: 40px;">#</th>
                                             <th>File Name</th>
-                                            <th class="text-end" style="width: 120px;">Size</th>
+                                            <th class="text-end" style="width: 100px;">Size</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <t t-foreach="zipFiles" t-as="file" t-key="file_index">
                                             <tr>
-                                                <td class="text-muted small" t-esc="file_index + 1"/>
-                                                <td>
+                                                <td class="text-truncate" style="max-width: 100%;" t-att-title="file.name">
                                                     <t t-if="file.is_dir">
                                                         <i class="fa fa-folder text-warning me-2"></i>
                                                     </t>
                                                     <t t-else="">
                                                         <i class="fa fa-file-text-o text-secondary me-2"></i>
                                                     </t>
-                                                    <span class="font-monospace" t-esc="file.name"/>
+                                                    <span class="font-monospace text-truncate" t-esc="file.name"/>
                                                 </td>
-                                                <td class="text-end text-muted small">
+                                                <td class="text-end text-muted small text-nowrap">
                                                     <t t-if="file.is_dir">
                                                         <span class="badge bg-light text-muted">Folder</span>
                                                     </t>
@@ -374,6 +372,152 @@ export class EquipmentFormController extends FormController {
                 }
             };
 
+            // Auto-scroll when clicking on warranty dates
+            const scrollForDate = (e) => {
+                const fieldDiv = e.target.closest('[name="warranty_end_date"], [name="warranty_start_date"]');
+                if (fieldDiv) {
+                    setTimeout(() => {
+                        const scroller = document.querySelector(".o_content") || document.querySelector(".o_form_view") || document.documentElement;
+                        if (scroller) {
+                            scroller.scrollBy({ top: 260, behavior: "smooth" });
+                        }
+                    }, 100);
+                }
+            };
+
+            const SUPPORTED_EXTS = ["pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "docx", "doc", "xlsx", "xls", "csv", "txt", "zip", "rar", "7z", "tar", "gz"];
+
+            const validateInvoiceFile = (filename) => {
+                const ext = (filename || "").toLowerCase().split(".").pop();
+                if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py"].includes(ext)) {
+                    this.env.services.notification.add(
+                        _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext),
+                        { type: "danger", title: _t("File Upload Blocked") }
+                    );
+                    return false;
+                }
+                if (!SUPPORTED_EXTS.includes(ext)) {
+                    this.env.services.notification.add(
+                        _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed."),
+                        { type: "danger", title: _t("Invalid File Format") }
+                    );
+                    return false;
+                }
+                return true;
+            };
+
+            // Intercept file input change in browser directly to block prohibited files immediately
+            const handleFileInputChange = (e) => {
+                const input = e.target;
+                if (input.type === "file" && input.closest(".crm_invoice_field_box")) {
+                    const file = input.files && input.files[0];
+                    if (file && !validateInvoiceFile(file.name)) {
+                        input.value = ""; // Clear file immediately
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                }
+            };
+
+            // Clipboard Paste Handler: Paste image or document directly
+            const handlePasteInvoice = async (e) => {
+                const target = e.target;
+                const invoiceBox = target.closest('.crm_invoice_field_box') || target.closest('[name="invoice_number"]');
+                if (!invoiceBox) return;
+
+                const clipboardData = e.clipboardData || window.clipboardData;
+                if (!clipboardData || !clipboardData.items) return;
+
+                for (let i = 0; i < clipboardData.items.length; i++) {
+                    const item = clipboardData.items[i];
+                    if (item.kind === "file") {
+                        const file = item.getAsFile();
+                        if (file) {
+                            e.preventDefault();
+                            if (!validateInvoiceFile(file.name)) return;
+                            const reader = new FileReader();
+                            reader.onload = async (uploadEvent) => {
+                                const base64Data = uploadEvent.target.result.split(",")[1];
+                                let filename = file.name || `invoice_pasted_${Date.now()}.${file.type.split("/")[1] || "png"}`;
+                                if (this.model?.root) {
+                                    await this.model.root.update({
+                                        invoice_attachment: base64Data,
+                                        invoice_filename: filename,
+                                    });
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                            break;
+                        }
+                    }
+                }
+            };
+
+            // Intercept Preview Invoice click to open In-Page Dialog
+            const handlePreviewClick = async (e) => {
+                const btn = e.target.closest('button[name="action_preview_invoice"]');
+                if (btn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const record = this.model?.root;
+                    let resId = record?.resId;
+                    let filename = record?.data?.invoice_filename;
+                    let fileData = record?.data?.invoice_attachment;
+
+                    // On a saved record, binary data might not be loaded in model.root cache
+                    if (resId && (!fileData || !filename)) {
+                        try {
+                            const fetchedList = await this.env.services.orm.read(
+                                "equipment.master",
+                                [resId],
+                                ["invoice_attachment", "invoice_filename"]
+                            );
+                            if (fetchedList && fetchedList.length > 0) {
+                                if (!fileData) fileData = fetchedList[0].invoice_attachment;
+                                if (!filename) filename = fetchedList[0].invoice_filename;
+                            }
+                        } catch (err) {
+                            console.error("Error reading invoice_attachment:", err);
+                        }
+                    }
+
+                    filename = filename || "invoice.pdf";
+
+                    if (resId || fileData) {
+                        let previewContent = null;
+                        const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                            (filename || "").toLowerCase().endsWith("." + ext)
+                        );
+
+                        if (isDocOrZipOrExcel) {
+                            try {
+                                previewContent = await this.env.services.orm.call(
+                                    "equipment.master",
+                                    "action_get_invoice_preview_content",
+                                    [],
+                                    {
+                                        res_id: resId || null,
+                                        raw_b64: fileData || null,
+                                        filename: filename,
+                                    }
+                                );
+                            } catch (callErr) {
+                                console.error("Error retrieving preview content:", callErr);
+                            }
+                        }
+
+                        const url = resId ? `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false` : null;
+                        this.dialogService.add(InvoicePreviewDialog, {
+                            title: _t("Invoice Preview"),
+                            fileUrl: url,
+                            fileData: fileData,
+                            filename: filename,
+                            previewContent: previewContent,
+                        });
+                    }
+                }
+            };
+
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -381,149 +525,6 @@ export class EquipmentFormController extends FormController {
                     observer = new MutationObserver(() => reorderToolbar());
                     observer.observe(panel, { childList: true });
                 }
-                // Auto-scroll when clicking on warranty dates
-                const scrollForDate = (e) => {
-                    const fieldDiv = e.target.closest('[name="warranty_end_date"], [name="warranty_start_date"]');
-                    if (fieldDiv) {
-                        setTimeout(() => {
-                            // Find whichever element is currently scrolling
-                            const scroller = document.querySelector(".o_content") || document.querySelector(".o_form_view") || document.documentElement;
-                            if (scroller) {
-                                scroller.scrollBy({ top: 260, behavior: "smooth" });
-                            }
-                        }, 100);
-                    }
-                };
-
-                const SUPPORTED_EXTS = ["pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "docx", "doc", "xlsx", "xls", "csv", "txt", "zip", "rar", "7z", "tar", "gz"];
-
-                const validateInvoiceFile = (filename) => {
-                    const ext = (filename || "").toLowerCase().split(".").pop();
-                    if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py"].includes(ext)) {
-                        this.env.services.notification.add(
-                            _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext),
-                            { type: "danger", title: _t("File Upload Blocked") }
-                        );
-                        return false;
-                    }
-                    if (!SUPPORTED_EXTS.includes(ext)) {
-                        this.env.services.notification.add(
-                            _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed."),
-                            { type: "danger", title: _t("Invalid File Format") }
-                        );
-                        return false;
-                    }
-                    return true;
-                };
-
-                // Intercept file input change in browser directly to block prohibited files immediately
-                const handleFileInputChange = (e) => {
-                    const input = e.target;
-                    if (input.type === "file" && input.closest(".crm_invoice_field_box")) {
-                        const file = input.files && input.files[0];
-                        if (file && !validateInvoiceFile(file.name)) {
-                            input.value = ""; // Clear file immediately
-                            e.preventDefault();
-                            e.stopPropagation();
-                        }
-                    }
-                };
-
-                // Clipboard Paste Handler: Paste image or document directly
-                const handlePasteInvoice = async (e) => {
-                    const target = e.target;
-                    const invoiceBox = target.closest('.crm_invoice_field_box') || target.closest('[name="invoice_number"]');
-                    if (!invoiceBox) return;
-
-                    const clipboardData = e.clipboardData || window.clipboardData;
-                    if (!clipboardData || !clipboardData.items) return;
-
-                    for (let i = 0; i < clipboardData.items.length; i++) {
-                        const item = clipboardData.items[i];
-                        if (item.kind === "file") {
-                            const file = item.getAsFile();
-                            if (file) {
-                                e.preventDefault();
-                                if (!validateInvoiceFile(file.name)) return;
-                                const reader = new FileReader();
-                                reader.onload = async (uploadEvent) => {
-                                    const base64Data = uploadEvent.target.result.split(",")[1];
-                                    let filename = file.name || `invoice_pasted_${Date.now()}.${file.type.split("/")[1] || "png"}`;
-                                    if (this.model?.root) {
-                                        await this.model.root.update({
-                                            invoice_attachment: base64Data,
-                                            invoice_filename: filename,
-                                        });
-                                    }
-                                };
-                                reader.readAsDataURL(file);
-                                break;
-                            }
-                        }
-                    }
-                };
-
-                // Intercept Preview Invoice click to open In-Page Dialog (without download/close footer)
-                const handlePreviewClick = async (e) => {
-                    const btn = e.target.closest('button[name="action_preview_invoice"]');
-                    if (btn) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const record = this.model?.root;
-                        const resId = record?.resId;
-                        const filename = record?.data?.invoice_filename || "invoice.pdf";
-                        let fileData = record?.data?.invoice_attachment;
-
-                        // If fileData is not loaded in current record cache, read directly via ORM
-                        if (!fileData && resId) {
-                            try {
-                                const [fetched] = await this.env.services.orm.read(
-                                    "equipment.master",
-                                    [resId],
-                                    ["invoice_attachment", "invoice_filename"]
-                                );
-                                if (fetched) {
-                                    fileData = fetched.invoice_attachment;
-                                }
-                            } catch (err) {
-                                console.error("Error reading invoice_attachment:", err);
-                            }
-                        }
-
-                        if (resId || fileData) {
-                            let previewContent = null;
-                            const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((e) =>
-                                (filename || "").toLowerCase().endsWith("." + e)
-                            );
-
-                            if (isDocOrZipOrExcel) {
-                                try {
-                                    previewContent = await this.env.services.orm.call(
-                                        "equipment.master",
-                                        "action_get_invoice_preview_content",
-                                        [],
-                                        {
-                                            res_id: resId || null,
-                                            raw_b64: fileData || null,
-                                            filename: filename,
-                                        }
-                                    );
-                                } catch (callErr) {
-                                    console.error("Error retrieving preview content:", callErr);
-                                }
-                            }
-
-                            const url = resId ? `/web/content/equipment.master/${resId}/invoice_attachment/${filename}?download=false` : null;
-                            this.dialogService.add(InvoicePreviewDialog, {
-                                title: _t("Invoice Preview"),
-                                fileUrl: url,
-                                fileData: fileData,
-                                filename: filename,
-                                previewContent: previewContent,
-                            });
-                        }
-                    }
-                };
 
                 document.addEventListener("click", scrollForDate);
                 document.addEventListener("focusin", scrollForDate);
@@ -534,6 +535,8 @@ export class EquipmentFormController extends FormController {
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
+                document.removeEventListener("click", scrollForDate);
+                document.removeEventListener("focusin", scrollForDate);
                 document.removeEventListener("change", handleFileInputChange, true);
                 document.removeEventListener("paste", handlePasteInvoice);
                 document.removeEventListener("click", handlePreviewClick, true);

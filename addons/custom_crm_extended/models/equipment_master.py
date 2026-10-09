@@ -177,22 +177,29 @@ class EquipmentMaster(models.Model):
                                 if inner.strip():
                                     html_parts.append(f'<p class="mb-2" style="line-height: 1.5;">{inner}</p>')
                             elif tag == 'tbl':
-                                # Render real HTML table
+                                # Render real HTML table matching Word formatting
                                 rows_html = []
                                 for tr in child.iterfind('.//w:tr', ns):
                                     cells_html = []
                                     for tc in tr.iterfind('.//w:tc', ns):
                                         cell_paragraphs = []
+                                        # Detect cell alignment
+                                        cell_align = 'left'
                                         for p in tc.iterfind('.//w:p', ns):
+                                            p_jc = p.find('.//w:jc', ns)
+                                            if p_jc is not None:
+                                                val = p_jc.get('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val', '')
+                                                if val in ('center', 'right', 'left'):
+                                                    cell_align = val
                                             p_text = extract_p_html(p)
                                             if p_text:
                                                 cell_paragraphs.append(p_text)
                                         cell_content = '<br/>'.join(cell_paragraphs) if cell_paragraphs else '&nbsp;'
-                                        cells_html.append(f'<td class="border p-2 align-middle">{cell_content}</td>')
+                                        cells_html.append(f'<td style="border: 1px solid #111827; padding: 6px 10px; vertical-align: middle; text-align: {cell_align}; background-color: #fff;">{cell_content}</td>')
                                     if cells_html:
                                         rows_html.append(f'<tr>{"".join(cells_html)}</tr>')
                                 if rows_html:
-                                    html_parts.append(f'<div class="table-responsive my-3"><table class="table table-bordered table-sm mb-0 text-dark" style="font-size: 13.5px; border-color: #dee2e6;"><tbody>{"".join(rows_html)}</tbody></table></div>')
+                                    html_parts.append(f'<div class="my-3" style="width: 100%; overflow-x: auto;"><table class="table-sm mb-0 text-dark" style="width: 100%; border-collapse: collapse; border: 1.5px solid #111827; font-size: 13px; table-layout: auto;"><tbody>{"".join(rows_html)}</tbody></table></div>')
 
                     rendered_html = ''.join(html_parts) if html_parts else '<p class="text-muted">No readable content found in document.</p>'
                     return {

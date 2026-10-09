@@ -573,6 +573,23 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     color: #ffffff !important;
 }
 
+/* Change Trash (delete) and Eye (preview) icons to brand blue #0b3d91 */
+.crm_invoice_field_box .fa-trash,
+.crm_invoice_field_box .fa-trash-o,
+.crm_invoice_field_box .o_clear_file_button,
+.crm_invoice_field_box button[title*="Delete" i],
+.crm_invoice_field_box button[title*="Remove" i],
+.crm_invoice_field_box .fa-eye,
+.crm_invoice_field_box button[name="action_preview_invoice"],
+.crm_invoice_field_box button[name="action_preview_invoice"] i {
+    color: #0b3d91 !important;
+}
+
+.crm_invoice_field_box .o_clear_file_button:hover,
+.crm_invoice_field_box button[name="action_preview_invoice"]:hover i {
+    color: #082d6e !important;
+}
+
 /* Completely remove and hide any download icon or download button on invoice field & preview */
 .crm_invoice_field_box .fa-download,
 .crm_invoice_field_box .o_download_file_button,
@@ -588,21 +605,30 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     pointer-events: none !important;
 }
 
-/* Brand blue for Word preview documents */
+/* Brand styling for Word preview documents - exact MS Word table style */
+.docx-body {
+    background-color: #ffffff;
+    padding: 30px 40px !important;
+}
+
 .docx-body table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 12px 0;
+    border-collapse: collapse !important;
+    width: 100% !important;
+    margin: 16px 0 !important;
+    border: 1.5px solid #111827 !important;
 }
 
 .docx-body td, .docx-body th {
-    border: 1px solid #dee2e6 !important;
+    border: 1px solid #111827 !important;
     padding: 8px 12px !important;
-    vertical-align: middle;
+    vertical-align: middle !important;
 }
 
-.docx-body tr:nth-child(even) {
-    background-color: #f8f9fa;
+.docx-body tr:first-child td,
+.docx-body tr:first-child th {
+    background-color: #dbeafe !important;
+    font-weight: 700 !important;
+    color: #0b3d91 !important;
 }
 
 /* Excel spreadsheet preview styling */
