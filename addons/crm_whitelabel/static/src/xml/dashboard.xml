@@ -259,7 +259,7 @@
                         <h1 style="margin-top: 0.5rem;"><t t-esc="state.greeting"/>, <t t-esc="state.viewAsUserName or state.userName"/>!</h1>
                         <p>Here's an overview of your business performance, ongoing operations, and team workload.</p>
                     </div>
-                    <div class="crm-hero-actions">
+                    <div t-attf-class="crm-hero-actions {{ state.canAssignTask ? 'crm-hero-actions-4' : 'crm-hero-actions-3' }}">
                         <div class="crm-action-btn" t-on-click="newLead">
                             <div>
                                 <div class="crm-action-title">+ Create Lead</div>
@@ -283,8 +283,8 @@
                         </div>
                         <div class="crm-action-btn" t-if="state.canAssignTask" t-on-click="assignTaskComingSoon">
                             <div>
-                                <div class="crm-action-title">+ Assign Task</div>
-                                <div class="crm-action-sub">Assign task to team</div>
+                                <div class="crm-action-title">+ Assign Work</div>
+                                <div class="crm-action-sub">Delegate to team or staff</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>

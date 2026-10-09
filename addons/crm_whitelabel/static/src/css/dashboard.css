@@ -720,10 +720,20 @@
 }
 
 .crm-hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
     gap: 0.65rem;
+}
+
+/* 4 Buttons: 2x2 Grid */
+.crm-hero-actions.crm-hero-actions-4 {
+    display: grid;
+    grid-template-columns: repeat(2, 205px);
+}
+
+/* 3 Buttons: Single Horizontal Row */
+.crm-hero-actions.crm-hero-actions-3 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .crm-action-btn {
@@ -731,13 +741,15 @@
     border: 1px solid rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(6px);
     color: #ffffff;
-    padding: 0.65rem 0.85rem;
+    padding: 0.65rem 0.95rem;
     border-radius: 0.6rem;
     text-align: left;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 205px;
+    box-sizing: border-box;
     transition: all 0.2s;
 }
 
@@ -759,6 +771,8 @@
 .crm-action-icon {
     font-size: 0.85rem;
     color: #93c5fd;
+    margin-left: 0.75rem;
+    flex-shrink: 0;
 }
 
 /* KPI Metric Bar */
