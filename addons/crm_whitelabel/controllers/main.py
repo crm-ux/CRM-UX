@@ -55,30 +55,30 @@ class CrmWhitelabelController(http.Controller):
             phone_val = (partner and partner.phone) or getattr(user, 'phone', None) or (emp and emp.work_phone) or ''
             mobile_val = (partner and partner.mobile) or getattr(user, 'mobile', None) or (emp and emp.mobile_phone) or ''
 
-            # Job position
+            # 1. Job Position / Role
             job_title = ''
             if getattr(user, 'crm_job_id', None) and user.crm_job_id:
                 job_title = user.crm_job_id.name or ''
-            elif emp and emp.job_id:
+            elif emp and getattr(emp, 'job_id', None) and emp.job_id:
                 job_title = emp.job_id.name or ''
-            elif emp and emp.job_title:
+            elif emp and getattr(emp, 'job_title', None) and emp.job_title:
                 job_title = emp.job_title or ''
 
-            # Department
+            # 2. Department
             department = ''
             if getattr(user, 'crm_department_id', None) and user.crm_department_id:
                 department = user.crm_department_id.name or ''
-            elif emp and emp.department_id:
+            elif emp and getattr(emp, 'department_id', None) and emp.department_id:
                 department = emp.department_id.name or ''
 
-            # Manager
+            # 3. Reports To (Manager)
             manager = ''
             if getattr(user, 'crm_manager_id', None) and user.crm_manager_id:
                 manager = user.crm_manager_id.name or ''
-            elif emp and emp.parent_id:
+            elif emp and getattr(emp, 'parent_id', None) and emp.parent_id:
                 manager = emp.parent_id.name or ''
 
-            # Expense manager
+            # 4. Expense / Voucher Approver
             expense_manager = ''
             if getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id:
                 expense_manager = user.crm_expense_manager_id.name or ''
