@@ -26,9 +26,9 @@ class CrmWhitelabelController(http.Controller):
         return request.redirect(f'/web#action={action_id}')
 
     @http.route('/crm/user/get_profile', type='json', auth='user')
-    def get_user_profile(self, user_id=None):
+    def get_user_profile(self, user_id=None, **kw):
         try:
-            target_uid = int(user_id) if user_id else request.env.user.id
+            target_uid = int(user_id) if user_id else (int(kw.get('user_id')) if kw.get('user_id') else request.env.user.id)
             user = request.env['res.users'].sudo().browse(target_uid)
             if not user.exists():
                 user = request.env.user.sudo()
