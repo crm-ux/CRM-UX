@@ -872,6 +872,20 @@ class CrmDashboard extends Component {
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }
 
+    async openMyPreferences() {
+        this.state.userDropdownOpen = false;
+        try {
+            const action = await this.orm.call("res.users", "action_get_user_settings", []);
+            if (action) {
+                this.actionService.doAction(action);
+            } else {
+                this.actionService.doAction("base.action_res_users_my");
+            }
+        } catch (e) {
+            this.actionService.doAction("base.action_res_users_my");
+        }
+    }
+
     openChangePasswordModal() {
         this.state.userDropdownOpen = false;
         this.state.oldPassword = "";
