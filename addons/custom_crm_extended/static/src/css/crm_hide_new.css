@@ -611,4 +611,11 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     border-color: #dee2e6 #dee2e6 #fff !important;
     border-top: 2px solid #137333 !important;
 }
+
+/* Eliminate double/triple outer scrollbars in Invoice Preview dialog */
+.o_dialog:has(.crm-invoice-preview-container) .modal-body {
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
 

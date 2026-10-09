@@ -31,7 +31,7 @@ class InvoicePreviewDialog extends Component {
 
     static template = xml`
         <Dialog title="props.title" size="'xl'">
-            <div class="p-0 bg-light" style="min-height: 75vh; max-height: 85vh; overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;">
+            <div class="p-0 bg-light crm-invoice-preview-container" style="height: 82vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow: hidden;">
                 <!-- 1. Image Viewer -->
                 <t t-if="isImage">
                     <div class="w-100 h-100 d-flex align-items-center justify-content-center p-3">
@@ -69,29 +69,29 @@ class InvoicePreviewDialog extends Component {
 
                 <!-- 4. Excel / Spreadsheet Preview (Scrollable Grid with Sheet Tabs) -->
                 <t t-elif="isSpreadsheet and excelSheets">
-                    <div class="w-100 p-3 p-md-4" style="max-width: 1050px;">
-                        <div class="card shadow-sm border-0 bg-white p-3 p-md-4 my-2" style="border-radius: 10px;">
-                            <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
+                    <div class="w-100 p-2 p-md-3 d-flex flex-column" style="max-width: 1100px; height: 100%; overflow: hidden;">
+                        <div class="card shadow-sm border-0 bg-white p-3 my-1 d-flex flex-column flex-grow-1" style="border-radius: 10px; overflow: hidden;">
+                            <div class="border-bottom pb-2 mb-2 d-flex align-items-center justify-content-between flex-shrink-0">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="d-flex align-items-center justify-content-center rounded" style="width: 42px; height: 42px; background: #e6f4ea; color: #137333;">
-                                        <i class="fa fa-file-excel-o fs-4"></i>
+                                    <div class="d-flex align-items-center justify-content-center rounded" style="width: 38px; height: 38px; background: #e6f4ea; color: #137333;">
+                                        <i class="fa fa-file-excel-o fs-5"></i>
                                     </div>
                                     <div>
-                                        <h5 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
+                                        <h6 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
                                         <small class="text-muted"><t t-esc="excelSheets.length"/> Sheet(s) Available</small>
                                     </div>
                                 </div>
-                                <span class="badge px-3 py-2 fw-semibold" style="background-color: #137333 !important; color: #ffffff !important; border-radius: 6px;">
+                                <span class="badge px-3 py-1 fw-semibold" style="background-color: #137333 !important; color: #ffffff !important; border-radius: 6px;">
                                     EXCEL
                                 </span>
                             </div>
 
                             <!-- Sheet Tabs if multiple sheets -->
                             <t t-if="excelSheets.length > 1">
-                                <ul class="nav nav-tabs mb-3">
+                                <ul class="nav nav-tabs mb-2 flex-shrink-0">
                                     <t t-foreach="excelSheets" t-as="sheet" t-key="sheet_index">
                                         <li class="nav-item">
-                                            <button type="button" class="nav-link py-1 px-3" t-att-class="{'active fw-bold': state.activeSheetIndex === sheet_index}" t-on-click="() => this.setActiveSheet(sheet_index)">
+                                            <button type="button" class="nav-link py-1 px-3 small" t-att-class="{'active fw-bold': state.activeSheetIndex === sheet_index}" t-on-click="() => this.setActiveSheet(sheet_index)">
                                                 <i class="fa fa-table me-1"></i><t t-esc="sheet.name"/>
                                             </button>
                                         </li>
@@ -99,8 +99,8 @@ class InvoicePreviewDialog extends Component {
                                 </ul>
                             </t>
 
-                            <!-- Scrollable Spreadsheet Grid -->
-                            <div class="table-responsive border rounded" style="max-height: 65vh; overflow-y: auto; overflow-x: auto; background: #fafafa;">
+                            <!-- Single Scrollable Spreadsheet Grid -->
+                            <div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; min-height: 200px;">
                                 <table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px;">
                                     <t t-if="activeSheetRows and activeSheetRows.length">
                                         <thead class="table-light sticky-top" style="z-index: 2;">
