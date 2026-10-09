@@ -35,7 +35,7 @@ class ResUsers(models.Model):
             'email': getattr(partner, 'email', '') or getattr(u, 'email', '') or '',
             'phone': phone_val,
             'mobile': mobile_val,
-            'image_128': img,
+            'has_image': bool(u.image_128),
             'job_title': (u.crm_job_id and u.crm_job_id.name) or '',
             'department': (u.crm_department_id and u.crm_department_id.name) or '',
             'manager': (u.crm_manager_id and u.crm_manager_id.name) or '',
