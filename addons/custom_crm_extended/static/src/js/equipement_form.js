@@ -464,13 +464,14 @@ export class EquipmentFormController extends FormController {
                     let filename = record?.data?.invoice_filename;
                     let fileData = record?.data?.invoice_attachment;
 
-                    // On a saved record, binary data might not be loaded in model.root cache
+                    // On a saved record, binary data must be explicitly loaded with bin_size: false
                     if (resId && (!fileData || !filename)) {
                         try {
                             const fetchedList = await this.env.services.orm.read(
                                 "equipment.master",
                                 [resId],
-                                ["invoice_attachment", "invoice_filename"]
+                                ["invoice_attachment", "invoice_filename"],
+                                { context: { bin_size: false } }
                             );
                             if (fetchedList && fetchedList.length > 0) {
                                 if (!fileData) fileData = fetchedList[0].invoice_attachment;

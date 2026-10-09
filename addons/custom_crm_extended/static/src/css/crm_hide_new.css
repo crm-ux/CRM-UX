@@ -605,30 +605,10 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     pointer-events: none !important;
 }
 
-/* Brand styling for Word preview documents - exact MS Word table style */
+/* Word preview document container */
 .docx-body {
     background-color: #ffffff;
     padding: 30px 40px !important;
-}
-
-.docx-body table {
-    border-collapse: collapse !important;
-    width: 100% !important;
-    margin: 16px 0 !important;
-    border: 1.5px solid #111827 !important;
-}
-
-.docx-body td, .docx-body th {
-    border: 1px solid #111827 !important;
-    padding: 8px 12px !important;
-    vertical-align: middle !important;
-}
-
-.docx-body tr:first-child td,
-.docx-body tr:first-child th {
-    background-color: #dbeafe !important;
-    font-weight: 700 !important;
-    color: #0b3d91 !important;
 }
 
 /* Excel spreadsheet preview styling */
