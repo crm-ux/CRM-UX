@@ -332,15 +332,32 @@ export function validateAttachmentExtension(filename, notificationService) {
 export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
     const resModel = controller.props.resModel;
 
-    // 1. File Input Validation
+    // File cache to hold newly picked files immediately in memory before save
+    const fileCache = new Map();
+
+    // 1. File Input Validation & In-Memory Cache
     const handleFileInputChange = (e) => {
         const input = e.target;
         if (input.type === "file" && input.closest(".crm_invoice_field_box")) {
             const file = input.files && input.files[0];
-            if (file && !validateAttachmentExtension(file.name, controller.env.services.notification)) {
-                input.value = "";
-                e.preventDefault();
-                e.stopPropagation();
+            if (file) {
+                if (!validateAttachmentExtension(file.name, controller.env.services.notification)) {
+                    input.value = "";
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                // Read and cache file data immediately in browser memory
+                const matchedConfig = fieldConfigs.find((cfg) => {
+                    return input.closest(`[name="${cfg.dataField}"]`) || (cfg.boxSelector && input.closest(cfg.boxSelector));
+                });
+                const key = matchedConfig ? matchedConfig.dataField : "last_file";
+                const reader = new FileReader();
+                reader.onload = (loadEvt) => {
+                    const b64 = loadEvt.target.result.split(",")[1];
+                    fileCache.set(key, { data: b64, filename: file.name });
+                };
+                reader.readAsDataURL(file);
             }
         }
     };
@@ -373,6 +390,7 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
                         const base64Data = uploadEvent.target.result.split(",")[1];
                         const ext = file.type.split("/")[1] || "png";
                         const filename = file.name || `${matchedConfig.dataField}_pasted_${Date.now()}.${ext}`;
+                        fileCache.set(matchedConfig.dataField, { data: base64Data, filename: filename });
                         if (controller.model?.root) {
                             const updateObj = {};
                             updateObj[matchedConfig.dataField] = base64Data;
@@ -401,9 +419,27 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
         e.stopPropagation();
 
         const record = controller.model?.root;
+
+        // Auto-save any pending changes first so Odoo saves the file to server
+        const isDirty = record?.isDirty ? await record.isDirty() : false;
+        if (isDirty) {
+            try {
+                await record.save();
+            } catch (saveErr) {
+                console.warn("Could not auto-save before preview:", saveErr);
+            }
+        }
+
         const resId = record?.resId;
         let filename = record?.data?.[matchedConfig.filenameField];
         let fileData = record?.data?.[matchedConfig.dataField];
+
+        // Check if cached from recent file input / paste
+        const cached = fileCache.get(matchedConfig.dataField);
+        if (cached && (!fileData || fileData.length < 50)) {
+            fileData = cached.data;
+            if (!filename) filename = cached.filename;
+        }
 
         const isSizeString = typeof fileData === "string" && (
             fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
@@ -443,7 +479,7 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
                     previewContent = await controller.env.services.orm.call(
                         "equipment.master",
                         "action_get_invoice_preview_content",
-                        [resId || false, fileData || false, filename || false],
+                        [false, fileData || false, filename || false],
                         {}
                     );
                 } catch (callErr) {
