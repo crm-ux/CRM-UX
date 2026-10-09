@@ -903,34 +903,17 @@ class CrmDashboard extends Component {
 
         const currentUid = this.state.viewAsUserId || user.userId;
         try {
-            const records = await rpc("/web/dataset/call_kw", {
+            const data = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
-                method: "search_read",
-                args: [[["id", "=", currentUid]]],
-                kwargs: {
-                    fields: [
-                        "id", "name", "login", "email", "phone", "mobile", "image_128",
-                        "crm_job_id", "crm_department_id", "crm_manager_id", "crm_expense_manager_id"
-                    ],
-                    limit: 1,
-                },
+                method: "get_my_profile_data",
+                args: [],
+                kwargs: { user_id: currentUid },
             });
 
-            if (records && records.length > 0) {
-                const u = records[0];
+            if (data) {
                 this.state.profileData = {
                     ...this.state.profileData,
-                    id: u.id,
-                    name: u.name || "",
-                    login: u.login || "",
-                    email: u.email || "",
-                    phone: u.phone || "",
-                    mobile: u.mobile || "",
-                    image_128: u.image_128 || null,
-                    job_title: u.crm_job_id ? u.crm_job_id[1] : "",
-                    department: u.crm_department_id ? u.crm_department_id[1] : "",
-                    manager: u.crm_manager_id ? u.crm_manager_id[1] : "",
-                    expense_manager: u.crm_expense_manager_id ? u.crm_expense_manager_id[1] : "",
+                    ...data,
                 };
             }
         } catch (err) {
@@ -955,34 +938,23 @@ class CrmDashboard extends Component {
             const p = this.state.profileData;
             const currentUid = this.state.viewAsUserId || user.userId;
 
-            // Check if login already exists on another user
-            if (p.login) {
-                const existing = await rpc("/web/dataset/call_kw", {
-                    model: "res.users",
-                    method: "search_count",
-                    args: [[["login", "=", p.login.trim()], ["id", "!=", currentUid]]],
-                    kwargs: {},
-                });
-                if (existing > 0) {
-                    this.showToast(`Login ID '${p.login.trim()}' is already in use by another user.`);
-                    return;
-                }
-            }
-
-            const writeVals = {
-                name: p.name ? p.name.trim() : "",
-                login: p.login ? p.login.trim() : "",
-                email: p.email ? p.email.trim() : "",
-                phone: p.phone ? p.phone.trim() : false,
-                mobile: p.mobile ? p.mobile.trim() : false,
-            };
-
-            await rpc("/web/dataset/call_kw", {
+            const res = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
-                method: "write",
-                args: [[currentUid], writeVals],
-                kwargs: {},
+                method: "save_my_profile_data",
+                args: [{
+                    name: p.name,
+                    login: p.login,
+                    email: p.email,
+                    phone: p.phone,
+                    mobile: p.mobile,
+                }],
+                kwargs: { user_id: currentUid },
             });
+
+            if (res && res.success === false) {
+                this.showToast(res.error || "Failed to update profile.");
+                return;
+            }
 
             this.state.userName = p.name;
             this.showToast("Profile updated successfully!");
