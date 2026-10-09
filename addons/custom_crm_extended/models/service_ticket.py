@@ -50,6 +50,28 @@ class ServiceTicket(models.Model):
     engineer_email = fields.Char(string='Engineer Email')
     visit_date = fields.Date(string='Visit Date', tracking=True)
     
+    # Service Report & Attachment
+    report_number = fields.Char(string='Report No.', tracking=True)
+    report_filename = fields.Char(string='Report Filename')
+    report_attachment = fields.Binary(string='Report Attachment', attachment=True)
+
+    def action_preview_service_report(self):
+        """Action button for Service Report preview."""
+        return True
+
+    @api.model
+    def action_get_report_preview_content(self, res_id=None, raw_b64=None, filename=None, field_name='report_attachment'):
+        """Extract preview content for Service Ticket attachments (delegates to universal parser)."""
+        if res_id:
+            rec = self.sudo().browse(int(res_id))
+            if rec.exists():
+                raw_b64 = rec.report_attachment or raw_b64
+                filename = rec.report_filename or filename
+
+        return self.env['equipment.master'].action_get_invoice_preview_content(
+            res_id=False, raw_b64=raw_b64, filename=filename
+        )
+    
     # Resolution & Sign-off
     root_cause = fields.Text(string='Root Cause')
     corrective_action = fields.Text(string='Corrective Action')

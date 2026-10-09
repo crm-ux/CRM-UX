@@ -611,8 +611,8 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     padding: 30px 40px !important;
 }
 
-/* Excel spreadsheet preview styling */
-.nav-tabs .nav-link.active {
+/* Excel spreadsheet preview styling inside preview dialog only */
+.crm-invoice-preview-container .nav-tabs .nav-link.active {
     color: #137333 !important;
     border-color: #dee2e6 #dee2e6 #fff !important;
     border-top: 2px solid #137333 !important;

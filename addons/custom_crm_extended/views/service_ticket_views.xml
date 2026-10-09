@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!-- Service Ticket Form View -->
     <record id="view_service_ticket_form" model="ir.ui.view">
@@ -60,6 +60,14 @@
                             <field name="engineer_contact"/>
                             <field name="engineer_email"/>
                             <field name="visit_date"/>
+                            <label for="report_number" string="Report No."/>
+                            <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
+                                <field name="report_number" placeholder="e.g. REP/2026/001" class="flex-grow-1"/>
+                                <field name="report_filename" invisible="1"/>
+                                <field name="report_attachment" filename="report_filename" widget="binary" string="Attach" options="{'no_download': True, 'accepted_file_extensions': '.pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar'}" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar" class="m-0 p-0"/>
+                                <button name="action_preview_service_report" type="object" icon="fa-eye" title="View Service Report"
+                                        invisible="not report_attachment" class="btn btn-sm btn-link text-primary p-0 ms-1" style="font-size: 1.1rem;"/>
+                            </div>
                         </group>
                     </group>
 

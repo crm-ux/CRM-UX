@@ -8,6 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { setupUniversalAttachmentHandling } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
 const WIZARD_ACTION = "custom_crm_extended.action_service_ticket_wizard";
@@ -86,6 +87,17 @@ export class ServiceTicketFormController extends FormController {
                 }
             };
 
+            // Setup universal attachment handling for Service Report
+            const cleanupAttachments = setupUniversalAttachmentHandling(this, [
+                {
+                    dataField: "report_attachment",
+                    filenameField: "report_filename",
+                    buttonName: "action_preview_service_report",
+                    title: _t("Service Report Preview"),
+                    boxSelector: '[name="report_number"]',
+                },
+            ]);
+
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -97,6 +109,9 @@ export class ServiceTicketFormController extends FormController {
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
+                if (cleanupAttachments) {
+                    cleanupAttachments();
+                }
             });
         }
     }
