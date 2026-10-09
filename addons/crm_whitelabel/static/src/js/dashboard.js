@@ -67,6 +67,13 @@ class CrmDashboard extends Component {
             searchQuery: "", searchResults: [], searchOpen: false, mobileSearchOpen: false,
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
+            taskMemberSearch: "",
+            assignableUsers: [],
+            taskAttachmentName: "",
+            taskAttachmentData: null,
+            taskDeadline: "",
+            taskLoadingUsers: false,
+            taskSubmitting: false,
             accessModalOpen: false, accessModalModule: "",
             // My Profile Modal State
             profileModalOpen: false,
@@ -833,8 +840,83 @@ class CrmDashboard extends Component {
         });
     }
 
-    assignTaskComingSoon() {
-        this.showToast("Assign Task feature is coming soon!");
+    async assignTaskComingSoon() {
+        await this.openAssignTaskWizard();
+    }
+
+    async openAssignTaskWizard() {
+        this.state.selectedUser = null;
+        this.state.taskTitle = "";
+        this.state.taskNote = "";
+        this.state.taskMemberSearch = "";
+        this.state.taskAttachmentName = "";
+        this.state.taskAttachmentData = null;
+        this.state.taskDeadline = new Date().toISOString().split('T')[0];
+        this.state.taskDialogOpen = true;
+        this.state.taskLoadingUsers = true;
+
+        const uid = this.state.viewAsUserId || user.userId;
+        try {
+            const members = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "get_assignable_team_members",
+                args: [],
+                kwargs: { user_id: uid, search_term: "" },
+            });
+            this.state.assignableUsers = members || [];
+        } catch (e) {
+            console.error("Error loading team members:", e);
+            this.state.assignableUsers = [];
+        } finally {
+            this.state.taskLoadingUsers = false;
+        }
+    }
+
+    async onTaskMemberSearchInput(ev) {
+        const val = ev.target.value || "";
+        this.state.taskMemberSearch = val;
+        const uid = this.state.viewAsUserId || user.userId;
+        try {
+            const members = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "get_assignable_team_members",
+                args: [],
+                kwargs: { user_id: uid, search_term: val },
+            });
+            this.state.assignableUsers = members || [];
+        } catch (e) {
+            console.error("Error searching team members:", e);
+        }
+    }
+
+    selectTaskUser(u) {
+        this.state.selectedUser = u;
+    }
+
+    onTaskAttachmentChange(ev) {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) {
+            this.state.taskAttachmentName = "";
+            this.state.taskAttachmentData = null;
+            return;
+        }
+        if (file.size > 20 * 1024 * 1024) {
+            this.showToast("File size cannot exceed 20MB.");
+            ev.target.value = "";
+            return;
+        }
+        this.state.taskAttachmentName = file.name;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const base64 = e.target.result.split(",")[1];
+            this.state.taskAttachmentData = base64;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    removeTaskAttachment() {
+        this.state.taskAttachmentName = "";
+        this.state.taskAttachmentData = null;
     }
 
     openInsightsComingSoon() {

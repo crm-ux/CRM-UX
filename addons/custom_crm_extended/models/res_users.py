@@ -116,6 +116,81 @@ class ResUsers(models.Model):
 
         return False
 
+    @api.model
+    def get_assignable_team_members(self, user_id=None, search_term=""):
+        """Returns list of employees that this manager/admin can assign tasks to,
+        filtered by subordinates, department, and managed sub-departments."""
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            return []
+
+        is_admin = u.has_group('base.group_system') or u.id == 2
+        allowed_uids = set()
+
+        if is_admin:
+            # Admins can assign to all active internal users
+            all_users = self.sudo().search([('active', '=', True), ('share', '=', False)])
+            allowed_uids = set(all_users.ids)
+        else:
+            # 1. Direct and indirect subordinates from res.users
+            allowed_uids.update(u.crm_subordinate_ids.ids)
+            allowed_uids.update(u._get_all_subordinates().ids)
+
+            # 2. Direct and indirect subordinates from hr.employee
+            emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
+            if not emp and getattr(u, 'employee_id', False):
+                emp = u.employee_id.sudo()
+            if emp:
+                sub_emps = self.env['hr.employee'].sudo().search([('parent_id', 'child_of', emp.id)])
+                for se in sub_emps:
+                    if se.user_id:
+                        allowed_uids.add(se.user_id.id)
+
+            # 3. Department & Managed Sub-departments
+            depts = u.crm_department_ids | u.crm_department_id
+            if u.crm_job_id:
+                if u.crm_job_id.department_id:
+                    depts |= u.crm_job_id.department_id
+                if u.crm_job_id.sub_department_ids:
+                    depts |= u.crm_job_id.sub_department_ids
+            if emp and emp.department_id:
+                depts |= emp.department_id
+
+            if depts:
+                child_depts = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)])
+                dept_emps = self.env['hr.employee'].sudo().search([('department_id', 'in', child_depts.ids), ('user_id', '!=', False)])
+                allowed_uids.update(dept_emps.mapped('user_id').ids)
+                dept_users = self.sudo().search([('crm_department_id', 'in', child_depts.ids)])
+                allowed_uids.update(dept_users.ids)
+
+        if not allowed_uids:
+            return []
+
+        domain = [('id', 'in', list(allowed_uids)), ('active', '=', True), ('share', '=', False)]
+        if search_term and search_term.strip():
+            st = search_term.strip()
+            domain.append('|')
+            domain.append(('name', 'ilike', st))
+            domain.append(('login', 'ilike', st))
+
+        users = self.sudo().search(domain, order='name asc', limit=50)
+        res = []
+        for usr in users:
+            e = self.env['hr.employee'].sudo().search([('user_id', '=', usr.id)], limit=1) or usr.employee_id
+            job = (usr.crm_job_id and usr.crm_job_id.name) or (e and e.job_title) or ''
+            dept = (usr.crm_department_id and usr.crm_department_id.name) or (e and e.department_id and e.department_id.name) or ''
+            res.append({
+                'id': usr.id,
+                'name': usr.name,
+                'email': usr.email or '',
+                'login': usr.login or '',
+                'job_title': job,
+                'department': dept,
+                'partner_id': usr.partner_id.id if usr.partner_id else usr.id,
+            })
+        return res
+
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
         subordinates = self.env['res.users']

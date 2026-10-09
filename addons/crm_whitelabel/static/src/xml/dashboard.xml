@@ -284,7 +284,7 @@
                         <div class="crm-action-btn" t-if="state.canAssignTask" t-on-click="assignTaskComingSoon">
                             <div>
                                 <div class="crm-action-title">+ Assign Work</div>
-                                <div class="crm-action-sub">Delegate to team or staff</div>
+                                <div class="crm-action-sub">Assign work to members</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>
