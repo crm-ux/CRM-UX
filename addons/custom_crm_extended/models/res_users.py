@@ -25,10 +25,13 @@ class ResUsers(models.Model):
         if u.image_128:
             img = u.image_128.decode('ascii') if isinstance(u.image_128, bytes) else str(u.image_128)
 
-        # Check res.partner, res.users, and linked hr.employee
-        emp = getattr(u, 'employee_id', False)
+        # Look up employee linked to this user
+        emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
+        if not emp and getattr(u, 'employee_id', False):
+            emp = u.employee_id.sudo()
+
         phone_val = getattr(partner, 'phone', '') or getattr(u, 'phone', '') or (emp and getattr(emp, 'work_phone', '')) or ''
-        mobile_val = getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or (emp and getattr(emp, 'mobile_phone', '')) or ''
+        mobile_val = (emp and getattr(emp, 'mobile_phone', '')) or getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or ''
 
         return {
             'id': u.id,
@@ -38,9 +41,9 @@ class ResUsers(models.Model):
             'phone': phone_val or '',
             'mobile': mobile_val or '',
             'has_image': bool(u.image_128),
-            'job_title': (u.crm_job_id and u.crm_job_id.name) or '',
-            'department': (u.crm_department_id and u.crm_department_id.name) or '',
-            'manager': (u.crm_manager_id and u.crm_manager_id.name) or '',
+            'job_title': (u.crm_job_id and u.crm_job_id.name) or (emp and emp.job_title) or '',
+            'department': (u.crm_department_id and u.crm_department_id.name) or (emp and emp.department_id and emp.department_id.name) or '',
+            'manager': (u.crm_manager_id and u.crm_manager_id.name) or (emp and emp.parent_id and emp.parent_id.name) or '',
             'expense_manager': (u.crm_expense_manager_id and u.crm_expense_manager_id.name) or '',
         }
 
@@ -60,7 +63,9 @@ class ResUsers(models.Model):
         u_vals = {}
         p_vals = {}
         e_vals = {}
-        emp = getattr(u, 'employee_id', False)
+        emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
+        if not emp and getattr(u, 'employee_id', False):
+            emp = u.employee_id.sudo()
 
         for f in ['name', 'login', 'email', 'phone', 'mobile']:
             if f in vals and vals[f] is not None:
