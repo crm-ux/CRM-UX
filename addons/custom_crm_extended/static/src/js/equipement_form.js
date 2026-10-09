@@ -277,8 +277,9 @@ class InvoicePreviewDialog extends Component {
 
     get imageSource() {
         if (this.props.fileData) {
-            const ext = this.fileExtension || "png";
-            return `data:image/${ext === "svg" ? "svg+xml" : ext};base64,${this.props.fileData}`;
+            const ext = (this.fileExtension || "png").toLowerCase();
+            const mime = ext === "svg" ? "svg+xml" : (ext === "jpg" ? "jpeg" : ext);
+            return `data:image/${mime};base64,${this.props.fileData}`;
         }
         return this.props.fileUrl;
     }
@@ -495,12 +496,8 @@ export class EquipmentFormController extends FormController {
                                 previewContent = await this.env.services.orm.call(
                                     "equipment.master",
                                     "action_get_invoice_preview_content",
-                                    [],
-                                    {
-                                        res_id: resId || null,
-                                        raw_b64: fileData || null,
-                                        filename: filename,
-                                    }
+                                    [resId || false, fileData || false, filename || false],
+                                    {}
                                 );
                             } catch (callErr) {
                                 console.error("Error retrieving preview content:", callErr);
@@ -554,8 +551,12 @@ export class EquipmentFormController extends FormController {
                 if (breadcrumbs.length > 1) {
                     const prev = breadcrumbs[breadcrumbs.length - 2];
                     if (prev && prev.jsId) {
-                        this.actionService.restore(prev.jsId);
-                        return;
+                        try {
+                            await this.actionService.restore(prev.jsId);
+                            return;
+                        } catch (e) {
+                            // Controller no longer in action stack, fallback to reload list
+                        }
                     }
                 }
                 this.actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });

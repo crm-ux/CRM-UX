@@ -63,24 +63,24 @@ class EquipmentMaster(models.Model):
         return True
 
     @api.model
-    def action_get_invoice_preview_content(self, res_id=None, raw_b64=None, filename=None):
-        """Extract previewable content for DOCX (text/HTML) or ZIP (list of files)."""
+    def action_get_invoice_preview_content(self, *args, **kwargs):
+        """Extract previewable content for DOCX (text/HTML), Excel, or ZIP (list of files)."""
         import base64
         import io
         import zipfile
         import xml.etree.ElementTree as ET
 
+        res_id = kwargs.get('res_id') or (args[0] if len(args) > 0 else None)
+        raw_b64 = kwargs.get('raw_b64') or (args[1] if len(args) > 1 else None)
+        fname = kwargs.get('filename') or (args[2] if len(args) > 2 else '')
+
         attachment_b64 = raw_b64
-        fname = filename or ''
 
         if res_id:
-            rec = self.browse(res_id)
+            rec = self.sudo().browse(int(res_id))
             if rec.exists():
-                attachment_b64 = attachment_b64 or rec.invoice_attachment
-                fname = fname or rec.invoice_filename or ''
-        elif self and len(self) == 1:
-            attachment_b64 = attachment_b64 or self.invoice_attachment
-            fname = fname or self.invoice_filename or ''
+                attachment_b64 = rec.invoice_attachment or attachment_b64
+                fname = rec.invoice_filename or fname or ''
 
         if not attachment_b64:
             return {'type': 'empty'}
