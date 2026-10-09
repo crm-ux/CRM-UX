@@ -29,17 +29,28 @@ class CrmWhitelabelController(http.Controller):
     def get_user_profile(self):
         user = request.env.user
         partner = user.partner_id
+        employee = getattr(user, 'employee_id', None)
+
+        img_str = False
+        if user.image_128:
+            img_val = user.image_128
+            img_str = img_val.decode('utf-8') if isinstance(img_val, bytes) else str(img_val)
+
+        email_val = user.email or partner.email or (employee and employee.work_email) or ''
+        phone_val = getattr(user, 'phone', None) or partner.phone or (employee and employee.work_phone) or ''
+        mobile_val = getattr(user, 'mobile', None) or partner.mobile or (employee and employee.mobile_phone) or ''
+
         return {
             'id': user.id,
-            'name': user.name or partner.name or '',
+            'name': user.name or partner.name or (employee and employee.name) or '',
             'login': user.login or '',
-            'email': user.email or partner.email or '',
-            'phone': getattr(user, 'phone', None) or partner.phone or '',
-            'mobile': getattr(user, 'mobile', None) or partner.mobile or '',
-            'image_128': user.image_128.decode('utf-8') if user.image_128 else False,
-            'job_title': (getattr(user, 'crm_job_id', None) and user.crm_job_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.job_title) or '',
-            'department': (getattr(user, 'crm_department_id', None) and user.crm_department_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.department_id and user.employee_id.department_id.name) or '',
-            'manager': (getattr(user, 'crm_manager_id', None) and user.crm_manager_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.parent_id and user.employee_id.parent_id.name) or '',
+            'email': email_val,
+            'phone': phone_val,
+            'mobile': mobile_val,
+            'image_128': img_str,
+            'job_title': (getattr(user, 'crm_job_id', None) and user.crm_job_id.name) or (employee and employee.job_title) or '',
+            'department': (getattr(user, 'crm_department_id', None) and user.crm_department_id.name) or (employee and employee.department_id and employee.department_id.name) or '',
+            'manager': (getattr(user, 'crm_manager_id', None) and user.crm_manager_id.name) or (employee and employee.parent_id and employee.parent_id.name) or '',
             'expense_manager': (getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id.name) or '',
         }
 
@@ -87,6 +98,18 @@ class CrmWhitelabelController(http.Controller):
             user.sudo().write(user_vals)
         if partner_vals:
             partner.sudo().write(partner_vals)
+        if hasattr(user, 'employee_id') and user.employee_id:
+            emp_vals = {}
+            if name:
+                emp_vals['name'] = clean_name
+            if email is not None:
+                emp_vals['work_email'] = clean_email
+            if phone is not None:
+                emp_vals['work_phone'] = clean_phone
+            if mobile is not None:
+                emp_vals['mobile_phone'] = clean_mobile
+            if emp_vals:
+                user.employee_id.sudo().write(emp_vals)
 
         return {'success': True}
 
