@@ -875,14 +875,23 @@ class CrmDashboard extends Component {
     async openMyPreferences() {
         this.state.userDropdownOpen = false;
         try {
-            const action = await this.orm.call("res.users", "action_get_user_settings", []);
-            if (action) {
-                this.actionService.doAction(action);
-            } else {
-                this.actionService.doAction("base.action_res_users_my");
-            }
+            const currentUserId = user.userId;
+            this.actionService.doAction({
+                type: "ir.actions.act_window",
+                name: "My Profile",
+                res_model: "res.users",
+                res_id: currentUserId,
+                views: [[false, "form"]],
+                target: "current",
+                flags: {
+                    mode: "edit",
+                },
+                context: {
+                    create: false,
+                },
+            });
         } catch (e) {
-            this.actionService.doAction("base.action_res_users_my");
+            console.error("Error opening profile:", e);
         }
     }
 
