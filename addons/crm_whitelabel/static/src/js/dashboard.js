@@ -67,6 +67,29 @@ class CrmDashboard extends Component {
             taskDialogOpen: false, selectedUser: null,
             taskNote: "", taskTitle: "",
             accessModalOpen: false, accessModalModule: "",
+            // My Profile Modal State
+            profileModalOpen: false,
+            profileActiveTab: "preferences",
+            profileLoading: false,
+            profileSaving: false,
+            profileData: {
+                id: null,
+                name: "",
+                login: "",
+                email: "",
+                phone: "",
+                mobile: "",
+                image_128: null,
+                tz: "Asia/Calcutta",
+                lang: "en_US",
+                notification_type: "email",
+                job_title: "",
+                department: "",
+                manager: "",
+                expense_manager: "",
+                timezones: [],
+                langs: [],
+            },
             // Change Password Modal State
             passwordModalOpen: false,
             oldPassword: "",
@@ -874,24 +897,63 @@ class CrmDashboard extends Component {
 
     async openMyPreferences() {
         this.state.userDropdownOpen = false;
+        this.state.profileActiveTab = "preferences";
+        this.state.profileLoading = true;
+        this.state.profileModalOpen = true;
+
         try {
-            const currentUserId = user.userId;
-            this.actionService.doAction({
-                type: "ir.actions.act_window",
-                name: "My Profile",
-                res_model: "res.users",
-                res_id: currentUserId,
-                views: [[false, "form"]],
-                target: "current",
-                flags: {
-                    mode: "edit",
-                },
-                context: {
-                    create: false,
-                },
+            const data = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "action_get_my_profile_data",
+                args: [],
+                kwargs: {},
             });
-        } catch (e) {
-            console.error("Error opening profile:", e);
+            if (data) {
+                this.state.profileData = { ...data };
+            }
+        } catch (err) {
+            console.error("Error loading profile:", err);
+            this.showToast("Failed to load profile details.");
+        } finally {
+            this.state.profileLoading = false;
+        }
+    }
+
+    closeMyProfileModal() {
+        this.state.profileModalOpen = false;
+    }
+
+    setProfileTab(tab) {
+        this.state.profileActiveTab = tab;
+    }
+
+    async saveMyProfile() {
+        this.state.profileSaving = true;
+        try {
+            const p = this.state.profileData;
+            await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "action_save_my_profile_data",
+                args: [{
+                    name: p.name,
+                    email: p.email,
+                    phone: p.phone,
+                    mobile: p.mobile,
+                    tz: p.tz,
+                    lang: p.lang,
+                    notification_type: p.notification_type,
+                }],
+                kwargs: {},
+            });
+            this.state.userName = p.name;
+            this.showToast("Profile updated successfully!");
+            this.closeMyProfileModal();
+        } catch (err) {
+            console.error("Error saving profile:", err);
+            const msg = err?.data?.message || err?.message || "Failed to update profile.";
+            this.showToast(msg);
+        } finally {
+            this.state.profileSaving = false;
         }
     }
 

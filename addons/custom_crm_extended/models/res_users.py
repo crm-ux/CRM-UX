@@ -521,6 +521,70 @@ class ResUsers(models.Model):
                 self.crm_manager_id = False
 
     @api.model
+    def action_get_my_profile_data(self):
+        """Fetch sanitized profile data for the current user to display in My Profile modal."""
+        user = self.env.user
+        partner = user.partner_id
+        
+        # Available timezones and languages
+        timezones = [(tz, tz) for tz in self.env['res.users']._fields['tz'].selection(self)] if hasattr(self.env['res.users']._fields.get('tz'), 'selection') else []
+        langs = self.env['res.lang'].sudo().search_read([('active', '=', True)], ['code', 'name'])
+
+        return {
+            'id': user.id,
+            'name': user.name or '',
+            'login': user.login or '',
+            'email': user.email or partner.email or '',
+            'phone': partner.phone or '',
+            'mobile': partner.mobile or '',
+            'image_128': user.image_128.decode('utf-8') if user.image_128 else False,
+            'tz': user.tz or 'Asia/Calcutta',
+            'lang': user.lang or 'en_US',
+            'notification_type': user.notification_type or 'email',
+            'job_title': user.crm_job_id.name if user.crm_job_id else (user.employee_id.job_title if user.employee_id else ''),
+            'department': user.crm_department_id.name if user.crm_department_id else (user.employee_id.department_id.name if user.employee_id else ''),
+            'manager': user.crm_manager_id.name if user.crm_manager_id else (user.employee_id.parent_id.name if user.employee_id and user.employee_id.parent_id else ''),
+            'expense_manager': user.crm_expense_manager_id.name if user.crm_expense_manager_id else '',
+            'timezones': timezones,
+            'langs': [{'code': l['code'], 'name': l['name']} for l in langs],
+        }
+
+    @api.model
+    def action_save_my_profile_data(self, vals):
+        """Allows user to safely update their own editable profile details."""
+        user = self.env.user
+        partner = user.partner_id
+
+        user_vals = {}
+        partner_vals = {}
+
+        if 'name' in vals and vals['name']:
+            user_vals['name'] = vals['name'].strip()
+            partner_vals['name'] = vals['name'].strip()
+        if 'email' in vals:
+            user_vals['email'] = (vals['email'] or '').strip()
+            partner_vals['email'] = (vals['email'] or '').strip()
+        if 'phone' in vals:
+            partner_vals['phone'] = (vals['phone'] or '').strip()
+        if 'mobile' in vals:
+            partner_vals['mobile'] = (vals['mobile'] or '').strip()
+        if 'tz' in vals and vals['tz']:
+            user_vals['tz'] = vals['tz']
+        if 'lang' in vals and vals['lang']:
+            user_vals['lang'] = vals['lang']
+        if 'notification_type' in vals and vals['notification_type']:
+            user_vals['notification_type'] = vals['notification_type']
+        if 'image_1920' in vals:
+            user_vals['image_1920'] = vals['image_1920']
+
+        if user_vals:
+            user.sudo().write(user_vals)
+        if partner_vals:
+            partner.sudo().write(partner_vals)
+
+        return {'success': True}
+
+    @api.model
     def action_change_own_password(self, old_passwd, new_passwd, confirm_passwd):
         """Allows the currently logged in user to safely change their own password."""
         user = self.env.user

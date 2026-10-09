@@ -1060,6 +1060,167 @@
                 </div>
             </div>
 
+            <!-- My Profile Modal / Dialog -->
+            <div class="crm-task-overlay" t-if="state.profileModalOpen" t-on-click="closeMyProfileModal">
+                <div class="crm-task-dialog" t-on-click.stop="" style="max-width: 620px; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <div class="crm-task-header" style="padding: 1.1rem 1.5rem; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(11,61,145,0.08); display: flex; align-items: center; justify-content: center; color: #0b3d91; font-size: 1.1rem;">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0f172a;">My Profile</h3>
+                        </div>
+                        <button class="crm-task-close" t-on-click="closeMyProfileModal" style="cursor: pointer; background: none; border: none; font-size: 1.2rem; color: #64748b;">✕</button>
+                    </div>
+
+                    <div class="crm-task-body" style="padding: 1.5rem; background: #fafbfc; max-height: 75vh; overflow-y: auto;">
+                        <t t-if="state.profileLoading">
+                            <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                                <i class="fa fa-spinner fa-spin fa-2x" style="color: #0b3d91;"></i>
+                                <p style="margin-top: 0.75rem; font-weight: 600;">Loading profile...</p>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <!-- Top Profile Info Header (Exact Layout from Image) -->
+                            <div style="display: flex; align-items: center; gap: 1.25rem; background: #ffffff; padding: 1.25rem; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 1.25rem;">
+                                <!-- Big Avatar Box -->
+                                <div style="width: 72px; height: 72px; border-radius: 12px; background: #9333ea; color: #ffffff; font-size: 2.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 6px -1px rgba(147, 51, 234, 0.2);">
+                                    <t t-if="state.profileData.image_128">
+                                        <img t-att-src="'data:image/png;base64,' + state.profileData.image_128" style="width: 100%; height: 100%; border-radius: 12px; object-fit: cover;"/>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-esc="(state.profileData.name || 'U')[0].toUpperCase()"/>
+                                    </t>
+                                </div>
+                                <div style="flex: 1; min-width: 0;">
+                                    <h2 style="margin: 0 0 0.4rem 0; font-size: 1.4rem; font-weight: 700; color: #0f172a;" t-esc="state.profileData.name"/>
+                                    <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem; color: #475569;">
+                                        <!-- Key Icon (Username/Login) -->
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-key" style="color: #6366f1; width: 14px;"></i>
+                                            <span style="font-weight: 600; color: #1e293b;" t-esc="state.profileData.login"/>
+                                        </div>
+                                        <!-- Email Envelope -->
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-envelope" style="color: #6366f1; width: 14px;"></i>
+                                            <span t-esc="state.profileData.email || 'No email specified'"/>
+                                        </div>
+                                        <!-- Phone -->
+                                        <div t-if="state.profileData.phone or state.profileData.mobile" style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-phone" style="color: #6366f1; width: 14px;"></i>
+                                            <span t-esc="state.profileData.mobile || state.profileData.phone"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 3 Tabs Navigation -->
+                            <div style="display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.25rem;">
+                                <button type="button" 
+                                        t-on-click="() => this.setProfileTab('preferences')"
+                                        t-att-style="state.profileActiveTab === 'preferences' ? 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer;' : 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 600; color: #64748b; cursor: pointer;'">
+                                    Preferences
+                                </button>
+                                <button type="button" 
+                                        t-on-click="() => this.setProfileTab('security')"
+                                        t-att-style="state.profileActiveTab === 'security' ? 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer;' : 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 600; color: #64748b; cursor: pointer;'">
+                                    Security
+                                </button>
+                                <button type="button" 
+                                        t-on-click="() => this.setProfileTab('organization')"
+                                        t-att-style="state.profileActiveTab === 'organization' ? 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer;' : 'border: none; background: none; padding: 0.65rem 1.1rem; font-weight: 600; color: #64748b; cursor: pointer;'">
+                                    Organization &amp; Hierarchy
+                                </button>
+                            </div>
+
+                            <!-- Tab 1: Preferences (Editable) -->
+                            <div t-if="state.profileActiveTab === 'preferences'" style="display: flex; flex-direction: column; gap: 1rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Full Name</label>
+                                        <input type="text" t-model="state.profileData.name" class="form-control form-control-sm" style="font-size: 0.88rem;"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Email</label>
+                                        <input type="email" t-model="state.profileData.email" class="form-control form-control-sm" style="font-size: 0.88rem;"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Mobile</label>
+                                        <input type="text" t-model="state.profileData.mobile" placeholder="Mobile Number" class="form-control form-control-sm" style="font-size: 0.88rem;"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Phone</label>
+                                        <input type="text" t-model="state.profileData.phone" placeholder="Work Phone" class="form-control form-control-sm" style="font-size: 0.88rem;"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Timezone</label>
+                                        <select t-model="state.profileData.tz" class="form-select form-select-sm" style="font-size: 0.88rem;">
+                                            <t t-foreach="state.profileData.timezones" t-as="tz" t-key="tz[0]">
+                                                <option t-att-value="tz[0]"><t t-esc="tz[1]"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Language</label>
+                                        <select t-model="state.profileData.lang" class="form-select form-select-sm" style="font-size: 0.88rem;">
+                                            <t t-foreach="state.profileData.langs" t-as="l" t-key="l.code">
+                                                <option t-att-value="l.code"><t t-esc="l.name"/></option>
+                                            </t>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab 2: Security (Only Change Password - NO 2FA) -->
+                            <div t-if="state.profileActiveTab === 'security'" style="background: #ffffff; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <div>
+                                        <h5 style="margin: 0 0 0.25rem 0; font-size: 0.95rem; font-weight: 700; color: #0f172a;">Change Password</h5>
+                                        <small style="color: #64748b;">Update your personal login password if needed.</small>
+                                    </div>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary"
+                                            t-on-click="() => { this.closeMyProfileModal(); this.openChangePasswordModal(); }"
+                                            style="font-weight: 600; padding: 0.4rem 1rem; border-radius: 6px;">
+                                        <i class="fa fa-key me-1"></i> Change password
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Tab 3: Organization & Hierarchy (Read-Only) -->
+                            <div t-if="state.profileActiveTab === 'organization'" style="display: flex; flex-direction: column; gap: 0.85rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Job Position / Role</label>
+                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.job_title || 'Not assigned'"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Department</label>
+                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.department || 'Not assigned'"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Reports To (Manager)</label>
+                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.manager || 'No Manager'"/>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Expense / Voucher Approver</label>
+                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.expense_manager || 'Not assigned'"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <div class="crm-task-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 0.9rem 1.5rem; border-top: 1px solid #e2e8f0; background: #ffffff;">
+                        <button class="crm-task-cancel-btn" t-on-click="closeMyProfileModal" t-att-disabled="state.profileSaving">Close</button>
+                        <button t-if="state.profileActiveTab === 'preferences'" class="crm-task-submit-btn" t-on-click="saveMyProfile" t-att-disabled="state.profileSaving" style="background: #0b3d91; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+                            <i t-if="state.profileSaving" class="fa fa-spinner fa-spin"></i>
+                            <span><t t-if="state.profileSaving">Saving...</t><t t-else="">Save Changes</t></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Change Password Modal / Wizard -->
             <div class="crm-task-overlay crm-password-modal-overlay" t-if="state.passwordModalOpen" t-on-click="closeChangePasswordModal">
                 <div class="crm-task-dialog crm-password-modal-dialog" t-on-click.stop="" style="max-width: 440px;">
