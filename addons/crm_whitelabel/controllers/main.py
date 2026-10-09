@@ -116,7 +116,7 @@ class CrmWhitelabelController(http.Controller):
             }
 
     @http.route('/crm/user/save_profile', type='json', auth='user')
-    def save_user_profile(self, name=None, login=None, email=None, phone=None, mobile=None):
+    def save_user_profile(self, name=None, login=None, email=None, phone=None, mobile=None, **kw):
         try:
             user = request.env.user.sudo()
             partner = user.partner_id.sudo() if user.partner_id else False
