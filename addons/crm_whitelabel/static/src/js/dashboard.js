@@ -901,64 +901,15 @@ class CrmDashboard extends Component {
         this.state.profileLoading = true;
         this.state.profileModalOpen = true;
 
-        const currentUid = user.userId;
+        const currentUid = this.state.viewAsUserId || user.userId;
         try {
-            // First read directly from res.users via ORM service for 100% reliable real-time field data
-            const userFields = [
-                "id", "name", "login", "email", "phone", "mobile", "image_128",
-                "crm_job_id", "crm_department_id", "crm_manager_id", "crm_expense_manager_id",
-                "partner_id", "employee_id"
-            ];
-            const records = await this.ormService.read("res.users", [currentUid], userFields);
-            if (records && records.length > 0) {
-                const u = records[0];
-                this.state.profileData = {
-                    ...this.state.profileData,
-                    id: u.id,
-                    name: u.name || "",
-                    login: u.login || "",
-                    email: u.email || "",
-                    phone: u.phone || "",
-                    mobile: u.mobile || "",
-                    image_128: u.image_128 || null,
-                    job_title: u.crm_job_id ? u.crm_job_id[1] : "",
-                    department: u.crm_department_id ? u.crm_department_id[1] : "",
-                    manager: u.crm_manager_id ? u.crm_manager_id[1] : "",
-                    expense_manager: u.crm_expense_manager_id ? u.crm_expense_manager_id[1] : "",
-                };
-
-                // If email/phone/mobile are still blank, read from partner_id as fallback
-                if ((!this.state.profileData.email || !this.state.profileData.phone || !this.state.profileData.mobile) && u.partner_id) {
-                    try {
-                        const partnerRecs = await this.ormService.read("res.partner", [u.partner_id[0]], ["email", "phone", "mobile"]);
-                        if (partnerRecs && partnerRecs.length > 0) {
-                            const p = partnerRecs[0];
-                            if (!this.state.profileData.email && p.email) this.state.profileData.email = p.email;
-                            if (!this.state.profileData.phone && p.phone) this.state.profileData.phone = p.phone;
-                            if (!this.state.profileData.mobile && p.mobile) this.state.profileData.mobile = p.mobile;
-                        }
-                    } catch (pErr) {
-                        console.warn("Could not read partner fallback:", pErr);
-                    }
-                }
-            } else {
-                // Fallback to controller route if ORM read returns empty
-                const data = await rpc("/crm/user/get_profile", {});
-                if (data) {
-                    this.state.profileData = { ...this.state.profileData, ...data };
-                }
+            const data = await rpc("/crm/user/get_profile", { user_id: currentUid });
+            if (data) {
+                this.state.profileData = { ...this.state.profileData, ...data };
             }
         } catch (err) {
-            console.error("Error loading profile via ORM, trying controller route:", err);
-            try {
-                const data = await rpc("/crm/user/get_profile", {});
-                if (data) {
-                    this.state.profileData = { ...this.state.profileData, ...data };
-                }
-            } catch (err2) {
-                console.error("Error loading profile:", err2);
-                this.showToast("Failed to load profile details.");
-            }
+            console.error("Error loading profile:", err);
+            this.showToast("Failed to load profile details.");
         } finally {
             this.state.profileLoading = false;
         }

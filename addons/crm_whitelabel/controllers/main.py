@@ -26,32 +26,64 @@ class CrmWhitelabelController(http.Controller):
         return request.redirect(f'/web#action={action_id}')
 
     @http.route('/crm/user/get_profile', type='json', auth='user')
-    def get_user_profile(self):
-        user = request.env.user
-        partner = user.partner_id
-        employee = getattr(user, 'employee_id', None)
+    def get_user_profile(self, user_id=None):
+        if user_id:
+            user = request.env['res.users'].sudo().browse(int(user_id))
+            if not user.exists():
+                user = request.env.user.sudo()
+        else:
+            user = request.env.user.sudo()
+
+        partner = user.partner_id.sudo() if user.partner_id else False
+        employee = user.employee_id.sudo() if getattr(user, 'employee_id', None) else False
 
         img_str = False
         if user.image_128:
             img_val = user.image_128
             img_str = img_val.decode('utf-8') if isinstance(img_val, bytes) else str(img_val)
 
-        email_val = user.email or partner.email or (employee and employee.work_email) or ''
-        phone_val = getattr(user, 'phone', None) or partner.phone or (employee and employee.work_phone) or ''
-        mobile_val = getattr(user, 'mobile', None) or partner.mobile or (employee and employee.mobile_phone) or ''
+        email_val = (partner and partner.email) or user.email or (employee and employee.work_email) or ''
+        phone_val = (partner and partner.phone) or getattr(user, 'phone', None) or (employee and employee.work_phone) or ''
+        mobile_val = (partner and partner.mobile) or getattr(user, 'mobile', None) or (employee and employee.mobile_phone) or ''
+
+        # Job position
+        job_title = ''
+        if getattr(user, 'crm_job_id', None) and user.crm_job_id:
+            job_title = user.crm_job_id.name or ''
+        elif employee and employee.job_title:
+            job_title = employee.job_title or ''
+
+        # Department
+        department = ''
+        if getattr(user, 'crm_department_id', None) and user.crm_department_id:
+            department = user.crm_department_id.name or ''
+        elif employee and employee.department_id:
+            department = employee.department_id.name or ''
+
+        # Manager
+        manager = ''
+        if getattr(user, 'crm_manager_id', None) and user.crm_manager_id:
+            manager = user.crm_manager_id.name or ''
+        elif employee and employee.parent_id:
+            manager = employee.parent_id.name or ''
+
+        # Expense manager
+        expense_manager = ''
+        if getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id:
+            expense_manager = user.crm_expense_manager_id.name or ''
 
         return {
             'id': user.id,
-            'name': user.name or partner.name or (employee and employee.name) or '',
+            'name': user.name or (partner and partner.name) or (employee and employee.name) or '',
             'login': user.login or '',
             'email': email_val,
             'phone': phone_val,
             'mobile': mobile_val,
             'image_128': img_str,
-            'job_title': (getattr(user, 'crm_job_id', None) and user.crm_job_id.name) or (employee and employee.job_title) or '',
-            'department': (getattr(user, 'crm_department_id', None) and user.crm_department_id.name) or (employee and employee.department_id and employee.department_id.name) or '',
-            'manager': (getattr(user, 'crm_manager_id', None) and user.crm_manager_id.name) or (employee and employee.parent_id and employee.parent_id.name) or '',
-            'expense_manager': (getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id.name) or '',
+            'job_title': job_title,
+            'department': department,
+            'manager': manager,
+            'expense_manager': expense_manager,
         }
 
     @http.route('/crm/user/save_profile', type='json', auth='user')
