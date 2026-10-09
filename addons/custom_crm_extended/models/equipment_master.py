@@ -200,6 +200,104 @@ class EquipmentMaster(models.Model):
                         'filename': fname,
                         'html': rendered_html,
                     }
+
+            # 3. Parse Excel / Spreadsheet (.xlsx, .xls, .csv)
+            elif ext in ('xlsx', 'xls', 'csv'):
+                sheets_data = []
+
+                if ext == 'csv':
+                    import csv
+                    try:
+                        text_data = raw_bytes.decode('utf-8-sig', errors='replace')
+                    except Exception:
+                        text_data = raw_bytes.decode('latin-1', errors='replace')
+                    reader = csv.reader(io.StringIO(text_data))
+                    rows = [row for row in reader if any(cell.strip() for cell in row)]
+                    sheets_data.append({
+                        'name': 'CSV Data',
+                        'rows': rows[:250], # preview up to 250 rows
+                    })
+                elif ext == 'xlsx':
+                    # Parse xlsx directly using openpyxl or XML parsing from zip container
+                    try:
+                        import openpyxl
+                        wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
+                        for sheetname in wb.sheetnames:
+                            sheet = wb[sheetname]
+                            sheet_rows = []
+                            for row in sheet.iter_rows(values_only=True):
+                                if any(val is not None and str(val).strip() != '' for val in row):
+                                    sheet_rows.append([str(val) if val is not None else '' for val in row])
+                                if len(sheet_rows) >= 250:
+                                    break
+                            if sheet_rows:
+                                sheets_data.append({
+                                    'name': sheetname,
+                                    'rows': sheet_rows,
+                                })
+                    except Exception:
+                        # Fallback using zipfile to parse sheet1.xml if openpyxl not installed
+                        with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
+                            # Read shared strings if present
+                            shared_strings = []
+                            if 'xl/sharedStrings.xml' in z.namelist():
+                                sst_tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
+                                ns_s = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+                                for si in sst_tree.findall('.//x:si', ns_s):
+                                    t = si.find('.//x:t', ns_s)
+                                    shared_strings.append(t.text if t is not None and t.text else '')
+
+                            for name in z.namelist():
+                                if name.startswith('xl/worksheets/sheet') and name.endswith('.xml'):
+                                    sheet_tree = ET.fromstring(z.read(name))
+                                    ns_x = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+                                    parsed_rows = []
+                                    for r in sheet_tree.findall('.//x:row', ns_x):
+                                        row_vals = []
+                                        for c in r.findall('.//x:c', ns_x):
+                                            c_type = c.get('t')
+                                            v = c.find('.//x:v', ns_x)
+                                            val_str = ''
+                                            if v is not None and v.text:
+                                                if c_type == 's' and v.text.isdigit():
+                                                    idx = int(v.text)
+                                                    val_str = shared_strings[idx] if idx < len(shared_strings) else v.text
+                                                else:
+                                                    val_str = v.text
+                                            row_vals.append(val_str)
+                                        if any(row_vals):
+                                            parsed_rows.append(row_vals)
+                                        if len(parsed_rows) >= 250:
+                                            break
+                                    if parsed_rows:
+                                        sheets_data.append({
+                                            'name': f'Sheet {len(sheets_data) + 1}',
+                                            'rows': parsed_rows,
+                                        })
+                elif ext == 'xls':
+                    # Parse legacy Excel using xlrd
+                    try:
+                        import xlrd
+                        wb = xlrd.open_workbook(file_contents=raw_bytes)
+                        for sheet in wb.sheets():
+                            sheet_rows = []
+                            for r in range(min(sheet.nrows, 250)):
+                                row_vals = [str(val) for val in sheet.row_values(r)]
+                                if any(v.strip() for v in row_vals):
+                                    sheet_rows.append(row_vals)
+                            if sheet_rows:
+                                sheets_data.append({
+                                    'name': sheet.name,
+                                    'rows': sheet_rows,
+                                })
+                    except Exception:
+                        pass
+
+                return {
+                    'type': 'excel_content',
+                    'filename': fname,
+                    'sheets': sheets_data,
+                }
         except Exception as e:
             return {'type': 'error', 'error': str(e)}
 

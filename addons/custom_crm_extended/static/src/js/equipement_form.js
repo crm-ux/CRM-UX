@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, xml, onMounted, onPatched, onWillUnmount, useRef } from "@odoo/owl";
+import { Component, xml, useState, onMounted, onPatched, onWillUnmount, useRef } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
@@ -12,6 +12,9 @@ import { patch } from "@web/core/utils/patch";
 
 class InvoicePreviewDialog extends Component {
     setup() {
+        this.state = useState({
+            activeSheetIndex: 0,
+        });
         this.docxContainerRef = useRef("docxContainer");
         const injectHtml = () => {
             if (this.docxContainerRef?.el && this.docxHtml) {
@@ -20,6 +23,10 @@ class InvoicePreviewDialog extends Component {
         };
         onMounted(injectHtml);
         onPatched(injectHtml);
+    }
+
+    setActiveSheet(index) {
+        this.state.activeSheetIndex = index;
     }
 
     static template = xml`
@@ -60,7 +67,75 @@ class InvoicePreviewDialog extends Component {
                     </div>
                 </t>
 
-                <!-- 4. ZIP Archive Content Preview (Scrollable File List) -->
+                <!-- 4. Excel / Spreadsheet Preview (Scrollable Grid with Sheet Tabs) -->
+                <t t-elif="isSpreadsheet and excelSheets">
+                    <div class="w-100 p-3 p-md-4" style="max-width: 1050px;">
+                        <div class="card shadow-sm border-0 bg-white p-3 p-md-4 my-2" style="border-radius: 10px;">
+                            <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center rounded" style="width: 42px; height: 42px; background: #e6f4ea; color: #137333;">
+                                        <i class="fa fa-file-excel-o fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark" t-esc="props.filename"/>
+                                        <small class="text-muted"><t t-esc="excelSheets.length"/> Sheet(s) Available</small>
+                                    </div>
+                                </div>
+                                <span class="badge px-3 py-2 fw-semibold" style="background-color: #137333 !important; color: #ffffff !important; border-radius: 6px;">
+                                    EXCEL
+                                </span>
+                            </div>
+
+                            <!-- Sheet Tabs if multiple sheets -->
+                            <t t-if="excelSheets.length > 1">
+                                <ul class="nav nav-tabs mb-3">
+                                    <t t-foreach="excelSheets" t-as="sheet" t-key="sheet_index">
+                                        <li class="nav-item">
+                                            <button type="button" class="nav-link py-1 px-3" t-att-class="{'active fw-bold': state.activeSheetIndex === sheet_index}" t-on-click="() => this.setActiveSheet(sheet_index)">
+                                                <i class="fa fa-table me-1"></i><t t-esc="sheet.name"/>
+                                            </button>
+                                        </li>
+                                    </t>
+                                </ul>
+                            </t>
+
+                            <!-- Scrollable Spreadsheet Grid -->
+                            <div class="table-responsive border rounded" style="max-height: 65vh; overflow-y: auto; overflow-x: auto; background: #fafafa;">
+                                <table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px;">
+                                    <t t-if="activeSheetRows and activeSheetRows.length">
+                                        <thead class="table-light sticky-top" style="z-index: 2;">
+                                            <tr>
+                                                <th class="text-center bg-light text-muted" style="width: 45px; border-color: #dee2e6;">#</th>
+                                                <t t-foreach="activeSheetRows[0]" t-as="col" t-key="col_index">
+                                                    <th class="fw-bold text-nowrap px-3 py-2 bg-light border" style="border-color: #dee2e6;" t-esc="col"/>
+                                                </t>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="activeSheetRows.slice(1)" t-as="row" t-key="row_index">
+                                                <tr>
+                                                    <td class="text-center text-muted small bg-light" t-esc="row_index + 1"/>
+                                                    <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                                        <td class="px-3 py-1 text-nowrap border" style="border-color: #dee2e6;" t-esc="cell"/>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </t>
+                                    <t t-else="">
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center text-muted py-4">No data found in this sheet.</td>
+                                            </tr>
+                                        </tbody>
+                                    </t>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- 5. ZIP Archive Content Preview (Scrollable File List) -->
                 <t t-elif="isArchive and zipFiles">
                     <div class="w-100 p-4" style="max-width: 850px;">
                         <div class="card shadow-sm border-0 bg-white p-4 my-2" style="border-radius: 8px;">
@@ -153,11 +228,31 @@ class InvoicePreviewDialog extends Component {
         return null;
     }
 
+    get excelSheets() {
+        if (this.props.previewContent?.type === "excel_content") {
+            return this.props.previewContent.sheets || [];
+        }
+        return [];
+    }
+
+    get activeSheetRows() {
+        const sheets = this.excelSheets;
+        if (sheets.length > 0) {
+            const idx = Math.min(this.state.activeSheetIndex, sheets.length - 1);
+            return sheets[idx]?.rows || [];
+        }
+        return [];
+    }
+
     get zipFiles() {
         if (this.props.previewContent?.type === "zip_content") {
             return this.props.previewContent.files;
         }
         return null;
+    }
+
+    get isSpreadsheet() {
+        return ["xlsx", "xls", "csv"].includes(this.fileExtension);
     }
 
     get fileExtension() {
@@ -397,11 +492,11 @@ export class EquipmentFormController extends FormController {
 
                         if (resId || fileData) {
                             let previewContent = null;
-                            const isDocOrZip = ["docx", "doc", "zip", "rar", "7z", "tar", "gz"].some((e) =>
+                            const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((e) =>
                                 (filename || "").toLowerCase().endsWith("." + e)
                             );
 
-                            if (isDocOrZip) {
+                            if (isDocOrZipOrExcel) {
                                 try {
                                     previewContent = await this.env.services.orm.call(
                                         "equipment.master",

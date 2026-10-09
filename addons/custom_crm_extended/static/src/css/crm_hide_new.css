@@ -604,4 +604,11 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 .docx-body tr:nth-child(even) {
     background-color: #f8f9fa;
 }
+
+/* Excel spreadsheet preview styling */
+.nav-tabs .nav-link.active {
+    color: #137333 !important;
+    border-color: #dee2e6 #dee2e6 #fff !important;
+    border-top: 2px solid #137333 !important;
+}
 
