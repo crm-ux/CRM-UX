@@ -903,9 +903,35 @@ class CrmDashboard extends Component {
 
         const currentUid = this.state.viewAsUserId || user.userId;
         try {
-            const data = await rpc("/crm/user/get_profile", { user_id: currentUid });
-            if (data) {
-                this.state.profileData = { ...this.state.profileData, ...data };
+            const records = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "search_read",
+                args: [[["id", "=", currentUid]]],
+                kwargs: {
+                    fields: [
+                        "id", "name", "login", "email", "phone", "mobile", "image_128",
+                        "crm_job_id", "crm_department_id", "crm_manager_id", "crm_expense_manager_id"
+                    ],
+                    limit: 1,
+                },
+            });
+
+            if (records && records.length > 0) {
+                const u = records[0];
+                this.state.profileData = {
+                    ...this.state.profileData,
+                    id: u.id,
+                    name: u.name || "",
+                    login: u.login || "",
+                    email: u.email || "",
+                    phone: u.phone || "",
+                    mobile: u.mobile || "",
+                    image_128: u.image_128 || null,
+                    job_title: u.crm_job_id ? u.crm_job_id[1] : "",
+                    department: u.crm_department_id ? u.crm_department_id[1] : "",
+                    manager: u.crm_manager_id ? u.crm_manager_id[1] : "",
+                    expense_manager: u.crm_expense_manager_id ? u.crm_expense_manager_id[1] : "",
+                };
             }
         } catch (err) {
             console.error("Error loading profile:", err);
