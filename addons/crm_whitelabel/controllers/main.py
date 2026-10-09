@@ -31,11 +31,11 @@ class CrmWhitelabelController(http.Controller):
         partner = user.partner_id
         return {
             'id': user.id,
-            'name': user.name or '',
+            'name': user.name or partner.name or '',
             'login': user.login or '',
             'email': user.email or partner.email or '',
-            'phone': partner.phone or '',
-            'mobile': partner.mobile or '',
+            'phone': getattr(user, 'phone', None) or partner.phone or '',
+            'mobile': getattr(user, 'mobile', None) or partner.mobile or '',
             'image_128': user.image_128.decode('utf-8') if user.image_128 else False,
             'job_title': (getattr(user, 'crm_job_id', None) and user.crm_job_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.job_title) or '',
             'department': (getattr(user, 'crm_department_id', None) and user.crm_department_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.department_id and user.employee_id.department_id.name) or '',
@@ -44,22 +44,44 @@ class CrmWhitelabelController(http.Controller):
         }
 
     @http.route('/crm/user/save_profile', type='json', auth='user')
-    def save_user_profile(self, name=None, email=None, phone=None, mobile=None):
+    def save_user_profile(self, name=None, login=None, email=None, phone=None, mobile=None):
         user = request.env.user
         partner = user.partner_id
         user_vals = {}
         partner_vals = {}
 
+        if login:
+            cleaned_login = login.strip()
+            if cleaned_login != user.login:
+                existing = request.env['res.users'].sudo().search([
+                    ('login', '=ilike', cleaned_login),
+                    ('id', '!=', user.id)
+                ], limit=1)
+                if existing:
+                    return {'success': False, 'error': f"Login ID '{cleaned_login}' is already in use by another user."}
+                user_vals['login'] = cleaned_login
+
         if name:
-            user_vals['name'] = name.strip()
-            partner_vals['name'] = name.strip()
+            clean_name = name.strip()
+            user_vals['name'] = clean_name
+            partner_vals['name'] = clean_name
+
         if email is not None:
-            user_vals['email'] = email.strip()
-            partner_vals['email'] = email.strip()
+            clean_email = email.strip()
+            user_vals['email'] = clean_email
+            partner_vals['email'] = clean_email
+
         if phone is not None:
-            partner_vals['phone'] = phone.strip()
+            clean_phone = phone.strip()
+            if hasattr(user, 'phone'):
+                user_vals['phone'] = clean_phone
+            partner_vals['phone'] = clean_phone
+
         if mobile is not None:
-            partner_vals['mobile'] = mobile.strip()
+            clean_mobile = mobile.strip()
+            if hasattr(user, 'mobile'):
+                user_vals['mobile'] = clean_mobile
+            partner_vals['mobile'] = clean_mobile
 
         if user_vals:
             user.sudo().write(user_vals)

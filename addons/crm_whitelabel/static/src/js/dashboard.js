@@ -926,12 +926,19 @@ class CrmDashboard extends Component {
         this.state.profileSaving = true;
         try {
             const p = this.state.profileData;
-            await rpc("/crm/user/save_profile", {
+            const res = await rpc("/crm/user/save_profile", {
                 name: p.name,
+                login: p.login,
                 email: p.email,
                 phone: p.phone,
                 mobile: p.mobile,
             });
+
+            if (res && res.success === false) {
+                this.showToast(res.error || "Failed to update profile.");
+                return;
+            }
+
             this.state.userName = p.name;
             this.showToast("Profile updated successfully!");
             this.closeMyProfileModal();

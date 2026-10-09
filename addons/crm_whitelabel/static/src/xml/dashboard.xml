@@ -1139,7 +1139,7 @@
                                         <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">
                                             <i class="fa fa-key me-1" style="color: #0b3d91;"></i>Login ID
                                         </label>
-                                        <input type="text" t-att-value="state.profileData.login" readonly="readonly" class="form-control form-control-sm bg-light text-muted" style="font-size: 0.88rem; cursor: not-allowed;"/>
+                                        <input type="text" t-model="state.profileData.login" placeholder="Login ID" class="form-control form-control-sm" style="font-size: 0.88rem;"/>
                                     </div>
                                     <div class="col-12 col-md-6">
                                         <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Email</label>
