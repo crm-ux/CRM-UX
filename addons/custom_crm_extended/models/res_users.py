@@ -25,16 +25,18 @@ class ResUsers(models.Model):
         if u.image_128:
             img = u.image_128.decode('ascii') if isinstance(u.image_128, bytes) else str(u.image_128)
 
-        phone_val = getattr(partner, 'phone', '') or getattr(u, 'phone', '') or ''
-        mobile_val = getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or ''
+        # Check res.partner, res.users, and linked hr.employee
+        emp = getattr(u, 'employee_id', False)
+        phone_val = getattr(partner, 'phone', '') or getattr(u, 'phone', '') or (emp and getattr(emp, 'work_phone', '')) or ''
+        mobile_val = getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or (emp and getattr(emp, 'mobile_phone', '')) or ''
 
         return {
             'id': u.id,
             'name': u.name or getattr(partner, 'name', '') or '',
             'login': u.login or '',
             'email': getattr(partner, 'email', '') or getattr(u, 'email', '') or '',
-            'phone': phone_val,
-            'mobile': mobile_val,
+            'phone': phone_val or '',
+            'mobile': mobile_val or '',
             'has_image': bool(u.image_128),
             'job_title': (u.crm_job_id and u.crm_job_id.name) or '',
             'department': (u.crm_department_id and u.crm_department_id.name) or '',
@@ -57,6 +59,9 @@ class ResUsers(models.Model):
 
         u_vals = {}
         p_vals = {}
+        e_vals = {}
+        emp = getattr(u, 'employee_id', False)
+
         for f in ['name', 'login', 'email', 'phone', 'mobile']:
             if f in vals and vals[f] is not None:
                 val = vals[f].strip() if isinstance(vals[f], str) else vals[f]
@@ -64,11 +69,17 @@ class ResUsers(models.Model):
                     u_vals[f] = val
                 if u.partner_id and hasattr(u.partner_id, f) and f != 'login':
                     p_vals[f] = val
+                if emp and f == 'mobile' and hasattr(emp, 'mobile_phone'):
+                    e_vals['mobile_phone'] = val
+                if emp and f == 'phone' and hasattr(emp, 'work_phone'):
+                    e_vals['work_phone'] = val
 
         if u_vals:
             u.write(u_vals)
         if p_vals and u.partner_id:
             u.partner_id.sudo().write(p_vals)
+        if e_vals and emp:
+            emp.sudo().write(e_vals)
 
         return {'success': True}
 
