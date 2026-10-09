@@ -276,12 +276,15 @@ class InvoicePreviewDialog extends Component {
     }
 
     get imageSource() {
-        if (this.props.fileData) {
+        if (this.props.fileData && this.props.fileData.length > 50) {
             const ext = (this.fileExtension || "png").toLowerCase();
             const mime = ext === "svg" ? "svg+xml" : (ext === "jpg" ? "jpeg" : ext);
             return `data:image/${mime};base64,${this.props.fileData}`;
         }
-        return this.props.fileUrl;
+        if (this.props.fileUrl) {
+            return this.props.fileUrl;
+        }
+        return "";
     }
 
     get pdfBlobUrl() {
@@ -465,8 +468,10 @@ export class EquipmentFormController extends FormController {
                     let filename = record?.data?.invoice_filename;
                     let fileData = record?.data?.invoice_attachment;
 
-                    // On a saved record, binary data must be explicitly loaded with bin_size: false
-                    if (resId && (!fileData || !filename)) {
+                    const isSizeString = typeof fileData === "string" && (fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50);
+
+                    // Always fetch real base64 binary content if resId exists and fileData is empty or just a size string
+                    if (resId && (!fileData || !filename || isSizeString)) {
                         try {
                             const fetchedList = await this.env.services.orm.read(
                                 "equipment.master",
@@ -475,7 +480,7 @@ export class EquipmentFormController extends FormController {
                                 { context: { bin_size: false } }
                             );
                             if (fetchedList && fetchedList.length > 0) {
-                                if (!fileData) fileData = fetchedList[0].invoice_attachment;
+                                fileData = fetchedList[0].invoice_attachment;
                                 if (!filename) filename = fetchedList[0].invoice_filename;
                             }
                         } catch (err) {
