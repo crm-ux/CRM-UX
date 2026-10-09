@@ -86,6 +86,28 @@
                         <group>
                             <field name="payment_terms"/>
                         </group>
+
+                        <!-- Row 10: PO No. below Breakdown | Invoice No. below Payment terms -->
+                        <group>
+                            <label for="po_number" string="PO No."/>
+                            <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
+                                <field name="po_number" placeholder="e.g. PO/2026/001" class="flex-grow-1"/>
+                                <field name="po_filename" invisible="1"/>
+                                <field name="po_attachment" filename="po_filename" widget="binary" string="Attach" options="{'no_download': True, 'accepted_file_extensions': '.pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar'}" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar" class="m-0 p-0"/>
+                                <button name="action_preview_amc_po" type="object" icon="fa-eye" title="View PO"
+                                        invisible="not po_attachment" class="btn btn-sm btn-link text-primary p-0 ms-1" style="font-size: 1.1rem;"/>
+                            </div>
+                        </group>
+                        <group>
+                            <label for="invoice_number" string="Invoice No."/>
+                            <div class="d-flex align-items-center gap-1 crm_invoice_field_box">
+                                <field name="invoice_number" placeholder="e.g. INV/2026/001" class="flex-grow-1"/>
+                                <field name="invoice_filename" invisible="1"/>
+                                <field name="invoice_attachment" filename="invoice_filename" widget="binary" string="Attach" options="{'no_download': True, 'accepted_file_extensions': '.pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar'}" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.docx,.doc,.xlsx,.xls,.csv,.txt,.zip,.rar" class="m-0 p-0"/>
+                                <button name="action_preview_amc_invoice" type="object" icon="fa-eye" title="View Invoice"
+                                        invisible="not invoice_attachment" class="btn btn-sm btn-link text-primary p-0 ms-1" style="font-size: 1.1rem;"/>
+                            </div>
+                        </group>
                     </group>
 
                     <notebook>

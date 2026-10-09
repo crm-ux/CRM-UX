@@ -40,8 +40,43 @@ class AmcContract(models.Model):
     gst = fields.Char(string='GST (%)', default='18')
     payment_terms = fields.Char(string='Payment Terms')
     renewal_terms = fields.Char(string='Renewal Terms')
+    # PM & Breakdown
     pm = fields.Char(string='PM')
     cm = fields.Char(string='Breakdown')
+
+    # PO & Invoice Details with Attachments
+    po_number = fields.Char(string='PO No.', tracking=True)
+    po_filename = fields.Char(string='PO Filename')
+    po_attachment = fields.Binary(string='PO Attachment', attachment=True)
+
+    invoice_number = fields.Char(string='Invoice No.', tracking=True)
+    invoice_filename = fields.Char(string='Invoice Filename')
+    invoice_attachment = fields.Binary(string='Invoice Attachment', attachment=True)
+
+    def action_preview_amc_po(self):
+        """Action button for PO file preview."""
+        return True
+
+    def action_preview_amc_invoice(self):
+        """Action button for Invoice file preview."""
+        return True
+
+    @api.model
+    def action_get_amc_preview_content(self, res_id=None, raw_b64=None, filename=None, field_name='invoice_attachment'):
+        """Extract preview content for AMC attachments (delegates to equipment.master parser)."""
+        if res_id:
+            rec = self.sudo().browse(int(res_id))
+            if rec.exists():
+                if field_name == 'po_attachment':
+                    raw_b64 = rec.po_attachment or raw_b64
+                    filename = rec.po_filename or filename
+                else:
+                    raw_b64 = rec.invoice_attachment or raw_b64
+                    filename = rec.invoice_filename or filename
+
+        return self.env['equipment.master'].action_get_invoice_preview_content(
+            res_id=False, raw_b64=raw_b64, filename=filename
+        )
 
     # Line Items
     line_ids = fields.One2many('amc.contract.line', 'contract_id', string='Equipment Details')
