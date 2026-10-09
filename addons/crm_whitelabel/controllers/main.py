@@ -97,18 +97,22 @@ class CrmWhitelabelController(http.Controller):
                 'expense_manager': expense_manager,
             }
         except Exception as e:
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.exception("CRM profile load error: %s", e)
+            u = request.env.user.sudo()
             return {
-                'id': request.env.user.id,
-                'name': request.env.user.name or '',
-                'login': request.env.user.login or '',
-                'email': request.env.user.email or '',
-                'phone': '',
-                'mobile': '',
+                'id': u.id,
+                'name': u.name or '',
+                'login': u.login or '',
+                'email': u.email or (u.partner_id and u.partner_id.email) or '',
+                'phone': getattr(u, 'phone', None) or (u.partner_id and u.partner_id.phone) or '',
+                'mobile': getattr(u, 'mobile', None) or (u.partner_id and u.partner_id.mobile) or '',
                 'image_128': False,
-                'job_title': '',
-                'department': '',
-                'manager': '',
-                'expense_manager': '',
+                'job_title': (getattr(u, 'crm_job_id', None) and u.crm_job_id.name) or '',
+                'department': (getattr(u, 'crm_department_id', None) and u.crm_department_id.name) or '',
+                'manager': (getattr(u, 'crm_manager_id', None) and u.crm_manager_id.name) or '',
+                'expense_manager': (getattr(u, 'crm_expense_manager_id', None) and u.crm_expense_manager_id.name) or '',
             }
 
     @http.route('/crm/user/save_profile', type='json', auth='user')
