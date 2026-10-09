@@ -44,6 +44,7 @@ class CrmDashboard extends Component {
             sidebarOpen: false,
             productStockCount: 0,
             isAdmin: Boolean(user.isAdmin),
+            canAssignTask: false,
             // Permission flags for Quick Access
             canAccessQuickMenu: false,
             canViewCustomer: false,
@@ -237,10 +238,23 @@ class CrmDashboard extends Component {
     }
 
     async checkAdminStatus() {
+        const uid = this.state.viewAsUserId || user.userId;
         if (this.state.viewAsUserId) {
             this.state.isAdmin = false;
         } else {
             this.state.isAdmin = Boolean(user.isAdmin);
+        }
+
+        try {
+            const canAssign = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "check_can_assign_task",
+                args: [],
+                kwargs: { user_id: uid },
+            });
+            this.state.canAssignTask = Boolean(canAssign);
+        } catch (e) {
+            this.state.canAssignTask = Boolean(this.state.isAdmin);
         }
     }
 

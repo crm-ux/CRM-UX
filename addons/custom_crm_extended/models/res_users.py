@@ -88,6 +88,34 @@ class ResUsers(models.Model):
 
         return {'success': True}
 
+    @api.model
+    def check_can_assign_task(self, user_id=None):
+        """Check if user has subordinates working under them or is an admin."""
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            return False
+
+        # Admin always has assign task rights
+        if u.has_group('base.group_system') or u.id == 2:
+            return True
+
+        # Check subordinates via res.users (crm_manager_id)
+        has_sub_users = bool(self.sudo().search_count([('crm_manager_id', '=', u.id), ('id', '!=', u.id)]))
+        if has_sub_users:
+            return True
+
+        # Check subordinates via hr.employee (parent_id)
+        emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
+        if not emp and getattr(u, 'employee_id', False):
+            emp = u.employee_id.sudo()
+        if emp:
+            has_sub_emps = bool(self.env['hr.employee'].sudo().search_count([('parent_id', '=', emp.id), ('id', '!=', emp.id)]))
+            if has_sub_emps:
+                return True
+
+        return False
+
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
         subordinates = self.env['res.users']
