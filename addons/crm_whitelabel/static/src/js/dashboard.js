@@ -840,8 +840,8 @@ class CrmDashboard extends Component {
         });
     }
 
-    async assignTaskComingSoon() {
-        await this.openAssignTaskWizard();
+    assignTaskComingSoon() {
+        this.showToast("Assign Task feature is coming soon!");
     }
 
     async openAssignTaskWizard() {
