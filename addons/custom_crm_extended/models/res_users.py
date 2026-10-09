@@ -25,13 +25,16 @@ class ResUsers(models.Model):
         if u.image_128:
             img = u.image_128.decode('ascii') if isinstance(u.image_128, bytes) else str(u.image_128)
 
+        phone_val = getattr(partner, 'phone', '') or getattr(u, 'phone', '') or ''
+        mobile_val = getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or ''
+
         return {
             'id': u.id,
-            'name': u.name or (partner and partner.name) or '',
+            'name': u.name or getattr(partner, 'name', '') or '',
             'login': u.login or '',
-            'email': (partner and partner.email) or u.email or '',
-            'phone': (partner and partner.phone) or getattr(u, 'phone', '') or '',
-            'mobile': (partner and partner.mobile) or getattr(u, 'mobile', '') or '',
+            'email': getattr(partner, 'email', '') or getattr(u, 'email', '') or '',
+            'phone': phone_val,
+            'mobile': mobile_val,
             'image_128': img,
             'job_title': (u.crm_job_id and u.crm_job_id.name) or '',
             'department': (u.crm_department_id and u.crm_department_id.name) or '',
@@ -57,9 +60,9 @@ class ResUsers(models.Model):
         for f in ['name', 'login', 'email', 'phone', 'mobile']:
             if f in vals and vals[f] is not None:
                 val = vals[f].strip() if isinstance(vals[f], str) else vals[f]
-                if f != 'login' or new_login:
+                if hasattr(u, f):
                     u_vals[f] = val
-                if f != 'login':
+                if u.partner_id and hasattr(u.partner_id, f) and f != 'login':
                     p_vals[f] = val
 
         if u_vals:
