@@ -74,8 +74,8 @@ class CrmDashboard extends Component {
             profileSaving: false,
             profileData: {
                 id: null,
-                name: "",
-                login: "",
+                name: user.name || "",
+                login: user.login || "",
                 email: "",
                 phone: "",
                 mobile: "",
@@ -902,12 +902,7 @@ class CrmDashboard extends Component {
         this.state.profileModalOpen = true;
 
         try {
-            const data = await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "action_get_my_profile_data",
-                args: [],
-                kwargs: {},
-            });
+            const data = await rpc("/crm/user/get_profile", {});
             if (data) {
                 this.state.profileData = { ...data };
             }
@@ -931,19 +926,11 @@ class CrmDashboard extends Component {
         this.state.profileSaving = true;
         try {
             const p = this.state.profileData;
-            await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "action_save_my_profile_data",
-                args: [{
-                    name: p.name,
-                    email: p.email,
-                    phone: p.phone,
-                    mobile: p.mobile,
-                    tz: p.tz,
-                    lang: p.lang,
-                    notification_type: p.notification_type,
-                }],
-                kwargs: {},
+            await rpc("/crm/user/save_profile", {
+                name: p.name,
+                email: p.email,
+                phone: p.phone,
+                mobile: p.mobile,
             });
             this.state.userName = p.name;
             this.showToast("Profile updated successfully!");

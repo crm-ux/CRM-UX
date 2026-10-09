@@ -25,6 +25,49 @@ class CrmWhitelabelController(http.Controller):
         action_id = action.id if action else ''
         return request.redirect(f'/web#action={action_id}')
 
+    @http.route('/crm/user/get_profile', type='json', auth='user')
+    def get_user_profile(self):
+        user = request.env.user
+        partner = user.partner_id
+        return {
+            'id': user.id,
+            'name': user.name or '',
+            'login': user.login or '',
+            'email': user.email or partner.email or '',
+            'phone': partner.phone or '',
+            'mobile': partner.mobile or '',
+            'image_128': user.image_128.decode('utf-8') if user.image_128 else False,
+            'job_title': (getattr(user, 'crm_job_id', None) and user.crm_job_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.job_title) or '',
+            'department': (getattr(user, 'crm_department_id', None) and user.crm_department_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.department_id and user.employee_id.department_id.name) or '',
+            'manager': (getattr(user, 'crm_manager_id', None) and user.crm_manager_id.name) or (getattr(user, 'employee_id', None) and user.employee_id.parent_id and user.employee_id.parent_id.name) or '',
+            'expense_manager': (getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id.name) or '',
+        }
+
+    @http.route('/crm/user/save_profile', type='json', auth='user')
+    def save_user_profile(self, name=None, email=None, phone=None, mobile=None):
+        user = request.env.user
+        partner = user.partner_id
+        user_vals = {}
+        partner_vals = {}
+
+        if name:
+            user_vals['name'] = name.strip()
+            partner_vals['name'] = name.strip()
+        if email is not None:
+            user_vals['email'] = email.strip()
+            partner_vals['email'] = email.strip()
+        if phone is not None:
+            partner_vals['phone'] = phone.strip()
+        if mobile is not None:
+            partner_vals['mobile'] = mobile.strip()
+
+        if user_vals:
+            user.sudo().write(user_vals)
+        if partner_vals:
+            partner.sudo().write(partner_vals)
+
+        return {'success': True}
+
 class PersistentHome(Home):
     @http.route('/', type='http', auth="none")
     def index(self, s_action=None, **kw):

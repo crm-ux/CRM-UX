@@ -2212,3 +2212,61 @@
         padding: 0.75rem 1rem !important;
     }
 }
+
+/* My Profile Modal - Responsive Tablet & Mobile Styles */
+@media (max-width: 768px) {
+    .crm-profile-modal-dialog {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 0 auto !important;
+        border-radius: 12px !important;
+    }
+
+    .crm-profile-modal-dialog .crm-task-body {
+        padding: 1.1rem !important;
+        max-height: 80vh !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .crm-profile-modal-dialog {
+        max-width: 96% !important;
+        width: 96% !important;
+        border-radius: 10px !important;
+    }
+
+    .crm-profile-modal-dialog .crm-task-header {
+        padding: 0.85rem 1.1rem !important;
+    }
+
+    .crm-profile-modal-dialog .crm-task-body {
+        padding: 0.85rem !important;
+        max-height: 82vh !important;
+    }
+
+    .crm-profile-modal-dialog .crm-profile-top-card {
+        padding: 0.9rem !important;
+        gap: 0.85rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .crm-profile-modal-dialog .crm-profile-avatar-box {
+        width: 54px !important;
+        height: 54px !important;
+        font-size: 1.6rem !important;
+        border-radius: 10px !important;
+    }
+
+    .crm-profile-modal-dialog .crm-profile-nav-tabs button {
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .crm-profile-modal-dialog .crm-task-footer {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .crm-profile-modal-dialog .crm-task-footer button {
+        flex: 1;
+    }
+}
