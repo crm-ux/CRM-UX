@@ -156,6 +156,9 @@ class CrmDashboard extends Component {
             }
         } catch (e) { }
 
+        // Expose helper on window for testing: window.testAssignWork()
+        window.testAssignWork = () => this.openAssignTaskWizard();
+
         onMounted(() => {
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
@@ -840,7 +843,11 @@ class CrmDashboard extends Component {
         });
     }
 
-    assignTaskComingSoon() {
+    assignTaskComingSoon(ev) {
+        if (ev && (ev.ctrlKey || ev.altKey || ev.shiftKey)) {
+            this.openAssignTaskWizard();
+            return;
+        }
         this.showToast("Assign Task feature is coming soon!");
     }
 
