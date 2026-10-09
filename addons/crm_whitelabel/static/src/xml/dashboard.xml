@@ -267,17 +267,17 @@
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>
-                        <div class="crm-action-btn" t-on-click="createAmc">
-                            <div>
-                                <div class="crm-action-title">+ Create AMC</div>
-                                <div class="crm-action-sub">Annual Maintenance Contract</div>
-                            </div>
-                            <span class="crm-action-icon">›</span>
-                        </div>
                         <div class="crm-action-btn" t-on-click="newServiceTicket">
                             <div>
                                 <div class="crm-action-title">+ Create Service Ticket</div>
                                 <div class="crm-action-sub">Log service request</div>
+                            </div>
+                            <span class="crm-action-icon">›</span>
+                        </div>
+                        <div class="crm-action-btn" t-on-click="createAmc">
+                            <div>
+                                <div class="crm-action-title">+ Create AMC</div>
+                                <div class="crm-action-sub">Annual Maintenance Contract</div>
                             </div>
                             <span class="crm-action-icon">›</span>
                         </div>

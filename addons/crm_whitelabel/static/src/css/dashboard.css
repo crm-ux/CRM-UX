@@ -720,10 +720,10 @@
 }
 
 .crm-hero-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 0.65rem;
-    min-width: clamp(260px, 30vw, 360px);
 }
 
 .crm-action-btn {
