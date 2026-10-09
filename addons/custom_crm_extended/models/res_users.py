@@ -13,6 +13,62 @@ class ResUsers(models.Model):
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
 
+    @api.model
+    def get_my_profile_data(self, user_id=None):
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            u = self.env.user.sudo()
+        partner = u.partner_id.sudo() if u.partner_id else False
+
+        img = False
+        if u.image_128:
+            img = u.image_128.decode('ascii') if isinstance(u.image_128, bytes) else str(u.image_128)
+
+        return {
+            'id': u.id,
+            'name': u.name or (partner and partner.name) or '',
+            'login': u.login or '',
+            'email': (partner and partner.email) or u.email or '',
+            'phone': (partner and partner.phone) or getattr(u, 'phone', '') or '',
+            'mobile': (partner and partner.mobile) or getattr(u, 'mobile', '') or '',
+            'image_128': img,
+            'job_title': (u.crm_job_id and u.crm_job_id.name) or '',
+            'department': (u.crm_department_id and u.crm_department_id.name) or '',
+            'manager': (u.crm_manager_id and u.crm_manager_id.name) or '',
+            'expense_manager': (u.crm_expense_manager_id and u.crm_expense_manager_id.name) or '',
+        }
+
+    @api.model
+    def save_my_profile_data(self, vals, user_id=None):
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            u = self.env.user.sudo()
+
+        new_login = vals.get('login', '').strip() if vals.get('login') else ''
+        if new_login and new_login != u.login:
+            existing = self.sudo().search([('login', '=ilike', new_login), ('id', '!=', u.id)], limit=1)
+            if existing:
+                return {'success': False, 'error': f"Login ID '{new_login}' is already in use by another user."}
+
+        u_vals = {}
+        p_vals = {}
+        for f in ['name', 'login', 'email', 'phone', 'mobile']:
+            if f in vals and vals[f] is not None:
+                val = vals[f].strip() if isinstance(vals[f], str) else vals[f]
+                if f != 'login' or new_login:
+                    u_vals[f] = val
+                if f != 'login':
+                    p_vals[f] = val
+
+        if u_vals:
+            u.write(u_vals)
+        if p_vals and u.partner_id:
+            u.partner_id.sudo().write(p_vals)
+
+        return {'success': True}
+
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
         subordinates = self.env['res.users']
