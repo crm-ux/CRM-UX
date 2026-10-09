@@ -723,17 +723,23 @@
     gap: 0.65rem;
 }
 
-/* 4 Buttons: 2x2 Grid */
+/* 4 Buttons: Dynamic 2x2 Grid */
 .crm-hero-actions.crm-hero-actions-4 {
     display: grid;
-    grid-template-columns: repeat(2, 205px);
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    max-width: 440px;
 }
 
-/* 3 Buttons: Single Horizontal Row */
+/* 3 Buttons: Single Dynamic Row */
 .crm-hero-actions.crm-hero-actions-3 {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.crm-hero-actions.crm-hero-actions-3 .crm-action-btn {
+    flex: 1 1 0;
+    min-width: clamp(170px, 14vw, 215px);
 }
 
 .crm-action-btn {
@@ -748,7 +754,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 205px;
+    min-width: clamp(170px, 14vw, 215px);
     box-sizing: border-box;
     transition: all 0.2s;
 }
@@ -1570,10 +1576,17 @@
         align-items: flex-start;
     }
 
-    .crm-hero-actions {
+    .crm-hero-actions,
+    .crm-hero-actions.crm-hero-actions-4,
+    .crm-hero-actions.crm-hero-actions-3 {
         width: 100%;
-        grid-template-columns: 1fr;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
         min-width: 100%;
+    }
+
+    .crm-hero-actions .crm-action-btn {
+        width: 100% !important;
     }
 
     .crm-stats-bar {
