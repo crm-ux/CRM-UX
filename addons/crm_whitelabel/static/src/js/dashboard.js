@@ -953,18 +953,36 @@ class CrmDashboard extends Component {
         this.state.profileSaving = true;
         try {
             const p = this.state.profileData;
-            const res = await rpc("/crm/user/save_profile", {
-                name: p.name,
-                login: p.login,
-                email: p.email,
-                phone: p.phone,
-                mobile: p.mobile,
-            });
+            const currentUid = this.state.viewAsUserId || user.userId;
 
-            if (res && res.success === false) {
-                this.showToast(res.error || "Failed to update profile.");
-                return;
+            // Check if login already exists on another user
+            if (p.login) {
+                const existing = await rpc("/web/dataset/call_kw", {
+                    model: "res.users",
+                    method: "search_count",
+                    args: [[["login", "=", p.login.trim()], ["id", "!=", currentUid]]],
+                    kwargs: {},
+                });
+                if (existing > 0) {
+                    this.showToast(`Login ID '${p.login.trim()}' is already in use by another user.`);
+                    return;
+                }
             }
+
+            const writeVals = {
+                name: p.name ? p.name.trim() : "",
+                login: p.login ? p.login.trim() : "",
+                email: p.email ? p.email.trim() : "",
+                phone: p.phone ? p.phone.trim() : false,
+                mobile: p.mobile ? p.mobile.trim() : false,
+            };
+
+            await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "write",
+                args: [[currentUid], writeVals],
+                kwargs: {},
+            });
 
             this.state.userName = p.name;
             this.showToast("Profile updated successfully!");
