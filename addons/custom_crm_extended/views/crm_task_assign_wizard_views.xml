@@ -14,7 +14,7 @@
                         <field name="assigned_to_id" 
                                string="Assign To" 
                                nolabel="1"
-                               options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}" 
+                               options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'no_open': True}" 
                                placeholder="Select team member..."/>
                     </div>
 

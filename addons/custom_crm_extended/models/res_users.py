@@ -13,6 +13,40 @@ class ResUsers(models.Model):
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
 
+    def name_get(self):
+        """Show rich format: 'Name (Department · Email)' in dropdowns when searching users."""
+        result = []
+        for user in self:
+            name = user.name or user.login or ''
+            dept = (user.crm_department_id and user.crm_department_id.name) or (user.employee_id and user.employee_id.department_id and user.employee_id.department_id.name) or ''
+            email = user.email or user.login or ''
+            extra = []
+            if dept:
+                extra.append(dept)
+            if email and email != name:
+                extra.append(email)
+            if extra:
+                display = f"{name} ({' · '.join(extra)})"
+            else:
+                display = name
+            result.append((user.id, display))
+        return result
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        """Allow searching by name, login, email, or department."""
+        args = list(args or [])
+        if name:
+            domain = ['|', '|', '|',
+                ('name', operator, name),
+                ('login', operator, name),
+                ('email', operator, name),
+                ('crm_department_id.name', operator, name)
+            ]
+            records = self.search(domain + args, limit=limit)
+            return records.name_get()
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+
     @api.model
     def get_my_profile_data(self, user_id=None):
         uid = int(user_id) if user_id else self.env.user.id
