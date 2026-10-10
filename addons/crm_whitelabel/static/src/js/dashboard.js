@@ -4,6 +4,7 @@ import { useService } from "@web/core/utils/hooks";
 import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
+import { AssignWorkModalDialog } from "./assign_work_dialog";
 
 class CrmDashboard extends Component {
     static template = "crm_whitelabel.Dashboard";
@@ -11,6 +12,7 @@ class CrmDashboard extends Component {
         this.actionService = useService("action");
         this.ormService = useService("orm");
         this.notification = useService("notification");
+        this.dialogService = useService("dialog");
 
         this.state = useState({
             leads: 0, qualified: 0, opportunity: 0, won: 0,
@@ -162,14 +164,6 @@ class CrmDashboard extends Component {
         window.testAssignWork = () => this.openAssignTaskWizard();
 
         onMounted(() => {
-            const needOpenModal = window.__openAssignWorkModal || sessionStorage.getItem("crm_open_assign_work_modal") === "true";
-            if (needOpenModal) {
-                window.__openAssignWorkModal = false;
-                try { sessionStorage.removeItem("crm_open_assign_work_modal"); } catch (e) {}
-                setTimeout(() => {
-                    this.openAssignTaskWizard();
-                }, 100);
-            }
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();
@@ -876,79 +870,14 @@ class CrmDashboard extends Component {
         this.showToast("Assign Task feature is coming soon!");
     }
 
-    async openAssignTaskWizard() {
-        this.state.selectedUser = null;
-        this.state.taskTitle = "";
-        this.state.taskNote = "";
-        this.state.taskMemberSearch = "";
-        this.state.taskAttachmentName = "";
-        this.state.taskAttachmentData = null;
-        this.state.taskDeadline = new Date().toISOString().split('T')[0];
-        this.state.taskDialogOpen = true;
-        this.state.taskLoadingUsers = true;
-
-        const uid = this.state.viewAsUserId || user.userId;
-        try {
-            const members = await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "get_assignable_team_members",
-                args: [],
-                kwargs: { user_id: uid, search_term: "" },
-            });
-            this.state.assignableUsers = members || [];
-        } catch (e) {
-            console.error("Error loading team members:", e);
-            this.state.assignableUsers = [];
-        } finally {
-            this.state.taskLoadingUsers = false;
-        }
-    }
-
-    async onTaskMemberSearchInput(ev) {
-        const val = ev.target.value || "";
-        this.state.taskMemberSearch = val;
-        const uid = this.state.viewAsUserId || user.userId;
-        try {
-            const members = await rpc("/web/dataset/call_kw", {
-                model: "res.users",
-                method: "get_assignable_team_members",
-                args: [],
-                kwargs: { user_id: uid, search_term: val },
-            });
-            this.state.assignableUsers = members || [];
-        } catch (e) {
-            console.error("Error searching team members:", e);
-        }
-    }
-
-    selectTaskUser(u) {
-        this.state.selectedUser = u;
-    }
-
-    onTaskAttachmentChange(ev) {
-        const file = ev.target.files && ev.target.files[0];
-        if (!file) {
-            this.state.taskAttachmentName = "";
-            this.state.taskAttachmentData = null;
-            return;
-        }
-        if (file.size > 20 * 1024 * 1024) {
-            this.showToast("File size cannot exceed 20MB.");
-            ev.target.value = "";
-            return;
-        }
-        this.state.taskAttachmentName = file.name;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const base64 = e.target.result.split(",")[1];
-            this.state.taskAttachmentData = base64;
-        };
-        reader.readAsDataURL(file);
-    }
-
-    removeTaskAttachment() {
-        this.state.taskAttachmentName = "";
-        this.state.taskAttachmentData = null;
+    openAssignTaskWizard() {
+        this.dialogService.add(AssignWorkModalDialog, {
+            viewAsUserId: this.state.viewAsUserId,
+            onSuccess: async (selectedUser) => {
+                this.showToast("Task assigned to " + (selectedUser?.name || "team member"));
+                this.loadNotifCount();
+            },
+        });
     }
 
     openInsightsComingSoon() {
