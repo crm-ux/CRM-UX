@@ -7,7 +7,7 @@ class CrmTaskAssignWizard(models.TransientModel):
 
     assigned_to_id = fields.Many2one('res.users', string='Assign To', required=True)
     name = fields.Char(string='Task Title', required=True)
-    date_deadline = fields.Date(string='Deadline', default=fields.Date.today)
+    date_deadline = fields.Date(string='Deadline')
     instructions = fields.Text(string='Work Details / Instructions')
     attachment_name = fields.Char(string='Attachment Name')
     attachment_file = fields.Binary(string='Attachment', attachment=True)
