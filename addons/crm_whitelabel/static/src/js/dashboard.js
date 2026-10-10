@@ -1447,14 +1447,64 @@ class CrmDashboard extends Component {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
-                const messages = await rpc('/web/dataset/call_kw', { model: 'mail.message', method: 'search_read', args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner']]]], kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model'], limit: 10, order: 'date desc' } });
+                const messages = await rpc('/web/dataset/call_kw', {
+                    model: 'mail.message',
+                    method: 'search_read',
+                    args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner', 'mail.activity']]]],
+                    kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 15, order: 'date desc' }
+                });
                 localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m => m.id)));
                 this.state.notifCount = 0;
-                this.state.notifications = messages.map(m => ({ id: m.id, res_id: m.res_id, record_name: m.record_name || 'Lead', body_text: m.body ? m.body.replace(/<[^>]+>/g, '').substring(0, 80) : '', date: m.date ? m.date.substring(0, 16) : '' }));
-            } catch (e) { this.state.notifications = []; }
+                this.state.notifications = messages.map(m => {
+                    // Extract author/manager/owner name cleanly without any brackets or designations
+                    let senderName = '';
+                    if (m.author_id && m.author_id[1]) {
+                        senderName = m.author_id[1].replace(/\s*\(.*?\)\s*/g, '').trim();
+                    }
+
+                    // Extract title: check for "New Task: <title>" pattern, or subject, or record_name
+                    let title = '';
+                    const taskMatch = m.body ? m.body.match(/<b>New Task:\s*([^<]+)<\/b>/i) : null;
+                    if (taskMatch && taskMatch[1]) {
+                        title = taskMatch[1].trim();
+                    } else if (m.subject && m.subject.trim()) {
+                        title = m.subject.trim();
+                    } else if (m.record_name && m.record_name.trim()) {
+                        title = m.record_name.trim();
+                    } else {
+                        title = 'Task / Update';
+                    }
+
+                    // Format clean body without repetitive lead assignment intro or html tags
+                    let cleanBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+                    if (taskMatch) {
+                        cleanBody = cleanBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').trim();
+                    }
+
+                    return {
+                        id: m.id,
+                        res_id: m.res_id,
+                        model: m.model,
+                        title: title,
+                        sender: senderName,
+                        body_text: cleanBody.substring(0, 100),
+                        date: m.date ? m.date.substring(0, 16) : ''
+                    };
+                });
+            } catch (e) {
+                console.error("Notifications fetch error:", e);
+                this.state.notifications = [];
+            }
         }
     }
-    openLead(notif) { this.state.notifOpen = false; this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' }); }
+    openLead(notif) {
+        this.state.notifOpen = false;
+        if (notif.model === 'crm.lead') {
+            this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
+        } else if (notif.model === 'res.partner') {
+            this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'res.partner', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
+        }
+    }
 
     get salesTrendMonths() {
         let months = [];
