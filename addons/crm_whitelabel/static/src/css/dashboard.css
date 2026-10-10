@@ -583,15 +583,21 @@
     max-height: 280px;
     overflow-y: auto;
     list-style: none;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .crm-notif-item {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
+    align-items: flex-start;
     gap: 0.75rem;
     cursor: pointer;
     transition: background 0.15s;
+    background: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .crm-notif-item:hover {
@@ -599,7 +605,11 @@
 }
 
 .crm-notif-item.unread {
-    background: #eff6ff;
+    background: #ffffff;
+}
+
+.crm-notif-item.unread:hover {
+    background: #f8fafc;
 }
 
 .crm-notif-icon {
