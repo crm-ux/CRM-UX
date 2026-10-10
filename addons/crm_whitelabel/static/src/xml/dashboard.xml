@@ -1045,6 +1045,67 @@
                 </div>
             </div>
 
+            <!-- TASK DETAIL WIZARD MODAL (WHEN CLICKING NOTIFICATION) -->
+            <div class="crm-task-overlay" t-if="state.taskDetailModalOpen" t-on-click="closeTaskDetailModal">
+                <div class="crm-task-dialog" style="max-width: 480px;" t-on-click.stop="">
+                    <div class="crm-task-header" style="padding: 1rem 1.25rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 32px; height: 32px; border-radius: 8px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-size: 0.95rem;">
+                                <i class="fa fa-tasks"></i>
+                            </div>
+                            <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a;">Task Details</h3>
+                        </div>
+                        <button class="crm-task-close" t-on-click="closeTaskDetailModal" style="cursor: pointer; border: none; background: none; font-size: 1.1rem; color: #64748b;">✕</button>
+                    </div>
+
+                    <div class="crm-task-body" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;" t-if="state.selectedTaskDetail">
+                        <!-- Task Title -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.75rem 1rem;">
+                            <label style="font-size: 0.74rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Task Title</label>
+                            <div style="font-size: 1.05rem; font-weight: 700; color: #0b3d91;" t-esc="state.selectedTaskDetail.task_title"/>
+                        </div>
+
+                        <!-- Meta Info: Assigned by & Date -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.65rem 0.85rem;">
+                                <label style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Assigned By</label>
+                                <div style="font-size: 0.88rem; font-weight: 600; color: #1e293b;" t-esc="state.selectedTaskDetail.sender"/>
+                            </div>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.65rem 0.85rem;">
+                                <label style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; display: block; margin-bottom: 2px;">Assigned Date</label>
+                                <div style="font-size: 0.88rem; font-weight: 600; color: #1e293b;" t-esc="state.selectedTaskDetail.date"/>
+                            </div>
+                        </div>
+
+                        <!-- Instructions / Note -->
+                        <div>
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 4px;">Work Instructions</label>
+                            <div style="min-height: 70px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 0.75rem; font-size: 0.88rem; color: #334155; line-height: 1.45; white-space: pre-wrap;">
+                                <t t-if="state.selectedTaskDetail.task_note">
+                                    <t t-esc="state.selectedTaskDetail.task_note"/>
+                                </t>
+                                <t t-else="">
+                                    <span style="color: #94a3b8; font-style: italic;">No additional notes provided.</span>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Attachment -->
+                        <div t-if="state.selectedTaskDetail.attachment_name">
+                            <label style="font-size: 0.75rem; font-weight: 700; color: #475569; text-transform: uppercase; display: block; margin-bottom: 4px;">Attachment</label>
+                            <div style="display: flex; align-items: center; gap: 8px; padding: 0.6rem 0.85rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px;">
+                                <i class="fa fa-paperclip" style="color: #0b3d91; font-size: 1rem;"></i>
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #1e293b; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" t-esc="state.selectedTaskDetail.attachment_name"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="crm-task-footer" style="padding: 0.85rem 1.25rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; background: #ffffff;">
+                        <button class="crm-task-submit-btn" t-on-click="closeTaskDetailModal" style="padding: 0.45rem 1.4rem; border-radius: 6px; border: none; background: #0b3d91; color: #ffffff; font-weight: 600; cursor: pointer;">Close</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- CUSTOM DATE RANGE WIZARD MODAL -->
             <div class="crm-task-overlay" t-if="state.customDateModalOpen" t-on-click="closeCustomDateModal">
                 <div class="crm-task-dialog" style="max-width: 420px;" t-on-click.stop="">

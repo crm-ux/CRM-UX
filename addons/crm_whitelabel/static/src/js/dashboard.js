@@ -74,6 +74,8 @@ class CrmDashboard extends Component {
             taskDeadline: "",
             taskLoadingUsers: false,
             taskSubmitting: false,
+            taskDetailModalOpen: false,
+            selectedTaskDetail: null,
             accessModalOpen: false, accessModalModule: "",
             // My Profile Modal State
             profileModalOpen: false,
@@ -1502,8 +1504,19 @@ class CrmDashboard extends Component {
                         }
                     }
 
-                    if (!taskTitle) {
-                        taskTitle = 'General Task';
+                    // Extract instructions/notes cleanly
+                    let taskInstructions = '';
+                    if (taskMatch) {
+                        taskInstructions = rawBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').replace(/📎 Attached:.*$/i, '').trim();
+                    } else if (rawBody) {
+                        taskInstructions = rawBody.replace(/📎 Attached:.*$/i, '').trim();
+                    }
+
+                    // Extract attached filename if mentioned in body
+                    let attachedFileName = '';
+                    const attMatch = m.body ? m.body.match(/📎 Attached:\s*([^<]+)/i) : null;
+                    if (attMatch && attMatch[1]) {
+                        attachedFileName = attMatch[1].trim();
                     }
 
                     return {
@@ -1512,6 +1525,9 @@ class CrmDashboard extends Component {
                         model: m.model,
                         sender: senderName || 'Administrator',
                         task_title: taskTitle,
+                        task_note: taskInstructions,
+                        attachment_name: attachedFileName,
+                        attachment_ids: m.attachment_ids || [],
                         date: m.date ? m.date.substring(0, 16) : ''
                     };
                 });
@@ -1525,9 +1541,20 @@ class CrmDashboard extends Component {
         this.state.notifOpen = false;
         if (notif.model === 'crm.lead') {
             this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
-        } else if (notif.model === 'res.partner') {
-            this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'res.partner', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
+        } else {
+            // For tasks (res.partner / activities), open Task Detail Wizard Modal instead of partner profile
+            this.openTaskDetailModal(notif);
         }
+    }
+
+    openTaskDetailModal(notif) {
+        this.state.selectedTaskDetail = notif;
+        this.state.taskDetailModalOpen = true;
+    }
+
+    closeTaskDetailModal() {
+        this.state.taskDetailModalOpen = false;
+        this.state.selectedTaskDetail = null;
     }
 
     get salesTrendMonths() {
