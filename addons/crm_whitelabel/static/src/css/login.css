@@ -55,7 +55,24 @@ body.bg-100 .btn-link { display: none !important; }
 body.bg-100 small { display: none !important; }
 body.bg-100 em { display: none !important; }
 
+/* Login Links (Choose a user, Reset Password) */
+body.bg-100 a,
+body a.btn-link,
+.card-body a {
+    color: #1a3d6e !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+body.bg-100 a:hover,
+body a.btn-link:hover,
+.card-body a:hover {
+    color: #0284c7 !important;
+    text-decoration: underline !important;
+}
+
 /* Hide Powered by Odoo */
 body.bg-100 .list-group { display: none !important; }
 body.bg-100 a[href*="odoo.com"] { display: none !important; }
 body.bg-100 .o_database_list .card-body > .text-center:last-child { display: none !important; }
+
