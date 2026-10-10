@@ -1395,18 +1395,38 @@ class CrmDashboard extends Component {
                 bodyText += "<br/><small style='color:#0b3d91;'>📎 Attached: " + this.state.taskAttachmentName + "</small>";
             }
 
-            await rpc("/web/dataset/call_kw", {
-                model: "res.partner",
-                method: "message_post",
-                args: [[this.state.selectedUser.partner_id || this.state.selectedUser.id]],
-                kwargs: {
-                    body: bodyText,
-                    message_type: "comment",
-                    subtype_xmlid: "mail.mt_comment",
-                    partner_ids: [this.state.selectedUser.partner_id || this.state.selectedUser.id],
-                    attachment_ids: attachmentIds,
-                },
-            });
+            // Determine recipient partner_id
+            let recipientPartnerId = this.state.selectedUser.partner_id;
+            if (!recipientPartnerId) {
+                try {
+                    const uRec = await rpc("/web/dataset/call_kw", {
+                        model: "res.users",
+                        method: "read",
+                        args: [[this.state.selectedUser.id], ['partner_id']],
+                        kwargs: {}
+                    });
+                    if (uRec && uRec.length && uRec[0].partner_id) {
+                        recipientPartnerId = uRec[0].partner_id[0];
+                    }
+                } catch (pe) {
+                    console.error("Partner lookup error:", pe);
+                }
+            }
+
+            if (recipientPartnerId) {
+                await rpc("/web/dataset/call_kw", {
+                    model: "res.partner",
+                    method: "message_post",
+                    args: [[recipientPartnerId]],
+                    kwargs: {
+                        body: bodyText,
+                        message_type: "comment",
+                        subtype_xmlid: "mail.mt_comment",
+                        partner_ids: [recipientPartnerId],
+                        attachment_ids: attachmentIds,
+                    },
+                });
+            }
 
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
@@ -1439,7 +1459,13 @@ class CrmDashboard extends Component {
     async loadNotifCount() {
         try {
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
-            const messages = await rpc('/web/dataset/call_kw', { model: 'mail.message', method: 'search_read', args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner']]]], kwargs: { fields: ['id'], limit: 50, order: 'date desc' } });
+            const partnerId = user.partnerId || (this.state.myProfile && this.state.myProfile.id) || 0;
+            const messages = await rpc('/web/dataset/call_kw', {
+                model: 'mail.message',
+                method: 'search_read',
+                args: [[['partner_ids', 'in', [partnerId]]]],
+                kwargs: { fields: ['id'], limit: 30, order: 'date desc' }
+            });
             this.state.notifCount = messages.map(m => m.id).filter(id => !readIds.includes(id)).length;
         } catch (e) { this.state.notifCount = 0; }
     }
@@ -1447,11 +1473,13 @@ class CrmDashboard extends Component {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
+                const partnerId = user.partnerId || (this.state.myProfile && this.state.myProfile.id) || 0;
+                // Query the latest notifications for current user, strictly newest 3
                 const messages = await rpc('/web/dataset/call_kw', {
                     model: 'mail.message',
                     method: 'search_read',
-                    args: [[['partner_ids', 'in', [user.partnerId]], ['model', 'in', ['crm.lead', 'res.partner', 'mail.activity']]]],
-                    kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 15, order: 'date desc' }
+                    args: [[['partner_ids', 'in', [partnerId]]]],
+                    kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 3, order: 'date desc' }
                 });
                 localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m => m.id)));
                 this.state.notifCount = 0;
@@ -1462,23 +1490,34 @@ class CrmDashboard extends Component {
                         senderName = m.author_id[1].replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
-                    // Extract title: check for "New Task: <title>" pattern, or subject, or record_name
+                    // Extract title: from "New Task: <title>", or record_name (Lead title), or subject
                     let title = '';
                     const taskMatch = m.body ? m.body.match(/<b>New Task:\s*([^<]+)<\/b>/i) : null;
                     if (taskMatch && taskMatch[1]) {
                         title = taskMatch[1].trim();
-                    } else if (m.subject && m.subject.trim()) {
-                        title = m.subject.trim();
                     } else if (m.record_name && m.record_name.trim()) {
                         title = m.record_name.trim();
-                    } else {
-                        title = 'Task / Update';
+                    } else if (m.subject && m.subject.trim()) {
+                        title = m.subject.trim();
                     }
 
-                    // Format clean body without repetitive lead assignment intro or html tags
-                    let cleanBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-                    if (taskMatch) {
-                        cleanBody = cleanBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').trim();
+                    // Clean the body message text:
+                    let rawBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+
+                    // If it is standard "Dear ..., You have been assigned to the Lead [Name].", clean it up into a short clean note:
+                    const leadAssignMatch = rawBody.match(/assigned to the Lead\s+(.*)/i);
+                    if (leadAssignMatch) {
+                        const targetLead = leadAssignMatch[1].trim().replace(/\.$/, '');
+                        rawBody = 'Assigned to Lead: ' + targetLead;
+                        if (!title || title === 'Task / Update') {
+                            title = targetLead;
+                        }
+                    } else if (taskMatch) {
+                        // Strip "New Task: <title>" prefix from body so it doesn't repeat
+                        rawBody = rawBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').trim();
+                        if (!rawBody) {
+                            rawBody = 'Assigned new task: ' + title;
+                        }
                     }
 
                     return {
@@ -1486,8 +1525,8 @@ class CrmDashboard extends Component {
                         res_id: m.res_id,
                         model: m.model,
                         title: title,
-                        sender: senderName,
-                        body_text: cleanBody.substring(0, 100),
+                        sender: senderName || 'Manager',
+                        body_text: rawBody.substring(0, 100),
                         date: m.date ? m.date.substring(0, 16) : ''
                     };
                 });
