@@ -4,49 +4,69 @@
         <field name="name">crm.task.assign.wizard.form</field>
         <field name="model">crm.task.assign.wizard</field>
         <field name="arch" type="xml">
-            <form string="Assign Work">
-                <sheet>
+            <form string="Assign Work" class="crm-assign-work-wizard-form">
+                <sheet style="padding: 0.5rem 0.25rem;">
                     <!-- Section 1: Member Assignment -->
-                    <div style="font-size:14px;font-weight:700;color:#0b3d91;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-                        <span>Assign Team Member</span>
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="assigned_to_id" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                            Assign Team Member <span style="color: #ef4444;">*</span>
+                        </label>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.75rem;">
+                            <field name="assigned_to_id" 
+                                   string="Assign To" 
+                                   nolabel="1"
+                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}" 
+                                   placeholder="Select team member..."
+                                   style="width: 100%; border: none; background: transparent; font-size: 0.9rem;"/>
+                        </div>
                     </div>
-                    <group>
-                        <field name="assigned_to_id" string="Assign To" options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}" placeholder="Select team member..."/>
-                    </group>
 
-                    <!-- Section 2: Task Information -->
-                    <div style="font-size:14px;font-weight:700;color:#0b3d91;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:16px;margin-bottom:14px;">
-                        <span>Task Information</span>
+                    <!-- Section 2: Task Information (Grid) -->
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.85rem; margin-bottom: 1.25rem;">
+                        <div>
+                            <label for="name" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                                Task Title <span style="color: #ef4444;">*</span>
+                            </label>
+                            <field name="name" 
+                                   nolabel="1" 
+                                   placeholder="e.g. Inspect Boiler Unit 3" 
+                                   style="width: 100%; padding: 0.45rem 0.75rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;"/>
+                        </div>
+                        <div>
+                            <label for="date_deadline" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                                Deadline
+                            </label>
+                            <field name="date_deadline" 
+                                   nolabel="1" 
+                                   style="width: 100%; padding: 0.45rem 0.5rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;"/>
+                        </div>
                     </div>
-                    <group>
-                        <group>
-                            <field name="name" string="Task Title" placeholder="e.g. Inspect Boiler Unit 3"/>
-                        </group>
-                        <group>
-                            <field name="date_deadline" string="Deadline"/>
-                        </group>
-                    </group>
 
                     <!-- Section 3: Work Details / Instructions -->
-                    <div style="font-size:14px;font-weight:700;color:#0b3d91;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:16px;margin-bottom:14px;">
-                        <span>Work Details / Instructions</span>
-                    </div>
-                    <div style="margin-bottom: 12px;">
-                        <field name="instructions" nolabel="1" placeholder="Add instructions or requirements for this task..." style="min-height: 85px; width: 100%; border-radius: 6px;"/>
+                    <div style="margin-bottom: 1.25rem;">
+                        <label for="instructions" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                            Work Details / Instructions
+                        </label>
+                        <field name="instructions" 
+                               nolabel="1" 
+                               placeholder="Add instructions or requirements for this task..." 
+                               style="min-height: 85px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0.5rem 0.75rem; font-size: 0.88rem;"/>
                     </div>
 
                     <!-- Section 4: Attachment -->
-                    <div style="font-size:14px;font-weight:700;color:#0b3d91;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-top:16px;margin-bottom:14px;">
-                        <span>Attachment</span>
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                            Attachment <small style="color: #64748b; font-weight: 500;">(Drawings, PO, Photos, PDF up to 20MB)</small>
+                        </label>
+                        <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 0.75rem; text-align: center;">
+                            <field name="attachment_name" invisible="1"/>
+                            <field name="attachment_file" filename="attachment_name" nolabel="1" widget="binary" style="display: inline-block;"/>
+                        </div>
                     </div>
-                    <group>
-                        <field name="attachment_name" invisible="1"/>
-                        <field name="attachment_file" filename="attachment_name" string="Upload File" widget="binary"/>
-                    </group>
                 </sheet>
                 <footer>
-                    <button name="action_assign_work" string="Assign Work" type="object" class="btn btn-primary" style="background:#0b3d91; border-color:#0b3d91; font-weight:600; padding:6px 18px;"/>
-                    <button string="Cancel" class="btn btn-secondary" special="cancel" style="padding:6px 16px;"/>
+                    <button name="action_assign_work" string="Assign Work" type="object" class="btn btn-primary" style="background: #0b3d91; border-color: #0b3d91; font-weight: 600; padding: 0.5rem 1.4rem; border-radius: 6px; box-shadow: 0 2px 4px rgba(11,61,145,0.25);"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" style="padding: 0.5rem 1.1rem; border-radius: 6px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; font-weight: 600;"/>
                 </footer>
             </form>
         </field>
