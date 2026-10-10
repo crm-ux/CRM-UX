@@ -919,7 +919,7 @@
                         </button>
                     </div>
                 </section>
-                <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM Â         </div>
+                <div class="crm-pro-footer"><t t-esc="state.companyName"/>CRM</div>
                 </div>
             </div>
 
