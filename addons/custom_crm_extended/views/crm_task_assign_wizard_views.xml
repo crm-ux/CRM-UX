@@ -5,62 +5,56 @@
         <field name="model">crm.task.assign.wizard</field>
         <field name="arch" type="xml">
             <form string="Assign Work" class="crm-assign-work-wizard-form">
-                <sheet style="padding: 0.5rem 0.25rem;">
+                <sheet>
                     <!-- Section 1: Member Assignment -->
-                    <div style="margin-bottom: 1.25rem;">
-                        <label for="assigned_to_id" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                    <div class="crm-wizard-group">
+                        <label for="assigned_to_id" class="crm-wizard-label">
                             Assign Team Member <span style="color: #ef4444;">*</span>
                         </label>
-                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem 0.75rem;">
-                            <field name="assigned_to_id" 
-                                   string="Assign To" 
-                                   nolabel="1"
-                                   options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}" 
-                                   placeholder="Select team member..."
-                                   style="width: 100%; border: none; background: transparent; font-size: 0.9rem;"/>
-                        </div>
+                        <field name="assigned_to_id" 
+                               string="Assign To" 
+                               nolabel="1"
+                               options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}" 
+                               placeholder="Select team member..."/>
                     </div>
 
                     <!-- Section 2: Task Information (Grid) -->
-                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.85rem; margin-bottom: 1.25rem;">
+                    <div class="crm-wizard-grid-2">
                         <div>
-                            <label for="name" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                            <label for="name" class="crm-wizard-label">
                                 Task Title <span style="color: #ef4444;">*</span>
                             </label>
                             <field name="name" 
                                    nolabel="1" 
-                                   placeholder="e.g. Inspect Boiler Unit 3" 
-                                   style="width: 100%; padding: 0.45rem 0.75rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;"/>
+                                   placeholder="e.g. Inspect Boiler Unit 3"/>
                         </div>
                         <div>
-                            <label for="date_deadline" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                            <label for="date_deadline" class="crm-wizard-label">
                                 Deadline
                             </label>
                             <field name="date_deadline" 
-                                   nolabel="1" 
-                                   style="width: 100%; padding: 0.45rem 0.5rem; font-size: 0.88rem; border-radius: 8px; border: 1px solid #cbd5e1; outline: none;"/>
+                                   nolabel="1"/>
                         </div>
                     </div>
 
                     <!-- Section 3: Work Details / Instructions -->
-                    <div style="margin-bottom: 1.25rem;">
-                        <label for="instructions" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                    <div class="crm-wizard-group">
+                        <label for="instructions" class="crm-wizard-label">
                             Work Details / Instructions
                         </label>
                         <field name="instructions" 
                                nolabel="1" 
-                               placeholder="Add instructions or requirements for this task..." 
-                               style="min-height: 85px; width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 0.5rem 0.75rem; font-size: 0.88rem;"/>
+                               placeholder="Add instructions or requirements for this task..."/>
                     </div>
 
                     <!-- Section 4: Attachment -->
-                    <div style="margin-bottom: 0.5rem;">
-                        <label for="attachment_file" style="font-size: 0.85rem; font-weight: 700; color: #1e293b; display: block; margin-bottom: 0.4rem;">
+                    <div class="crm-wizard-group crm-wizard-attachment-group">
+                        <label for="attachment_file" class="crm-wizard-label">
                             Attachment <small style="color: #64748b; font-weight: 500;">(Drawings, PO, Photos, PDF up to 20MB)</small>
                         </label>
-                        <div style="background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 0.75rem; text-align: center;">
+                        <div class="crm-wizard-dropzone">
                             <field name="attachment_name" invisible="1"/>
-                            <field name="attachment_file" filename="attachment_name" nolabel="1" widget="binary" style="display: inline-block;"/>
+                            <field name="attachment_file" filename="attachment_name" nolabel="1" widget="binary"/>
                         </div>
                     </div>
                 </sheet>
