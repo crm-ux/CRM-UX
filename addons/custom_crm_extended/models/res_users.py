@@ -33,19 +33,20 @@ class ResUsers(models.Model):
         return result
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         """Allow searching by name, login, email, or department."""
-        args = list(args or [])
+        dom = list(domain or [])
         if name:
-            domain = ['|', '|', '|',
+            search_dom = ['|', '|', '|',
                 ('name', operator, name),
                 ('login', operator, name),
                 ('email', operator, name),
                 ('crm_department_id.name', operator, name)
             ]
-            records = self.search(domain + args, limit=limit)
-            return records.name_get()
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            records = self.search(search_dom + dom, limit=limit)
+            return [(r.id, r.display_name or r.name) for r in records] if hasattr(records, 'display_name') else records.name_get()
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
+
 
     @api.model
     def get_my_profile_data(self, user_id=None):
