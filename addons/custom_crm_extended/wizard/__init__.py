@@ -7,3 +7,4 @@ from . import crm_lead_won_po_wizard
 from . import equipment_master_wizard
 from . import service_ticket_wizard
 from . import crm_user_hierarchy_wizard
+from . import crm_task_assign_wizard

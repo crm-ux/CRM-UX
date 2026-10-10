@@ -2307,30 +2307,3 @@
         flex: 1;
     }
 }
-
-/* ==========================================================================
-   ASSIGN WORK MODAL (NO UNWANTED SCROLLBAR + CURVED BORDER)
-   ========================================================================== */
-.crm-assign-work-dialog .modal-content {
-    border-radius: 16px !important;
-    border: 1px solid rgba(226, 232, 240, 0.8) !important;
-    box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.22), 0 10px 20px -5px rgba(15, 23, 42, 0.1) !important;
-    overflow: hidden !important;
-}
-
-.crm-assign-work-dialog .modal-header {
-    border-top-left-radius: 16px !important;
-    border-top-right-radius: 16px !important;
-    padding: 1rem 1.35rem !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-}
-
-.crm-assign-work-dialog .modal-body {
-    overflow-y: visible !important;
-    max-height: none !important;
-    padding: 0 !important;
-}
-
-.crm-assign-work-modal-body {
-    overflow-y: visible !important;
-}

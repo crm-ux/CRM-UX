@@ -4,7 +4,6 @@ import { useService } from "@web/core/utils/hooks";
 import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { user } from "@web/core/user";
-import { AssignWorkModalDialog } from "./assign_work_dialog";
 
 class CrmDashboard extends Component {
     static template = "crm_whitelabel.Dashboard";
@@ -871,12 +870,12 @@ class CrmDashboard extends Component {
     }
 
     openAssignTaskWizard() {
-        this.dialogService.add(AssignWorkModalDialog, {
-            viewAsUserId: this.state.viewAsUserId,
-            onSuccess: async (selectedUser) => {
-                this.showToast("Task assigned to " + (selectedUser?.name || "team member"));
-                this.loadNotifCount();
-            },
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Assign Work",
+            res_model: "crm.task.assign.wizard",
+            views: [[false, "form"]],
+            target: "new",
         });
     }
 

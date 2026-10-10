@@ -3,24 +3,21 @@ import { patch } from "@web/core/utils/patch";
 import { KanbanController } from "@web/views/kanban/kanban_controller";
 import { ListController } from "@web/views/list/list_controller";
 import { FormController } from "@web/views/form/form_controller";
-import { AssignWorkModalDialog } from "@crm_whitelabel/js/assign_work_dialog";
 
 const CRM_LEAD_MODEL = "crm.lead";
 const CRM_TASK_MODEL = "crm.task.management";
 const WIZARD_ACTION = "custom_crm_extended.action_crm_lead_wizard";
+const TASK_WIZARD_ACTION = "custom_crm_extended.action_crm_task_assign_wizard";
 
 async function openLeadCreationWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
-function openTaskAssignDialog(controller) {
-    controller.env.services.dialog.add(AssignWorkModalDialog, {
-        onSuccess: async () => {
-            if (controller.model?.load) {
-                await controller.model.load();
-            } else if (controller.model?.root?.load) {
-                await controller.model.root.load();
-            }
+async function openTaskAssignWizard(env) {
+    await env.services.action.doAction(TASK_WIZARD_ACTION, {
+        onClose: async () => {
+            // Reload active view automatically on close
+            window.location.reload();
         },
     });
 }
@@ -32,7 +29,7 @@ patch(ListController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            openTaskAssignDialog(this);
+            await openTaskAssignWizard(this.env);
             return;
         }
         return super.createRecord(...arguments);
@@ -49,7 +46,7 @@ patch(ListController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            openTaskAssignDialog(this);
+            await openTaskAssignWizard(this.env);
             return;
         }
         return super.openNewRecord(...arguments);
@@ -70,7 +67,7 @@ patch(KanbanController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            openTaskAssignDialog(this);
+            await openTaskAssignWizard(this.env);
             return;
         }
         return super.openNewRecord(...arguments);
@@ -94,7 +91,7 @@ patch(FormController.prototype, {
             return;
         }
         if (this.props?.resModel === CRM_TASK_MODEL || this.model?.root?.resModel === CRM_TASK_MODEL) {
-            openTaskAssignDialog(this);
+            await openTaskAssignWizard(this.env);
             return;
         }
         return super.create(...arguments);
