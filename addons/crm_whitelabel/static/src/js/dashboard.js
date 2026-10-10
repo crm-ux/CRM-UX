@@ -1478,43 +1478,40 @@ class CrmDashboard extends Component {
                         senderName = m.author_id[1].replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
-                    // Extract title: from "New Task: <title>", or record_name (Lead title), or subject
-                    let title = '';
+                    // Extract task title
+                    let taskTitle = '';
                     const taskMatch = m.body ? m.body.match(/<b>New Task:\s*([^<]+)<\/b>/i) : null;
                     if (taskMatch && taskMatch[1]) {
-                        title = taskMatch[1].trim();
-                    } else if (m.record_name && m.record_name.trim()) {
-                        title = m.record_name.trim();
+                        taskTitle = taskMatch[1].trim();
                     } else if (m.subject && m.subject.trim()) {
-                        title = m.subject.trim();
+                        taskTitle = m.subject.trim();
+                    } else if (m.record_name && m.record_name.trim()) {
+                        taskTitle = m.record_name.trim();
                     }
 
-                    // Clean the body message text:
+                    // If it is standard Odoo automated activity notification (e.g. "Dear Pratham, Administrator has just assigned you...")
+                    // extract the actual task or document name
                     let rawBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+                    const docMatch = rawBody.match(/activity:\s*Document:\s*["“']?([^"”'(\n]+)/i);
+                    if (docMatch && docMatch[1]) {
+                        taskTitle = docMatch[1].trim();
+                    } else {
+                        const leadMatch = rawBody.match(/assigned to the Lead\s+(.*)/i);
+                        if (leadMatch && leadMatch[1]) {
+                            taskTitle = leadMatch[1].trim().replace(/\.$/, '');
+                        }
+                    }
 
-                    // If it is standard "Dear ..., You have been assigned to the Lead [Name].", clean it up into a short clean note:
-                    const leadAssignMatch = rawBody.match(/assigned to the Lead\s+(.*)/i);
-                    if (leadAssignMatch) {
-                        const targetLead = leadAssignMatch[1].trim().replace(/\.$/, '');
-                        rawBody = 'Assigned to Lead: ' + targetLead;
-                        if (!title || title === 'Task / Update') {
-                            title = targetLead;
-                        }
-                    } else if (taskMatch) {
-                        // Strip "New Task: <title>" prefix from body so it doesn't repeat
-                        rawBody = rawBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').trim();
-                        if (!rawBody) {
-                            rawBody = 'Assigned new task: ' + title;
-                        }
+                    if (!taskTitle) {
+                        taskTitle = 'General Task';
                     }
 
                     return {
                         id: m.id,
                         res_id: m.res_id,
                         model: m.model,
-                        title: title,
-                        sender: senderName || 'Manager',
-                        body_text: rawBody.substring(0, 100),
+                        sender: senderName || 'Administrator',
+                        task_title: taskTitle,
                         date: m.date ? m.date.substring(0, 16) : ''
                     };
                 });
