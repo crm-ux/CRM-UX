@@ -228,12 +228,15 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   overflow-y: auto !important;
   max-height: calc(94vh - 125px) !important;
   background: #ffffff !important;
-  scrollbar-width: none !important; /* Firefox */
-  -ms-overflow-style: none !important; /* IE/Edge */
+  scrollbar-width: none !important;
+  /* Firefox */
+  -ms-overflow-style: none !important;
+  /* IE/Edge */
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .modal-body::-webkit-scrollbar {
-  display: none !important; /* Chrome/Safari */
+  display: none !important;
+  /* Chrome/Safari */
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .o_form_sheet,
@@ -361,6 +364,7 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 /* Tablet & Mobile Responsiveness */
 @media (max-width: 768px) {
+
   .modal-dialog:has(.crm-assign-work-wizard-form),
   .modal-dialog:has([name="crm.task.assign.wizard"]) {
     width: 96% !important;
@@ -369,19 +373,20 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 @media (max-width: 576px) {
+
   .modal-dialog:has(.crm-assign-work-wizard-form),
   .modal-dialog:has([name="crm.task.assign.wizard"]) {
     width: 98% !important;
     margin: 0.5rem auto !important;
   }
-  
+
   .crm-assign-work-wizard-form .crm-wizard-grid-2 {
     grid-template-columns: 1fr !important;
     gap: 0.85rem !important;
   }
-  
+
   .modal-dialog:has(.crm-assign-work-wizard-form) .modal-body,
   .modal-dialog:has([name="crm.task.assign.wizard"]) .modal-body {
     padding: 0.85rem 1rem !important;
   }
-}
+}
