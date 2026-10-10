@@ -919,9 +919,9 @@
                         </button>
                     </div>
                 </section>
-                <div class="crm-pro-footer"><t t-esc="state.companyName"/>CRM</div>
-                </div>
-            </div>
+                <div class="crm-pro-footer"><t t-esc="state.companyName"/> CRM</div>
+            </main>
+        </div>
 
             <!-- TASK DETAIL WIZARD MODAL (WHEN CLICKING NOTIFICATION) -->
             <div class="crm-task-overlay" t-if="state.taskDetailModalOpen" t-on-click="closeTaskDetailModal">
@@ -1321,7 +1321,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </t>
     <t t-name="crm_whitelabel.NavButtons">
         <div style="display:flex;align-items:center;gap:6px;">
