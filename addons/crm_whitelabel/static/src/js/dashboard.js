@@ -1395,6 +1395,7 @@ class CrmDashboard extends Component {
     }
     async loadNotifCount() {
         try {
+            const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
             const partnerId = await this._getCurrentPartnerId();
             if (!partnerId) return;
@@ -1402,9 +1403,10 @@ class CrmDashboard extends Component {
                 model: 'mail.message',
                 method: 'search_read',
                 args: [[['partner_ids', 'in', [partnerId]]]],
-                kwargs: { fields: ['id'], limit: 30, order: 'date desc' }
+                kwargs: { fields: ['id'], limit: 50, order: 'date desc' }
             });
-            this.state.notifCount = messages.map(m => m.id).filter(id => !readIds.includes(id)).length;
+            const activeMessages = messages.filter(m => !dismissedIds.includes(m.id));
+            this.state.notifCount = activeMessages.filter(m => !readIds.includes(m.id)).length;
         } catch (e) { this.state.notifCount = 0; }
     }
     async toggleNotifications() {
@@ -1412,26 +1414,27 @@ class CrmDashboard extends Component {
         if (this.state.notifOpen) {
             try {
                 const partnerId = await this._getCurrentPartnerId();
-                // Query the latest notifications for current user, strictly newest 3
+                const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
                 let messages = [];
                 if (partnerId) {
                     messages = await rpc('/web/dataset/call_kw', {
                         model: 'mail.message',
                         method: 'search_read',
                         args: [[['partner_ids', 'in', [partnerId]]]],
-                        kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 3, order: 'date desc' }
+                        kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 50, order: 'date desc' }
                     });
                 }
-                localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m => m.id)));
+                const activeMessages = messages.filter(m => !dismissedIds.includes(m.id)).slice(0, 10);
+                const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
+                const newReadIds = Array.from(new Set([...readIds, ...activeMessages.map(m => m.id)]));
+                localStorage.setItem('crm_read_notifs', JSON.stringify(newReadIds));
                 this.state.notifCount = 0;
-                this.state.notifications = messages.map(m => {
-                    // Extract author/manager/owner name cleanly without any brackets or designations
+                this.state.notifications = activeMessages.map(m => {
                     let senderName = '';
                     if (m.author_id && m.author_id[1]) {
                         senderName = m.author_id[1].replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
-                    // Extract task title
                     let taskTitle = '';
                     const taskMatch = m.body ? m.body.match(/<b>New Task:\s*([^<]+)<\/b>/i) : null;
                     if (taskMatch && taskMatch[1]) {
@@ -1442,8 +1445,6 @@ class CrmDashboard extends Component {
                         taskTitle = m.record_name.trim();
                     }
 
-                    // If it is standard Odoo automated activity notification (e.g. "Dear Pratham, Administrator has just assigned you...")
-                    // extract the actual task or document name
                     let rawBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
                     const docMatch = rawBody.match(/activity:\s*Document:\s*["“']?([^"”'(\n]+)/i);
                     if (docMatch && docMatch[1]) {
@@ -1455,7 +1456,6 @@ class CrmDashboard extends Component {
                         }
                     }
 
-                    // Extract instructions/notes cleanly
                     let taskInstructions = '';
                     if (taskMatch) {
                         taskInstructions = rawBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').replace(/📎 Attached:.*$/i, '').trim();
@@ -1463,7 +1463,6 @@ class CrmDashboard extends Component {
                         taskInstructions = rawBody.replace(/📎 Attached:.*$/i, '').trim();
                     }
 
-                    // Extract attached filename if mentioned in body
                     let attachedFileName = '';
                     const attMatch = m.body ? m.body.match(/📎 Attached:\s*([^<]+)/i) : null;
                     if (attMatch && attMatch[1]) {
@@ -1488,12 +1487,42 @@ class CrmDashboard extends Component {
             }
         }
     }
+
+    dismissNotification(notifId, ev) {
+        if (ev) ev.stopPropagation();
+        const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
+        if (!dismissedIds.includes(notifId)) {
+            dismissedIds.push(notifId);
+            localStorage.setItem('crm_dismissed_notifs', JSON.stringify(dismissedIds));
+        }
+        this.state.notifications = this.state.notifications.filter(n => n.id !== notifId);
+        this.loadNotifCount();
+    }
+
+    clearAllNotifications(ev) {
+        if (ev) ev.stopPropagation();
+        const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
+        this.state.notifications.forEach(n => {
+            if (!dismissedIds.includes(n.id)) {
+                dismissedIds.push(n.id);
+            }
+        });
+        localStorage.setItem('crm_dismissed_notifs', JSON.stringify(dismissedIds));
+        this.state.notifications = [];
+        this.state.notifCount = 0;
+    }
+
+    openTaskManagement(ev) {
+        if (ev) ev.stopPropagation();
+        this.state.notifOpen = false;
+        this.actionService.doAction("custom_crm_extended.action_crm_task_management");
+    }
+
     openLead(notif) {
         this.state.notifOpen = false;
         if (notif.model === 'crm.lead') {
             this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
         } else {
-            // For tasks (res.partner / activities), open Task Detail Wizard Modal instead of partner profile
             this.openTaskDetailModal(notif);
         }
     }
