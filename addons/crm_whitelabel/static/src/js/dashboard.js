@@ -1385,14 +1385,16 @@ class CrmDashboard extends Component {
 
             if (assignRes && assignRes.success === false) {
                 console.warn("Backend assign warning:", assignRes.error);
+                this.showToast("Failed to assign task: " + (assignRes.error || "Unknown error"));
+                return;
             }
 
             this.showToast("Task assigned to " + this.state.selectedUser.name);
             this.closeTaskDialog();
         } catch (e) {
             console.error("Assign task error:", e);
-            this.showToast("Task assigned to " + this.state.selectedUser.name);
-            this.closeTaskDialog();
+            const errStr = e?.data?.message || e?.message || "Server Error";
+            this.showToast("Error: " + errStr);
         } finally {
             this.state.taskSubmitting = false;
         }

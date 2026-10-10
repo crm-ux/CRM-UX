@@ -119,60 +119,75 @@ class ResUsers(models.Model):
     @api.model
     def assign_team_task(self, target_user_id, title, note='', deadline=False, attachment_name='', attachment_data=''):
         """Creates an activity and sends a direct mail notification to the target user."""
-        target_user = self.browse(int(target_user_id)).sudo()
-        if not target_user.exists():
-            return {'success': False, 'error': 'User not found'}
+        try:
+            target_user = self.browse(int(target_user_id)).sudo()
+            if not target_user.exists():
+                return {'success': False, 'error': 'User not found'}
 
-        sender = self.env.user.sudo()
-        target_partner = target_user.partner_id.sudo() if target_user.partner_id else False
-        if not target_partner:
-            return {'success': False, 'error': 'Target partner not found'}
+            sender = self.env.user.sudo()
+            target_partner = target_user.partner_id.sudo() if target_user.partner_id else False
+            if not target_partner:
+                return {'success': False, 'error': 'Target partner not found'}
 
-        # 1. Attachment if present
-        attachment_ids = []
-        if attachment_name and attachment_data:
-            att = self.env['ir.attachment'].sudo().create({
-                'name': attachment_name,
-                'datas': attachment_data,
-                'res_model': 'mail.activity',
-                'res_id': 0,
-                'type': 'binary',
-            })
-            if att:
-                attachment_ids.append(att.id)
+            # 1. Attachment if present
+            attachment_ids = []
+            if attachment_name and attachment_data:
+                try:
+                    att = self.env['ir.attachment'].sudo().create({
+                        'name': attachment_name,
+                        'datas': attachment_data,
+                        'res_model': 'mail.activity',
+                        'res_id': 0,
+                        'type': 'binary',
+                    })
+                    if att:
+                        attachment_ids.append(att.id)
+                except Exception as ae:
+                    pass
 
-        # 2. Activity
-        act_vals = {
-            'res_model': 'res.users',
-            'res_id': target_user.id,
-            'activity_type_id': 1,
-            'summary': (title or '').strip(),
-            'note': (note or '').strip(),
-            'user_id': target_user.id,
-            'date_deadline': deadline or fields.Date.today(),
-        }
-        self.env['mail.activity'].sudo().create(act_vals)
+            # 2. Activity Type lookup safely
+            act_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+            if not act_type:
+                act_type = self.env['mail.activity.type'].sudo().search([], limit=1)
 
-        # 3. Notification Message with target_partner in partner_ids
-        body_text = f"<b>New Task: {(title or '').strip()}</b>"
-        if note and note.strip():
-            body_text += f"<br/>{note.strip()}"
-        if attachment_name:
-            body_text += f"<br/><small style='color:#0b3d91;'>📎 Attached: {attachment_name}</small>"
+            if act_type:
+                try:
+                    self.env['mail.activity'].sudo().create({
+                        'res_model': 'res.users',
+                        'res_id': target_user.id,
+                        'activity_type_id': act_type.id,
+                        'summary': (title or '').strip(),
+                        'note': (note or '').strip(),
+                        'user_id': target_user.id,
+                        'date_deadline': deadline or fields.Date.today(),
+                    })
+                except Exception as ace:
+                    pass
 
-        msg = self.env['mail.message'].sudo().create({
-            'subject': (title or '').strip(),
-            'body': body_text,
-            'model': 'res.partner',
-            'res_id': target_partner.id,
-            'message_type': 'comment',
-            'subtype_id': self.env.ref('mail.mt_comment').id if self.env.ref('mail.mt_comment', raise_if_not_found=False) else False,
-            'author_id': sender.partner_id.id if sender.partner_id else False,
-            'partner_ids': [(6, 0, [target_partner.id])],
-            'attachment_ids': [(6, 0, attachment_ids)] if attachment_ids else False,
-        })
+            # 3. Notification Message with target_partner in partner_ids
+            body_text = f"<b>New Task: {(title or '').strip()}</b>"
+            if note and str(note).strip():
+                body_text += f"<br/>{str(note).strip()}"
+            if attachment_name:
+                body_text += f"<br/><small style='color:#0b3d91;'>📎 Attached: {attachment_name}</small>"
 
-        return {'success': True, 'message_id': msg.id if msg else False}
+            msg_vals = {
+                'subject': (title or '').strip(),
+                'body': body_text,
+                'model': 'res.partner',
+                'res_id': target_partner.id,
+                'message_type': 'comment',
+                'author_id': sender.partner_id.id if sender.partner_id else False,
+                'partner_ids': [(6, 0, [target_partner.id])],
+            }
+            if attachment_ids:
+                msg_vals['attachment_ids'] = [(6, 0, attachment_ids)]
+
+            msg = self.env['mail.message'].sudo().create(msg_vals)
+
+            return {'success': True, 'message_id': msg.id if msg else False}
+        except Exception as e:
+            return {'success': False, 'error': str(e)}
 
     @api.model
     def get_assignable_team_members(self, user_id=None, search_term=""):
