@@ -192,59 +192,91 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* ===== Standard Modal Wizard Polish (Assign Work, Equipment Master, Service Ticket) ===== */
-.modal-dialog:has(.view_crm_task_assign_wizard_form),
 .modal-dialog:has(.crm-assign-work-wizard-form),
-.modal-dialog:has(form[string="Assign Work"]) {
-  max-width: 640px !important;
-  margin: 1.75rem auto !important;
+.modal-dialog:has([name="crm.task.assign.wizard"]) {
+  max-width: 620px !important;
+  margin: 2rem auto !important;
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .modal-content,
-.modal-dialog:has(form[string="Assign Work"]) .modal-content {
+.modal-dialog:has([name="crm.task.assign.wizard"]) .modal-content {
   border-radius: 12px !important;
   overflow: hidden !important;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
   border: 1px solid #e2e8f0 !important;
-  max-height: 90vh !important;
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .modal-header,
-.modal-dialog:has(form[string="Assign Work"]) .modal-header {
+.modal-dialog:has([name="crm.task.assign.wizard"]) .modal-header {
   background: #ffffff !important;
   border-bottom: 1px solid #e2e8f0 !important;
-  padding: 0.9rem 1.25rem !important;
+  padding: 1rem 1.5rem !important;
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .modal-header .modal-title,
-.modal-dialog:has(form[string="Assign Work"]) .modal-header .modal-title {
+.modal-dialog:has([name="crm.task.assign.wizard"]) .modal-header .modal-title {
   font-weight: 700 !important;
   color: #0f172a !important;
-  font-size: 1.15rem !important;
+  font-size: 1.2rem !important;
 }
 
 .modal-dialog:has(.crm-assign-work-wizard-form) .modal-body,
-.modal-dialog:has(form[string="Assign Work"]) .modal-body {
-  padding: 1rem 1.25rem !important;
-  overflow-y: auto !important;
+.modal-dialog:has([name="crm.task.assign.wizard"]) .modal-body {
+  padding: 1.25rem 1.5rem !important;
+  overflow-y: visible !important;
+  max-height: none !important;
   background: #ffffff !important;
 }
 
-.modal-dialog:has(.crm-assign-work-wizard-form) .modal-footer,
-.modal-dialog:has(form[string="Assign Work"]) .modal-footer {
-  background: #f8fafc !important;
-  border-top: 1px solid #e2e8f0 !important;
-  padding: 0.75rem 1.25rem !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-  gap: 0.5rem !important;
+.modal-dialog:has(.crm-assign-work-wizard-form) .o_form_sheet,
+.modal-dialog:has([name="crm.task.assign.wizard"]) .o_form_sheet {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
 }
 
-/* Specific styling for assign work wizard fields inside modal */
-.crm-assign-work-wizard-form .o_field_widget {
-  margin-bottom: 0 !important;
+.modal-dialog:has(.crm-assign-work-wizard-form) .modal-footer,
+.modal-dialog:has([name="crm.task.assign.wizard"]) .modal-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0.85rem 1.5rem !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.6rem !important;
 }
-.crm-assign-work-wizard-form .o_input {
-  border-radius: 6px !important;
+
+/* Form input enhancements inside Assign Work */
+.crm-assign-work-wizard-form .o_input,
+.crm-assign-work-wizard-form input,
+.crm-assign-work-wizard-form textarea {
+  border-radius: 8px !important;
   border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #1e293b !important;
+  font-size: 0.9rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }
+
+.crm-assign-work-wizard-form .o_input:focus,
+.crm-assign-work-wizard-form input:focus,
+.crm-assign-work-wizard-form textarea:focus {
+  border-color: #0b3d91 !important;
+  box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.12) !important;
+}
+
+.crm-assign-work-wizard-form .o_field_many2one .o_input_dropdown {
+  border: none !important;
+}
+
+.crm-assign-work-wizard-form .o_field_binary_file .btn {
+  background: #0b3d91 !important;
+  color: #ffffff !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  padding: 0.4rem 1.1rem !important;
+  border: none !important;
+}
+
 
