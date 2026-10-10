@@ -162,6 +162,12 @@ class CrmDashboard extends Component {
         window.testAssignWork = () => this.openAssignTaskWizard();
 
         onMounted(() => {
+            if (window.__openAssignWorkModal) {
+                window.__openAssignWorkModal = false;
+                setTimeout(() => {
+                    this.openAssignTaskWizard();
+                }, 150);
+            }
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
                     this.loadStats();

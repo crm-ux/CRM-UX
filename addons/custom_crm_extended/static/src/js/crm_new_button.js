@@ -11,6 +11,8 @@ async function openLeadCreationWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
+const CRM_TASK_MODEL = "crm.task.management";
+
 function patchNewButton(Controller, modelName) {
     patch(Controller.prototype, {
         async openNewRecord() {
@@ -19,6 +21,15 @@ function patchNewButton(Controller, modelName) {
                 this.props?.resModel === modelName
             ) {
                 await openLeadCreationWizard(this.env);
+                return;
+            }
+            if (
+                this.model?.root?.resModel === CRM_TASK_MODEL ||
+                this.props?.resModel === CRM_TASK_MODEL
+            ) {
+                // Open dashboard with assign work modal trigger
+                window.__openAssignWorkModal = true;
+                await this.env.services.action.doAction("crm_whitelabel.action_crm_whitelabel_dashboard");
                 return;
             }
             return super.openNewRecord(...arguments);
@@ -39,6 +50,11 @@ patch(FormController.prototype, {
                 }
             }
             await openLeadCreationWizard(this.env);
+            return;
+        }
+        if (this.props.resModel === CRM_TASK_MODEL) {
+            window.__openAssignWorkModal = true;
+            await this.env.services.action.doAction("crm_whitelabel.action_crm_whitelabel_dashboard");
             return;
         }
         return super.create(...arguments);
