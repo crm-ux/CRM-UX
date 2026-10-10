@@ -352,14 +352,20 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* Modern Autocomplete Dropdown List for Assign Work & Forms */
-.crm-assign-work-wizard-form {
+.crm-assign-work-wizard-form,
+.modal-dialog,
+.o_dialog {
   --o-input-focus-border-color: #0b3d91 !important;
   --o-caret-color: #0b3d91 !important;
+  --primary: #0b3d91 !important;
+  --o-brand-primary: #0b3d91 !important;
+  --o-brand-odoo: #0b3d91 !important;
 }
 
+/* 1. Global Autocomplete Dropdown Menu Box */
 .o-autocomplete--dropdown-menu,
 .ui-autocomplete,
-.crm-assign-work-wizard-form .ui-autocomplete {
+.dropdown-menu:has(.o-autocomplete--dropdown-item) {
   border-radius: 10px !important;
   border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
@@ -371,9 +377,11 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   overflow-y: auto !important;
 }
 
+/* 2. Dropdown Item Base Style */
 .o-autocomplete--dropdown-item,
 .ui-autocomplete .ui-menu-item,
-.crm-assign-work-wizard-form .ui-autocomplete .ui-menu-item {
+.o-autocomplete--dropdown-item a,
+.ui-autocomplete a {
   padding: 8px 12px !important;
   border-radius: 6px !important;
   font-size: 0.88rem !important;
@@ -383,18 +391,62 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   transition: all 0.15s ease !important;
   display: flex !important;
   align-items: center !important;
+  background: transparent !important;
+  text-decoration: none !important;
 }
 
+/* 3. Dropdown Item Hover & Active Highlight State (Brand Blue & Subtle Gray) */
 .o-autocomplete--dropdown-item:hover,
 .o-autocomplete--dropdown-item.focus,
 .o-autocomplete--dropdown-item.active,
+.o-autocomplete--dropdown-item.o_m2o_dropdown_option_active,
 .ui-autocomplete .ui-state-active,
-.crm-assign-work-wizard-form .ui-autocomplete .ui-state-active {
+.ui-autocomplete .ui-menu-item:hover,
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus,
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item.active {
   background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
   color: #0b3d91 !important;
   border: none !important;
   font-weight: 600 !important;
 }
+
+/* 4. Kill Odoo's default purple text-primary highlight on matched characters */
+.o-autocomplete--dropdown-item b,
+.o-autocomplete--dropdown-item strong,
+.o-autocomplete--dropdown-item span,
+.o-autocomplete--dropdown-item .text-primary,
+.ui-autocomplete b,
+.ui-autocomplete strong,
+.ui-autocomplete .text-primary,
+.dropdown-menu b,
+.dropdown-menu strong,
+.dropdown-menu .text-primary {
+  color: #0b3d91 !important;
+  font-weight: 700 !important;
+}
+
+/* 5. 'Search more...' and 'Create...' special dropdown action links */
+.o-autocomplete--dropdown-item.o_m2o_dropdown_option,
+.ui-autocomplete .o_m2o_dropdown_option,
+.o-autocomplete--dropdown-item.o_m2o_dropdown_option a,
+.ui-autocomplete a.o_m2o_dropdown_option {
+  color: #64748b !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-top: 1px solid #f1f5f9 !important;
+  margin-top: 4px !important;
+}
+
+.o-autocomplete--dropdown-item.o_m2o_dropdown_option:hover,
+.ui-autocomplete .o_m2o_dropdown_option:hover {
+  color: #0b3d91 !important;
+  background: #f8fafc !important;
+}
+
 
 
 /* Attachment Dropzone Area */
