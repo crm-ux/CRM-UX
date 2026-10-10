@@ -190,3 +190,34 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   text-align: center !important;
   vertical-align: middle !important;
 }
+
+/* ===== Standard Modal Wizard Polish (Assign Work, Equipment Master, Service Ticket) ===== */
+.modal-dialog:has(.view_crm_task_assign_wizard_form),
+.modal-dialog:has(form[string="Assign Work"]) {
+  max-width: 680px !important;
+}
+
+.modal-dialog:has(form[string="Assign Work"]) .modal-content {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.modal-dialog:has(form[string="Assign Work"]) .modal-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 1rem 1.4rem !important;
+}
+
+.modal-dialog:has(form[string="Assign Work"]) .modal-header .modal-title {
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  font-size: 1.15rem !important;
+}
+
+.modal-dialog:has(form[string="Assign Work"]) .modal-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding: 0.85rem 1.4rem !important;
+}

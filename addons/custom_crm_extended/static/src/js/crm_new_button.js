@@ -13,11 +13,15 @@ async function openLeadCreationWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
-async function openTaskAssignWizard(env) {
+async function openTaskAssignWizard(env, controller) {
     await env.services.action.doAction(TASK_WIZARD_ACTION, {
         onClose: async () => {
-            // Reload active view automatically on close
-            window.location.reload();
+            // Smoothly reload active controller model if present, otherwise reload action
+            if (controller?.model?.root?.load) {
+                await controller.model.root.load();
+            } else if (env.services.action.currentController) {
+                await env.services.action.currentController.model?.root?.load();
+            }
         },
     });
 }
@@ -29,7 +33,7 @@ patch(ListController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            await openTaskAssignWizard(this.env);
+            await openTaskAssignWizard(this.env, this);
             return;
         }
         return super.createRecord(...arguments);
@@ -46,7 +50,7 @@ patch(ListController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            await openTaskAssignWizard(this.env);
+            await openTaskAssignWizard(this.env, this);
             return;
         }
         return super.openNewRecord(...arguments);
@@ -67,7 +71,7 @@ patch(KanbanController.prototype, {
             this.model?.root?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            await openTaskAssignWizard(this.env);
+            await openTaskAssignWizard(this.env, this);
             return;
         }
         return super.openNewRecord(...arguments);
@@ -91,7 +95,7 @@ patch(FormController.prototype, {
             return;
         }
         if (this.props?.resModel === CRM_TASK_MODEL || this.model?.root?.resModel === CRM_TASK_MODEL) {
-            await openTaskAssignWizard(this.env);
+            await openTaskAssignWizard(this.env, this);
             return;
         }
         return super.create(...arguments);
