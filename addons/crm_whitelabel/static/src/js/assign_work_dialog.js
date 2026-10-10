@@ -87,7 +87,7 @@ export class AssignWorkModalDialog extends Component {
                 <!-- 4. Attachment Field -->
                 <div>
                     <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem;">
-                        Attachment <small style="color: #64748b; font-weight: normal;">(Drawings, PO, Photos, PDF)</small>
+                        Attachment
                     </label>
                     
                     <div t-if="!state.attachmentName" style="border: 2px dashed #cbd5e1; border-radius: 6px; padding: 0.75rem; text-align: center; background: #f8fafc; cursor: pointer; position: relative;">
