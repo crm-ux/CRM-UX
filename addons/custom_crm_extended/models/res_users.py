@@ -13,17 +13,18 @@ class ResUsers(models.Model):
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
 
-    @api.depends('name', 'login', 'email', 'crm_department_id.name')
+    @api.depends('name', 'email', 'crm_department_id.name')
     def _compute_display_name(self):
         """Show rich format: 'Name (Department · Email)' in dropdowns when searching users."""
         for user in self:
-            name = user.name or user.login or ''
-            dept = (user.crm_department_id and user.crm_department_id.name) or (user.employee_id and user.employee_id.department_id and user.employee_id.department_id.name) or ''
-            email = user.email or user.login or ''
+            name = user.name or ''
+            emp = user.employee_id
+            dept = (user.crm_department_id and user.crm_department_id.name) or (emp and emp.department_id and emp.department_id.name) or ''
+            email = (user.partner_id and user.partner_id.email) or user.email or (emp and emp.work_email) or ''
             extra = []
             if dept:
                 extra.append(dept)
-            if email and email != name:
+            if email:
                 extra.append(email)
             if extra:
                 user.display_name = f"{name} ({' · '.join(extra)})"
@@ -33,23 +34,23 @@ class ResUsers(models.Model):
     def name_get(self):
         result = []
         for user in self:
-            result.append((user.id, user.display_name or user.name or user.login or ''))
+            result.append((user.id, user.display_name or user.name or ''))
         return result
 
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
-        """Allow searching by name, login, email, or department."""
+        """Allow searching by name, email, or department."""
         dom = list(domain or [])
         if name:
-            search_dom = ['|', '|', '|',
+            search_dom = ['|', '|',
                 ('name', operator, name),
-                ('login', operator, name),
                 ('email', operator, name),
                 ('crm_department_id.name', operator, name)
             ]
             records = self.search(search_dom + dom, limit=limit)
             return [(r.id, r.display_name) for r in records]
         return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
+
 
 
 
