@@ -148,7 +148,23 @@ class ResUsers(models.Model):
                 except Exception:
                     pass
 
-            # 2. Activity on res.partner (which natively supports mail.activity.mixin)
+            # 2. Persist in crm.task.management
+            try:
+                task_rec = self.env['crm.task.management'].sudo().create({
+                    'name': clean_title,
+                    'assigned_to_id': target_user.id,
+                    'assigned_by_id': sender.id,
+                    'date_assigned': fields.Datetime.now(),
+                    'date_deadline': deadline or fields.Date.today(),
+                    'instructions': clean_note,
+                    'attachment_name': attachment_name or '',
+                    'attachment_file': attachment_data or False,
+                    'state': 'pending',
+                })
+            except Exception:
+                task_rec = False
+
+            # 3. Activity on res.partner (which natively supports mail.activity.mixin)
             act_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
             if not act_type:
                 act_type = self.env['mail.activity.type'].sudo().search([('res_model', 'in', ['res.partner', False])], limit=1)

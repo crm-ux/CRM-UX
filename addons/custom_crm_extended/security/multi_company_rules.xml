@@ -116,5 +116,15 @@
                 user._get_hierarchy_domain('perm_equipment', False)
             </field>
         </record>
+
+        <!-- Global Record Rule for Task Management -->
+        <record id="rule_crm_task_management_user" model="ir.rule">
+            <field name="name">Task Management: User and Hierarchy Access</field>
+            <field name="model_id" ref="model_crm_task_management"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                ['|', '|', ('assigned_to_id', '=', user.id), ('assigned_by_id', '=', user.id), ('assigned_to_id', 'in', user._get_all_subordinates().ids)]
+            </field>
+        </record>
     </data>
 </odoo>

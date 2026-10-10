@@ -249,6 +249,21 @@ class CrmDashboard extends Component {
         });
     }
 
+    openTaskManagement() {
+        // Can create if Admin or Manager (has canAssignTask privilege)
+        const canCreate = Boolean(this.state.isAdmin || this.state.canAssignTask);
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Task Management",
+            res_model: "crm.task.management",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+            context: {
+                create: canCreate,
+            },
+        });
+    }
+
     async checkAdminStatus() {
         const uid = this.state.viewAsUserId || user.userId;
         if (this.state.viewAsUserId) {

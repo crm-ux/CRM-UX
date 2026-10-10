@@ -50,6 +50,12 @@
                             <span>Service Tickets</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link" t-on-click="openTaskManagement">
+                            <i class="fa fa-tasks"></i>
+                            <span>Task Management</span>
+                        </a>
+                    </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewAmc">
                         <a class="crm-nav-link" t-on-click="openAmcContracts">
                             <i class="fa fa-file-text-o"></i>

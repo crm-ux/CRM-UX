@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List / Tree View -->
+    <record id="view_crm_task_management_tree" model="ir.ui.view">
+        <field name="name">crm.task.management.list</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <list string="Task Management" default_order="date_assigned desc">
+                <field name="name" string="Task Title"/>
+                <field name="assigned_to_id" string="Assigned To"/>
+                <field name="assigned_by_id" string="Assigned By"/>
+                <field name="date_assigned" string="Assigned Date"/>
+                <field name="date_deadline" string="Deadline"/>
+                <field name="state" string="Status" widget="badge" 
+                       decoration-warning="state == 'pending'" 
+                       decoration-info="state == 'in_progress'" 
+                       decoration-success="state == 'done'" 
+                       decoration-danger="state == 'complaint'"/>
+                <field name="completion_remarks" string="Work Completion Remarks" optional="show"/>
+                <field name="complaint_notes" string="Complaint / Issue Faced" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_crm_task_management_form" model="ir.ui.view">
+        <field name="name">crm.task.management.form</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <form string="Task Management">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Task Title"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Inspect Boiler Unit 3"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Assignment Details">
+                            <field name="assigned_to_id"/>
+                            <field name="assigned_by_id"/>
+                            <field name="date_assigned"/>
+                            <field name="date_deadline"/>
+                        </group>
+                        <group string="Attachments &amp; Files">
+                            <field name="attachment_name" invisible="1"/>
+                            <field name="attachment_file" filename="attachment_name"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Instructions / Work Details">
+                            <field name="instructions" placeholder="Detailed instructions from manager/owner..."/>
+                        </page>
+                        <page string="Employee Action &amp; Reporting">
+                            <group>
+                                <field name="state" string="Task Status"/>
+                                <field name="completion_remarks" placeholder="Enter work completion remarks..."/>
+                                <field name="complaint_notes" placeholder="Report any issue, bottleneck, or complaint faced..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search / Filter View -->
+    <record id="view_crm_task_management_search" model="ir.ui.view">
+        <field name="name">crm.task.management.search</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <search string="Search Tasks">
+                <field name="name" string="Task"/>
+                <field name="assigned_to_id"/>
+                <field name="assigned_by_id"/>
+                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <filter string="Issues / Complaints" name="filter_complaint" domain="[('state', '=', 'complaint')]"/>
+                <separator/>
+                <filter string="Assigned to Me" name="filter_my_tasks" domain="[('assigned_to_id', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Assigned Employee" name="group_assigned_to" context="{'group_by': 'assigned_to_id'}"/>
+                    <filter string="Assigned By" name="group_assigned_by" context="{'group_by': 'assigned_by_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window -->
+    <record id="action_crm_task_management" model="ir.actions.act_window">
+        <field name="name">Task Management</field>
+        <field name="res_model">crm.task.management</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_crm_task_management_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks assigned yet!
+            </p>
+        </field>
+    </record>
+</odoo>
