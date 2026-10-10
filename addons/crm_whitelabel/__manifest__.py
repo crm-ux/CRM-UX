@@ -22,6 +22,7 @@
             'crm_whitelabel/static/src/xml/dashboard.xml',
             'crm_whitelabel/static/src/xml/analytics_dashboard.xml',
             'crm_whitelabel/static/src/css/whitelabel.css',
+            'crm_whitelabel/static/src/xml/nav_buttons.xml',
             'crm_whitelabel/static/src/js/assign_work_dialog.js',
             'crm_whitelabel/static/src/js/dashboard.js',
             'crm_whitelabel/static/src/js/analytics_dashboard.js',
