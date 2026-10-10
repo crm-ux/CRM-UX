@@ -68,33 +68,10 @@
         </field>
     </record>
 
-    <!-- Search / Filter View -->
-    <record id="view_crm_task_management_search" model="ir.ui.view">
-        <field name="name">crm.task.management.search</field>
-        <field name="model">crm.task.management</field>
-        <field name="arch" type="xml">
-            <search string="Search Tasks">
-                <field name="name" string="Task"/>
-                <field name="assigned_to_id"/>
-                <field name="assigned_by_id"/>
-                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]"/>
-                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
-                <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
-                <filter string="Issues / Complaints" name="filter_complaint" domain="[('state', '=', 'complaint')]"/>
-                <group string="Group By">
-                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Assigned Employee" name="group_assigned_to" context="{'group_by': 'assigned_to_id'}"/>
-                    <filter string="Assigned By" name="group_assigned_by" context="{'group_by': 'assigned_by_id'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- Action Window -->
     <record id="action_crm_task_management" model="ir.actions.act_window">
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_crm_task_management_search"/>
     </record>
 </odoo>
