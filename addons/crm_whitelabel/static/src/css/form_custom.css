@@ -362,10 +362,24 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   --o-brand-odoo: #0b3d91 !important;
 }
 
-/* 1. Global Autocomplete Dropdown Menu Box */
+/* Red Asterisk on Required Field Labels */
+.crm-assign-work-wizard-form .o_form_label.o_required_modifier::after,
+.crm-assign-work-wizard-form .crm-wizard-label.o_required_modifier::after,
+.crm-assign-work-wizard-form label.o_required_modifier::after,
+.crm-assign-work-wizard-form label:has(+ .o_required_modifier)::after {
+  content: " *" !important;
+  color: #ef4444 !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  margin-left: 2px !important;
+}
+
+/* 1. Global Autocomplete Dropdown Menu Box - Full width matching input */
 .o-autocomplete--dropdown-menu,
 .ui-autocomplete,
 .dropdown-menu:has(.o-autocomplete--dropdown-item) {
+  width: min(532px, 100%) !important;
+  min-width: min(532px, 100%) !important;
   border-radius: 10px !important;
   border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
