@@ -13,9 +13,9 @@ class ResUsers(models.Model):
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
 
-    def name_get(self):
+    @api.depends('name', 'login', 'email', 'crm_department_id.name')
+    def _compute_display_name(self):
         """Show rich format: 'Name (Department · Email)' in dropdowns when searching users."""
-        result = []
         for user in self:
             name = user.name or user.login or ''
             dept = (user.crm_department_id and user.crm_department_id.name) or (user.employee_id and user.employee_id.department_id and user.employee_id.department_id.name) or ''
@@ -26,10 +26,14 @@ class ResUsers(models.Model):
             if email and email != name:
                 extra.append(email)
             if extra:
-                display = f"{name} ({' · '.join(extra)})"
+                user.display_name = f"{name} ({' · '.join(extra)})"
             else:
-                display = name
-            result.append((user.id, display))
+                user.display_name = name
+
+    def name_get(self):
+        result = []
+        for user in self:
+            result.append((user.id, user.display_name or user.name or user.login or ''))
         return result
 
     @api.model
@@ -44,8 +48,9 @@ class ResUsers(models.Model):
                 ('crm_department_id.name', operator, name)
             ]
             records = self.search(search_dom + dom, limit=limit)
-            return [(r.id, r.display_name or r.name) for r in records] if hasattr(records, 'display_name') else records.name_get()
+            return [(r.id, r.display_name) for r in records]
         return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
+
 
 
     @api.model

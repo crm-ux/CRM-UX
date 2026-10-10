@@ -352,11 +352,14 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* Modern Autocomplete Dropdown List for Assign Work & Forms */
-.crm-assign-work-wizard-form .ui-autocomplete,
-.ui-autocomplete:has(.o-autocomplete--dropdown-item),
-.o-autocomplete--dropdown-menu {
-  width: 100% !important;
-  max-width: 530px !important;
+.crm-assign-work-wizard-form {
+  --o-input-focus-border-color: #0b3d91 !important;
+  --o-caret-color: #0b3d91 !important;
+}
+
+.o-autocomplete--dropdown-menu,
+.ui-autocomplete,
+.crm-assign-work-wizard-form .ui-autocomplete {
   border-radius: 10px !important;
   border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
@@ -368,13 +371,13 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   overflow-y: auto !important;
 }
 
-.crm-assign-work-wizard-form .ui-autocomplete .ui-menu-item,
+.o-autocomplete--dropdown-item,
 .ui-autocomplete .ui-menu-item,
-.o-autocomplete--dropdown-item {
+.crm-assign-work-wizard-form .ui-autocomplete .ui-menu-item {
   padding: 8px 12px !important;
   border-radius: 6px !important;
   font-size: 0.88rem !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
   color: #1e293b !important;
   cursor: pointer !important;
   transition: all 0.15s ease !important;
@@ -382,15 +385,17 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   align-items: center !important;
 }
 
-.crm-assign-work-wizard-form .ui-autocomplete .ui-menu-item:hover,
-.crm-assign-work-wizard-form .ui-autocomplete .ui-state-active,
-.ui-autocomplete .ui-state-active,
 .o-autocomplete--dropdown-item:hover,
-.o-autocomplete--dropdown-item.focus {
+.o-autocomplete--dropdown-item.focus,
+.o-autocomplete--dropdown-item.active,
+.ui-autocomplete .ui-state-active,
+.crm-assign-work-wizard-form .ui-autocomplete .ui-state-active {
   background: #f1f5f9 !important;
   color: #0b3d91 !important;
   border: none !important;
+  font-weight: 600 !important;
 }
+
 
 /* Attachment Dropzone Area */
 .crm-assign-work-wizard-form .crm-wizard-attachment-group {
