@@ -7,7 +7,7 @@ import { user } from "@web/core/user";
 
 export class AssignWorkModalDialog extends Component {
     static template = xml`
-        <Dialog title="'Assign Work'" size="'md'" contentClass="'p-0'" footer="false">
+        <Dialog title="'Assign Work'" size="'md'" contentClass="'crm-assign-work-dialog p-0'" footer="false">
             <div class="crm-assign-work-modal-body" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.95rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 
                 <!-- 1. Select Team Member -->
