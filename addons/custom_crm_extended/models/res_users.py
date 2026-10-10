@@ -117,6 +117,64 @@ class ResUsers(models.Model):
         return False
 
     @api.model
+    def assign_team_task(self, target_user_id, title, note='', deadline=False, attachment_name='', attachment_data=''):
+        """Creates an activity and sends a direct mail notification to the target user."""
+        target_user = self.browse(int(target_user_id)).sudo()
+        if not target_user.exists():
+            return {'success': False, 'error': 'User not found'}
+
+        sender = self.env.user.sudo()
+        target_partner = target_user.partner_id.sudo() if target_user.partner_id else False
+        if not target_partner:
+            return {'success': False, 'error': 'Target partner not found'}
+
+        # 1. Attachment if present
+        attachment_ids = []
+        if attachment_name and attachment_data:
+            att = self.env['ir.attachment'].sudo().create({
+                'name': attachment_name,
+                'datas': attachment_data,
+                'res_model': 'mail.activity',
+                'res_id': 0,
+                'type': 'binary',
+            })
+            if att:
+                attachment_ids.append(att.id)
+
+        # 2. Activity
+        act_vals = {
+            'res_model': 'res.users',
+            'res_id': target_user.id,
+            'activity_type_id': 1,
+            'summary': (title or '').strip(),
+            'note': (note or '').strip(),
+            'user_id': target_user.id,
+            'date_deadline': deadline or fields.Date.today(),
+        }
+        self.env['mail.activity'].sudo().create(act_vals)
+
+        # 3. Notification Message with target_partner in partner_ids
+        body_text = f"<b>New Task: {(title or '').strip()}</b>"
+        if note and note.strip():
+            body_text += f"<br/>{note.strip()}"
+        if attachment_name:
+            body_text += f"<br/><small style='color:#0b3d91;'>📎 Attached: {attachment_name}</small>"
+
+        msg = self.env['mail.message'].sudo().create({
+            'subject': (title or '').strip(),
+            'body': body_text,
+            'model': 'res.partner',
+            'res_id': target_partner.id,
+            'message_type': 'comment',
+            'subtype_id': self.env.ref('mail.mt_comment').id if self.env.ref('mail.mt_comment', raise_if_not_found=False) else False,
+            'author_id': sender.partner_id.id if sender.partner_id else False,
+            'partner_ids': [(6, 0, [target_partner.id])],
+            'attachment_ids': [(6, 0, attachment_ids)] if attachment_ids else False,
+        })
+
+        return {'success': True, 'message_id': msg.id if msg else False}
+
+    @api.model
     def get_assignable_team_members(self, user_id=None, search_term=""):
         """Returns list of employees that this manager/admin can assign tasks to,
         filtered by subordinates, department, and managed sub-departments."""

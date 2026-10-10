@@ -1370,62 +1370,21 @@ class CrmDashboard extends Component {
 
             const deadline = this.state.taskDeadline || new Date().toISOString().split('T')[0];
 
-            // 1. Create proper Odoo Activity (To-Do) assigned to user
-            await rpc("/web/dataset/call_kw", {
-                model: "mail.activity",
-                method: "create",
-                args: [{
-                    res_model: "res.users",
-                    res_id: this.state.selectedUser.id,
-                    activity_type_id: 1,
-                    summary: this.state.taskTitle.trim(),
+            // Call backend sudo method to ensure task activity and notification are created
+            const assignRes = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "assign_team_task",
+                args: [this.state.selectedUser.id, this.state.taskTitle.trim()],
+                kwargs: {
                     note: this.state.taskNote ? this.state.taskNote.trim() : "",
-                    user_id: this.state.selectedUser.id,
-                    date_deadline: deadline,
-                }],
-                kwargs: {},
+                    deadline: deadline,
+                    attachment_name: this.state.taskAttachmentName || "",
+                    attachment_data: this.state.taskAttachmentData || "",
+                },
             });
 
-            // 2. Post notification chatter comment to trigger bell alert
-            let bodyText = "<b>New Task: " + this.state.taskTitle.trim() + "</b>";
-            if (this.state.taskNote) {
-                bodyText += "<br/>" + this.state.taskNote.trim();
-            }
-            if (this.state.taskAttachmentName) {
-                bodyText += "<br/><small style='color:#0b3d91;'>📎 Attached: " + this.state.taskAttachmentName + "</small>";
-            }
-
-            // Determine recipient partner_id
-            let recipientPartnerId = this.state.selectedUser.partner_id;
-            if (!recipientPartnerId) {
-                try {
-                    const uRec = await rpc("/web/dataset/call_kw", {
-                        model: "res.users",
-                        method: "read",
-                        args: [[this.state.selectedUser.id], ['partner_id']],
-                        kwargs: {}
-                    });
-                    if (uRec && uRec.length && uRec[0].partner_id) {
-                        recipientPartnerId = uRec[0].partner_id[0];
-                    }
-                } catch (pe) {
-                    console.error("Partner lookup error:", pe);
-                }
-            }
-
-            if (recipientPartnerId) {
-                await rpc("/web/dataset/call_kw", {
-                    model: "res.partner",
-                    method: "message_post",
-                    args: [[recipientPartnerId]],
-                    kwargs: {
-                        body: bodyText,
-                        message_type: "comment",
-                        subtype_xmlid: "mail.mt_comment",
-                        partner_ids: [recipientPartnerId],
-                        attachment_ids: attachmentIds,
-                    },
-                });
+            if (assignRes && assignRes.success === false) {
+                console.warn("Backend assign warning:", assignRes.error);
             }
 
             this.showToast("Task assigned to " + this.state.selectedUser.name);
@@ -1456,10 +1415,34 @@ class CrmDashboard extends Component {
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
+    async _getCurrentPartnerId() {
+        if (this._cachedPartnerId) return this._cachedPartnerId;
+        if (user.partnerId) {
+            this._cachedPartnerId = user.partnerId;
+            return this._cachedPartnerId;
+        }
+        try {
+            const uid = this.state.viewAsUserId || user.userId;
+            const uData = await rpc("/web/dataset/call_kw", {
+                model: "res.users",
+                method: "read",
+                args: [[uid], ['partner_id']],
+                kwargs: {}
+            });
+            if (uData && uData.length && uData[0].partner_id) {
+                this._cachedPartnerId = uData[0].partner_id[0];
+                return this._cachedPartnerId;
+            }
+        } catch (e) {
+            console.error("Failed to get partnerId:", e);
+        }
+        return 0;
+    }
     async loadNotifCount() {
         try {
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
-            const partnerId = user.partnerId || (this.state.myProfile && this.state.myProfile.id) || 0;
+            const partnerId = await this._getCurrentPartnerId();
+            if (!partnerId) return;
             const messages = await rpc('/web/dataset/call_kw', {
                 model: 'mail.message',
                 method: 'search_read',
@@ -1473,14 +1456,17 @@ class CrmDashboard extends Component {
         this.state.notifOpen = !this.state.notifOpen;
         if (this.state.notifOpen) {
             try {
-                const partnerId = user.partnerId || (this.state.myProfile && this.state.myProfile.id) || 0;
+                const partnerId = await this._getCurrentPartnerId();
                 // Query the latest notifications for current user, strictly newest 3
-                const messages = await rpc('/web/dataset/call_kw', {
-                    model: 'mail.message',
-                    method: 'search_read',
-                    args: [[['partner_ids', 'in', [partnerId]]]],
-                    kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 3, order: 'date desc' }
-                });
+                let messages = [];
+                if (partnerId) {
+                    messages = await rpc('/web/dataset/call_kw', {
+                        model: 'mail.message',
+                        method: 'search_read',
+                        args: [[['partner_ids', 'in', [partnerId]]]],
+                        kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 3, order: 'date desc' }
+                    });
+                }
                 localStorage.setItem('crm_read_notifs', JSON.stringify(messages.map(m => m.id)));
                 this.state.notifCount = 0;
                 this.state.notifications = messages.map(m => {
