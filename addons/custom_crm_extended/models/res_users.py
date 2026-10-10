@@ -129,6 +129,9 @@ class ResUsers(models.Model):
             if not target_partner:
                 return {'success': False, 'error': 'Target partner not found'}
 
+            clean_title = (title or '').strip()
+            clean_note = (note or '').strip()
+
             # 1. Attachment if present
             attachment_ids = []
             if attachment_name and attachment_data:
@@ -136,43 +139,45 @@ class ResUsers(models.Model):
                     att = self.env['ir.attachment'].sudo().create({
                         'name': attachment_name,
                         'datas': attachment_data,
-                        'res_model': 'mail.activity',
-                        'res_id': 0,
+                        'res_model': 'res.partner',
+                        'res_id': target_partner.id,
                         'type': 'binary',
                     })
                     if att:
                         attachment_ids.append(att.id)
-                except Exception as ae:
+                except Exception:
                     pass
 
-            # 2. Activity Type lookup safely
+            # 2. Activity on res.partner (which natively supports mail.activity.mixin)
             act_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
+            if not act_type:
+                act_type = self.env['mail.activity.type'].sudo().search([('res_model', 'in', ['res.partner', False])], limit=1)
             if not act_type:
                 act_type = self.env['mail.activity.type'].sudo().search([], limit=1)
 
             if act_type:
                 try:
                     self.env['mail.activity'].sudo().create({
-                        'res_model': 'res.users',
-                        'res_id': target_user.id,
+                        'res_model_id': self.env['ir.model'].sudo().search([('model', '=', 'res.partner')], limit=1).id,
+                        'res_id': target_partner.id,
                         'activity_type_id': act_type.id,
-                        'summary': (title or '').strip(),
-                        'note': (note or '').strip(),
+                        'summary': clean_title,
+                        'note': clean_note,
                         'user_id': target_user.id,
                         'date_deadline': deadline or fields.Date.today(),
                     })
-                except Exception as ace:
+                except Exception:
                     pass
 
-            # 3. Notification Message with target_partner in partner_ids
-            body_text = f"<b>New Task: {(title or '').strip()}</b>"
-            if note and str(note).strip():
-                body_text += f"<br/>{str(note).strip()}"
+            # 3. Notification Message
+            body_text = f"<b>New Task: {clean_title}</b>"
+            if clean_note:
+                body_text += f"<br/>{clean_note}"
             if attachment_name:
                 body_text += f"<br/><small style='color:#0b3d91;'>📎 Attached: {attachment_name}</small>"
 
             msg_vals = {
-                'subject': (title or '').strip(),
+                'subject': clean_title,
                 'body': body_text,
                 'model': 'res.partner',
                 'res_id': target_partner.id,
