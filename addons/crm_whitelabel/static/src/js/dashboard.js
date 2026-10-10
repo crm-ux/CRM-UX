@@ -162,11 +162,13 @@ class CrmDashboard extends Component {
         window.testAssignWork = () => this.openAssignTaskWizard();
 
         onMounted(() => {
-            if (window.__openAssignWorkModal) {
+            const needOpenModal = window.__openAssignWorkModal || sessionStorage.getItem("crm_open_assign_work_modal") === "true";
+            if (needOpenModal) {
                 window.__openAssignWorkModal = false;
+                try { sessionStorage.removeItem("crm_open_assign_work_modal"); } catch (e) {}
                 setTimeout(() => {
                     this.openAssignTaskWizard();
-                }, 150);
+                }, 100);
             }
             this.checkAdminStatus().then(() => {
                 this.loadCompanies().then(() => {
