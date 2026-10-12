@@ -641,7 +641,10 @@ class SaleOrder(models.Model):
                 prev_stage = stage_order[idx - 1]
                 self.x_quote_stage = prev_stage
                 self.x_final_quote_locked = False
-                self.message_post(body=_('Quote moved back to <b>%s</b> by admin.') % prev_stage.title())
+                if current == 'won':
+                    self.x_po_number = False
+                    self.x_po_date = False
+                self.message_post(body=_('Quote moved back to <b>%s</b>.') % prev_stage.replace('_', ' ').title())
                 if self.opportunity_id:
                     sync_map = {
                         'draft': 30, 'sent': 35, 'negotiation': 40,
@@ -651,7 +654,15 @@ class SaleOrder(models.Model):
                     if seq:
                         stage = self.opportunity_id._get_stage_by_sequence(seq)
                         if stage:
-                            self.opportunity_id.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
+                            vals_to_write = {'stage_id': stage.id}
+                            if current == 'won':
+                                vals_to_write['x_po_number'] = False
+                                vals_to_write['x_po_date'] = False
+                            self.opportunity_id.with_context(bypass_stage_lock=True).write(vals_to_write)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def action_move_to_order_expected(self):
         self.ensure_one()
