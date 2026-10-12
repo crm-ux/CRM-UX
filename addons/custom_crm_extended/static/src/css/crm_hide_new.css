@@ -642,37 +642,51 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     pointer-events: none !important;
 }
 
-/* Ensure download button in task management is visible and icons sit cleanly on far right */
+/* Ensure filename stays left and ALL icons (pencil, trash, download, eye) stay together on the far right */
 .crm_task_attachment_box {
     width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
 }
 
+/* Odoo's internal binary wrapper spans 100% so its buttons push right */
 .crm_task_attachment_box .o_field_binary_file {
-    max-width: calc(100% - 60px) !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important; /* allows child text truncation inside flexbox */
 }
 
-.crm_task_attachment_box .o_field_binary_file a {
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+/* The filename link: fills available space, truncating with ellipsis (...) when reaching the icons */
+.crm_task_attachment_box .o_field_binary_file a:not([download]):not(.btn) {
+    display: inline-block !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin-right: auto !important; /* pushes all buttons after it to far right */
+    padding-right: 0.5rem !important;
 }
 
-.crm_task_attachment_box .fa-download,
+/* Keep all action icons (edit, trash, download) clustered together with no wrapping or shrinking */
+.crm_task_attachment_box .o_field_binary_file .btn,
+.crm_task_attachment_box .o_field_binary_file a[download],
 .crm_task_attachment_box .o_download_file_button,
-.crm_task_attachment_box a[download],
-.crm_task_attachment_box button[title*="Download" i] {
-    display: inline-block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-    color: #0b3d91 !important;
-    margin-right: 0.35rem !important;
+.crm_task_attachment_box .o_clear_file_button,
+.crm_task_attachment_box .o_select_file_button {
+    margin-left: 0.35rem !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
 }
 
+/* Preview eye icon sits immediately beside the download / action buttons */
 .crm_task_attachment_box button[name="action_preview_task_attachment"] {
-    display: inline-block !important;
-    margin-left: auto !important;
+    margin-left: 0.35rem !important;
+    flex-shrink: 0 !important;
 }
+
 
 
 
