@@ -95,16 +95,16 @@ class RecordLogDialog extends Component {
                             <span class="text-muted small" t-esc="entry.date"/>
                         </div>
                         <ul class="list-unstyled mb-0 ps-3 small">
-                            <li t-foreach="entry.changes" t-as="ch" t-key="ch.id" class="text-secondary py-1">
+                            <li t-foreach="entry.changes" t-as="ch" t-key="ch.id" class="py-1">
                                 <t t-if="ch.isMessage">
-                                    <div class="p-2 rounded bg-light border mt-1">
-                                        <div class="fw-semibold text-dark mb-1">
+                                    <div class="p-2 rounded bg-white border mt-1 shadow-sm">
+                                        <div class="fw-bold text-dark mb-1" style="font-size: 0.88rem;">
                                             <i class="fa fa-envelope-o me-1 text-primary" t-if="ch.isEmail"/>
                                             <i class="fa fa-comment-o me-1 text-secondary" t-if="!ch.isEmail"/>
                                             <span t-esc="ch.field"/>
                                         </div>
-                                        <div class="text-muted fst-italic mb-1 small" t-if="ch.oldValue" t-esc="ch.oldValue"/>
-                                        <div class="text-secondary" style="white-space: pre-wrap; font-size: 0.82rem;" t-esc="ch.newValue"/>
+                                        <div class="text-secondary small mb-1" t-if="ch.oldValue" t-esc="ch.oldValue"/>
+                                        <div class="text-dark fw-normal" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.45;" t-esc="ch.newValue"/>
                                     </div>
                                 </t>
                                 <t t-else="">
@@ -233,14 +233,16 @@ class RecordLogDialog extends Component {
                         if (m.body) {
                             const tmp = document.createElement("div");
                             tmp.innerHTML = m.body;
-                            // Clean innerHTML double entities like &lt;b&gt;
-                            if (tmp.textContent && (tmp.textContent.includes("&lt;") || tmp.textContent.includes("&gt;"))) {
+                            let txt = tmp.textContent || tmp.innerText || "";
+                            // Decode again if still contains &lt; or &gt;
+                            if (txt.includes("&lt;") || txt.includes("&gt;") || txt.includes("&amp;")) {
                                 const tmp2 = document.createElement("div");
-                                tmp2.innerHTML = tmp.textContent;
-                                cleanBody = (tmp2.textContent || tmp2.innerText || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
-                            } else {
-                                cleanBody = (tmp.textContent || tmp.innerText || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+                                tmp2.innerHTML = txt;
+                                txt = tmp2.textContent || tmp2.innerText || "";
                             }
+                            // Strip any remaining raw HTML tags like <b>, </b>, etc.
+                            txt = txt.replace(/<[^>]+>/g, " ");
+                            cleanBody = txt.replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
                         }
                         changes.push({
                             id: `msg_${m.id}`,
