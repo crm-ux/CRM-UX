@@ -74,12 +74,51 @@ button[name="action_sale_quotations_new"]:hover {
 }
 
 /* ── CRM STAGE BAR: arrow shape, blue family ── */
+.o_form_view .o_form_statusbar,
+.o_form_statusbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+}
+
 .o_statusbar_status {
+    display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
     background: transparent !important;
     gap: 2px !important;
+    margin-left: auto !important;
+    justify-content: flex-end !important;
+    max-width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important; /* Hide scrollbar Firefox */
 }
+
+.o_statusbar_status::-webkit-scrollbar {
+    display: none !important; /* Hide scrollbar Chrome/Safari */
+}
+
+/* On mobile / tablet screens: ensure statusbar stays intact and doesn't get clipped */
+@media (max-width: 768px) {
+    .o_form_view .o_form_statusbar,
+    .o_form_statusbar {
+        flex-wrap: wrap !important;
+        justify-content: flex-end !important;
+        gap: 0.5rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+
+    .o_statusbar_status {
+        width: 100% !important;
+        justify-content: flex-end !important;
+        padding-bottom: 2px !important;
+    }
+}
+
 
 /* Non-active stage: subtle blue */
 .o_statusbar_status button.o_arrow_button {
