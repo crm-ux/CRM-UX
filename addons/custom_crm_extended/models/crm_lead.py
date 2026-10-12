@@ -29,6 +29,14 @@ class CrmLead(models.Model):
     """
     _inherit = 'crm.lead'
 
+    user_id = fields.Many2one('res.users', string='Salesperson', tracking=True)
+    partner_id = fields.Many2one('res.partner', string='Customer', tracking=True)
+    partner_name = fields.Char(string='Company Name', tracking=True)
+    contact_name = fields.Char(string='Contact Name', tracking=True)
+    email_from = fields.Char(string='Email', tracking=True)
+    phone = fields.Char(string='Phone', tracking=True)
+    expected_revenue = fields.Monetary(string='Expected Revenue', tracking=True)
+
     priority = fields.Selection(
         selection=[
             ('0', 'Low'),
@@ -39,6 +47,7 @@ class CrmLead(models.Model):
         string='Priority',
         default='0',
         index=True,
+        tracking=True,
     )
 
     # ------------------------------------------------------------------
