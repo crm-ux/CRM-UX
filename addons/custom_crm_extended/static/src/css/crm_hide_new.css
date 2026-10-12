@@ -573,7 +573,7 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     color: #ffffff !important;
 }
 
-/* Change Trash (delete) and Eye (preview) icons to brand blue #0b3d91 */
+/* Change Trash (delete), Edit (pencil), Download and Eye (preview) icons to brand blue #0b3d91 */
 .crm_invoice_field_box .fa-trash,
 .crm_invoice_field_box .fa-trash-o,
 .crm_invoice_field_box .o_clear_file_button,
@@ -581,14 +581,32 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 .crm_invoice_field_box button[title*="Remove" i],
 .crm_invoice_field_box .fa-eye,
 .crm_invoice_field_box button[name="action_preview_invoice"],
-.crm_invoice_field_box button[name="action_preview_invoice"] i {
+.crm_invoice_field_box button[name="action_preview_invoice"] i,
+.crm_invoice_field_box button[name="action_preview_task_attachment"],
+.crm_invoice_field_box button[name="action_preview_task_attachment"] i,
+.crm_task_attachment_box .fa-eye,
+.crm_task_attachment_box .fa-pencil,
+.crm_task_attachment_box .fa-download,
+.crm_task_attachment_box .fa-trash,
+.crm_task_attachment_box .fa-trash-o,
+.crm_task_attachment_box .o_select_file_button,
+.crm_task_attachment_box .o_clear_file_button,
+.crm_task_attachment_box button {
     color: #0b3d91 !important;
 }
 
 .crm_invoice_field_box .o_clear_file_button:hover,
-.crm_invoice_field_box button[name="action_preview_invoice"]:hover i {
+.crm_invoice_field_box button[name="action_preview_invoice"]:hover i,
+.crm_task_attachment_box button:hover i {
     color: #082d6e !important;
 }
+
+/* Override default Odoo purple on binary buttons inside Form Views */
+[js_class="crm_task_management_form"] .o_field_binary_file .btn,
+[js_class="crm_task_management_form"] .crm_task_attachment_box button {
+    color: #0b3d91 !important;
+}
+
 
 /* Completely remove and hide any download icon or download button on invoice field & preview */
 .crm_invoice_field_box .fa-download,

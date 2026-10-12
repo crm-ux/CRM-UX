@@ -16,7 +16,7 @@ class CrmTaskManagement(models.Model):
     # Manager Instructions
     instructions = fields.Text(string='Work Details / Instructions')
     attachment_name = fields.Char(string='Attachment Name')
-    attachment_file = fields.Binary(string='Attachment (Drawings, PO, PDF)', attachment=True)
+    attachment_file = fields.Binary(string='Attachment', attachment=True)
 
     # Employee Action & Reporting
     state = fields.Selection([
@@ -76,6 +76,23 @@ class CrmTaskManagement(models.Model):
                         raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only managers/administrators can change these details."))
         return super(CrmTaskManagement, self).write(vals)
 
+    def action_preview_task_attachment(self):
+        """Action button for Task Attachment preview."""
+        return True
+
+    @api.model
+    def action_get_task_attachment_preview(self, res_id=None, raw_b64=None, filename=None, field_name='attachment_file'):
+        """Extract preview content for Task Management attachments (delegates to universal parser)."""
+        if res_id:
+            rec = self.sudo().browse(int(res_id))
+            if rec.exists():
+                raw_b64 = rec.attachment_file or raw_b64
+                filename = rec.attachment_name or filename
+
+        return self.env['equipment.master'].action_get_invoice_preview_content(
+            res_id=False, raw_b64=raw_b64, filename=filename
+        )
+
     # Security domain rule helper
     def check_user_can_create(self):
         u = self.env.user
@@ -89,4 +106,5 @@ class CrmTaskManagement(models.Model):
         if emp and bool(self.env['hr.employee'].sudo().search_count([('parent_id', '=', emp.id), ('id', '!=', emp.id)])):
             return True
         return False
+
 
