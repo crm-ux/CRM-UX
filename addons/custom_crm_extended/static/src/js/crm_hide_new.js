@@ -23,6 +23,10 @@ patch(ActionMenus.prototype, {
             return !desc.includes("payment link");
         });
     },
+
+    async getPrintItems() {
+        return [];
+    },
 });
 
 
