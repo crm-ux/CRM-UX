@@ -15,9 +15,13 @@ class ResUsers(models.Model):
 
     @api.depends('name', 'email', 'crm_department_id.name')
     def _compute_display_name(self):
-        """Show rich format: 'Name (Department · Email)' in dropdowns when searching users."""
+        """Show clean user name by default, and rich format 'Name (Dept · Email)' when requested in context."""
+        show_rich = self.env.context.get('show_rich_user_name')
         for user in self:
             name = user.name or ''
+            if not show_rich:
+                user.display_name = name
+                continue
             emp = user.employee_id
             dept = (user.crm_department_id and user.crm_department_id.name) or (emp and emp.department_id and emp.department_id.name) or ''
             email = (user.partner_id and user.partner_id.email) or user.email or (emp and emp.work_email) or ''
