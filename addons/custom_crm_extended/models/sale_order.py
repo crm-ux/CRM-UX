@@ -710,6 +710,27 @@ class SaleOrder(models.Model):
                 po_date=self.x_po_date
             )
 
+    def unlink(self):
+        """If a Won quote is deleted, check linked lead and revert to Opportunity stage if no other Won quotes exist."""
+        leads_to_revert = self.env['crm.lead']
+        for order in self:
+            if order.x_quote_stage == 'won' and order.opportunity_id:
+                # Find if there are any OTHER won quotes for this lead that are NOT being deleted now
+                other_won_quotes = self.env['sale.order'].search([
+                    ('opportunity_id', '=', order.opportunity_id.id),
+                    ('x_quote_stage', '=', 'won'),
+                    ('id', 'not in', self.ids),
+                ], limit=1)
+                if not other_won_quotes:
+                    leads_to_revert |= order.opportunity_id
+
+        res = super(SaleOrder, self).unlink()
+
+        for lead in leads_to_revert.exists():
+            lead.action_move_to_opportunity_sync()
+
+        return res
+
     def action_mark_lost(self):
         """Mark quote as Lost - requires a lost reason."""
         self.ensure_one()

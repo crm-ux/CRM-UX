@@ -408,6 +408,17 @@ class CrmLead(models.Model):
         if po_date:
             self.x_po_date = po_date
 
+    def action_move_to_opportunity_sync(self):
+        """Called when a Won quote is deleted and no other Won quotes remain."""
+        stage = self._get_stage_by_sequence(20)
+        if stage:
+            self.with_context(bypass_stage_lock=True).write({
+                'stage_id': stage.id,
+                'x_po_number': False,
+                'x_po_date': False,
+            })
+            self.message_post(body=_('Won quotation was deleted. Lead reverted to <b>Opportunity</b> stage.'))
+
     def action_move_to_negotiation_sync(self):
         """Called by sale.order when quote is moved to Negotiation - syncs lead stage."""
         stage = self._get_stage_by_sequence(40)
