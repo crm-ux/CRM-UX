@@ -34,6 +34,7 @@ class CrmDashboard extends Component {
             amcTotalVal: 0, amcDraftVal: 0, amcActiveVal: 0, amcExpiredVal: 0,
             amcInvoiceCreated: 0, amcInvoicePending: 0,
             amcInvoiceCreatedVal: 0, amcInvoicePendingVal: 0,
+            amcViewMode: 'contract', // 'contract' or 'invoice'
             equipmentTotalVal: 0, equipmentActiveVal: 0, equipmentInactiveVal: 0, equipmentRepairVal: 0,
             ticketTotalVal: 0, ticketOpenVal: 0, ticketOngoingVal: 0, ticketClosedVal: 0,
             stockTotalVal: 0,
@@ -1175,6 +1176,14 @@ class CrmDashboard extends Component {
             return;
         }
         this.openAmcList([], "All AMC Contracts");
+    }
+
+    toggleAmcViewMode(ev) {
+        if (ev) {
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+        this.state.amcViewMode = this.state.amcViewMode === 'invoice' ? 'contract' : 'invoice';
     }
 
     openAmcList(domain = [], title = "AMC Contracts") {
