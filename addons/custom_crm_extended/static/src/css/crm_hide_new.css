@@ -775,3 +775,14 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 .o_cp_action_menus [data-menu*="report"] {
     display: none !important;
 }
+
+/* Collapse empty dropdown group containers or leading dividers in gear menu */
+.o-dropdown--menu > div:first-child:empty,
+.o-dropdown--menu > div:has(> .dropdown-item[style*="display: none"]:only-child),
+.o-dropdown--menu > div:has(> .o-dropdown-item[style*="display: none"]:only-child),
+.o-dropdown--menu > .dropdown-divider:first-child,
+.o-dropdown--menu > hr:first-child {
+    display: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
