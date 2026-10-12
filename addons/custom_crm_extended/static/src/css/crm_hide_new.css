@@ -73,7 +73,7 @@ button[name="action_sale_quotations_new"]:hover {
     width: 100% !important;
 }
 
-/* ── CRM STAGE BAR: arrow shape, blue family ── */
+/* ── STAGE STATUSBAR: Clean alignment and mobile scroll ── */
 .o_form_view .o_form_statusbar,
 .o_form_statusbar {
     display: flex !important;
@@ -95,65 +95,39 @@ button[name="action_sale_quotations_new"]:hover {
     justify-content: flex-end !important;
     max-width: 100% !important;
     -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-    /* Hide scrollbar Firefox */
 }
 
-.o_statusbar_status::-webkit-scrollbar {
-    display: none !important;
-    /* Hide scrollbar Chrome/Safari */
-}
-
-/* On mobile / tablet screens: ensure all 4 stages fit in 1 single row with compact text and padding */
+/* Mobile & Tablet: allow clean touch swipe without cutting off or shrinking stages backwards */
 @media (max-width: 768px) {
-
     .o_form_view .o_form_statusbar,
     .o_form_statusbar {
         width: 100% !important;
-        padding: 0.35rem 0.5rem !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        padding: 0.25rem 0.5rem !important;
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     .o_statusbar_status {
-        width: 100% !important;
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        gap: 3px !important;
+        width: auto !important;
+        min-width: 100% !important;
         margin: 0 !important;
-        padding: 0 !important;
+        justify-content: flex-start !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 3px !important;
     }
 
     .o_statusbar_status button,
     .o_statusbar_status button.o_arrow_button,
-    .o_statusbar_status .o_arrow_button,
-    .o_statusbar_status > * {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex: 1 1 0 !important;
-        min-width: 0 !important;
-        padding: 4px 1px !important;
-        font-size: 9px !important;
-        font-weight: 600 !important;
-        line-height: 1.1 !important;
-        text-align: center !important;
+    .o_statusbar_status .o_arrow_button {
+        flex: 0 0 auto !important;
+        padding: 4px 10px !important;
+        font-size: 11px !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        border-radius: 4px !important;
-    }
-
-    .o_statusbar_status button.o_arrow_button::before,
-    .o_statusbar_status button.o_arrow_button::after {
-        display: none !important;
-        /* Hide bulky arrow tails on mobile so text has full width */
     }
 }
+
 
 
 /* Non-active stage: subtle blue */
