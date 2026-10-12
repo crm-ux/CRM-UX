@@ -642,46 +642,38 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     pointer-events: none !important;
 }
 
-/* Ensure download button in task management is visible and sits immediately next to the preview eye */
+/* Ensure download button in task management is visible and icons sit cleanly on far right */
 .crm_task_attachment_box {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    width: auto !important;
+    width: 100% !important;
 }
 
 .crm_task_attachment_box .o_field_binary_file {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.35rem !important;
-    width: auto !important;
+    max-width: calc(100% - 60px) !important;
 }
 
-/* In read-only mode, put download icon after the filename (or directly beside the preview eye) */
+.crm_task_attachment_box .o_field_binary_file a {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
 .crm_task_attachment_box .fa-download,
 .crm_task_attachment_box .o_download_file_button,
 .crm_task_attachment_box a[download],
 .crm_task_attachment_box button[title*="Download" i] {
-    display: inline-flex !important;
-    align-items: center !important;
+    display: inline-block !important;
     visibility: visible !important;
     pointer-events: auto !important;
     color: #0b3d91 !important;
-    font-size: 1.1rem !important;
-    text-decoration: none !important;
-    order: 2 !important; /* puts download icon right after filename text */
-}
-
-.crm_task_attachment_box a:not([download]) {
-    order: 1 !important; /* filename text first */
+    margin-right: 0.35rem !important;
 }
 
 .crm_task_attachment_box button[name="action_preview_task_attachment"] {
-    display: inline-flex !important;
-    align-items: center !important;
-    order: 3 !important; /* preview eye directly to the right of download */
-    margin-left: 0.15rem !important;
+    display: inline-block !important;
+    margin-left: auto !important;
 }
+
 
 
 

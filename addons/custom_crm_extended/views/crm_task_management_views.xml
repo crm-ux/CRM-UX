@@ -50,15 +50,15 @@
                         </group>
                         <group string="Attachments &amp; Files">
                             <label for="attachment_file" string="Attachment (Drawings, PO, PDF)"/>
-                            <div class="d-flex align-items-center crm_task_attachment_box crm_invoice_field_box">
+                            <div class="d-flex align-items-center justify-content-between w-100 crm_task_attachment_box crm_invoice_field_box">
                                 <field name="attachment_name" invisible="1"/>
-                                <field name="attachment_file" filename="attachment_name" readonly="not can_edit_manager_fields" class="m-0 p-0"/>
+                                <field name="attachment_file" filename="attachment_name" readonly="not can_edit_manager_fields" class="m-0 p-0 me-3" style="max-width: 80%;"/>
                                 <button name="action_preview_task_attachment" 
                                         type="object" 
                                         icon="fa-eye" 
                                         title="Preview Attachment" 
                                         invisible="not attachment_file" 
-                                        class="btn btn-sm btn-link text-primary p-0 ms-2" 
+                                        class="btn btn-sm btn-link text-primary p-0" 
                                         style="font-size: 1.15rem; color: #0b3d91 !important;"/>
                             </div>
                         </group>
