@@ -95,27 +95,52 @@ button[name="action_sale_quotations_new"]:hover {
     justify-content: flex-end !important;
     max-width: 100% !important;
     -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important; /* Hide scrollbar Firefox */
+    scrollbar-width: none !important;
+    /* Hide scrollbar Firefox */
 }
 
 .o_statusbar_status::-webkit-scrollbar {
-    display: none !important; /* Hide scrollbar Chrome/Safari */
+    display: none !important;
+    /* Hide scrollbar Chrome/Safari */
 }
 
-/* On mobile / tablet screens: ensure statusbar stays intact and doesn't get clipped */
+/* On mobile / tablet screens: ensure all 4 stages fit in 1 single row with compact text and padding */
 @media (max-width: 768px) {
+
     .o_form_view .o_form_statusbar,
     .o_form_statusbar {
-        flex-wrap: wrap !important;
-        justify-content: flex-end !important;
-        gap: 0.5rem !important;
-        padding: 0.5rem 0.75rem !important;
+        width: 100% !important;
+        padding: 0.35rem 0.5rem !important;
+        justify-content: center !important;
     }
 
     .o_statusbar_status {
         width: 100% !important;
-        justify-content: flex-end !important;
-        padding-bottom: 2px !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        gap: 2px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .o_statusbar_status button.o_arrow_button,
+    .o_statusbar_status .o_arrow_button {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        padding: 4px 2px !important;
+        font-size: 9.5px !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    .o_statusbar_status button.o_arrow_button::before,
+    .o_statusbar_status button.o_arrow_button::after {
+        display: none !important;
+        /* Hide bulky arrow tails on mobile so text has full width */
     }
 }
 
@@ -814,11 +839,11 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* Hide the divider right before and right after the hidden print item so no empty divider/space remains */
-.o-dropdown--menu > .dropdown-divider:first-child,
+.o-dropdown--menu>.dropdown-divider:first-child,
 .o_popover .dropdown-divider:first-child,
-.o-dropdown--menu > [aria-label*="Print report"] + .dropdown-divider,
-.o_popover [aria-label*="Print report"] + .dropdown-divider,
-.o-dropdown--menu > .dropdown-divider:has(+ [aria-label*="Print report"]),
+.o-dropdown--menu>[aria-label*="Print report"]+.dropdown-divider,
+.o_popover [aria-label*="Print report"]+.dropdown-divider,
+.o-dropdown--menu>.dropdown-divider:has(+ [aria-label*="Print report"]),
 .o_popover .dropdown-divider:has(+ [aria-label*="Print report"]) {
     display: none !important;
     margin: 0 !important;
