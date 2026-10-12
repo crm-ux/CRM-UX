@@ -29,6 +29,53 @@ class CrmTaskManagement(models.Model):
     completion_remarks = fields.Text(string='Work Completion Remarks', tracking=True)
     complaint_notes = fields.Text(string='Complaint / Issue Faced', tracking=True)
 
+    # Permission flag for manager-level fields
+    can_edit_manager_fields = fields.Boolean(
+        string='Can Edit Manager Fields',
+        compute='_compute_can_edit_manager_fields'
+    )
+
+    @api.depends('assigned_to_id', 'assigned_by_id')
+    def _compute_can_edit_manager_fields(self):
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.id == 2
+        for record in self:
+            if is_admin:
+                record.can_edit_manager_fields = True
+                continue
+
+            # If current user is the employee assigned to the task (not an admin)
+            if record.assigned_to_id and record.assigned_to_id.id == current_user.id:
+                record.can_edit_manager_fields = False
+                continue
+
+            # If current user is the assigner (manager)
+            if record.assigned_by_id and record.assigned_by_id.id == current_user.id:
+                record.can_edit_manager_fields = True
+                continue
+
+            # Check if assigned_to_id is in current user's subordinates hierarchy
+            if record.assigned_to_id:
+                subordinate_ids = current_user._get_all_subordinates().ids
+                if record.assigned_to_id.id in subordinate_ids:
+                    record.can_edit_manager_fields = True
+                    continue
+
+            # Check if current user is higher manager or has subordinates
+            record.can_edit_manager_fields = current_user.check_can_assign_task()
+
+    def write(self, vals):
+        manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name'}
+        if any(f in vals for f in manager_fields):
+            current_user = self.env.user
+            is_admin = current_user.has_group('base.group_system') or current_user.id == 2
+            if not is_admin:
+                for record in self:
+                    if not record.can_edit_manager_fields:
+                        from odoo.exceptions import UserError
+                        raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only managers/administrators can change these details."))
+        return super(CrmTaskManagement, self).write(vals)
+
     # Security domain rule helper
     def check_user_can_create(self):
         u = self.env.user
@@ -42,3 +89,4 @@ class CrmTaskManagement(models.Model):
         if emp and bool(self.env['hr.employee'].sudo().search_count([('parent_id', '=', emp.id), ('id', '!=', emp.id)])):
             return True
         return False
+
