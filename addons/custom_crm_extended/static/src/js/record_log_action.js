@@ -103,8 +103,8 @@ class RecordLogDialog extends Component {
                                             <i class="fa fa-comment-o me-1 text-secondary" t-if="!ch.isEmail"/>
                                             <span t-esc="ch.field"/>
                                         </div>
-                                        <div class="text-secondary small mb-1" t-if="ch.oldValue" t-esc="ch.oldValue"/>
-                                        <div class="text-dark fw-normal" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.45;" t-esc="ch.newValue"/>
+                                        <div class="text-dark small mb-1 fw-medium" style="color: #334155 !important;" t-if="ch.oldValue" t-esc="ch.oldValue"/>
+                                        <div class="text-dark fw-normal" style="white-space: pre-wrap; font-size: 0.85rem; line-height: 1.45; color: #1e293b !important;" t-esc="ch.newValue"/>
                                     </div>
                                 </t>
                                 <t t-else="">
