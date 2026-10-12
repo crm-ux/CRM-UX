@@ -32,6 +32,8 @@ class CrmDashboard extends Component {
             pipelineTotalVal: 0,
             invoiceCreatedVal: 0, invoicePendingVal: 0,
             amcTotalVal: 0, amcDraftVal: 0, amcActiveVal: 0, amcExpiredVal: 0,
+            amcInvoiceCreated: 0, amcInvoicePending: 0,
+            amcInvoiceCreatedVal: 0, amcInvoicePendingVal: 0,
             equipmentTotalVal: 0, equipmentActiveVal: 0, equipmentInactiveVal: 0, equipmentRepairVal: 0,
             ticketTotalVal: 0, ticketOpenVal: 0, ticketOngoingVal: 0, ticketClosedVal: 0,
             stockTotalVal: 0,
@@ -467,10 +469,14 @@ class CrmDashboard extends Component {
             const amcDraft = amcCounts.draft || 0;
             const amcActive = amcCounts.active || 0;
             const amcExpired = amcCounts.expired || 0;
+            const amcInvoiceCreated = amcCounts.invoice_created || 0;
+            const amcInvoicePending = amcCounts.pending || 0;
             const amcTotalVal = amcVals.total || 0;
             const amcDraftVal = amcVals.draft || 0;
             const amcActiveVal = amcVals.active || 0;
             const amcExpiredVal = amcVals.expired || 0;
+            const amcInvoiceCreatedVal = amcVals.invoice_created || 0;
+            const amcInvoicePendingVal = amcVals.pending || 0;
 
             let productStockCount = 0;
             try {
@@ -497,7 +503,9 @@ class CrmDashboard extends Component {
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,
                 ticketTotalVal, ticketOpenVal, ticketOngoingVal, ticketClosedVal,
                 amcTotal, amcDraft, amcActive, amcExpired,
+                amcInvoiceCreated, amcInvoicePending,
                 amcTotalVal, amcDraftVal, amcActiveVal, amcExpiredVal,
+                amcInvoiceCreatedVal, amcInvoicePendingVal,
                 productStockCount, stockTotalVal,
                 canAccessQuickMenu, canViewLeadQuote, canViewCustomer, canViewProduct, canViewExhibition, canViewEquipment, canViewTicket, canViewAmc, canViewUsers,
                 canCreateCompany, canExport,

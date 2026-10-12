@@ -173,6 +173,8 @@ class DashboardStats(models.Model):
             'draft': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'draft')]),
             'active': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'active')]),
             'expired': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('contract_status', '=', 'expired')]),
+            'invoice_created': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + [('invoice_number', '!=', False), ('invoice_number', '!=', '')]),
+            'pending': self.env['amc.contract'].sudo().search_count(shared_company_filter + amc_filter + ['|', ('invoice_number', '=', False), ('invoice_number', '=', '')]),
         }
 
         # AMC Renewals timeline calculation (Next 90 Days)
@@ -287,8 +289,8 @@ class DashboardStats(models.Model):
         for srec in all_user_stocks:
             stock_total_val += (srec.quantity or 0.0) * (srec.product_id.list_price or 0.0)
 
-        # AMC Contract status values (summing contract_value for total, draft, active, expired)
-        amc_values = {'total': 0.0, 'draft': 0.0, 'active': 0.0, 'expired': 0.0}
+        # AMC Contract status values (summing contract_value for total, draft, active, expired, invoice_created, pending)
+        amc_values = {'total': 0.0, 'draft': 0.0, 'active': 0.0, 'expired': 0.0, 'invoice_created': 0.0, 'pending': 0.0}
         all_user_amcs = self.env['amc.contract'].sudo().search(shared_company_filter + amc_filter)
         for a in all_user_amcs:
             try:
@@ -300,6 +302,10 @@ class DashboardStats(models.Model):
             st = a.contract_status or 'draft'
             if st in amc_values:
                 amc_values[st] += c_num
+            if a.invoice_number and a.invoice_number.strip():
+                amc_values['invoice_created'] += c_num
+            else:
+                amc_values['pending'] += c_num
 
         return {
             'lead_counts': lead_counts,

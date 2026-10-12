@@ -603,6 +603,16 @@
                                     <span class="crm-stat-metric-lbl">Expired</span>
                                     <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
                                 </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList([['invoice_number','!=',false],['invoice_number','!=','']], 'AMC Invoice Created')">
+                                    <span class="crm-stat-metric-val" style="color: #0b3d91;"><t t-esc="state.amcInvoiceCreated || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Inv. Created</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcInvoiceCreatedVal || 0)"/>)</span>
+                                </div>
+                                <div class="crm-stat-metric" style="cursor: pointer;" t-on-click.stop="() => this.openAmcList(['|', ['invoice_number','=',false], ['invoice_number','=','']], 'AMC Invoice Pending')">
+                                    <span class="crm-stat-metric-val" style="color: #eab308;"><t t-esc="state.amcInvoicePending || 0"/></span>
+                                    <span class="crm-stat-metric-lbl">Inv. Pending</span>
+                                    <span class="crm-stat-metric-subval">(<t t-esc="fmt(state.amcInvoicePendingVal || 0)"/>)</span>
+                                </div>
                             </div>
                         </div>
                         <p class="crm-card-desc">Annual maintenance contracts &amp; service agreements overview.</p>
