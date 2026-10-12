@@ -21,6 +21,10 @@
             <xpath expr="//field[@name='expected_revenue']" position="attributes">
                 <attribute name="column_invisible">True</attribute>
             </xpath>
+            <xpath expr="//field[@name='stage_id']" position="after">
+                <field name="create_uid" string="Created By" widget="many2one_avatar_user" optional="show"/>
+                <field name="write_uid" string="Last Modified By" widget="many2one_avatar_user" optional="show"/>
+            </xpath>
         </field>
     </record>
 
