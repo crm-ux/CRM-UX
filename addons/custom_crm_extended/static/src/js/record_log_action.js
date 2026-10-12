@@ -96,10 +96,23 @@ class RecordLogDialog extends Component {
                         </div>
                         <ul class="list-unstyled mb-0 ps-3 small">
                             <li t-foreach="entry.changes" t-as="ch" t-key="ch.id" class="text-secondary py-1">
-                                <span class="fw-semibold text-dark" t-esc="ch.field"/>: 
-                                <span class="text-danger text-decoration-line-through me-1" t-if="ch.oldValue" t-esc="ch.oldValue"/>
-                                <i class="fa fa-long-arrow-right mx-1 text-muted"/>
-                                <span class="text-success fw-semibold" t-esc="ch.newValue || '(empty)'"/>
+                                <t t-if="ch.isMessage">
+                                    <div class="p-2 rounded bg-light border mt-1">
+                                        <div class="fw-semibold text-dark mb-1">
+                                            <i class="fa fa-envelope-o me-1 text-primary" t-if="ch.isEmail"/>
+                                            <i class="fa fa-comment-o me-1 text-secondary" t-if="!ch.isEmail"/>
+                                            <span t-esc="ch.field"/>
+                                        </div>
+                                        <div class="text-muted fst-italic mb-1 small" t-if="ch.oldValue" t-esc="ch.oldValue"/>
+                                        <div class="text-secondary" style="white-space: pre-wrap; font-size: 0.82rem;" t-esc="ch.newValue"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <span class="fw-semibold text-dark" t-esc="ch.field"/>: 
+                                    <span class="text-danger text-decoration-line-through me-1" t-if="ch.oldValue" t-esc="ch.oldValue"/>
+                                    <i class="fa fa-long-arrow-right mx-1 text-muted"/>
+                                    <span class="text-success fw-semibold" t-esc="ch.newValue || '(empty)'"/>
+                                </t>
                             </li>
                         </ul>
                     </div>
