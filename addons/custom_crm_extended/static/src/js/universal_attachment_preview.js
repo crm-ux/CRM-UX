@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, xml, useState, onMounted, onPatched, useRef } from "@odoo/owl";
+import { Component, xml, useState, onMounted, onPatched, onWillUnmount, useRef } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
 
@@ -508,3 +508,34 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
         document.removeEventListener("click", handlePreviewClick, true);
     };
 }
+
+// ── Auto-register Task Management Form View directly into Universal Handler ──
+import { FormController } from "@web/views/form/form_controller";
+import { formView } from "@web/views/form/form_view";
+import { registry } from "@web/core/registry";
+
+export class CrmTaskManagementFormController extends FormController {
+    setup() {
+        super.setup();
+        if (this.props.resModel === "crm.task.management") {
+            const cleanupAttachments = setupUniversalAttachmentHandling(this, [
+                {
+                    dataField: "attachment_file",
+                    filenameField: "attachment_name",
+                    buttonName: "action_preview_task_attachment",
+                    title: _t("Task Attachment Preview"),
+                    boxSelector: ".crm_task_attachment_box",
+                },
+            ]);
+            onWillUnmount(() => {
+                if (cleanupAttachments) cleanupAttachments();
+            });
+        }
+    }
+}
+
+registry.category("views").add("crm_task_management_form", {
+    ...formView,
+    Controller: CrmTaskManagementFormController,
+});
+

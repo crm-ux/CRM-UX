@@ -565,12 +565,41 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* Override default Odoo purple on binary buttons inside Invoice field & modal */
-.crm_invoice_field_box .btn-primary,
-.crm_invoice_field_box .o_select_file_button,
-.crm_invoice_field_box button.btn-secondary:hover {
+.crm_invoice_field_box:not(.crm_task_attachment_box) .btn-primary,
+.crm_invoice_field_box:not(.crm_task_attachment_box) .o_select_file_button,
+.crm_invoice_field_box:not(.crm_task_attachment_box) button.btn-secondary:hover {
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
     color: #ffffff !important;
+}
+
+/* Ensure task attachment filename text is clean brand blue/navy, never purple */
+.crm_task_attachment_box,
+.crm_task_attachment_box a,
+.crm_task_attachment_box .o_field_binary_file,
+.crm_task_attachment_box .o_field_binary_file a,
+.crm_task_attachment_box .btn-link {
+    color: #0b3d91 !important;
+    text-decoration: none !important;
+}
+
+/* Fix edit (pencil) button: no solid blue background box, just clean icon */
+.crm_task_attachment_box .o_field_binary_file .btn,
+.crm_task_attachment_box .o_select_file_button,
+.crm_task_attachment_box .btn-secondary,
+.crm_task_attachment_box .btn-primary {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.25rem 0.4rem !important;
+    color: #0b3d91 !important;
+}
+
+.crm_task_attachment_box .o_field_binary_file .btn:hover,
+.crm_task_attachment_box .o_select_file_button:hover {
+    background-color: #f1f5f9 !important;
+    color: #082d6e !important;
 }
 
 /* Change Trash (delete), Edit (pencil), Download and Eye (preview) icons to brand blue #0b3d91 */
@@ -597,31 +626,33 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 
 .crm_invoice_field_box .o_clear_file_button:hover,
 .crm_invoice_field_box button[name="action_preview_invoice"]:hover i,
-.crm_task_attachment_box button:hover i {
+.crm_task_attachment_box button:hover i,
+.crm_task_attachment_box a:hover {
     color: #082d6e !important;
 }
 
-/* Override default Odoo purple on binary buttons inside Form Views */
-[js_class="crm_task_management_form"] .o_field_binary_file .btn,
-[js_class="crm_task_management_form"] .crm_task_attachment_box button {
-    color: #0b3d91 !important;
-}
-
-
-/* Completely remove and hide any download icon or download button on invoice field & preview */
-.crm_invoice_field_box .fa-download,
-.crm_invoice_field_box .o_download_file_button,
-.crm_invoice_field_box a[download],
-.crm_invoice_field_box button[title*="Download" i],
-.crm_invoice_field_box a[title*="Download" i],
-.o_dialog .fa-download,
-.o_dialog [title*="Download" i],
-.o_dialog [aria-label*="Download" i],
-.o_dialog a[download] {
+/* Remove download icon ONLY on invoice boxes (Equipment/AMC/Service Ticket), keep download visible on task management attachment */
+.crm_invoice_field_box:not(.crm_task_attachment_box) .fa-download,
+.crm_invoice_field_box:not(.crm_task_attachment_box) .o_download_file_button,
+.crm_invoice_field_box:not(.crm_task_attachment_box) a[download],
+.crm_invoice_field_box:not(.crm_task_attachment_box) button[title*="Download" i],
+.crm_invoice_field_box:not(.crm_task_attachment_box) a[title*="Download" i] {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
 }
+
+/* Ensure download button in task management is visible and styled blue */
+.crm_task_attachment_box .fa-download,
+.crm_task_attachment_box .o_download_file_button,
+.crm_task_attachment_box a[download],
+.crm_task_attachment_box button[title*="Download" i] {
+    display: inline-block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    color: #0b3d91 !important;
+}
+
 
 /* Word preview document container */
 .docx-body {
@@ -636,10 +667,25 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     border-top: 2px solid #137333 !important;
 }
 
+/* Keep Employee Action & Reporting labels dynamically on a single line */
+.crm-single-line-group .o_inner_group {
+    display: grid !important;
+    grid-template-columns: max-content 1fr !important;
+    column-gap: 1.5rem !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.crm-single-line-group .o_cell .o_form_label,
+.crm-single-line-group label.o_form_label,
+[js_class="crm_task_management_form"] .crm-single-line-group label {
+    white-space: nowrap !important;
+    width: auto !important;
+    min-width: unset !important;
+}
+
 /* Eliminate double/triple outer scrollbars in Invoice Preview dialog */
 .o_dialog:has(.crm-invoice-preview-container) .modal-body {
     overflow: hidden !important;
     padding: 0 !important;
 }
-
-
