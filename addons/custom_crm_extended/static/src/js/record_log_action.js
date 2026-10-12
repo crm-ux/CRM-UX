@@ -156,17 +156,19 @@ class RecordLogDialog extends Component {
                 this.state.writeDate = meta.write_date || "";
             }
 
-            // 2. Fetch tracked changes from mail.message and mail.tracking.value
+            // 2. Fetch tracked changes & messages from mail.message
             const messages = await rpc("/web/dataset/call_kw", {
                 model: "mail.message",
                 method: "search_read",
                 args: [[
                     ["model", "=", resModel],
                     ["res_id", "=", resId],
+                    "|",
                     ["tracking_value_ids", "!=", false],
+                    ["subtype_id.description", "!=", false],
                 ]],
                 kwargs: {
-                    fields: ["id", "author_id", "date", "tracking_value_ids"],
+                    fields: ["id", "author_id", "date", "body", "tracking_value_ids", "subtype_id"],
                     order: "date desc, id desc",
                     limit: 50,
                 },
@@ -184,10 +186,11 @@ class RecordLogDialog extends Component {
                             fields: [
                                 "id",
                                 "field_info",
-                                "field_desc",
                                 "field_id",
                                 "old_value_char",
                                 "new_value_char",
+                                "old_value_text",
+                                "new_value_text",
                                 "old_value_integer",
                                 "new_value_integer",
                                 "old_value_float",
@@ -198,9 +201,9 @@ class RecordLogDialog extends Component {
                         },
                     });
                     for (const tr of trackingRecords) {
-                        const fieldDesc = tr.field_desc || (tr.field_id ? tr.field_id[1] : null) || tr.field_info?.desc || tr.field_info?.name || "Field";
-                        const oldVal = tr.old_value_char || tr.old_value_integer || tr.old_value_float || tr.old_value_datetime || "";
-                        const newVal = tr.new_value_char || tr.new_value_integer || tr.new_value_float || tr.new_value_datetime || "";
+                        const fieldDesc = tr.field_info?.desc || (tr.field_id ? tr.field_id[1] : null) || tr.field_info?.name || "Field";
+                        const oldVal = tr.old_value_char || tr.old_value_text || tr.old_value_integer || tr.old_value_float || tr.old_value_datetime || "";
+                        const newVal = tr.new_value_char || tr.new_value_text || tr.new_value_integer || tr.new_value_float || tr.new_value_datetime || "";
                         trackingMap[tr.id] = {
                             id: tr.id,
                             field: fieldDesc,
@@ -210,12 +213,26 @@ class RecordLogDialog extends Component {
                     }
                 }
 
-                this.state.logs = messages.map((m) => ({
-                    id: m.id,
-                    author: m.author_id ? m.author_id[1] : "System",
-                    date: m.date || "",
-                    changes: (m.tracking_value_ids || []).map((tid) => trackingMap[tid]).filter(Boolean),
-                })).filter((entry) => entry.changes.length > 0);
+                this.state.logs = messages.map((m) => {
+                    const changes = (m.tracking_value_ids || []).map((tid) => trackingMap[tid]).filter(Boolean);
+                    if (changes.length === 0 && m.body) {
+                        const cleanBody = m.body.replace(/<[^>]+>/g, "").trim();
+                        if (cleanBody) {
+                            changes.push({
+                                id: `body_${m.id}`,
+                                field: m.subtype_id ? m.subtype_id[1] : "Note",
+                                oldValue: "",
+                                newValue: cleanBody,
+                            });
+                        }
+                    }
+                    return {
+                        id: m.id,
+                        author: m.author_id ? m.author_id[1] : "System",
+                        date: m.date || "",
+                        changes: changes,
+                    };
+                }).filter((entry) => entry.changes && entry.changes.length > 0);
             }
         } catch (e) {
             console.error("Failed to load audit logs:", e);
