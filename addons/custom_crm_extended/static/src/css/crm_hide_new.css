@@ -78,10 +78,18 @@ button[name="action_sale_quotations_new"]:hover {
 .o_form_statusbar {
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
+    justify-content: space-between !important;
     width: 100% !important;
     box-sizing: border-box !important;
     position: relative !important;
+}
+
+/* Ensure action buttons in statusbar stay on the left */
+.o_form_statusbar .o_statusbar_buttons {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    margin-right: auto !important;
 }
 
 .o_statusbar_status {
