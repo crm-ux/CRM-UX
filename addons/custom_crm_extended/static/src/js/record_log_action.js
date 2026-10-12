@@ -229,12 +229,26 @@ class RecordLogDialog extends Component {
                         const hasSubject = Boolean(m.subject);
                         const isEmail = m.message_type === "email" || (m.message_type === "comment" && hasSubject);
                         const title = isEmail ? `Email Sent: ${m.subject || "Quotation Email"}` : (m.subtype_id ? m.subtype_id[1] : "Message");
-                        const cleanBody = m.body ? m.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+                        let cleanBody = "";
+                        if (m.body) {
+                            const tmp = document.createElement("div");
+                            tmp.innerHTML = m.body;
+                            // Clean innerHTML double entities like &lt;b&gt;
+                            if (tmp.textContent && (tmp.textContent.includes("&lt;") || tmp.textContent.includes("&gt;"))) {
+                                const tmp2 = document.createElement("div");
+                                tmp2.innerHTML = tmp.textContent;
+                                cleanBody = (tmp2.textContent || tmp2.innerText || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+                            } else {
+                                cleanBody = (tmp.textContent || tmp.innerText || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+                            }
+                        }
                         changes.push({
                             id: `msg_${m.id}`,
                             field: title,
                             oldValue: isEmail && m.email_from ? `From: ${m.email_from}` : "",
-                            newValue: cleanBody ? cleanBody.substring(0, 180) + (cleanBody.length > 180 ? "..." : "") : "(No Content)",
+                            newValue: cleanBody || "(No Message Content)",
+                            isMessage: true,
+                            isEmail: isEmail,
                         });
                     }
                     return {
