@@ -651,7 +651,9 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     gap: 0.5rem !important;
 }
 
-/* Odoo's internal binary wrapper spans 100% so its buttons push right */
+/* Odoo's binary wrapper: spans 100% so its child link pushes download to far right */
+.crm_task_attachment_box [name="attachment_file"],
+.crm_task_attachment_box .o_field_binary,
 .crm_task_attachment_box .o_field_binary_file {
     width: 100% !important;
     display: flex !important;
@@ -661,34 +663,40 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* ── READ-ONLY MODE (EMPLOYEE SIDE) ──
-   Odoo readonly output is:
-   <a class="o_form_uri" href="...">
-       <span class="fa fa-download me-2"/> or <i class="fa fa-download"/>
-       Filename Text (plain text node)
-   </a>
-   Using flex-direction: row-reverse naturally moves the icon to the RIGHT of the filename text!
+   Directly matching:
+   <div class="crm_task_attachment_box">
+     <div name="attachment_file" class="o_field_binary o_readonly_modifier">
+       <a class="o_form_uri">
+         <span class="fa fa-download me-2"></span>
+         Exhibition Contact.xlsx
+       </a>
+     </div>
+   </div>
 */
+.crm_task_attachment_box [name="attachment_file"] a,
+.crm_task_attachment_box .o_field_binary a.o_form_uri,
 .crm_task_attachment_box .o_field_binary_file a.o_form_uri,
-.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"],
-.crm_task_attachment_box .o_field_binary_file:not(:has(.btn)) a {
+.crm_task_attachment_box a.o_form_uri {
     width: 100% !important;
-    display: inline-flex !important;
+    display: flex !important;
     flex-direction: row-reverse !important;
     align-items: center !important;
-    justify-content: flex-end !important;
+    justify-content: space-between !important;
     text-decoration: none !important;
     min-width: 0 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    color: #0b3d91 !important;
 }
 
-/* Download icon inside readonly link: pushed to the right side of the text */
-.crm_task_attachment_box .o_field_binary_file a.o_form_uri .fa-download,
-.crm_task_attachment_box .o_field_binary_file a.o_form_uri i,
-.crm_task_attachment_box .o_field_binary_file a.o_form_uri span.fa,
-.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] .fa,
-.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] i {
+/* Download icon inside readonly link: pushed to the far right side */
+.crm_task_attachment_box [name="attachment_file"] a .fa-download,
+.crm_task_attachment_box [name="attachment_file"] a span.fa,
+.crm_task_attachment_box .o_field_binary a .fa-download,
+.crm_task_attachment_box .o_field_binary a span.fa,
+.crm_task_attachment_box a.o_form_uri .fa-download,
+.crm_task_attachment_box a.o_form_uri span.fa {
     margin-left: auto !important;
     margin-right: 0.35rem !important;
     font-size: 1.15rem !important;
@@ -697,8 +705,8 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* Keep all action icons in editable mode (edit, trash, download) clustered on far right */
-.crm_task_attachment_box .o_field_binary_file .btn,
-.crm_task_attachment_box .o_field_binary_file a[download],
+.crm_task_attachment_box .btn,
+.crm_task_attachment_box a[download],
 .crm_task_attachment_box .o_download_file_button,
 .crm_task_attachment_box .o_clear_file_button,
 .crm_task_attachment_box .o_select_file_button {
