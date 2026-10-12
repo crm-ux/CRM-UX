@@ -272,4 +272,8 @@
             </form>
         </field>
     </record>
+    <!-- Remove 'Generate a Payment Link' from Gear (Action) Menu across Quotations / Orders and Invoices -->
+    <record id="payment.action_invoice_order_generate_link" model="ir.actions.act_window">
+        <field name="binding_model_id" eval="False"/>
+    </record>
 </odoo>
