@@ -763,6 +763,12 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* Hide Print / Quotation item from the gear (Actions) dropdown */
+.o-dropdown-item[aria-label*="Print report"],
+.dropdown-item[aria-label*="Print report"],
+.o_menu_item[aria-label*="Print report"],
+.o-dropdown-item:has(i.fa-print),
+.dropdown-item:has(i.fa-print),
+.o_menu_item:has(i.fa-print),
 .o_cp_action_menus .dropdown-item:has(i.fa-print),
 .o_cp_action_menus .dropdown-item:has(span.fa-print),
 .o_cp_action_menus [data-menu*="print"],
