@@ -916,3 +916,13 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     border-radius: 4px !important;
     margin: 0 !important;
 }
+
+/* ── CRM Lead: Completely hide Odoo default probability & AI widget ── */
+.o_lead_opportunity_form .o_field_widget[name="probability"],
+.o_form_view .o_field_widget[name="probability"],
+.o_lead_opportunity_form div:has(> .o_field_widget[name="probability"]),
+.o_form_view div:has(> .o_field_widget[name="probability"]),
+.o_lead_opportunity_form span:has(+ div > .o_field_widget[name="probability"]),
+.o_lead_opportunity_form [name="probability"] {
+    display: none !important;
+}
