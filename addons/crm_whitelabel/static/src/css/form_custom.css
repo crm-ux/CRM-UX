@@ -374,10 +374,10 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-left: 2px !important;
 }
 
-/* 1. Global Autocomplete Dropdown Menu Box - Full width matching input */
-.o-autocomplete--dropdown-menu,
-.ui-autocomplete,
-.dropdown-menu:has(.o-autocomplete--dropdown-item) {
+/* 1. Scope Autocomplete Dropdown Menu Box STRICTLY to Task Management Assign Work Wizard */
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-menu,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete,
+.modal:has(.crm-assign-work-wizard-form) .dropdown-menu:has(.o-autocomplete--dropdown-item) {
   width: min(532px, 100%) !important;
   min-width: min(532px, 100%) !important;
   border-radius: 10px !important;
@@ -391,11 +391,11 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   overflow-y: auto !important;
 }
 
-/* 2. Dropdown Item Base Style */
-.o-autocomplete--dropdown-item,
-.ui-autocomplete .ui-menu-item,
-.o-autocomplete--dropdown-item a,
-.ui-autocomplete a {
+/* 2. Dropdown Item Base Style for Task Management Assign Work Wizard */
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .ui-menu-item,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item a,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete a {
   padding: 8px 12px !important;
   border-radius: 6px !important;
   font-size: 0.88rem !important;
@@ -409,18 +409,13 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   text-decoration: none !important;
 }
 
-/* 3. Dropdown Item Hover & Active Highlight State (Brand Blue & Subtle Gray) */
-.o-autocomplete--dropdown-item:hover,
-.o-autocomplete--dropdown-item.focus,
-.o-autocomplete--dropdown-item.active,
-.o-autocomplete--dropdown-item.o_m2o_dropdown_option_active,
-.ui-autocomplete .ui-state-active,
-.ui-autocomplete .ui-menu-item:hover,
-.dropdown-menu > li > a:hover,
-.dropdown-menu > li > a:focus,
-.dropdown-item:hover,
-.dropdown-item:focus,
-.dropdown-item.active {
+/* 3. Dropdown Item Hover & Active Highlight State for Task Management Assign Work Wizard */
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item:hover,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.focus,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.active,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.o_m2o_dropdown_option_active,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .ui-state-active,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .ui-menu-item:hover {
   background: #f1f5f9 !important;
   background-color: #f1f5f9 !important;
   color: #0b3d91 !important;
@@ -428,26 +423,23 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   font-weight: 600 !important;
 }
 
-/* 4. Kill Odoo's default purple text-primary highlight on matched characters */
-.o-autocomplete--dropdown-item b,
-.o-autocomplete--dropdown-item strong,
-.o-autocomplete--dropdown-item span,
-.o-autocomplete--dropdown-item .text-primary,
-.ui-autocomplete b,
-.ui-autocomplete strong,
-.ui-autocomplete .text-primary,
-.dropdown-menu b,
-.dropdown-menu strong,
-.dropdown-menu .text-primary {
+/* 4. Kill default purple text-primary highlight on matched characters in Task Management Assign Work Wizard */
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item b,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item strong,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item span,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item .text-primary,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete b,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete strong,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .text-primary {
   color: #0b3d91 !important;
   font-weight: 700 !important;
 }
 
-/* 5. 'Search more...' and 'Create...' special dropdown action links */
-.o-autocomplete--dropdown-item.o_m2o_dropdown_option,
-.ui-autocomplete .o_m2o_dropdown_option,
-.o-autocomplete--dropdown-item.o_m2o_dropdown_option a,
-.ui-autocomplete a.o_m2o_dropdown_option {
+/* 5. 'Search more...' and 'Create...' special dropdown action links in Task Management Assign Work Wizard */
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.o_m2o_dropdown_option,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .o_m2o_dropdown_option,
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.o_m2o_dropdown_option a,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete a.o_m2o_dropdown_option {
   color: #64748b !important;
   font-size: 0.82rem !important;
   font-weight: 600 !important;
@@ -455,8 +447,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-top: 4px !important;
 }
 
-.o-autocomplete--dropdown-item.o_m2o_dropdown_option:hover,
-.ui-autocomplete .o_m2o_dropdown_option:hover {
+.modal:has(.crm-assign-work-wizard-form) .o-autocomplete--dropdown-item.o_m2o_dropdown_option:hover,
+.modal:has(.crm-assign-work-wizard-form) .ui-autocomplete .o_m2o_dropdown_option:hover {
   color: #0b3d91 !important;
   background: #f8fafc !important;
 }
