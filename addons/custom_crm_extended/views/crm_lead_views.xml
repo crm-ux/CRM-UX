@@ -60,11 +60,14 @@
             <xpath expr="//button[@name='action_sale_quotations_new']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
-            <!-- Hide default Odoo probability field and AI widget -->
+            <!-- Hide default Odoo probability field, AI widget, automated probability and label -->
             <xpath expr="//field[@name='probability']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='probability']/parent::*" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[hasclass('o_row') and .//field[@name='probability']]" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
         </field>

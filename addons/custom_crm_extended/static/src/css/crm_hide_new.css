@@ -917,12 +917,23 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     margin: 0 !important;
 }
 
-/* ── CRM Lead: Completely hide Odoo default probability & AI widget ── */
+/* ── CRM Lead: Completely hide Odoo default probability, AI badge, AI %, and 'at' label ── */
 .o_lead_opportunity_form .o_field_widget[name="probability"],
 .o_form_view .o_field_widget[name="probability"],
 .o_lead_opportunity_form div:has(> .o_field_widget[name="probability"]),
 .o_form_view div:has(> .o_field_widget[name="probability"]),
-.o_lead_opportunity_form span:has(+ div > .o_field_widget[name="probability"]),
-.o_lead_opportunity_form [name="probability"] {
+.o_lead_opportunity_form [name="probability"],
+.o_lead_opportunity_form .o_field_widget[name="automated_probability"],
+.o_form_view .o_field_widget[name="automated_probability"],
+.o_lead_opportunity_form [name="automated_probability"],
+.o_lead_opportunity_form button[name="action_set_automated_probability"],
+.o_form_view button[name="action_set_automated_probability"],
+.o_lead_opportunity_form .o_pls_badge,
+.o_lead_opportunity_form .o_pls_probability,
+.o_form_view .o_pls_badge,
+.o_form_view .o_pls_probability,
+.o_lead_opportunity_form span.oe_grey,
+.o_form_view span.oe_grey.p-2,
+.o_lead_opportunity_form div.o_row > span.oe_grey {
     display: none !important;
 }
