@@ -657,43 +657,40 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
-    min-width: 0 !important; /* allows child text truncation inside flexbox */
-}
-
-/* ── READ-ONLY MODE (EMPLOYEE SIDE) ──
-   In readonly mode, Odoo creates: <a class="o_form_uri" href="..."> <i class="fa fa-download"/> <span>Filename</span> </a>
-   We flex this container so <span> (filename) stays on left and <i> (download icon) pushes to far right!
-*/
-.crm_task_attachment_box .o_field_binary_file a.o_form_uri,
-.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] {
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    text-decoration: none !important;
     min-width: 0 !important;
 }
 
-/* Filename text: first, truncated if needed */
-.crm_task_attachment_box .o_field_binary_file a.o_form_uri span,
-.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] span,
-.crm_task_attachment_box .o_field_binary_file a:not([download]):not(.btn):not(.o_form_uri) {
-    display: inline-block !important;
-    max-width: 100% !important;
+/* ── READ-ONLY MODE (EMPLOYEE SIDE) ──
+   Odoo readonly output is:
+   <a class="o_form_uri" href="...">
+       <span class="fa fa-download me-2"/> or <i class="fa fa-download"/>
+       Filename Text (plain text node)
+   </a>
+   Using flex-direction: row-reverse naturally moves the icon to the RIGHT of the filename text!
+*/
+.crm_task_attachment_box .o_field_binary_file a.o_form_uri,
+.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"],
+.crm_task_attachment_box .o_field_binary_file:not(:has(.btn)) a {
+    width: 100% !important;
+    display: inline-flex !important;
+    flex-direction: row-reverse !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    text-decoration: none !important;
+    min-width: 0 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    margin-right: auto !important;
-    padding-right: 0.5rem !important;
-    order: 1 !important;
 }
 
-/* Download icon: pushed to the right, sitting right before preview eye */
+/* Download icon inside readonly link: pushed to the right side of the text */
+.crm_task_attachment_box .o_field_binary_file a.o_form_uri .fa-download,
 .crm_task_attachment_box .o_field_binary_file a.o_form_uri i,
+.crm_task_attachment_box .o_field_binary_file a.o_form_uri span.fa,
+.crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] .fa,
 .crm_task_attachment_box .o_field_binary_file a[href*="/web/content"] i {
-    order: 2 !important;
     margin-left: auto !important;
-    margin-right: 0.25rem !important;
+    margin-right: 0.35rem !important;
     font-size: 1.15rem !important;
     color: #0b3d91 !important;
     flex-shrink: 0 !important;
@@ -710,11 +707,12 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     flex-shrink: 0 !important;
 }
 
-/* Preview eye icon sits on the far right beside the download / action buttons */
+/* Preview eye icon sits immediately beside the download icon on the far right */
 .crm_task_attachment_box button[name="action_preview_task_attachment"] {
     margin-left: 0.25rem !important;
     flex-shrink: 0 !important;
 }
+
 
 
 
