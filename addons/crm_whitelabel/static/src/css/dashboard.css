@@ -1430,6 +1430,27 @@
     outline: none;
 }
 
+.crm-custom-date-input {
+    width: 100% !important;
+    font-size: 0.9rem !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+.crm-custom-date-input:focus,
+.crm-custom-date-input:focus-visible,
+.crm-custom-date-input:active {
+    border-color: #0b3d91 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.18) !important;
+}
+
 .crm-task-textarea {
     min-height: 80px;
     resize: vertical;
