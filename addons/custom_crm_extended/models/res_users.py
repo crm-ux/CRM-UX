@@ -518,6 +518,20 @@ class ResUsers(models.Model):
         ('all', 'All: All Company Records'),
     ], string='Equipment Master', default='own')
 
+    custom_perm_override = fields.Boolean(
+        string='Custom Permissions Override',
+        default=False,
+        copy=False,
+        help='When enabled, this user has customized permissions that will not be overwritten by changes to Job Position / Role Master.'
+    )
+
+    def action_reset_job_permissions(self):
+        """Manually re-sync user permissions back to their Job Position defaults."""
+        for user in self:
+            if user.crm_job_id:
+                user._apply_job_permissions(user.crm_job_id, force=True)
+                user.sudo().write({'custom_perm_override': False})
+
     perm_product_create = fields.Boolean(string='Create Product', default=False)
     perm_product_write = fields.Boolean(string='Update Product', default=False)
     perm_product_read = fields.Boolean(string='View Product', default=False)
@@ -615,11 +629,16 @@ class ResUsers(models.Model):
             real_user = self.env['res.users'].browse(self._origin.id)
             real_user._apply_job_permissions(self.crm_job_id)
 
-    def _apply_job_permissions(self, job):
-        """Applies permissions defined on hr.job down to this user (1-way sync)."""
+    def _apply_job_permissions(self, job, force=False):
+        """Applies permissions defined on hr.job down to this user (1-way sync).
+        If a user has manually customized their permissions (custom_perm_override=True),
+        their permissions will NOT be overwritten unless force=True.
+        """
         sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
         for user in self:
             if not user.id or user._is_admin() or user.has_group('base.group_system'):
+                continue
+            if not force and user.custom_perm_override:
                 continue
 
             user_vals = {
@@ -732,6 +751,11 @@ class ResUsers(models.Model):
                     taken = self.env['res.users'].sudo().search_count([('login', '=', orig_login), ('id', '!=', user.id)])
                     if not taken:
                         super(ResUsers, user).write({'login': orig_login})
+        # If permissions are being modified directly on the user (not via system sync), mark as custom override
+        perm_field_keys = [k for k in vals if k.startswith('perm_')]
+        if perm_field_keys and not self.env.context.get('skip_sync') and 'custom_perm_override' not in vals:
+            vals['custom_perm_override'] = True
+
         res = super().write(vals)
 
         # Auto-grant base Sales group if user has any Lead & Quote permission

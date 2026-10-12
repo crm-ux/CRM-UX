@@ -80,7 +80,15 @@
             <!-- 1. Place Configuration & Masters AFTER the Roles & Companies group -->
             <xpath expr="//page[@name='access_rights']//group[1]" position="after">
                 <group string="Configuration &amp; Masters">
+                    <div colspan="2" invisible="not custom_perm_override" class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
+                        <div>
+                            <i class="fa fa-info-circle me-1"/>
+                            <strong>Custom User Permissions:</strong> This user has custom permissions. Changes made to the Job Position / Role Master will <strong>not</strong> overwrite this user.
+                        </div>
+                        <button name="action_reset_job_permissions" type="object" string="Reset to Role Defaults" class="btn btn-sm btn-outline-danger" confirm="Are you sure you want to reset this user's permissions back to the Job Position defaults?"/>
+                    </div>
                     <group>
+                        <field name="custom_perm_override" invisible="1"/>
                         <field name="perm_lead_quote" string="Lead &amp; Quotation"/>
                         <field name="perm_service_ticket" string="Service Ticket"/>
                         <field name="perm_amc" string="AMC Contract"/>
