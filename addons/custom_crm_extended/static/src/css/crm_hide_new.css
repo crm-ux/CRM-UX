@@ -173,66 +173,18 @@ button[name="action_sale_quotations_new"]:hover {
     border-left-color: #ffffff !important;
 }
 
-/* ── Hide "Order Expected" (ID=10) and "lost" (ID=5) stage pills in CRM Lead views only ── */
-.o_lead_opportunity_form .o_statusbar_status button[data-value="5"],
-.o_lead_opportunity_form .o_statusbar_status button[data-value="10"],
-.o_lead_opportunity_form .o_statusbar_status button.o_arrow_button[data-value="10"],
-.o_lead_opportunity_form .o_statusbar_status button.o_arrow_button[data-value="5"] {
+/* ── Hide "Order Expected" (ID=10) and "lost" (ID=5) stage pills ── */
+.o_statusbar_status button.o_arrow_button[data-value="10"],
+.o_statusbar_status button.o_arrow_button[data-value="5"] {
     display: none !important;
 }
 
-/* ── Task Management Mobile Statusbar: All 4 stages in 1 single row ── */
-[js_class="crm_task_management_form"] .o_statusbar_status,
-.crm_task_management_form .o_statusbar_status {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 4px !important;
-    overflow: visible !important;
-}
-
-/* Hide Odoo mobile dropdown container so all stage buttons show directly */
-[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown,
-.crm_task_management_form .o_statusbar_status .o-dropdown {
-    display: contents !important;
-}
-
-[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > .dropdown-menu,
-.crm_task_management_form .o_statusbar_status .o-dropdown > .dropdown-menu {
-    display: contents !important;
-    position: static !important;
-    border: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > button.dropdown-toggle,
-.crm_task_management_form .o_statusbar_status .o-dropdown > button.dropdown-toggle {
+/* ── Hide "lost" and "Order Expected" pills — all possible positions ── */
+.o_statusbar_status button[data-value="5"],
+.o_statusbar_status button[data-value="10"],
+.o_statusbar_status .o_first.o_arrow_button_current,
+.o_statusbar_status .o-dropdown.o_first {
     display: none !important;
-}
-
-/* Format all 4 stage buttons into compact equal strips */
-[js_class="crm_task_management_form"] .o_statusbar_status button,
-[js_class="crm_task_management_form"] .o_statusbar_status .o_arrow_button,
-.crm_task_management_form .o_statusbar_status button,
-.crm_task_management_form .o_statusbar_status .o_arrow_button {
-    display: inline-flex !important;
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    width: auto !important;
-    padding: 4px 2px !important;
-    font-size: 10px !important;
-    line-height: 1.2 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    justify-content: center !important;
-    align-items: center !important;
-    text-align: center !important;
-    border-radius: 4px !important;
 }
 
 /* Lead Wizard Next and Save Lead button blue color */
