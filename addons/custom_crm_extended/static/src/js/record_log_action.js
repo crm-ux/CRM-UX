@@ -156,23 +156,18 @@ class RecordLogDialog extends Component {
                 this.state.writeDate = meta.write_date || "";
             }
 
-            // 2. Fetch tracked changes, sent emails & messages from mail.message
+            // 2. Fetch all tracked changes, emails & messages from mail.message
             const messages = await rpc("/web/dataset/call_kw", {
                 model: "mail.message",
                 method: "search_read",
                 args: [[
                     ["model", "=", resModel],
                     ["res_id", "=", resId],
-                    "|",
-                    "|",
-                    ["tracking_value_ids", "!=", false],
-                    ["message_type", "=", "email"],
-                    ["subtype_id.description", "!=", false],
                 ]],
                 kwargs: {
                     fields: ["id", "author_id", "date", "subject", "body", "message_type", "email_from", "tracking_value_ids", "subtype_id"],
                     order: "date desc, id desc",
-                    limit: 50,
+                    limit: 100,
                 },
             });
 
@@ -218,8 +213,9 @@ class RecordLogDialog extends Component {
                 this.state.logs = messages.map((m) => {
                     const changes = (m.tracking_value_ids || []).map((tid) => trackingMap[tid]).filter(Boolean);
                     if (changes.length === 0) {
-                        const isEmail = m.message_type === "email";
-                        const title = isEmail ? `Email Sent: ${m.subject || "No Subject"}` : (m.subtype_id ? m.subtype_id[1] : "Note");
+                        const hasSubject = Boolean(m.subject);
+                        const isEmail = m.message_type === "email" || (m.message_type === "comment" && hasSubject);
+                        const title = isEmail ? `Email Sent: ${m.subject || "Quotation Email"}` : (m.subtype_id ? m.subtype_id[1] : "Message");
                         const cleanBody = m.body ? m.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
                         changes.push({
                             id: `msg_${m.id}`,
