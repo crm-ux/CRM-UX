@@ -1781,6 +1781,8 @@ class CrmDashboard extends Component {
         this.closeCustomDateModal();
         this.state.salesRangeMonths = 'custom';
 
+        const d1 = startCheck.dateObj;
+        const d2 = endCheck.dateObj;
         const diffDays = Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24));
 
         try {
