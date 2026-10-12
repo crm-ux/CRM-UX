@@ -763,25 +763,24 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* Hide Print / Quotation item from the gear (Actions) dropdown */
+.o-dropdown--menu [aria-label*="Print report"],
+.o-dropdown--menu span[aria-label*="Print report"],
+.o_popover [aria-label*="Print report"],
+.o-dropdown--menu .o_menu_item:has(.fa-print),
+.o_popover .o_menu_item:has(.fa-print),
 .o-dropdown-item[aria-label*="Print report"],
 .dropdown-item[aria-label*="Print report"],
-.o_menu_item[aria-label*="Print report"],
-.o-dropdown-item:has(i.fa-print),
-.dropdown-item:has(i.fa-print),
-.o_menu_item:has(i.fa-print),
-.o_cp_action_menus .dropdown-item:has(i.fa-print),
-.o_cp_action_menus .dropdown-item:has(span.fa-print),
-.o_cp_action_menus [data-menu*="print"],
-.o_cp_action_menus [data-menu*="report"] {
+.o_menu_item[aria-label*="Print report"] {
     display: none !important;
 }
 
-/* Collapse empty dropdown group containers or leading dividers in gear menu */
-.o-dropdown--menu > div:first-child:empty,
-.o-dropdown--menu > div:has(> .dropdown-item[style*="display: none"]:only-child),
-.o-dropdown--menu > div:has(> .o-dropdown-item[style*="display: none"]:only-child),
+/* Hide the divider right before and right after the hidden print item so no empty divider/space remains */
 .o-dropdown--menu > .dropdown-divider:first-child,
-.o-dropdown--menu > hr:first-child {
+.o_popover .dropdown-divider:first-child,
+.o-dropdown--menu > [aria-label*="Print report"] + .dropdown-divider,
+.o_popover [aria-label*="Print report"] + .dropdown-divider,
+.o-dropdown--menu > .dropdown-divider:has(+ [aria-label*="Print report"]),
+.o_popover .dropdown-divider:has(+ [aria-label*="Print report"]) {
     display: none !important;
     margin: 0 !important;
     padding: 0 !important;
