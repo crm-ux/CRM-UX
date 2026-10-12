@@ -156,7 +156,7 @@ class RecordLogDialog extends Component {
                 this.state.writeDate = meta.write_date || "";
             }
 
-            // 2. Fetch tracked changes & messages from mail.message
+            // 2. Fetch tracked changes, sent emails & messages from mail.message
             const messages = await rpc("/web/dataset/call_kw", {
                 model: "mail.message",
                 method: "search_read",
@@ -164,11 +164,13 @@ class RecordLogDialog extends Component {
                     ["model", "=", resModel],
                     ["res_id", "=", resId],
                     "|",
+                    "|",
                     ["tracking_value_ids", "!=", false],
+                    ["message_type", "=", "email"],
                     ["subtype_id.description", "!=", false],
                 ]],
                 kwargs: {
-                    fields: ["id", "author_id", "date", "body", "tracking_value_ids", "subtype_id"],
+                    fields: ["id", "author_id", "date", "subject", "body", "message_type", "email_from", "tracking_value_ids", "subtype_id"],
                     order: "date desc, id desc",
                     limit: 50,
                 },
@@ -215,20 +217,20 @@ class RecordLogDialog extends Component {
 
                 this.state.logs = messages.map((m) => {
                     const changes = (m.tracking_value_ids || []).map((tid) => trackingMap[tid]).filter(Boolean);
-                    if (changes.length === 0 && m.body) {
-                        const cleanBody = m.body.replace(/<[^>]+>/g, "").trim();
-                        if (cleanBody) {
-                            changes.push({
-                                id: `body_${m.id}`,
-                                field: m.subtype_id ? m.subtype_id[1] : "Note",
-                                oldValue: "",
-                                newValue: cleanBody,
-                            });
-                        }
+                    if (changes.length === 0) {
+                        const isEmail = m.message_type === "email";
+                        const title = isEmail ? `Email Sent: ${m.subject || "No Subject"}` : (m.subtype_id ? m.subtype_id[1] : "Note");
+                        const cleanBody = m.body ? m.body.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
+                        changes.push({
+                            id: `msg_${m.id}`,
+                            field: title,
+                            oldValue: isEmail && m.email_from ? `From: ${m.email_from}` : "",
+                            newValue: cleanBody ? cleanBody.substring(0, 180) + (cleanBody.length > 180 ? "..." : "") : "(No Content)",
+                        });
                     }
                     return {
                         id: m.id,
-                        author: m.author_id ? m.author_id[1] : "System",
+                        author: m.author_id ? m.author_id[1] : (m.email_from || "System"),
                         date: m.date || "",
                         changes: changes,
                     };
