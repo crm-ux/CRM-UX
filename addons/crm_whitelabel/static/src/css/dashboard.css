@@ -1050,6 +1050,29 @@
     color: var(--text-muted);
 }
 
+.crm-amc-flip-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    user-select: none;
+}
+
+.crm-amc-flip-btn:hover {
+    background: #0b3d91;
+    color: #ffffff;
+    border-color: #0b3d91;
+}
+
 .crm-card-stats {
     display: flex;
     align-items: flex-end;
