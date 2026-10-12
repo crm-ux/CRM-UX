@@ -13,8 +13,12 @@ patch(KanbanController.prototype, {
 });
 
 patch(ActionMenus.prototype, {
+    get printItems() {
+        return [];
+    },
+
     async getActionItems() {
-        const items = await super.getActionItems(...arguments);
+        const items = await super.getActionItems ? await super.getActionItems(...arguments) : [];
         if (!Array.isArray(items)) {
             return items;
         }
