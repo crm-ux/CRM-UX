@@ -111,30 +111,41 @@ button[name="action_sale_quotations_new"]:hover {
     .o_form_statusbar {
         width: 100% !important;
         padding: 0.35rem 0.5rem !important;
+        display: flex !important;
+        align-items: center !important;
         justify-content: center !important;
     }
 
     .o_statusbar_status {
         width: 100% !important;
         display: flex !important;
+        flex-direction: row !important;
         flex-wrap: nowrap !important;
         justify-content: space-between !important;
-        gap: 2px !important;
+        align-items: center !important;
+        gap: 3px !important;
         margin: 0 !important;
         padding: 0 !important;
     }
 
+    .o_statusbar_status button,
     .o_statusbar_status button.o_arrow_button,
-    .o_statusbar_status .o_arrow_button {
+    .o_statusbar_status .o_arrow_button,
+    .o_statusbar_status > * {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         flex: 1 1 0 !important;
         min-width: 0 !important;
-        padding: 4px 2px !important;
-        font-size: 9.5px !important;
-        line-height: 1.2 !important;
+        padding: 4px 1px !important;
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        line-height: 1.1 !important;
         text-align: center !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+        border-radius: 4px !important;
     }
 
     .o_statusbar_status button.o_arrow_button::before,
