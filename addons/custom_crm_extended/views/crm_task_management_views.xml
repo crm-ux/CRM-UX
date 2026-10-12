@@ -44,9 +44,9 @@
                     <group>
                         <group string="Assignment Details">
                             <!-- For Employee: Show who assigned the task to them (Assigned By) -->
-                            <field name="assigned_by_id" string="Assigned By" invisible="can_edit_manager_fields" options="{'no_open': True}"/>
+                            <field name="assigned_by_id" string="Assigned By" invisible="can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True}"/>
                             <!-- For Employer / Manager: Show Assigned Employee dropdown with no internal link -->
-                            <field name="assigned_to_id" string="Assigned Employee" invisible="not can_edit_manager_fields" readonly="not can_edit_manager_fields" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="assigned_to_id" string="Assigned Employee" invisible="not can_edit_manager_fields" readonly="not can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True, 'no_create': True}"/>
                             <field name="date_assigned"/>
                             <field name="date_deadline" readonly="not can_edit_manager_fields"/>
                         </group>
