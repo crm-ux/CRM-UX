@@ -82,10 +82,10 @@ class DashboardStats(models.Model):
         quote_counts = {r['x_quote_stage']: r['x_quote_stage_count'] for r in quotes}
         quote_values = {r['x_quote_stage']: (r.get('amount_total') or 0.0) for r in quotes}
 
-        # Revenue
+        # Revenue & Won Orders (include all non-cancelled Won orders so they appear in Total Won Deals & Invoice Pending)
         won_orders = self.env['sale.order'].sudo().search([
             ('x_quote_stage', '=', 'won'),
-            ('amount_total', '>', 0)
+            ('state', '!=', 'cancel'),
         ] + company_filter + user_filter)
         won_revenue = sum(won_orders.mapped('amount_total'))
 

@@ -647,6 +647,22 @@ class CrmDashboard extends Component {
             order_expected: 50,
             won: 90
         };
+        if (stage === 'won') {
+            this.go({
+                type: "ir.actions.act_window",
+                name: "Won Quotations & Deals",
+                res_model: "sale.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"], ...cd],
+                context: {
+                    allowed_company_ids: this.state.selectedCompanies,
+                    search_default_assigned_to_me: 0,
+                    search_default_my_leads: 0,
+                }
+            });
+            return;
+        }
+
         const seq = seqMap[stage] || 30;
         let leadDomain = [["active", "=", true], ["x_stage_sequence", "=", seq]];
         if (seq !== 90) {
@@ -762,7 +778,7 @@ class CrmDashboard extends Component {
             name: "Won Deals",
             res_model: "sale.order",
             views: [[false, "list"], [false, "form"]],
-            domain: [["x_quote_stage", "=", "won"], ...cd],
+            domain: [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"], ...cd],
             context: {
                 allowed_company_ids: this.state.selectedCompanies,
                 search_default_assigned_to_me: 0,
@@ -1242,7 +1258,7 @@ class CrmDashboard extends Component {
             name: "Invoice Pending Orders",
             res_model: "sale.order",
             views: [[false, "list"], [false, "form"]],
-            domain: [["x_quote_stage", "=", "won"], ["amount_total", ">", 0], ["x_invoice_date", "=", false], ...cd],
+            domain: [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"], ["x_invoice_date", "=", false], ...cd],
             context: { allowed_company_ids: this.state.selectedCompanies }
         });
     }
