@@ -5,7 +5,7 @@
         <field name="model">sale.order.duplicate.wizard</field>
         <field name="arch" type="xml">
             <form string="Duplicate Quotation">
-                <div style="max-width: 480px; padding: 0.5rem 0;">
+                <div style="width: 100%; max-width: 92vw; padding: 0.5rem 0;">
                     <group>
                         <field name="order_id" invisible="1"/>
                         <field name="partner_id" string="Customer" required="1" options="{'no_open': True, 'no_create_edit': False}"/>
@@ -27,5 +27,6 @@
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_sale_order_duplicate_wizard_form"/>
         <field name="target">new</field>
+        <field name="context">{'dialog_size': 'medium'}</field>
     </record>
 </odoo>
