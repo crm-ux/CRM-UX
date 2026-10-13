@@ -2009,39 +2009,92 @@ class CrmDashboard extends Component {
             args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
         });
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const monthMap = {};
 
-        // Pre-fill all months between startStr and endStr so every month appears in the chart
-        const [startY, startM] = startStr.split("-").map(Number);
-        const [endY, endM] = endStr.split("-").map(Number);
-        let cur = new Date(startY, startM - 1, 1);
-        const stop = new Date(endY, endM - 1, 1);
-        while (cur <= stop) {
-            const k = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}`;
-            monthMap[k] = 0;
-            cur.setMonth(cur.getMonth() + 1);
+        const [startY, startM, startD] = startStr.split("-").map(Number);
+        const [endY, endM, endD] = endStr.split("-").map(Number);
+
+        // Calculate total months count between start and end
+        const totalMonths = ((endY - startY) * 12) + (endM - startM) + 1;
+
+        // Dynamic grouping step so total bars never exceed 12
+        let stepMonths = 1;
+        if (totalMonths <= 12) {
+            stepMonths = 1;
+        } else if (totalMonths <= 24) {
+            stepMonths = 2; // ~7 to 12 bars (e.g. 1.5 - 2 years)
+        } else if (totalMonths <= 36) {
+            stepMonths = 3; // ~9 to 12 bars (Quarterly for 2.5 - 3 years)
+        } else if (totalMonths <= 60) {
+            stepMonths = 6; // ~7 to 10 bars (Half-yearly for 4 - 5 years)
+        } else {
+            stepMonths = 12; // Yearly for > 5 years
         }
 
+        const buckets = [];
+        let cur = new Date(startY, startM - 1, 1);
+        const stopDate = new Date(endY, endM - 1, 1);
+
+        while (cur <= stopDate) {
+            const bStart = new Date(cur.getFullYear(), cur.getMonth(), 1);
+            const bEndMonth = new Date(cur.getFullYear(), cur.getMonth() + stepMonths, 0); // last day of bucket
+            const bEnd = bEndMonth > new Date(endY, endM - 1, endD) ? new Date(endY, endM - 1, endD) : bEndMonth;
+
+            const bStartYr = bStart.getFullYear();
+            const bStartMo = bStart.getMonth();
+            const bEndYr = bEnd.getFullYear();
+            const bEndMo = bEnd.getMonth();
+
+            let label = "";
+            let tooltipLabel = "";
+
+            if (stepMonths === 1) {
+                // Monthly
+                label = `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}`;
+                tooltipLabel = `${monthNames[bStartMo]} ${bStartYr}`;
+            } else if (stepMonths === 3 && (bStartMo % 3 === 0)) {
+                // Perfect quarters (Q1, Q2, Q3, Q4)
+                const qNum = Math.floor(bStartMo / 3) + 1;
+                label = `Q${qNum} '${String(bStartYr).slice(-2)}`;
+                tooltipLabel = `Q${qNum} ${bStartYr} (${monthNames[bStartMo]} - ${monthNames[bEndMo]})`;
+            } else {
+                // Multi-month range e.g. Oct-Nov '24 or Oct '24-Mar '25
+                if (bStartYr === bEndYr) {
+                    label = `${monthNames[bStartMo]}-${monthNames[bEndMo]} '${String(bStartYr).slice(-2)}`;
+                    tooltipLabel = `${monthNames[bStartMo]} - ${monthNames[bEndMo]} ${bStartYr}`;
+                } else {
+                    label = `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}-${monthNames[bEndMo]} '${String(bEndYr).slice(-2)}`;
+                    tooltipLabel = `${monthNames[bStartMo]} ${bStartYr} - ${monthNames[bEndMo]} ${bEndYr}`;
+                }
+            }
+
+            const startDtStr = `${bStartYr}-${String(bStartMo + 1).padStart(2, "0")}-${String(bStart.getDate()).padStart(2, "0")} 00:00:00`;
+            const endDtStr = `${bEndYr}-${String(bEndMo + 1).padStart(2, "0")}-${String(bEnd.getDate()).padStart(2, "0")} 23:59:59`;
+            const daysInBucket = Math.round((bEnd - bStart) / (1000 * 60 * 60 * 24)) + 1;
+
+            buckets.push({
+                label: label,
+                tooltipLabel: tooltipLabel,
+                startDt: startDtStr,
+                endDt: endDtStr,
+                total: 0,
+                days: daysInBucket,
+                fullMonth: stepMonths === 1 ? `${bStartYr}-${String(bStartMo + 1).padStart(2, "0")}` : null
+            });
+
+            cur.setMonth(cur.getMonth() + stepMonths);
+        }
+
+        // Sum orders into matching buckets
         orders.forEach(o => {
             if (!o.date_order) return;
-            const mKey = o.date_order.substring(0, 7); // YYYY-MM
-            if (monthMap[mKey] !== undefined) {
-                monthMap[mKey] += (o.amount_total || o.amount_untaxed || 0);
+            const oDate = o.date_order;
+            const b = buckets.find(item => oDate >= item.startDt && oDate <= item.endDt);
+            if (b) {
+                b.total += (o.amount_total || o.amount_untaxed || 0);
             }
         });
-        const sortedMonths = Object.keys(monthMap).sort();
-        this.state.customChartData = sortedMonths.map(k => {
-            const parts = k.split("-");
-            const mIndex = parseInt(parts[1], 10) - 1;
-            const label = `${monthNames[mIndex]} '${parts[0].slice(-2)}`;
-            const daysInMonth = new Date(Number(parts[0]), mIndex + 1, 0).getDate();
-            return {
-                label: label,
-                total: monthMap[k],
-                fullMonth: k,
-                days: daysInMonth
-            };
-        });
+
+        this.state.customChartData = buckets;
     }
 
     get currentFiscalYearStart() {
