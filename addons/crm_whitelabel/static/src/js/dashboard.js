@@ -1388,10 +1388,13 @@ class CrmDashboard extends Component {
 
     showToast(msg) {
         const toast = document.createElement('div');
+        toast.className = 'crm-floating-toast';
         toast.innerText = msg;
-        toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1a3d6e;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:99999999;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-weight:600;';
         document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }, 3200);
     }
     async _getCurrentPartnerId() {
         if (this._cachedPartnerId) return this._cachedPartnerId;
