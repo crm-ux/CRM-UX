@@ -1564,37 +1564,13 @@ class CrmDashboard extends Component {
             months = this.state.realSalesMonths;
         }
 
-        const totalSum = months.reduce((acc, m) => acc + (m.total || 0), 0);
-        if (!months.length || (totalSum === 0 && this.state.salesRangeMonths !== 'custom')) {
-            // If database has won revenue in total KPI, distribute accurately across the recent months
-            const wonRev = this.state.wonRevenue || 0;
-            if (wonRev > 0 && this.state.salesRangeMonths !== 'custom') {
-                const range = this.state.salesRangeMonths || 6;
-                const now = new Date();
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const generated = [];
-                for (let i = range - 1; i >= 0; i--) {
-                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                    const mIdx = d.getMonth();
-                    const days = new Date(d.getFullYear(), mIdx + 1, 0).getDate();
-                    // Gradual growth leading up to current won revenue
-                    const weight = (range - i) / ((range * (range + 1)) / 2);
-                    generated.push({
-                        label: monthNames[mIdx],
-                        total: Math.round(wonRev * weight),
-                        days: days,
-                        fullMonth: `${d.getFullYear()}-${String(mIdx + 1).padStart(2, "0")}`
-                    });
-                }
-                months = generated;
-            } else {
-                return [];
-            }
+        if (!months.length) {
+            return [];
         }
 
         const maxVal = Math.max(...months.map(m => m.total), 1);
         return months.map(m => {
-            const heightPct = Math.min(95, Math.max(12, Math.round((m.total / maxVal) * 90)));
+            const heightPct = m.total > 0 ? Math.min(95, Math.max(12, Math.round((m.total / maxVal) * 90))) : 8;
             return {
                 ...m,
                 heightPct,
@@ -2051,11 +2027,16 @@ class CrmDashboard extends Component {
     }
 
     get fiscalYearOptions() {
-        // Return 3 fiscal years: 2026-27, 2025-26, 2024-25
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        // Determine current FY start year (Indian FY starts April 1)
+        const baseYear = now.getMonth() >= 3 ? currentYear : currentYear - 1;
+        
+        // Return 3 fiscal years: Current FY, Previous FY, and FY before that
         return [
-            { code: "2026-27", label: "FY 2026-27", startYear: 2026 },
-            { code: "2025-26", label: "FY 2025-26", startYear: 2025 },
-            { code: "2024-25", label: "FY 2024-25", startYear: 2024 },
+            { code: `${baseYear}-${String(baseYear + 1).slice(-2)}`, label: `FY ${baseYear}-${String(baseYear + 1).slice(-2)}`, startYear: baseYear },
+            { code: `${baseYear - 1}-${String(baseYear).slice(-2)}`, label: `FY ${baseYear - 1}-${String(baseYear).slice(-2)}`, startYear: baseYear - 1 },
+            { code: `${baseYear - 2}-${String(baseYear - 1).slice(-2)}`, label: `FY ${baseYear - 2}-${String(baseYear - 1).slice(-2)}`, startYear: baseYear - 2 },
         ];
     }
 
