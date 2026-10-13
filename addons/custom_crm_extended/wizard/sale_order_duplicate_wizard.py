@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -47,20 +48,43 @@ class SaleOrderDuplicateWizard(models.TransientModel):
         self.ensure_one()
         source_order = self.order_id
 
-        # 1. Create a fresh Lead for this new Quotation
+        # 1. Determine Lead Title (increment number if exists, or append (1), (2), etc.)
+        old_lead_name = source_order.opportunity_id.name if source_order.opportunity_id else (self.partner_id.name or 'Quotation')
+        old_lead_name = old_lead_name.strip()
+        
+        # Check if title ends with (N), e.g. "Title (1)"
+        match_copy = re.search(r'^(.*?)\s*\((\d+)\)$', old_lead_name)
+        if match_copy:
+            base_title = match_copy.group(1).strip()
+            next_num = int(match_copy.group(2)) + 1
+            new_lead_name = f"{base_title} ({next_num})"
+        else:
+            # Check if title ends with standalone trailing number, e.g. "Lead 101" -> "Lead 102"
+            match_num = re.search(r'^(.*?)(\d+)$', old_lead_name)
+            if match_num and not match_num.group(1).endswith('('):
+                prefix = match_num.group(1)
+                num_str = match_num.group(2)
+                next_num = int(num_str) + 1
+                new_lead_name = f"{prefix}{str(next_num).zfill(len(num_str))}"
+            else:
+                new_lead_name = f"{old_lead_name} (1)"
+
+        # Create a fresh Lead for this new Quotation placed directly in Quotes stage (sequence 30)
+        quote_stage = self.env['crm.stage'].search([('sequence', '=', 30)], limit=1)
         lead_vals = {
-            'name': f"{self.partner_id.name or 'New'} - Quotation",
+            'name': new_lead_name,
             'partner_id': self.partner_id.id,
             'user_id': self.user_id.id or source_order.user_id.id or self.env.uid,
             'team_id': source_order.team_id.id if source_order.team_id else False,
             'type': 'opportunity',
+            'stage_id': quote_stage.id if quote_stage else False,
         }
         if self.contact_person_id:
             lead_vals['contact_name'] = self.contact_person_id.name or ''
             lead_vals['email_from'] = getattr(self.contact_person_id, 'email', False) or ''
             lead_vals['phone'] = getattr(self.contact_person_id, 'phone', False) or getattr(self.contact_person_id, 'mobile', False) or ''
 
-        new_lead = self.env['crm.lead'].create(lead_vals)
+        new_lead = self.env['crm.lead'].with_context(bypass_stage_lock=True).create(lead_vals)
 
         # 2. Duplicate Quotation using standard copy with clean defaults
         new_order = source_order.copy(default={
