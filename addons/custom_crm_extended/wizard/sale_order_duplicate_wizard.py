@@ -56,9 +56,9 @@ class SaleOrderDuplicateWizard(models.TransientModel):
             'type': 'opportunity',
         }
         if self.contact_person_id:
-            lead_vals['contact_name'] = self.contact_person_id.name
-            lead_vals['email_from'] = self.contact_person_id.email
-            lead_vals['phone'] = self.contact_person_id.phone or self.contact_person_id.mobile
+            lead_vals['contact_name'] = self.contact_person_id.name or ''
+            lead_vals['email_from'] = getattr(self.contact_person_id, 'email', False) or ''
+            lead_vals['phone'] = getattr(self.contact_person_id, 'phone', False) or getattr(self.contact_person_id, 'mobile', False) or ''
 
         new_lead = self.env['crm.lead'].create(lead_vals)
 
