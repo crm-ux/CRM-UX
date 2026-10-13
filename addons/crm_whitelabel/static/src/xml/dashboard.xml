@@ -717,7 +717,7 @@
                                 
                                 <!-- Custom Clean Fiscal Year Dropdown -->
                                 <div class="crm-fy-container position-relative">
-                                    <button type="button" class="crm-range-pill crm-fy-trigger" t-att-class="state.salesFiscalYear ? 'active' : ''" t-on-click="toggleFyDropdown">
+                                    <button type="button" class="crm-range-pill crm-fy-trigger" t-att-class="state.salesFiscalYear ? 'active' : ''" t-on-click.stop="toggleFyDropdown">
                                         <t t-if="state.salesFiscalYear">
                                             <t t-esc="'FY ' + state.salesFiscalYear"/>
                                         </t>
