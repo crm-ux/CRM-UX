@@ -2478,8 +2478,20 @@
     .crm-range-pills {
         align-self: flex-end !important;
         max-width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
+        overflow: visible !important;
+    }
+
+    .crm-fy-container {
+        position: relative !important;
+    }
+
+    .crm-fy-menu {
+        z-index: 99999 !important;
+        position: absolute !important;
+        top: calc(100% + 4px) !important;
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
     }
 
     .crm-custom-date-modal-dialog {
