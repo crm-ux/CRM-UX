@@ -706,7 +706,7 @@
                                     <button type="button" class="btn btn-sm btn-light border py-0 px-2 crm-step-btn" title="Previous period (go back in time)" t-on-click="salesRangePrev">
                                         <i class="fa fa-chevron-left" style="font-size: 0.65rem;"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-light border py-0 px-2 crm-step-btn" t-att-disabled="state.salesRangeOffset &lt;= 0" title="Next period (go forward)" t-on-click="salesRangeNext">
+                                    <button type="button" class="btn btn-sm btn-light border py-0 px-2 crm-step-btn" t-att-disabled="!canStepForward" title="Next period (go forward)" t-on-click="salesRangeNext">
                                         <i class="fa fa-chevron-right" style="font-size: 0.65rem;"></i>
                                     </button>
                                 </div>

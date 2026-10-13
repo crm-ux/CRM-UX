@@ -2027,11 +2027,24 @@ class CrmDashboard extends Component {
         });
     }
 
-    get fiscalYearOptions() {
+    get currentFiscalYearStart() {
         const now = new Date();
         const currentYear = now.getFullYear();
-        // Determine current FY start year (Indian FY starts April 1)
-        const baseYear = now.getMonth() >= 3 ? currentYear : currentYear - 1;
+        return now.getMonth() >= 3 ? currentYear : currentYear - 1;
+    }
+
+    get canStepForward() {
+        if (this.state.salesRangeMonths === 'fy') {
+            if (!this.state.salesFiscalYear) return false;
+            const parts = this.state.salesFiscalYear.split("-");
+            const sy = parseInt(parts[0], 10);
+            return sy < this.currentFiscalYearStart;
+        }
+        return (this.state.salesRangeOffset || 0) > 0;
+    }
+
+    get fiscalYearOptions() {
+        const baseYear = this.currentFiscalYearStart;
         
         const list = [
             { code: `${baseYear}-${String(baseYear + 1).slice(-2)}`, label: `FY ${baseYear}-${String(baseYear + 1).slice(-2)}`, startYear: baseYear },
