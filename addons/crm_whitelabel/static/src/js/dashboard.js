@@ -410,6 +410,7 @@ class CrmDashboard extends Component {
             const won = qc['won'] || 0;
             const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
             const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
+            const monthlyRevenue = canViewLeadQuote ? (s.monthly_revenue !== undefined ? s.monthly_revenue : (s.won_revenue || 0)) : 0;
             const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
             const stageQuotes = lc[30] || 0;
             const stageSent = lc[35] || 0;
@@ -500,7 +501,7 @@ class CrmDashboard extends Component {
                 pipelineTotalVal,
                 quotes, quotesDraft, quotesSent, quotesNeg, quotesOrderExp, won, leadsTotal,
                 invoiceCreated, invoiceCreatedVal, invoicePending, invoicePendingVal,
-                customers, products, users, quoteRevenue, wonRevenue, todayRevenue,
+                customers, products, users, quoteRevenue, wonRevenue, monthlyRevenue, todayRevenue,
                 equipmentTotal, equipmentActive, equipmentInactive, equipmentRepair,
                 equipmentTotalVal, equipmentActiveVal, equipmentInactiveVal, equipmentRepairVal,
                 ticketTotal, ticketOpen, ticketOngoing, ticketClosed,

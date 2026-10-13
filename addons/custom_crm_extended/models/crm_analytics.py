@@ -116,6 +116,18 @@ class DashboardStats(models.Model):
         ] + company_filter + user_filter)
         today_revenue = sum(today_orders.mapped('amount_total'))
 
+        # This Month's Won Sales (1st of current month to end of current month)
+        now_dt = datetime.now()
+        month_start_dt = now_dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        last_day_num = _calendar.monthrange(now_dt.year, now_dt.month)[1]
+        month_end_dt = now_dt.replace(day=last_day_num, hour=23, minute=59, second=59, microsecond=0)
+        monthly_orders = self.env['sale.order'].sudo().search([
+            ('x_quote_stage', '=', 'won'),
+            ('date_order', '>=', month_start_dt.strftime('%Y-%m-%d %H:%M:%S')),
+            ('date_order', '<=', month_end_dt.strftime('%Y-%m-%d %H:%M:%S')),
+        ] + company_filter + user_filter)
+        monthly_revenue = sum(monthly_orders.mapped('amount_total'))
+
         # Other counts
         customers = self.env['res.partner'].search_count([('customer_rank', '>', 0)] + shared_company_filter)
         products = self.env['product.template'].search_count([('sale_ok', '=', True)] + shared_company_filter)
@@ -313,6 +325,7 @@ class DashboardStats(models.Model):
             'quote_counts': quote_counts,
             'quote_values': quote_values,
             'won_revenue': won_revenue,
+            'monthly_revenue': monthly_revenue,
             'quote_revenue': quote_revenue,
             'today_revenue': today_revenue,
             'customers': customers,

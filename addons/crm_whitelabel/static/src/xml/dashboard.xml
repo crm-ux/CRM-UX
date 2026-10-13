@@ -334,7 +334,7 @@
                     <div class="crm-stat-sep"></div>
                     <div class="crm-stat-box crm-stat-monthly-sales">
                         <span class="crm-stat-label">Monthly Sales</span>
-                        <span class="crm-stat-val" style="color: var(--primary-blue);"><t t-esc="fmt(state.wonRevenue)"/></span>
+                        <span class="crm-stat-val" style="color: var(--primary-blue);"><t t-esc="fmt(state.monthlyRevenue)"/></span>
                     </div>
                     <div class="crm-stat-sep"></div>
                     <div class="crm-stat-box crm-stat-won" style="cursor: pointer;" t-on-click="openWon">
