@@ -2033,12 +2033,25 @@ class CrmDashboard extends Component {
         // Determine current FY start year (Indian FY starts April 1)
         const baseYear = now.getMonth() >= 3 ? currentYear : currentYear - 1;
         
-        // Return 3 fiscal years: Current FY, Previous FY, and FY before that
-        return [
+        const list = [
             { code: `${baseYear}-${String(baseYear + 1).slice(-2)}`, label: `FY ${baseYear}-${String(baseYear + 1).slice(-2)}`, startYear: baseYear },
             { code: `${baseYear - 1}-${String(baseYear).slice(-2)}`, label: `FY ${baseYear - 1}-${String(baseYear).slice(-2)}`, startYear: baseYear - 1 },
             { code: `${baseYear - 2}-${String(baseYear - 1).slice(-2)}`, label: `FY ${baseYear - 2}-${String(baseYear - 1).slice(-2)}`, startYear: baseYear - 2 },
         ];
+
+        // If user stepped back further into older FY with arrows, add that FY to the options so it shows in the dropdown
+        if (this.state.salesFiscalYear && !list.some(f => f.code === this.state.salesFiscalYear)) {
+            const parts = this.state.salesFiscalYear.split("-");
+            const sy = parseInt(parts[0], 10);
+            if (!isNaN(sy)) {
+                list.push({
+                    code: this.state.salesFiscalYear,
+                    label: `FY ${this.state.salesFiscalYear}`,
+                    startYear: sy
+                });
+            }
+        }
+        return list;
     }
 
     async loadSalesTrendRange(monthsCount = 6, offset = 0) {
