@@ -1638,9 +1638,15 @@ class CrmDashboard extends Component {
             return;
         }
 
-        // Allow navigation, control keys, Tab, Enter, Backspace, Delete
+        if (e.key === "Enter") {
+            e.preventDefault();
+            this.applyCustomDateRange();
+            return;
+        }
+
+        // Allow navigation, control keys, Tab, Backspace, Delete
         if (e.ctrlKey || e.metaKey || e.altKey || [
-            "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"
+            "Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"
         ].includes(e.key)) {
             return;
         }
