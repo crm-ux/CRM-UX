@@ -409,6 +409,7 @@ class CrmDashboard extends Component {
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
             const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0;
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
+            const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
             const stageQuotes = lc[30] || 0;
             const stageSent = lc[35] || 0;
             const stageNegotiation = lc[40] || 0;
