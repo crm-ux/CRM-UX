@@ -647,22 +647,6 @@ class CrmDashboard extends Component {
             order_expected: 50,
             won: 90
         };
-        if (stage === 'won') {
-            this.go({
-                type: "ir.actions.act_window",
-                name: "Won Quotations & Deals",
-                res_model: "sale.order",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"], ...cd],
-                context: {
-                    allowed_company_ids: this.state.selectedCompanies,
-                    search_default_assigned_to_me: 0,
-                    search_default_my_leads: 0,
-                }
-            });
-            return;
-        }
-
         const seq = seqMap[stage] || 30;
         let leadDomain = [["active", "=", true], ["x_stage_sequence", "=", seq]];
         if (seq !== 90) {
