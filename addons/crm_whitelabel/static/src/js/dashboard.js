@@ -2016,19 +2016,12 @@ class CrmDashboard extends Component {
         // Calculate total months count between start and end
         const totalMonths = ((endY - startY) * 12) + (endM - startM) + 1;
 
-        // Dynamic grouping step so total bars never exceed 12
-        let stepMonths = 1;
-        if (totalMonths <= 12) {
-            stepMonths = 1;
-        } else if (totalMonths <= 24) {
-            stepMonths = 2; // ~7 to 12 bars (e.g. 1.5 - 2 years)
-        } else if (totalMonths <= 36) {
-            stepMonths = 3; // ~9 to 12 bars (Quarterly for 2.5 - 3 years)
-        } else if (totalMonths <= 60) {
-            stepMonths = 6; // ~7 to 10 bars (Half-yearly for 4 - 5 years)
-        } else {
-            stepMonths = 12; // Yearly for > 5 years
-        }
+        // Dynamic grouping step: strictly limit to max 8 bars so labels never stretch or crowd
+        const TARGET_MAX_BARS = 8;
+        let stepMonths = Math.max(1, Math.ceil(totalMonths / TARGET_MAX_BARS));
+        if (stepMonths > 1 && stepMonths < 3) stepMonths = 2;
+        else if (stepMonths > 3 && stepMonths < 6) stepMonths = 6;
+        else if (stepMonths > 6 && stepMonths < 12) stepMonths = 12;
 
         const buckets = [];
         let cur = new Date(startY, startM - 1, 1);
@@ -2048,23 +2041,22 @@ class CrmDashboard extends Component {
             let tooltipLabel = "";
 
             if (stepMonths === 1) {
-                // Monthly
+                // Monthly: Aug '26
                 label = `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}`;
                 tooltipLabel = `${monthNames[bStartMo]} ${bStartYr}`;
             } else if (stepMonths === 3 && (bStartMo % 3 === 0)) {
-                // Perfect quarters (Q1, Q2, Q3, Q4)
+                // Standard quarter: Q1 '26
                 const qNum = Math.floor(bStartMo / 3) + 1;
                 label = `Q${qNum} '${String(bStartYr).slice(-2)}`;
                 tooltipLabel = `Q${qNum} ${bStartYr} (${monthNames[bStartMo]} - ${monthNames[bEndMo]})`;
+            } else if (stepMonths >= 12) {
+                // Yearly
+                label = `${bStartYr}`;
+                tooltipLabel = `Year ${bStartYr}`;
             } else {
-                // Multi-month range e.g. Oct-Nov '24 or Oct '24-Mar '25
-                if (bStartYr === bEndYr) {
-                    label = `${monthNames[bStartMo]}-${monthNames[bEndMo]} '${String(bStartYr).slice(-2)}`;
-                    tooltipLabel = `${monthNames[bStartMo]} - ${monthNames[bEndMo]} ${bStartYr}`;
-                } else {
-                    label = `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}-${monthNames[bEndMo]} '${String(bEndYr).slice(-2)}`;
-                    tooltipLabel = `${monthNames[bStartMo]} ${bStartYr} - ${monthNames[bEndMo]} ${bEndYr}`;
-                }
+                // Multi-month range: e.g. Feb-Apr '24
+                label = `${monthNames[bStartMo]}-${monthNames[bEndMo]}`;
+                tooltipLabel = `${monthNames[bStartMo]} ${bStartYr} - ${monthNames[bEndMo]} ${bEndYr}`;
             }
 
             const startDtStr = `${bStartYr}-${String(bStartMo + 1).padStart(2, "0")}-${String(bStart.getDate()).padStart(2, "0")} 00:00:00`;
