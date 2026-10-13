@@ -386,10 +386,9 @@ class ResUsers(models.Model):
 
                 # 2. From res.users fields
                 dept_users = self.env['res.users'].sudo().search([
-                    '|', '|',
+                    '|',
                     ('crm_department_id', 'in', all_dept_ids),
-                    ('crm_job_id.department_id', 'in', all_dept_ids),
-                    ('crm_job_id.sub_department_ids', 'in', all_dept_ids)
+                    ('crm_job_id.department_id', 'in', all_dept_ids)
                 ])
                 uids.update(dept_users.ids)
 
