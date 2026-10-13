@@ -2,7 +2,6 @@
 import { onMounted, onWillUnmount } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
-import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
 
 const SALE_ORDER_MODEL = "sale.order";
 
@@ -124,22 +123,4 @@ patch(FormController.prototype, {
         return super.duplicateRecord(...arguments);
     },
 });
-
-// Prevent full-screen mobile search view for the duplicate wizard Many2One fields
-if (Many2XAutocomplete) {
-    patch(Many2XAutocomplete.prototype, {
-        openMobileSearch(ev) {
-            // Check if this Many2XAutocomplete is inside our duplicate wizard
-            const isInsideDuplicateWizard = Boolean(
-                this.env?.model?.root?.resModel === "sale.order.duplicate.wizard" ||
-                document.querySelector(".o_dialog [name='action_duplicate']")
-            );
-            if (isInsideDuplicateWizard) {
-                // Do NOT open full-screen mobile search; let the standard dropdown open!
-                return;
-            }
-            return super.openMobileSearch?.(...arguments);
-        },
-    });
-}
 
