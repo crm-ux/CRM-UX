@@ -28,6 +28,7 @@
             'crm_whitelabel/static/src/js/nav_buttons.js',
             'crm_whitelabel/static/src/js/terms_checkbox.js',
             'crm_whitelabel/static/src/js/statusbar_override.js',
+            'crm_whitelabel/static/src/js/disable_mobile_search.js',
         ],
     },
     'controllers': ['controllers/main.py'],
