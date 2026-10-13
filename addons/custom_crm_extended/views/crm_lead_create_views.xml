@@ -17,6 +17,7 @@
             </xpath>
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="x_display_revenue" string="Expected Revenue" widget="monetary" options="{'currency_field': 'company_currency'}" sum="Expected Revenues" optional="show"/>
+                <field name="x_first_product_name" string="Product" optional="show"/>
             </xpath>
             <xpath expr="//field[@name='expected_revenue']" position="attributes">
                 <attribute name="column_invisible">True</attribute>
