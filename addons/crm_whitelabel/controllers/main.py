@@ -233,11 +233,14 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
 
             try:
+                from datetime import datetime, timedelta
+                req_time = datetime.utcnow() - timedelta(seconds=15)
                 response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
                 # Check if a newly generated reset email failed in mail.mail
                 if request.httprequest.method == 'POST' and kw.get('login'):
                     failed_mail = request.env['mail.mail'].sudo().search([
                         ('state', '=', 'exception'),
+                        ('create_date', '>=', req_time.strftime('%Y-%m-%d %H:%M:%S')),
                     ], order='id desc', limit=1)
                     if failed_mail and failed_mail.failure_reason:
                         err_msg = failed_mail.failure_reason.replace("'", "\\'")
