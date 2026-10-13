@@ -2042,25 +2042,33 @@ class CrmDashboard extends Component {
             const bEndYr = bEnd.getFullYear();
             const bEndMo = bEnd.getMonth();
 
+            const startYrShort = `'${String(bStartYr).slice(-2)}`;
+            const endYrShort = `'${String(bEndYr).slice(-2)}`;
+
             let label = "";
+            let subLabel = "";
             let tooltipLabel = "";
 
             if (stepMonths === 1) {
-                // When 12 months are shown, use short 3-letter month names like Jan, Feb, Mar (matching standard 1Y & FY)
-                label = totalMonths > 6 ? monthNames[bStartMo] : `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}`;
+                // 1 Month: e.g. Jan '25 or Jan with year in subLabel
+                label = monthNames[bStartMo];
+                subLabel = startYrShort;
                 tooltipLabel = `${monthNames[bStartMo]} ${bStartYr}`;
             } else if (stepMonths === 3 && (bStartMo % 3 === 0)) {
-                // Standard quarter: Q1 '26
+                // Quarter: Q1 '24, Q2 '24, Q1 '25...
                 const qNum = Math.floor(bStartMo / 3) + 1;
-                label = `Q${qNum} '${String(bStartYr).slice(-2)}`;
+                label = `Q${qNum}`;
+                subLabel = startYrShort;
                 tooltipLabel = `Q${qNum} ${bStartYr} (${monthNames[bStartMo]} - ${monthNames[bEndMo]})`;
             } else if (stepMonths >= 12) {
-                // Yearly
+                // Full Year: 2024, 2025...
                 label = `${bStartYr}`;
+                subLabel = "";
                 tooltipLabel = `Year ${bStartYr}`;
             } else {
-                // Multi-month range: e.g. Feb-Apr
+                // Multi-month: e.g. Jan-Jun with '24 or '25 below it!
                 label = `${monthNames[bStartMo]}-${monthNames[bEndMo]}`;
+                subLabel = bStartYr === bEndYr ? startYrShort : `${startYrShort}-${endYrShort}`;
                 tooltipLabel = `${monthNames[bStartMo]} ${bStartYr} - ${monthNames[bEndMo]} ${bEndYr}`;
             }
 
@@ -2070,6 +2078,7 @@ class CrmDashboard extends Component {
 
             buckets.push({
                 label: label,
+                subLabel: subLabel,
                 tooltipLabel: tooltipLabel,
                 startDt: startDtStr,
                 endDt: endDtStr,
