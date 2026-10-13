@@ -2461,6 +2461,27 @@
 }
 
 @media (max-width: 768px) {
+    .crm-analytics-section {
+        grid-template-columns: 1fr !important;
+    }
+
+    .crm-chart-head {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.65rem !important;
+    }
+
+    .crm-chart-title {
+        justify-content: flex-start !important;
+    }
+
+    .crm-range-pills {
+        align-self: flex-end !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
     .crm-custom-date-modal-dialog {
         width: 94% !important;
         max-width: 94vw !important;
@@ -2476,35 +2497,5 @@
         text-align: center !important;
         font-size: 13px !important;
         padding: 10px 16px !important;
-    }
-
-    .crm-chart-head {
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 0.65rem !important;
-    }
-
-    .crm-chart-head .crm-range-pills {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        justify-content: flex-start !important;
-        padding: 0.25rem 0.35rem !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-    }
-
-    .crm-chart-head .crm-range-pills::-webkit-scrollbar {
-        display: none !important;
-    }
-
-    .crm-range-pill {
-        flex-shrink: 0 !important;
-        padding: 0.25rem 0.5rem !important;
-        font-size: 0.72rem !important;
-    }
-
-    .crm-step-btn {
-        padding: 0.15rem 0.4rem !important;
     }
 }
