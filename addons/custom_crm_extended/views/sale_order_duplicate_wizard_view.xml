@@ -8,9 +8,9 @@
                 <div style="width: 100%; max-width: 92vw; padding: 0.5rem 0;">
                     <group>
                         <field name="order_id" invisible="1"/>
-                        <field name="partner_id" string="Customer" required="1"/>
-                        <field name="contact_person_id" string="Contact Person"/>
-                        <field name="user_id" string="Salesperson" options="{'no_open': True, 'no_create': True}"/>
+                        <field name="partner_id" string="Customer" required="1" widget="selection"/>
+                        <field name="contact_person_id" string="Contact Person" widget="selection"/>
+                        <field name="user_id" string="Salesperson" widget="selection"/>
                     </group>
                 </div>
                 <footer>
