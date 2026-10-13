@@ -409,17 +409,16 @@ class CrmDashboard extends Component {
             const stageLead = lc[0] || 0, stageContacted = lc[5] || 0, stageTechDisc = lc[7] || 0;
             const stageQualified = lc[10] || 0, stageOpportunity = lc[20] || 0;
             const quotesDraft = qc['draft'] || 0, quotesSent = qc['sent'] || 0;
-            const quotesNeg = qc['negotiation'] || 0, quotesOrderExp = qc['order_expected'] || 0;
-            const won = qc['won'] || 0;
-            const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
-            const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
-            const monthlyRevenue = canViewLeadQuote ? (s.monthly_revenue !== undefined ? s.monthly_revenue : (s.won_revenue || 0)) : 0;
-            const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
             const stageQuotes = lc[30] || 0;
             const stageSent = lc[35] || 0;
             const stageNegotiation = lc[40] || 0;
             const stageOrderExp = lc[50] || 0;
             const stageWon = lc[90] || 0;
+            const won = stageWon;
+            const quoteRevenue = canViewLeadQuote ? (s.quote_revenue || 0) : 0;
+            const wonRevenue = canViewLeadQuote ? (s.won_revenue || 0) : 0;
+            const monthlyRevenue = canViewLeadQuote ? (s.monthly_revenue !== undefined ? s.monthly_revenue : (s.won_revenue || 0)) : 0;
+            const todayRevenue = canViewLeadQuote ? (s.today_revenue || 0) : 0;
             const quotes = quotesDraft + quotesSent + quotesNeg + quotesOrderExp;
             const leadsTotal = stageLead + stageContacted + stageTechDisc + stageQualified + stageOpportunity + stageQuotes + stageSent + stageNegotiation + stageOrderExp + stageWon;
 
@@ -2121,7 +2120,7 @@ class CrmDashboard extends Component {
 
     get fiscalYearOptions() {
         const baseYear = this.currentFiscalYearStart;
-        
+
         const list = [
             { code: `${baseYear}-${String(baseYear + 1).slice(-2)}`, label: `FY ${baseYear}-${String(baseYear + 1).slice(-2)}`, startYear: baseYear },
             { code: `${baseYear - 1}-${String(baseYear).slice(-2)}`, label: `FY ${baseYear - 1}-${String(baseYear).slice(-2)}`, startYear: baseYear - 1 },
@@ -2153,7 +2152,7 @@ class CrmDashboard extends Component {
                 // Fiscal Year mode: 12 months from April (startYear) to March (startYear + 1)
                 // When navigating back with <, offset increases (1, 2...), so subtract offset to go back in time!
                 const fy = this.fiscalYearOptions.find(f => f.code === this.state.salesFiscalYear) || this.fiscalYearOptions[0];
-                const startYear = fy.startYear - offset; 
+                const startYear = fy.startYear - offset;
                 start = new Date(startYear, 3, 1); // 1st April
                 end = new Date(startYear + 1, 2, 31, 23, 59, 59); // 31st March
 
