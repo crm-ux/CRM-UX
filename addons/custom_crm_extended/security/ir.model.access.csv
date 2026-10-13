@@ -36,3 +36,4 @@ access_crm_product_stock,crm.product.stock,model_crm_product_stock,base.group_us
 access_crm_product_stock_wizard,crm.product.stock.wizard,model_crm_product_stock_wizard,base.group_user,1,1,1,1
 access_crm_task_management,crm.task.management,model_crm_task_management,base.group_user,1,1,1,1
 access_crm_task_assign_wizard,crm.task.assign.wizard,model_crm_task_assign_wizard,base.group_user,1,1,1,1
+access_sale_order_duplicate_wizard,sale.order.duplicate.wizard,model_sale_order_duplicate_wizard,base.group_user,1,1,1,1

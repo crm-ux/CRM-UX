@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_order_duplicate_wizard_form" model="ir.ui.view">
+        <field name="name">sale.order.duplicate.wizard.form</field>
+        <field name="model">sale.order.duplicate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Duplicate Quotation">
+                <sheet>
+                    <div class="alert alert-info py-2 mb-3" role="alert">
+                        <strong>Duplicate Quotation &amp; Lead:</strong> Select a customer to create a replica of this quotation. A new linked lead will automatically be generated in Draft stage.
+                    </div>
+                    <group>
+                        <field name="order_id" invisible="1"/>
+                        <field name="partner_id" string="Customer" required="1" options="{'no_create_edit': False}"/>
+                        <field name="contact_person_id" string="Contact Person" options="{'no_create_edit': False}"/>
+                        <field name="user_id" string="Salesperson" options="{'no_create': True}"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_duplicate" string="Duplicate Quotation" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

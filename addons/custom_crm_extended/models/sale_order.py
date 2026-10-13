@@ -742,6 +742,24 @@ class SaleOrder(models.Model):
 
         return res
 
+    def action_open_duplicate_wizard(self):
+        """Opens wizard to duplicate quotation & lead with customer selection."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Duplicate Quotation'),
+            'res_model': 'sale.order.duplicate.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref('custom_crm_extended.view_sale_order_duplicate_wizard_form').id,
+            'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+                'default_partner_id': self.partner_id.id,
+                'default_contact_person_id': self.x_contact_person_id.id if self.x_contact_person_id else False,
+                'default_user_id': self.user_id.id or self.env.uid,
+            }
+        }
+
     def action_mark_lost(self):
         """Mark quote as Lost - requires a lost reason."""
         self.ensure_one()
