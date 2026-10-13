@@ -25,8 +25,11 @@
         </xpath>
     </template>
 
-    <!-- Global Custom Favicon & Mobile Touch Icons -->
+    <!-- Global Custom Favicon & Page Title -->
     <template id="custom_favicon" inherit_id="web.layout" priority="99">
+        <xpath expr="//title" position="replace">
+            <title>YantraConnect CRM</title>
+        </xpath>
         <xpath expr="//link[@rel='shortcut icon']" position="replace">
             <link rel="shortcut icon" href="/crm_whitelabel/static/src/img/favicon.png" type="image/png"/>
             <link rel="icon" href="/crm_whitelabel/static/src/img/favicon.png" type="image/png"/>
