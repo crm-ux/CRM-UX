@@ -176,9 +176,10 @@
         <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <!-- Add Assign To and Customer Type columns after Salesperson -->
+            <!-- Add Assign To, Product, and Customer Type columns after Salesperson -->
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="x_assign_to_id" string="Assigned To" optional="show"/>
+                <field name="x_first_product_name" string="Product" optional="show"/>
                 <field name="x_customer_type" string="Customer Type" optional="show"/>
                 <field name="x_purchase_timeline" string="Timeline" optional="show"/>
             </xpath>

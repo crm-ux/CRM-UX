@@ -278,6 +278,29 @@ class CrmLead(models.Model):
         string='Product Interest Lines',
         copy=True,
     )
+    x_first_product_name = fields.Char(
+        string='Product',
+        compute='_compute_first_product_name',
+        store=True,
+        help='First product associated with this opportunity from Product Interest or Quotations.'
+    )
+
+    @api.depends('x_product_line_ids.product_id', 'x_product_line_ids.x_product_name', 'order_ids.order_line.product_id')
+    def _compute_first_product_name(self):
+        for lead in self:
+            prod_name = False
+            # 1. From Product Interest lines
+            if lead.x_product_line_ids:
+                first_line = lead.x_product_line_ids[0]
+                prod_name = first_line.product_id.display_name or first_line.x_product_name or False
+            # 2. Fallback: From Quotation lines
+            if not prod_name and lead.order_ids:
+                for order in lead.order_ids.filtered(lambda o: o.state != 'cancel'):
+                    if order.order_line:
+                        prod_name = order.order_line[0].product_id.display_name or order.order_line[0].name
+                        if prod_name:
+                            break
+            lead.x_first_product_name = prod_name or ''
 
     # ==================================================================
     # CSV IMPORT ACTION
