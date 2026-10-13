@@ -2016,12 +2016,17 @@ class CrmDashboard extends Component {
         // Calculate total months count between start and end
         const totalMonths = ((endY - startY) * 12) + (endM - startM) + 1;
 
-        // Dynamic grouping step: strictly limit to max 8 bars so labels never stretch or crowd
-        const TARGET_MAX_BARS = 8;
-        let stepMonths = Math.max(1, Math.ceil(totalMonths / TARGET_MAX_BARS));
-        if (stepMonths > 1 && stepMonths < 3) stepMonths = 2;
-        else if (stepMonths > 3 && stepMonths < 6) stepMonths = 6;
-        else if (stepMonths > 6 && stepMonths < 12) stepMonths = 12;
+        // Grouping rule:
+        // - Up to 12 months (like 1Y, FY, or any 1-year custom range): Show ALL 12 monthly bars (Jan, Feb...)
+        // - If > 12 months: Group dynamically into max 8 to 10 bars so card width never stretches
+        let stepMonths = 1;
+        if (totalMonths > 12) {
+            const TARGET_MAX_BARS = 8;
+            stepMonths = Math.max(2, Math.ceil(totalMonths / TARGET_MAX_BARS));
+            if (stepMonths > 2 && stepMonths <= 4) stepMonths = 3; // Quarterly
+            else if (stepMonths > 4 && stepMonths <= 8) stepMonths = 6; // Half-Yearly
+            else if (stepMonths > 8) stepMonths = 12; // Yearly
+        }
 
         const buckets = [];
         let cur = new Date(startY, startM - 1, 1);
@@ -2041,8 +2046,8 @@ class CrmDashboard extends Component {
             let tooltipLabel = "";
 
             if (stepMonths === 1) {
-                // Monthly: Aug '26
-                label = `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}`;
+                // When 12 months are shown, use short 3-letter month names like Jan, Feb, Mar (matching standard 1Y & FY)
+                label = totalMonths > 6 ? monthNames[bStartMo] : `${monthNames[bStartMo]} '${String(bStartYr).slice(-2)}`;
                 tooltipLabel = `${monthNames[bStartMo]} ${bStartYr}`;
             } else if (stepMonths === 3 && (bStartMo % 3 === 0)) {
                 // Standard quarter: Q1 '26
@@ -2054,7 +2059,7 @@ class CrmDashboard extends Component {
                 label = `${bStartYr}`;
                 tooltipLabel = `Year ${bStartYr}`;
             } else {
-                // Multi-month range: e.g. Feb-Apr '24
+                // Multi-month range: e.g. Feb-Apr
                 label = `${monthNames[bStartMo]}-${monthNames[bEndMo]}`;
                 tooltipLabel = `${monthNames[bStartMo]} ${bStartYr} - ${monthNames[bEndMo]} ${bEndYr}`;
             }
