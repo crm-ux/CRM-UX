@@ -116,6 +116,8 @@ class CrmDashboard extends Component {
             showConfirmPassword: false,
             // Analytics State
             salesRangeMonths: 6,
+            salesRangeOffset: 0,
+            salesFiscalYear: null,
             scrubTooltip: { visible: false, left: 0, top: 0, date: "", val: "" },
             customDateModalOpen: false,
             customStartDateInput: "",
@@ -2048,12 +2050,55 @@ class CrmDashboard extends Component {
         });
     }
 
-    async loadSalesTrendRange(monthsCount = 6) {
+    get fiscalYearOptions() {
+        // Return 3 fiscal years: 2026-27, 2025-26, 2024-25
+        return [
+            { code: "2026-27", label: "FY 2026-27", startYear: 2026 },
+            { code: "2025-26", label: "FY 2025-26", startYear: 2025 },
+            { code: "2024-25", label: "FY 2024-25", startYear: 2024 },
+        ];
+    }
+
+    async loadSalesTrendRange(monthsCount = 6, offset = 0) {
         try {
             const now = new Date();
-            const start = new Date(now.getFullYear(), now.getMonth() - (monthsCount - 1), 1);
+            let start, end, targetMonths = [];
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            if (this.state.salesFiscalYear) {
+                // Fiscal Year mode: 12 months from April (startYear) to March (startYear + 1)
+                const fy = this.fiscalYearOptions.find(f => f.code === this.state.salesFiscalYear) || this.fiscalYearOptions[0];
+                const startYear = fy.startYear + offset; // allows navigating previous FYs with < and >
+                start = new Date(startYear, 3, 1); // 1st April
+                end = new Date(startYear + 1, 2, 31, 23, 59, 59); // 31st March
+
+                for (let m = 3; m <= 14; m++) {
+                    const d = new Date(startYear, m, 1);
+                    targetMonths.push({
+                        date: d,
+                        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+                    });
+                }
+            } else {
+                // Relative months with infinite offset
+                // offset = 0 is current, offset = 1 is 1 period back, offset = 2 is 2 periods back...
+                const endMonthOffset = offset * monthsCount;
+                const startMonthOffset = endMonthOffset + (monthsCount - 1);
+                start = new Date(now.getFullYear(), now.getMonth() - startMonthOffset, 1);
+                const endDateRef = new Date(now.getFullYear(), now.getMonth() - endMonthOffset, 1);
+                end = new Date(endDateRef.getFullYear(), endDateRef.getMonth() + 1, 0, 23, 59, 59);
+
+                for (let i = monthsCount - 1; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - endMonthOffset - i, 1);
+                    targetMonths.push({
+                        date: d,
+                        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+                    });
+                }
+            }
+
             const startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}-01`;
-            const endStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, "0")}`;
+            const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, "0")}-${String(end.getDate()).padStart(2, "0")}`;
 
             const domain = [
                 ["date_order", ">=", startStr + " 00:00:00"],
@@ -2070,14 +2115,12 @@ class CrmDashboard extends Component {
                 model: "sale.order", method: "search_read",
                 args: [domain], kwargs: { fields: ["date_order", "amount_total", "amount_untaxed"] }
             });
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
             const monthMap = {};
-            // Initialize each month in the range with 0 so the chart shows the timeline accurately
-            for (let i = monthsCount - 1; i >= 0; i--) {
-                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-                monthMap[k] = 0;
-            }
+            targetMonths.forEach(tm => {
+                monthMap[tm.key] = 0;
+            });
+
             orders.forEach(o => {
                 if (!o.date_order) return;
                 const mKey = o.date_order.substring(0, 7);
@@ -2085,20 +2128,22 @@ class CrmDashboard extends Component {
                     monthMap[mKey] += (o.amount_total || o.amount_untaxed || 0);
                 }
             });
-            const sortedMonths = Object.keys(monthMap).sort();
-            this.state.realSalesMonths = sortedMonths.map(k => {
-                const parts = k.split("-");
+
+            this.state.realSalesMonths = targetMonths.map(tm => {
+                const parts = tm.key.split("-");
                 const mIndex = parseInt(parts[1], 10) - 1;
                 const daysInMonth = new Date(Number(parts[0]), mIndex + 1, 0).getDate();
+                const yrShort = parts[0].slice(-2);
                 return {
-                    label: monthNames[mIndex],
-                    total: monthMap[k],
-                    fullMonth: k,
+                    label: targetMonths.length > 6 ? monthNames[mIndex] : `${monthNames[mIndex]} '${yrShort}`,
+                    fullLabel: `${monthNames[mIndex]} ${parts[0]}`,
+                    total: monthMap[tm.key] || 0,
+                    fullMonth: tm.key,
                     days: daysInMonth
                 };
             });
         } catch (err) {
-            console.error("Error loading real sales trend:", err);
+            console.error("Error loading sales trend range:", err);
             this.state.realSalesMonths = [];
         }
     }
@@ -2109,8 +2154,32 @@ class CrmDashboard extends Component {
             return;
         }
         this.state.salesRangeMonths = range;
+        this.state.salesFiscalYear = null;
+        this.state.salesRangeOffset = 0;
         this.state.scrubTooltip.visible = false;
-        this.loadSalesTrendRange(range);
+        this.loadSalesTrendRange(range, 0);
+    }
+
+    setFiscalYear(fyCode) {
+        if (!fyCode) return;
+        this.state.salesFiscalYear = fyCode;
+        this.state.salesRangeMonths = 'fy';
+        this.state.salesRangeOffset = 0;
+        this.state.scrubTooltip.visible = false;
+        this.loadSalesTrendRange(12, 0);
+    }
+
+    salesRangePrev() {
+        this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) + 1;
+        this.state.scrubTooltip.visible = false;
+        this.loadSalesTrendRange(this.state.salesRangeMonths === 'fy' ? 12 : this.state.salesRangeMonths, this.state.salesRangeOffset);
+    }
+
+    salesRangeNext() {
+        if ((this.state.salesRangeOffset || 0) <= 0) return; // Cannot go past current
+        this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) - 1;
+        this.state.scrubTooltip.visible = false;
+        this.loadSalesTrendRange(this.state.salesRangeMonths === 'fy' ? 12 : this.state.salesRangeMonths, this.state.salesRangeOffset);
     }
 
     onBarScrub(e, m) {

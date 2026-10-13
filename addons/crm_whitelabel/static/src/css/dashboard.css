@@ -1227,6 +1227,51 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+.crm-step-btn {
+    padding: 0.18rem 0.45rem !important;
+    border-radius: 0.35rem !important;
+    font-size: 0.72rem !important;
+    color: #475569 !important;
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    transition: all 0.2s ease !important;
+}
+
+.crm-step-btn:hover:not(:disabled) {
+    background: #f8fafc !important;
+    color: var(--primary-blue) !important;
+    border-color: #94a3b8 !important;
+}
+
+.crm-step-btn:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+}
+
+.crm-fy-select {
+    border: none;
+    background: transparent;
+    padding: clamp(0.18rem, 0.3vh, 0.25rem) clamp(0.35rem, 0.4vw, 0.5rem);
+    border-radius: 0.35rem;
+    font-size: clamp(0.68rem, 0.75vw, 0.78rem);
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.crm-fy-select:hover {
+    color: var(--text-dark);
+}
+
+.crm-fy-select.active {
+    background: #ffffff;
+    color: var(--primary-blue);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
 .crm-bar-tooltip {
     position: absolute;
     display: none;

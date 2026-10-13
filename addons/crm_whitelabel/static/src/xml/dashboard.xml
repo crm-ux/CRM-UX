@@ -699,11 +699,32 @@
                                 <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
                                 <span>Monthly Sales &amp; Revenue Growth</span>
                             </span>
-                            <!-- Frontend Range Buttons -->
-                            <div class="crm-range-pills">
+                            <!-- Frontend Range Buttons with Step Navigation & Fiscal Year Selector -->
+                            <div class="crm-range-pills d-flex align-items-center gap-1">
+                                <!-- Prev / Next Step Buttons -->
+                                <div class="btn-group btn-group-sm me-1" role="group">
+                                    <button type="button" class="btn btn-sm btn-light border py-0 px-2 crm-step-btn" title="Previous period (go back in time)" t-on-click="salesRangePrev">
+                                        <i class="fa fa-chevron-left" style="font-size: 0.65rem;"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-light border py-0 px-2 crm-step-btn" t-att-disabled="state.salesRangeOffset &lt;= 0" title="Next period (go forward)" t-on-click="salesRangeNext">
+                                        <i class="fa fa-chevron-right" style="font-size: 0.65rem;"></i>
+                                    </button>
+                                </div>
+
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 3 ? 'active' : ''" t-on-click="() => this.setSalesRange(3)">3M</button>
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 6 ? 'active' : ''" t-on-click="() => this.setSalesRange(6)">6M</button>
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 12 ? 'active' : ''" t-on-click="() => this.setSalesRange(12)">1Y</button>
+                                
+                                <!-- Fiscal Year Dropdown (FY 2026-27, FY 2025-26, FY 2024-25) -->
+                                <select class="crm-fy-select" t-att-class="state.salesFiscalYear ? 'active' : ''" t-on-change="(e) => this.setFiscalYear(e.target.value)">
+                                    <option value="" t-att-selected="!state.salesFiscalYear">FY ▾</option>
+                                    <t t-foreach="fiscalYearOptions" t-as="fy" t-key="fy.code">
+                                        <option t-att-value="fy.code" t-att-selected="state.salesFiscalYear === fy.code">
+                                            <t t-esc="fy.label"/>
+                                        </option>
+                                    </t>
+                                </select>
+
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal"><i class="fa fa-calendar" style="color: #0284c7;"></i> Custom</button>
                             </div>
                         </div>
