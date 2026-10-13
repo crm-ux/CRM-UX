@@ -118,6 +118,7 @@ class CrmDashboard extends Component {
             salesRangeMonths: 6,
             salesRangeOffset: 0,
             salesFiscalYear: null,
+            fyDropdownOpen: false,
             scrubTooltip: { visible: false, left: 0, top: 0, date: "", val: "" },
             customDateModalOpen: false,
             customStartDateInput: "",
@@ -186,6 +187,7 @@ class CrmDashboard extends Component {
                 }
                 if (!e.target.closest('.crm-admin-multiselect')) this.state.adminMenuOpen = false;
                 if (!e.target.closest('.crm-search-box')) this.state.searchOpen = false;
+                if (!e.target.closest('.crm-fy-container')) this.state.fyDropdownOpen = false;
             });
         });
     }
@@ -2169,11 +2171,16 @@ class CrmDashboard extends Component {
         this.loadSalesTrendRange(range, 0);
     }
 
+    toggleFyDropdown() {
+        this.state.fyDropdownOpen = !this.state.fyDropdownOpen;
+    }
+
     setFiscalYear(fyCode) {
         if (!fyCode) return;
         this.state.salesFiscalYear = fyCode;
         this.state.salesRangeMonths = 'fy';
         this.state.salesRangeOffset = 0;
+        this.state.fyDropdownOpen = false;
         this.state.scrubTooltip.visible = false;
         this.loadSalesTrendRange(12, 0);
     }

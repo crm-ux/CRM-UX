@@ -1248,34 +1248,50 @@
     cursor: not-allowed !important;
 }
 
-.crm-fy-select {
-    border: none;
-    background: transparent;
-    padding: clamp(0.18rem, 0.3vh, 0.25rem) clamp(0.4rem, 0.5vw, 0.6rem);
-    border-radius: 0.35rem;
-    font-size: clamp(0.68rem, 0.75vw, 0.78rem);
-    font-weight: 600;
-    color: var(--text-muted);
+.crm-fy-container {
+    position: relative;
+    display: inline-flex;
+}
+
+.crm-fy-trigger {
     cursor: pointer;
-    outline: none;
-    transition: all 0.2s ease;
-    width: auto;
-    max-width: fit-content;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    text-align: center;
+    white-space: nowrap;
 }
 
-.crm-fy-select:hover {
-    color: var(--text-dark);
-}
-
-.crm-fy-select.active {
+.crm-fy-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
     background: #ffffff;
+    border-radius: 0.45rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    min-width: 105px;
+    padding: 0.25rem 0;
+    z-index: 60;
+}
+
+.crm-fy-item {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.crm-fy-item:hover {
+    background: #f1f5f9;
+    color: var(--primary-blue);
+}
+
+.crm-fy-item.selected {
+    background: #e0f2fe;
     color: var(--primary-blue);
     font-weight: 700;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .crm-bar-tooltip {

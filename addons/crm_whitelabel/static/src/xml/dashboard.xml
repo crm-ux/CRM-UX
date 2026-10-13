@@ -715,15 +715,24 @@
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 6 ? 'active' : ''" t-on-click="() => this.setSalesRange(6)">6M</button>
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 12 ? 'active' : ''" t-on-click="() => this.setSalesRange(12)">1Y</button>
                                 
-                                <!-- Fiscal Year Dropdown (FY 2026-27, FY 2025-26, FY 2024-25) -->
-                                <select class="crm-fy-select" t-att-class="state.salesFiscalYear ? 'active' : ''" t-on-change="(e) => this.setFiscalYear(e.target.value)">
-                                    <option value="" t-att-selected="!state.salesFiscalYear">FY ▾</option>
-                                    <t t-foreach="fiscalYearOptions" t-as="fy" t-key="fy.code">
-                                        <option t-att-value="fy.code" t-att-selected="state.salesFiscalYear === fy.code">
-                                            <t t-esc="fy.label"/>
-                                        </option>
-                                    </t>
-                                </select>
+                                <!-- Custom Clean Fiscal Year Dropdown -->
+                                <div class="crm-fy-container position-relative">
+                                    <button type="button" class="crm-range-pill crm-fy-trigger" t-att-class="state.salesFiscalYear ? 'active' : ''" t-on-click="toggleFyDropdown">
+                                        <t t-if="state.salesFiscalYear">
+                                            <t t-esc="'FY ' + state.salesFiscalYear"/>
+                                        </t>
+                                        <t t-else="">
+                                            FY ▾
+                                        </t>
+                                    </button>
+                                    <div class="crm-fy-menu" t-if="state.fyDropdownOpen">
+                                        <t t-foreach="fiscalYearOptions" t-as="fy" t-key="fy.code">
+                                            <div class="crm-fy-item" t-att-class="state.salesFiscalYear === fy.code ? 'selected' : ''" t-on-click="() => this.setFiscalYear(fy.code)">
+                                                <t t-esc="fy.label"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
 
                                 <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal"><i class="fa fa-calendar" style="color: #0284c7;"></i> Custom</button>
                             </div>
