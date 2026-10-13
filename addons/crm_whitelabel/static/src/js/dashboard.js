@@ -759,10 +759,10 @@ class CrmDashboard extends Component {
         const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
         this.go({
             type: "ir.actions.act_window",
-            name: "Won Deals",
-            res_model: "sale.order",
+            name: "Won Leads & Deals",
+            res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
-            domain: [["x_quote_stage", "=", "won"], ["state", "!=", "cancel"], ...cd],
+            domain: [["active", "=", true], ["x_stage_sequence", "=", 90], ...cd],
             context: {
                 allowed_company_ids: this.state.selectedCompanies,
                 search_default_assigned_to_me: 0,
