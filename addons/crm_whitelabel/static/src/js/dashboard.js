@@ -123,6 +123,7 @@ class CrmDashboard extends Component {
             customDateModalOpen: false,
             customStartDateInput: "",
             customEndDateInput: "",
+            customDateError: "",
             customRangeType: "month",
             customChartData: null,
             complaintBreakdown: 0,
@@ -1388,7 +1389,7 @@ class CrmDashboard extends Component {
     showToast(msg) {
         const toast = document.createElement('div');
         toast.innerText = msg;
-        toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1a3d6e;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+        toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1a3d6e;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:99999999;box-shadow:0 4px 12px rgba(0,0,0,0.3);font-weight:600;';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
@@ -1608,11 +1609,12 @@ class CrmDashboard extends Component {
 
 
     openCustomDateModal() {
-        // Preserving custom date fields during testing so user doesn't have to re-enter
+        this.state.customDateError = "";
         this.state.customDateModalOpen = true;
     }
 
     closeCustomDateModal() {
+        this.state.customDateError = "";
         this.state.customDateModalOpen = false;
     }
 
@@ -1741,12 +1743,14 @@ class CrmDashboard extends Component {
     async applyCustomDateRange() {
         const startCheck = this.validateDateInput(this.state.customStartDateInput, "Start Date");
         if (startCheck.error) {
+            this.state.customDateError = startCheck.error;
             this.showToast(startCheck.error);
             return;
         }
 
         const endCheck = this.validateDateInput(this.state.customEndDateInput, "End Date");
         if (endCheck.error) {
+            this.state.customDateError = endCheck.error;
             this.showToast(endCheck.error);
             return;
         }
@@ -1755,10 +1759,12 @@ class CrmDashboard extends Component {
         const endStr = endCheck.dateStr;
 
         if (startStr > endStr) {
+            this.state.customDateError = "Start date cannot be after End date";
             this.showToast("Start date cannot be after End date");
             return;
         }
 
+        this.state.customDateError = "";
         this.closeCustomDateModal();
         this.state.salesRangeMonths = 'custom';
 

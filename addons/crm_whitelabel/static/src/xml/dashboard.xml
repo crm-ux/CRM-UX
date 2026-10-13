@@ -1078,6 +1078,12 @@
                         <button class="crm-task-close" t-on-click="closeCustomDateModal">✕</button>
                     </div>
                     <div class="crm-task-body" style="display:flex;flex-direction:column;gap:1rem;">
+                        <!-- Inline Validation Error Banner -->
+                        <div t-if="state.customDateError" class="alert alert-danger py-2 px-3 mb-0" style="font-size: 0.8rem; border-radius: 6px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-exclamation-circle text-danger"></i>
+                            <span t-esc="state.customDateError"/>
+                        </div>
+
                         <div>
                             <label style="font-size:0.8rem;font-weight:600;color:#475569;margin-bottom:4px;display:block;">Start Date (DD/MM/YYYY):</label>
                             <input type="text" class="crm-custom-date-input" placeholder="DD/MM/YYYY" maxlength="10"
