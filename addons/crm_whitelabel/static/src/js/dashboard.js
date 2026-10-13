@@ -2049,8 +2049,9 @@ class CrmDashboard extends Component {
 
             if (this.state.salesFiscalYear) {
                 // Fiscal Year mode: 12 months from April (startYear) to March (startYear + 1)
+                // When navigating back with <, offset increases (1, 2...), so subtract offset to go back in time!
                 const fy = this.fiscalYearOptions.find(f => f.code === this.state.salesFiscalYear) || this.fiscalYearOptions[0];
-                const startYear = fy.startYear + offset; // allows navigating previous FYs with < and >
+                const startYear = fy.startYear - offset; 
                 start = new Date(startYear, 3, 1); // 1st April
                 end = new Date(startYear + 1, 2, 31, 23, 59, 59); // 31st March
 
@@ -2152,16 +2153,38 @@ class CrmDashboard extends Component {
     }
 
     salesRangePrev() {
-        this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) + 1;
-        this.state.scrubTooltip.visible = false;
-        this.loadSalesTrendRange(this.state.salesRangeMonths === 'fy' ? 12 : this.state.salesRangeMonths, this.state.salesRangeOffset);
+        if (this.state.salesRangeMonths === 'fy') {
+            const fy = this.fiscalYearOptions.find(f => f.code === this.state.salesFiscalYear) || this.fiscalYearOptions[0];
+            const prevYear = fy.startYear - 1;
+            const newCode = `${prevYear}-${String(prevYear + 1).slice(-2)}`;
+            this.state.salesFiscalYear = newCode;
+            this.state.salesRangeOffset = 0;
+            this.state.scrubTooltip.visible = false;
+            this.loadSalesTrendRange(12, 0);
+        } else {
+            this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) + 1;
+            this.state.scrubTooltip.visible = false;
+            this.loadSalesTrendRange(this.state.salesRangeMonths, this.state.salesRangeOffset);
+        }
     }
 
     salesRangeNext() {
-        if ((this.state.salesRangeOffset || 0) <= 0) return; // Cannot go past current
-        this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) - 1;
-        this.state.scrubTooltip.visible = false;
-        this.loadSalesTrendRange(this.state.salesRangeMonths === 'fy' ? 12 : this.state.salesRangeMonths, this.state.salesRangeOffset);
+        if (this.state.salesRangeMonths === 'fy') {
+            const fy = this.fiscalYearOptions.find(f => f.code === this.state.salesFiscalYear) || this.fiscalYearOptions[0];
+            const maxFY = this.fiscalYearOptions[0];
+            if (fy.startYear >= maxFY.startYear) return; // Cannot go into future FY
+            const nextYear = fy.startYear + 1;
+            const newCode = `${nextYear}-${String(nextYear + 1).slice(-2)}`;
+            this.state.salesFiscalYear = newCode;
+            this.state.salesRangeOffset = 0;
+            this.state.scrubTooltip.visible = false;
+            this.loadSalesTrendRange(12, 0);
+        } else {
+            if ((this.state.salesRangeOffset || 0) <= 0) return; // Cannot go past current
+            this.state.salesRangeOffset = (this.state.salesRangeOffset || 0) - 1;
+            this.state.scrubTooltip.visible = false;
+            this.loadSalesTrendRange(this.state.salesRangeMonths, this.state.salesRangeOffset);
+        }
     }
 
     onBarScrub(e, m) {
