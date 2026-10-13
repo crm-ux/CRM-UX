@@ -5,7 +5,7 @@
     'version': '1.0.0',
     'category': 'Web',
     'summary': 'Custom login page - remove Odoo branding',
-    'depends': ['web'],
+    'depends': ['web', 'auth_signup'],
     'data': [
         'templates/login.xml',
         'views/dashboard.xml',

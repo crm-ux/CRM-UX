@@ -17,6 +17,29 @@
         <xpath expr="//form" position="inside">
             <style>@keyframes crm-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
         </xpath>
+        <xpath expr="//div[hasclass('oe_login_buttons')]" position="after">
+            <div class="text-center mt-3">
+                <a href="/web/reset_password" style="color: #1a3d6e; font-size: 13px; text-decoration: none; font-weight: 500;">
+                    Forgot Password?
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Custom Branded Reset Password Template -->
+    <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
+        <xpath expr="//div[@id='oe_structure_login_top']" position="after">
+            <div class="text-center" style="padding-top:30px;margin-bottom:20px;">
+                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                    <span style="color:white;font-size:28px;font-weight:800;">Y</span>
+                </div>
+                <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px;">Reset your password</div>
+            </div>
+        </xpath>
+        <xpath expr="//button[@type='submit']" position="attributes">
+            <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
+        </xpath>
     </template>
 
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">

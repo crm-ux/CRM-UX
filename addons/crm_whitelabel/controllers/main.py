@@ -205,3 +205,57 @@ class PersistentHome(Home):
                 pass
                 
         return response
+
+try:
+    from odoo.addons.auth_signup.controllers.main import AuthSignupHome
+
+    class CustomAuthSignupHome(AuthSignupHome):
+        @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
+        def web_auth_reset_password(self, *args, **kw):
+            # Check validation on POST submit
+            if request.httprequest.method == 'POST' and kw.get('login'):
+                login = kw.get('login').strip()
+                # Find user by login or email
+                user = request.env['res.users'].sudo().search([
+                    '|', ('login', '=', login), ('email', '=', login)
+                ], limit=1)
+                
+                if not user:
+                    qcontext = self.get_auth_signup_qcontext()
+                    qcontext['error'] = "No user found with this username or email."
+                    return request.render('auth_signup.reset_password', qcontext)
+                
+                # Check if email is configured on this user
+                user_email = user.email or (user.partner_id and user.partner_id.email)
+                if not user_email or not user_email.strip():
+                    qcontext = self.get_auth_signup_qcontext()
+                    qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
+                    return request.render('auth_signup.reset_password', qcontext)
+
+            try:
+                response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+                # Check if a newly generated reset email failed in mail.mail
+                if request.httprequest.method == 'POST' and kw.get('login'):
+                    failed_mail = request.env['mail.mail'].sudo().search([
+                        ('state', '=', 'exception'),
+                    ], order='id desc', limit=1)
+                    if failed_mail and failed_mail.failure_reason:
+                        err_msg = failed_mail.failure_reason.replace("'", "\\'")
+                        # Inject script to log into browser console
+                        console_script = f"<script>console.error('[YantraCRM Mail Error]: {err_msg}');</script>"
+                        if hasattr(response, 'render'):
+                            qcontext = self.get_auth_signup_qcontext()
+                            qcontext['error'] = f"Mail sending failed: {failed_mail.failure_reason}"
+                            res = request.render('auth_signup.reset_password', qcontext)
+                            return res
+                return response
+            except Exception as e:
+                import traceback
+                err_str = str(e).replace("'", "\\'")
+                traceback.print_exc()
+                qcontext = self.get_auth_signup_qcontext()
+                qcontext['error'] = f"Error sending password reset: {e}"
+                res = request.render('auth_signup.reset_password', qcontext)
+                return res
+except Exception:
+    pass
