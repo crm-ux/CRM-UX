@@ -8,9 +8,9 @@
                 <div style="max-width: 480px; padding: 0.5rem 0;">
                     <group>
                         <field name="order_id" invisible="1"/>
-                        <field name="partner_id" string="Customer" required="1" options="{'no_create_edit': False}"/>
-                        <field name="contact_person_id" string="Contact Person" options="{'no_create_edit': False}"/>
-                        <field name="user_id" string="Salesperson" options="{'no_create': True}"/>
+                        <field name="partner_id" string="Customer" required="1" options="{'no_open': True, 'no_create_edit': False}"/>
+                        <field name="contact_person_id" string="Contact Person" options="{'no_open': True, 'no_create_edit': False}"/>
+                        <field name="user_id" string="Salesperson" options="{'no_open': True, 'no_create': True}"/>
                     </group>
                 </div>
                 <footer>
