@@ -1,25 +1,40 @@
 /** @odoo-module **/
 
 import { patch } from "@web/core/utils/patch";
+import { Many2OneField } from "@web/views/fields/many2one/many2one_field";
 import { Many2XAutocomplete } from "@web/views/fields/relational_utils";
 
-// Globally disable full-screen mobile search view for all Many2One/Many2X dropdowns on mobile
-// so the dropdown opens directly inline (just like in web view) across all pages!
+if (Many2OneField) {
+    patch(Many2OneField.prototype, {
+        get useSelectCreateDialog() {
+            return false;
+        },
+        openSearchMore() {
+            if (this.env.isSmall) {
+                return super.openSearchMore ? super.openSearchMore(...arguments) : undefined;
+            }
+            return super.openSearchMore(...arguments);
+        },
+    });
+}
+
 if (Many2XAutocomplete) {
     patch(Many2XAutocomplete.prototype, {
         get useSelectCreateDialog() {
-            // In Odoo, if this is true on mobile, it opens the dialog list instead of autocomplete
             return false;
         },
         openMobileSearch() {
-            // Do not open full-screen search view
             return;
         },
         onInputClick(ev) {
-            // Force desktop dropdown behavior
+            // Stop mobile modal trigger
+            if (this.env.isSmall) {
+                ev.stopPropagation();
+            }
             if (super.onInputClick) {
                 return super.onInputClick(...arguments);
             }
         },
     });
 }
+
