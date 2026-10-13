@@ -5,22 +5,27 @@
         <field name="model">sale.order.duplicate.wizard</field>
         <field name="arch" type="xml">
             <form string="Duplicate Quotation">
-                <sheet>
-                    <div class="alert alert-info py-2 mb-3" role="alert">
-                        <strong>Duplicate Quotation &amp; Lead:</strong> Select a customer to create a replica of this quotation. A new linked lead will automatically be generated in Draft stage.
-                    </div>
+                <div style="max-width: 480px; padding: 0.5rem 0;">
                     <group>
                         <field name="order_id" invisible="1"/>
                         <field name="partner_id" string="Customer" required="1" options="{'no_create_edit': False}"/>
                         <field name="contact_person_id" string="Contact Person" options="{'no_create_edit': False}"/>
                         <field name="user_id" string="Salesperson" options="{'no_create': True}"/>
                     </group>
-                </sheet>
+                </div>
                 <footer>
-                    <button name="action_duplicate" string="Duplicate Quotation" type="object" class="btn-primary"/>
+                    <button name="action_duplicate" string="Duplicate" type="object" class="btn-primary"/>
                     <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
+    </record>
+
+    <record id="action_sale_order_duplicate_wizard" model="ir.actions.act_window">
+        <field name="name">Duplicate Quotation</field>
+        <field name="res_model">sale.order.duplicate.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_sale_order_duplicate_wizard_form"/>
+        <field name="target">new</field>
     </record>
 </odoo>

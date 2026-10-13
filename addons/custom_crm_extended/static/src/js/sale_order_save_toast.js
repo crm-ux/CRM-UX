@@ -104,4 +104,22 @@ patch(FormController.prototype, {
         }
         return super.discard(...arguments);
     },
+
+    async duplicateRecord() {
+        if (this.props.resModel === SALE_ORDER_MODEL) {
+            const resId = this.model.root.resId;
+            if (resId) {
+                // Trigger our custom duplicate wizard
+                return this.actionService.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
+                    additionalContext: {
+                        default_order_id: resId,
+                        default_partner_id: this.model.root.data.partner_id ? this.model.root.data.partner_id[0] : false,
+                        default_contact_person_id: this.model.root.data.x_contact_person_id ? this.model.root.data.x_contact_person_id[0] : false,
+                        default_user_id: this.model.root.data.user_id ? this.model.root.data.user_id[0] : false,
+                    },
+                });
+            }
+        }
+        return super.duplicateRecord(...arguments);
+    },
 });
