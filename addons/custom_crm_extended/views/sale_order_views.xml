@@ -48,7 +48,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state'][@widget='statusbar']" position="replace">
                 <field name="state" widget="statusbar" statusbar_visible="draft"/>
-            </xpath>
+            </xpath> 
             <!-- Remove show_address from Customer field — show only company name -->
             <xpath expr="//group[@name='partner_details']/field[@name='partner_id']" position="attributes">
                 <attribute name="context">{'res_partner_search_mode': 'customer', 'show_address': 1, 'show_vat': True}</attribute>
