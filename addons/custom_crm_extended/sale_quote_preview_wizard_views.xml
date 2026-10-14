@@ -7,12 +7,12 @@
         <field name="page_height">0</field>
         <field name="page_width">0</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">22</field>
-        <field name="margin_bottom">12</field>
-        <field name="margin_left">20</field>
-        <field name="margin_right">20</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">10</field>
+        <field name="header_spacing">5</field>
     </record>
 
     <record id="action_report_sale_quote_preview_wizard" model="ir.actions.report">
@@ -49,13 +49,9 @@
                          style="max-height:100px;max-width:250px;object-fit:contain;"/>
                 </t>
             </div>
-            <!-- Footer with dynamic page numbering 1/n -->
-            <div class="footer" style="border:none !important;width:100%;text-align:right;font-family:Calibri,sans-serif;font-size:10pt;color:#000;padding-top:2mm;">
-                <span class="page"/>/<span class="topage"/>
-            </div>
             <main style="width:100%;">
                 <t t-foreach="docs" t-as="doc">
-                    <div class="page" style="font-family:Calibri,sans-serif;font-size:11pt;">
+                    <div class="page" style="font-family:Calibri,sans-serif;font-size:11px;">
                         <t t-out="doc.sudo().document_html"/>
                     </div>
                 </t>
