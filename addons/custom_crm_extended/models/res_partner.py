@@ -16,12 +16,12 @@ class ResPartner(models.Model):
         user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):
             return True
+        if user.custom_perm_override:
+            val = getattr(user, perm_name, None)
+            return bool(val if val is not None else default)
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
         val = getattr(user, perm_name, None)
-        if val:
-            return True
-        # If user assigned a job position, inherit role permission directly
-        if user.crm_job_id:
-            return bool(getattr(user.crm_job_id, perm_name, default))
         return bool(val if val is not None else default)
 
     @api.model

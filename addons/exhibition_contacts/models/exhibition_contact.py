@@ -405,12 +405,13 @@ class ExhibitionContact(models.Model):
         user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):
             return True
-        val = getattr(user, perm_name, None)
-        if val is not None:
-            return bool(val)
+        if user.custom_perm_override:
+            val = getattr(user, perm_name, None)
+            return bool(val if val is not None else default)
         if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
             return bool(getattr(user.crm_job_id, perm_name))
-        return bool(default)
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
 
     @api.model
     def get_views(self, views, options=None):
