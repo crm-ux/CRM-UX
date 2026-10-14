@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Branding Header on Web Login -->
     <template id="login_custom" name="CRM Login Branding" inherit_id="web.login" priority="20">
-        <xpath expr="//form" position="before">
-            <t t-set="company" t-value="res_company if res_company else request.env.company"/>
-            <div class="text-center py-3 mb-2">
-                <img src="/crm_whitelabel/static/src/img/sidebar_logo.png" alt="Logo" class="img-fluid mb-2" style="max-height: 4.2rem; object-fit: contain;"/>
-                <div class="fw-bold text-primary" style="font-size: 1.4rem; color: #1a3d6e !important; letter-spacing: -0.02em;" t-esc="company.name if company else 'YantraConnect CRM'"/>
-                <div class="text-muted small mt-1" style="font-size: 0.85rem;">
-                    <t t-esc="company.report_header or 'Sales and Lead Management' if company else 'Sales and Lead Management'"/>
+        <xpath expr="//div[@id='oe_structure_login_top']" position="after">
+            <div class="text-center" style="padding-top:30px;margin-bottom:20px;">
+                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                    <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
+                <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
             </div>
         </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
@@ -31,16 +29,6 @@
     </template>
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
-        <xpath expr="//form" position="before">
-            <t t-set="company" t-value="res_company if res_company else request.env.company"/>
-            <div class="text-center py-3 mb-2">
-                <img src="/crm_whitelabel/static/src/img/sidebar_logo.png" alt="Logo" class="img-fluid mb-2" style="max-height: 4.2rem; object-fit: contain;"/>
-                <div class="fw-bold text-primary" style="font-size: 1.4rem; color: #1a3d6e !important; letter-spacing: -0.02em;" t-esc="company.name if company else 'YantraConnect CRM'"/>
-                <div class="text-muted small mt-1" style="font-size: 0.85rem;">
-                    <t t-esc="company.report_header or 'Sales and Lead Management' if company else 'Sales and Lead Management'"/>
-                </div>
-            </div>
-        </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
