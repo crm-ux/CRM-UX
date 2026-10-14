@@ -239,10 +239,10 @@ try:
                         '|', ('login', '=', login), ('email', '=', login)
                     ], limit=1)
                     if user:
-                        # Ensure user has a valid reset token
-                        user.with_context(create_user=False).action_reset_password()
-                        # Get user signup URL
-                        signup_url = user.signup_url
+                        # Ensure user has a valid reset token on their partner
+                        user.partner_id.signup_prepare(signup_type="reset", expiration=False)
+                        base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                        signup_url = user.partner_id.signup_url or f"{base_url}/web/reset_password?token={user.partner_id.signup_token}"
                         recipient_email = user.email or login
                         
                         # Send directly via verified SMTP connection
