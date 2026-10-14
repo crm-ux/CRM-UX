@@ -210,38 +210,69 @@ try:
     from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
     class CustomAuthSignupHome(AuthSignupHome):
-        def get_auth_signup_qcontext(self):
-            import logging
-            _logger = logging.getLogger(__name__)
-            qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
-            login = qcontext.get('login')
-            _logger.info(">>> GET_AUTH_SIGNUP_QCONTEXT LOGIN: %s, METHOD: %s", login, request.httprequest.method)
-            if login:
-                login = login.strip()
-                user = request.env['res.users'].sudo().search([
-                    '|', ('login', '=', login), ('email', '=', login)
-                ], limit=1)
-                if user:
-                    _logger.info(">>> FOUND USER: ID=%s, LOGIN=%s, EMAIL=%s", user.id, user.login, user.email)
-                    qcontext['login'] = user.login
-                else:
-                    _logger.warning(">>> NO USER FOUND FOR LOGIN/EMAIL: %s", login)
-                    if request.httprequest.method == 'POST':
-                        qcontext['error'] = "No user found with this username or email."
-            return qcontext
-
-        @http.route()
+        @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
-            import logging
-            _logger = logging.getLogger(__name__)
-            _logger.info(">>> WEB_AUTH_RESET_PASSWORD CALLED: METHOD=%s, KW=%s", request.httprequest.method, kw)
-            response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
-            if request.httprequest.method == 'POST':
+            qcontext = self.get_auth_signup_qcontext()
+            if request.httprequest.method == 'POST' and (kw.get('login') or qcontext.get('login')):
+                login_val = (kw.get('login') or qcontext.get('login') or '').strip()
+                user = request.env['res.users'].sudo().search([
+                    '|', ('login', '=', login_val), ('email', '=', login_val)
+                ], limit=1)
+                
+                if not user:
+                    qcontext['error'] = "No user found with this username or email."
+                    return request.render('auth_signup.reset_password', qcontext)
+                
+                user_email = user.email or (user.partner_id and user.partner_id.email)
+                if not user_email or not user_email.strip():
+                    qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
+                    return request.render('auth_signup.reset_password', qcontext)
+                
                 try:
-                    res_queue = request.env['mail.mail'].sudo().process_email_queue()
-                    _logger.info(">>> PROCESS_EMAIL_QUEUE RESULT: %s", res_queue)
-                except Exception as ex:
-                    _logger.error(">>> PROCESS_EMAIL_QUEUE EXCEPTION: %s", ex)
-            return response
+                    # Prepare partner signup token
+                    user.partner_id.action_signup_prepare()
+                    signup_urls = user.partner_id._get_signup_url_for_action()
+                    reset_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
+
+                    # Compose professional branded email body
+                    company = user.company_id or request.env.company
+                    company_name = company.name or "YantraConnect CRM"
+                    
+                    body_html = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; margin-bottom: 10px;">Y</div>
+                            <h2 style="color: #1a3d6e; margin: 0; font-size: 22px;">{company_name}</h2>
+                            <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Password Reset Request</p>
+                        </div>
+                        <p style="color: #1E293B; font-size: 14px; line-height: 1.6;">Hello <strong>{user.name}</strong>,</p>
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6;">A password reset was requested for your CRM account. Click the button below to choose your new password:</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="{reset_url}" style="background: #1a3d6e; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color: #64748B; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 25px 0;"/>
+                        <p style="color: #94A3B8; font-size: 11px; text-align: center; margin: 0;">&copy; {company_name}. All rights reserved.</p>
+                    </div>
+                    """
+                    
+                    mail = request.env['mail.mail'].sudo().create({
+                        'subject': f"Password Reset Instructions - {company_name}",
+                        'email_from': f'"{company_name}" <crm@yantradynamics.in>',
+                        'email_to': user_email,
+                        'body_html': body_html,
+                        'auto_delete': True,
+                    })
+                    mail.send(raise_exception=True)
+                    
+                    qcontext['message'] = "Password reset instructions sent to your email address."
+                    return request.render('auth_signup.reset_password', qcontext)
+                except Exception as mail_err:
+                    import logging
+                    logging.getLogger(__name__).error("Mail send exception: %s", mail_err)
+                    qcontext['error'] = f"Failed to send email: {mail_err}"
+                    return request.render('auth_signup.reset_password', qcontext)
+
+            return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
 except Exception:
     pass
