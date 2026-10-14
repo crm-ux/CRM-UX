@@ -7,7 +7,7 @@ body.bg-100 {
 /* Smaller white card */
 body.bg-100 .card {
     border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
     background: #FFFFFF !important;
     max-width: 360px !important;
     padding: 8px !important;
@@ -28,10 +28,11 @@ body.bg-100 .form-control {
     background: #F8FAFC !important;
     font-size: 14px !important;
 }
+
 body.bg-100 .form-control:focus {
     border-color: #1A56DB !important;
     background: #fff !important;
-    box-shadow: 0 0 0 3px rgba(26,86,219,0.15) !important;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15) !important;
 }
 
 /* Login button */
@@ -43,15 +44,27 @@ body.bg-100 .btn-primary {
     font-weight: 600 !important;
     font-size: 14px !important;
 }
+
 body.bg-100 .btn-primary:hover {
     background: #1E40AF !important;
 }
 
 /* Hide Powered by Odoo, Manage Databases, Log in as superuser */
-body.bg-100 .o_login_footer { display: none !important; }
-body.bg-100 a[href*="database"] { display: none !important; }
-body.bg-100 .o_database_list .card-body > .text-center:last-child { display: none !important; }
-body.bg-100 a[href*="odoo.com"] { display: none !important; }
+body.bg-100 .o_login_footer {
+    display: none !important;
+}
+
+body.bg-100 a[href*="database"] {
+    display: none !important;
+}
+
+body.bg-100 .o_database_list .card-body>.text-center:last-child {
+    display: none !important;
+}
+
+body.bg-100 a[href*="odoo.com"] {
+    display: none !important;
+}
 
 /* Hide Passkey & "- or -" divider */
 body.bg-100 .o_auth_oauth_providers,
@@ -60,8 +73,8 @@ body.bg-100 .border-bottom:has(+ .o_webauthn_passkey),
 body.bg-100 div:has(> a[href*="passkey"]),
 body.bg-100 a[href*="passkey"],
 body.bg-100 div.text-center:has(+ .o_webauthn_passkey),
-body.bg-100 .oe_login_buttons ~ div:not(.text-center.mt-3),
-body.bg-100 .oe_login_buttons ~ * {
+body.bg-100 .oe_login_buttons~div:not(.text-center.mt-3),
+body.bg-100 .oe_login_buttons~* {
     display: none !important;
 }
 
@@ -95,4 +108,3 @@ a[href*="reset_password"]:hover,
     color: #0f2b52 !important;
     text-decoration: underline !important;
 }
-
