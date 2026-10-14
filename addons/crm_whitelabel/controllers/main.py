@@ -211,29 +211,37 @@ try:
 
     class CustomAuthSignupHome(AuthSignupHome):
         def get_auth_signup_qcontext(self):
+            import logging
+            _logger = logging.getLogger(__name__)
             qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
             login = qcontext.get('login')
+            _logger.info(">>> GET_AUTH_SIGNUP_QCONTEXT LOGIN: %s, METHOD: %s", login, request.httprequest.method)
             if login:
                 login = login.strip()
                 user = request.env['res.users'].sudo().search([
                     '|', ('login', '=', login), ('email', '=', login)
                 ], limit=1)
                 if user:
-                    # Map the login to the actual res.users login username
+                    _logger.info(">>> FOUND USER: ID=%s, LOGIN=%s, EMAIL=%s", user.id, user.login, user.email)
                     qcontext['login'] = user.login
                 else:
+                    _logger.warning(">>> NO USER FOUND FOR LOGIN/EMAIL: %s", login)
                     if request.httprequest.method == 'POST':
                         qcontext['error'] = "No user found with this username or email."
             return qcontext
 
         @http.route()
         def web_auth_reset_password(self, *args, **kw):
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.info(">>> WEB_AUTH_RESET_PASSWORD CALLED: METHOD=%s, KW=%s", request.httprequest.method, kw)
             response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
             if request.httprequest.method == 'POST':
                 try:
-                    request.env['mail.mail'].sudo().process_email_queue()
-                except Exception:
-                    pass
+                    res_queue = request.env['mail.mail'].sudo().process_email_queue()
+                    _logger.info(">>> PROCESS_EMAIL_QUEUE RESULT: %s", res_queue)
+                except Exception as ex:
+                    _logger.error(">>> PROCESS_EMAIL_QUEUE EXCEPTION: %s", ex)
             return response
 except Exception:
     pass
