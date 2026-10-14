@@ -793,24 +793,34 @@ class SaleQuotePreviewWizard(models.TransientModel):
         order = self.order_id
         gst_on = order.x_gst_included
 
-        # ── Word header repeats on every page ──
+        # ── Word header repeats on every page (Page 1 and all subsequent pages) ──
         from docx.oxml import OxmlElement as _OE
         from docx.oxml.ns import qn as _qn
         section0 = doc.sections[0]
         section0.different_first_page_header_footer = False
-        hdr = section0.header
-        hdr.is_linked_to_previous = False
-        # Clear existing header paragraphs
-        for p in hdr.paragraphs:
-            p.clear()
-        # Header: Logo only on right
-        hdr_para = hdr.paragraphs[0] if hdr.paragraphs else hdr.add_paragraph()
-        hdr_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        if order.company_id.logo_web:
-            ld = order.company_id.logo_web
-            if isinstance(ld, str): ld = ld.encode()
-            lbuf = io.BytesIO(base64.b64decode(ld))
-            hdr_para.add_run().add_picture(lbuf, width=Inches(2.5))
+
+        # Explicitly remove titlePg XML element if present so Word treats Page 1 identical to subsequent pages
+        sectPr = section0._sectPr
+        for titlePg in sectPr.findall(_qn('w:titlePg')):
+            sectPr.remove(titlePg)
+
+        # Set logo in both normal header and first_page_header for 100% compatibility across all MS Word versions
+        logo_data = order.company_id.logo_web
+        if logo_data:
+            if isinstance(logo_data, str):
+                logo_data = logo_data.encode()
+            logo_raw = base64.b64decode(logo_data)
+
+            for h in [section0.header, section0.first_page_header]:
+                try:
+                    h.is_linked_to_previous = False
+                    for p in h.paragraphs:
+                        p.clear()
+                    hp = h.paragraphs[0] if h.paragraphs else h.add_paragraph()
+                    hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                    hp.add_run().add_picture(io.BytesIO(logo_raw), width=Inches(2.5))
+                except Exception:
+                    pass
 
 
 
