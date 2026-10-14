@@ -765,7 +765,8 @@ class ResUsers(models.Model):
                     if not taken:
                         super(ResUsers, user).write({'login': orig_login})
         # If permissions are being modified directly on the user (not via system sync), mark as custom override
-        perm_field_keys = [k for k in vals if k.startswith('perm_')]
+        # Note: perm_margin is a standalone user setting (not in Job Position Master), so changing it does not trigger custom_perm_override
+        perm_field_keys = [k for k in vals if k.startswith('perm_') and k != 'perm_margin']
         if perm_field_keys and not self.env.context.get('skip_sync') and 'custom_perm_override' not in vals:
             vals['custom_perm_override'] = True
 
