@@ -17,4 +17,4 @@ from . import amc_contract
 from . import crm_product_stock
 from . import crm_analytics
 from . import crm_task_management
-
+from . import ir_mail_server
