@@ -210,47 +210,30 @@ try:
     from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
     class CustomAuthSignupHome(AuthSignupHome):
-        @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
-        def web_auth_reset_password(self, *args, **kw):
-            # Check validation on POST submit
-            if request.httprequest.method == 'POST' and kw.get('login'):
-                login = kw.get('login').strip()
-                # Find user by login or email
+        def get_auth_signup_qcontext(self):
+            qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
+            login = qcontext.get('login')
+            if login:
+                login = login.strip()
                 user = request.env['res.users'].sudo().search([
                     '|', ('login', '=', login), ('email', '=', login)
                 ], limit=1)
-                
-                if not user:
-                    qcontext = self.get_auth_signup_qcontext()
-                    qcontext['error'] = "No user found with this username or email."
-                    return request.render('auth_signup.reset_password', qcontext)
-                
-                # Check if email is configured on this user
-                user_email = user.email or (user.partner_id and user.partner_id.email)
-                if not user_email or not user_email.strip():
-                    qcontext = self.get_auth_signup_qcontext()
-                    qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
-                    return request.render('auth_signup.reset_password', qcontext)
-                
-                # Trigger Odoo's native password reset directly on the user
-                try:
-                    user.sudo().reset_password(user.login)
-                    request.env['mail.mail'].sudo().process_email_queue()
-                    qcontext = self.get_auth_signup_qcontext()
-                    qcontext['message'] = "Password reset instructions sent to your email address."
-                    return request.render('auth_signup.reset_password', qcontext)
-                except Exception as reset_err:
-                    qcontext = self.get_auth_signup_qcontext()
-                    qcontext['error'] = f"Password reset error: {reset_err}"
-                    return request.render('auth_signup.reset_password', qcontext)
+                if user:
+                    # Map the login to the actual res.users login username
+                    qcontext['login'] = user.login
+                else:
+                    if request.httprequest.method == 'POST':
+                        qcontext['error'] = "No user found with this username or email."
+            return qcontext
 
-            try:
-                return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
-            except Exception as e:
-                import traceback
-                traceback.print_exc()
-                qcontext = self.get_auth_signup_qcontext()
-                qcontext['error'] = f"Error sending password reset: {e}"
-                return request.render('auth_signup.reset_password', qcontext)
+        @http.route()
+        def web_auth_reset_password(self, *args, **kw):
+            response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+            if request.httprequest.method == 'POST':
+                try:
+                    request.env['mail.mail'].sudo().process_email_queue()
+                except Exception:
+                    pass
+            return response
 except Exception:
     pass
