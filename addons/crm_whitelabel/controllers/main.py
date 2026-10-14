@@ -276,7 +276,9 @@ try:
 
                         try:
                             server = smtplib.SMTP('smtp.gmail.com', 587, timeout=15)
+                            server.ehlo()
                             server.starttls()
+                            server.ehlo()
                             server.login('crm@yantradynamics.in', 'pcfnwhsykrnxtbnw')
                             server.sendmail('crm@yantradynamics.in', recipient_email, msg.as_string())
                             server.quit()
