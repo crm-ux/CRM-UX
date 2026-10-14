@@ -1110,31 +1110,52 @@ class SaleQuotePreviewWizard(models.TransientModel):
         table.style = 'Table Grid'
         table.autofit = False
 
-        # Calculate exact printable page width dynamically from section geometry
-        printable_width = float(section.page_width - section.left_margin - section.right_margin) / 914400.0  # in inches
-        if printable_width <= 0:
-            printable_width = 6.67  # fallback standard A4 printable width
-
-        # Dynamic proportions: description gets remaining space
-        if has_discount:
-            # Ratios sum to 1.0: SR=0.06, Desc=0.46, HSN=0.12, Qty=0.06, Price=0.10, Disc=0.08, Amount=0.12
-            col_ratios = [0.06, 0.46, 0.12, 0.06, 0.10, 0.08, 0.12]
-        else:
-            # Ratios sum to 1.0: SR=0.06, Desc=0.52, HSN=0.12, Qty=0.06, Price=0.12, Amount=0.12
-            col_ratios = [0.06, 0.52, 0.12, 0.06, 0.12, 0.12]
-
-        col_widths = [printable_width * r for r in col_ratios]
-        hdr_cells = table.rows[0].cells
-
         from docx.oxml import OxmlElement as _OEM
         from docx.oxml.ns import qn as _qnm
 
-        # Set table-level width to 100% of printable window
+        # Total printable width = page_width - left_margin - right_margin (default 8.27 - 0.8 - 0.8 = 6.67 in = 9605 dxa)
+        try:
+            p_width_emu = section.page_width - section.left_margin - section.right_margin
+            total_dxa = int(p_width_emu / 635)  # 1 dxa = 635 emu (1 inch = 914400 emu = 1440 dxa)
+        except Exception:
+            total_dxa = 9605
+
+        if total_dxa <= 0:
+            total_dxa = 9605
+
+        # Ratios matching MS Word:
+        # Without Discount: SR: 4.5%, Item Desc: 54.5%, HSN: 11.0%, Qty: 5.0%, Unit Price: 12.5%, Amount: 12.5%
+        # With Discount:    SR: 4.5%, Item Desc: 48.5%, HSN: 10.0%, Qty: 4.5%, Unit Price: 11.0%, Disc: 8.5%, Amount: 13.0%
+        if has_discount:
+            col_weights = [0.045, 0.485, 0.10, 0.045, 0.11, 0.085, 0.13]
+        else:
+            col_weights = [0.045, 0.545, 0.11, 0.05, 0.125, 0.125]
+
+        col_dxa = [int(total_dxa * w) for w in col_weights]
+        # Adjust last column to absorb rounding difference
+        col_dxa[-1] += total_dxa - sum(col_dxa)
+        col_widths = [dxa / 1440.0 for dxa in col_dxa]
+
         tblPr = table._tbl.tblPr
+
+        # 1. Force fixed table layout so LibreOffice cannot recalculate or shrink column widths
+        tblLayout = _OEM('w:tblLayout')
+        tblLayout.set(_qnm('w:type'), 'fixed')
+        tblPr.append(tblLayout)
+
+        # 2. Set explicit table width in dxa
         tblW = _OEM('w:tblW')
-        tblW.set(_qnm('w:w'), '5000')
-        tblW.set(_qnm('w:type'), 'pct')
+        tblW.set(_qnm('w:w'), str(total_dxa))
+        tblW.set(_qnm('w:type'), 'dxa')
         tblPr.append(tblW)
+
+        # 3. Add explicit w:tblGrid with <w:gridCol> - this is mandatory for LibreOffice headless PDF engine!
+        tblGrid = _OEM('w:tblGrid')
+        for dxa in col_dxa:
+            gridCol = _OEM('w:gridCol')
+            gridCol.set(_qnm('w:w'), str(dxa))
+            tblGrid.append(gridCol)
+        table._tbl.append(tblGrid)
 
         # Compact cell padding (top=40, bottom=40, left=80, right=80 dxa) to prevent unnecessary row height
         def set_cell_margins(cell, top=40, bottom=40, left=80, right=80):
@@ -1149,15 +1170,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
             tcPr.append(tcMar)
 
         def apply_row_cell_widths(row_cells):
-            for i, w in enumerate(col_widths):
+            for i, dxa in enumerate(col_dxa):
                 if i < len(row_cells):
-                    row_cells[i].width = _Inches(w)
+                    row_cells[i].width = _Inches(dxa / 1440.0)
                     tcPr = row_cells[i]._tc.get_or_add_tcPr()
+                    for existing_w in tcPr.findall(_qnm('w:tcW')):
+                        tcPr.remove(existing_w)
                     tcW = _OEM('w:tcW')
-                    tcW.set(_qnm('w:w'), str(int(w * 1440)))  # in dxa
+                    tcW.set(_qnm('w:w'), str(dxa))
                     tcW.set(_qnm('w:type'), 'dxa')
                     tcPr.append(tcW)
 
+        hdr_cells = table.rows[0].cells
         apply_row_cell_widths(hdr_cells)
 
         for i, h in enumerate(headers):
