@@ -232,15 +232,20 @@ try:
                     qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
                     return request.render('auth_signup.reset_password', qcontext)
                 
-                # Ensure kw['login'] contains the actual user login username for super()
-                kw['login'] = user.login
+                # Trigger Odoo's native password reset directly on the user
+                try:
+                    user.sudo().reset_password(user.login)
+                    request.env['mail.mail'].sudo().process_email_queue()
+                    qcontext = self.get_auth_signup_qcontext()
+                    qcontext['message'] = "Password reset instructions sent to your email address."
+                    return request.render('auth_signup.reset_password', qcontext)
+                except Exception as reset_err:
+                    qcontext = self.get_auth_signup_qcontext()
+                    qcontext['error'] = f"Password reset error: {reset_err}"
+                    return request.render('auth_signup.reset_password', qcontext)
 
             try:
-                response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
-                # Immediately process mail queue so the user gets the email in 1 second instead of waiting for cron
-                if request.httprequest.method == 'POST' and kw.get('login'):
-                    request.env['mail.mail'].sudo().process_email_queue()
-                return response
+                return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
             except Exception as e:
                 import traceback
                 traceback.print_exc()
