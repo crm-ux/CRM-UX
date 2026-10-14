@@ -84,8 +84,13 @@ div:has(> a[href*="passkey"]),
 a[href*="passkey"],
 a:has(i.fa-key),
 a:has(.fa-qrcode),
-.card-body form + div,
-.card-body form + * {
+.card-body form ~ div,
+.card-body form ~ p,
+.card-body form ~ *,
+form ~ .text-center,
+.card-body .text-center:has(em),
+em,
+.card-body em {
     display: none !important;
 }
 
