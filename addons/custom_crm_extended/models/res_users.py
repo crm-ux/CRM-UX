@@ -470,6 +470,15 @@ class ResUsers(models.Model):
             return user.crm_job_id.perm_log == 'log'
         return False
 
+    def check_perm_margin(self, target_user_id=None):
+        """Returns True if user is admin or has perm_margin == 'margin'."""
+        user = self.browse(target_user_id) if target_user_id else self.env.user
+        if not user or not user.exists():
+            user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        return getattr(user, 'perm_margin', 'none') == 'margin'
+
     perm_export = fields.Selection([
         ('none', 'No'),
         ('export', 'Yes'),
@@ -479,6 +488,11 @@ class ResUsers(models.Model):
         ('none', 'No'),
         ('log', 'Yes'),
     ], string='Log View', default='none')
+
+    perm_margin = fields.Selection([
+        ('none', 'No'),
+        ('margin', 'Yes'),
+    ], string='Show Margin', default='none')
 
     perm_company = fields.Selection([
         ('none', 'No'),

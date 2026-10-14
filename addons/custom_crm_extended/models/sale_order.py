@@ -40,7 +40,7 @@ class SaleOrder(models.Model):
         return res
 
     # ------------------------------------------------------------------
-    # 1. GST TOGGLE  (With GST / Without GST)
+    # 1. GST TOGGLE  (With GST / Without GST) & MARGIN TOGGLE
     # ------------------------------------------------------------------
     x_gst_included = fields.Boolean(
         string='Include GST',
@@ -49,6 +49,23 @@ class SaleOrder(models.Model):
         help='Toggle to show or hide GST/tax columns on all order lines. '
              'When OFF, tax fields are hidden but not deleted.',
     )
+
+    can_show_margin = fields.Boolean(
+        string='Can Show Margin',
+        compute='_compute_can_show_margin',
+        store=False,
+    )
+
+    x_show_cost_profit = fields.Boolean(
+        string='Show Margin',
+        default=False,
+        help='Toggle to show or hide Cost, Profit and Margin columns.',
+    )
+
+    def _compute_can_show_margin(self):
+        can_see = self.env['res.users'].check_perm_margin()
+        for rec in self:
+            rec.can_show_margin = can_see
 
     # ------------------------------------------------------------------
     # 2. QUOTE VERSION  (v1, v2, ... - for revision tracking)

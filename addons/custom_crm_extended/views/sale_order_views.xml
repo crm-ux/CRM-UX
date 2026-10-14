@@ -130,8 +130,9 @@
 
             <xpath expr="//field[@name='validity_date']" position="after">
                 <field name="company_id" string="Company" readonly="1" force_save="1"/>
+                <field name="can_show_margin" invisible="1"/>
                 <field name="x_gst_included" string="Include GST" widget="boolean_toggle"/>
-                <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle" groups="base.group_system"/>
+                <field name="x_show_cost_profit" string="Show Margin" widget="boolean_toggle" invisible="not can_show_margin"/>
             </xpath>
 
             <xpath expr="//field[@name='order_line']//list//field[@name='product_template_id']" position="attributes">
@@ -171,12 +172,12 @@
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
                 <field name="x_notes" string="Notes" optional="show"/>
-                                <field name="x_cost" string="Cost" optional="hide" 
-                       column_invisible="not parent.x_show_cost_profit"/>
+                <field name="x_cost" string="Cost" optional="hide" 
+                       column_invisible="not parent.x_show_cost_profit or not parent.can_show_margin"/>
                 <field name="x_profit" string="Profit" optional="hide" readonly="1" 
-                       column_invisible="not parent.x_show_cost_profit"/>
+                       column_invisible="not parent.x_show_cost_profit or not parent.can_show_margin"/>
                 <field name="x_profit_pct" string="Margin %" optional="hide" readonly="1" 
-                       column_invisible="not parent.x_show_cost_profit"/>
+                       column_invisible="not parent.x_show_cost_profit or not parent.can_show_margin"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
                 <field name="x_product_image" string="Product Image" widget="image" optional="hide"/>
             </xpath>
