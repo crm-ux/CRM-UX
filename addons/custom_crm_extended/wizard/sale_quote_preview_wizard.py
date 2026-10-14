@@ -1108,20 +1108,36 @@ class SaleQuotePreviewWizard(models.TransientModel):
         from docx.shared import Inches as _Inches
         table = doc.add_table(rows=1, cols=len(headers))
         table.style = 'Table Grid'
-        # Set column widths
+        table.autofit = False
+
+        # Calculate exact printable page width dynamically from section geometry
+        printable_width = float(section.page_width - section.left_margin - section.right_margin) / 914400.0  # in inches
+        if printable_width <= 0:
+            printable_width = 6.67  # fallback standard A4 printable width
+
+        # Dynamic proportions: description gets remaining space
         if has_discount:
-            col_widths = [0.4, 3.3, 0.8, 0.4, 0.9, 0.7, 0.8]
+            # Ratios sum to 1.0: SR=0.06, Desc=0.46, HSN=0.12, Qty=0.06, Price=0.10, Disc=0.08, Amount=0.12
+            col_ratios = [0.06, 0.46, 0.12, 0.06, 0.10, 0.08, 0.12]
         else:
-            col_widths = [0.4, 3.8, 0.8, 0.4, 0.9, 0.8]
-        for i, width in enumerate(col_widths):
-            if i < len(table.columns):
-                for cell in table.columns[i].cells:
-                    cell.width = _Inches(width)
+            # Ratios sum to 1.0: SR=0.06, Desc=0.52, HSN=0.12, Qty=0.06, Price=0.12, Amount=0.12
+            col_ratios = [0.06, 0.52, 0.12, 0.06, 0.12, 0.12]
+
+        col_widths = [printable_width * r for r in col_ratios]
         hdr_cells = table.rows[0].cells
-        # Set cell margins for padding
+
         from docx.oxml import OxmlElement as _OEM
         from docx.oxml.ns import qn as _qnm
-        def set_cell_margins(cell, top=80, bottom=80, left=100, right=100):
+
+        # Set table-level width to 100% of printable window
+        tblPr = table._tbl.tblPr
+        tblW = _OEM('w:tblW')
+        tblW.set(_qnm('w:w'), '5000')
+        tblW.set(_qnm('w:type'), 'pct')
+        tblPr.append(tblW)
+
+        # Compact cell padding (top=40, bottom=40, left=80, right=80 dxa) to prevent unnecessary row height
+        def set_cell_margins(cell, top=40, bottom=40, left=80, right=80):
             tc = cell._tc
             tcPr = tc.get_or_add_tcPr()
             tcMar = _OEM('w:tcMar')
@@ -1131,6 +1147,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 m.set(_qnm('w:type'), 'dxa')
                 tcMar.append(m)
             tcPr.append(tcMar)
+
+        def apply_row_cell_widths(row_cells):
+            for i, w in enumerate(col_widths):
+                if i < len(row_cells):
+                    row_cells[i].width = _Inches(w)
+                    tcPr = row_cells[i]._tc.get_or_add_tcPr()
+                    tcW = _OEM('w:tcW')
+                    tcW.set(_qnm('w:w'), str(int(w * 1440)))  # in dxa
+                    tcW.set(_qnm('w:type'), 'dxa')
+                    tcPr.append(tcW)
+
+        apply_row_cell_widths(hdr_cells)
 
         for i, h in enumerate(headers):
             p = hdr_cells[i].paragraphs[0]
@@ -1155,6 +1183,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_trPr = row._tr.get_or_add_trPr()
             row_trPr.append(OxmlElement('w:cantSplit'))
             row_cells = row.cells
+            apply_row_cell_widths(row_cells)
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             part_no = line.x_product_code or line.product_id.default_code or ''
             if part_no:
