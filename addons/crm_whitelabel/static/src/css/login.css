@@ -78,6 +78,10 @@ a[href*="odoo.com"] {
 }
 
 /* Hide Passkey & "- or -" divider completely */
+.o_login_auth,
+.o_login_auth *,
+.passkey_login_link,
+em.d-block.my-3,
 .o_webauthn_passkey,
 .border-bottom:has(+ .o_webauthn_passkey),
 div:has(> a[href*="passkey"]),
