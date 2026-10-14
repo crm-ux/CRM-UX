@@ -509,24 +509,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
-            '<div style="font-family:Calibri,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
-            '<div style="overflow:hidden;margin-bottom:12px;">'
-            '<span style="float:left;font-weight:bold;">Quotation No: %s</span>'
-            '<span style="float:right;font-weight:bold;">Date: %s</span>'
-            '</div>'
-            '<div style="clear:both;"></div>'
-            ) % (self.quote_name or order.name or '', _pdf_date_str)
-        intro_html += (
-            '<p style="margin:0 0 3px 0;"><b>To,</b></p>'
-            + ('<p style="margin:0 0 1px 0;">%s</p>' % self.contact_person if self.contact_person else '')
-            + '<p style="margin:0 0 1px 0;font-weight:bold;">%s</p>' % (p.name or '')
-
+            '<div style="font-family:Calibri,sans-serif;font-size:11pt;line-height:1.25;color:#000;margin-top:0;">'
+            '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;border:none;">'
+            '<tr>'
+            '<td style="text-align:left;font-weight:bold;font-size:11pt;border:none;padding:0;">Quotation No: %s</td>'
+            '<td style="text-align:right;font-weight:bold;font-size:11pt;border:none;padding:0;">Date: %s</td>'
+            '</tr>'
+            '</table>'
+            '<p style="margin:0 0 10px 0;font-size:11pt;"><b>To,</b></p>'
+            + ('<p style="margin:0 0 4px 0;font-size:11pt;">%s</p>' % self.contact_person if self.contact_person else '')
+            + '<p style="margin:0 0 4px 0;font-size:11pt;font-weight:bold;">%s</p>' % (p.name or '')
             + addr_html
-            + '<br/>'
-            + '<p style="margin:6px 0;"><b>Subject:</b> %s</p>' % subject
-            + '<br/>'
-            + '<p style="margin:4px 0;">Dear Sir,</p>'
-            + '<p style="margin:6px 0;">%s%s</p>' % (intro_text, (' ' + best_offer + '.') if best_offer else '.')
+            + '<p style="margin:12px 0 0 0;font-size:11pt;">'
+            + (('Ph: %s<br/>' % eff_phone) if eff_phone else '')
+            + (('Email: %s' % eff_email) if eff_email else '')
+            + '</p>'
+            + '<p style="margin:14px 0 10px 0;font-size:11pt;"><b>Subject:</b> %s</p>' % subject
+            + '<p style="margin:10px 0 4px 0;font-size:11pt;">Dear Sir,</p>'
+            + '<p style="margin:4px 0 16px 0;font-size:11pt;">%s%s</p>' % (intro_text, (' ' + best_offer + '.') if best_offer else '.')
             + '</div>'
         )
         # ── TECH SPECS ──
@@ -539,8 +539,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             from markupsafe import Markup as _M
             styled = self._style_html_tables(self.technical_specs_html)
             tech_html = (
-                '<div style="page-break-before:always;margin-top:16px;font-family:Calibri,sans-serif;font-size:11px;">'
-                '<p style="font-weight:bold;font-size:11px;margin:10px 0 16px 0;">Technical Specifications</p><br/>'
+                '<div style="page-break-before:always;margin-top:16px;font-family:Calibri,sans-serif;font-size:11pt;">'
+                '<p style="font-weight:bold;font-size:11pt;margin:10px 0 16px 0;">Technical Specifications</p><br/>'
                 + str(styled)
                 + '</div>'
             )
@@ -554,7 +554,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     b64 = att.datas.decode('utf-8') if isinstance(att.datas, bytes) else att.datas
                     imgs += (
                         '<div style="display:inline-block;width:47%%;margin:1%%;vertical-align:top;text-align:center;">'
-                        '<img src="data:image/png;base64,%s" style="max-width:100%%;max-height:220px;border:1px solid #ddd;padding:3px;"/>'
+                        '<img src="data:image/png;base64,%s" style="max-width:100%%;max-height:220px;border:1px solid #000;padding:3px;"/>'
                         '</div>'
                     ) % b64
             if imgs:
@@ -597,34 +597,36 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><b>Description:</b> %s' % '<br/>'.join(extra_name_lines)
             if make: desc += '<br/><b>Make:</b> %s' % make
             for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#333;">%s</i>' % n
-            row_bg = '#f9f9f9' if idx2 % 2 == 0 else '#fff'
+                desc += '<br/><i style="color:#000;">%s</i>' % n
+            row_bg = '#fff'
+            cell_border = 'border:1px solid #000;'
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
+                rows += ('<tr style="background:%s;page-break-inside:avoid;"><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="padding:4px 6px;text-align:left;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td></tr>') % (row_bg, cell_border, idx2, cell_border, desc, cell_border, hsn, cell_border, qty, cell_border, _indian_format(unit_price), cell_border, disc_str, cell_border, _indian_format(amount))
             else:
-                rows += ('<tr style="background:%s;"><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:center;padding:6px 4px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;">%s</td></tr>') % (row_bg, idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
+                rows += ('<tr style="background:%s;page-break-inside:avoid;"><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="padding:4px 6px;text-align:left;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td></tr>') % (row_bg, cell_border, idx2, cell_border, desc, cell_border, hsn, cell_border, qty, cell_border, _indian_format(unit_price), cell_border, _indian_format(amount))
 
-        # ── PAGE 2: QUOTATION TABLE (new page) ──
+        # ── QUOTATION TABLE ──
+        th_style = 'padding:5px 4px;border:1px solid #000;background-color:#D9E1F2;color:#000;font-weight:bold;font-size:11pt;'
         if has_discount_pdf:
             th_html = (
-                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
-                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Discount %</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
-            )
+                '<th style="%s;text-align:center;width:6%%;">SR No.</th>'
+                '<th style="%s;text-align:center;width:44%%;">Item Description</th>'
+                '<th style="%s;text-align:center;width:11%%;">HSN</th>'
+                '<th style="%s;text-align:center;width:6%%;">Qty</th>'
+                '<th style="%s;text-align:center;width:12%%;">Unit Price</th>'
+                '<th style="%s;text-align:center;width:9%%;">Discount %%</th>'
+                '<th style="%s;text-align:center;width:12%%;">Amount</th>'
+            ) % (th_style, th_style, th_style, th_style, th_style, th_style, th_style)
         else:
             th_html = (
-                '<th style="padding:8px 5px;text-align:center;border:1px solid #2c3e50;width:40px;">SR No.</th>'
-                '<th style="padding:8px;text-align:left;border:1px solid #2c3e50;">Item Description</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">HSN</th>'
-                '<th style="padding:8px;text-align:center;border:1px solid #2c3e50;">Qty</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Unit Price</th>'
-                '<th style="padding:8px;text-align:right;border:1px solid #2c3e50;">Amount</th>'
-            )
+                '<th style="%s;text-align:center;width:6%%;">SR No.</th>'
+                '<th style="%s;text-align:center;width:52%%;">Item Description</th>'
+                '<th style="%s;text-align:center;width:11%%;">HSN</th>'
+                '<th style="%s;text-align:center;width:6%%;">Qty</th>'
+                '<th style="%s;text-align:center;width:12%%;">Unit Price</th>'
+                '<th style="%s;text-align:center;width:13%%;">Amount</th>'
+            ) % (th_style, th_style, th_style, th_style, th_style, th_style)
 
         # Overall discount totals
         totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>%s</b></p>' % int(order.amount_untaxed)
@@ -632,7 +634,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             disc_overall = order.amount_untaxed * has_overall_disc / 100
             totals_html += '<p style="margin:4px 0;">Discount (%s%%): %s</p>' % (int(has_overall_disc), int(disc_overall))
         net = order.amount_untaxed - (order.amount_untaxed * has_overall_disc / 100) if has_overall_disc else order.amount_untaxed
-        totals_html += '<p style="margin:4px 0;font-size:14px;font-weight:bold;border-top:2px solid #333;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
+        totals_html += '<p style="margin:4px 0;font-size:11pt;font-weight:bold;border-top:1px solid #000;padding-top:6px;">Net Total Amount INR: %s</p>' % int(net)
 
         col = 7 if has_discount_pdf else 6
         original_amount = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
@@ -657,22 +659,23 @@ class SaleQuotePreviewWizard(models.TransientModel):
         line_disc_amt = original_amount - untaxed
         has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct) or bool(flat_disc)
 
+        tot_style = 'padding:4px 6px;border:1px solid #000;font-weight:bold;font-size:11pt;'
         if has_any_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Gross Amount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
+            totals_rows += ('<tr style="page-break-inside:avoid;"><td colspan="%d" style="text-align:right;' + tot_style + '">Gross Amount</td><td style="text-align:right;' + tot_style + '">%s</td></tr>') % (col - 1, _indian_format(original_amount))
         if overall_disc_pct:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
+            totals_rows += ('<tr style="page-break-inside:avoid;"><td colspan="%d" style="text-align:right;' + tot_style + '">Overall Discount (%s%%)</td><td style="text-align:right;' + tot_style + '">- %s</td></tr>') % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
         if flat_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">Flat Discount</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">- %s</td></tr>' % (col - 1, _indian_format(flat_disc))
+            totals_rows += ('<tr style="page-break-inside:avoid;"><td colspan="%d" style="text-align:right;' + tot_style + '">Flat Discount</td><td style="text-align:right;' + tot_style + '">- %s</td></tr>') % (col - 1, _indian_format(flat_disc))
         if gst_on and tax_rates:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">GST (%s%%)</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;"></td></tr>' % (col - 1, int(total_tax_rate))
+            totals_rows += ('<tr style="page-break-inside:avoid;"><td colspan="%d" style="text-align:right;' + tot_style + '">GST (%s%%)</td><td style="text-align:right;' + tot_style + '"></td></tr>') % (col - 1, int(total_tax_rate))
         final_label = 'Final Total Amount' if has_any_disc else 'Total Amount'
-        totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td><td style="text-align:right;padding:6px 8px;border:1px solid #ddd;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
+        totals_rows += ('<tr style="page-break-inside:avoid;"><td colspan="%d" style="text-align:right;' + tot_style + '">%s</td><td style="text-align:right;' + tot_style + '">%s</td></tr>') % (col - 1, final_label, _indian_format(grand_total))
 
         table_html = (
-            '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:30px') + ';font-family:Calibri,sans-serif;">'
-            '<p style="text-align:center;font-size:15px;font-weight:bold;margin:16px 0 14px 0;letter-spacing:2px;color:#2c3e50;">QUOTATION</p>'
-            '<table style="width:100%%;border-collapse:collapse;font-size:11px;">'
-            '<thead><tr style="background:#2c3e50;color:#fff;">%s</tr></thead>'
+            '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:10px') + ';font-family:Calibri,sans-serif;">'
+            '<p style="text-align:center;font-size:13pt;font-weight:bold;margin:8px 0 10px 0;color:#2E75B6;">Quotation</p>'
+            '<table style="width:100%%;border-collapse:collapse;font-size:11pt;border:1px solid #000;font-family:Calibri,sans-serif;">'
+            '<thead><tr style="page-break-inside:avoid;">%s</tr></thead>'
             '<tbody>%s</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
