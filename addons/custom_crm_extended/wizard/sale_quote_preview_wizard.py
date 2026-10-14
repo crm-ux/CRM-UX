@@ -754,7 +754,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'target': 'new',
         }
 
-    def action_download_docx(self):
+    def _generate_docx_bytes(self):
         self.ensure_one()
         # Save selected terms to order note
         if self.selected_term_ids:
@@ -1316,8 +1316,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
         buf = io.BytesIO()
         doc.save(buf)
         buf.seek(0)
-        docx_data = buf.read()
+        return buf.read()
 
+    def action_download_docx(self):
+        self.ensure_one()
+        import base64
+        docx_data = self._generate_docx_bytes()
         attachment = self.env['ir.attachment'].create({
             'name': 'Quotation-%s.docx' % (self.quote_name or 'quote'),
             'type': 'binary',
@@ -1393,16 +1397,59 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
     def action_print_edited_pdf(self):
         self.ensure_one()
-        import logging
+        import os, tempfile, subprocess, base64, logging, shutil
         _log = logging.getLogger(__name__)
+
         # Save selected terms to order note
         if self.selected_term_ids:
             items = ''.join('<li>%s</li>' % (t.content or '') for t in self.selected_term_ids.sorted('sequence'))
             self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
-        # Always rebuild to include technical specs and images
+
+        # Check if libreoffice/soffice is available on the system
+        libreoffice_bin = shutil.which('libreoffice') or shutil.which('soffice')
+        if libreoffice_bin:
+            try:
+                docx_bytes = self._generate_docx_bytes()
+                with tempfile.TemporaryDirectory() as tmp_dir:
+                    docx_path = os.path.join(tmp_dir, 'quotation.docx')
+                    with open(docx_path, 'wb') as f:
+                        f.write(docx_bytes)
+
+                    cmd = [
+                        libreoffice_bin,
+                        '--headless',
+                        '--convert-to',
+                        'pdf',
+                        docx_path,
+                        '--outdir',
+                        tmp_dir
+                    ]
+                    _log.info("Converting quotation DOCX to PDF via LibreOffice: %s", cmd)
+                    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+
+                    pdf_path = os.path.join(tmp_dir, 'quotation.pdf')
+                    if os.path.exists(pdf_path):
+                        with open(pdf_path, 'rb') as f:
+                            pdf_data = f.read()
+
+                        pdf_name = 'Quotation-%s.pdf' % (self.quote_name or 'quote')
+                        attachment = self.env['ir.attachment'].create({
+                            'name': pdf_name,
+                            'type': 'binary',
+                            'datas': base64.b64encode(pdf_data).decode(),
+                            'res_model': 'sale.quote.preview.wizard',
+                            'res_id': self.id,
+                            'mimetype': 'application/pdf',
+                        })
+                        return {
+                            'type': 'ir.actions.act_url',
+                            'url': '/web/content/%s?download=true' % attachment.id,
+                            'target': 'new',
+                        }
+            except Exception as e:
+                _log.error("LibreOffice DOCX-to-PDF conversion failed, falling back to QWeb: %s", e)
+
+        # Fallback to standard QWeb PDF if LibreOffice is not installed
         self._rebuild_document_html()
-        _log.warning("PDF HTML length: %s", len(str(self.document_html or '')))
-        _log.warning("Has Quotation title: %s", '>Quotation<' in str(self.document_html or ''))
-        _log.warning("Has page-break: %s", 'page-break-before:always' in str(self.document_html or ''))
         return self.env['ir.actions.report'].search([('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')], limit=1).report_action(self)
 
