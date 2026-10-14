@@ -1406,7 +1406,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
             self.order_id.sudo().write({'note': '<ol>%s</ol>' % items})
 
         # Check if libreoffice/soffice is available on the system
-        libreoffice_bin = shutil.which('libreoffice') or shutil.which('soffice')
+        libreoffice_bin = (
+            shutil.which('libreoffice') or
+            shutil.which('soffice') or
+            (os.path.exists('/usr/bin/libreoffice') and '/usr/bin/libreoffice') or
+            (os.path.exists('/usr/bin/soffice') and '/usr/bin/soffice') or
+            (os.path.exists('/usr/lib/libreoffice/program/soffice') and '/usr/lib/libreoffice/program/soffice')
+        )
+        _log.info("LibreOffice binary detected: %s", libreoffice_bin)
         if libreoffice_bin:
             try:
                 docx_bytes = self._generate_docx_bytes()
@@ -1415,9 +1422,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     with open(docx_path, 'wb') as f:
                         f.write(docx_bytes)
 
+                    user_profile_dir = os.path.join(tmp_dir, 'lo_profile')
                     cmd = [
                         libreoffice_bin,
                         '--headless',
+                        '-env:UserInstallation=file://' + user_profile_dir,
                         '--convert-to',
                         'pdf',
                         docx_path,
@@ -1425,7 +1434,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         tmp_dir
                     ]
                     _log.info("Converting quotation DOCX to PDF via LibreOffice: %s", cmd)
-                    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+                    res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
+                    _log.info("LibreOffice output: stdout=%s, stderr=%s", res.stdout, res.stderr)
 
                     pdf_path = os.path.join(tmp_dir, 'quotation.pdf')
                     if os.path.exists(pdf_path):
