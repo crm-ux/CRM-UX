@@ -29,12 +29,14 @@
         <xpath expr="//form" position="inside">
             <style>@keyframes crm-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
         </xpath>
-        <xpath expr="//div[hasclass('oe_login_buttons')]" position="after">
-            <div class="text-center mt-3">
-                <a href="/web/reset_password" style="color: #1a3d6e; font-size: 13px; text-decoration: none; font-weight: 500;">
-                    Forgot Password?
-                </a>
-            </div>
+    </template>
+
+    <!-- Customize Odoo auth_signup default link: replace "Reset Password" text with dark bold "Forgot Password?" -->
+    <template id="auth_signup_login_custom" name="CRM Auth Signup Login Custom" inherit_id="auth_signup.login" priority="20">
+        <xpath expr="//a[contains(@t-attf-href, 'reset_password')]" position="replace">
+            <a t-attf-href="/web/reset_password?{{ keep_query() }}" class="btn btn-link text-decoration-none fw-bold" style="color: #1a3d6e !important; font-size: 0.9rem;">
+                Forgot Password?
+            </a>
         </xpath>
     </template>
 
