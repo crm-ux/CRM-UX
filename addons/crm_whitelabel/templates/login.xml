@@ -32,16 +32,6 @@
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
-        <xpath expr="//form" position="before">
-            <t t-if="reset_url">
-                <div class="alert alert-info text-center my-3" style="border-radius: 8px;">
-                    <p class="mb-2" style="font-size: 13px; font-weight: 600; color: #1a3d6e;">Password reset token created successfully!</p>
-                    <a t-att-href="reset_url" class="btn btn-primary btn-sm fw-bold w-100" style="background: #1a3d6e !important; border: none; padding: 10px; border-radius: 6px;">
-                        Click Here to Reset Password Now
-                    </a>
-                </div>
-            </t>
-        </xpath>
     </template>
 
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
