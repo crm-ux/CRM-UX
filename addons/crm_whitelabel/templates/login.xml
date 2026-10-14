@@ -2,7 +2,7 @@
 <odoo>
     <!-- Branding Header on Web Login -->
     <template id="login_custom" name="CRM Login Branding" inherit_id="web.login" priority="20">
-        <xpath expr="//div[hasclass('oe_login_form')]" position="before">
+        <xpath expr="//form" position="before">
             <t t-set="company" t-value="res_company if res_company else request.env.company"/>
             <div class="text-center py-3 mb-2">
                 <t t-if="company and company.logo">
@@ -38,7 +38,7 @@
     </template>
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
-        <xpath expr="//div[hasclass('oe_login_form')]" position="before">
+        <xpath expr="//form" position="before">
             <t t-set="company" t-value="res_company if res_company else request.env.company"/>
             <div class="text-center py-3 mb-2">
                 <t t-if="company and company.logo">
