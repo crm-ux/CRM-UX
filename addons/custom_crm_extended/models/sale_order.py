@@ -432,10 +432,7 @@ class SaleOrder(models.Model):
         wizard = self.env['sale.quote.preview.wizard'].with_context(
             default_order_id=self.id
         ).create({'order_id': self.id})
-        wizard._rebuild_document_html()
-        return self.env['ir.actions.report'].search([
-            ('report_name','=','custom_crm_extended.report_sale_quote_preview_wizard')
-        ], limit=1).report_action(wizard)
+        return wizard.action_print_edited_pdf()
 
     def _get_default_signature_card(self):
         """Return the company-level default signature card, used when neither
