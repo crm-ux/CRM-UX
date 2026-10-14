@@ -240,7 +240,7 @@ try:
                     ], limit=1)
                     if user:
                         # Ensure user has a valid reset token on their partner
-                        user.partner_id.signup_prepare(signup_type="reset", expiration=False)
+                        user.partner_id.signup_prepare(signup_type="reset")
                         base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
                         signup_url = user.partner_id.signup_url or f"{base_url}/web/reset_password?token={user.partner_id.signup_token}"
                         recipient_email = user.email or login
