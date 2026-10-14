@@ -509,24 +509,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
         _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
         intro_html = (
-            '<div style="font-family:Calibri,sans-serif;font-size:11pt;line-height:1.25;color:#000;margin-top:0;">'
-            '<table style="width:100%;border-collapse:collapse;margin-bottom:14px;border:none;">'
+            '<div style="font-family:Calibri,sans-serif;font-size:11pt;line-height:1.3;color:#000;margin-top:0;">'
+            '<table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:none;">'
             '<tr>'
             '<td style="text-align:left;font-weight:bold;font-size:11pt;border:none;padding:0;">Quotation No: %s</td>'
             '<td style="text-align:right;font-weight:bold;font-size:11pt;border:none;padding:0;">Date: %s</td>'
             '</tr>'
             '</table>'
-            '<p style="margin:0 0 10px 0;font-size:11pt;"><b>To,</b></p>'
-            + ('<p style="margin:0 0 4px 0;font-size:11pt;">%s</p>' % self.contact_person if self.contact_person else '')
-            + '<p style="margin:0 0 4px 0;font-size:11pt;font-weight:bold;">%s</p>' % (p.name or '')
+            '<p style="margin:0 0 6px 0;font-size:11pt;"><b>To,</b></p>'
+            + ('<p style="margin:0 0 3px 0;font-size:11pt;">%s</p>' % self.contact_person if self.contact_person else '')
+            + '<p style="margin:0 0 3px 0;font-size:11pt;font-weight:bold;">%s</p>' % (p.name or '')
             + addr_html
-            + '<p style="margin:12px 0 0 0;font-size:11pt;">'
-            + (('Ph: %s<br/>' % eff_phone) if eff_phone else '')
-            + (('Email: %s' % eff_email) if eff_email else '')
+            + '<p style="margin:10px 0 0 0;font-size:11pt;">'
+            + (('Email: %s<br/>' % eff_email) if eff_email else '')
+            + (('Ph: %s' % eff_phone) if eff_phone else '')
             + '</p>'
-            + '<p style="margin:14px 0 10px 0;font-size:11pt;"><b>Subject:</b> %s</p>' % subject
+            + '<p style="margin:12px 0 8px 0;font-size:11pt;"><b>Subject:</b> %s</p>' % subject
             + '<p style="margin:10px 0 4px 0;font-size:11pt;">Dear Sir,</p>'
-            + '<p style="margin:4px 0 16px 0;font-size:11pt;">%s%s</p>' % (intro_text, (' ' + best_offer + '.') if best_offer else '.')
+            + '<p style="margin:4px 0 14px 0;font-size:11pt;">%s%s</p>' % (intro_text, (' ' + best_offer + '.') if best_offer else '.')
             + '</div>'
         )
         # ── TECH SPECS ──
@@ -607,24 +607,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 rows += ('<tr style="background:%s;page-break-inside:avoid;"><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="padding:4px 6px;text-align:left;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:center;padding:4px 3px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td><td style="text-align:right;padding:4px 6px;%s">%s</td></tr>') % (row_bg, cell_border, idx2, cell_border, desc, cell_border, hsn, cell_border, qty, cell_border, _indian_format(unit_price), cell_border, _indian_format(amount))
 
         # ── QUOTATION TABLE ──
-        th_style = 'padding:5px 4px;border:1px solid #000;background-color:#D9E1F2;color:#000;font-weight:bold;font-size:11pt;'
+        th_style = 'padding:4px 3px;border:1px solid #000;background-color:#D9E1F2;color:#000;font-weight:bold;font-size:11pt;'
         if has_discount_pdf:
             th_html = (
-                '<th style="%s;text-align:center;width:6%%;">SR No.</th>'
-                '<th style="%s;text-align:center;width:44%%;">Item Description</th>'
+                '<th style="%s;text-align:center;width:5.5%%;">SR No.</th>'
+                '<th style="%s;text-align:center;width:45%%;">Item Description</th>'
                 '<th style="%s;text-align:center;width:11%%;">HSN</th>'
-                '<th style="%s;text-align:center;width:6%%;">Qty</th>'
+                '<th style="%s;text-align:center;width:5.5%%;">Qty</th>'
                 '<th style="%s;text-align:center;width:12%%;">Unit Price</th>'
-                '<th style="%s;text-align:center;width:9%%;">Discount %%</th>'
-                '<th style="%s;text-align:center;width:12%%;">Amount</th>'
+                '<th style="%s;text-align:center;width:10%%;">Discount %%</th>'
+                '<th style="%s;text-align:center;width:11%%;">Amount</th>'
             ) % (th_style, th_style, th_style, th_style, th_style, th_style, th_style)
         else:
             th_html = (
-                '<th style="%s;text-align:center;width:6%%;">SR No.</th>'
+                '<th style="%s;text-align:center;width:5.5%%;">SR No.</th>'
                 '<th style="%s;text-align:center;width:52%%;">Item Description</th>'
                 '<th style="%s;text-align:center;width:11%%;">HSN</th>'
-                '<th style="%s;text-align:center;width:6%%;">Qty</th>'
-                '<th style="%s;text-align:center;width:12%%;">Unit Price</th>'
+                '<th style="%s;text-align:center;width:5.5%%;">Qty</th>'
+                '<th style="%s;text-align:center;width:13%%;">Unit Price</th>'
                 '<th style="%s;text-align:center;width:13%%;">Amount</th>'
             ) % (th_style, th_style, th_style, th_style, th_style, th_style)
 
