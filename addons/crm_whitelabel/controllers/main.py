@@ -256,14 +256,39 @@ try:
                     </div>
                     """
                     
-                    mail = request.env['mail.mail'].sudo().create({
-                        'subject': f"Password Reset Instructions - {company_name}",
-                        'email_from': f'"{company_name}" <crm@yantradynamics.in>',
-                        'email_to': user_email,
-                        'body_html': body_html,
-                        'auto_delete': True,
-                    })
-                    mail.send(raise_exception=True)
+                    import smtplib
+                    from email.mime.text import MIMEText
+                    from email.mime.multipart import MIMEMultipart
+
+                    mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
+                    if not mail_server:
+                        raise Exception("No active outgoing mail server configured in CRM.")
+
+                    host = mail_server.smtp_host or 'smtp.gmail.com'
+                    port = mail_server.smtp_port or 587
+                    user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
+                    pass_smtp = (mail_server.smtp_pass or '').replace(' ', '')
+                    enc = mail_server.smtp_encryption or 'starttls'
+
+                    msg = MIMEMultipart('alternative')
+                    msg['Subject'] = f"Password Reset Instructions - {company_name}"
+                    msg['From'] = f"{company_name} <{user_smtp}>"
+                    msg['To'] = user_email
+                    msg.attach(MIMEText(body_html, 'html'))
+
+                    if enc == 'ssl' or port == 465:
+                        smtp_conn = smtplib.SMTP_SSL(host, port, timeout=15)
+                    else:
+                        smtp_conn = smtplib.SMTP(host, port, timeout=15)
+                        smtp_conn.ehlo()
+                        if enc == 'starttls':
+                            smtp_conn.starttls()
+                            smtp_conn.ehlo()
+
+                    if pass_smtp:
+                        smtp_conn.login(user_smtp, pass_smtp)
+                    smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
+                    smtp_conn.quit()
                     
                     qcontext['message'] = "Password reset instructions sent to your email address."
                     return request.render('auth_signup.reset_password', qcontext)
