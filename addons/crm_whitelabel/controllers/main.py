@@ -276,26 +276,50 @@ try:
                 msg.attach(MIMEText(body_html, 'html'))
 
                 try:
-                    if enc == 'ssl' or port == 465:
-                        smtp_conn = smtplib.SMTP_SSL(host, port, timeout=15)
-                    else:
-                        smtp_conn = smtplib.SMTP(host, port, timeout=15)
-                        smtp_conn.ehlo()
-                        if enc == 'starttls':
-                            smtp_conn.starttls()
-                            smtp_conn.ehlo()
-
-                    if pass_smtp:
-                        smtp_conn.login(user_smtp, pass_smtp)
-                    smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
-                    smtp_conn.quit()
+                    # Prefer Odoo's native build_email and send_email via ir.mail_server
+                    email_from = f"{company_name} <{mail_server.smtp_user or 'crm@yantradynamics.in'}>"
+                    email_to = [user_email]
+                    email_msg = request.env['ir.mail_server'].sudo().build_email(
+                        email_from=email_from,
+                        email_to=email_to,
+                        subject=f"Password Reset Instructions - {company_name}",
+                        body=body_html,
+                        subtype='html',
+                    )
+                    request.env['ir.mail_server'].sudo().send_email(email_msg, mail_server_id=mail_server.id)
                     qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
                     return request.render('auth_signup.reset_password', qcontext)
-                except Exception as mail_err:
+                except Exception as odoo_mail_err:
                     import logging
-                    logging.getLogger(__name__).error("Mail send exception: %s", mail_err)
-                    qcontext['error'] = f"Unable to send password reset email: {str(mail_err)}. Please verify outgoing mail server credentials."
-                    return request.render('auth_signup.reset_password', qcontext)
+                    logging.getLogger(__name__).warning("Odoo native send_email failed (%s), trying direct SMTP...", odoo_mail_err)
+                    try:
+                        # Try direct SSL (port 465) or STARTTLS (port 587) with SSL context
+                        import ssl
+                        ctx = ssl.create_default_context()
+                        
+                        # Try SSL port 465 first if 587 failed, or according to config
+                        if enc == 'ssl' or port == 465:
+                            smtp_conn = smtplib.SMTP_SSL(host, 465, context=ctx, timeout=20)
+                        else:
+                            try:
+                                smtp_conn = smtplib.SMTP(host, port, timeout=20)
+                                smtp_conn.ehlo()
+                                smtp_conn.starttls(context=ctx)
+                                smtp_conn.ehlo()
+                            except Exception:
+                                # Fallback to SSL 465 if STARTTLS disconnected
+                                smtp_conn = smtplib.SMTP_SSL(host, 465, context=ctx, timeout=20)
+
+                        if pass_smtp:
+                            smtp_conn.login(user_smtp, pass_smtp)
+                        smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
+                        smtp_conn.quit()
+                        qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
+                        return request.render('auth_signup.reset_password', qcontext)
+                    except Exception as mail_err:
+                        logging.getLogger(__name__).error("Direct SMTP also failed: %s", mail_err)
+                        qcontext['error'] = f"Unable to send password reset email: {str(mail_err)}. Please verify outgoing mail server credentials."
+                        return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
 except Exception:
