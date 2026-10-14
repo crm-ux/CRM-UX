@@ -427,36 +427,25 @@ class SaleOrder(models.Model):
     # ACTIONS
     # ==================================================================
 
-    def action_print_custom_pdf(self):
-        self.ensure_one()
-        wizard = self.env['sale.quote.preview.wizard'].with_context(
-            default_order_id=self.id
-        ).create({'order_id': self.id})
-        return wizard.action_print_edited_pdf()
-
-    def _get_default_signature_card(self):
-        """Return the company-level default signature card, used when neither
-        a manual signature upload nor the salesperson's own profile picture
-        is available. Uploaded via Settings > Companies."""
-        return self.company_id.x_default_signature_card or False
-    def action_preview_sale_order(self):
+    def _prepare_quote_preview_wizard_vals(self):
+        """Build dictionary of values for sale.quote.preview.wizard."""
         self.ensure_one()
         all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        # Load saved terms from order note, or use all terms for new quote
         saved_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
         if self.note:
-            # Try to match saved terms
-            from bs4 import BeautifulSoup
-            soup = BeautifulSoup(self.note, 'html.parser')
-            saved_contents = [li.get_text().strip() for li in soup.find_all('li')]
-            if saved_contents:
-                matched = self.env['sale.terms.condition'].search([
-                    ('content', 'in', saved_contents)
-                ], order='sequence, id')
-                if matched:
-                    saved_terms = matched
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(self.note, 'html.parser')
+                saved_contents = [li.get_text().strip() for li in soup.find_all('li')]
+                if saved_contents:
+                    matched = self.env['sale.terms.condition'].search([
+                        ('content', 'in', saved_contents)
+                    ], order='sequence, id')
+                    if matched:
+                        saved_terms = matched
+            except Exception:
+                pass
 
-        # Use draft fields if saved, else use order defaults
         has_draft = bool(self.x_draft_term_ids or self.x_draft_quote_name or self.x_draft_best_offer or self.x_draft_tech_specs)
         wizard_vals = {
             'order_id': self.id,
@@ -476,6 +465,24 @@ class SaleOrder(models.Model):
         }
         if self.x_draft_image_ids:
             wizard_vals['quote_image_ids'] = [(6, 0, self.x_draft_image_ids.ids)]
+        return wizard_vals
+
+    def action_print_custom_pdf(self):
+        self.ensure_one()
+        vals = self._prepare_quote_preview_wizard_vals()
+        wizard = self.env['sale.quote.preview.wizard'].with_context(
+            default_order_id=self.id
+        ).sudo().create(vals)
+        return wizard.action_print_edited_pdf()
+
+    def _get_default_signature_card(self):
+        """Return the company-level default signature card, used when neither
+        a manual signature upload nor the salesperson's own profile picture
+        is available. Uploaded via Settings > Companies."""
+        return self.company_id.x_default_signature_card or False
+    def action_preview_sale_order(self):
+        self.ensure_one()
+        wizard_vals = self._prepare_quote_preview_wizard_vals()
         wizard = self.env['sale.quote.preview.wizard'].with_context(
             default_order_id=self.id
         ).sudo().create(wizard_vals)
