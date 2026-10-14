@@ -17,8 +17,6 @@
         <xpath expr="//form" position="inside">
             <style>@keyframes crm-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}</style>
         </xpath>
-        <!-- Completely remove Passkey and OAuth providers block from rendering -->
-        <xpath expr="//div[hasclass('o_login_auth')]" position="replace"/>
     </template>
 
     <!-- Customize Odoo auth_signup default link: replace "Reset Password" text with dark bold "Forgot Password?" -->

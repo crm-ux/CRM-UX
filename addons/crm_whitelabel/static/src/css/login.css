@@ -82,10 +82,10 @@ a[href*="odoo.com"] {
 .border-bottom:has(+ .o_webauthn_passkey),
 div:has(> a[href*="passkey"]),
 a[href*="passkey"],
-div:has(> button:has-text("Passkey")),
-.text-center:has(+ div > a[href*="passkey"]),
-.oe_login_buttons ~ div:has(a[href*="passkey"]),
-.oe_login_buttons ~ div:not(:has(a[href*="reset_password"])) {
+a:has(i.fa-key),
+a:has(.fa-qrcode),
+.card-body form + div,
+.card-body form + * {
     display: none !important;
 }
 
