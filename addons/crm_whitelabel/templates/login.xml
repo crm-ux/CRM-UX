@@ -5,14 +5,7 @@
         <xpath expr="//form" position="before">
             <t t-set="company" t-value="res_company if res_company else request.env.company"/>
             <div class="text-center py-3 mb-2">
-                <t t-if="company and company.logo">
-                    <img t-att-src="'/web/image/res.company/%s/logo' % company.id" alt="Logo" class="img-fluid mb-2" style="max-height: 4rem; object-fit: contain;"/>
-                </t>
-                <t t-else="">
-                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 3.8rem; height: 3.8rem; background: #1a3d6e;">
-                        <span class="text-white fw-bold" style="font-size: 1.75rem;" t-esc="company.name[0] if (company and company.name) else 'Y'"/>
-                    </div>
-                </t>
+                <img src="/crm_whitelabel/static/src/img/sidebar_logo.png" alt="Logo" class="img-fluid mb-2" style="max-height: 4.2rem; object-fit: contain;"/>
                 <div class="fw-bold text-primary" style="font-size: 1.4rem; color: #1a3d6e !important; letter-spacing: -0.02em;" t-esc="company.name if company else 'YantraConnect CRM'"/>
                 <div class="text-muted small mt-1" style="font-size: 0.85rem;">
                     <t t-esc="company.report_header or 'Sales and Lead Management' if company else 'Sales and Lead Management'"/>
@@ -41,14 +34,7 @@
         <xpath expr="//form" position="before">
             <t t-set="company" t-value="res_company if res_company else request.env.company"/>
             <div class="text-center py-3 mb-2">
-                <t t-if="company and company.logo">
-                    <img t-att-src="'/web/image/res.company/%s/logo' % company.id" alt="Logo" class="img-fluid mb-2" style="max-height: 4rem; object-fit: contain;"/>
-                </t>
-                <t t-else="">
-                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2 shadow-sm" style="width: 3.8rem; height: 3.8rem; background: #1a3d6e;">
-                        <span class="text-white fw-bold" style="font-size: 1.75rem;" t-esc="company.name[0] if (company and company.name) else 'Y'"/>
-                    </div>
-                </t>
+                <img src="/crm_whitelabel/static/src/img/sidebar_logo.png" alt="Logo" class="img-fluid mb-2" style="max-height: 4.2rem; object-fit: contain;"/>
                 <div class="fw-bold text-primary" style="font-size: 1.4rem; color: #1a3d6e !important; letter-spacing: -0.02em;" t-esc="company.name if company else 'YantraConnect CRM'"/>
                 <div class="text-muted small mt-1" style="font-size: 0.85rem;">
                     <t t-esc="company.report_header or 'Sales and Lead Management' if company else 'Sales and Lead Management'"/>
