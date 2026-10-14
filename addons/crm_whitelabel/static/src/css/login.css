@@ -1,92 +1,97 @@
-/* Blue gradient background */
-body.bg-100 {
-    background: linear-gradient(135deg, #1A56DB 0%, #0F172A 100%) !important;
+/* Background */
+body:has(.card) {
     min-height: 100vh !important;
 }
 
-/* Smaller white card */
-body.bg-100 .card {
+/* White Login Card */
+.card {
     border-radius: 16px !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
     background: #FFFFFF !important;
-    max-width: 360px !important;
-    padding: 8px !important;
 }
 
-/* Hide Odoo logo image */
-body.bg-100 .card .text-center img,
-body.bg-100 .card .text-center svg,
-body.bg-100 .card .border-bottom {
+/* Hide Odoo logo image inside card */
+.card .text-center img[alt*="Logo"],
+.card .text-center svg,
+.card .border-bottom:not(:has(input)) {
     display: none !important;
 }
 
-/* Inputs */
-body.bg-100 .form-control {
-    border: 1.5px solid #E2E8F0 !important;
-    border-radius: 8px !important;
-    padding: 10px 14px !important;
-    background: #F8FAFC !important;
+/* Input Fields - Clean Gray Border and Blue Focus */
+.form-control,
+input.form-control,
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    border: 1px solid #CBD5E1 !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    background: #FFFFFF !important;
     font-size: 14px !important;
+    color: #1E293B !important;
+    box-shadow: none !important;
 }
 
-body.bg-100 .form-control:focus {
-    border-color: #1A56DB !important;
-    background: #fff !important;
-    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15) !important;
+.form-control:focus,
+input.form-control:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border-color: #1a3d6e !important;
+    box-shadow: 0 0 0 2px rgba(26, 61, 110, 0.15) !important;
+    background: #FFFFFF !important;
 }
 
-/* Login button */
-body.bg-100 .btn-primary {
-    background: #1A56DB !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 11px !important;
+/* Login Submit Button */
+.btn-primary[type="submit"],
+button[type="submit"] {
+    background: #1a3d6e !important;
+    border-color: #1a3d6e !important;
+    border-radius: 6px !important;
+    padding: 10px !important;
     font-weight: 600 !important;
     font-size: 14px !important;
+    color: #FFFFFF !important;
 }
 
-body.bg-100 .btn-primary:hover {
-    background: #1E40AF !important;
+.btn-primary[type="submit"]:hover,
+button[type="submit"]:hover {
+    background: #0f2b52 !important;
+    border-color: #0f2b52 !important;
 }
 
-/* Hide Powered by Odoo, Manage Databases, Log in as superuser */
-body.bg-100 .o_login_footer {
+/* Hide Powered by Odoo, Manage Databases, Superuser */
+.o_login_footer {
     display: none !important;
 }
 
-body.bg-100 a[href*="database"] {
+a[href*="database"] {
     display: none !important;
 }
 
-body.bg-100 .o_database_list .card-body>.text-center:last-child {
+.o_database_list .card-body>.text-center:last-child {
     display: none !important;
 }
 
-body.bg-100 a[href*="odoo.com"] {
+a[href*="odoo.com"] {
     display: none !important;
 }
 
-/* Hide Passkey & "- or -" divider */
-body.bg-100 .o_auth_oauth_providers,
-body.bg-100 .o_webauthn_passkey,
-body.bg-100 .border-bottom:has(+ .o_webauthn_passkey),
-body.bg-100 div:has(> a[href*="passkey"]),
-body.bg-100 a[href*="passkey"],
-body.bg-100 div.text-center:has(+ .o_webauthn_passkey),
-body.bg-100 .oe_login_buttons~div:not(.text-center.mt-3),
-body.bg-100 .oe_login_buttons~* {
+/* Hide Passkey & "- or -" divider completely */
+.o_webauthn_passkey,
+.border-bottom:has(+ .o_webauthn_passkey),
+div:has(> a[href*="passkey"]),
+a[href*="passkey"],
+div:has(> button:has-text("Passkey")),
+.text-center:has(+ div > a[href*="passkey"]),
+.oe_login_buttons ~ div:has(a[href*="passkey"]),
+.oe_login_buttons ~ div:not(:has(a[href*="reset_password"])) {
     display: none !important;
 }
 
-/* Allow our custom forgot password to display */
-body.bg-100 a[href*="reset_password"],
-body.bg-100 a[href*="reset_password"] * {
-    display: inline-block !important;
-}
-
-/* Uniform dark bold styling for all action links: "Forgot Password?", "Choose a user", and "Use another user" */
-body.bg-100 a,
-body a.btn-link,
+/* Uniform Dark Bold Font for all Action Links: "Choose a user", "Use another user", "Forgot Password?" */
+a,
+.btn-link,
 .card-body a,
 a[href*="reset_password"],
 a[href*="login"],
@@ -97,14 +102,20 @@ a[href*="switch"],
     font-weight: 700 !important;
     font-size: 0.88rem !important;
     letter-spacing: -0.01em !important;
-    display: inline-block !important;
 }
 
-body.bg-100 a:hover,
-body a.btn-link:hover,
+a:hover,
+.btn-link:hover,
 .card-body a:hover,
 a[href*="reset_password"]:hover,
 .card a:hover {
     color: #0f2b52 !important;
     text-decoration: underline !important;
+}
+
+/* Fix active user item highlight border in "Choose a user" list */
+.list-group-item.active,
+.list-group-item:focus {
+    border-color: #1a3d6e !important;
+    box-shadow: 0 0 0 2px rgba(26, 61, 110, 0.2) !important;
 }
