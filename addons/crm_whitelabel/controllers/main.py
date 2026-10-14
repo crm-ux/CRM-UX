@@ -231,6 +231,9 @@ try:
                     qcontext = self.get_auth_signup_qcontext()
                     qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
                     return request.render('auth_signup.reset_password', qcontext)
+                
+                # Ensure kw['login'] contains the actual user login username for super()
+                kw['login'] = user.login
 
             try:
                 response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
