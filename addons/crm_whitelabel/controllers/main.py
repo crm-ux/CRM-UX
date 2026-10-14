@@ -228,76 +228,75 @@ try:
                     qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
                     return request.render('auth_signup.reset_password', qcontext)
                 
-                try:
-                    # Prepare partner signup token
-                    user.partner_id.action_signup_prepare()
-                    signup_urls = user.partner_id._get_signup_url_for_action()
-                    reset_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
+                # Prepare partner signup token
+                user.partner_id.action_signup_prepare()
+                signup_urls = user.partner_id._get_signup_url_for_action()
+                reset_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
 
-                    # Compose professional branded email body
-                    company = user.company_id or request.env.company
-                    company_name = company.name or "YantraConnect CRM"
-                    
-                    body_html = f"""
-                    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
-                        <div style="text-align: center; margin-bottom: 25px;">
-                            <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; margin-bottom: 10px;">Y</div>
-                            <h2 style="color: #1a3d6e; margin: 0; font-size: 22px;">{company_name}</h2>
-                            <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Password Reset Request</p>
-                        </div>
-                        <p style="color: #1E293B; font-size: 14px; line-height: 1.6;">Hello <strong>{user.name}</strong>,</p>
-                        <p style="color: #475569; font-size: 14px; line-height: 1.6;">A password reset was requested for your CRM account. Click the button below to choose your new password:</p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="{reset_url}" style="background: #1a3d6e; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
-                        </div>
-                        <p style="color: #64748B; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
-                        <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 25px 0;"/>
-                        <p style="color: #94A3B8; font-size: 11px; text-align: center; margin: 0;">&copy; {company_name}. All rights reserved.</p>
+                # Compose professional branded email body
+                company = user.company_id or request.env.company
+                company_name = company.name or "YantraConnect CRM"
+                
+                body_html = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; margin-bottom: 10px;">Y</div>
+                        <h2 style="color: #1a3d6e; margin: 0; font-size: 22px;">{company_name}</h2>
+                        <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Password Reset Request</p>
                     </div>
-                    """
-                    
-                    import smtplib
-                    from email.mime.text import MIMEText
-                    from email.mime.multipart import MIMEMultipart
+                    <p style="color: #1E293B; font-size: 14px; line-height: 1.6;">Hello <strong>{user.name}</strong>,</p>
+                    <p style="color: #475569; font-size: 14px; line-height: 1.6;">A password reset was requested for your CRM account. Click the button below to choose your new password:</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{reset_url}" style="background: #1a3d6e; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
+                    </div>
+                    <p style="color: #64748B; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
+                    <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 25px 0;"/>
+                    <p style="color: #94A3B8; font-size: 11px; text-align: center; margin: 0;">&copy; {company_name}. All rights reserved.</p>
+                </div>
+                """
+                
+                import smtplib
+                from email.mime.text import MIMEText
+                from email.mime.multipart import MIMEMultipart
 
-                    mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
-                    if not mail_server:
-                        raise Exception("No active outgoing mail server configured in CRM.")
+                mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
+                if not mail_server:
+                    raise Exception("No active outgoing mail server configured in CRM.")
 
-                    host = mail_server.smtp_host or 'smtp.gmail.com'
-                    port = mail_server.smtp_port or 587
-                    user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
-                    pass_smtp = (mail_server.smtp_pass or '').replace(' ', '')
-                    enc = mail_server.smtp_encryption or 'starttls'
+                host = mail_server.smtp_host or 'smtp.gmail.com'
+                port = mail_server.smtp_port or 587
+                user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
+                pass_smtp = (mail_server.smtp_pass or '').replace(' ', '')
+                enc = mail_server.smtp_encryption or 'starttls'
 
-                    msg = MIMEMultipart('alternative')
-                    msg['Subject'] = f"Password Reset Instructions - {company_name}"
-                    msg['From'] = f"{company_name} <{user_smtp}>"
-                    msg['To'] = user_email
-                    msg.attach(MIMEText(body_html, 'html'))
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = f"Password Reset Instructions - {company_name}"
+                msg['From'] = f"{company_name} <{user_smtp}>"
+                msg['To'] = user_email
+                msg.attach(MIMEText(body_html, 'html'))
 
-                    try:
-                        if enc == 'ssl' or port == 465:
-                            smtp_conn = smtplib.SMTP_SSL(host, port, timeout=15)
-                        else:
-                            smtp_conn = smtplib.SMTP(host, port, timeout=15)
+                try:
+                    if enc == 'ssl' or port == 465:
+                        smtp_conn = smtplib.SMTP_SSL(host, port, timeout=15)
+                    else:
+                        smtp_conn = smtplib.SMTP(host, port, timeout=15)
+                        smtp_conn.ehlo()
+                        if enc == 'starttls':
+                            smtp_conn.starttls()
                             smtp_conn.ehlo()
-                            if enc == 'starttls':
-                                smtp_conn.starttls()
-                                smtp_conn.ehlo()
 
-                        if pass_smtp:
-                            smtp_conn.login(user_smtp, pass_smtp)
-                        smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
-                        smtp_conn.quit()
-                        qcontext['message'] = "Password reset instructions sent to your email address."
-                        return request.render('auth_signup.reset_password', qcontext)
-                    except Exception as mail_err:
-                        import logging
-                        logging.getLogger(__name__).warning("Mail send exception: %s. Providing direct reset fallback link.", mail_err)
-                        qcontext['message'] = "Password reset instructions generated successfully."
-                        qcontext['reset_url'] = reset_url
-                        return request.render('auth_signup.reset_password', qcontext)
+                    if pass_smtp:
+                        smtp_conn.login(user_smtp, pass_smtp)
+                    smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
+                    smtp_conn.quit()
+                    qcontext['message'] = "Password reset instructions sent to your email address."
+                    return request.render('auth_signup.reset_password', qcontext)
+                except Exception as mail_err:
+                    import logging
+                    logging.getLogger(__name__).warning("Mail send exception: %s. Providing direct reset fallback link.", mail_err)
+                    qcontext['message'] = "Password reset instructions generated successfully."
+                    qcontext['reset_url'] = reset_url
+                    return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
 except Exception:
