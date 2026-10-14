@@ -239,19 +239,51 @@ try:
                         '|', ('login', '=', login), ('email', '=', login)
                     ], limit=1)
                     if user:
-                        # Generate token & trigger reset mail immediately
+                        # Ensure user has a valid reset token
                         user.with_context(create_user=False).action_reset_password()
-                        # Force process outgoing mail queue immediately for this email
-                        mails = request.env['mail.mail'].sudo().search([
-                            ('email_to', 'ilike', user.email or login),
-                            ('state', 'in', ['outgoing', 'exception'])
-                        ], order='id desc', limit=1)
-                        if mails:
-                            mails.send()
-                            if mails.state == 'exception':
-                                qcontext = self.get_auth_signup_qcontext()
-                                qcontext['error'] = f"Email delivery failed: {mails.failure_reason}"
-                                return request.render('auth_signup.reset_password', qcontext)
+                        # Get user signup URL
+                        signup_url = user.signup_url
+                        recipient_email = user.email or login
+                        
+                        # Send directly via verified SMTP connection
+                        import smtplib
+                        from email.mime.text import MIMEText
+                        from email.mime.multipart import MIMEMultipart
+
+                        msg = MIMEMultipart('alternative')
+                        msg['Subject'] = "Reset Your Password - YantraConnect CRM"
+                        msg['From'] = "YantraConnect CRM <crm@yantradynamics.in>"
+                        msg['To'] = recipient_email
+
+                        html_content = f"""
+                        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; text-align: center;">Y</div>
+                                <h2 style="color: #1a3d6e; margin-top: 10px; margin-bottom: 4px;">YantraConnect CRM</h2>
+                                <p style="color: #64748b; font-size: 13px; margin: 0;">Password Reset Request</p>
+                            </div>
+                            <p style="color: #334155; font-size: 14px; line-height: 1.5;">Hello <strong>{user.name}</strong>,</p>
+                            <p style="color: #334155; font-size: 14px; line-height: 1.5;">A password reset was requested for your CRM account. Click the button below to choose a new password:</p>
+                            <div style="text-align: center; margin: 25px 0;">
+                                <a href="{signup_url}" style="background: #1a3d6e; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 14px;">Reset Password</a>
+                            </div>
+                            <p style="color: #64748b; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
+                            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
+                            <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; YantraConnect CRM. All rights reserved.</p>
+                        </div>
+                        """
+                        msg.attach(MIMEText(html_content, 'html'))
+
+                        try:
+                            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=15)
+                            server.starttls()
+                            server.login('crm@yantradynamics.in', 'pcfnwhsykrnxtbnw')
+                            server.sendmail('crm@yantradynamics.in', recipient_email, msg.as_string())
+                            server.quit()
+                        except Exception as smtp_err:
+                            qcontext = self.get_auth_signup_qcontext()
+                            qcontext['error'] = f"Email delivery failed: {smtp_err}"
+                            return request.render('auth_signup.reset_password', qcontext)
                         
                         qcontext = self.get_auth_signup_qcontext()
                         qcontext['message'] = "Password reset instructions sent to your email address."
