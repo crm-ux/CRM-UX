@@ -233,32 +233,36 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
 
             try:
-                from datetime import datetime, timedelta
-                req_time = datetime.utcnow() - timedelta(seconds=15)
-                response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
-                # Check if a newly generated reset email failed in mail.mail
                 if request.httprequest.method == 'POST' and kw.get('login'):
-                    failed_mail = request.env['mail.mail'].sudo().search([
-                        ('state', '=', 'exception'),
-                        ('create_date', '>=', req_time.strftime('%Y-%m-%d %H:%M:%S')),
-                    ], order='id desc', limit=1)
-                    if failed_mail and failed_mail.failure_reason:
-                        err_msg = failed_mail.failure_reason.replace("'", "\\'")
-                        # Inject script to log into browser console
-                        console_script = f"<script>console.error('[YantraCRM Mail Error]: {err_msg}');</script>"
-                        if hasattr(response, 'render'):
-                            qcontext = self.get_auth_signup_qcontext()
-                            qcontext['error'] = f"Mail sending failed: {failed_mail.failure_reason}"
-                            res = request.render('auth_signup.reset_password', qcontext)
-                            return res
-                return response
+                    login = kw.get('login').strip()
+                    user = request.env['res.users'].sudo().search([
+                        '|', ('login', '=', login), ('email', '=', login)
+                    ], limit=1)
+                    if user:
+                        # Generate token & trigger reset mail immediately
+                        user.with_context(create_user=False).action_reset_password()
+                        # Force process outgoing mail queue immediately for this email
+                        mails = request.env['mail.mail'].sudo().search([
+                            ('email_to', 'ilike', user.email or login),
+                            ('state', 'in', ['outgoing', 'exception'])
+                        ], order='id desc', limit=1)
+                        if mails:
+                            mails.send()
+                            if mails.state == 'exception':
+                                qcontext = self.get_auth_signup_qcontext()
+                                qcontext['error'] = f"Email delivery failed: {mails.failure_reason}"
+                                return request.render('auth_signup.reset_password', qcontext)
+                        
+                        qcontext = self.get_auth_signup_qcontext()
+                        qcontext['message'] = "Password reset instructions sent to your email address."
+                        return request.render('auth_signup.reset_password', qcontext)
+
+                return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
             except Exception as e:
                 import traceback
-                err_str = str(e).replace("'", "\\'")
                 traceback.print_exc()
                 qcontext = self.get_auth_signup_qcontext()
                 qcontext['error'] = f"Error sending password reset: {e}"
-                res = request.render('auth_signup.reset_password', qcontext)
-                return res
+                return request.render('auth_signup.reset_password', qcontext)
 except Exception:
     pass
