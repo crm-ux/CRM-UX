@@ -275,13 +275,31 @@ try:
                         msg.attach(MIMEText(html_content, 'html'))
 
                         try:
-                            server = smtplib.SMTP('smtp.gmail.com', 587, timeout=15)
-                            server.ehlo()
-                            server.starttls()
-                            server.ehlo()
-                            server.login('crm@yantradynamics.in', 'pcfnwhsykrnxtbnw')
-                            server.sendmail('crm@yantradynamics.in', recipient_email, msg.as_string())
-                            server.quit()
+                            # Read SMTP server configuration securely from Odoo's configured mail server
+                            mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
+                            if mail_server:
+                                host = mail_server.smtp_host or 'smtp.gmail.com'
+                                port = mail_server.smtp_port or 587
+                                user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
+                                pass_smtp = mail_server.smtp_pass or ''
+                                enc = mail_server.smtp_encryption or 'starttls'
+
+                                if enc == 'ssl' or port == 465:
+                                    server = smtplib.SMTP_SSL(host, port, timeout=15)
+                                else:
+                                    server = smtplib.SMTP(host, port, timeout=15)
+                                    server.ehlo()
+                                    if enc == 'starttls':
+                                        server.starttls()
+                                        server.ehlo()
+
+                                from_email = user_smtp if (user_smtp and user_smtp.strip()) else 'crm@yantradynamics.in'
+                                if pass_smtp and pass_smtp.strip():
+                                    server.login(user_smtp, pass_smtp.replace(' ', ''))
+                                server.sendmail(from_email, recipient_email, msg.as_string())
+                                server.quit()
+                            else:
+                                raise Exception("No active outgoing mail server configured in CRM.")
                         except Exception as smtp_err:
                             qcontext = self.get_auth_signup_qcontext()
                             qcontext['error'] = f"Email delivery failed: {smtp_err}"
