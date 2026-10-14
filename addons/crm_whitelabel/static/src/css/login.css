@@ -47,32 +47,52 @@ body.bg-100 .btn-primary:hover {
     background: #1E40AF !important;
 }
 
-/* Hide Powered by Odoo, Manage Databases, Log in as superuser, Use a Passkey */
+/* Hide Powered by Odoo, Manage Databases, Log in as superuser */
 body.bg-100 .o_login_footer { display: none !important; }
 body.bg-100 a[href*="database"] { display: none !important; }
-body.bg-100 .o_login_auth { display: none !important; }
-body.bg-100 .btn-link { display: none !important; }
-body.bg-100 small { display: none !important; }
-body.bg-100 em { display: none !important; }
+body.bg-100 .o_database_list .card-body > .text-center:last-child { display: none !important; }
+body.bg-100 a[href*="odoo.com"] { display: none !important; }
 
-/* Login Links (Choose a user, Reset Password) */
+/* Hide Passkey & "- or -" divider */
+body.bg-100 .o_auth_oauth_providers,
+body.bg-100 .o_webauthn_passkey,
+body.bg-100 .border-bottom:has(+ .o_webauthn_passkey),
+body.bg-100 div:has(> a[href*="passkey"]),
+body.bg-100 a[href*="passkey"],
+body.bg-100 div.text-center:has(+ .o_webauthn_passkey),
+body.bg-100 .oe_login_buttons ~ div:not(.text-center.mt-3),
+body.bg-100 .oe_login_buttons ~ * {
+    display: none !important;
+}
+
+/* Allow our custom forgot password to display */
+body.bg-100 a[href*="reset_password"],
+body.bg-100 a[href*="reset_password"] * {
+    display: inline-block !important;
+}
+
+/* Uniform dark bold styling for all action links: "Forgot Password?", "Choose a user", and "Use another user" */
 body.bg-100 a,
 body a.btn-link,
-.card-body a {
+.card-body a,
+a[href*="reset_password"],
+a[href*="login"],
+a[href*="switch"],
+.card a {
     color: #1a3d6e !important;
     text-decoration: none !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: -0.01em !important;
+    display: inline-block !important;
 }
 
 body.bg-100 a:hover,
 body a.btn-link:hover,
-.card-body a:hover {
-    color: #0284c7 !important;
+.card-body a:hover,
+a[href*="reset_password"]:hover,
+.card a:hover {
+    color: #0f2b52 !important;
     text-decoration: underline !important;
 }
-
-/* Hide Powered by Odoo */
-body.bg-100 .list-group { display: none !important; }
-body.bg-100 a[href*="odoo.com"] { display: none !important; }
-body.bg-100 .o_database_list .card-body > .text-center:last-child { display: none !important; }
 
