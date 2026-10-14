@@ -233,83 +233,11 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
 
             try:
+                response = super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+                # Immediately process mail queue so the user gets the email in 1 second instead of waiting for cron
                 if request.httprequest.method == 'POST' and kw.get('login'):
-                    login = kw.get('login').strip()
-                    user = request.env['res.users'].sudo().search([
-                        '|', ('login', '=', login), ('email', '=', login)
-                    ], limit=1)
-                    if user:
-                        # Prepare signup token on partner
-                        user.partner_id.action_signup_prepare()
-                        signup_urls = user.partner_id._get_signup_url_for_action()
-                        signup_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
-                        recipient_email = user.email or login
-                        
-                        # Send directly via verified SMTP connection
-                        import smtplib
-                        from email.mime.text import MIMEText
-                        from email.mime.multipart import MIMEMultipart
-
-                        msg = MIMEMultipart('alternative')
-                        msg['Subject'] = "Reset Your Password - YantraConnect CRM"
-                        msg['From'] = "YantraConnect CRM <crm@yantradynamics.in>"
-                        msg['To'] = recipient_email
-
-                        html_content = f"""
-                        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
-                            <div style="text-align: center; margin-bottom: 20px;">
-                                <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; text-align: center;">Y</div>
-                                <h2 style="color: #1a3d6e; margin-top: 10px; margin-bottom: 4px;">YantraConnect CRM</h2>
-                                <p style="color: #64748b; font-size: 13px; margin: 0;">Password Reset Request</p>
-                            </div>
-                            <p style="color: #334155; font-size: 14px; line-height: 1.5;">Hello <strong>{user.name}</strong>,</p>
-                            <p style="color: #334155; font-size: 14px; line-height: 1.5;">A password reset was requested for your CRM account. Click the button below to choose a new password:</p>
-                            <div style="text-align: center; margin: 25px 0;">
-                                <a href="{signup_url}" style="background: #1a3d6e; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 14px;">Reset Password</a>
-                            </div>
-                            <p style="color: #64748b; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
-                            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;"/>
-                            <p style="color: #94a3b8; font-size: 11px; text-align: center; margin: 0;">&copy; YantraConnect CRM. All rights reserved.</p>
-                        </div>
-                        """
-                        msg.attach(MIMEText(html_content, 'html'))
-
-                        try:
-                            # Read SMTP server configuration securely from Odoo's configured mail server
-                            mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
-                            if mail_server:
-                                host = mail_server.smtp_host or 'smtp.gmail.com'
-                                port = mail_server.smtp_port or 587
-                                user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
-                                pass_smtp = mail_server.smtp_pass or ''
-                                enc = mail_server.smtp_encryption or 'starttls'
-
-                                if enc == 'ssl' or port == 465:
-                                    server = smtplib.SMTP_SSL(host, port, timeout=15, local_hostname='yantradynamics.in')
-                                else:
-                                    server = smtplib.SMTP(host, port, timeout=15, local_hostname='yantradynamics.in')
-                                    server.ehlo('yantradynamics.in')
-                                    if enc == 'starttls':
-                                        server.starttls()
-                                        server.ehlo('yantradynamics.in')
-
-                                from_email = user_smtp if (user_smtp and user_smtp.strip()) else 'crm@yantradynamics.in'
-                                if pass_smtp and pass_smtp.strip():
-                                    server.login(user_smtp, pass_smtp.replace(' ', ''))
-                                server.sendmail(from_email, recipient_email, msg.as_string())
-                                server.quit()
-                            else:
-                                raise Exception("No active outgoing mail server configured in CRM.")
-                        except Exception as smtp_err:
-                            qcontext = self.get_auth_signup_qcontext()
-                            qcontext['error'] = f"Email delivery failed: {smtp_err}"
-                            return request.render('auth_signup.reset_password', qcontext)
-                        
-                        qcontext = self.get_auth_signup_qcontext()
-                        qcontext['message'] = "Password reset instructions sent to your email address."
-                        return request.render('auth_signup.reset_password', qcontext)
-
-                return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+                    request.env['mail.mail'].sudo().process_email_queue()
+                return response
             except Exception as e:
                 import traceback
                 traceback.print_exc()
