@@ -848,14 +848,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     r_elem.append(fld2)
                     r_elem.append(fld3)
                     run.font.name = 'Calibri'
-                    run.font.size = Pt(9)
-                    run.font.color.rgb = RGBColor(128, 128, 128)
+                    run.font.size = Pt(10)
+                    run.font.color.rgb = RGBColor(0, 0, 0)
 
                 _add_field_run(fp, 'PAGE')
                 r_slash = fp.add_run('/')
                 r_slash.font.name = 'Calibri'
-                r_slash.font.size = Pt(9)
-                r_slash.font.color.rgb = RGBColor(128, 128, 128)
+                r_slash.font.size = Pt(10)
+                r_slash.font.color.rgb = RGBColor(0, 0, 0)
                 _add_field_run(fp, 'NUMPAGES')
             except Exception:
                 pass
