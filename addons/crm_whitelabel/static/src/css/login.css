@@ -73,7 +73,8 @@ a[href*="database"] {
     display: none !important;
 }
 
-a[href*="odoo.com"] {
+a[href*="odoo.com"],
+a[href*="reset_password"] {
     display: none !important;
 }
 
