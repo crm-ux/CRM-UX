@@ -285,13 +285,13 @@ try:
                                 enc = mail_server.smtp_encryption or 'starttls'
 
                                 if enc == 'ssl' or port == 465:
-                                    server = smtplib.SMTP_SSL(host, port, timeout=15)
+                                    server = smtplib.SMTP_SSL(host, port, timeout=15, local_hostname='yantradynamics.in')
                                 else:
-                                    server = smtplib.SMTP(host, port, timeout=15)
-                                    server.ehlo()
+                                    server = smtplib.SMTP(host, port, timeout=15, local_hostname='yantradynamics.in')
+                                    server.ehlo('yantradynamics.in')
                                     if enc == 'starttls':
                                         server.starttls()
-                                        server.ehlo()
+                                        server.ehlo('yantradynamics.in')
 
                                 from_email = user_smtp if (user_smtp and user_smtp.strip()) else 'crm@yantradynamics.in'
                                 if pass_smtp and pass_smtp.strip():
