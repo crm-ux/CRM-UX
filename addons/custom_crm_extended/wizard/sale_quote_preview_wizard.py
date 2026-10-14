@@ -822,6 +822,44 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 except Exception:
                     pass
 
+        # ── Word footer: Page number formatted as "Page X of Y" (1/n) ──
+        for f in [section0.footer, section0.first_page_footer]:
+            try:
+                f.is_linked_to_previous = False
+                for p in f.paragraphs:
+                    p.clear()
+                fp = f.paragraphs[0] if f.paragraphs else f.add_paragraph()
+                fp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+
+                def _add_field_run(p, fld_name):
+                    run = p.add_run()
+                    r_elem = run._r
+                    fld1 = _OE('w:fldChar')
+                    fld1.set(_qn('w:fldCharType'), 'begin')
+                    instr = _OE('w:instrText')
+                    instr.set(_qn('xml:space'), 'preserve')
+                    instr.text = fld_name
+                    fld2 = _OE('w:fldChar')
+                    fld2.set(_qn('w:fldCharType'), 'separate')
+                    fld3 = _OE('w:fldChar')
+                    fld3.set(_qn('w:fldCharType'), 'end')
+                    r_elem.append(fld1)
+                    r_elem.append(instr)
+                    r_elem.append(fld2)
+                    r_elem.append(fld3)
+                    run.font.name = 'Calibri'
+                    run.font.size = Pt(9)
+                    run.font.color.rgb = RGBColor(128, 128, 128)
+
+                _add_field_run(fp, 'PAGE')
+                r_slash = fp.add_run('/')
+                r_slash.font.name = 'Calibri'
+                r_slash.font.size = Pt(9)
+                r_slash.font.color.rgb = RGBColor(128, 128, 128)
+                _add_field_run(fp, 'NUMPAGES')
+            except Exception:
+                pass
+
 
 
         # Quotation No and Date - shaded box like PDF
@@ -1107,8 +1145,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
             shd.set(qn('w:val'), 'clear')
             tcPr.append(shd)
 
+        # Repeat table header on subsequent pages when table splits across pages
+        header_trPr = table.rows[0]._tr.get_or_add_trPr()
+        header_trPr.append(OxmlElement('w:tblHeader'))
+        header_trPr.append(OxmlElement('w:cantSplit'))
+
         for idx, line in enumerate(order_lines, 1):
-            row_cells = table.add_row().cells
+            row = table.add_row()
+            row_trPr = row._tr.get_or_add_trPr()
+            row_trPr.append(OxmlElement('w:cantSplit'))
+            row_cells = row.cells
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             part_no = line.x_product_code or line.product_id.default_code or ''
             if part_no:
