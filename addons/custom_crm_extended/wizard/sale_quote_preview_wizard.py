@@ -632,8 +632,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
         total_tax_rate = sum(tax_rates)
 
         gst_on = self.x_gst_included
-        # Grand total = net + GST on net
-        grand_total = net + (net * total_tax_rate / 100) if (gst_on and tax_rates) else net
+        # Calculate GST matching the Sales Order page (order.amount_tax or standard tax on subtotal)
+        gst_amt = float(order.amount_tax) if (gst_on and order.amount_tax) else (untaxed * total_tax_rate / 100 if (gst_on and tax_rates) else 0.0)
+        # Grand total = net + GST matching sales order page
+        grand_total = net + gst_amt if gst_on else net
 
         # Totals as closing rows inside the table: Gross, Overall Discount, Flat Discount, GST, Final Total
         totals_rows = ''
@@ -641,15 +643,15 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct) or bool(flat_disc)
 
         if has_any_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Gross Amount</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Gross Amount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
         if overall_disc_pct:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
         if flat_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Flat Discount</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, _indian_format(flat_disc))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Flat Discount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, _indian_format(flat_disc))
         if gst_on and tax_rates:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">GST (%s%%)</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;"></td></tr>' % (col - 1, int(total_tax_rate))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">GST (%s%%)</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, int(total_tax_rate), _indian_format(gst_amt))
         final_label = 'Final Total Amount' if has_any_disc else 'Total Amount'
-        totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
+        totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
 
         table_html = (
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:20px') + ';font-family:Calibri,sans-serif;">'
