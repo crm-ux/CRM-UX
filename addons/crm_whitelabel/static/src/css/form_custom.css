@@ -632,3 +632,39 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #0b3d91 !important;
   border-color: #0b3d91 !important;
 }
+
+/* =========================================================================
+   Task Management Calendar Sidebar Filters:
+   Replace Odoo Purple Checkboxes on 'Assigned Employee', 'Status',
+   and all employee list items with custom theme navy blue (#0b3d91)
+   ========================================================================= */
+.o_calendar_view .o_calendar_sidebar input[type="checkbox"],
+.o_calendar_view .o_calendar_sidebar .form-check-input,
+.o_calendar_sidebar .o_calendar_filter input[type="checkbox"],
+.o_calendar_sidebar .o_calendar_filter .form-check-input,
+.o_calendar_filter_item input[type="checkbox"],
+.o_calendar_filter_item .form-check-input {
+  accent-color: #0b3d91 !important;
+}
+
+.o_calendar_view .o_calendar_sidebar .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter .form-check-input:checked,
+.o_calendar_filter_item .form-check-input:checked {
+  background-color: #0b3d91 !important;
+  border-color: #0b3d91 !important;
+  box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+.o_calendar_view .o_calendar_sidebar .form-check-input:focus,
+.o_calendar_sidebar .o_calendar_filter .form-check-input:focus,
+.o_calendar_filter_item .form-check-input:focus {
+  border-color: #0b3d91 !important;
+  box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
+}
+
+/* Checkmark SVG inside calendar sidebar checkboxes */
+.o_calendar_view .o_calendar_sidebar .form-check-input[type="checkbox"]:checked,
+.o_calendar_sidebar .o_calendar_filter .form-check-input[type="checkbox"]:checked,
+.o_calendar_filter_item .form-check-input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
