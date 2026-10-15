@@ -1290,8 +1290,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 tax_rates_d.add(float(tax.amount))
         total_tax_rate_d = sum(tax_rates_d)
         gst_on_d = self.x_gst_included
-        gst_amt_d = (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else 0.0
-        grand_total_d = net_d + gst_amt_d
+        # Calculate GST matching the Sales Order page (order.amount_tax or standard tax on subtotal)
+        gst_amt_d = float(order.amount_tax) if (gst_on_d and order.amount_tax) else (untaxed * total_tax_rate_d / 100 if (gst_on_d and tax_rates_d) else 0.0)
+        grand_total_d = net_d + gst_amt_d if gst_on_d else net_d
 
         def _add_total_row(label, value):
             ncols = len(headers)
