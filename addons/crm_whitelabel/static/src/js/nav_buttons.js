@@ -229,15 +229,29 @@ patch(ControlPanel.prototype, {
         }
 
         const actionService = this.action;
-        const currentAction = actionService.currentController?.action;
+        const currentController = actionService.currentController;
+        const currentAction = currentController?.action;
         if (currentAction) {
-            // Keep a clean copy of the initial action domain so switching filters never corrupts Polish notation
-            if (!currentAction._cleanBaseDomain) {
-                currentAction._cleanBaseDomain = Array.isArray(currentAction.domain) ? [...currentAction.domain] : [];
+            // Find the underlying raw action XML/DB domain or clean base domain
+            if (!window._crm_clean_base_domains) {
+                window._crm_clean_base_domains = {};
             }
-            const baseDomain = [...currentAction._cleanBaseDomain];
+            const actionKey = currentAction.id || currentAction.xml_id || currentAction.name || resModel;
+            if (!window._crm_clean_base_domains[actionKey]) {
+                // Strip any existing employee filter domain fragments
+                const raw = Array.isArray(currentAction.domain) ? currentAction.domain : [];
+                window._crm_clean_base_domains[actionKey] = raw.filter(item => {
+                    if (Array.isArray(item)) {
+                        return !['user_id', 'x_assign_to_id', 'create_uid', 'engineer_id'].includes(item[0]);
+                    }
+                    return true;
+                });
+            }
+
+            const baseDomain = [...window._crm_clean_base_domains[actionKey]];
             const newDomain = [...baseDomain, ...domain];
             const existingContext = currentAction.context || {};
+
             actionService.doAction({
                 ...currentAction,
                 domain: newDomain,
