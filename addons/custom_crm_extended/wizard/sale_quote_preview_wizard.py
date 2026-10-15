@@ -1460,22 +1460,41 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     with open(docx_path, 'wb') as f:
                         f.write(docx_bytes)
 
+                    # LibreOffice needs a writable HOME or UserInstallation directory
                     user_profile_dir = os.path.join(tmp_dir, 'lo_profile')
+                    os.makedirs(user_profile_dir, exist_ok=True)
                     cmd = [
                         libreoffice_bin,
                         '--headless',
-                        '-env:UserInstallation=file://' + user_profile_dir,
+                        '--invisible',
+                        '--nocrashreport',
+                        '--nodefault',
+                        '--nofirststartwizard',
+                        '--nolockcheck',
+                        '--nologo',
+                        '-env:UserInstallation=file://' + os.path.abspath(user_profile_dir).replace('\\', '/'),
                         '--convert-to',
-                        'pdf',
+                        'pdf:writer_pdf_Export',
                         docx_path,
                         '--outdir',
                         tmp_dir
                     ]
+                    env = dict(os.environ)
+                    env['HOME'] = tmp_dir
                     _log.info("Converting quotation DOCX to PDF via LibreOffice: %s", cmd)
-                    res = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60)
-                    _log.info("LibreOffice output: stdout=%s, stderr=%s", res.stdout, res.stderr)
+                    res = subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60, env=env)
+                    _log.info("LibreOffice exit=%s stdout=%s stderr=%s", res.returncode, res.stdout.decode('utf-8', errors='ignore'), res.stderr.decode('utf-8', errors='ignore'))
 
-                    pdf_path = os.path.join(tmp_dir, 'quotation.pdf')
+                    # LibreOffice outputs with same basename as input: quotation.pdf
+                    base_name, _ = os.path.splitext(os.path.basename(docx_path))
+                    pdf_path = os.path.join(tmp_dir, base_name + '.pdf')
+                    if not os.path.exists(pdf_path):
+                        # Search for any .pdf generated in tmp_dir
+                        for f in os.listdir(tmp_dir):
+                            if f.endswith('.pdf'):
+                                pdf_path = os.path.join(tmp_dir, f)
+                                break
+
                     if os.path.exists(pdf_path):
                         with open(pdf_path, 'rb') as f:
                             pdf_data = f.read()
@@ -1494,8 +1513,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             'url': '/web/content/%s?download=true' % attachment.id,
                             'target': 'new',
                         }
+                    else:
+                        _log.warning("LibreOffice finished with returncode %s but %s was not found.", res.returncode, pdf_path)
             except Exception as e:
-                _log.error("LibreOffice DOCX-to-PDF conversion failed, falling back to QWeb: %s", e)
+                _log.exception("LibreOffice DOCX-to-PDF conversion failed, falling back to QWeb: %s", e)
 
         # Fallback to standard QWeb PDF if LibreOffice is not installed
         self._rebuild_document_html()
