@@ -1272,10 +1272,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     r = p.add_run(val)
                     r.font.name = 'Calibri'
                     r.font.size = Pt(10)
-                    if i in (4, len(row_data) - 1):
-                        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                    else:
-                        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                     # Apply width and nowrap to numeric/code columns (all except description)
                     format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=20, right=20, nowrap=True)
 
@@ -1332,7 +1329,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             vp.paragraph_format.space_before = Pt(0)
             vp.paragraph_format.space_after = Pt(0)
             vp.paragraph_format.line_spacing = 1.0
-            vp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            vp.alignment = WD_ALIGN_PARAGRAPH.CENTER
             vr = vp.add_run(str(value))
             vr.bold = True
             vr.font.name = 'Calibri'
