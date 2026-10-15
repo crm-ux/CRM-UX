@@ -101,6 +101,9 @@ patch(ControlPanel.prototype, {
     goDashboard() {
         this.action.doAction(435);
     },
+    openAssignWorkWizard() {
+        this.action.doAction("custom_crm_extended.action_crm_task_assign_wizard");
+    },
     async createNewLead() {
         const wizardId = await this.orm.create("crm.lead.wizard", [{ step: 1 }]);
         this.action.doAction({

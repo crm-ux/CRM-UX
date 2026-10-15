@@ -7,11 +7,7 @@
         <field name="name">crm.task.management.calendar</field>
         <field name="model">crm.task.management</field>
         <field name="arch" type="xml">
-            <calendar string="Task Calendar" 
-                      date_start="date_deadline" 
-                      color="state" 
-                      mode="month"
-                      quick_create="0">
+            <calendar string="Task Calendar" date_start="date_deadline" color="state" mode="month" quick_create="0">
                 <field name="name"/>
                 <field name="assigned_to_id" avatar_field="avatar_128"/>
                 <field name="assigned_by_id"/>
@@ -134,21 +130,20 @@
         <field name="arch" type="xml">
             <search string="Search Tasks">
                 <field name="name" string="Task"/>
-                <field name="assigned_to_id" string="Assigned Employee"/>
-                <field name="assigned_by_id" string="Assigned By"/>
-                <field name="related_record_display" string="Linked Record"/>
+                <field name="assigned_to_id"/>
+                <field name="assigned_by_id"/>
+                <field name="related_record_display"/>
                 <separator/>
-                <filter name="filter_assigned_by_me" string="Assigned By Me" domain="[('assigned_by_id', '=', uid)]"/>
-                <filter name="filter_assigned_to_me" string="Assigned To Me" domain="[('assigned_to_id', '=', uid)]"/>
+                <filter string="Assigned By Me" name="assigned_by_me" domain="[('assigned_by_id', '=', uid)]"/>
+                <filter string="Assigned To Me" name="assigned_to_me" domain="[('assigned_to_id', '=', uid)]"/>
                 <separator/>
-                <filter name="filter_pending" string="Pending" domain="[('state', '=', 'pending')]"/>
-                <filter name="filter_in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
-                <filter name="filter_done" string="Done" domain="[('state', '=', 'done')]"/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
                 <group expand="0" string="Group By">
-                    <filter name="group_assigned_to" string="Assigned Employee" context="{'group_by': 'assigned_to_id'}"/>
-                    <filter name="group_assigned_by" string="Assigned By" context="{'group_by': 'assigned_by_id'}"/>
-                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_deadline" string="Deadline" context="{'group_by': 'date_deadline:month'}"/>
+                    <filter string="Assigned Employee" name="group_assigned_to" context="{'group_by': 'assigned_to_id'}"/>
+                    <filter string="Assigned By" name="group_assigned_by" context="{'group_by': 'assigned_by_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 </group>
             </search>
         </field>
