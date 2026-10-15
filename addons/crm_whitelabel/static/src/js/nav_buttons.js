@@ -212,7 +212,13 @@ patch(ControlPanel.prototype, {
         if (val !== "all") {
             const uid = parseInt(val);
             if (resModel === 'crm.lead') {
-                domain = ['|', ['user_id', '=', uid], ['x_assign_to_id', '=', uid]];
+                // When assigned, only the assigned employee sees the lead.
+                // If not assigned yet, the creator/salesperson sees it.
+                domain = [
+                    '|',
+                    '&', ['x_assign_to_id', '!=', false], ['x_assign_to_id', '=', uid],
+                    '&', ['x_assign_to_id', '=', false], ['user_id', '=', uid]
+                ];
             } else if (resModel === 'sale.order') {
                 domain = [['user_id', '=', uid]];
             } else if (userField && userField !== 'create_uid') {
