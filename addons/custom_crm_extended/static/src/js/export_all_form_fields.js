@@ -78,6 +78,15 @@ export async function exportAllFormFields(env) {
         }
     }
 
+    // Prepend 'External ID' (id) as the very first column so re-importing UPDATES records instead of duplicating
+    if (!formFields.some((f) => f.name === "id")) {
+        formFields.unshift({
+            name: "id",
+            label: "External ID",
+            type: "char",
+        });
+    }
+
     if (!formFields.length) {
         return;
     }
@@ -106,7 +115,7 @@ export async function exportAllFormFields(env) {
     // 3. Call Odoo's native /web/export/xlsx
     const exportData = {
         data: JSON.stringify({
-            import_compat: false,
+            import_compat: true,
             context: env.searchModel?.context || {},
             domain: domain,
             fields: formFields,
