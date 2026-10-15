@@ -190,27 +190,6 @@ class ResUsers(models.Model):
             except Exception:
                 task_rec = False
 
-            # 3. Activity on res.partner (which natively supports mail.activity.mixin)
-            act_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
-            if not act_type:
-                act_type = self.env['mail.activity.type'].sudo().search([('res_model', 'in', ['res.partner', False])], limit=1)
-            if not act_type:
-                act_type = self.env['mail.activity.type'].sudo().search([], limit=1)
-
-            if act_type:
-                try:
-                    self.env['mail.activity'].sudo().create({
-                        'res_model_id': self.env['ir.model'].sudo().search([('model', '=', 'res.partner')], limit=1).id,
-                        'res_id': target_partner.id,
-                        'activity_type_id': act_type.id,
-                        'summary': clean_title,
-                        'note': clean_note,
-                        'user_id': target_user.id,
-                        'date_deadline': deadline or fields.Date.today(),
-                    })
-                except Exception:
-                    pass
-
             # 3. Notification Message
             body_text = f"<b>New Task: {clean_title}</b>"
             if clean_note:

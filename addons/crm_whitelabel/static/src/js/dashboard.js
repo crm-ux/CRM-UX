@@ -1495,6 +1495,26 @@ class CrmDashboard extends Component {
                         attachedFileName = attMatch[1].trim();
                     }
 
+                    // Convert UTC timestamp from Odoo database to user's local browser timezone
+                    let localFormattedDate = '';
+                    if (m.date) {
+                        try {
+                            const utcDate = new Date(m.date.replace(' ', 'T') + 'Z');
+                            if (!isNaN(utcDate.getTime())) {
+                                const yyyy = utcDate.getFullYear();
+                                const mm = String(utcDate.getMonth() + 1).padStart(2, '0');
+                                const dd = String(utcDate.getDate()).padStart(2, '0');
+                                const hh = String(utcDate.getHours()).padStart(2, '0');
+                                const min = String(utcDate.getMinutes()).padStart(2, '0');
+                                localFormattedDate = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+                            } else {
+                                localFormattedDate = m.date.substring(0, 16);
+                            }
+                        } catch (err) {
+                            localFormattedDate = m.date.substring(0, 16);
+                        }
+                    }
+
                     return {
                         id: m.id,
                         res_id: m.res_id,
@@ -1504,7 +1524,7 @@ class CrmDashboard extends Component {
                         task_note: taskInstructions,
                         attachment_name: attachedFileName,
                         attachment_ids: m.attachment_ids || [],
-                        date: m.date ? m.date.substring(0, 16) : ''
+                        date: localFormattedDate
                     };
                 });
             } catch (e) {

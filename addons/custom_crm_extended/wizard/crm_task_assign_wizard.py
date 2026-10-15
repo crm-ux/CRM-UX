@@ -87,30 +87,10 @@ class CrmTaskAssignWizard(models.TransientModel):
             'state': 'pending',
         })
 
-        # 2. Activity and notification to the assigned user with Direct Link
+        # 2. Notification message to assigned user with Direct Clickable Link
         sender = self.env.user
         target_partner = self.assigned_to_id.partner_id
         if target_partner:
-            act_type = self.env.ref('mail.mail_activity_data_todo', raise_if_not_found=False)
-            if not act_type:
-                act_type = self.env['mail.activity.type'].sudo().search([('res_model', 'in', ['res.partner', False])], limit=1)
-            if not act_type:
-                act_type = self.env['mail.activity.type'].sudo().search([], limit=1)
-
-            if act_type:
-                try:
-                    self.env['mail.activity'].sudo().create({
-                        'res_model_id': self.env['ir.model'].sudo().search([('model', '=', 'crm.task.management')], limit=1).id,
-                        'res_id': task_rec.id,
-                        'activity_type_id': act_type.id,
-                        'summary': self.name.strip(),
-                        'note': self.instructions or '',
-                        'user_id': self.assigned_to_id.id,
-                        'date_deadline': self.date_deadline or fields.Date.today(),
-                    })
-                except Exception:
-                    pass
-
             # Direct mail message with clickable task link
             base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', '')
             task_link = f"{base_url}/web#id={task_rec.id}&model=crm.task.management&view_type=form"
