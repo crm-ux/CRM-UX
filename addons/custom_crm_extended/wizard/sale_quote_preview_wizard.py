@@ -1108,21 +1108,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if total_dxa <= 0:
             total_dxa = 9605
 
-        # Ratios matching MS Word:
-        # Without Discount: SR: 4.5%, Item Desc: 54.5%, HSN: 11.0%, Qty: 5.0%, Unit Price: 12.5%, Amount: 12.5%
-        # With Discount:    SR: 4.5%, Item Desc: 48.5%, HSN: 10.0%, Qty: 4.5%, Unit Price: 11.0%, Disc: 8.5%, Amount: 13.0%
-        # Ratios matching MS Word:
-        # With Discount:    SR: 5%, Item Desc: 46%, HSN: 12%, Qty: 6%, Unit Price: 11%, Disc: 9%, Amount: 11%
-        # Without Discount: SR: 5%, Item Desc: 52%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
+        # Balanced Column Ratios:
+        # With Discount (7 cols):    SR: 6%, Item Desc: 41%, HSN: 13%, Qty: 6%, Unit Price: 11%, Disc: 11%, Amount: 12%
+        # Without Discount (6 cols): SR: 6%, Item Desc: 51%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
         if has_discount:
-            col_weights = [0.05, 0.46, 0.12, 0.06, 0.11, 0.09, 0.11]
+            col_weights = [0.06, 0.41, 0.13, 0.06, 0.11, 0.11, 0.12]
         else:
-            col_weights = [0.05, 0.52, 0.13, 0.06, 0.12, 0.12]
+            col_weights = [0.06, 0.51, 0.13, 0.06, 0.12, 0.12]
 
         col_dxa = [int(total_dxa * w) for w in col_weights]
-        # Adjust last column to absorb rounding difference
         col_dxa[-1] += total_dxa - sum(col_dxa)
-        col_widths = [dxa / 1440.0 for dxa in col_dxa]
+        col_widths = [_Inches(dxa / 1440.0) for dxa in col_dxa]
+
+        for i, w in enumerate(col_widths):
+            table.columns[i].width = w
 
         tblPr = table._tbl.tblPr
 
@@ -1145,8 +1144,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             tblGrid.append(gridCol)
         tblPr.addnext(tblGrid)
 
-        # Compact cell padding (top=40, bottom=40, left=80, right=80 dxa) to prevent unnecessary row height
-        def set_cell_margins(cell, top=40, bottom=40, left=80, right=80):
+        # Compact cell padding (top=40, bottom=40, left=40, right=40 dxa) to prevent unnecessary wrapping
+        def set_cell_margins(cell, top=40, bottom=40, left=40, right=40):
             tc = cell._tc
             tcPr = tc.get_or_add_tcPr()
             tcMar = _OEM('w:tcMar')
@@ -1160,7 +1159,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         def apply_row_cell_widths(row_cells):
             for i, dxa in enumerate(col_dxa):
                 if i < len(row_cells):
-                    row_cells[i].width = _Inches(dxa / 1440.0)
+                    row_cells[i].width = col_widths[i]
                     tcPr = row_cells[i]._tc.get_or_add_tcPr()
                     for existing_w in tcPr.findall(_qnm('w:tcW')):
                         tcPr.remove(existing_w)
@@ -1173,11 +1172,18 @@ class SaleQuotePreviewWizard(models.TransientModel):
         apply_row_cell_widths(hdr_cells)
 
         for i, h in enumerate(headers):
-            p = hdr_cells[i].paragraphs[0]
+            cell = hdr_cells[i]
+            set_cell_margins(cell, top=60, bottom=60, left=30, right=30)
+            p = cell.paragraphs[0]
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(0)
+            p.paragraph_format.line_spacing = 1.0
             run = p.add_run(h)
             run.bold = True
+            run.font.name = 'Calibri'
+            run.font.size = Pt(10)
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            tc = hdr_cells[i]._tc
+            tc = cell._tc
             tcPr = tc.get_or_add_tcPr()
             shd = OxmlElement('w:shd')
             shd.set(qn('w:fill'), 'D9E1F2')
