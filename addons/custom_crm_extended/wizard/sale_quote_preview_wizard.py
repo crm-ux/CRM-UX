@@ -578,6 +578,31 @@ class SaleQuotePreviewWizard(models.TransientModel):
             else:
                 prev_product_line = line.id
 
+        # Dynamic column widths synchronized across colgroup, <th> and <td>
+        if has_discount_pdf:
+            c_widths = ['5%', '46%', '11%', '5%', '11%', '10%', '12%']
+            colgroup_html = '<colgroup>' + ''.join('<col style="width:%s;"/>' % w for w in c_widths) + '</colgroup>'
+            th_html = (
+                '<th style="width:5%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">SR No.</th>'
+                '<th style="width:46%;padding:0.4em 0.5em;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Item Description</th>'
+                '<th style="width:11%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">HSN</th>'
+                '<th style="width:5%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Qty</th>'
+                '<th style="width:11%;padding:0.4em 0.5em;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Unit Price</th>'
+                '<th style="width:10%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Discount %</th>'
+                '<th style="width:12%;padding:0.4em 0.5em;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Amount</th>'
+            )
+        else:
+            c_widths = ['5%', '52%', '12%', '5%', '13%', '13%']
+            colgroup_html = '<colgroup>' + ''.join('<col style="width:%s;"/>' % w for w in c_widths) + '</colgroup>'
+            th_html = (
+                '<th style="width:5%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">SR No.</th>'
+                '<th style="width:52%;padding:0.4em 0.5em;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Item Description</th>'
+                '<th style="width:12%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">HSN</th>'
+                '<th style="width:5%;padding:0.4em 0.3em;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Qty</th>'
+                '<th style="width:13%;padding:0.4em 0.5em;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Unit Price</th>'
+                '<th style="width:13%;padding:0.4em 0.5em;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;font-size:1em;">Amount</th>'
+            )
+
         for line in order_lines_pdf:
             if line.display_type:
                 continue
@@ -600,32 +625,24 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><i style="color:#333;">%s</i>' % n
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
-                rows += ('<tr><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td></tr>') % (idx2, desc, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
+                rows += ('<tr>'
+                         '<td style="width:5%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;word-wrap:break-word;">%s</td>'
+                         '<td style="width:46%%;padding:0.35em 0.5em;border:1px solid #000;word-wrap:break-word;">%s</td>'
+                         '<td style="width:11%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '<td style="width:5%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;">%s</td>'
+                         '<td style="width:11%%;text-align:right;padding:0.35em 0.5em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '<td style="width:10%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '<td style="width:12%%;text-align:right;padding:0.35em 0.5em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '</tr>') % (idx2, desc, hsn, qty, _indian_format(unit_price), disc_str, _indian_format(amount))
             else:
-                rows += ('<tr><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td></tr>') % (idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
-
-        # Dynamic column widths synchronized across <th> and <td>
-        if has_discount_pdf:
-            c_widths = ['5%', '46%', '11%', '5%', '11%', '10%', '12%']
-            th_html = (
-                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">SR No.</th>'
-                '<th style="width:46%;padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;">Item Description</th>'
-                '<th style="width:11%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">HSN</th>'
-                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Qty</th>'
-                '<th style="width:11%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Unit Price</th>'
-                '<th style="width:10%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Discount %</th>'
-                '<th style="width:12%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Amount</th>'
-            )
-        else:
-            c_widths = ['5%', '52%', '12%', '5%', '13%', '13%']
-            th_html = (
-                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">SR No.</th>'
-                '<th style="width:52%;padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;">Item Description</th>'
-                '<th style="width:12%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">HSN</th>'
-                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Qty</th>'
-                '<th style="width:13%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Unit Price</th>'
-                '<th style="width:13%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Amount</th>'
-            )
+                rows += ('<tr>'
+                         '<td style="width:5%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;word-wrap:break-word;">%s</td>'
+                         '<td style="width:52%%;padding:0.35em 0.5em;border:1px solid #000;word-wrap:break-word;">%s</td>'
+                         '<td style="width:12%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '<td style="width:5%%;text-align:center;padding:0.35em 0.3em;border:1px solid #000;">%s</td>'
+                         '<td style="width:13%%;text-align:right;padding:0.35em 0.5em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '<td style="width:13%%;text-align:right;padding:0.35em 0.5em;border:1px solid #000;white-space:nowrap;">%s</td>'
+                         '</tr>') % (idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
         # Overall discount totals
         totals_html = '<p style="margin:4px 0;">Gross Total Amount INR: <b>%s</b></p>' % int(order.amount_untaxed)
@@ -673,13 +690,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
             '<div style="' + ('page-break-before:always' if (bool(re.sub(r'<[^>]+>', '', str(self.technical_specs_html or '')).strip()) or bool(self.quote_image_ids)) else 'margin-top:20px') + ';font-family:Calibri,sans-serif;">'
             '<p style="text-align:center;font-size:14px;font-weight:bold;margin:12px 0 10px 0;color:#2F5597;">Quotation</p>'
             '<table style="width:100%%;border-collapse:collapse;font-size:11px;table-layout:fixed;border:1px solid #000;">'
+            '%s'
             '<thead><tr>%s</tr></thead>'
             '<tbody>%s</tbody>'
             '</table>'
             '<div style="display:none;">%s</div>'
             '</div>'
         )
-        table_html = table_html % (th_html, rows + totals_rows, totals_html)
+        table_html = table_html % (colgroup_html, th_html, rows + totals_rows, totals_html)
 
         # ── TERMS ──
         terms_html = ''
