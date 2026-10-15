@@ -553,55 +553,82 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* =========================================================================
-   Custom Brand Blue for All Checkboxes, Radio Buttons, and Switches
-   Replaces default Odoo purple (#714B67 / #71639e) with #0b3d91
+   Custom Brand Blue for Task Management & Assign Work Wizard ONLY
+   (Checkboxes, Radio buttons, and Toggles)
    ========================================================================= */
-:root {
+.crm-assign-work-wizard-form,
+.modal-dialog:has(.crm-assign-work-wizard-form),
+.modal-dialog:has([name="crm.task.assign.wizard"]),
+.crm-task-management-form,
+.o_form_view:has([name="crm.task.management"]),
+.o_form_view[name="crm.task.management"] {
   --o-form-check-input-checked-bg: #0b3d91 !important;
   --o-form-check-input-checked-border-color: #0b3d91 !important;
 }
 
-/* 1. Standard HTML & Bootstrap Checkboxes & Radios */
-input[type="checkbox"],
-input[type="radio"],
-.form-check-input,
-.o_field_boolean input[type="checkbox"],
-.o_field_radio input[type="radio"],
-.o_boolean_toggle input[type="checkbox"] {
+/* 1. Checkboxes & Radios strictly scoped to Task Management & Assign Work */
+.crm-assign-work-wizard-form input[type="checkbox"],
+.crm-assign-work-wizard-form input[type="radio"],
+.crm-assign-work-wizard-form .form-check-input,
+.modal:has(.crm-assign-work-wizard-form) input[type="checkbox"],
+.modal:has(.crm-assign-work-wizard-form) input[type="radio"],
+.modal:has(.crm-assign-work-wizard-form) .form-check-input,
+.crm-task-management-form input[type="checkbox"],
+.crm-task-management-form input[type="radio"],
+.crm-task-management-form .form-check-input,
+.o_form_view:has([name="crm.task.management"]) input[type="checkbox"],
+.o_form_view:has([name="crm.task.management"]) input[type="radio"],
+.o_form_view:has([name="crm.task.management"]) .form-check-input {
   accent-color: #0b3d91 !important;
 }
 
-.form-check-input:checked,
-.form-check-input[type="checkbox"]:checked,
-.form-check-input[type="radio"]:checked,
-.o_field_boolean .form-check-input:checked,
-.o_field_radio .form-check-input:checked,
-.o_boolean_toggle .form-check-input:checked {
+.crm-assign-work-wizard-form .form-check-input:checked,
+.crm-assign-work-wizard-form .form-check-input[type="checkbox"]:checked,
+.crm-assign-work-wizard-form .form-check-input[type="radio"]:checked,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input:checked,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input[type="checkbox"]:checked,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input[type="radio"]:checked,
+.crm-task-management-form .form-check-input:checked,
+.crm-task-management-form .form-check-input[type="checkbox"]:checked,
+.crm-task-management-form .form-check-input[type="radio"]:checked,
+.o_form_view:has([name="crm.task.management"]) .form-check-input:checked,
+.o_form_view:has([name="crm.task.management"]) .form-check-input[type="checkbox"]:checked,
+.o_form_view:has([name="crm.task.management"]) .form-check-input[type="radio"]:checked {
   background-color: #0b3d91 !important;
   border-color: #0b3d91 !important;
   box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
-.form-check-input:focus,
-input[type="checkbox"]:focus,
-input[type="radio"]:focus {
+.crm-assign-work-wizard-form .form-check-input:focus,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input:focus,
+.crm-task-management-form .form-check-input:focus,
+.o_form_view:has([name="crm.task.management"]) .form-check-input:focus {
   border-color: #0b3d91 !important;
   outline: 0 !important;
   box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
 }
 
 /* 2. Custom Checkbox SVG checkmark rendering */
-.form-check-input[type="checkbox"]:checked {
+.crm-assign-work-wizard-form .form-check-input[type="checkbox"]:checked,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input[type="checkbox"]:checked,
+.crm-task-management-form .form-check-input[type="checkbox"]:checked,
+.o_form_view:has([name="crm.task.management"]) .form-check-input[type="checkbox"]:checked {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
 }
 
 /* 3. Custom Radio SVG dot rendering */
-.form-check-input[type="radio"]:checked {
+.crm-assign-work-wizard-form .form-check-input[type="radio"]:checked,
+.modal:has(.crm-assign-work-wizard-form) .form-check-input[type="radio"]:checked,
+.crm-task-management-form .form-check-input[type="radio"]:checked,
+.o_form_view:has([name="crm.task.management"]) .form-check-input[type="radio"]:checked {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
 }
 
-/* 4. Odoo Boolean Toggle Switch */
-.o_boolean_toggle.form-switch .form-check-input:checked {
+/* 4. Boolean Toggle Switch */
+.crm-assign-work-wizard-form .o_boolean_toggle.form-switch .form-check-input:checked,
+.modal:has(.crm-assign-work-wizard-form) .o_boolean_toggle.form-switch .form-check-input:checked,
+.crm-task-management-form .o_boolean_toggle.form-switch .form-check-input:checked,
+.o_form_view:has([name="crm.task.management"]) .o_boolean_toggle.form-switch .form-check-input:checked {
   background-color: #0b3d91 !important;
   border-color: #0b3d91 !important;
 }
