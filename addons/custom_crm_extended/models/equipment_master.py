@@ -567,13 +567,13 @@ class EquipmentMaster(models.Model):
                 for row in data:
                     eq_val = str(row[eq_idx]).strip() if eq_idx < len(row) and row[eq_idx] is not None else ''
                     if eq_val:
-                        existing = self.search([('equipment_id', '=', eq_val)], limit=1)
+                        existing = self.sudo().search([('equipment_id', '=', eq_val)], limit=1)
                         if existing:
-                            xml_ids = existing.get_external_id()
+                            xml_ids = existing.sudo().get_external_id()
                             xml_id = xml_ids.get(existing.id)
                             if not xml_id:
                                 xml_id = f"__import__.equipment_master_{existing.id}"
-                                self.env['ir.model.data'].create({
+                                self.env['ir.model.data'].sudo().create({
                                     'name': f"equipment_master_{existing.id}",
                                     'module': '__import__',
                                     'model': 'equipment.master',
