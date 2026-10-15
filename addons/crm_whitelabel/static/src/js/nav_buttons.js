@@ -231,29 +231,11 @@ patch(ControlPanel.prototype, {
         const actionService = this.action;
         const currentAction = actionService.currentController?.action;
         if (currentAction) {
-            // Remove previous employee filter domains cleanly
-            const baseDomain = [];
-            const rawDomain = currentAction.domain || [];
-            let i = 0;
-            while (i < rawDomain.length) {
-                const item = rawDomain[i];
-                if (item === '|' && i + 2 < rawDomain.length) {
-                    const c1 = rawDomain[i + 1];
-                    const c2 = rawDomain[i + 2];
-                    if (Array.isArray(c1) && (c1[0] === userField || c1[0] === 'x_assign_to_id' || c1[0] === 'create_uid') &&
-                        Array.isArray(c2) && (c2[0] === userField || c2[0] === 'x_assign_to_id' || c2[0] === 'create_uid')) {
-                        i += 3;
-                        continue;
-                    }
-                }
-                if (Array.isArray(item) && (item[0] === userField || item[0] === 'x_assign_to_id' || item[0] === 'create_uid') && item[1] === '=') {
-                    i += 1;
-                    continue;
-                }
-                baseDomain.push(item);
-                i += 1;
+            // Keep a clean copy of the initial action domain so switching filters never corrupts Polish notation
+            if (!currentAction._cleanBaseDomain) {
+                currentAction._cleanBaseDomain = Array.isArray(currentAction.domain) ? [...currentAction.domain] : [];
             }
-
+            const baseDomain = [...currentAction._cleanBaseDomain];
             const newDomain = [...baseDomain, ...domain];
             const existingContext = currentAction.context || {};
             actionService.doAction({
