@@ -1287,6 +1287,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             for tax in line.tax_ids:
                 tax_rates_d.add(float(tax.amount))
         total_tax_rate_d = sum(tax_rates_d)
+        gst_on_d = self.x_gst_included
         gst_amt_d = (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else 0.0
         grand_total_d = net_d + gst_amt_d
 
