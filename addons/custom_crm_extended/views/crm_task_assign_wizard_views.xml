@@ -50,7 +50,7 @@
 
                     <!-- Dynamic Linked Record Pickers -->
                     <div class="crm-wizard-group mt-2" invisible="not related_model">
-                        <label string="Select Record" class="crm-wizard-label"/>
+                        <span class="o_form_label crm-wizard-label">Select Record</span>
                         <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
                         <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
                         <field name="partner_id" invisible="related_model != 'res.partner'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Customer..."/>
