@@ -546,6 +546,53 @@ class EquipmentMaster(models.Model):
                 return False
         return super(EquipmentMaster, self).check_access_rights(operation, raise_exception=raise_exception)
 
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        res = super(EquipmentMaster, self).fields_get(allfields=allfields, attributes=attributes)
+        # When in import screen, allow 'equipment_id' to be mapped so users can map 'Equipment Id' column
+        if 'equipment_id' in res and self.env.context.get('import_compat'):
+            res['equipment_id']['readonly'] = False
+        return res
+
+    @api.model
+    def load(self, fields, data):
+        """Allow users to import an Excel sheet containing 'equipment_id' (e.g. 'EQ-0001').
+        Automatically links to existing equipment records via External ID behind the scenes,
+        so records are UPDATED in place without duplicating or violating readonly/unique constraints.
+        """
+        if 'equipment_id' in fields:
+            eq_idx = fields.index('equipment_id')
+            if 'id' not in fields:
+                fields.append('id')
+                for row in data:
+                    eq_val = str(row[eq_idx]).strip() if eq_idx < len(row) and row[eq_idx] is not None else ''
+                    if eq_val:
+                        existing = self.search([('equipment_id', '=', eq_val)], limit=1)
+                        if existing:
+                            xml_ids = existing.get_external_id()
+                            xml_id = xml_ids.get(existing.id)
+                            if not xml_id:
+                                xml_id = f"__import__.equipment_master_{existing.id}"
+                                self.env['ir.model.data'].create({
+                                    'name': f"equipment_master_{existing.id}",
+                                    'module': '__import__',
+                                    'model': 'equipment.master',
+                                    'res_id': existing.id,
+                                })
+                            row.append(xml_id)
+                        else:
+                            row.append('')
+                    else:
+                        row.append('')
+            # Remove equipment_id from the fields list so Odoo's import validator
+            # doesn't complain about equipment_id being readonly. The existing record is already linked by 'id'!
+            fields.pop(eq_idx)
+            for row in data:
+                if eq_idx < len(row):
+                    row.pop(eq_idx)
+
+        return super(EquipmentMaster, self).load(fields, data)
+
     @api.model_create_multi
     def create(self, vals_list):
         user = self.env.user
