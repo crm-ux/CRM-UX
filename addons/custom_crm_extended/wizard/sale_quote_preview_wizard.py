@@ -1287,8 +1287,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             for tax in line.tax_ids:
                 tax_rates_d.add(float(tax.amount))
         total_tax_rate_d = sum(tax_rates_d)
-        gst_on_d = self.x_gst_included
-        grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
+        gst_amt_d = (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else 0.0
+        grand_total_d = net_d + gst_amt_d
 
         def _add_total_row(label, value):
             ncols = len(headers)
@@ -1346,7 +1346,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         if flat_disc_d:
             _add_total_row('Flat Discount', '- ' + _indian_format(flat_disc_d))
         if gst_on_d and tax_rates_d:
-            _add_total_row('GST (%s%%)' % int(total_tax_rate_d), '')
+            _add_total_row('GST (%s%%)' % int(total_tax_rate_d), _indian_format(gst_amt_d))
         final_label_d = 'Final Total Amount' if has_any_disc_d else 'Total Amount'
         _add_total_row(final_label_d, _indian_format(grand_total_d))
 
