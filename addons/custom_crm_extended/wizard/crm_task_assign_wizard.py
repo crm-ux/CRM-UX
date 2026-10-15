@@ -42,6 +42,18 @@ class CrmTaskAssignWizard(models.TransientModel):
     ], string='Repeat Every', default='monthly')
     recurrence_end_date = fields.Date(string='Repeat Until')
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super(CrmTaskAssignWizard, self).default_get(fields_list)
+        # Prefill deadline if passed from calendar slot click (default_date_deadline, default_date_start, or initial_date)
+        deadline = self.env.context.get('default_date_deadline') or self.env.context.get('default_date_start')
+        if not deadline and self.env.context.get('initial_date'):
+            deadline = self.env.context.get('initial_date')
+        if deadline and 'date_deadline' in fields_list and not res.get('date_deadline'):
+            # If string contains time (e.g. '2026-10-24 00:00:00'), slice to date YYYY-MM-DD
+            res['date_deadline'] = str(deadline)[:10]
+        return res
+
     @api.onchange('related_model')
     def _onchange_related_model(self):
         self.lead_id = False

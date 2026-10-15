@@ -10,7 +10,8 @@
             <calendar string="Task Calendar" 
                       date_start="date_deadline" 
                       color="assigned_to_id" 
-                      mode="month">
+                      mode="month"
+                      quick_create="0">
                 <field name="name"/>
                 <field name="assigned_to_id" avatar_field="avatar_128" write_model="res.users" write_field="partner_id"/>
                 <field name="assigned_by_id"/>

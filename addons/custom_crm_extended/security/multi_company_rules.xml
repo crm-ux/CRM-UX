@@ -124,7 +124,7 @@
             <field name="global" eval="True"/>
             <field name="domain_force">
                 ['|', '|',
-                    '&amp;', ('assigned_to_id', '=', user.id), ('is_unlocked', '=', True),
+                    ('assigned_to_id', '=', user.id),
                     ('assigned_by_id', '=', user.id),
                     ('assigned_to_id', 'in', user._get_all_subordinates().ids)
                 ]
