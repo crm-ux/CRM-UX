@@ -552,7 +552,26 @@ class EquipmentMaster(models.Model):
         if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_equipment_create', False):
                 raise UserError(_("Access Denied: You do not have permission to create Equipment Master records."))
-        return super(EquipmentMaster, self).create(vals_list)
+
+        # If importing with Equipment ID already existing, UPDATE existing record instead of failing unique constraint
+        records = self.browse()
+        to_create = []
+        for vals in vals_list:
+            eq_id = vals.get('equipment_id')
+            if eq_id:
+                existing = self.search([('equipment_id', '=', str(eq_id).strip())], limit=1)
+                if existing:
+                    # Filter out readonly or non-writeable fields
+                    update_vals = {k: v for k, v in vals.items() if k not in ('id', 'equipment_id')}
+                    existing.write(update_vals)
+                    records |= existing
+                    continue
+            to_create.append(vals)
+
+        if to_create:
+            records |= super(EquipmentMaster, self).create(to_create)
+
+        return records
 
     def write(self, vals):
         user = self.env.user
