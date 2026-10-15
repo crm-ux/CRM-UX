@@ -1124,15 +1124,23 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         tblPr = table._tbl.tblPr
 
+        # Remove any existing tblW, tblLayout, tblGrid
+        for el in tblPr.findall(_qnm('w:tblW')):
+            tblPr.remove(el)
+        for el in tblPr.findall(_qnm('w:tblLayout')):
+            tblPr.remove(el)
+        for el in table._tbl.findall(_qnm('w:tblGrid')):
+            table._tbl.remove(el)
+
         # 1. Force fixed table layout so LibreOffice strictly respects column widths
         tblLayout = _OEM('w:tblLayout')
         tblLayout.set(_qnm('w:type'), 'fixed')
         tblPr.append(tblLayout)
 
-        # 2. Set explicit table width in dxa
+        # 2. Set table width to auto so LibreOffice does NOT dump excess width into the last column
         tblW = _OEM('w:tblW')
-        tblW.set(_qnm('w:w'), str(total_dxa))
-        tblW.set(_qnm('w:type'), 'dxa')
+        tblW.set(_qnm('w:w'), '0')
+        tblW.set(_qnm('w:type'), 'auto')
         tblPr.append(tblW)
 
         # 3. Add explicit w:tblGrid immediately after tblPr (mandatory OpenXML order for LibreOffice)
