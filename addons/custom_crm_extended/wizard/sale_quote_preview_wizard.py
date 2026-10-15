@@ -604,25 +604,27 @@ class SaleQuotePreviewWizard(models.TransientModel):
             else:
                 rows += ('<tr><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:center;padding:5px 4px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td><td style="text-align:right;padding:5px 6px;border:1px solid #000;">%s</td></tr>') % (idx2, desc, hsn, qty, _indian_format(unit_price), _indian_format(amount))
 
-        # ── PAGE 2: QUOTATION TABLE (new page) ──
+        # Dynamic column widths synchronized across <th> and <td>
         if has_discount_pdf:
+            c_widths = ['5%', '46%', '11%', '5%', '11%', '10%', '12%']
             th_html = (
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:5%;">SR No.</th>'
-                '<th style="padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;width:48%;">Item Description</th>'
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:10%;">HSN</th>'
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:5%;">Qty</th>'
-                '<th style="padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;width:11%;">Unit Price</th>'
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:9%;">Discount %</th>'
-                '<th style="padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;width:12%;">Amount</th>'
+                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">SR No.</th>'
+                '<th style="width:46%;padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;">Item Description</th>'
+                '<th style="width:11%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">HSN</th>'
+                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Qty</th>'
+                '<th style="width:11%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Unit Price</th>'
+                '<th style="width:10%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Discount %</th>'
+                '<th style="width:12%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Amount</th>'
             )
         else:
+            c_widths = ['5%', '52%', '12%', '5%', '13%', '13%']
             th_html = (
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:5%;">SR No.</th>'
-                '<th style="padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;width:54%;">Item Description</th>'
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:11%;">HSN</th>'
-                '<th style="padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;width:5%;">Qty</th>'
-                '<th style="padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;width:12.5%;">Unit Price</th>'
-                '<th style="padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;width:12.5%;">Amount</th>'
+                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">SR No.</th>'
+                '<th style="width:52%;padding:6px 6px;text-align:left;border:1px solid #000;background:#D9E1F2;color:#000;">Item Description</th>'
+                '<th style="width:12%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">HSN</th>'
+                '<th style="width:5%;padding:6px 4px;text-align:center;border:1px solid #000;background:#D9E1F2;color:#000;">Qty</th>'
+                '<th style="width:13%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Unit Price</th>'
+                '<th style="width:13%;padding:6px 6px;text-align:right;border:1px solid #000;background:#D9E1F2;color:#000;">Amount</th>'
             )
 
         # Overall discount totals
