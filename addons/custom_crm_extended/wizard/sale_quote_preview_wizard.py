@@ -1111,10 +1111,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Ratios matching MS Word:
         # Without Discount: SR: 4.5%, Item Desc: 54.5%, HSN: 11.0%, Qty: 5.0%, Unit Price: 12.5%, Amount: 12.5%
         # With Discount:    SR: 4.5%, Item Desc: 48.5%, HSN: 10.0%, Qty: 4.5%, Unit Price: 11.0%, Disc: 8.5%, Amount: 13.0%
+        # Ratios matching MS Word:
+        # With Discount:    SR: 5%, Item Desc: 46%, HSN: 12%, Qty: 6%, Unit Price: 11%, Disc: 9%, Amount: 11%
+        # Without Discount: SR: 5%, Item Desc: 52%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
         if has_discount:
-            col_weights = [0.045, 0.485, 0.10, 0.045, 0.11, 0.085, 0.13]
+            col_weights = [0.05, 0.46, 0.12, 0.06, 0.11, 0.09, 0.11]
         else:
-            col_weights = [0.045, 0.545, 0.11, 0.05, 0.125, 0.125]
+            col_weights = [0.05, 0.52, 0.13, 0.06, 0.12, 0.12]
 
         col_dxa = [int(total_dxa * w) for w in col_weights]
         # Adjust last column to absorb rounding difference
@@ -1134,13 +1137,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
         tblW.set(_qnm('w:type'), 'dxa')
         tblPr.append(tblW)
 
-        # 3. Add explicit w:tblGrid with <w:gridCol> - this is mandatory for LibreOffice headless PDF engine!
+        # 3. Add explicit w:tblGrid immediately after tblPr (mandatory OpenXML order for LibreOffice)
         tblGrid = _OEM('w:tblGrid')
         for dxa in col_dxa:
             gridCol = _OEM('w:gridCol')
             gridCol.set(_qnm('w:w'), str(dxa))
             tblGrid.append(gridCol)
-        table._tbl.append(tblGrid)
+        tblPr.addnext(tblGrid)
 
         # Compact cell padding (top=40, bottom=40, left=80, right=80 dxa) to prevent unnecessary row height
         def set_cell_margins(cell, top=40, bottom=40, left=80, right=80):
@@ -1249,7 +1252,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             r.font.size = Pt(11)
                 else:
                     cell.text = val
-                    cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    if i in (4, len(row_data) - 1):
+                        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                    else:
+                        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
 
         # Totals below table - simple paragraph format like PDF
         untaxed = order.amount_untaxed
