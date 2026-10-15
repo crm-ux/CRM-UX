@@ -1294,6 +1294,19 @@ class SaleQuotePreviewWizard(models.TransientModel):
             merged = row_cells[0]
             for i in range(1, ncols - 1):
                 merged = merged.merge(row_cells[i])
+
+            # Explicitly tell LibreOffice and Word that this cell spans (ncols - 1) columns!
+            # Without w:gridSpan, LibreOffice treats this as a 2-column table and forces Amount to 50% width.
+            merged_tcPr = merged._tc.get_or_add_tcPr()
+            for existing_gs in merged_tcPr.findall(_qnm('w:gridSpan')):
+                merged_tcPr.remove(existing_gs)
+            gridSpan = _OEM('w:gridSpan')
+            gridSpan.set(_qnm('w:val'), str(ncols - 1))
+            merged_tcPr.append(gridSpan)
+
+            label_dxa = sum(col_dxa[:ncols - 1])
+            format_cell(merged, label_dxa, _Inches(label_dxa / 1440.0), top=40, bottom=40, left=40, right=40, nowrap=True)
+
             mp = merged.paragraphs[0]
             mp.text = ''
             mp.paragraph_format.space_before = Pt(0)
@@ -1304,7 +1317,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
             mr.bold = True
             mr.font.name = 'Calibri'
             mr.font.size = Pt(11)
+
             val_cell = row_cells[ncols - 1]
+            format_cell(val_cell, col_dxa[-1], col_widths[-1], top=40, bottom=40, left=20, right=20, nowrap=True)
+
             vp = val_cell.paragraphs[0]
             vp.text = ''
             vp.paragraph_format.space_before = Pt(0)
