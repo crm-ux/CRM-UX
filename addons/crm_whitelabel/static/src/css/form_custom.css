@@ -634,31 +634,45 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* =========================================================================
-   Task Management Calendar Sidebar Filters:
-   Apply custom theme navy blue (#0b3d91) ONLY to:
-   1) 'Assigned Employee' master checkbox
-   2) 'Status' master checkbox
-   3) Employee user checkboxes (e.g. Vishal, Pratham)
-   Individual Status filter checkboxes (Pending, In Progress, Done, etc.)
-   keep their distinct state colors to match the calendar event strips!
+   Task Management Calendar Sidebar Filters & Event Strip Colors:
+   1) Master 'Assigned Employee' & Master 'Status' checkboxes -> Custom Navy Blue (#0b3d91)
+   2) Employee checkboxes (Vishal, Pratham, etc.) -> Custom Navy Blue (#0b3d91)
+   3) Pending: Replace Odoo's default purple with vibrant amber/gold (#f59e0b)
+      in BOTH the checkbox and the calendar event strip!
+   4) In Progress: Clean Sky Blue (#0284c7)
+   5) Done: Emerald Green (#10b981)
    ========================================================================= */
 
-/* 1. Master Group Checkboxes & Employee Filter Checkboxes */
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input,
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] input[type="checkbox"],
+/* 1. Master Group Checkboxes ('Assigned Employee' AND 'Status') */
 .o_calendar_sidebar .o_calendar_filter_header .form-check-input,
-.o_calendar_sidebar .o_calendar_filter:has(.o_calendar_filter_items[data-name="assigned_to_id"]) .form-check-input {
+.o_calendar_sidebar .o_calendar_filter_header input[type="checkbox"],
+.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input,
+.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] input[type="checkbox"] {
   accent-color: #0b3d91 !important;
-}
-
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_header .form-check-input:checked {
   background-color: #0b3d91 !important;
   border-color: #0b3d91 !important;
   box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input[type="checkbox"]:checked,
-.o_calendar_sidebar .o_calendar_filter_header .form-check-input[type="checkbox"]:checked {
+.o_calendar_sidebar .o_calendar_filter_header .form-check-input[type="checkbox"]:checked,
+.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input[type="checkbox"]:checked {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* 2. Overwrite default Odoo purple on 'Pending' Status Checkbox & Calendar Strip */
+.o_calendar_sidebar .o_calendar_filter[data-name="state"] .o_calendar_filter_item:has(span:contains("Pending")) .form-check-input,
+.o_calendar_sidebar .o_calendar_filter[data-name="state"] [data-value="pending"] .form-check-input,
+.o_calendar_sidebar [data-value="pending"] .form-check-input {
+  accent-color: #f59e0b !important;
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+
+/* Matching Calendar Event Strip for Pending (No Purple!) */
+.o_calendar_view .fc-event[data-event-id]:has(.fc-content:contains("Pending")),
+.o_calendar_view .o_calendar_color_1,
+.o_calendar_view .o_calendar_color_pending {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
 }
