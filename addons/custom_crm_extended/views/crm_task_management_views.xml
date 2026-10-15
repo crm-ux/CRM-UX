@@ -1,5 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Compact Quick-Create Popup View (Google Calendar Style: 3 Essential Fields) -->
+    <record id="view_crm_task_management_quick_form" model="ir.ui.view">
+        <field name="name">crm.task.management.quick.form</field>
+        <field name="model">crm.task.management</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <form string="Task Quick Details">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Task Title"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Follow up on Quote or Inspect Boiler..." required="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="assigned_to_id" string="Assign To" required="1" context="{'show_rich_user_name': True}" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="date_deadline" string="Deadline" required="1"/>
+                        </group>
+                        <group>
+                            <field name="state" string="Status"/>
+                            <field name="related_record_display" string="Linked Record" invisible="not related_record_display" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="mt-2 text-muted" style="font-size: 0.88rem;">
+                        <i class="fa fa-info-circle text-primary me-1"/> Click <b>Edit / More Options</b> below to link Leads, Quotations, Equipment, add attachments, or set recurring schedule.
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Save" type="object" class="btn btn-primary" special="save"/>
+                    <button name="action_open_full_detail_form" string="Edit / More Options" type="object" class="btn btn-secondary ms-2" icon="fa-pencil-square-o"/>
+                    <button string="Discard" class="btn btn-link text-muted ms-auto" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Google Calendar View (Primary View) -->
     <record id="view_crm_task_management_calendar" model="ir.ui.view">
         <field name="name">crm.task.management.calendar</field>
@@ -9,7 +46,7 @@
                       date_start="date_deadline" 
                       color="assigned_to_id" 
                       mode="month"
-                      quick_create="0"
+                      form_view_id="%(view_crm_task_management_quick_form)d"
                       event_open_popup="true">
                 <field name="name"/>
                 <field name="assigned_to_id" avatar_field="avatar_128" write_model="res.users" write_field="partner_id"/>

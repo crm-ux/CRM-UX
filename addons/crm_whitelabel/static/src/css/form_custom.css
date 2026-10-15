@@ -194,7 +194,7 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 /* ===== Assign Work Wizard Modern Responsive Polish ===== */
 .modal-dialog:has(.crm-assign-work-wizard-form),
 .modal-dialog:has([name="crm.task.assign.wizard"]) {
-  max-width: 580px !important;
+  max-width: 660px !important;
   width: 94% !important;
   margin: 1.5rem auto !important;
 }
@@ -275,9 +275,42 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 .crm-assign-work-wizard-form .crm-wizard-grid-2 {
   display: grid !important;
-  grid-template-columns: 2fr 1fr !important;
-  gap: 0.75rem !important;
+  grid-template-columns: 1.8fr 1.2fr !important;
+  gap: 0.85rem !important;
   margin-bottom: 0.85rem !important;
+}
+
+.crm-assign-work-wizard-form .crm-wizard-grid-2-equal {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.85rem !important;
+  margin-bottom: 0.85rem !important;
+}
+
+/* Recurrence Row Layout */
+.crm-assign-work-wizard-form .crm-wizard-checkbox-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  margin-bottom: 0.75rem !important;
+  background: #f8fafc !important;
+  padding: 0.5rem 0.85rem !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.crm-assign-work-wizard-form .crm-wizard-checkbox-row .o_field_boolean {
+  width: auto !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.crm-assign-work-wizard-form .crm-wizard-checkbox-row .crm-wizard-label {
+  margin: 0 !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  font-weight: 600 !important;
 }
 
 /* Eliminate all double borders: force only a single clean border */
@@ -517,4 +550,58 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   .modal-dialog:has([name="crm.task.assign.wizard"]) .modal-body {
     padding: 0.85rem 1rem !important;
   }
+}
+
+/* =========================================================================
+   Custom Brand Blue for All Checkboxes, Radio Buttons, and Switches
+   Replaces default Odoo purple (#714B67 / #71639e) with #0b3d91
+   ========================================================================= */
+:root {
+  --o-form-check-input-checked-bg: #0b3d91 !important;
+  --o-form-check-input-checked-border-color: #0b3d91 !important;
+}
+
+/* 1. Standard HTML & Bootstrap Checkboxes & Radios */
+input[type="checkbox"],
+input[type="radio"],
+.form-check-input,
+.o_field_boolean input[type="checkbox"],
+.o_field_radio input[type="radio"],
+.o_boolean_toggle input[type="checkbox"] {
+  accent-color: #0b3d91 !important;
+}
+
+.form-check-input:checked,
+.form-check-input[type="checkbox"]:checked,
+.form-check-input[type="radio"]:checked,
+.o_field_boolean .form-check-input:checked,
+.o_field_radio .form-check-input:checked,
+.o_boolean_toggle .form-check-input:checked {
+  background-color: #0b3d91 !important;
+  border-color: #0b3d91 !important;
+  box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+.form-check-input:focus,
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  border-color: #0b3d91 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
+}
+
+/* 2. Custom Checkbox SVG checkmark rendering */
+.form-check-input[type="checkbox"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* 3. Custom Radio SVG dot rendering */
+.form-check-input[type="radio"]:checked {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e") !important;
+}
+
+/* 4. Odoo Boolean Toggle Switch */
+.o_boolean_toggle.form-switch .form-check-input:checked {
+  background-color: #0b3d91 !important;
+  border-color: #0b3d91 !important;
 }

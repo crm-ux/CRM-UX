@@ -37,7 +37,7 @@
                     </div>
 
                     <!-- Section 2.5: Company & Link to Record (Optional) -->
-                    <div class="crm-wizard-grid-2 mt-2">
+                    <div class="crm-wizard-grid-2-equal">
                         <div>
                             <label for="company_id" string="Company (Optional)" class="crm-wizard-label"/>
                             <field name="company_id" nolabel="1" options="{'no_create': True}" placeholder="Leave empty for all companies..."/>
@@ -49,7 +49,7 @@
                     </div>
 
                     <!-- Dynamic Linked Record Pickers -->
-                    <div class="crm-wizard-group mt-2" invisible="not related_model">
+                    <div class="crm-wizard-group" invisible="not related_model">
                         <span class="o_form_label crm-wizard-label">Select Record</span>
                         <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
                         <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
@@ -60,12 +60,12 @@
                     </div>
 
                     <!-- Recurring Options -->
-                    <div class="crm-wizard-group mt-2">
-                        <div class="d-flex align-items-center gap-2">
+                    <div class="crm-wizard-group">
+                        <div class="crm-wizard-checkbox-row">
                             <field name="is_recurring" nolabel="1"/>
-                            <label for="is_recurring" string="Repeat this Task Automatically (Recurring)" class="crm-wizard-label m-0"/>
+                            <label for="is_recurring" string="Repeat this Task Automatically (Recurring)" class="crm-wizard-label"/>
                         </div>
-                        <div class="crm-wizard-grid-2 mt-2" invisible="not is_recurring">
+                        <div class="crm-wizard-grid-2-equal mt-2" invisible="not is_recurring">
                             <div>
                                 <label for="recurrence_period" string="Repeat Cycle" class="crm-wizard-label"/>
                                 <field name="recurrence_period" nolabel="1"/>

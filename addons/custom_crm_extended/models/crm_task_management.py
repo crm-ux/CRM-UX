@@ -197,6 +197,19 @@ class CrmTaskManagement(models.Model):
             'target': 'current',
         }
 
+    def action_open_full_detail_form(self):
+        """Opens the full detailed task form view from the calendar quick popup."""
+        self.ensure_one()
+        form_view_id = self.env.ref('custom_crm_extended.view_crm_task_management_form', raise_if_not_found=False)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': self.name or 'Task Details',
+            'res_model': 'crm.task.management',
+            'res_id': self.id,
+            'views': [(form_view_id.id if form_view_id else False, 'form')],
+            'target': 'current',
+        }
+
     def action_preview_task_attachment(self):
         return True
 
