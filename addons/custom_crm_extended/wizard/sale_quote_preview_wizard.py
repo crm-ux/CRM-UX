@@ -1285,80 +1285,51 @@ class SaleQuotePreviewWizard(models.TransientModel):
         gst_on_d = self.x_gst_included
         grand_total_d = net_d + (net_d * total_tax_rate_d / 100) if (gst_on_d and tax_rates_d) else net_d
 
-        original_amount_d = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
-        line_disc_amt_d = original_amount_d - untaxed
-        has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d) or bool(flat_disc_d)
-
-        # Collect all active totals rows
-        totals_list = []
-        if has_any_disc_d:
-            totals_list.append(('Gross Amount', _indian_format(original_amount_d)))
-        if overall_disc_pct_d:
-            totals_list.append(('Overall Discount (%s%%)' % (int(overall_disc_pct_d) if overall_disc_pct_d == int(overall_disc_pct_d) else overall_disc_pct_d), '- ' + _indian_format(overall_disc_amt_d)))
-        if flat_disc_d:
-            totals_list.append(('Flat Discount', '- ' + _indian_format(flat_disc_d)))
-        if gst_on_d and tax_rates_d:
-            totals_list.append(('GST (%s%%)' % int(total_tax_rate_d), ''))
-        final_label_d = 'Final Total Amount' if has_any_disc_d else 'Total Amount'
-        totals_list.append((final_label_d, _indian_format(grand_total_d)))
-
-        # Create separate totals table aligned to the right, matching width of table end
-        tot_table = doc.add_table(rows=0, cols=2)
-        tot_table.style = 'Table Grid'
-        tot_table.autofit = False
-        tot_table.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-
-        tot_tblPr = tot_table._tbl.tblPr
-        tot_layout = _OEM('w:tblLayout')
-        tot_layout.set(_qnm('w:type'), 'fixed')
-        tot_tblPr.append(tot_layout)
-
-        # Totals table width: 3.5 inches total (label = 2.1 in = 3024 dxa, value = 1.4 in = 2016 dxa)
-        tot_col_dxa = [3024, 2016]
-        tot_w_total = sum(tot_col_dxa)
-        tot_tblW = _OEM('w:tblW')
-        tot_tblW.set(_qnm('w:w'), str(tot_w_total))
-        tot_tblW.set(_qnm('w:type'), 'dxa')
-        tot_tblPr.append(tot_tblW)
-
-        tot_grid = _OEM('w:tblGrid')
-        for dxa in tot_col_dxa:
-            gc = _OEM('w:gridCol')
-            gc.set(_qnm('w:w'), str(dxa))
-            tot_grid.append(gc)
-        tot_tblPr.addnext(tot_grid)
-
-        for label, val in totals_list:
-            trow = tot_table.add_row()
-            trow_trPr = trow._tr.get_or_add_trPr()
-            trow_trPr.append(OxmlElement('w:cantSplit'))
-            tcells = trow.cells
-
-            # Label cell
-            lp = tcells[0].paragraphs[0]
-            lp.text = ''
-            lp.paragraph_format.space_before = Pt(0)
-            lp.paragraph_format.space_after = Pt(0)
-            lp.paragraph_format.line_spacing = 1.0
-            lp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            lr = lp.add_run(label)
-            lr.bold = True
-            lr.font.name = 'Calibri'
-            lr.font.size = Pt(10)
-            format_cell(tcells[0], tot_col_dxa[0], _Inches(tot_col_dxa[0] / 1440.0), top=40, bottom=40, left=40, right=40, nowrap=True)
-
-            # Value cell
-            vp = tcells[1].paragraphs[0]
+        def _add_total_row(label, value):
+            ncols = len(headers)
+            row = table.add_row()
+            row_trPr = row._tr.get_or_add_trPr()
+            row_trPr.append(OxmlElement('w:cantSplit'))
+            row_cells = row.cells
+            merged = row_cells[0]
+            for i in range(1, ncols - 1):
+                merged = merged.merge(row_cells[i])
+            mp = merged.paragraphs[0]
+            mp.text = ''
+            mp.paragraph_format.space_before = Pt(0)
+            mp.paragraph_format.space_after = Pt(0)
+            mp.paragraph_format.line_spacing = 1.0
+            mp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+            mr = mp.add_run(label)
+            mr.bold = True
+            mr.font.name = 'Calibri'
+            mr.font.size = Pt(11)
+            val_cell = row_cells[ncols - 1]
+            vp = val_cell.paragraphs[0]
             vp.text = ''
             vp.paragraph_format.space_before = Pt(0)
             vp.paragraph_format.space_after = Pt(0)
             vp.paragraph_format.line_spacing = 1.0
             vp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            vr = vp.add_run(str(val))
+            vr = vp.add_run(str(value))
             vr.bold = True
             vr.font.name = 'Calibri'
-            vr.font.size = Pt(10)
-            format_cell(tcells[1], tot_col_dxa[1], _Inches(tot_col_dxa[1] / 1440.0), top=40, bottom=40, left=20, right=20, nowrap=True)
+            vr.font.size = Pt(11)
+
+        original_amount_d = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
+        line_disc_amt_d = original_amount_d - untaxed
+        has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d) or bool(flat_disc_d)
+
+        if has_any_disc_d:
+            _add_total_row('Gross Amount', _indian_format(original_amount_d))
+        if overall_disc_pct_d:
+            _add_total_row('Overall Discount (%s%%)' % (int(overall_disc_pct_d) if overall_disc_pct_d == int(overall_disc_pct_d) else overall_disc_pct_d), '- ' + _indian_format(overall_disc_amt_d))
+        if flat_disc_d:
+            _add_total_row('Flat Discount', '- ' + _indian_format(flat_disc_d))
+        if gst_on_d and tax_rates_d:
+            _add_total_row('GST (%s%%)' % int(total_tax_rate_d), '')
+        final_label_d = 'Final Total Amount' if has_any_disc_d else 'Total Amount'
+        _add_total_row(final_label_d, _indian_format(grand_total_d))
 
         # Terms & Conditions - new page if no tech specs or images
         if self.selected_term_ids or order.note:
