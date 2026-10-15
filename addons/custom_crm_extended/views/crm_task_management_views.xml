@@ -9,11 +9,11 @@
         <field name="arch" type="xml">
             <calendar string="Task Calendar" 
                       date_start="date_deadline" 
-                      color="assigned_to_id" 
+                      color="state" 
                       mode="month"
                       quick_create="0">
                 <field name="name"/>
-                <field name="assigned_to_id" avatar_field="avatar_128" write_model="res.users" write_field="partner_id"/>
+                <field name="assigned_to_id" avatar_field="avatar_128"/>
                 <field name="assigned_by_id"/>
                 <field name="state" filters="1"/>
                 <field name="related_record_display"/>
@@ -127,10 +127,38 @@
         </field>
     </record>
 
+    <!-- Search View with Quick Filters -->
+    <record id="view_crm_task_management_search" model="ir.ui.view">
+        <field name="name">crm.task.management.search</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <search string="Search Tasks">
+                <field name="name" string="Task"/>
+                <field name="assigned_to_id" string="Assigned Employee"/>
+                <field name="assigned_by_id" string="Assigned By"/>
+                <field name="related_record_display" string="Linked Record"/>
+                <separator/>
+                <filter name="filter_assigned_by_me" string="Assigned By Me" domain="[('assigned_by_id', '=', uid)]"/>
+                <filter name="filter_assigned_to_me" string="Assigned To Me" domain="[('assigned_to_id', '=', uid)]"/>
+                <separator/>
+                <filter name="filter_pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="filter_in_progress" string="In Progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="filter_done" string="Done" domain="[('state', '=', 'done')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_assigned_to" string="Assigned Employee" context="{'group_by': 'assigned_to_id'}"/>
+                    <filter name="group_assigned_by" string="Assigned By" context="{'group_by': 'assigned_by_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_deadline" string="Deadline" context="{'group_by': 'date_deadline:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Action Window: Primary view is Calendar, followed by List and Form -->
     <record id="action_crm_task_management" model="ir.actions.act_window">
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
         <field name="view_mode">calendar,list,form</field>
+        <field name="search_view_id" ref="view_crm_task_management_search"/>
     </record>
 </odoo>
