@@ -18,7 +18,7 @@
                                placeholder="Select team member..."/>
                     </div>
 
-                    <!-- Section 2: Task Information (Grid) -->
+                    <!-- Section 2: Task Information & Schedule -->
                     <div class="crm-wizard-grid-2">
                         <div>
                             <label for="name" string="Task Title" class="crm-wizard-label"/>
@@ -29,10 +29,51 @@
                                    placeholder="e.g. Inspect Boiler Unit 3"/>
                         </div>
                         <div>
-                            <label for="date_deadline" string="Deadline" class="crm-wizard-label"/>
+                            <label for="date_deadline" string="Deadline / Target Date" class="crm-wizard-label"/>
                             <field name="date_deadline" 
                                    string="Deadline"
                                    nolabel="1"/>
+                        </div>
+                    </div>
+
+                    <!-- Section 2.5: Company & Link to Record (Optional) -->
+                    <div class="crm-wizard-grid-2 mt-2">
+                        <div>
+                            <label for="company_id" string="Company (Optional)" class="crm-wizard-label"/>
+                            <field name="company_id" nolabel="1" options="{'no_create': True}" placeholder="Leave empty for all companies..."/>
+                        </div>
+                        <div>
+                            <label for="related_model" string="Related Entity (Optional)" class="crm-wizard-label"/>
+                            <field name="related_model" nolabel="1" placeholder="Link to Lead, Quote, Equipment..."/>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Linked Record Pickers -->
+                    <div class="crm-wizard-group mt-2" invisible="not related_model">
+                        <label string="Select Record" class="crm-wizard-label"/>
+                        <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
+                        <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
+                        <field name="partner_id" invisible="related_model != 'res.partner'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Customer..."/>
+                        <field name="equipment_id" invisible="related_model != 'equipment.master'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Equipment..."/>
+                        <field name="ticket_id" invisible="related_model != 'service.ticket'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Ticket..."/>
+                        <field name="amc_id" invisible="related_model != 'amc.contract'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select AMC Contract..."/>
+                    </div>
+
+                    <!-- Recurring Options -->
+                    <div class="crm-wizard-group mt-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <field name="is_recurring" nolabel="1"/>
+                            <label for="is_recurring" string="Repeat this Task Automatically (Recurring)" class="crm-wizard-label m-0"/>
+                        </div>
+                        <div class="crm-wizard-grid-2 mt-2" invisible="not is_recurring">
+                            <div>
+                                <label for="recurrence_period" string="Repeat Cycle" class="crm-wizard-label"/>
+                                <field name="recurrence_period" nolabel="1"/>
+                            </div>
+                            <div>
+                                <label for="recurrence_end_date" string="Repeat Until (Optional)" class="crm-wizard-label"/>
+                                <field name="recurrence_end_date" nolabel="1"/>
+                            </div>
                         </div>
                     </div>
 

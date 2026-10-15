@@ -1,25 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Google Calendar View (Primary View) -->
+    <record id="view_crm_task_management_calendar" model="ir.ui.view">
+        <field name="name">crm.task.management.calendar</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <calendar string="Task Calendar" 
+                      date_start="date_deadline" 
+                      color="assigned_to_id" 
+                      mode="month"
+                      quick_create="0"
+                      event_open_popup="true">
+                <field name="name"/>
+                <field name="assigned_to_id" avatar_field="avatar_128" write_model="res.users" write_field="partner_id"/>
+                <field name="assigned_by_id"/>
+                <field name="state" filters="1"/>
+                <field name="related_record_display"/>
+            </calendar>
+        </field>
+    </record>
+
     <!-- List / Tree View -->
     <record id="view_crm_task_management_tree" model="ir.ui.view">
         <field name="name">crm.task.management.list</field>
         <field name="model">crm.task.management</field>
         <field name="arch" type="xml">
-            <list string="Task Management" default_order="date_assigned desc">
+            <list string="Task Management" default_order="date_deadline asc, date_assigned desc">
                 <field name="name" string="Task"/>
                 <field name="assigned_to_id" string="Assigned To"/>
                 <field name="assigned_by_id" string="Assigned By"/>
-                <field name="date_assigned" string="Assigned Date"/>
                 <field name="date_deadline" string="Deadline"/>
+                <field name="related_model" string="Entity Type" optional="show"/>
+                <field name="related_record_display" string="Linked Record" optional="show"/>
+                <field name="company_id" string="Company" optional="hide"/>
                 <field name="state" string="Status" widget="badge" 
                        decoration-warning="state == 'pending'" 
                        decoration-info="state == 'in_progress'" 
                        decoration-success="state == 'done'" 
                        decoration-danger="state == 'complaint'"/>
-                <field name="completion_remarks" string="Work Completion Remarks" optional="show"/>
-                <field name="complaint_notes" string="Complaint / Issue Faced" optional="show"/>
-                <field name="create_uid" string="Created By" optional="show"/>
-                <field name="write_uid" string="Last Modified By" optional="show"/>
+                <field name="is_recurring" string="Recurring" optional="hide"/>
+                <field name="is_unlocked" string="Active" optional="hide"/>
+                <field name="completion_remarks" string="Work Remarks" optional="show"/>
+                <field name="complaint_notes" string="Issue Faced" optional="show"/>
             </list>
         </field>
     </record>
@@ -31,10 +53,17 @@
         <field name="arch" type="xml">
             <form string="Task Management" js_class="crm_task_management_form">
                 <header>
+                    <button name="action_open_related_record" 
+                            type="object" 
+                            string="Open Linked Record" 
+                            class="btn-primary" 
+                            icon="fa-external-link"
+                            invisible="not related_model or not related_res_id"/>
                     <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>
                     <field name="can_edit_manager_fields" invisible="1"/>
+                    <field name="related_res_id" invisible="1"/>
                     <div class="oe_title">
                         <label for="name" string="Task"/>
                         <h1>
@@ -42,32 +71,46 @@
                         </h1>
                     </div>
                     <group>
-                        <group string="Assignment Details">
-                            <!-- For Employee: Show who assigned the task to them (Assigned By) -->
-                            <field name="assigned_by_id" string="Assigned By" invisible="can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True}"/>
-                            <!-- For Employer / Manager: Show Assigned Employee dropdown with no internal link -->
-                            <field name="assigned_to_id" string="Assigned Employee" invisible="not can_edit_manager_fields" readonly="not can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True, 'no_create': True}"/>
-                            <field name="date_assigned"/>
+                        <group string="Assignment &amp; Schedule">
+                            <field name="assigned_by_id" string="Assigned By" readonly="1" options="{'no_open': True}"/>
+                            <field name="assigned_to_id" string="Assigned Employee" readonly="not can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True, 'no_create': True}"/>
+                            <field name="date_assigned" readonly="1"/>
                             <field name="date_deadline" readonly="not can_edit_manager_fields"/>
+                            <field name="company_id" options="{'no_create': True}" placeholder="All Companies" readonly="not can_edit_manager_fields"/>
                         </group>
-                        <group string="Attachments &amp; Files">
-                            <label for="attachment_file" string="Attachment (Drawings, PO, PDF)"/>
-                            <div class="d-flex align-items-center w-100 crm_task_attachment_box crm_invoice_field_box">
-                                <field name="attachment_name" invisible="1"/>
-                                <field name="attachment_file" filename="attachment_name" readonly="not can_edit_manager_fields" class="m-0 p-0 flex-grow-1"/>
-                                <button name="action_preview_task_attachment" 
-                                        type="object" 
-                                        icon="fa-eye" 
-                                        title="Preview Attachment" 
-                                        invisible="not attachment_file" 
-                                        class="btn btn-sm btn-link text-primary p-0 ms-1" 
-                                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
-                            </div>
+                        <group string="Linked Entity &amp; Recurrence">
+                            <field name="related_model" string="Related Entity" readonly="not can_edit_manager_fields"/>
+                            <field name="lead_id" invisible="related_model != 'crm.lead'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="order_id" invisible="related_model != 'sale.order'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="partner_id" invisible="related_model != 'res.partner'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="equipment_id" invisible="related_model != 'equipment.master'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="ticket_id" invisible="related_model != 'service.ticket'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="amc_id" invisible="related_model != 'amc.contract'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            
+                            <field name="is_recurring" string="Repeat Task" readonly="not can_edit_manager_fields"/>
+                            <field name="recurrence_period" invisible="not is_recurring" readonly="not can_edit_manager_fields"/>
+                            <field name="recurrence_end_date" invisible="not is_recurring" readonly="not can_edit_manager_fields"/>
                         </group>
                     </group>
+
+                    <group string="Attachments &amp; Files">
+                        <label for="attachment_file" string="Attachment (Drawings, PO, PDF)"/>
+                        <div class="d-flex align-items-center w-100 crm_task_attachment_box crm_invoice_field_box">
+                            <field name="attachment_name" invisible="1"/>
+                            <field name="attachment_file" filename="attachment_name" readonly="not can_edit_manager_fields" class="m-0 p-0 flex-grow-1"/>
+                            <button name="action_preview_task_attachment" 
+                                    type="object" 
+                                    icon="fa-eye" 
+                                    title="Preview Attachment" 
+                                    invisible="not attachment_file" 
+                                    class="btn btn-sm btn-link text-primary p-0 ms-1" 
+                                    style="font-size: 1.15rem; color: #0b3d91 !important;"/>
+                        </div>
+                    </group>
+
                     <notebook>
                         <page string="Instructions / Work Details">
-                            <field name="instructions" placeholder="Detailed instructions from manager/owner..." readonly="not can_edit_manager_fields"/>
+                            <field name="instructions" placeholder="Detailed instructions from assigner..." readonly="not can_edit_manager_fields"/>
                         </page>
                         <page string="Employee Action &amp; Reporting">
                             <group class="crm-single-line-group" style="max-width: 900px;">
@@ -83,10 +126,10 @@
         </field>
     </record>
 
-    <!-- Action Window -->
+    <!-- Action Window: Primary view is Calendar, followed by List and Form -->
     <record id="action_crm_task_management" model="ir.actions.act_window">
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
-        <field name="view_mode">list,form</field>
+        <field name="view_mode">calendar,list,form</field>
     </record>
 </odoo>

@@ -135,31 +135,12 @@ class ResUsers(models.Model):
 
     @api.model
     def check_can_assign_task(self, user_id=None):
-        """Check if user has subordinates working under them or is an admin."""
+        """Open task assignment: Any active internal employee can assign tasks."""
         uid = int(user_id) if user_id else self.env.user.id
         u = self.browse(uid).sudo()
         if not u.exists():
             return False
-
-        # Admin always has assign task rights
-        if u.has_group('base.group_system') or u.id == 2:
-            return True
-
-        # Check subordinates via res.users (crm_manager_id)
-        has_sub_users = bool(self.sudo().search_count([('crm_manager_id', '=', u.id), ('id', '!=', u.id)]))
-        if has_sub_users:
-            return True
-
-        # Check subordinates via hr.employee (parent_id)
-        emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
-        if not emp and getattr(u, 'employee_id', False):
-            emp = u.employee_id.sudo()
-        if emp:
-            has_sub_emps = bool(self.env['hr.employee'].sudo().search_count([('parent_id', '=', emp.id), ('id', '!=', emp.id)]))
-            if has_sub_emps:
-                return True
-
-        return False
+        return not u.share and u.active
 
     @api.model
     def assign_team_task(self, target_user_id, title, note='', deadline=False, attachment_name='', attachment_data=''):
@@ -264,44 +245,9 @@ class ResUsers(models.Model):
         if not u.exists():
             return []
 
-        is_admin = u.has_group('base.group_system') or u.id == 2
-        allowed_uids = set()
-
-        if is_admin:
-            # Admins can assign to all active internal users
-            all_users = self.sudo().search([('active', '=', True), ('share', '=', False)])
-            allowed_uids = set(all_users.ids)
-        else:
-            # 1. Direct and indirect subordinates from res.users
-            allowed_uids.update(u.crm_subordinate_ids.ids)
-            allowed_uids.update(u._get_all_subordinates().ids)
-
-            # 2. Direct and indirect subordinates from hr.employee
-            emp = self.env['hr.employee'].sudo().search([('user_id', '=', u.id)], limit=1)
-            if not emp and getattr(u, 'employee_id', False):
-                emp = u.employee_id.sudo()
-            if emp:
-                sub_emps = self.env['hr.employee'].sudo().search([('parent_id', 'child_of', emp.id)])
-                for se in sub_emps:
-                    if se.user_id:
-                        allowed_uids.add(se.user_id.id)
-
-            # 3. Department & Managed Sub-departments
-            depts = u.crm_department_ids | u.crm_department_id
-            if u.crm_job_id:
-                if u.crm_job_id.department_id:
-                    depts |= u.crm_job_id.department_id
-                if u.crm_job_id.sub_department_ids:
-                    depts |= u.crm_job_id.sub_department_ids
-            if emp and emp.department_id:
-                depts |= emp.department_id
-
-            if depts:
-                child_depts = self.env['hr.department'].sudo().search([('id', 'child_of', depts.ids)])
-                dept_emps = self.env['hr.employee'].sudo().search([('department_id', 'in', child_depts.ids), ('user_id', '!=', False)])
-                allowed_uids.update(dept_emps.mapped('user_id').ids)
-                dept_users = self.sudo().search([('crm_department_id', 'in', child_depts.ids)])
-                allowed_uids.update(dept_users.ids)
+        # Open assignment: Any internal employee can assign tasks to any active internal colleague
+        all_users = self.sudo().search([('active', '=', True), ('share', '=', False)])
+        allowed_uids = set(all_users.ids)
 
         if not allowed_uids:
             return []
