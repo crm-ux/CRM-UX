@@ -359,10 +359,7 @@ class CrmLead(models.Model):
                 self.x_original_owner_id = self.user_id
             self.user_id = self.x_assign_to_id
 
-    def write(self, vals):
-        if 'x_assign_to_id' in vals and vals['x_assign_to_id'] and not vals.get('user_id'):
-            vals['user_id'] = vals['x_assign_to_id']
-        return super().write(vals)
+
 
     # PO fields synced from won quotation
     x_po_number = fields.Char(string='PO Number', readonly=True, copy=False)

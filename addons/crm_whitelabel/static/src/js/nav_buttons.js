@@ -128,6 +128,7 @@ patch(ControlPanel.prototype, {
         const val = ev.target.value;
         const ctx = this.env.searchModel?.context || {};
         const selectedText = ev.target.options[ev.target.selectedIndex].text;
+        const currentEmp = ctx.filter_employee_user_id || "all";
 
         // Map quote sequence numbers to sale.order x_quote_stage values
         const quoteStageMap = {
@@ -142,32 +143,37 @@ patch(ControlPanel.prototype, {
             // From Quote onwards -> open sale.order directly!
             const quoteStage = quoteStageMap[val];
             const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
+            const empDomain = currentEmp !== "all" ? [["user_id", "=", parseInt(currentEmp)]] : [];
 
             this.action.doAction({
                 type: "ir.actions.act_window",
                 name: selectedText + " Quotations",
                 res_model: "sale.order",
                 views: [[false, "list"], [false, "form"]],
-                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter],
+                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter, ...empDomain],
                 context: {
                     ...ctx,
                     from_total_pipeline: true,
                     default_stage_filter_val: val,
+                    filter_employee_user_id: currentEmp,
                 },
             }, { clearBreadcrumbs: true });
         } else {
             // Early stages (All, Lead, Contacted, Tech Disc, Qualified, Opportunity) -> open crm.lead
             const stageDomain = val === "all" ? [] : [["x_stage_sequence", "=", parseInt(val)]];
+            const empDomain = currentEmp !== "all" ? ["|", ["user_id", "=", parseInt(currentEmp)], ["x_assign_to_id", "=", parseInt(currentEmp)]] : [];
+
             this.action.doAction({
                 type: "ir.actions.act_window",
                 name: val === "all" ? "All Pipeline Leads" : selectedText + " Leads",
                 res_model: "crm.lead",
                 views: [[false, "list"], [false, "form"]],
-                domain: [["active", "=", true], ...stageDomain],
+                domain: [["active", "=", true], ...stageDomain, ...empDomain],
                 context: {
                     ...ctx,
                     from_total_pipeline: true,
                     default_stage_filter_val: val,
+                    filter_employee_user_id: currentEmp,
                 },
             }, { clearBreadcrumbs: true });
         }
@@ -200,12 +206,17 @@ patch(ControlPanel.prototype, {
         const resModel = searchModel.resModel;
         const userField = resModel === 'service.ticket' ? 'engineer_id' : (resModel === 'amc.contract' ? 'create_uid' : 'user_id');
 
-        // When a specific user is selected, filter strictly by userField (or create_uid)
+        // When a specific user is selected, filter strictly by currently assigned person / owner
+        // NEVER include create_uid for leads/quotes: created-by does NOT mean assigned owner!
         let domain = [];
         if (val !== "all") {
             const uid = parseInt(val);
-            if (userField && userField !== 'create_uid') {
-                domain = ['|', [userField, '=', uid], ['create_uid', '=', uid]];
+            if (resModel === 'crm.lead') {
+                domain = ['|', ['user_id', '=', uid], ['x_assign_to_id', '=', uid]];
+            } else if (resModel === 'sale.order') {
+                domain = [['user_id', '=', uid]];
+            } else if (userField && userField !== 'create_uid') {
+                domain = [[userField, '=', uid]];
             } else {
                 domain = [['create_uid', '=', uid]];
             }
@@ -223,13 +234,13 @@ patch(ControlPanel.prototype, {
                 if (item === '|' && i + 2 < rawDomain.length) {
                     const c1 = rawDomain[i + 1];
                     const c2 = rawDomain[i + 2];
-                    if (Array.isArray(c1) && (c1[0] === userField || c1[0] === 'create_uid') &&
-                        Array.isArray(c2) && (c2[0] === userField || c2[0] === 'create_uid')) {
+                    if (Array.isArray(c1) && (c1[0] === userField || c1[0] === 'x_assign_to_id' || c1[0] === 'create_uid') &&
+                        Array.isArray(c2) && (c2[0] === userField || c2[0] === 'x_assign_to_id' || c2[0] === 'create_uid')) {
                         i += 3;
                         continue;
                     }
                 }
-                if (Array.isArray(item) && (item[0] === userField || item[0] === 'create_uid') && item[1] === '=') {
+                if (Array.isArray(item) && (item[0] === userField || item[0] === 'x_assign_to_id' || item[0] === 'create_uid') && item[1] === '=') {
                     i += 1;
                     continue;
                 }
