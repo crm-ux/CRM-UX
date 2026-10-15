@@ -1291,36 +1291,34 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_trPr = row._tr.get_or_add_trPr()
             row_trPr.append(OxmlElement('w:cantSplit'))
             row_cells = row.cells
-            merged = row_cells[0]
-            for i in range(1, ncols - 1):
-                merged = merged.merge(row_cells[i])
 
-            # Explicitly tell LibreOffice and Word that this cell spans (ncols - 1) columns!
-            # Without w:gridSpan, LibreOffice treats this as a 2-column table and forces Amount to 50% width.
-            merged_tcPr = merged._tc.get_or_add_tcPr()
-            for existing_gs in merged_tcPr.findall(_qnm('w:gridSpan')):
-                merged_tcPr.remove(existing_gs)
-            gridSpan = _OEM('w:gridSpan')
-            gridSpan.set(_qnm('w:val'), str(ncols - 1))
-            merged_tcPr.append(gridSpan)
+            # Use OpenXML horizontal merge (w:hMerge) across cells 0 to ncols - 2.
+            # This keeps all columns in the row so LibreOffice NEVER distorts the table grid!
+            for col_idx in range(ncols - 1):
+                cell = row_cells[col_idx]
+                format_cell(cell, col_dxa[col_idx], col_widths[col_idx], top=40, bottom=40, left=40, right=40, nowrap=True)
+                tcPr = cell._tc.get_or_add_tcPr()
+                for existing_hm in tcPr.findall(_qnm('w:hMerge')):
+                    tcPr.remove(existing_hm)
+                hMerge = _OEM('w:hMerge')
+                hMerge.set(_qnm('w:val'), 'restart' if col_idx == 0 else 'continue')
+                tcPr.append(hMerge)
 
-            label_dxa = sum(col_dxa[:ncols - 1])
-            format_cell(merged, label_dxa, _Inches(label_dxa / 1440.0), top=40, bottom=40, left=40, right=40, nowrap=True)
+                p = cell.paragraphs[0]
+                p.text = ''
+                p.paragraph_format.space_before = Pt(0)
+                p.paragraph_format.space_after = Pt(0)
+                p.paragraph_format.line_spacing = 1.0
+                if col_idx == 0:
+                    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                    mr = p.add_run(label)
+                    mr.bold = True
+                    mr.font.name = 'Calibri'
+                    mr.font.size = Pt(11)
 
-            mp = merged.paragraphs[0]
-            mp.text = ''
-            mp.paragraph_format.space_before = Pt(0)
-            mp.paragraph_format.space_after = Pt(0)
-            mp.paragraph_format.line_spacing = 1.0
-            mp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            mr = mp.add_run(label)
-            mr.bold = True
-            mr.font.name = 'Calibri'
-            mr.font.size = Pt(11)
-
+            # Value cell in the last column
             val_cell = row_cells[ncols - 1]
             format_cell(val_cell, col_dxa[-1], col_widths[-1], top=40, bottom=40, left=20, right=20, nowrap=True)
-
             vp = val_cell.paragraphs[0]
             vp.text = ''
             vp.paragraph_format.space_before = Pt(0)
