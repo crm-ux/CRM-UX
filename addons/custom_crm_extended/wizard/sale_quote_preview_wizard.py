@@ -1108,12 +1108,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             total_dxa = 9605
 
         # Balanced Column Ratios:
-        # With Discount (7 cols):    SR: 7%, Item Desc: 39%, HSN: 13%, Qty: 6%, Unit Price: 11%, Disc %: 12%, Amount: 12%
-        # Without Discount (6 cols): SR: 7%, Item Desc: 50%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
+        # With Discount (7 cols):    SR: 6%, Item Desc: 36%, HSN: 14%, Qty: 8%, Unit Price: 12%, Disc %: 10%, Amount: 14%
+        # Without Discount (6 cols): SR: 6%, Item Desc: 42%, HSN: 15%, Qty: 8%, Unit Price: 14%, Amount: 15%
         if has_discount:
-            col_weights = [0.07, 0.39, 0.13, 0.06, 0.11, 0.12, 0.12]
+            col_weights = [0.06, 0.36, 0.14, 0.08, 0.12, 0.10, 0.14]
         else:
-            col_weights = [0.07, 0.50, 0.13, 0.06, 0.12, 0.12]
+            col_weights = [0.06, 0.42, 0.15, 0.08, 0.14, 0.15]
 
         col_dxa = [int(total_dxa * w) for w in col_weights]
         col_dxa[-1] += total_dxa - sum(col_dxa)
@@ -1124,7 +1124,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         tblPr = table._tbl.tblPr
 
-        # 1. Force fixed table layout so LibreOffice cannot recalculate or shrink column widths
+        # 1. Force fixed table layout so LibreOffice strictly respects column widths
         tblLayout = _OEM('w:tblLayout')
         tblLayout.set(_qnm('w:type'), 'fixed')
         tblPr.append(tblLayout)
@@ -1143,10 +1143,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
             tblGrid.append(gridCol)
         tblPr.addnext(tblGrid)
 
-        # Compact cell padding (top=40, bottom=40, left=40, right=40 dxa) to prevent unnecessary wrapping
-        def set_cell_margins(cell, top=40, bottom=40, left=40, right=40):
-            tc = cell._tc
-            tcPr = tc.get_or_add_tcPr()
+        # Helper to set cell width, compact margins, and optional noWrap
+        def format_cell(cell, dxa_w, inch_w, top=40, bottom=40, left=40, right=40, nowrap=False):
+            cell.width = inch_w
+            tcPr = cell._tc.get_or_add_tcPr()
+            # Set explicit tcW
+            for existing_w in tcPr.findall(_qnm('w:tcW')):
+                tcPr.remove(existing_w)
+            tcW = _OEM('w:tcW')
+            tcW.set(_qnm('w:w'), str(dxa_w))
+            tcW.set(_qnm('w:type'), 'dxa')
+            tcPr.append(tcW)
+            # Set margins
+            for existing_mar in tcPr.findall(_qnm('w:tcMar')):
+                tcPr.remove(existing_mar)
             tcMar = _OEM('w:tcMar')
             for side, val in [('top', top), ('bottom', bottom), ('left', left), ('right', right)]:
                 m = _OEM('w:%s' % side)
@@ -1154,26 +1164,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 m.set(_qnm('w:type'), 'dxa')
                 tcMar.append(m)
             tcPr.append(tcMar)
-
-        def apply_row_cell_widths(row_cells):
-            for i, dxa in enumerate(col_dxa):
-                if i < len(row_cells):
-                    row_cells[i].width = col_widths[i]
-                    tcPr = row_cells[i]._tc.get_or_add_tcPr()
-                    for existing_w in tcPr.findall(_qnm('w:tcW')):
-                        tcPr.remove(existing_w)
-                    tcW = _OEM('w:tcW')
-                    tcW.set(_qnm('w:w'), str(dxa))
-                    tcW.set(_qnm('w:type'), 'dxa')
-                    tcPr.append(tcW)
+            # Prevent text wrapping on columns like Qty, Unit Price, HSN, Disc %, SR.
+            if nowrap:
+                if not tcPr.findall(_qnm('w:noWrap')):
+                    tcPr.append(_OEM('w:noWrap'))
 
         hdr_cells = table.rows[0].cells
-        apply_row_cell_widths(hdr_cells)
-
         for i, h in enumerate(headers):
             cell = hdr_cells[i]
-            set_cell_margins(cell, top=60, bottom=60, left=30, right=30)
             p = cell.paragraphs[0]
+            p.text = ''
             p.paragraph_format.space_before = Pt(0)
             p.paragraph_format.space_after = Pt(0)
             p.paragraph_format.line_spacing = 1.0
@@ -1182,13 +1182,14 @@ class SaleQuotePreviewWizard(models.TransientModel):
             run.font.name = 'Calibri'
             run.font.size = Pt(10)
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-            tc = cell._tc
-            tcPr = tc.get_or_add_tcPr()
+            tcPr = cell._tc.get_or_add_tcPr()
             shd = OxmlElement('w:shd')
             shd.set(qn('w:fill'), 'D9E1F2')
             shd.set(qn('w:color'), 'auto')
             shd.set(qn('w:val'), 'clear')
             tcPr.append(shd)
+            # Do not wrap any header cells
+            format_cell(cell, col_dxa[i], col_widths[i], top=60, bottom=60, left=20, right=20, nowrap=True)
 
         # Repeat table header on subsequent pages when table splits across pages
         header_trPr = table.rows[0]._tr.get_or_add_trPr()
@@ -1200,7 +1201,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
             row_trPr = row._tr.get_or_add_trPr()
             row_trPr.append(OxmlElement('w:cantSplit'))
             row_cells = row.cells
-            apply_row_cell_widths(row_cells)
             desc = line.x_product_name or line.product_id.product_tmpl_id.with_context(lang='en_US').name or ''
             part_no = line.x_product_code or line.product_id.default_code or ''
             if part_no:
@@ -1226,7 +1226,6 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
             for i, val in enumerate(row_data):
                 cell = row_cells[i]
-                set_cell_margins(cell)
                 if i == 1:
                     # Item description with bold labels
                     cell.paragraphs[0].clear()
@@ -1241,26 +1240,36 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             note_text = part.replace('[NOTE]', '').replace('[/NOTE]', '')
                             r1 = p.add_run('Description:')
                             r1.bold = True
-                            r1.font.size = Pt(11)
+                            r1.font.size = Pt(10)
                             r2 = p.add_run(' ' + note_text)
                             r2.italic = True
-                            r2.font.size = Pt(11)
+                            r2.font.size = Pt(10)
                         elif part.startswith('Make:') or part.startswith('Description:') or part.startswith('Part No:'):
                             label, _, rest = part.partition(':')
                             r1 = p.add_run(label + ':')
                             r1.bold = True
-                            r1.font.size = Pt(11)
+                            r1.font.size = Pt(10)
                             r2 = p.add_run(rest)
-                            r2.font.size = Pt(11)
+                            r2.font.size = Pt(10)
                         else:
                             r = p.add_run(part)
-                            r.font.size = Pt(11)
+                            r.font.size = Pt(10)
+                    format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=40, right=40, nowrap=False)
                 else:
-                    cell.text = val
+                    p = cell.paragraphs[0]
+                    p.text = ''
+                    p.paragraph_format.space_before = Pt(0)
+                    p.paragraph_format.space_after = Pt(0)
+                    p.paragraph_format.line_spacing = 1.0
+                    r = p.add_run(val)
+                    r.font.name = 'Calibri'
+                    r.font.size = Pt(10)
                     if i in (4, len(row_data) - 1):
-                        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                        p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
                     else:
-                        cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    # Apply width and nowrap to numeric/code columns (all except description)
+                    format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=20, right=20, nowrap=True)
 
         # Totals below table - simple paragraph format like PDF
         untaxed = order.amount_untaxed
@@ -1278,23 +1287,41 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         def _add_total_row(label, value):
             ncols = len(headers)
-            row_cells = table.add_row().cells
+            row = table.add_row()
+            row_trPr = row._tr.get_or_add_trPr()
+            row_trPr.append(OxmlElement('w:cantSplit'))
+            row_cells = row.cells
             merged = row_cells[0]
             for i in range(1, ncols - 1):
                 merged = merged.merge(row_cells[i])
             mp = merged.paragraphs[0]
+            mp.text = ''
+            mp.paragraph_format.space_before = Pt(0)
+            mp.paragraph_format.space_after = Pt(0)
+            mp.paragraph_format.line_spacing = 1.0
             mp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             mr = mp.add_run(label)
             mr.bold = True
             mr.font.name = 'Calibri'
-            mr.font.size = Pt(11)
-            val_cell = row_cells[ncols - 1]
+            mr.font.size = Pt(10)
+            # Label merged cell width is sum of first (ncols - 1) columns
+            label_dxa = sum(col_dxa[:ncols - 1])
+            format_cell(merged, label_dxa, _Inches(label_dxa / 1440.0), top=40, bottom=40, left=40, right=40, nowrap=True)
+
+            val_cell = row_cells[-1]
             vp = val_cell.paragraphs[0]
+            vp.text = ''
+            vp.paragraph_format.space_before = Pt(0)
+            vp.paragraph_format.space_after = Pt(0)
+            vp.paragraph_format.line_spacing = 1.0
             vp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
             vr = vp.add_run(str(value))
             vr.bold = True
             vr.font.name = 'Calibri'
-            vr.font.size = Pt(11)
+            vr.font.size = Pt(10)
+            # Value cell width is the last column
+            format_cell(val_cell, col_dxa[-1], col_widths[-1], top=40, bottom=40, left=20, right=20, nowrap=True)
+
         original_amount_d = sum(l.price_unit * l.product_uom_qty for l in order.order_line.filtered(lambda x: not x.display_type))
         line_disc_amt_d = original_amount_d - untaxed
         has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d) or bool(flat_disc_d)
