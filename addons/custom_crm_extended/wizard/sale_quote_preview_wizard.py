@@ -1086,9 +1086,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_overall_discount = getattr(order, 'x_flat_discount_pct', 0) or 0
 
         if has_discount:
-            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Discount %', 'Amount']
+            headers = ['SR.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Disc %', 'Amount']
         else:
-            headers = ['SR No.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Amount']
+            headers = ['SR.', 'Item Description', 'HSN', 'Qty', 'Unit Price', 'Amount']
 
         from docx.shared import Inches as _Inches
         table = doc.add_table(rows=1, cols=len(headers))
@@ -1109,12 +1109,12 @@ class SaleQuotePreviewWizard(models.TransientModel):
             total_dxa = 9605
 
         # Balanced Column Ratios:
-        # With Discount (7 cols):    SR: 6%, Item Desc: 41%, HSN: 13%, Qty: 6%, Unit Price: 11%, Disc: 11%, Amount: 12%
-        # Without Discount (6 cols): SR: 6%, Item Desc: 51%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
+        # With Discount (7 cols):    SR: 7%, Item Desc: 39%, HSN: 13%, Qty: 6%, Unit Price: 11%, Disc %: 12%, Amount: 12%
+        # Without Discount (6 cols): SR: 7%, Item Desc: 50%, HSN: 13%, Qty: 6%, Unit Price: 12%, Amount: 12%
         if has_discount:
-            col_weights = [0.06, 0.41, 0.13, 0.06, 0.11, 0.11, 0.12]
+            col_weights = [0.07, 0.39, 0.13, 0.06, 0.11, 0.12, 0.12]
         else:
-            col_weights = [0.06, 0.51, 0.13, 0.06, 0.12, 0.12]
+            col_weights = [0.07, 0.50, 0.13, 0.06, 0.12, 0.12]
 
         col_dxa = [int(total_dxa * w) for w in col_weights]
         col_dxa[-1] += total_dxa - sum(col_dxa)
