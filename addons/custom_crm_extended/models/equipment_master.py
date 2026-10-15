@@ -549,8 +549,8 @@ class EquipmentMaster(models.Model):
     @api.model
     def fields_get(self, allfields=None, attributes=None):
         res = super(EquipmentMaster, self).fields_get(allfields=allfields, attributes=attributes)
-        # When in import screen, allow 'equipment_id' to be mapped so users can map 'Equipment Id' column
-        if 'equipment_id' in res and self.env.context.get('import_compat'):
+        # Allow 'equipment_id' to be selectable in Import dropdowns while keeping it readonly in UI forms
+        if 'equipment_id' in res:
             res['equipment_id']['readonly'] = False
         return res
 
