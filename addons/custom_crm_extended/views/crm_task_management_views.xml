@@ -6,7 +6,7 @@
         <field name="model">crm.task.management</field>
         <field name="priority">20</field>
         <field name="arch" type="xml">
-            <form string="Task Quick Details">
+            <form string="Task Quick Details" class="crm-task-management-form">
                 <sheet>
                     <div class="oe_title">
                         <label for="name" string="Task Title"/>
@@ -88,7 +88,7 @@
         <field name="name">crm.task.management.form</field>
         <field name="model">crm.task.management</field>
         <field name="arch" type="xml">
-            <form string="Task Management" js_class="crm_task_management_form">
+            <form string="Task Management" class="crm-task-management-form" js_class="crm_task_management_form">
                 <header>
                     <button name="action_open_related_record" 
                             type="object" 
