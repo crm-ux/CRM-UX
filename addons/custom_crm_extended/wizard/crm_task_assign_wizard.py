@@ -151,28 +151,6 @@ class CrmTaskAssignWizard(models.TransientModel):
                 })
                 current_date = current_date + relativedelta(months=1)
                 count += 1
-                    'assigned_to_id': self.assigned_to_id.id,
-                    'assigned_by_id': self.env.user.id,
-                    'date_assigned': fields.Datetime.now(),
-                    'date_deadline': current_deadline,
-                    'instructions': self.instructions.strip() if self.instructions else '',
-                    'attachment_name': self.attachment_name or '',
-                    'attachment_file': self.attachment_file or False,
-                    'company_id': self.company_id.id if self.company_id else False,
-                    'related_model': self.related_model or False,
-                    'lead_id': self.lead_id.id if self.lead_id else False,
-                    'order_id': self.order_id.id if self.order_id else False,
-                    'partner_id': self.partner_id.id if self.partner_id else False,
-                    'equipment_id': self.equipment_id.id if self.equipment_id else False,
-                    'ticket_id': self.ticket_id.id if self.ticket_id else False,
-                    'amc_id': self.amc_id.id if self.amc_id else False,
-                    'is_recurring': False,
-                    'recurrence_period': False,
-                    'recurrence_end_date': False,
-                    'is_unlocked': True,
-                    'state': 'pending',
-                })
-                count += 1
 
         # 2. Notification message to assigned user with Direct Clickable Link
         sender = self.env.user
