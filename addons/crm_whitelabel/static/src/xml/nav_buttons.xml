@@ -4,13 +4,6 @@
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="before">
             <!-- 1st: Dashboard button -->
             <button class="btn btn-secondary" t-on-click="goDashboard">Dashboard</button>
-            <!-- 2nd: Custom Blue Assign Work Button -->
-            <button class="btn btn-primary ms-1" 
-                    t-on-click="openAssignWorkWizard" 
-                    style="background: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important; font-weight: 600 !important; box-shadow: 0 2px 6px rgba(11, 61, 145, 0.28) !important; padding: 0.35rem 0.85rem !important; border-radius: 6px !important; display: inline-flex !important; align-items: center !important; gap: 5px !important;"
-                    title="Assign Work to Team Member">
-                <i class="fa fa-plus-circle" style="font-size: 0.9rem;"></i> New
-            </button>
 
 
             <!-- 3rd: Stage Dropdown with matching 31px height -->
@@ -45,7 +38,7 @@
             </div>
         </xpath>
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="attributes">
-            <attribute name="t-att-class">(isTotalPipelineView || isTaskManagementView) ? 'd-none' : ''</attribute>
+            <attribute name="t-att-class">isTotalPipelineView ? 'd-none' : ''</attribute>
         </xpath>
     </t>
 </templates>
