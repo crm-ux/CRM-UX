@@ -491,14 +491,14 @@ div[name="note"] .o-wysiwyg {
     --o-form-check-input-checked-border-color: #0b3d91 !important;
 }
 
-/* Status Item 1: In Progress -> Cyan/Blue (#0284c7) */
+/* Status Item 1: In Progress -> Matches the strip color (#e07b53 / Coral-Terracotta) */
 .o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(1) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
-    accent-color: #0284c7 !important;
-    --o-form-check-input-checked-bg: #0284c7 !important;
+    background-color: #e07b53 !important;
+    border-color: #e07b53 !important;
+    accent-color: #e07b53 !important;
+    --o-form-check-input-checked-bg: #e07b53 !important;
 }
 
 /* Status Item 2: Pending -> Amber/Orange (#f59e0b) */

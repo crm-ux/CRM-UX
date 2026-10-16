@@ -677,14 +677,14 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 }
 
 /* 4 Status Checkboxes */
-/* In Progress -> Cyan/Blue (#0284c7) */
+/* In Progress -> Matches Strip (#e07b53 / Coral-Terracotta) */
 .o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(1) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked {
-  background-color: #0284c7 !important;
-  border-color: #0284c7 !important;
-  accent-color: #0284c7 !important;
-  --o-form-check-input-checked-bg: #0284c7 !important;
+  background-color: #e07b53 !important;
+  border-color: #e07b53 !important;
+  accent-color: #e07b53 !important;
+  --o-form-check-input-checked-bg: #e07b53 !important;
 }
 
 /* Pending -> Amber / Orange (#f59e0b) */
