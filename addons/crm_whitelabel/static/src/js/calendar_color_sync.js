@@ -142,9 +142,7 @@ function renderCustomSidebarFilters() {
                 initial: name.charAt(0).toUpperCase(),
                 checked: chk ? chk.checked : true,
             });
-            if (activeFilters.employees[name] === undefined) {
-                activeFilters.employees[name] = chk ? chk.checked : true;
-            }
+            activeFilters.employees[name] = true;
         }
     });
 
@@ -179,13 +177,13 @@ function renderCustomSidebarFilters() {
         <!-- 1. Assigned Employee Group -->
         <div class="custom_filter_group">
             <div class="custom_filter_header" id="custom_hdr_emp">
-                <input type="checkbox" id="chk_all_emp" ${allEmpChecked ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
+                <input type="checkbox" id="chk_all_emp" checked style="accent-color: #0b3d91 !important;" />
                 <span>Assigned Employee</span>
             </div>
             <div class="custom_filter_items" id="custom_emp_items">
                 ${finalEmployees.map(emp => `
                     <div class="custom_filter_item" data-emp="${emp.name}">
-                        <input type="checkbox" ${activeFilters.employees[emp.name] !== false ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
+                        <input type="checkbox" checked style="accent-color: #0b3d91 !important;" />
                         <span>${emp.name}</span>
                     </div>
                 `).join("")}
@@ -195,19 +193,24 @@ function renderCustomSidebarFilters() {
         <!-- 2. Status Group -->
         <div class="custom_filter_group mt-2">
             <div class="custom_filter_header" id="custom_hdr_status">
-                <input type="checkbox" id="chk_all_status" ${allStatusChecked ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
+                <input type="checkbox" id="chk_all_status" checked style="accent-color: #0b3d91 !important;" />
                 <span>Status</span>
             </div>
             <div class="custom_filter_items" id="custom_status_items">
                 ${statuses.map(st => `
                     <div class="custom_filter_item status_${st.key}" data-status="${st.key}">
-                        <input type="checkbox" ${activeFilters.statuses[st.key] !== false ? "checked" : ""} style="accent-color: ${st.color} !important;" />
+                        <input type="checkbox" checked style="accent-color: ${st.color} !important;" />
                         <span>${st.label}</span>
                     </div>
                 `).join("")}
             </div>
         </div>
     `;
+
+    // Explicitly guarantee every checkbox property is checked = true on DOM insertion
+    customPanel.querySelectorAll("input[type='checkbox']").forEach(chk => {
+        chk.checked = true;
+    });
 
     // Master checkbox: Assigned Employee All
     const chkAllEmp = customPanel.querySelector("#chk_all_emp");
