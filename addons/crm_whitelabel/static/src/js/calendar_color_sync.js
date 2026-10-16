@@ -44,17 +44,32 @@ function applyPopoverHeaderColor(popoverEl) {
 }
 
 // Global observer watching popovers when injected by Odoo / FullCalendar
-if (typeof window !== "undefined") {
+function initPopoverObserver() {
+    if (typeof document === "undefined") return;
+    const targetNode = document.body || document.documentElement;
+    if (!targetNode) return;
+
     const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             for (const node of mutation.addedNodes) {
-                if (node.nodeType === 1) {
-                    if (node.matches && (node.matches(".popover") || node.matches(".o_cw_popover") || node.querySelector?.(".o_cw_popover"))) {
+                if (node && node.nodeType === 1) {
+                    if (
+                        (node.matches && (node.matches(".popover") || node.matches(".o_cw_popover"))) ||
+                        node.querySelector?.(".o_cw_popover, .popover-header, .card-header")
+                    ) {
                         applyPopoverHeaderColor(node);
                     }
                 }
             }
         }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(targetNode, { childList: true, subtree: true });
+}
+
+if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initPopoverObserver);
+    } else {
+        initPopoverObserver();
+    }
 }
