@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-/**
+import { rpc } from "@web/core/network/rpc";
  * Ensures Calendar popover header matches the task status color 100%:
  * - Done -> Emerald Green (#d1fae5, text #065f46)
  * - Pending -> Amber / Gold (#fef3c7, text #92400e)
@@ -8,9 +8,9 @@
  * - Issue / Complaint -> Crimson Red (#fee2e2, text #991b1b)
  */
 const STATUS_COLORS = {
-    done: { bg: "#d1fae5", text: "#043c2e", border: "#10b981", accent: "#10b981" },
+    done: { bg: "#d1fae5", text: "#064e3b", border: "#10b981", accent: "#10b981" },
     pending: { bg: "#fef3c7", text: "#78350f", border: "#f59e0b", accent: "#f59e0b" },
-    in_progress: { bg: "#e0f2fe", text: "#0c4a6e", border: "#0284c7", accent: "#0284c7" },
+    in_progress: { bg: "#e0f2fe", text: "#073656", border: "#0284c7", accent: "#0284c7" },
     complaint: { bg: "#fee2e2", text: "#7f1d1d", border: "#ef4444", accent: "#ef4444" },
 };
 
@@ -317,6 +317,8 @@ function syncCalendarElements() {
             eventEl.style.setProperty("border-left", `4px solid ${cfg.border}`, "important");
             eventEl.querySelectorAll("*").forEach((el) => {
                 el.style.setProperty("color", cfg.text, "important");
+                el.style.setProperty("font-weight", "700", "important");
+                el.style.setProperty("font-size", "12px", "important");
                 el.style.setProperty("background", "transparent", "important");
                 el.style.setProperty("background-color", "transparent", "important");
             });
@@ -326,8 +328,141 @@ function syncCalendarElements() {
     // Apply active filter show/hide
     filterCalendarEventsInDOM();
 
+    // Render Bottom Collapsible Tray for tasks without deadline
+    renderUnscheduledTasksTray();
+
     // Popover Headers
     document.querySelectorAll(".popover, .o_cw_popover").forEach(applyPopoverColors);
+}
+
+let isUnscheduledLoading = false;
+let lastUnscheduledFetch = 0;
+
+async function renderUnscheduledTasksTray() {
+    const calendarView = document.querySelector(".o_calendar_view");
+    if (!calendarView) return;
+
+    let tray = document.querySelector(".crm_unscheduled_tray");
+    if (!tray) {
+        tray = document.createElement("div");
+        tray.className = "crm_unscheduled_tray";
+        tray.innerHTML = `
+            <div class="crm_unscheduled_header">
+                <div class="crm_unscheduled_title">
+                    <i class="fa fa-tasks text-primary"></i>
+                    <span>Unscheduled Tasks</span>
+                    <span class="crm_unscheduled_badge" id="crm_unscheduled_count">...</span>
+                    <span class="crm_unscheduled_hint">(Tasks without deadline)</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small" id="crm_unscheduled_toggle_text">Click to Expand</span>
+                    <i class="fa fa-chevron-up text-muted" id="crm_unscheduled_icon" style="transition: transform 0.2s;"></i>
+                </div>
+            </div>
+            <div class="crm_unscheduled_body" id="crm_unscheduled_cards">
+                <div class="text-muted small py-2">Loading tasks without deadline...</div>
+            </div>
+        `;
+
+        // Insert at the bottom of the calendar view
+        calendarView.appendChild(tray);
+
+        // Header click toggles expand/collapse
+        const header = tray.querySelector(".crm_unscheduled_header");
+        header.addEventListener("click", () => {
+            const isExpanded = tray.classList.toggle("expanded");
+            const icon = tray.querySelector("#crm_unscheduled_icon");
+            const toggleText = tray.querySelector("#crm_unscheduled_toggle_text");
+            if (isExpanded) {
+                icon.style.transform = "rotate(180deg)";
+                toggleText.textContent = "Click to Collapse";
+            } else {
+                icon.style.transform = "rotate(0deg)";
+                toggleText.textContent = "Click to Expand";
+            }
+        });
+    }
+
+    // Refresh data at most once every 5 seconds or when called
+    const now = Date.now();
+    if (isUnscheduledLoading || now - lastUnscheduledFetch < 5000) return;
+    isUnscheduledLoading = true;
+    lastUnscheduledFetch = now;
+
+    try {
+        const tasks = await rpc("/web/dataset/call_kw", {
+            model: "crm.task.management",
+            method: "search_read",
+            args: [[["date_deadline", "=", false]]],
+            kwargs: {
+                fields: ["id", "name", "assigned_to_id", "state", "task_color", "date_assigned"],
+                limit: 30,
+            },
+        });
+
+        const countBadge = tray.querySelector("#crm_unscheduled_count");
+        const cardsContainer = tray.querySelector("#crm_unscheduled_cards");
+
+        if (countBadge) {
+            countBadge.textContent = `${tasks.length} Tasks`;
+        }
+
+        if (cardsContainer) {
+            if (!tasks || tasks.length === 0) {
+                cardsContainer.innerHTML = `<div class="text-muted small py-2"><i class="fa fa-check-circle text-success me-1"></i> No unscheduled tasks. All tasks have deadlines assigned!</div>`;
+            } else {
+                cardsContainer.innerHTML = tasks.map(t => {
+                    const empName = t.assigned_to_id ? t.assigned_to_id[1] : "Unassigned";
+                    const stateLabel = (t.state || "pending").replace("_", " ").toUpperCase();
+                    let borderColor = "#f59e0b"; // default pending amber
+                    let stateBg = "#fef3c7";
+                    let stateColor = "#78350f";
+
+                    if (t.state === "done") {
+                        borderColor = "#10b981";
+                        stateBg = "#d1fae5";
+                        stateColor = "#064e3b";
+                    } else if (t.state === "in_progress") {
+                        borderColor = "#0284c7";
+                        stateBg = "#e0f2fe";
+                        stateColor = "#073656";
+                    } else if (t.state === "complaint") {
+                        borderColor = "#ef4444";
+                        stateBg = "#fee2e2";
+                        stateColor = "#7f1d1d";
+                    }
+
+                    return `
+                        <div class="crm_unscheduled_card" data-task-id="${t.id}" style="border-left-color: ${borderColor};">
+                            <div class="crm_unscheduled_card_title" title="${t.name}">
+                                ${t.name}
+                            </div>
+                            <div class="crm_unscheduled_card_meta">
+                                <span><i class="fa fa-user me-1 text-muted"></i>${empName}</span>
+                                <span class="crm_unscheduled_card_badge" style="background: ${stateBg}; color: ${stateColor};">
+                                    ${stateLabel}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                // Click on card opens the task form modal/view
+                cardsContainer.querySelectorAll(".crm_unscheduled_card").forEach(card => {
+                    card.addEventListener("click", () => {
+                        const taskId = parseInt(card.dataset.taskId, 10);
+                        if (taskId) {
+                            window.location.hash = `#id=${taskId}&model=crm.task.management&view_type=form`;
+                        }
+                    });
+                });
+            }
+        }
+    } catch (err) {
+        console.warn("Could not load unscheduled tasks:", err);
+    } finally {
+        isUnscheduledLoading = false;
+    }
 }
 
 // Global observer watching DOM updates
@@ -381,7 +516,7 @@ function listenForUnauthorizedDropRevert() {
     }
 
     window.addEventListener("error", (e) => {
-        if (e.message && e.message.includes("not authorized to modify")) {
+        if (e.message && (e.message.includes("not authorized to modify") || e.message.includes("earlier than"))) {
             reloadCalendar();
         }
     });
@@ -392,7 +527,7 @@ function listenForUnauthorizedDropRevert() {
             for (const node of m.addedNodes) {
                 if (node && node.nodeType === 1 && (node.classList?.contains("o_dialog") || node.classList?.contains("modal"))) {
                     const text = node.textContent || "";
-                    if (text.includes("not authorized to modify")) {
+                    if (text.includes("not authorized to modify") || text.includes("earlier than") || text.includes("Cannot reschedule")) {
                         // User error appeared for drag & drop
                         const closeBtns = node.querySelectorAll("button, .btn-close, .btn");
                         closeBtns.forEach(btn => {

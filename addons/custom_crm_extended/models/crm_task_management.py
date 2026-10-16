@@ -157,6 +157,18 @@ class CrmTaskManagement(models.Model):
                     if not record.can_edit_manager_fields:
                         raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only the task assigner or senior manager can change these details."))
 
+        # Validation: Task deadline cannot be set to a date earlier than its assigned date
+        if 'date_deadline' in vals and vals['date_deadline']:
+            deadline_str = str(vals['date_deadline'])[:10]
+            new_deadline = fields.Date.from_string(deadline_str)
+            for record in self:
+                if record.date_assigned:
+                    assigned_date = record.date_assigned.date()
+                    if new_deadline < assigned_date:
+                        raise UserError(_(
+                            "Cannot reschedule task to %s. Target deadline cannot be earlier than the task assignment date (%s)."
+                        ) % (new_deadline.strftime('%d-%m-%Y'), assigned_date.strftime('%d-%m-%Y')))
+
         res = super(CrmTaskManagement, self).write(vals)
 
         # Handle Sequential Task Unlock and Recurrence on completion
