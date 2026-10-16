@@ -68,6 +68,24 @@ class CrmTaskManagement(models.Model):
     completion_remarks = fields.Text(string='Work Completion Remarks', tracking=True)
     complaint_notes = fields.Text(string='Complaint / Issue Faced', tracking=True)
 
+    # Color index for Calendar Event strip matching exact status:
+    # 1: Amber/Orange (Pending)
+    # 2: Vibrant Blue (In Progress)
+    # 10: Emerald Green (Done)
+    # 9: Crimson Red (Issue / Complaint)
+    task_color = fields.Integer(string='Task Color', compute='_compute_task_color', store=True)
+
+    @api.depends('state')
+    def _compute_task_color(self):
+        color_map = {
+            'pending': 1,      # Amber / Orange
+            'in_progress': 2,  # Vibrant Blue
+            'done': 10,        # Emerald Green
+            'complaint': 9,    # Crimson Red
+        }
+        for rec in self:
+            rec.task_color = color_map.get(rec.state, 1)
+
     # Permission flag for assigner/manager-level fields
     can_edit_manager_fields = fields.Boolean(
         string='Can Edit Assigner Fields',

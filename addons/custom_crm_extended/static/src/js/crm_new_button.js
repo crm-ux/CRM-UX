@@ -14,14 +14,26 @@ async function openLeadCreationWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
-async function openTaskAssignWizard(env, controller) {
-    await env.services.action.doAction(TASK_WIZARD_ACTION, {
+async function openTaskAssignWizard(env, controller, extraContext = {}) {
+    await env.services.action.doAction({
+        type: "ir.actions.act_window",
+        res_model: "crm.task.assign.wizard",
+        views: [[false, "form"]],
+        target: "new",
+        name: "Assign Work",
+        context: {
+            ...extraContext,
+        },
+    }, {
         onClose: async () => {
             // Smoothly reload active controller model if present, otherwise reload action
-            if (controller?.model?.root?.load) {
+            if (controller?.model?.load) {
+                await controller.model.load();
+            } else if (controller?.model?.root?.load) {
                 await controller.model.root.load();
             } else if (env.services.action.currentController) {
-                await env.services.action.currentController.model?.root?.load();
+                await env.services.action.currentController.model?.load?.() ||
+                      env.services.action.currentController.model?.root?.load?.();
             }
         },
     });
@@ -103,14 +115,23 @@ patch(FormController.prototype, {
     },
 });
 
-// 4. Intercept Calendar View "New" button (createRecord / openNewRecord)
+// 4. Intercept Calendar View "New" button & date cell click to open Assign Work Wizard with deadline pre-filled
 patch(CalendarController.prototype, {
-    async createRecord() {
+    async createRecord(record) {
         if (
             this.model?.resModel === CRM_TASK_MODEL ||
             this.props?.resModel === CRM_TASK_MODEL
         ) {
-            await openTaskAssignWizard(this.env, this);
+            let deadline = null;
+            if (record?.start) {
+                deadline = typeof record.start === "string" ? record.start.slice(0, 10) : record.start.toISODate?.() || record.start.format?.("YYYY-MM-DD");
+            } else if (record?.date_deadline) {
+                deadline = record.date_deadline;
+            } else if (record?.date_start) {
+                deadline = typeof record.date_start === "string" ? record.date_start.slice(0, 10) : null;
+            }
+            const context = deadline ? { default_date_deadline: deadline } : {};
+            await openTaskAssignWizard(this.env, this, context);
             return;
         }
         return super.createRecord?.(...arguments);
