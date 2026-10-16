@@ -463,117 +463,107 @@ div[name="note"] .o-wysiwyg {
    6) Complaint -> Crimson Red (#ef4444)
    ========================================================================= */
 
-/* Master Headers ('Assigned Employee' and 'Status') */
-.o_calendar_sidebar .o_calendar_filter_header .form-check-input,
-.o_calendar_sidebar .o_calendar_filter_header input[type="checkbox"],
-.o_calendar_sidebar .o_calendar_filter_header .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_header input[type="checkbox"]:checked,
-.o_calendar_filter_header .form-check-input:checked,
-.o_calendar_sidebar header .form-check-input:checked,
-.o_calendar_sidebar .o_cw_filter_header .form-check-input:checked,
+/* ── Hide Default Odoo Calendar Filter Section ── */
+.o_calendar_sidebar .o_calendar_filter,
 .o_calendar_sidebar .o_calendar_filter_header,
-.o_calendar_sidebar .o_cw_filter_header {
-    background-color: #0b3d91 !important;
-    border-color: #0b3d91 !important;
-    accent-color: #0b3d91 !important;
-    --o-form-check-input-checked-bg: #0b3d91 !important;
-    --o-form-check-input-checked-border-color: #0b3d91 !important;
-    --form-check-input-checked-bg: #0b3d91 !important;
-    --form-check-input-checked-border-color: #0b3d91 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+.o_calendar_sidebar .o_calendar_filter_items {
+    display: none !important;
 }
 
-/* Assigned Employee Items (Pratham, Vishal, Anurag, etc.) */
-.o_calendar_sidebar .o_calendar_filter:first-child .o_calendar_filter_item .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter:first-child .o_calendar_filter_item input[type="checkbox"]:checked,
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .o_calendar_filter_item .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .form-check-input:checked {
-    background-color: #0b3d91 !important;
-    border-color: #0b3d91 !important;
-    accent-color: #0b3d91 !important;
-    --o-form-check-input-checked-bg: #0b3d91 !important;
-    --o-form-check-input-checked-border-color: #0b3d91 !important;
-    --form-check-input-checked-bg: #0b3d91 !important;
-    --form-check-input-checked-border-color: #0b3d91 !important;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+/* ── Custom Dedicated Calendar Filter Sidebar Panel ── */
+.custom_calendar_filters_container {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* =========================================================================
-   Status Checkbox & Calendar Strips Colors:
-   1. Done: Emerald Green (#10b981, bg: #d1fae5)
-   2. Pending: Amber / Gold (#f59e0b, bg: #fef3c7)
-   3. In Progress: Vibrant Blue (#0284c7, bg: #e0f2fe)
-   4. Issue / Complaint: Crimson Red (#ef4444, bg: #fee2e2)
-   ========================================================================= */
+.custom_filter_group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-/* 1. Done (task_color = 10) -> Emerald Green (#10b981) */
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="Done"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="done"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Done")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(label:contains("Done")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:has(span:contains("Done")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item[data-value="done"] .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_color_10 .form-check-input:checked {
-    background-color: #10b981 !important;
-    border-color: #10b981 !important;
+.custom_filter_header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #1e293b;
+    cursor: pointer;
+    user-select: none;
+    padding: 3px 0;
+}
+
+.custom_filter_item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.custom_filter_item:hover {
+    background-color: #f1f5f9;
+}
+
+.custom_filter_item input[type="checkbox"],
+.custom_filter_header input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #0b3d91;
+    border-radius: 3px;
+}
+
+/* Status Item Checkbox Colors 1:1 */
+.custom_filter_item.status_done input[type="checkbox"] {
     accent-color: #10b981 !important;
-    --o-form-check-input-checked-bg: #10b981 !important;
-    --o-form-check-input-checked-border-color: #10b981 !important;
-    --form-check-input-checked-bg: #10b981 !important;
-    --form-check-input-checked-border-color: #10b981 !important;
 }
-
-/* 2. Pending (task_color = 1) -> Amber / Gold (#f59e0b) */
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="Pending"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="pending"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Pending")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(label:contains("Pending")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:has(span:contains("Pending")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item[data-value="pending"] .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_color_1 .form-check-input:checked {
-    background-color: #f59e0b !important;
-    border-color: #f59e0b !important;
-    accent-color: #f59e0b !important;
-    --o-form-check-input-checked-bg: #f59e0b !important;
-    --o-form-check-input-checked-border-color: #f59e0b !important;
-    --form-check-input-checked-bg: #f59e0b !important;
-    --form-check-input-checked-border-color: #f59e0b !important;
-}
-
-/* 3. In Progress (task_color = 2) -> Vibrant Blue (#0284c7) */
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("In Progress")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(label:contains("In Progress")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:has(span:contains("In Progress")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item[data-value="in_progress"] .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_color_2 .form-check-input:checked {
-    background-color: #0284c7 !important;
-    border-color: #0284c7 !important;
+.custom_filter_item.status_in_progress input[type="checkbox"] {
     accent-color: #0284c7 !important;
-    --o-form-check-input-checked-bg: #0284c7 !important;
-    --o-form-check-input-checked-border-color: #0284c7 !important;
-    --form-check-input-checked-bg: #0284c7 !important;
-    --form-check-input-checked-border-color: #0284c7 !important;
+}
+.custom_filter_item.status_pending input[type="checkbox"] {
+    accent-color: #f59e0b !important;
+}
+.custom_filter_item.status_complaint input[type="checkbox"] {
+    accent-color: #ef4444 !important;
 }
 
-/* 4. Issue / Complaint (task_color = 9) -> Crimson Red (#ef4444) */
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="Complaint"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="complaint"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="Issue"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Complaint")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Issue")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(label:contains("Complaint")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has(label:contains("Issue")) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item[data-value="complaint"] .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_color_9 .form-check-input:checked {
-    background-color: #ef4444 !important;
-    border-color: #ef4444 !important;
-    accent-color: #ef4444 !important;
-    --o-form-check-input-checked-bg: #ef4444 !important;
-    --o-form-check-input-checked-border-color: #ef4444 !important;
-    --form-check-input-checked-bg: #ef4444 !important;
-    --form-check-input-checked-border-color: #ef4444 !important;
+/* Status badge pills */
+.custom_status_dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.custom_status_dot.done { background-color: #10b981; }
+.custom_status_dot.in_progress { background-color: #0284c7; }
+.custom_status_dot.pending { background-color: #f59e0b; }
+.custom_status_dot.complaint { background-color: #ef4444; }
+
+/* Employee avatar initial circle */
+.custom_emp_badge {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background-color: #0b3d91;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* --- Calendar Event Strips on Dates (FullCalendar / Odoo) --- */
