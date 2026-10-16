@@ -139,15 +139,12 @@ class CrmTaskManagement(models.Model):
             if record.assigned_by_id and record.assigned_by_id.id == current_user.id:
                 record.can_edit_manager_fields = True
                 continue
-            # The person to whom the task is assigned can edit/reschedule
-            if record.assigned_to_id and record.assigned_to_id.id == current_user.id:
-                record.can_edit_manager_fields = True
-                continue
-            # Managers/supervisors of the assignee or assigner can edit
+            # Senior managers/supervisors of the assignee can edit
             subordinates = current_user._get_all_subordinates().ids if hasattr(current_user, '_get_all_subordinates') else []
-            if (record.assigned_to_id and record.assigned_to_id.id in subordinates) or (record.assigned_by_id and record.assigned_by_id.id in subordinates):
+            if record.assigned_to_id and record.assigned_to_id.id in subordinates:
                 record.can_edit_manager_fields = True
                 continue
+            # Assigned employee CANNOT change deadline or task instructions
             record.can_edit_manager_fields = False
 
     def write(self, vals):
@@ -158,7 +155,7 @@ class CrmTaskManagement(models.Model):
             if not is_admin:
                 for record in self:
                     if not record.can_edit_manager_fields:
-                        raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only the task assigner, assignee, or supervisor can change these details."))
+                        raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only the task assigner or senior manager can change these details."))
 
         res = super(CrmTaskManagement, self).write(vals)
 
