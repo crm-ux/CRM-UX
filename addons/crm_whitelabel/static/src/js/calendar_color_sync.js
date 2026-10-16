@@ -1,12 +1,12 @@
 /** @odoo-module **/
 
 import { rpc } from "@web/core/network/rpc";
- * Ensures Calendar popover header matches the task status color 100%:
- * - Done -> Emerald Green (#d1fae5, text #065f46)
- * - Pending -> Amber / Gold (#fef3c7, text #92400e)
- * - In Progress -> Vibrant Blue (#e0f2fe, text #0369a1)
- * - Issue / Complaint -> Crimson Red (#fee2e2, text #991b1b)
- */
+/* Ensures Calendar popover header matches the task status color 100%:
+* - Done -> Emerald Green (#d1fae5, text #065f46)
+* - Pending -> Amber / Gold (#fef3c7, text #92400e)
+* - In Progress -> Vibrant Blue (#e0f2fe, text #0369a1)
+* - Issue / Complaint -> Crimson Red (#fee2e2, text #991b1b)
+*/
 const STATUS_COLORS = {
     done: { bg: "#d1fae5", text: "#064e3b", border: "#10b981", accent: "#10b981" },
     pending: { bg: "#fef3c7", text: "#78350f", border: "#f59e0b", accent: "#f59e0b" },
@@ -339,8 +339,8 @@ let isUnscheduledLoading = false;
 let lastUnscheduledFetch = 0;
 
 async function renderUnscheduledTasksTray() {
-    const calendarView = document.querySelector(".o_calendar_view");
-    if (!calendarView) return;
+    const calendarContainer = document.querySelector(".o_calendar_view") || document.querySelector(".o_view_controller:has(.o_calendar_widget)") || document.querySelector(".o_content:has(.o_calendar_widget)");
+    if (!calendarContainer) return;
 
     let tray = document.querySelector(".crm_unscheduled_tray");
     if (!tray) {
@@ -364,8 +364,7 @@ async function renderUnscheduledTasksTray() {
             </div>
         `;
 
-        // Insert at the bottom of the calendar view
-        calendarView.appendChild(tray);
+        calendarContainer.appendChild(tray);
 
         // Header click toggles expand/collapse
         const header = tray.querySelector(".crm_unscheduled_header");

@@ -835,12 +835,14 @@ div[name="note"] .o-wysiwyg {
    Bottom Collapsible Tray: Unscheduled Tasks (Tasks Without Deadline)
    ========================================================================= */
 .crm_unscheduled_tray {
-    position: relative;
+    position: sticky;
+    bottom: 0;
+    left: 0;
     width: 100%;
     background: #ffffff;
-    border-top: 2px solid #e2e8f0;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-    z-index: 10;
+    border-top: 2px solid #cbd5e1;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
+    z-index: 99;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;

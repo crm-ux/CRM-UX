@@ -184,27 +184,15 @@ class CrmTaskManagement(models.Model):
                 if next_task:
                     next_task.write({'is_unlocked': True})
 
-                # 2. If recurring task is marked done, generate next cycle
-                if rec.is_recurring and rec.date_deadline:
-                    next_deadline = rec.date_deadline
-                    if rec.recurrence_period == 'daily':
-                        next_deadline += relativedelta(days=1)
-                    elif rec.recurrence_period == 'weekly':
-                        next_deadline += relativedelta(weeks=1)
-                    elif rec.recurrence_period == 'monthly':
-                        next_deadline += relativedelta(months=1)
-                    elif rec.recurrence_period == 'yearly':
-                        next_deadline += relativedelta(years=1)
-
-                    if not rec.recurrence_end_date or next_deadline <= rec.recurrence_end_date:
-                        self.copy({
-                            'state': 'pending',
-                            'date_assigned': fields.Datetime.now(),
-                            'date_deadline': next_deadline,
-                            'completion_remarks': False,
-                            'complaint_notes': False,
-                            'is_unlocked': True,
-                        })
+                # 2. Sequential Delivery: when current task is done, unlock next pending task
+                next_task = self.search([
+                    ('assigned_to_id', '=', rec.assigned_to_id.id),
+                    ('state', '=', 'pending'),
+                    ('is_unlocked', '=', False),
+                    ('id', '!=', rec.id)
+                ], order='date_deadline asc, id asc', limit=1)
+                if next_task:
+                    next_task.write({'is_unlocked': True})
 
         return res
 

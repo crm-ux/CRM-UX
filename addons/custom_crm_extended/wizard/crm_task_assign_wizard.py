@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+from dateutil.relativedelta import relativedelta
 
 class CrmTaskAssignWizard(models.TransientModel):
     _name = 'crm.task.assign.wizard'
@@ -74,7 +75,7 @@ class CrmTaskAssignWizard(models.TransientModel):
         ])
         is_unlocked = (active_tasks_count == 0)
 
-        # 1. Create the persistent task management record
+        # 1. Create the persistent task management record (Initial occurrence)
         task_rec = self.env['crm.task.management'].create({
             'name': self.name.strip(),
             'assigned_to_id': self.assigned_to_id.id,
@@ -98,6 +99,52 @@ class CrmTaskAssignWizard(models.TransientModel):
             'is_unlocked': is_unlocked,
             'state': 'pending',
         })
+
+        # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
+        if self.is_recurring and self.date_deadline:
+            current_deadline = self.date_deadline
+            # Determine maximum occurrences to generate (default 12 cycles if no end date given)
+            end_date = self.recurrence_end_date or (current_deadline + relativedelta(years=1))
+            count = 0
+            while count < 36: # safety guard
+                if self.recurrence_period == 'daily':
+                    current_deadline += relativedelta(days=1)
+                elif self.recurrence_period == 'weekly':
+                    current_deadline += relativedelta(weeks=1)
+                elif self.recurrence_period == 'monthly':
+                    current_deadline += relativedelta(months=1)
+                elif self.recurrence_period == 'yearly':
+                    current_deadline += relativedelta(years=1)
+                else:
+                    break
+
+                if current_deadline > end_date:
+                    break
+
+                self.env['crm.task.management'].create({
+                    'name': self.name.strip(),
+                    'assigned_to_id': self.assigned_to_id.id,
+                    'assigned_by_id': self.env.user.id,
+                    'date_assigned': fields.Datetime.now(),
+                    'date_deadline': current_deadline,
+                    'instructions': self.instructions.strip() if self.instructions else '',
+                    'attachment_name': self.attachment_name or '',
+                    'attachment_file': self.attachment_file or False,
+                    'company_id': self.company_id.id if self.company_id else False,
+                    'related_model': self.related_model or False,
+                    'lead_id': self.lead_id.id if self.lead_id else False,
+                    'order_id': self.order_id.id if self.order_id else False,
+                    'partner_id': self.partner_id.id if self.partner_id else False,
+                    'equipment_id': self.equipment_id.id if self.equipment_id else False,
+                    'ticket_id': self.ticket_id.id if self.ticket_id else False,
+                    'amc_id': self.amc_id.id if self.amc_id else False,
+                    'is_recurring': True,
+                    'recurrence_period': self.recurrence_period,
+                    'recurrence_end_date': self.recurrence_end_date,
+                    'is_unlocked': False, # future recurring tasks stay locked until earlier ones finish
+                    'state': 'pending',
+                })
+                count += 1
 
         # 2. Notification message to assigned user with Direct Clickable Link
         sender = self.env.user
