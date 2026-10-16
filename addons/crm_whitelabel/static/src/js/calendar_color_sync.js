@@ -192,26 +192,40 @@ function syncCalendarElements() {
 }
 
 // Global observer watching DOM updates
+let syncTimeout = null;
+function debouncedSync() {
+    if (syncTimeout) clearTimeout(syncTimeout);
+    syncTimeout = setTimeout(() => {
+        syncCalendarElements();
+    }, 100);
+}
+
 function initPopoverObserver() {
     if (typeof document === "undefined") return;
     const targetNode = document.body || document.documentElement;
     if (!targetNode) return;
 
     const observer = new MutationObserver((mutations) => {
-        let shouldSync = false;
         for (const mutation of mutations) {
-            if (mutation.addedNodes.length > 0) {
-                shouldSync = true;
-                break;
+            for (const node of mutation.addedNodes) {
+                if (node && node.nodeType === 1) {
+                    if (node.classList?.contains("custom_calendar_filters_container")) {
+                        continue;
+                    }
+                    if (
+                        node.matches?.(".o_calendar_view, .o_calendar_sidebar, .popover, .fc-event") ||
+                        node.querySelector?.(".o_calendar_view, .o_calendar_sidebar, .popover, .fc-event")
+                    ) {
+                        debouncedSync();
+                        return;
+                    }
+                }
             }
-        }
-        if (shouldSync) {
-            syncCalendarElements();
         }
     });
 
     observer.observe(targetNode, { childList: true, subtree: true });
-    syncCalendarElements();
+    debouncedSync();
 }
 
 if (typeof document !== "undefined") {
