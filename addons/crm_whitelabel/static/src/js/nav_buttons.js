@@ -125,10 +125,25 @@ patch(ControlPanel.prototype, {
         });
     },
 
-    get canShowTaskCalendarNewButton() {
         const resModel = this.env.searchModel?.resModel || this.action?.currentController?.props?.resModel;
         const viewType = this.env.config?.viewType || this.action?.currentController?.props?.type;
         return resModel === "crm.task.management" && viewType === "calendar";
+    },
+
+    get unscheduledTasksCount() {
+        return window.__crm_unscheduled_count || 0;
+    },
+
+    async toggleUnscheduledTasksModal() {
+        // Open Unscheduled tasks in a clean modal view
+        return this.action.doAction({
+            type: "ir.actions.act_window",
+            name: "Unscheduled Tasks",
+            res_model: "crm.task.management",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["date_deadline", "=", false], ["state", "=", "pending"]],
+            target: "new",
+        });
     },
 
     get isTotalPipelineView() {

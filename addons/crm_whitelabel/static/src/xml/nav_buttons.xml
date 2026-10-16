@@ -9,6 +9,16 @@
                     t-if="canShowTaskCalendarNewButton" 
                     t-on-click="openAssignWorkWizard">New</button>
 
+            <!-- 2nd B: Unscheduled Tasks Button (Header Placement Idea 3) -->
+            <button class="btn btn-outline-primary ms-1 d-inline-flex align-items-center gap-1 crm_btn_unscheduled_tasks"
+                    t-if="canShowTaskCalendarNewButton"
+                    t-on-click="toggleUnscheduledTasksModal"
+                    style="border-color: #0284c7; color: #0284c7; font-weight: 600;">
+                <i class="fa fa-tasks"></i>
+                <span>Unscheduled Tasks</span>
+                <span class="badge rounded-pill bg-primary ms-1" t-esc="unscheduledTasksCount"/>
+            </button>
+
             <!-- 3rd: Stage Dropdown with matching 31px height -->
             <div class="ms-1 d-inline-flex align-items-center" t-if="isTotalPipelineView">
                 <select class="form-select form-select-sm text-start" t-on-change="onStageFilterChange" 

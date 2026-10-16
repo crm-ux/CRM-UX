@@ -121,20 +121,20 @@ function renderCustomSidebarFilters() {
     const sidebar = document.querySelector(".o_calendar_sidebar");
     if (!sidebar) return;
 
-    // Check if custom panel already exists - do NOT re-render repeatedly!
-    if (sidebar.querySelector(".custom_calendar_filters_container")) {
-        return;
+    // Keep customPanel reference and update dynamic employees list
+    let customPanel = sidebar.querySelector(".custom_calendar_filters_container");
+    if (!customPanel) {
+        customPanel = document.createElement("div");
+        customPanel.className = "custom_calendar_filters_container";
+        sidebar.appendChild(customPanel);
     }
-
-    const customPanel = document.createElement("div");
-    customPanel.className = "custom_calendar_filters_container";
-    sidebar.appendChild(customPanel);
 
     // Read real employee items from original Odoo DOM filters + visible events in calendar
     const empItems = [];
     const seenNames = new Set();
     const statusWords = ["done", "in progress", "pending", "issue", "complaint", "everyone", "all"];
 
+    // 1. From native Odoo filters
     document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter_item, .o_calendar_sidebar [data-name='assigned_to_id'] .o_calendar_filter_item").forEach((item) => {
         const titleEl = item.querySelector(".o_cw_filter_title, label, span:last-child");
         const chk = item.querySelector("input[type='checkbox'], .form-check-input");
@@ -153,7 +153,22 @@ function renderCustomSidebarFilters() {
         }
     });
 
-    // Also collect any employees found in the popovers or data attributes
+    // 2. Also dynamically collect any assigned employees from visible events on calendar
+    document.querySelectorAll(".fc-event, .fc-daygrid-event").forEach(ev => {
+        const title = ev.getAttribute("title") || ev.textContent || "";
+        // If event contains employee name
+        const match = title.match(/Assigned Employee[:\s]+([^\n\r]+)/i);
+        if (match && match[1]) {
+            const emp = match[1].trim();
+            if (emp && !statusWords.includes(emp.toLowerCase()) && !seenNames.has(emp)) {
+                seenNames.add(emp);
+                empItems.push({ name: emp, initial: emp.charAt(0).toUpperCase(), checked: true });
+                activeFilters.employees[emp] = true;
+            }
+        }
+    });
+
+    // Base default fallback employees
     const defaultEmps = ["Anurag", "Pratham", "Vishal", "Virat"];
     defaultEmps.forEach(name => {
         if (!seenNames.has(name)) {
@@ -175,6 +190,13 @@ function renderCustomSidebarFilters() {
             activeFilters.employees[emp.name] = true;
         }
     });
+
+    // Check if the rendered employees have changed; if not, don't destroy DOM
+    const currentRenderedNames = Array.from(customPanel.querySelectorAll("#custom_emp_items .custom_filter_item")).map(el => el.dataset.emp);
+    const newNames = finalEmployees.map(e => e.name);
+    if (currentRenderedNames.length === newNames.length && currentRenderedNames.every((v, i) => v === newNames[i])) {
+        return; // No changes, leave DOM as is!
+    }
 
     // Status definitions with 100% matched color scheme
     const statuses = [
@@ -392,50 +414,13 @@ let isUnscheduledLoading = false;
 let lastUnscheduledFetch = 0;
 
 async function renderUnscheduledTasksTray() {
-    const calendarContainer = document.querySelector(".o_calendar_view") || document.querySelector(".o_view_controller:has(.o_calendar_widget)") || document.querySelector(".o_content:has(.o_calendar_widget)");
-    if (!calendarContainer) return;
-
-    let tray = document.querySelector(".crm_unscheduled_tray");
-    if (!tray) {
-        tray = document.createElement("div");
-        tray.className = "crm_unscheduled_tray";
-        tray.innerHTML = `
-            <div class="crm_unscheduled_header">
-                <div class="crm_unscheduled_title">
-                    <i class="fa fa-tasks" style="color: #0284c7 !important; font-size: 14px;"></i>
-                    <span>Unscheduled Tasks</span>
-                    <span class="crm_unscheduled_badge" id="crm_unscheduled_count">...</span>
-                    <span class="crm_unscheduled_hint">(Tasks without deadline)</span>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small" id="crm_unscheduled_toggle_text">Click to Expand</span>
-                    <i class="fa fa-chevron-up text-muted" id="crm_unscheduled_icon" style="transition: transform 0.2s;"></i>
-                </div>
-            </div>
-            <div class="crm_unscheduled_body" id="crm_unscheduled_cards">
-                <div class="text-muted small py-2">Loading tasks without deadline...</div>
-            </div>
-        `;
-
-        calendarContainer.appendChild(tray);
-
-        // Header click toggles expand/collapse
-        const header = tray.querySelector(".crm_unscheduled_header");
-        header.addEventListener("click", () => {
-            const isExpanded = tray.classList.toggle("expanded");
-            const icon = tray.querySelector("#crm_unscheduled_icon");
-            const toggleText = tray.querySelector("#crm_unscheduled_toggle_text");
-            if (isExpanded) {
-                icon.style.transform = "rotate(180deg)";
-                toggleText.textContent = "Click to Collapse";
-            } else {
-                icon.style.transform = "rotate(0deg)";
-                toggleText.textContent = "Click to Expand";
-            }
-        });
+    // Idea 3: The bottom tray is removed so calendar dates and sidebar are never covered!
+    const existingBottomTray = document.querySelector(".crm_unscheduled_tray");
+    if (existingBottomTray) {
+        existingBottomTray.remove();
     }
 
-    // Refresh data at most once every 5 seconds or when called
+    // Refresh data at most once every 5 seconds
     const now = Date.now();
     if (isUnscheduledLoading || now - lastUnscheduledFetch < 5000) return;
     isUnscheduledLoading = true;
@@ -447,68 +432,18 @@ async function renderUnscheduledTasksTray() {
             method: "search_read",
             args: [[["date_deadline", "=", false], ["state", "=", "pending"]]],
             kwargs: {
-                fields: ["id", "name", "assigned_to_id", "state", "task_color", "date_assigned"],
-                limit: 30,
+                fields: ["id"],
+                limit: 100,
             },
         });
 
-        const countBadge = tray.querySelector("#crm_unscheduled_count");
-        const cardsContainer = tray.querySelector("#crm_unscheduled_cards");
-
-        if (countBadge) {
-            countBadge.textContent = `${tasks.length} Pending Tasks`;
-        }
-
-        if (cardsContainer) {
-            if (!tasks || tasks.length === 0) {
-                cardsContainer.innerHTML = `<div class="text-muted small py-2"><i class="fa fa-check-circle text-success me-1"></i> No pending unscheduled tasks!</div>`;
-            } else {
-                cardsContainer.innerHTML = tasks.map(t => {
-                    const empName = t.assigned_to_id ? t.assigned_to_id[1] : "Unassigned";
-                    const stateLabel = "PENDING";
-                    const borderColor = "#f59e0b"; // pending amber
-                    const stateBg = "#fef3c7";
-                    const stateColor = "#78350f";
-
-                    return `
-                        <div class="crm_unscheduled_card" data-task-id="${t.id}" style="border-left-color: ${borderColor};">
-                            <div class="crm_unscheduled_card_title" title="${t.name}">
-                                ${t.name}
-                            </div>
-                            <div class="crm_unscheduled_card_meta">
-                                <span><i class="fa fa-user me-1 text-muted"></i>${empName}</span>
-                                <span class="crm_unscheduled_card_badge" style="background: ${stateBg}; color: ${stateColor};">
-                                    ${stateLabel}
-                                </span>
-                            </div>
-                        </div>
-                    `;
-                }).join("");
-
-                // Click on card opens the task form view directly
-                cardsContainer.querySelectorAll(".crm_unscheduled_card").forEach(card => {
-                    card.addEventListener("click", () => {
-                        const taskId = parseInt(card.dataset.taskId, 10);
-                        if (taskId) {
-                            const env = odoo.__WOWL_DEBUG__?.root?.env;
-                            if (env?.services?.action) {
-                                env.services.action.doAction({
-                                    type: "ir.actions.act_window",
-                                    res_model: "crm.task.management",
-                                    res_id: taskId,
-                                    views: [[false, "form"]],
-                                    target: "current",
-                                });
-                            } else {
-                                window.location.href = `/web#id=${taskId}&model=crm.task.management&view_type=form`;
-                            }
-                        }
-                    });
-                });
-            }
+        window.__crm_unscheduled_count = tasks ? tasks.length : 0;
+        const topBadge = document.querySelector(".crm_btn_unscheduled_tasks .badge");
+        if (topBadge) {
+            topBadge.textContent = window.__crm_unscheduled_count;
         }
     } catch (err) {
-        console.warn("Could not load unscheduled tasks:", err);
+        console.warn("Could not fetch unscheduled count:", err);
     } finally {
         isUnscheduledLoading = false;
     }
