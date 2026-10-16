@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 from dateutil.relativedelta import relativedelta
 
 class CrmTaskAssignWizard(models.TransientModel):
@@ -8,7 +9,7 @@ class CrmTaskAssignWizard(models.TransientModel):
 
     assigned_to_id = fields.Many2one('res.users', string='Assign To', required=True)
     name = fields.Char(string='Task Title', required=True)
-    date_deadline = fields.Date(string='Deadline / Target Date')
+    date_deadline = fields.Date(string='Deadline')
     instructions = fields.Text(string='Work Details / Instructions')
     attachment_name = fields.Char(string='Attachment Name')
     attachment_file = fields.Binary(string='Attachment', attachment=True)
@@ -67,6 +68,10 @@ class CrmTaskAssignWizard(models.TransientModel):
     def action_assign_work(self):
         self.ensure_one()
 
+        # Validation: If Recurring is checked, Deadline cannot be empty
+        if self.is_recurring and not self.date_deadline:
+            raise UserError(_("Please set a Deadline for the task when enabling Recurring Task. The system uses the Deadline date as the recurring day for each cycle."))
+
         # Check sequential delivery: if employee already has active pending task, queue this one (is_unlocked = False)
         active_tasks_count = self.env['crm.task.management'].search_count([
             ('assigned_to_id', '=', self.assigned_to_id.id),
@@ -101,18 +106,13 @@ class CrmTaskAssignWizard(models.TransientModel):
         })
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
-        # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
             start_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
             current_deadline = start_deadline
             
-            end_date = None
-            if self.recurrence_end_date:
-                end_date = fields.Date.from_string(str(self.recurrence_end_date)[:10])
-            
-            max_cycles = 12 if not end_date else 36
+            # Generate 12 cycles directly from deadline
             count = 0
-            while count < max_cycles:
+            while count < 12:
                 if self.recurrence_period == 'daily':
                     current_deadline = current_deadline + relativedelta(days=1)
                 elif self.recurrence_period == 'weekly':
@@ -121,9 +121,6 @@ class CrmTaskAssignWizard(models.TransientModel):
                     current_deadline = current_deadline + relativedelta(years=1)
                 else: # default monthly
                     current_deadline = current_deadline + relativedelta(months=1)
-
-                if end_date and current_deadline > end_date:
-                    break
 
                 self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),

@@ -29,9 +29,10 @@
                                    placeholder="e.g. Inspect Boiler Unit 3"/>
                         </div>
                         <div>
-                            <label for="date_deadline" string="Deadline / Target Date" class="crm-wizard-label"/>
+                            <label for="date_deadline" string="Deadline" class="crm-wizard-label"/>
                             <field name="date_deadline" 
                                    string="Deadline"
+                                   required="is_recurring"
                                    nolabel="1"/>
                         </div>
                     </div>
@@ -65,15 +66,9 @@
                             <field name="is_recurring" nolabel="1"/>
                             <label for="is_recurring" string="Repeat this Task Automatically (Recurring)" class="crm-wizard-label"/>
                         </div>
-                        <div class="crm-wizard-grid-2-equal mt-2" invisible="not is_recurring">
-                            <div>
-                                <label for="recurrence_period" string="Repeat Cycle" class="crm-wizard-label"/>
-                                <field name="recurrence_period" nolabel="1"/>
-                            </div>
-                            <div>
-                                <label for="recurrence_end_date" string="Repeat Until (Optional)" class="crm-wizard-label"/>
-                                <field name="recurrence_end_date" nolabel="1"/>
-                            </div>
+                        <div class="mt-2" invisible="not is_recurring">
+                            <label for="recurrence_period" string="Repeat Cycle" class="crm-wizard-label"/>
+                            <field name="recurrence_period" nolabel="1"/>
                         </div>
                     </div>
 

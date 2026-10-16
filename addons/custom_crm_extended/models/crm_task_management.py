@@ -198,29 +198,19 @@ class CrmTaskManagement(models.Model):
         if not self.is_recurring or not self.date_deadline or not self.recurrence_period:
             return
 
-        start_deadline = fields.Date.from_string(self.date_deadline) if isinstance(self.date_deadline, str) else self.date_deadline
+        start_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
         current_deadline = start_deadline
-        end_date = self.recurrence_end_date
-        if end_date and isinstance(end_date, str):
-            end_date = fields.Date.from_string(end_date)
-        if not end_date:
-            end_date = current_deadline + relativedelta(years=1)
 
         count = 0
-        while count < 24:
+        while count < 12:
             if self.recurrence_period == 'daily':
-                current_deadline += relativedelta(days=1)
+                current_deadline = current_deadline + relativedelta(days=1)
             elif self.recurrence_period == 'weekly':
-                current_deadline += relativedelta(weeks=1)
-            elif self.recurrence_period == 'monthly':
-                current_deadline += relativedelta(months=1)
+                current_deadline = current_deadline + relativedelta(weeks=1)
             elif self.recurrence_period == 'yearly':
-                current_deadline += relativedelta(years=1)
-            else:
-                break
-
-            if current_deadline > end_date:
-                break
+                current_deadline = current_deadline + relativedelta(years=1)
+            else: # default monthly
+                current_deadline = current_deadline + relativedelta(months=1)
 
             # Check if this occurrence already exists
             existing = self.sudo().search_count([
