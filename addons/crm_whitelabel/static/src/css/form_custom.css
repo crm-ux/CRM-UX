@@ -718,46 +718,128 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   --o-form-check-input-checked-bg: #ef4444 !important;
 }
 
-/* Calendar Event Strip on Dates - Replace Purple with Matching Status Colors */
+/* =========================================================================
+   Calendar Event Strip on Dates - Replace Purple with Matching Status Colors
+   ========================================================================= */
+
+/* Override Odoo's default color-picker CSS variables on the calendar view */
+.o_calendar_view,
+.o_calendar_container,
+.fc,
+.fc-theme-standard {
+  /* Color 0: In Progress -> Vibrant Blue (#0284c7) */
+  --o-color-picker-color-0: #0284c7 !important;
+  --o-color-picker-bg-0: #e0f2fe !important;
+  --color-0: #0284c7 !important;
+
+  /* Color 1: Pending -> Warm Amber/Gold (#f59e0b) */
+  --o-color-picker-color-1: #f59e0b !important;
+  --o-color-picker-bg-1: #fef3c7 !important;
+  --color-1: #f59e0b !important;
+
+  /* Color 2: Done -> Emerald Green (#10b981) */
+  --o-color-picker-color-2: #10b981 !important;
+  --o-color-picker-bg-2: #d1fae5 !important;
+  --color-2: #10b981 !important;
+
+  /* Color 3: Issue / Complaint -> Crimson Red (#ef4444) */
+  --o-color-picker-color-3: #ef4444 !important;
+  --o-color-picker-bg-3: #fee2e2 !important;
+  --color-3: #ef4444 !important;
+}
+
+/* Event container common styling */
 .o_calendar_view .fc-event,
+.o_calendar_view .fc-daygrid-event,
+.o_calendar_view .o_calendar_event,
 .o_calendar_view [class*="o_calendar_color_"] {
   border-radius: 4px !important;
   font-weight: 600 !important;
   font-size: 12px !important;
+  padding: 1px 5px !important;
+  border-left-width: 4px !important;
+  border-left-style: solid !important;
 }
 
-/* Pending strip: Warm Amber (Replaces Odoo purple color_1 slot) */
+/* 1. Pending (Color 1 - Odoo default was purple #714B67): Force Amber/Orange */
 .o_calendar_view .o_calendar_color_1,
 .o_calendar_view .fc-event.o_calendar_color_1,
+.o_calendar_view [class*="o_calendar_color_1"],
 .o_calendar_sidebar .o_calendar_color_1 {
   background-color: #fef3c7 !important;
+  background: #fef3c7 !important;
   border-color: #f59e0b !important;
+  border-left-color: #f59e0b !important;
+  color: #92400e !important;
+}
+.o_calendar_view .o_calendar_color_1 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_1 .fc-event-main,
+.o_calendar_view .o_calendar_color_1 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_1 .fc-event-title {
   color: #92400e !important;
 }
 
-/* In Progress strip: Sky Blue */
+/* 2. In Progress (Color 0): Force Cyan / Blue */
 .o_calendar_view .o_calendar_color_0,
 .o_calendar_view .fc-event.o_calendar_color_0,
+.o_calendar_view [class*="o_calendar_color_0"],
 .o_calendar_sidebar .o_calendar_color_0 {
   background-color: #e0f2fe !important;
+  background: #e0f2fe !important;
   border-color: #0284c7 !important;
+  border-left-color: #0284c7 !important;
+  color: #075985 !important;
+}
+.o_calendar_view .o_calendar_color_0 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_0 .fc-event-main,
+.o_calendar_view .o_calendar_color_0 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_0 .fc-event-title {
   color: #075985 !important;
 }
 
-/* Done strip: Emerald Green */
+/* 3. Done (Color 2): Force Emerald Green */
 .o_calendar_view .o_calendar_color_2,
 .o_calendar_view .fc-event.o_calendar_color_2,
+.o_calendar_view [class*="o_calendar_color_2"],
 .o_calendar_sidebar .o_calendar_color_2 {
   background-color: #d1fae5 !important;
+  background: #d1fae5 !important;
   border-color: #10b981 !important;
+  border-left-color: #10b981 !important;
+  color: #065f46 !important;
+}
+.o_calendar_view .o_calendar_color_2 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_2 .fc-event-main,
+.o_calendar_view .o_calendar_color_2 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_2 .fc-event-title {
   color: #065f46 !important;
 }
 
-/* Complaint strip: Crimson Red */
+/* 4. Issue / Complaint (Color 3): Force Crimson Red */
 .o_calendar_view .o_calendar_color_3,
 .o_calendar_view .fc-event.o_calendar_color_3,
+.o_calendar_view [class*="o_calendar_color_3"],
 .o_calendar_sidebar .o_calendar_color_3 {
   background-color: #fee2e2 !important;
+  background: #fee2e2 !important;
   border-color: #ef4444 !important;
+  border-left-color: #ef4444 !important;
   color: #991b1b !important;
+}
+.o_calendar_view .o_calendar_color_3 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_3 .fc-event-main,
+.o_calendar_view .o_calendar_color_3 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_3 .fc-event-title {
+  color: #991b1b !important;
+}
+
+/* Also purge ANY inline background style containing purple shades on calendar events */
+.o_calendar_view .fc-event[style*="background-color: rgb(113, 75, 103)"],
+.o_calendar_view .fc-event[style*="background-color: rgb(113, 99, 158)"],
+.o_calendar_view .fc-event[style*="#714B67"],
+.o_calendar_view .fc-event[style*="#71639e"],
+.o_calendar_view .fc-event[style*="#6c5b7b"] {
+  background-color: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
 }
