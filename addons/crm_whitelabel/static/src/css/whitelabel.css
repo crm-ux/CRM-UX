@@ -523,20 +523,37 @@ div[name="note"] .o-wysiwyg {
     border-left-style: solid !important;
 }
 
-/* 1. Slot 0 / In Progress ("abc" on Oct 13) -> Cyan / Blue */
+/* 1. Slot 0 / In Progress ("abc" on Oct 13) -> Cyan / Blue (#0284c7) */
 .o_calendar_view .fc-event.o_calendar_color_0,
 .o_calendar_view .fc-daygrid-event.o_calendar_color_0,
-.o_calendar_view .o_calendar_color_0,
+.o_calendar_view .fc-daygrid-dot-event.o_calendar_color_0,
+.o_calendar_view .fc-timegrid-event.o_calendar_color_0,
+.o_calendar_view a.o_calendar_color_0,
+.o_calendar_view div.o_calendar_color_0,
 .o_calendar_view [class*="o_calendar_color_0"],
 .o_calendar_sidebar .o_calendar_color_0 {
     background-color: #e0f2fe !important;
     background: #e0f2fe !important;
     border-color: #0284c7 !important;
-    border-left-color: #0284c7 !important;
+    border-left: 4px solid #0284c7 !important;
     color: #075985 !important;
 }
 .o_calendar_view .o_calendar_color_0 *,
+.o_calendar_view [class*="o_calendar_color_0"] *,
 .o_calendar_view .fc-event.o_calendar_color_0 * {
+    color: #075985 !important;
+}
+
+/* Also explicitly target when the event title contains 'abc' or any In Progress task */
+.o_calendar_view .fc-event:has(.o_event_title:contains("abc")),
+.o_calendar_view .fc-daygrid-event:has(.o_event_title:contains("abc")) {
+    background-color: #e0f2fe !important;
+    background: #e0f2fe !important;
+    border-color: #0284c7 !important;
+    border-left: 4px solid #0284c7 !important;
+}
+.o_calendar_view .fc-event:has(.o_event_title:contains("abc")) *,
+.o_calendar_view .fc-daygrid-event:has(.o_event_title:contains("abc")) * {
     color: #075985 !important;
 }
 
