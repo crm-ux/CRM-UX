@@ -46,13 +46,14 @@ function renderCustomSidebarFilters() {
     const sidebar = document.querySelector(".o_calendar_sidebar");
     if (!sidebar) return;
 
-    // Check if custom panel already exists
-    let customPanel = sidebar.querySelector(".custom_calendar_filters_container");
-    if (!customPanel) {
-        customPanel = document.createElement("div");
-        customPanel.className = "custom_calendar_filters_container";
-        sidebar.appendChild(customPanel);
+    // Check if custom panel already exists - do NOT re-render repeatedly!
+    if (sidebar.querySelector(".custom_calendar_filters_container")) {
+        return;
     }
+
+    const customPanel = document.createElement("div");
+    customPanel.className = "custom_calendar_filters_container";
+    sidebar.appendChild(customPanel);
 
     // Read real employee items from original Odoo DOM filters
     const empItems = [];
