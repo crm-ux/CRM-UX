@@ -367,10 +367,59 @@ function initPopoverObserver() {
     debouncedSync();
 }
 
+// Auto-revert unauthorized drag and drop in Calendar view & ensure 100% database sync
+function listenForUnauthorizedDropRevert() {
+    function reloadCalendar() {
+        // Trigger calendar reload so the calendar model and view are 100% refreshed from database
+        const activeNav = document.querySelector(".o_calendar_navigation .active, .fc-button-active");
+        if (activeNav) {
+            activeNav.click();
+        } else {
+            const todayBtn = document.querySelector(".o_calendar_button_today, .fc-today-button");
+            if (todayBtn) todayBtn.click();
+        }
+    }
+
+    window.addEventListener("error", (e) => {
+        if (e.message && e.message.includes("not authorized to modify")) {
+            reloadCalendar();
+        }
+    });
+
+    // Observer to detect when the UserError modal closes, immediately reload the calendar to snap event back to original date
+    const modalObserver = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+            for (const node of m.addedNodes) {
+                if (node && node.nodeType === 1 && (node.classList?.contains("o_dialog") || node.classList?.contains("modal"))) {
+                    const text = node.textContent || "";
+                    if (text.includes("not authorized to modify")) {
+                        // User error appeared for drag & drop
+                        const closeBtns = node.querySelectorAll("button, .btn-close, .btn");
+                        closeBtns.forEach(btn => {
+                            btn.addEventListener("click", () => {
+                                setTimeout(reloadCalendar, 100);
+                            });
+                        });
+                    }
+                }
+            }
+        }
+    });
+
+    const targetNode = document.body || document.documentElement;
+    if (targetNode) {
+        modalObserver.observe(targetNode, { childList: true, subtree: true });
+    }
+}
+
 if (typeof document !== "undefined") {
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initPopoverObserver);
+        document.addEventListener("DOMContentLoaded", () => {
+            initPopoverObserver();
+            listenForUnauthorizedDropRevert();
+        });
     } else {
         initPopoverObserver();
+        listenForUnauthorizedDropRevert();
     }
 }
