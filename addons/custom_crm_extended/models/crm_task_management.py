@@ -198,11 +198,16 @@ class CrmTaskManagement(models.Model):
         if not self.is_recurring or not self.date_deadline or not self.recurrence_period:
             return
 
-        current_deadline = self.date_deadline
-        end_date = self.recurrence_end_date or (current_deadline + relativedelta(years=1))
-        count = 0
+        start_deadline = fields.Date.from_string(self.date_deadline) if isinstance(self.date_deadline, str) else self.date_deadline
+        current_deadline = start_deadline
+        end_date = self.recurrence_end_date
+        if end_date and isinstance(end_date, str):
+            end_date = fields.Date.from_string(end_date)
+        if not end_date:
+            end_date = current_deadline + relativedelta(years=1)
 
-        while count < 36:
+        count = 0
+        while count < 24:
             if self.recurrence_period == 'daily':
                 current_deadline += relativedelta(days=1)
             elif self.recurrence_period == 'weekly':
@@ -218,13 +223,13 @@ class CrmTaskManagement(models.Model):
                 break
 
             # Check if this occurrence already exists
-            existing = self.search_count([
+            existing = self.sudo().search_count([
                 ('name', '=', self.name),
                 ('assigned_to_id', '=', self.assigned_to_id.id),
                 ('date_deadline', '=', current_deadline),
             ])
             if not existing:
-                self.create({
+                self.sudo().create({
                     'name': self.name,
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.assigned_by_id.id if self.assigned_by_id else self.env.user.id,
@@ -244,7 +249,7 @@ class CrmTaskManagement(models.Model):
                     'is_recurring': True,
                     'recurrence_period': self.recurrence_period,
                     'recurrence_end_date': self.recurrence_end_date,
-                    'is_unlocked': False,
+                    'is_unlocked': True,
                     'state': 'pending',
                 })
             count += 1

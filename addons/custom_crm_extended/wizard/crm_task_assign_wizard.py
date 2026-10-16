@@ -102,11 +102,16 @@ class CrmTaskAssignWizard(models.TransientModel):
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
-            current_deadline = self.date_deadline
-            # Determine maximum occurrences to generate (default 12 cycles if no end date given)
-            end_date = self.recurrence_end_date or (current_deadline + relativedelta(years=1))
+            start_deadline = fields.Date.from_string(self.date_deadline) if isinstance(self.date_deadline, str) else self.date_deadline
+            current_deadline = start_deadline
+            end_date = self.recurrence_end_date
+            if end_date and isinstance(end_date, str):
+                end_date = fields.Date.from_string(end_date)
+            if not end_date:
+                end_date = current_deadline + relativedelta(years=1)
+
             count = 0
-            while count < 36: # safety guard
+            while count < 24: # generate up to 24 cycles
                 if self.recurrence_period == 'daily':
                     current_deadline += relativedelta(days=1)
                 elif self.recurrence_period == 'weekly':
@@ -121,7 +126,7 @@ class CrmTaskAssignWizard(models.TransientModel):
                 if current_deadline > end_date:
                     break
 
-                self.env['crm.task.management'].create({
+                self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.env.user.id,
@@ -141,7 +146,7 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'is_recurring': True,
                     'recurrence_period': self.recurrence_period,
                     'recurrence_end_date': self.recurrence_end_date,
-                    'is_unlocked': False, # future recurring tasks stay locked until earlier ones finish
+                    'is_unlocked': True,
                     'state': 'pending',
                 })
                 count += 1
