@@ -246,9 +246,9 @@ class CrmTaskManagement(models.Model):
                     'equipment_id': self.equipment_id.id if self.equipment_id else False,
                     'ticket_id': self.ticket_id.id if self.ticket_id else False,
                     'amc_id': self.amc_id.id if self.amc_id else False,
-                    'is_recurring': True,
-                    'recurrence_period': self.recurrence_period,
-                    'recurrence_end_date': self.recurrence_end_date,
+                    'is_recurring': False,
+                    'recurrence_period': False,
+                    'recurrence_end_date': False,
                     'is_unlocked': True,
                     'state': 'pending',
                 })

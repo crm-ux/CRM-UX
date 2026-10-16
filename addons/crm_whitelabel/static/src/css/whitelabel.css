@@ -587,6 +587,17 @@ div[name="note"] .o-wysiwyg {
     border-left-style: solid !important;
 }
 
+/* Remove dot, bullet, circle and extra symbols before event title */
+.o_calendar_view .fc-daygrid-event-dot,
+.o_calendar_view .fc-event-dot,
+.o_calendar_view .fc-event-time,
+.o_calendar_view .fc-event-main::before,
+.o_calendar_view .fc-event-title::before,
+.o_calendar_view .fc-daygrid-event::before {
+    display: none !important;
+    content: none !important;
+}
+
 /* 1. Done (task_color = 10) -> Emerald Green (#10b981, bg: #d1fae5, bold deep dark green text #064e3b) */
 .o_calendar_view .fc-event.o_calendar_color_10,
 .o_calendar_view .fc-daygrid-event.o_calendar_color_10,

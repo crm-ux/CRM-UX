@@ -322,6 +322,10 @@ function syncCalendarElements() {
                 el.style.setProperty("background", "transparent", "important");
                 el.style.setProperty("background-color", "transparent", "important");
             });
+            // Remove any bullet, dot or time symbol before the event title
+            eventEl.querySelectorAll(".fc-daygrid-event-dot, .fc-event-dot, .fc-event-time").forEach((dot) => {
+                dot.style.setProperty("display", "none", "important");
+            });
         }
     });
 
@@ -343,12 +347,17 @@ async function ensureAllRecurringTasksGenerated() {
     if (hasTriggeredRecurringSync) return;
     hasTriggeredRecurringSync = true;
     try {
-        await rpc("/web/dataset/call_kw", {
+        const generated = await rpc("/web/dataset/call_kw", {
             model: "crm.task.management",
             method: "action_auto_generate_all_recurring",
             args: [[]],
             kwargs: {},
         });
+        if (generated) {
+            // Re-render or trigger active navigation to pull newly generated monthly tasks from DB
+            const activeNav = document.querySelector(".o_calendar_navigation .active, .fc-button-active");
+            if (activeNav) activeNav.click();
+        }
     } catch (e) {
         // silent
     }
