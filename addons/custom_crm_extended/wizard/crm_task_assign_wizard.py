@@ -107,23 +107,50 @@ class CrmTaskAssignWizard(models.TransientModel):
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
-            start_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
-            current_deadline = start_deadline
+            target_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
+            today = fields.Date.today()
+            target_day = target_deadline.day
             
-            # Generate 12 cycles directly from deadline
+            # Start from this month / next month with the same target day
+            # If target_deadline is in the future, create all intermediate months up to target_deadline
+            current_date = today
+            # Align current_date to target day
+            try:
+                current_date = current_date.replace(day=target_day)
+            except ValueError:
+                pass # e.g. Feb 30th
+            
+            # If current month's target day has already passed or is today, start next month
+            if current_date <= today:
+                current_date = current_date + relativedelta(months=1)
+                
             count = 0
-            while count < 12:
-                if self.recurrence_period == 'daily':
-                    current_deadline = current_deadline + relativedelta(days=1)
-                elif self.recurrence_period == 'weekly':
-                    current_deadline = current_deadline + relativedelta(weeks=1)
-                elif self.recurrence_period == 'yearly':
-                    current_deadline = current_deadline + relativedelta(years=1)
-                else: # default monthly
-                    current_deadline = current_deadline + relativedelta(months=1)
-
+            while current_date < target_deadline and count < 36:
                 self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),
+                    'assigned_to_id': self.assigned_to_id.id,
+                    'assigned_by_id': self.env.user.id,
+                    'date_assigned': fields.Datetime.now(),
+                    'date_deadline': current_date,
+                    'instructions': self.instructions.strip() if self.instructions else '',
+                    'attachment_name': self.attachment_name or '',
+                    'attachment_file': self.attachment_file or False,
+                    'company_id': self.company_id.id if self.company_id else False,
+                    'related_model': self.related_model or False,
+                    'lead_id': self.lead_id.id if self.lead_id else False,
+                    'order_id': self.order_id.id if self.order_id else False,
+                    'partner_id': self.partner_id.id if self.partner_id else False,
+                    'equipment_id': self.equipment_id.id if self.equipment_id else False,
+                    'ticket_id': self.ticket_id.id if self.ticket_id else False,
+                    'amc_id': self.amc_id.id if self.amc_id else False,
+                    'is_recurring': False,
+                    'recurrence_period': False,
+                    'recurrence_end_date': False,
+                    'is_unlocked': True,
+                    'state': 'pending',
+                })
+                current_date = current_date + relativedelta(months=1)
+                count += 1
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
