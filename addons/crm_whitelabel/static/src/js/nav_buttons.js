@@ -125,6 +125,7 @@ patch(ControlPanel.prototype, {
         });
     },
 
+    get canShowTaskCalendarNewButton() {
         const resModel = this.env.searchModel?.resModel || this.action?.currentController?.props?.resModel;
         const viewType = this.env.config?.viewType || this.action?.currentController?.props?.type;
         return resModel === "crm.task.management" && viewType === "calendar";
