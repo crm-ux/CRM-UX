@@ -592,14 +592,20 @@ div[name="note"] .o-wysiwyg {
 
 /* Force all calendar events to take background & border cleanly */
 .o_calendar_view .fc-event,
-.o_calendar_view .fc-daygrid-event,
-.o_calendar_view .fc-event-title,
-.o_calendar_view .fc-event-main {
+.o_calendar_view .fc-daygrid-event {
     border-radius: 4px !important;
     font-weight: 700 !important;
     font-size: 12px !important;
-    border-left-width: 4px !important;
-    border-left-style: solid !important;
+    border: 1px solid transparent !important;
+    padding: 2px 4px !important;
+}
+
+.o_calendar_view .fc-event-title,
+.o_calendar_view .fc-event-main {
+    border: none !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    background: transparent !important;
 }
 
 /* Remove dot, bullet, circle, avatar images and extra symbols before event title */
@@ -632,7 +638,6 @@ div[name="note"] .o-wysiwyg {
     background-color: #d1fae5 !important;
     background: #d1fae5 !important;
     border-color: #10b981 !important;
-    border-left: 4px solid #10b981 !important;
     color: #064e3b !important;
 }
 
@@ -659,7 +664,6 @@ div[name="note"] .o-wysiwyg {
     background-color: #fef3c7 !important;
     background: #fef3c7 !important;
     border-color: #f59e0b !important;
-    border-left: 4px solid #f59e0b !important;
     color: #78350f !important;
 }
 
@@ -686,7 +690,6 @@ div[name="note"] .o-wysiwyg {
     background-color: #e0f2fe !important;
     background: #e0f2fe !important;
     border-color: #0284c7 !important;
-    border-left: 4px solid #0284c7 !important;
     color: #073656 !important;
 }
 
@@ -713,7 +716,6 @@ div[name="note"] .o-wysiwyg {
     background-color: #fee2e2 !important;
     background: #fee2e2 !important;
     border-color: #ef4444 !important;
-    border-left: 4px solid #ef4444 !important;
     color: #7f1d1d !important;
 }
 
@@ -876,18 +878,17 @@ div[name="note"] .o-wysiwyg {
    Bottom Collapsible Tray: Unscheduled Tasks (Tasks Without Deadline)
    ========================================================================= */
 .crm_unscheduled_tray {
-    position: sticky;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     background: #ffffff;
     border-top: 2px solid #cbd5e1;
-    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.08);
-    z-index: 99;
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.15);
+    z-index: 1050;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    flex-shrink: 0;
 }
 
 .crm_unscheduled_header {
