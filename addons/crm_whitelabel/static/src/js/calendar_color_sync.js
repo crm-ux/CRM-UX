@@ -331,8 +331,27 @@ function syncCalendarElements() {
     // Render Bottom Collapsible Tray for tasks without deadline
     renderUnscheduledTasksTray();
 
+    // Trigger auto-scheduler for all recurring tasks so all future occurrences exist in DB
+    ensureAllRecurringTasksGenerated();
+
     // Popover Headers
     document.querySelectorAll(".popover, .o_cw_popover").forEach(applyPopoverColors);
+}
+
+let hasTriggeredRecurringSync = false;
+async function ensureAllRecurringTasksGenerated() {
+    if (hasTriggeredRecurringSync) return;
+    hasTriggeredRecurringSync = true;
+    try {
+        await rpc("/web/dataset/call_kw", {
+            model: "crm.task.management",
+            method: "action_auto_generate_all_recurring",
+            args: [[]],
+            kwargs: {},
+        });
+    } catch (e) {
+        // silent
+    }
 }
 
 let isUnscheduledLoading = false;

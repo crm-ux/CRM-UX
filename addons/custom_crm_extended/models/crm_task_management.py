@@ -254,6 +254,18 @@ class CrmTaskManagement(models.Model):
                 })
             count += 1
 
+    @api.model
+    def action_auto_generate_all_recurring(self):
+        """Finds all recurring tasks that don't have future occurrences yet and creates them."""
+        recurring_tasks = self.sudo().search([
+            ('is_recurring', '=', True),
+            ('date_deadline', '!=', False),
+            ('recurrence_period', '!=', False),
+        ])
+        for task in recurring_tasks:
+            task._generate_future_recurring_occurrences()
+        return True
+
     def action_open_related_record(self):
         """1-Click Smart Button to directly open the linked Lead, Quote, Equipment, Customer, etc."""
         self.ensure_one()
