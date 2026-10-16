@@ -69,7 +69,7 @@ class CrmTaskManagement(models.Model):
     complaint_notes = fields.Text(string='Complaint / Issue Faced', tracking=True)
 
     # Color index for Calendar Event strip matching exact status:
-    # 1: Amber/Orange (Pending)
+    # 1: Amber / Gold (Pending)
     # 2: Vibrant Blue (In Progress)
     # 10: Emerald Green (Done)
     # 9: Crimson Red (Issue / Complaint)
@@ -78,7 +78,7 @@ class CrmTaskManagement(models.Model):
     @api.depends('state')
     def _compute_task_color(self):
         color_map = {
-            'pending': 1,      # Amber / Orange
+            'pending': 1,      # Amber / Gold
             'in_progress': 2,  # Vibrant Blue
             'done': 10,        # Emerald Green
             'complaint': 9,    # Crimson Red

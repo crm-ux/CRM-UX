@@ -632,6 +632,7 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #0b3d91 !important;
   border-color: #0b3d91 !important;
 }
+
 /* =========================================================================
    Task Management Calendar Sidebar Filters & Event Strip Colors:
    1) "Assigned Employee" header AND all assigned employee checkboxes -> Custom Blue (#0b3d91)
@@ -676,46 +677,67 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   --form-check-input-checked-border-color: #0b3d91 !important;
 }
 
-/* 4 Status Checkboxes */
-/* In Progress -> Cyan/Blue (#0284c7) */
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(1) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked {
-  background-color: #0284c7 !important;
-  border-color: #0284c7 !important;
-  accent-color: #0284c7 !important;
-  --o-form-check-input-checked-bg: #0284c7 !important;
-}
-
-/* Pending -> Amber / Orange (#f59e0b) */
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(2) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="Pending"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="pending"]) .form-check-input:checked {
-  background-color: #f59e0b !important;
-  border-color: #f59e0b !important;
-  accent-color: #f59e0b !important;
-  --o-form-check-input-checked-bg: #f59e0b !important;
-}
-
+/* 4 Status Checkboxes - Matched 1:1 with Strips */
 /* Done -> Emerald Green (#10b981) */
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(3) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="Done"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="done"]) .form-check-input:checked {
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="done"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Done")) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item[data-value="done"] .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_color_10 .form-check-input:checked {
   background-color: #10b981 !important;
   border-color: #10b981 !important;
   accent-color: #10b981 !important;
   --o-form-check-input-checked-bg: #10b981 !important;
+  --o-form-check-input-checked-border-color: #10b981 !important;
+  --form-check-input-checked-bg: #10b981 !important;
+  --form-check-input-checked-border-color: #10b981 !important;
+}
+
+/* Pending -> Amber / Gold (#f59e0b) */
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="Pending"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="pending"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Pending")) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item[data-value="pending"] .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_color_1 .form-check-input:checked {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  accent-color: #f59e0b !important;
+  --o-form-check-input-checked-bg: #f59e0b !important;
+  --o-form-check-input-checked-border-color: #f59e0b !important;
+  --form-check-input-checked-bg: #f59e0b !important;
+  --form-check-input-checked-border-color: #f59e0b !important;
+}
+
+/* In Progress -> Vibrant Blue (#0284c7) */
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("In Progress")) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item[data-value="in_progress"] .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_color_2 .form-check-input:checked {
+  background-color: #0284c7 !important;
+  border-color: #0284c7 !important;
+  accent-color: #0284c7 !important;
+  --o-form-check-input-checked-bg: #0284c7 !important;
+  --o-form-check-input-checked-border-color: #0284c7 !important;
+  --form-check-input-checked-bg: #0284c7 !important;
+  --form-check-input-checked-border-color: #0284c7 !important;
 }
 
 /* Issue / Complaint -> Crimson Red (#ef4444) */
-.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(4) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="Complaint"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="complaint"]) .form-check-input:checked,
 .o_calendar_sidebar .o_calendar_filter_item:has([title*="Issue"]) .form-check-input:checked,
-.o_calendar_sidebar .o_calendar_filter_item:has([title*="complaint"]) .form-check-input:checked {
+.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Complaint")) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has(.o_cw_filter_title:contains("Issue")) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item[data-value="complaint"] .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_color_9 .form-check-input:checked {
   background-color: #ef4444 !important;
   border-color: #ef4444 !important;
   accent-color: #ef4444 !important;
   --o-form-check-input-checked-bg: #ef4444 !important;
+  --o-form-check-input-checked-border-color: #ef4444 !important;
+  --form-check-input-checked-bg: #ef4444 !important;
+  --form-check-input-checked-border-color: #ef4444 !important;
 }
 
 /* =========================================================================
@@ -761,7 +783,7 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   border-left-style: solid !important;
 }
 
-/* 1. Pending (Color 1 - Odoo default was purple #714B67): Force Amber/Orange */
+/* 1. Pending (task_color = 1): Warm Amber / Gold (#f59e0b) */
 .o_calendar_view .o_calendar_color_1,
 .o_calendar_view .fc-event.o_calendar_color_1,
 .o_calendar_view [class*="o_calendar_color_1"],
@@ -769,9 +791,10 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background-color: #fef3c7 !important;
   background: #fef3c7 !important;
   border-color: #f59e0b !important;
-  border-left-color: #f59e0b !important;
+  border-left: 4px solid #f59e0b !important;
   color: #92400e !important;
 }
+
 .o_calendar_view .o_calendar_color_1 .fc-event-main,
 .o_calendar_view .fc-event.o_calendar_color_1 .fc-event-main,
 .o_calendar_view .o_calendar_color_1 .fc-event-title,
@@ -779,59 +802,64 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   color: #92400e !important;
 }
 
-/* 2. In Progress (Color 0): Force Cyan / Blue */
-.o_calendar_view .o_calendar_color_0,
-.o_calendar_view .fc-event.o_calendar_color_0,
-.o_calendar_view [class*="o_calendar_color_0"],
-.o_calendar_sidebar .o_calendar_color_0 {
-  background-color: #e0f2fe !important;
-  background: #e0f2fe !important;
-  border-color: #0284c7 !important;
-  border-left-color: #0284c7 !important;
-  color: #075985 !important;
-}
-.o_calendar_view .o_calendar_color_0 .fc-event-main,
-.o_calendar_view .fc-event.o_calendar_color_0 .fc-event-main,
-.o_calendar_view .o_calendar_color_0 .fc-event-title,
-.o_calendar_view .fc-event.o_calendar_color_0 .fc-event-title {
-  color: #075985 !important;
-}
-
-/* 3. Done (Color 2): Force Emerald Green */
+/* 2. In Progress (task_color = 2): Vibrant Blue (#0284c7) */
 .o_calendar_view .o_calendar_color_2,
 .o_calendar_view .fc-event.o_calendar_color_2,
 .o_calendar_view [class*="o_calendar_color_2"],
 .o_calendar_sidebar .o_calendar_color_2 {
-  background-color: #d1fae5 !important;
-  background: #d1fae5 !important;
-  border-color: #10b981 !important;
-  border-left-color: #10b981 !important;
-  color: #065f46 !important;
+  background-color: #e0f2fe !important;
+  background: #e0f2fe !important;
+  border-color: #0284c7 !important;
+  border-left: 4px solid #0284c7 !important;
+  color: #075985 !important;
 }
+
 .o_calendar_view .o_calendar_color_2 .fc-event-main,
 .o_calendar_view .fc-event.o_calendar_color_2 .fc-event-main,
 .o_calendar_view .o_calendar_color_2 .fc-event-title,
 .o_calendar_view .fc-event.o_calendar_color_2 .fc-event-title {
+  color: #075985 !important;
+}
+
+/* 3. Done (task_color = 10): Emerald Green (#10b981) */
+.o_calendar_view .o_calendar_color_10,
+.o_calendar_view .fc-event.o_calendar_color_10,
+.o_calendar_view [class*="o_calendar_color_10"],
+.o_calendar_sidebar .o_calendar_color_10 {
+  background-color: #d1fae5 !important;
+  background: #d1fae5 !important;
+  border-color: #10b981 !important;
+  border-left: 4px solid #10b981 !important;
   color: #065f46 !important;
 }
 
-/* 4. Issue / Complaint (Color 3): Force Crimson Red */
-.o_calendar_view .o_calendar_color_3,
-.o_calendar_view .fc-event.o_calendar_color_3,
-.o_calendar_view [class*="o_calendar_color_3"],
-.o_calendar_sidebar .o_calendar_color_3 {
+.o_calendar_view .o_calendar_color_10 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_10 .fc-event-main,
+.o_calendar_view .o_calendar_color_10 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_10 .fc-event-title {
+  color: #065f46 !important;
+}
+
+/* 4. Issue / Complaint (task_color = 9): Crimson Red (#ef4444) */
+.o_calendar_view .o_calendar_color_9,
+.o_calendar_view .fc-event.o_calendar_color_9,
+.o_calendar_view [class*="o_calendar_color_9"],
+.o_calendar_sidebar .o_calendar_color_9 {
   background-color: #fee2e2 !important;
   background: #fee2e2 !important;
   border-color: #ef4444 !important;
-  border-left-color: #ef4444 !important;
+  border-left: 4px solid #ef4444 !important;
   color: #991b1b !important;
 }
-.o_calendar_view .o_calendar_color_3 .fc-event-main,
-.o_calendar_view .fc-event.o_calendar_color_3 .fc-event-main,
-.o_calendar_view .o_calendar_color_3 .fc-event-title,
-.o_calendar_view .fc-event.o_calendar_color_3 .fc-event-title {
+
+.o_calendar_view .o_calendar_color_9 .fc-event-main,
+.o_calendar_view .fc-event.o_calendar_color_9 .fc-event-main,
+.o_calendar_view .o_calendar_color_9 .fc-event-title,
+.o_calendar_view .fc-event.o_calendar_color_9 .fc-event-title {
   color: #991b1b !important;
 }
+
+/* End of Calendar Rules */
 
 /* Also purge ANY inline background style containing purple shades on calendar events */
 .o_calendar_view .fc-event[style*="background-color: rgb(113, 75, 103)"],
