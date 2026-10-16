@@ -198,25 +198,26 @@ class CrmTaskManagement(models.Model):
         if not self.is_recurring or not self.date_deadline or not self.recurrence_period:
             return
 
-        start_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
-        current_deadline = start_deadline
+        target_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
+        today = fields.Date.today()
+        target_day = target_deadline.day
+
+        current_date = today
+        try:
+            current_date = current_date.replace(day=target_day)
+        except ValueError:
+            pass
+
+        if current_date <= today:
+            current_date = current_date + relativedelta(months=1)
 
         count = 0
-        while count < 12:
-            if self.recurrence_period == 'daily':
-                current_deadline = current_deadline + relativedelta(days=1)
-            elif self.recurrence_period == 'weekly':
-                current_deadline = current_deadline + relativedelta(weeks=1)
-            elif self.recurrence_period == 'yearly':
-                current_deadline = current_deadline + relativedelta(years=1)
-            else: # default monthly
-                current_deadline = current_deadline + relativedelta(months=1)
-
+        while current_date < target_deadline and count < 36:
             # Check if this occurrence already exists
             existing = self.sudo().search_count([
                 ('name', '=', self.name),
                 ('assigned_to_id', '=', self.assigned_to_id.id),
-                ('date_deadline', '=', current_deadline),
+                ('date_deadline', '=', current_date),
             ])
             if not existing:
                 self.sudo().create({
@@ -224,7 +225,7 @@ class CrmTaskManagement(models.Model):
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.assigned_by_id.id if self.assigned_by_id else self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
-                    'date_deadline': current_deadline,
+                    'date_deadline': current_date,
                     'instructions': self.instructions or '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
@@ -242,6 +243,7 @@ class CrmTaskManagement(models.Model):
                     'is_unlocked': True,
                     'state': 'pending',
                 })
+            current_date = current_date + relativedelta(months=1)
             count += 1
 
     @api.model
