@@ -452,3 +452,141 @@ div[name="note"] .o-wysiwyg {
     border-color: #94a3b8 !important;
     color: #0f172a !important;
 }
+
+/* =========================================================================
+   Calendar Sidebar & Event Strip Strict Overrides (whitelabel.css):
+   1) Assigned Employee header & Status header -> #0b3d91 (Custom Blue)
+   2) Employee checkboxes -> #0b3d91 (Custom Blue)
+   3) In Progress -> Cyan/Blue (#0284c7)
+   4) Pending -> Amber/Orange (#f59e0b)
+   5) Done -> Emerald Green (#10b981)
+   6) Complaint -> Crimson Red (#ef4444)
+   ========================================================================= */
+
+/* Master Headers ('Assigned Employee' and 'Status') */
+.o_calendar_sidebar .o_calendar_filter_header .form-check-input,
+.o_calendar_sidebar .o_calendar_filter_header input[type="checkbox"],
+.o_calendar_sidebar .o_calendar_filter_header .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_header input[type="checkbox"]:checked,
+.o_calendar_filter_header .form-check-input:checked,
+.o_calendar_sidebar .form-check-input:checked:not([class*="o_calendar_color"]):not([data-value]) {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    accent-color: #0b3d91 !important;
+    --o-form-check-input-checked-bg: #0b3d91 !important;
+    --o-form-check-input-checked-border-color: #0b3d91 !important;
+    --form-check-input-checked-bg: #0b3d91 !important;
+    --form-check-input-checked-border-color: #0b3d91 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* Assigned Employee Items (Pratham, Vishal, etc.) */
+.o_calendar_sidebar .o_calendar_filter:first-child .o_calendar_filter_item .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter:first-child .o_calendar_filter_item input[type="checkbox"]:checked,
+.o_calendar_sidebar .o_calendar_filter[data-name="assigned_to_id"] .o_calendar_filter_item .form-check-input:checked {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    accent-color: #0b3d91 !important;
+    --o-form-check-input-checked-bg: #0b3d91 !important;
+    --o-form-check-input-checked-border-color: #0b3d91 !important;
+}
+
+/* Status Item 1: In Progress -> Cyan/Blue (#0284c7) */
+.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(1) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="In Progress"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="in_progress"]) .form-check-input:checked {
+    background-color: #0284c7 !important;
+    border-color: #0284c7 !important;
+    accent-color: #0284c7 !important;
+    --o-form-check-input-checked-bg: #0284c7 !important;
+}
+
+/* Status Item 2: Pending -> Amber/Orange (#f59e0b) */
+.o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item:nth-child(2) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="Pending"]) .form-check-input:checked,
+.o_calendar_sidebar .o_calendar_filter_item:has([title*="pending"]) .form-check-input:checked {
+    background-color: #f59e0b !important;
+    border-color: #f59e0b !important;
+    accent-color: #f59e0b !important;
+    --o-form-check-input-checked-bg: #f59e0b !important;
+}
+
+/* --- Calendar Event Strips on Dates (FullCalendar / Odoo) --- */
+
+/* Force all calendar events to take background & border cleanly */
+.o_calendar_view .fc-event,
+.o_calendar_view .fc-daygrid-event {
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    border-left-width: 4px !important;
+    border-left-style: solid !important;
+}
+
+/* 1. Slot 0 / In Progress ("abc" on Oct 13) -> Cyan / Blue */
+.o_calendar_view .fc-event.o_calendar_color_0,
+.o_calendar_view .fc-daygrid-event.o_calendar_color_0,
+.o_calendar_view .o_calendar_color_0,
+.o_calendar_view [class*="o_calendar_color_0"],
+.o_calendar_sidebar .o_calendar_color_0 {
+    background-color: #e0f2fe !important;
+    background: #e0f2fe !important;
+    border-color: #0284c7 !important;
+    border-left-color: #0284c7 !important;
+    color: #075985 !important;
+}
+.o_calendar_view .o_calendar_color_0 *,
+.o_calendar_view .fc-event.o_calendar_color_0 * {
+    color: #075985 !important;
+}
+
+/* 2. Slot 1 / Pending ("Hello" on Oct 24) -> Warm Amber / Orange (Already matches now!) */
+.o_calendar_view .fc-event.o_calendar_color_1,
+.o_calendar_view .fc-daygrid-event.o_calendar_color_1,
+.o_calendar_view .o_calendar_color_1,
+.o_calendar_view [class*="o_calendar_color_1"],
+.o_calendar_sidebar .o_calendar_color_1 {
+    background-color: #fef3c7 !important;
+    background: #fef3c7 !important;
+    border-color: #f59e0b !important;
+    border-left-color: #f59e0b !important;
+    color: #92400e !important;
+}
+.o_calendar_view .o_calendar_color_1 *,
+.o_calendar_view .fc-event.o_calendar_color_1 * {
+    color: #92400e !important;
+}
+
+/* 3. Slot 2 / Done -> Emerald Green */
+.o_calendar_view .fc-event.o_calendar_color_2,
+.o_calendar_view .fc-daygrid-event.o_calendar_color_2,
+.o_calendar_view .o_calendar_color_2,
+.o_calendar_view [class*="o_calendar_color_2"],
+.o_calendar_sidebar .o_calendar_color_2 {
+    background-color: #d1fae5 !important;
+    background: #d1fae5 !important;
+    border-color: #10b981 !important;
+    border-left-color: #10b981 !important;
+    color: #065f46 !important;
+}
+.o_calendar_view .o_calendar_color_2 *,
+.o_calendar_view .fc-event.o_calendar_color_2 * {
+    color: #065f46 !important;
+}
+
+/* 4. Slot 3 / Complaint -> Crimson Red */
+.o_calendar_view .fc-event.o_calendar_color_3,
+.o_calendar_view .fc-daygrid-event.o_calendar_color_3,
+.o_calendar_view .o_calendar_color_3,
+.o_calendar_view [class*="o_calendar_color_3"],
+.o_calendar_sidebar .o_calendar_color_3 {
+    background-color: #fee2e2 !important;
+    background: #fee2e2 !important;
+    border-color: #ef4444 !important;
+    border-left-color: #ef4444 !important;
+    color: #991b1b !important;
+}
+.o_calendar_view .o_calendar_color_3 *,
+.o_calendar_view .fc-event.o_calendar_color_3 * {
+    color: #991b1b !important;
+}
