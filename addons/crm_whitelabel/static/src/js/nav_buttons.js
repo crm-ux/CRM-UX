@@ -116,12 +116,6 @@ patch(ControlPanel.prototype, {
         });
     },
 
-    get isTaskManagementCalendarView() {
-        const resModel = this.env.searchModel?.resModel;
-        const viewType = this.env.config?.viewType;
-        return resModel === "crm.task.management" && viewType === "calendar";
-    },
-
     get isTotalPipelineView() {
         const ctx = this.env.searchModel?.context || {};
         const viewType = this.env.config?.viewType;

@@ -3,6 +3,7 @@ import { patch } from "@web/core/utils/patch";
 import { KanbanController } from "@web/views/kanban/kanban_controller";
 import { ListController } from "@web/views/list/list_controller";
 import { FormController } from "@web/views/form/form_controller";
+import { CalendarController } from "@web/views/calendar/calendar_controller";
 
 const CRM_LEAD_MODEL = "crm.lead";
 const CRM_TASK_MODEL = "crm.task.management";
@@ -99,5 +100,19 @@ patch(FormController.prototype, {
             return;
         }
         return super.create(...arguments);
+    },
+});
+
+// 4. Intercept Calendar View "New" button (createRecord / openNewRecord)
+patch(CalendarController.prototype, {
+    async createRecord() {
+        if (
+            this.model?.resModel === CRM_TASK_MODEL ||
+            this.props?.resModel === CRM_TASK_MODEL
+        ) {
+            await openTaskAssignWizard(this.env, this);
+            return;
+        }
+        return super.createRecord?.(...arguments);
     },
 });

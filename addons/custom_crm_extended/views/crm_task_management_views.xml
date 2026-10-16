@@ -11,6 +11,7 @@
                       date_start="date_deadline" 
                       color="state" 
                       mode="month" 
+                      create="1"
                       quick_create="0"
                       event_open_popup="true">
                 <field name="name"/>
