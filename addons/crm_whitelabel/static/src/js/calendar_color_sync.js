@@ -314,7 +314,8 @@ function syncCalendarElements() {
             eventEl.style.setProperty("background-color", cfg.bg, "important");
             eventEl.style.setProperty("background", cfg.bg, "important");
             eventEl.style.setProperty("border-color", cfg.border, "important");
-            eventEl.style.removeProperty("border-left");
+            eventEl.style.setProperty("border", `1px solid ${cfg.border}`, "important");
+            eventEl.style.setProperty("border-left", `1px solid ${cfg.border}`, "important");
             eventEl.querySelectorAll("*").forEach((el) => {
                 el.style.setProperty("color", cfg.text, "important");
                 el.style.setProperty("font-weight", "700", "important");
