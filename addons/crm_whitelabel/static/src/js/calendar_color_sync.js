@@ -465,8 +465,18 @@ async function renderUnscheduledTasksTray() {
                     card.addEventListener("click", () => {
                         const taskId = parseInt(card.dataset.taskId, 10);
                         if (taskId) {
-                            window.location.hash = `#id=${taskId}&model=crm.task.management&view_type=form`;
-                            window.dispatchEvent(new HashChangeEvent("hashchange"));
+                            const env = odoo.__WOWL_DEBUG__?.root?.env;
+                            if (env?.services?.action) {
+                                env.services.action.doAction({
+                                    type: "ir.actions.act_window",
+                                    res_model: "crm.task.management",
+                                    res_id: taskId,
+                                    views: [[false, "form"]],
+                                    target: "current",
+                                });
+                            } else {
+                                window.location.href = `/web#id=${taskId}&model=crm.task.management&view_type=form`;
+                            }
                         }
                     });
                 });
