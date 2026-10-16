@@ -9,7 +9,7 @@
         <field name="arch" type="xml">
             <calendar string="Task Calendar" 
                       date_start="date_deadline" 
-                      color="task_color" 
+                      color="state" 
                       mode="month" 
                       create="1"
                       quick_create="0"
@@ -19,7 +19,6 @@
                 <field name="assigned_by_id"/>
                 <field name="state" filters="1"/>
                 <field name="related_record_display"/>
-                <field name="task_color" invisible="1"/>
             </calendar>
         </field>
     </record>
