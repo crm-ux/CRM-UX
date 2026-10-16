@@ -101,29 +101,28 @@ class CrmTaskAssignWizard(models.TransientModel):
         })
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
+        # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
-            start_deadline = fields.Date.from_string(self.date_deadline) if isinstance(self.date_deadline, str) else self.date_deadline
+            start_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
             current_deadline = start_deadline
-            end_date = self.recurrence_end_date
-            if end_date and isinstance(end_date, str):
-                end_date = fields.Date.from_string(end_date)
-            if not end_date:
-                end_date = current_deadline + relativedelta(years=1)
-
+            
+            end_date = None
+            if self.recurrence_end_date:
+                end_date = fields.Date.from_string(str(self.recurrence_end_date)[:10])
+            
+            max_cycles = 12 if not end_date else 36
             count = 0
-            while count < 24: # generate up to 24 cycles
+            while count < max_cycles:
                 if self.recurrence_period == 'daily':
-                    current_deadline += relativedelta(days=1)
+                    current_deadline = current_deadline + relativedelta(days=1)
                 elif self.recurrence_period == 'weekly':
-                    current_deadline += relativedelta(weeks=1)
-                elif self.recurrence_period == 'monthly':
-                    current_deadline += relativedelta(months=1)
+                    current_deadline = current_deadline + relativedelta(weeks=1)
                 elif self.recurrence_period == 'yearly':
-                    current_deadline += relativedelta(years=1)
-                else:
-                    break
+                    current_deadline = current_deadline + relativedelta(years=1)
+                else: # default monthly
+                    current_deadline = current_deadline + relativedelta(months=1)
 
-                if current_deadline > end_date:
+                if end_date and current_deadline > end_date:
                     break
 
                 self.env['crm.task.management'].sudo().create({
