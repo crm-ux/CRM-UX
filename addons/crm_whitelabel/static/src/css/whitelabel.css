@@ -936,6 +936,25 @@ div[name="note"] .o-wysiwyg {
     font-size: 14px !important;
 }
 
+.crm_btn_unscheduled_tasks {
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.crm_unscheduled_header_badge {
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 2px 7px !important;
+    line-height: 1 !important;
+}
+
+.crm_btn_unscheduled_tasks:hover .crm_unscheduled_header_badge {
+    background-color: #0369a1 !important;
+}
+
 .crm_unscheduled_badge {
     background: #0284c7;
     color: #ffffff;
