@@ -116,6 +116,11 @@ patch(ControlPanel.prototype, {
         });
     },
 
+    get isTaskManagementView() {
+        const resModel = this.env.searchModel?.resModel;
+        return resModel === "crm.task.management";
+    },
+
     get isTotalPipelineView() {
         const ctx = this.env.searchModel?.context || {};
         const viewType = this.env.config?.viewType;

@@ -45,7 +45,7 @@
             </div>
         </xpath>
         <xpath expr="//div[hasclass('o_control_panel_main_buttons')]" position="attributes">
-            <attribute name="t-att-class">isTotalPipelineView ? 'd-none' : ''</attribute>
+            <attribute name="t-att-class">(isTotalPipelineView || isTaskManagementView) ? 'd-none' : ''</attribute>
         </xpath>
     </t>
 </templates>
