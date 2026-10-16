@@ -130,32 +130,35 @@ class CrmTaskManagement(models.Model):
     @api.depends('assigned_to_id', 'assigned_by_id')
     def _compute_can_edit_manager_fields(self):
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.id in (1, 2)
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
         for record in self:
             if is_admin:
                 record.can_edit_manager_fields = True
                 continue
-            # The person who assigned the task can always edit the instructions/deadline
+            # The person who assigned the task can always edit
             if record.assigned_by_id and record.assigned_by_id.id == current_user.id:
                 record.can_edit_manager_fields = True
                 continue
-            # Managers/supervisors of the assignee can edit instructions/deadline
-            subordinates = current_user._get_all_subordinates().ids if hasattr(current_user, '_get_all_subordinates') else []
-            if record.assigned_to_id and record.assigned_to_id.id in subordinates:
+            # The person to whom the task is assigned can edit/reschedule
+            if record.assigned_to_id and record.assigned_to_id.id == current_user.id:
                 record.can_edit_manager_fields = True
                 continue
-            # If current user is the assignee, they can update task status and reporting remarks
+            # Managers/supervisors of the assignee or assigner can edit
+            subordinates = current_user._get_all_subordinates().ids if hasattr(current_user, '_get_all_subordinates') else []
+            if (record.assigned_to_id and record.assigned_to_id.id in subordinates) or (record.assigned_by_id and record.assigned_by_id.id in subordinates):
+                record.can_edit_manager_fields = True
+                continue
             record.can_edit_manager_fields = False
 
     def write(self, vals):
         manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'related_model'}
         if any(f in vals for f in manager_fields):
             current_user = self.env.user
-            is_admin = current_user.has_group('base.group_system') or current_user.id in (1, 2)
+            is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
             if not is_admin:
                 for record in self:
                     if not record.can_edit_manager_fields:
-                        raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only the task assigner can change these details."))
+                        raise UserError(_("You are not authorized to modify task instructions, title, or deadline. Only the task assigner, assignee, or supervisor can change these details."))
 
         res = super(CrmTaskManagement, self).write(vals)
 
