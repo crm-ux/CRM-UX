@@ -420,7 +420,7 @@ async function renderUnscheduledTasksTray() {
         const tasks = await rpc("/web/dataset/call_kw", {
             model: "crm.task.management",
             method: "search_read",
-            args: [[["date_deadline", "=", false]]],
+            args: [[["date_deadline", "=", false], ["state", "=", "pending"]]],
             kwargs: {
                 fields: ["id", "name", "assigned_to_id", "state", "task_color", "date_assigned"],
                 limit: 30,
@@ -431,33 +431,19 @@ async function renderUnscheduledTasksTray() {
         const cardsContainer = tray.querySelector("#crm_unscheduled_cards");
 
         if (countBadge) {
-            countBadge.textContent = `${tasks.length} Tasks`;
+            countBadge.textContent = `${tasks.length} Pending Tasks`;
         }
 
         if (cardsContainer) {
             if (!tasks || tasks.length === 0) {
-                cardsContainer.innerHTML = `<div class="text-muted small py-2"><i class="fa fa-check-circle text-success me-1"></i> No unscheduled tasks. All tasks have deadlines assigned!</div>`;
+                cardsContainer.innerHTML = `<div class="text-muted small py-2"><i class="fa fa-check-circle text-success me-1"></i> No pending unscheduled tasks!</div>`;
             } else {
                 cardsContainer.innerHTML = tasks.map(t => {
                     const empName = t.assigned_to_id ? t.assigned_to_id[1] : "Unassigned";
-                    const stateLabel = (t.state || "pending").replace("_", " ").toUpperCase();
-                    let borderColor = "#f59e0b"; // default pending amber
-                    let stateBg = "#fef3c7";
-                    let stateColor = "#78350f";
-
-                    if (t.state === "done") {
-                        borderColor = "#10b981";
-                        stateBg = "#d1fae5";
-                        stateColor = "#064e3b";
-                    } else if (t.state === "in_progress") {
-                        borderColor = "#0284c7";
-                        stateBg = "#e0f2fe";
-                        stateColor = "#073656";
-                    } else if (t.state === "complaint") {
-                        borderColor = "#ef4444";
-                        stateBg = "#fee2e2";
-                        stateColor = "#7f1d1d";
-                    }
+                    const stateLabel = "PENDING";
+                    const borderColor = "#f59e0b"; // pending amber
+                    const stateBg = "#fef3c7";
+                    const stateColor = "#78350f";
 
                     return `
                         <div class="crm_unscheduled_card" data-task-id="${t.id}" style="border-left-color: ${borderColor};">
@@ -474,12 +460,13 @@ async function renderUnscheduledTasksTray() {
                     `;
                 }).join("");
 
-                // Click on card opens the task form modal/view
+                // Click on card opens the task form view directly
                 cardsContainer.querySelectorAll(".crm_unscheduled_card").forEach(card => {
                     card.addEventListener("click", () => {
                         const taskId = parseInt(card.dataset.taskId, 10);
                         if (taskId) {
                             window.location.hash = `#id=${taskId}&model=crm.task.management&view_type=form`;
+                            window.dispatchEvent(new HashChangeEvent("hashchange"));
                         }
                     });
                 });
