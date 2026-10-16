@@ -144,5 +144,17 @@ class CrmTaskAssignWizard(models.TransientModel):
                 msg_vals['attachment_ids'] = [(6, 0, attachment_ids)]
             self.env['mail.message'].sudo().create(msg_vals)
 
+            # Schedule an activity so the top header notification icon / bell count increments immediately
+            try:
+                task_rec.activity_schedule(
+                    'mail.mail_activity_data_todo',
+                    user_id=self.assigned_to_id.id,
+                    summary=f"Task: {self.name.strip()}",
+                    note=body_text,
+                    date_deadline=self.date_deadline or fields.Date.today(),
+                )
+            except Exception:
+                pass
+
         return {'type': 'ir.actions.act_window_close'}
 

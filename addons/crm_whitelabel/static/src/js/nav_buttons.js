@@ -102,7 +102,16 @@ patch(ControlPanel.prototype, {
         this.action.doAction(435);
     },
     openAssignWorkWizard() {
-        this.action.doAction("custom_crm_extended.action_crm_task_assign_wizard");
+        this.action.doAction("custom_crm_extended.action_crm_task_assign_wizard", {
+            onClose: async () => {
+                const currentController = this.action.currentController;
+                if (currentController?.model?.load) {
+                    await currentController.model.load();
+                } else if (currentController?.model?.root?.load) {
+                    await currentController.model.root.load();
+                }
+            },
+        });
     },
     async createNewLead() {
         const wizardId = await this.orm.create("crm.lead.wizard", [{ step: 1 }]);
