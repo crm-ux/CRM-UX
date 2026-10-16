@@ -63,6 +63,19 @@
                             class="btn-primary" 
                             icon="fa-external-link"
                             invisible="not related_model or not related_res_id"/>
+                    <button name="action_finish_entire_series"
+                            type="object"
+                            string="Finish Series Early"
+                            class="btn-success"
+                            icon="fa-check-circle"
+                            confirm="Are you sure you want to complete this series early? This will mark this task as Done and remove all remaining future scheduled tasks from the calendar."
+                            invisible="state == 'done'"/>
+                    <button name="action_cancel_future_series"
+                            type="object"
+                            string="Cancel Future Series"
+                            class="btn-outline-danger"
+                            icon="fa-ban"
+                            confirm="Are you sure you want to cancel the rest of this series? All remaining future tasks will be removed from the calendar."/>
                     <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>

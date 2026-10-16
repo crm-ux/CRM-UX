@@ -39,7 +39,7 @@ class CrmTaskManagement(models.Model):
     ticket_id = fields.Many2one('service.ticket', string='Linked Service Ticket')
     amc_id = fields.Many2one('amc.contract', string='Linked AMC Contract')
 
-    # Recurrence
+    # Recurrence & Series Tracking
     is_recurring = fields.Boolean(string='Recurring Task', default=False, tracking=True)
     recurrence_period = fields.Selection([
         ('daily', 'Daily'),
@@ -48,6 +48,7 @@ class CrmTaskManagement(models.Model):
         ('yearly', 'Yearly'),
     ], string='Repeat Every', default='monthly', tracking=True)
     recurrence_end_date = fields.Date(string='Repeat Until', tracking=True)
+    recurring_group_id = fields.Char(string='Recurring Series Group ID', index=True)
 
     # Sequential Task Delivery (Unlocks for employee only when prior task is Done)
     is_unlocked = fields.Boolean(string='Is Active / Unlocked', default=True, tracking=True)
@@ -257,6 +258,80 @@ class CrmTaskManagement(models.Model):
         for task in recurring_tasks:
             task._generate_future_recurring_occurrences()
         return True
+
+    def action_finish_entire_series(self):
+        """Marks this task as Done and completes the whole series by removing remaining future pending tasks."""
+        self.ensure_one()
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        if not is_admin and not self.can_edit_manager_fields:
+            raise UserError(_("Only the task assigner, senior manager, or admin can finish the recurring series early."))
+
+        # 1. Mark current task as Done
+        self.sudo().write({'state': 'done', 'is_recurring': False})
+
+        # 2. Remove all future pending tasks for this series
+        domain = [
+            ('assigned_to_id', '=', self.assigned_to_id.id),
+            ('name', '=', self.name),
+            ('state', '=', 'pending'),
+            ('id', '!=', self.id),
+        ]
+        if self.date_deadline:
+            domain.append(('date_deadline', '>=', self.date_deadline))
+
+        future_tasks = self.sudo().search(domain)
+        count = len(future_tasks)
+        if future_tasks:
+            future_tasks.unlink()
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Series Finished Early'),
+                'message': _('Current task marked as Done and %d future pending task(s) removed.') % count,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
+    def action_cancel_future_series(self):
+        """Cancels/deletes all remaining pending future tasks in this recurring series."""
+        self.ensure_one()
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        if not is_admin and not self.can_edit_manager_fields:
+            raise UserError(_("Only the task assigner, senior manager, or admin can cancel future recurring tasks."))
+
+        # Find all future pending tasks matching this series
+        domain = [
+            ('assigned_to_id', '=', self.assigned_to_id.id),
+            ('name', '=', self.name),
+            ('state', '=', 'pending'),
+            ('id', '!=', self.id),
+        ]
+        if self.date_deadline:
+            domain.append(('date_deadline', '>=', self.date_deadline))
+
+        future_tasks = self.sudo().search(domain)
+        count = len(future_tasks)
+        if future_tasks:
+            future_tasks.unlink()
+
+        # Stop recurrence on current task as well
+        self.write({'is_recurring': False})
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Recurring Series Stopped'),
+                'message': _('Successfully removed %d remaining future task(s) from the calendar.') % count,
+                'type': 'success',
+                'sticky': False,
+            }
+        }
 
     def action_open_related_record(self):
         """1-Click Smart Button to directly open the linked Lead, Quote, Equipment, Customer, etc."""
