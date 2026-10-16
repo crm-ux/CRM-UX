@@ -155,9 +155,10 @@ function renderCustomSidebarFilters() {
         { name: "Vishal", initial: "V", checked: true },
     ];
     const finalEmployees = empItems.length > 0 ? empItems : defaultEmps;
+    // Ensure initial state: all employees and statuses default to true (checked)
     finalEmployees.forEach(emp => {
         if (activeFilters.employees[emp.name] === undefined) {
-            activeFilters.employees[emp.name] = emp.checked;
+            activeFilters.employees[emp.name] = true;
         }
     });
 
@@ -169,19 +170,22 @@ function renderCustomSidebarFilters() {
         { key: "complaint", label: "Issue / Complaint", color: "#ef4444", checked: activeFilters.statuses.complaint !== false },
     ];
 
+    // Compute whether all are checked for master checkbox
+    const allEmpChecked = finalEmployees.every(emp => activeFilters.employees[emp.name] !== false);
+    const allStatusChecked = statuses.every(st => activeFilters.statuses[st.key] !== false);
+
     // Build Custom HTML structure
     customPanel.innerHTML = `
         <!-- 1. Assigned Employee Group -->
         <div class="custom_filter_group">
             <div class="custom_filter_header" id="custom_hdr_emp">
-                <input type="checkbox" id="chk_all_emp" checked style="accent-color: #0b3d91 !important;" />
+                <input type="checkbox" id="chk_all_emp" ${allEmpChecked ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
                 <span>Assigned Employee</span>
             </div>
             <div class="custom_filter_items" id="custom_emp_items">
                 ${finalEmployees.map(emp => `
                     <div class="custom_filter_item" data-emp="${emp.name}">
                         <input type="checkbox" ${activeFilters.employees[emp.name] !== false ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
-                        <span class="custom_emp_badge">${emp.initial}</span>
                         <span>${emp.name}</span>
                     </div>
                 `).join("")}
@@ -191,14 +195,13 @@ function renderCustomSidebarFilters() {
         <!-- 2. Status Group -->
         <div class="custom_filter_group mt-2">
             <div class="custom_filter_header" id="custom_hdr_status">
-                <input type="checkbox" id="chk_all_status" checked style="accent-color: #0b3d91 !important;" />
+                <input type="checkbox" id="chk_all_status" ${allStatusChecked ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
                 <span>Status</span>
             </div>
             <div class="custom_filter_items" id="custom_status_items">
                 ${statuses.map(st => `
                     <div class="custom_filter_item status_${st.key}" data-status="${st.key}">
-                        <input type="checkbox" ${st.checked ? "checked" : ""} style="accent-color: ${st.color} !important;" />
-                        <span class="custom_status_dot ${st.key}"></span>
+                        <input type="checkbox" ${activeFilters.statuses[st.key] !== false ? "checked" : ""} style="accent-color: ${st.color} !important;" />
                         <span>${st.label}</span>
                     </div>
                 `).join("")}
@@ -232,6 +235,9 @@ function renderCustomSidebarFilters() {
                 activeFilters.employees[empName] = chk.checked;
                 triggerNativeOdooFilter(empName, chk.checked);
             }
+            // Sync master header checkbox
+            const anyUnchecked = finalEmployees.some(emp => activeFilters.employees[emp.name] === false);
+            chkAllEmp.checked = !anyUnchecked;
             filterCalendarEventsInDOM();
         });
     });
@@ -262,6 +268,9 @@ function renderCustomSidebarFilters() {
                 activeFilters.statuses[st.key] = chk.checked;
                 triggerNativeOdooFilter(st.label, chk.checked);
             }
+            // Sync master header checkbox
+            const anyUnchecked = statuses.some(s => activeFilters.statuses[s.key] === false);
+            chkAllStatus.checked = !anyUnchecked;
             filterCalendarEventsInDOM();
         });
     });
