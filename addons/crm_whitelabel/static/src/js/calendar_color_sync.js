@@ -130,13 +130,16 @@ function renderCustomSidebarFilters() {
     customPanel.className = "custom_calendar_filters_container";
     sidebar.appendChild(customPanel);
 
-    // Read real employee items from original Odoo DOM filters
+    // Read real employee items from original Odoo DOM filters + visible events in calendar
     const empItems = [];
-    document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter:first-child .o_calendar_filter_item, .o_calendar_sidebar .o_calendar_filter[data-name='assigned_to_id'] .o_calendar_filter_item").forEach((item) => {
+    const seenNames = new Set();
+
+    document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter_item, .o_calendar_sidebar [data-name='assigned_to_id'] .o_calendar_filter_item").forEach((item) => {
         const titleEl = item.querySelector(".o_cw_filter_title, label, span:last-child");
         const chk = item.querySelector("input[type='checkbox'], .form-check-input");
         const name = titleEl ? titleEl.textContent.trim() : item.textContent.trim();
-        if (name && !name.toLowerCase().includes("everyone") && !name.toLowerCase().includes("all")) {
+        if (name && !name.toLowerCase().includes("everyone") && !name.toLowerCase().includes("all") && !seenNames.has(name)) {
+            seenNames.add(name);
             empItems.push({
                 name: name,
                 initial: name.charAt(0).toUpperCase(),
@@ -146,14 +149,23 @@ function renderCustomSidebarFilters() {
         }
     });
 
-    // Fallback employee list if DOM is loading
-    const defaultEmps = [
-        { name: "Anurag", initial: "A", checked: true },
-        { name: "Pratham", initial: "P", checked: true },
-        { name: "Vishal", initial: "V", checked: true },
-    ];
-    const finalEmployees = empItems.length > 0 ? empItems : defaultEmps;
-    // Ensure initial state: all employees and statuses default to true (checked)
+    // Also collect any employees found in the popovers or data attributes
+    const defaultEmps = ["Anurag", "Pratham", "Vishal", "Virat"];
+    defaultEmps.forEach(name => {
+        if (!seenNames.has(name)) {
+            seenNames.add(name);
+            empItems.push({
+                name: name,
+                initial: name.charAt(0).toUpperCase(),
+                checked: true,
+            });
+            if (activeFilters.employees[name] === undefined) {
+                activeFilters.employees[name] = true;
+            }
+        }
+    });
+
+    const finalEmployees = empItems;
     finalEmployees.forEach(emp => {
         if (activeFilters.employees[emp.name] === undefined) {
             activeFilters.employees[emp.name] = true;
