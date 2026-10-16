@@ -318,7 +318,7 @@ function syncCalendarElements() {
             eventEl.querySelectorAll("*").forEach((el) => {
                 el.style.setProperty("color", cfg.text, "important");
                 el.style.setProperty("font-weight", "700", "important");
-                el.style.setProperty("font-size", "12px", "important");
+                el.style.setProperty("font-size", "inherit", "important");
                 el.style.setProperty("background", "transparent", "important");
                 el.style.setProperty("background-color", "transparent", "important");
             });
@@ -385,7 +385,7 @@ async function renderUnscheduledTasksTray() {
         tray.innerHTML = `
             <div class="crm_unscheduled_header">
                 <div class="crm_unscheduled_title">
-                    <i class="fa fa-tasks text-primary"></i>
+                    <i class="fa fa-tasks" style="color: #0284c7 !important; font-size: 14px;"></i>
                     <span>Unscheduled Tasks</span>
                     <span class="crm_unscheduled_badge" id="crm_unscheduled_count">...</span>
                     <span class="crm_unscheduled_hint">(Tasks without deadline)</span>

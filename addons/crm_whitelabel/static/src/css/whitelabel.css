@@ -590,22 +590,33 @@ div[name="note"] .o-wysiwyg {
 
 /* --- Calendar Event Strips on Dates (FullCalendar / Odoo) --- */
 
-/* Force all calendar events to take background & border cleanly */
+/* Force all calendar events to take dynamic background & sizing uniformly */
 .o_calendar_view .fc-event,
-.o_calendar_view .fc-daygrid-event {
+.o_calendar_view .fc-daygrid-event,
+.o_calendar_view .fc-daygrid-dot-event,
+.o_calendar_view .fc-daygrid-block-event {
     border-radius: 4px !important;
     font-weight: 700 !important;
-    font-size: 12px !important;
+    font-size: var(--fc-event-font-size, clamp(11.5px, 0.85rem, 13px)) !important;
+    line-height: 1.4 !important;
     border: 1px solid transparent !important;
-    padding: 2px 4px !important;
+    padding: var(--fc-event-padding, 0.25rem 0.45rem) !important;
+    min-height: var(--fc-event-min-height, 1.6rem) !important;
+    display: flex !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
 .o_calendar_view .fc-event-title,
 .o_calendar_view .fc-event-main {
     border: none !important;
     font-weight: 700 !important;
-    font-size: 12px !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
     background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: 100% !important;
 }
 
 /* Remove dot, bullet, circle, avatar images and extra symbols before event title */
@@ -916,6 +927,11 @@ div[name="note"] .o-wysiwyg {
     font-size: 13px;
     font-weight: 700;
     color: #0f172a;
+}
+
+.crm_unscheduled_title i {
+    color: #0284c7 !important;
+    font-size: 14px !important;
 }
 
 .crm_unscheduled_badge {
