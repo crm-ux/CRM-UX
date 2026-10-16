@@ -133,12 +133,16 @@ function renderCustomSidebarFilters() {
     // Read real employee items from original Odoo DOM filters + visible events in calendar
     const empItems = [];
     const seenNames = new Set();
+    const statusWords = ["done", "in progress", "pending", "issue", "complaint", "everyone", "all"];
 
     document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter_item, .o_calendar_sidebar [data-name='assigned_to_id'] .o_calendar_filter_item").forEach((item) => {
         const titleEl = item.querySelector(".o_cw_filter_title, label, span:last-child");
         const chk = item.querySelector("input[type='checkbox'], .form-check-input");
         const name = titleEl ? titleEl.textContent.trim() : item.textContent.trim();
-        if (name && !name.toLowerCase().includes("everyone") && !name.toLowerCase().includes("all") && !seenNames.has(name)) {
+        const lowerName = name.toLowerCase();
+        const isStatusWord = statusWords.some(w => lowerName.includes(w));
+
+        if (name && !isStatusWord && !seenNames.has(name)) {
             seenNames.add(name);
             empItems.push({
                 name: name,
