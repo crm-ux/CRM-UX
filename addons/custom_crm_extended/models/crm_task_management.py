@@ -184,17 +184,70 @@ class CrmTaskManagement(models.Model):
                 if next_task:
                     next_task.write({'is_unlocked': True})
 
-                # 2. Sequential Delivery: when current task is done, unlock next pending task
-                next_task = self.search([
-                    ('assigned_to_id', '=', rec.assigned_to_id.id),
-                    ('state', '=', 'pending'),
-                    ('is_unlocked', '=', False),
-                    ('id', '!=', rec.id)
-                ], order='date_deadline asc, id asc', limit=1)
-                if next_task:
-                    next_task.write({'is_unlocked': True})
+        # Auto-heal: If an existing task has is_recurring=True, ensure its future occurrences are pre-created
+        if 'is_recurring' in vals or 'recurrence_period' in vals or 'date_deadline' in vals or 'recurrence_end_date' in vals:
+            for rec in self:
+                if rec.is_recurring and rec.date_deadline:
+                    rec._generate_future_recurring_occurrences()
 
         return res
+
+    def _generate_future_recurring_occurrences(self):
+        """Generates future occurrences for this recurring task if they do not exist already."""
+        self.ensure_one()
+        if not self.is_recurring or not self.date_deadline or not self.recurrence_period:
+            return
+
+        current_deadline = self.date_deadline
+        end_date = self.recurrence_end_date or (current_deadline + relativedelta(years=1))
+        count = 0
+
+        while count < 36:
+            if self.recurrence_period == 'daily':
+                current_deadline += relativedelta(days=1)
+            elif self.recurrence_period == 'weekly':
+                current_deadline += relativedelta(weeks=1)
+            elif self.recurrence_period == 'monthly':
+                current_deadline += relativedelta(months=1)
+            elif self.recurrence_period == 'yearly':
+                current_deadline += relativedelta(years=1)
+            else:
+                break
+
+            if current_deadline > end_date:
+                break
+
+            # Check if this occurrence already exists
+            existing = self.search_count([
+                ('name', '=', self.name),
+                ('assigned_to_id', '=', self.assigned_to_id.id),
+                ('date_deadline', '=', current_deadline),
+            ])
+            if not existing:
+                self.create({
+                    'name': self.name,
+                    'assigned_to_id': self.assigned_to_id.id,
+                    'assigned_by_id': self.assigned_by_id.id if self.assigned_by_id else self.env.user.id,
+                    'date_assigned': fields.Datetime.now(),
+                    'date_deadline': current_deadline,
+                    'instructions': self.instructions or '',
+                    'attachment_name': self.attachment_name or '',
+                    'attachment_file': self.attachment_file or False,
+                    'company_id': self.company_id.id if self.company_id else False,
+                    'related_model': self.related_model or False,
+                    'lead_id': self.lead_id.id if self.lead_id else False,
+                    'order_id': self.order_id.id if self.order_id else False,
+                    'partner_id': self.partner_id.id if self.partner_id else False,
+                    'equipment_id': self.equipment_id.id if self.equipment_id else False,
+                    'ticket_id': self.ticket_id.id if self.ticket_id else False,
+                    'amc_id': self.amc_id.id if self.amc_id else False,
+                    'is_recurring': True,
+                    'recurrence_period': self.recurrence_period,
+                    'recurrence_end_date': self.recurrence_end_date,
+                    'is_unlocked': False,
+                    'state': 'pending',
+                })
+            count += 1
 
     def action_open_related_record(self):
         """1-Click Smart Button to directly open the linked Lead, Quote, Equipment, Customer, etc."""
