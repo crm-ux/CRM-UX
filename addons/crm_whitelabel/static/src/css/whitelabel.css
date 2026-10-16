@@ -467,7 +467,14 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_sidebar .o_calendar_filter,
 .o_calendar_sidebar .o_calendar_filter_header,
 .o_calendar_sidebar .o_calendar_filter_items {
-    display: none !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 /* ── Custom Dedicated Calendar Filter Sidebar Panel ── */
@@ -597,6 +604,8 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_view [class*="o_calendar_color_10"] *,
 .o_calendar_view .fc-event.o_calendar_color_10 * {
     color: #065f46 !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 2. Pending (task_color = 1) -> Amber / Gold (#f59e0b, bg: #fef3c7) */
@@ -618,6 +627,8 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_view [class*="o_calendar_color_1"] *,
 .o_calendar_view .fc-event.o_calendar_color_1 * {
     color: #92400e !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 3. In Progress (task_color = 2) -> Vibrant Blue (#0284c7, bg: #e0f2fe) */
@@ -639,6 +650,8 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_view [class*="o_calendar_color_2"] *,
 .o_calendar_view .fc-event.o_calendar_color_2 * {
     color: #075985 !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 4. Issue / Complaint (task_color = 9) -> Crimson Red (#ef4444, bg: #fee2e2) */
@@ -660,6 +673,8 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_view [class*="o_calendar_color_9"] *,
 .o_calendar_view .fc-event.o_calendar_color_9 * {
     color: #991b1b !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* =========================================================================
@@ -678,6 +693,19 @@ div[name="note"] .o-wysiwyg {
     border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
     border-top-left-radius: 6px !important;
     border-top-right-radius: 6px !important;
+}
+
+/* REMOVE any inner badge or title background inside Popover Header completely */
+.popover .popover-header *,
+.popover .card-header *,
+.o_cw_popover .card-header *,
+.o_cw_popover .popover-header *,
+.o_calendar_popover .card-header *,
+.o_calendar_popover .popover-header * {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* 1. In Progress (task_color = 2) -> Vibrant Blue */
@@ -703,6 +731,8 @@ div[name="note"] .o-wysiwyg {
 .popover:has(*:contains("In Progress")) .popover-header *,
 .popover:has(*:contains("In Progress")) .card-header * {
     color: #0369a1 !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 2. Pending (task_color = 1) -> Warm Amber / Gold */
@@ -728,6 +758,8 @@ div[name="note"] .o-wysiwyg {
 .popover:has(*:contains("Pending")) .popover-header *,
 .popover:has(*:contains("Pending")) .card-header * {
     color: #92400e !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 3. Done (task_color = 10) -> Emerald Green */
@@ -753,6 +785,8 @@ div[name="note"] .o-wysiwyg {
 .popover:has(*:contains("Done")) .popover-header *,
 .popover:has(*:contains("Done")) .card-header * {
     color: #065f46 !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }
 
 /* 4. Issue / Complaint (task_color = 9) -> Crimson Red */
@@ -779,4 +813,6 @@ div[name="note"] .o-wysiwyg {
 .popover:has(*:contains("Issue")) .popover-header *,
 .popover:has(*:contains("Complaint")) .card-header * {
     color: #991b1b !important;
+    background: transparent !important;
+    background-color: transparent !important;
 }

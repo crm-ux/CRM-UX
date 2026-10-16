@@ -130,7 +130,7 @@ class CrmTaskManagement(models.Model):
     @api.depends('assigned_to_id', 'assigned_by_id')
     def _compute_can_edit_manager_fields(self):
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.id == 2
+        is_admin = current_user.has_group('base.group_system') or current_user.id in (1, 2)
         for record in self:
             if is_admin:
                 record.can_edit_manager_fields = True
@@ -139,19 +139,19 @@ class CrmTaskManagement(models.Model):
             if record.assigned_by_id and record.assigned_by_id.id == current_user.id:
                 record.can_edit_manager_fields = True
                 continue
-            # If current user is the assignee, they cannot edit instructions/deadline
-            if record.assigned_to_id and record.assigned_to_id.id == current_user.id:
-                record.can_edit_manager_fields = False
-                continue
-            # Managers above assignee can also edit
+            # Managers/supervisors of the assignee can edit instructions/deadline
             subordinates = current_user._get_all_subordinates().ids if hasattr(current_user, '_get_all_subordinates') else []
-            record.can_edit_manager_fields = bool(record.assigned_to_id and record.assigned_to_id.id in subordinates)
+            if record.assigned_to_id and record.assigned_to_id.id in subordinates:
+                record.can_edit_manager_fields = True
+                continue
+            # If current user is the assignee, they can update task status and reporting remarks
+            record.can_edit_manager_fields = False
 
     def write(self, vals):
         manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'related_model'}
         if any(f in vals for f in manager_fields):
             current_user = self.env.user
-            is_admin = current_user.has_group('base.group_system') or current_user.id == 2
+            is_admin = current_user.has_group('base.group_system') or current_user.id in (1, 2)
             if not is_admin:
                 for record in self:
                     if not record.can_edit_manager_fields:

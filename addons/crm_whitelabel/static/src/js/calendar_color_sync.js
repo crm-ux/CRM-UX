@@ -36,9 +36,84 @@ function applyPopoverColors(popoverEl) {
         header.style.setProperty("background", colorConfig.bg, "important");
         header.style.setProperty("color", colorConfig.text, "important");
         header.style.setProperty("border-bottom", `1px solid ${colorConfig.border}`, "important");
+        // Clear all background and borders from inner elements (badges, titles, spans)
         header.querySelectorAll("*").forEach((el) => {
             el.style.setProperty("color", colorConfig.text, "important");
+            el.style.setProperty("background", "transparent", "important");
+            el.style.setProperty("background-color", "transparent", "important");
+            el.style.setProperty("border", "none", "important");
+            el.style.setProperty("box-shadow", "none", "important");
         });
+    }
+}
+
+// Keep track of active filters state
+const activeFilters = {
+    employees: {}, // name -> boolean
+    statuses: {
+        done: true,
+        in_progress: true,
+        pending: true,
+        complaint: true,
+    },
+};
+
+function filterCalendarEventsInDOM() {
+    document.querySelectorAll(".o_calendar_view .fc-event, .o_calendar_view .fc-daygrid-event").forEach((eventEl) => {
+        const text = eventEl.textContent || "";
+        const statusKey = detectStatusKey(eventEl);
+
+        let visible = true;
+
+        // Check status filter
+        if (statusKey && activeFilters.statuses[statusKey] === false) {
+            visible = false;
+        }
+
+        // Check employee filter if any employee is toggled off
+        const empKeys = Object.keys(activeFilters.employees);
+        if (empKeys.length > 0) {
+            const hasAnyFalse = empKeys.some(k => activeFilters.employees[k] === false);
+            if (hasAnyFalse) {
+                // If any employee name is mentioned in the event or if matched
+                for (const empName of empKeys) {
+                    if (text.toLowerCase().includes(empName.toLowerCase())) {
+                        if (activeFilters.employees[empName] === false) {
+                            visible = false;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (visible) {
+            eventEl.style.removeProperty("display");
+        } else {
+            eventEl.style.setProperty("display", "none", "important");
+        }
+    });
+}
+
+function triggerNativeOdooFilter(filterText, shouldCheck) {
+    // Search across all native Odoo filter items
+    const nativeItems = document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter .o_calendar_filter_item");
+    for (const item of nativeItems) {
+        const itemText = (item.textContent || "").trim();
+        if (itemText.toLowerCase().includes(filterText.toLowerCase())) {
+            const chk = item.querySelector("input[type='checkbox'], .form-check-input");
+            const clickable = chk || item.querySelector("label") || item;
+            if (clickable) {
+                if (chk) {
+                    if (chk.checked !== shouldCheck) {
+                        clickable.click();
+                    }
+                } else {
+                    clickable.click();
+                }
+            }
+            break;
+        }
     }
 }
 
@@ -61,44 +136,38 @@ function renderCustomSidebarFilters() {
         const titleEl = item.querySelector(".o_cw_filter_title, label, span:last-child");
         const chk = item.querySelector("input[type='checkbox'], .form-check-input");
         const name = titleEl ? titleEl.textContent.trim() : item.textContent.trim();
-        if (name) {
+        if (name && !name.toLowerCase().includes("everyone") && !name.toLowerCase().includes("all")) {
             empItems.push({
                 name: name,
                 initial: name.charAt(0).toUpperCase(),
                 checked: chk ? chk.checked : true,
-                originalCheckbox: chk,
             });
+            if (activeFilters.employees[name] === undefined) {
+                activeFilters.employees[name] = chk ? chk.checked : true;
+            }
         }
     });
 
     // Fallback employee list if DOM is loading
-    const finalEmployees = empItems.length > 0 ? empItems : [
+    const defaultEmps = [
         { name: "Anurag", initial: "A", checked: true },
         { name: "Pratham", initial: "P", checked: true },
         { name: "Vishal", initial: "V", checked: true },
     ];
+    const finalEmployees = empItems.length > 0 ? empItems : defaultEmps;
+    finalEmployees.forEach(emp => {
+        if (activeFilters.employees[emp.name] === undefined) {
+            activeFilters.employees[emp.name] = emp.checked;
+        }
+    });
 
     // Status definitions with 100% matched color scheme
     const statuses = [
-        { key: "done", label: "Done", color: "#10b981", checked: true },
-        { key: "in_progress", label: "In Progress", color: "#0284c7", checked: true },
-        { key: "pending", label: "Pending", color: "#f59e0b", checked: true },
-        { key: "complaint", label: "Issue / Complaint", color: "#ef4444", checked: true },
+        { key: "done", label: "Done", color: "#10b981", checked: activeFilters.statuses.done !== false },
+        { key: "in_progress", label: "In Progress", color: "#0284c7", checked: activeFilters.statuses.in_progress !== false },
+        { key: "pending", label: "Pending", color: "#f59e0b", checked: activeFilters.statuses.pending !== false },
+        { key: "complaint", label: "Issue / Complaint", color: "#ef4444", checked: activeFilters.statuses.complaint !== false },
     ];
-
-    // Read existing status checked states
-    document.querySelectorAll(".o_calendar_sidebar .o_calendar_filter:last-child .o_calendar_filter_item").forEach((item) => {
-        const text = item.textContent || "";
-        const chk = item.querySelector("input[type='checkbox'], .form-check-input");
-        const key = getStatusKey(text);
-        if (key && chk) {
-            const match = statuses.find(s => s.key === key);
-            if (match) {
-                match.checked = chk.checked;
-                match.originalCheckbox = chk;
-            }
-        }
-    });
 
     // Build Custom HTML structure
     customPanel.innerHTML = `
@@ -111,7 +180,7 @@ function renderCustomSidebarFilters() {
             <div class="custom_filter_items" id="custom_emp_items">
                 ${finalEmployees.map(emp => `
                     <div class="custom_filter_item" data-emp="${emp.name}">
-                        <input type="checkbox" ${emp.checked ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
+                        <input type="checkbox" ${activeFilters.employees[emp.name] !== false ? "checked" : ""} style="accent-color: #0b3d91 !important;" />
                         <span class="custom_emp_badge">${emp.initial}</span>
                         <span>${emp.name}</span>
                     </div>
@@ -137,44 +206,97 @@ function renderCustomSidebarFilters() {
         </div>
     `;
 
-    // Hook click handlers to drive Odoo filter checkboxes under the hood
-    // Employee Items
+    // Master checkbox: Assigned Employee All
+    const chkAllEmp = customPanel.querySelector("#chk_all_emp");
+    chkAllEmp.addEventListener("change", () => {
+        const isChecked = chkAllEmp.checked;
+        customPanel.querySelectorAll("#custom_emp_items .custom_filter_item input[type='checkbox']").forEach(chk => {
+            chk.checked = isChecked;
+        });
+        finalEmployees.forEach(emp => {
+            activeFilters.employees[emp.name] = isChecked;
+            triggerNativeOdooFilter(emp.name, isChecked);
+        });
+        filterCalendarEventsInDOM();
+    });
+
+    // Employee Individual Items
     customPanel.querySelectorAll("#custom_emp_items .custom_filter_item").forEach((itemEl, idx) => {
         const chk = itemEl.querySelector("input[type='checkbox']");
+        const empName = finalEmployees[idx]?.name;
         itemEl.addEventListener("click", (e) => {
             if (e.target !== chk) {
                 chk.checked = !chk.checked;
             }
-            const orig = finalEmployees[idx]?.originalCheckbox;
-            if (orig) {
-                orig.checked = chk.checked;
-                orig.dispatchEvent(new Event("change", { bubbles: true }));
+            if (empName) {
+                activeFilters.employees[empName] = chk.checked;
+                triggerNativeOdooFilter(empName, chk.checked);
             }
+            filterCalendarEventsInDOM();
         });
     });
 
-    // Status Items
+    // Master checkbox: Status All
+    const chkAllStatus = customPanel.querySelector("#chk_all_status");
+    chkAllStatus.addEventListener("change", () => {
+        const isChecked = chkAllStatus.checked;
+        customPanel.querySelectorAll("#custom_status_items .custom_filter_item input[type='checkbox']").forEach(chk => {
+            chk.checked = isChecked;
+        });
+        statuses.forEach(st => {
+            activeFilters.statuses[st.key] = isChecked;
+            triggerNativeOdooFilter(st.label, isChecked);
+        });
+        filterCalendarEventsInDOM();
+    });
+
+    // Status Individual Items
     customPanel.querySelectorAll("#custom_status_items .custom_filter_item").forEach((itemEl, idx) => {
         const chk = itemEl.querySelector("input[type='checkbox']");
+        const st = statuses[idx];
         itemEl.addEventListener("click", (e) => {
             if (e.target !== chk) {
                 chk.checked = !chk.checked;
             }
-            const orig = statuses[idx]?.originalCheckbox;
-            if (orig) {
-                orig.checked = chk.checked;
-                orig.dispatchEvent(new Event("change", { bubbles: true }));
+            if (st) {
+                activeFilters.statuses[st.key] = chk.checked;
+                triggerNativeOdooFilter(st.label, chk.checked);
             }
+            filterCalendarEventsInDOM();
         });
     });
+}
+
+function detectStatusKey(eventEl) {
+    if (!eventEl) return null;
+
+    // 1. Direct class checks (matches model task_color 1, 2, 10, 9)
+    const cls = eventEl.className || "";
+    if (cls.includes("o_calendar_color_10")) return "done";
+    if (cls.includes("o_calendar_color_1")) return "pending";
+    if (cls.includes("o_calendar_color_2")) return "in_progress";
+    if (cls.includes("o_calendar_color_9")) return "complaint";
+
+    // 2. Textual matching
+    const textKey = getStatusKey(eventEl.textContent);
+    if (textKey) return textKey;
+
+    // 3. Check child elements or badges
+    const childBadges = eventEl.querySelectorAll(".badge, [class*='badge'], [class*='state'], [data-field='state']");
+    for (const badge of childBadges) {
+        const k = getStatusKey(badge.textContent);
+        if (k) return k;
+    }
+
+    return null;
 }
 
 function syncCalendarElements() {
     renderCustomSidebarFilters();
 
-    // Calendar Strips on Dates
+    // Calendar Strips on Dates - Strict unified colors across every login
     document.querySelectorAll(".o_calendar_view .fc-event, .o_calendar_view .fc-daygrid-event").forEach((eventEl) => {
-        const key = getStatusKey(eventEl.textContent);
+        const key = detectStatusKey(eventEl) || "pending";
         if (key && STATUS_COLORS[key]) {
             const cfg = STATUS_COLORS[key];
             eventEl.style.setProperty("background-color", cfg.bg, "important");
@@ -183,9 +305,14 @@ function syncCalendarElements() {
             eventEl.style.setProperty("border-left", `4px solid ${cfg.border}`, "important");
             eventEl.querySelectorAll("*").forEach((el) => {
                 el.style.setProperty("color", cfg.text, "important");
+                el.style.setProperty("background", "transparent", "important");
+                el.style.setProperty("background-color", "transparent", "important");
             });
         }
     });
+
+    // Apply active filter show/hide
+    filterCalendarEventsInDOM();
 
     // Popover Headers
     document.querySelectorAll(".popover, .o_cw_popover").forEach(applyPopoverColors);
