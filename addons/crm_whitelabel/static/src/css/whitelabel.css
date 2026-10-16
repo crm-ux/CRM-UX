@@ -535,12 +535,15 @@ div[name="note"] .o-wysiwyg {
 .custom_filter_item.status_done input[type="checkbox"] {
     accent-color: #10b981 !important;
 }
+
 .custom_filter_item.status_in_progress input[type="checkbox"] {
     accent-color: #0284c7 !important;
 }
+
 .custom_filter_item.status_pending input[type="checkbox"] {
     accent-color: #f59e0b !important;
 }
+
 .custom_filter_item.status_complaint input[type="checkbox"] {
     accent-color: #ef4444 !important;
 }
@@ -553,10 +556,22 @@ div[name="note"] .o-wysiwyg {
     display: inline-block;
     flex-shrink: 0;
 }
-.custom_status_dot.done { background-color: #10b981; }
-.custom_status_dot.in_progress { background-color: #0284c7; }
-.custom_status_dot.pending { background-color: #f59e0b; }
-.custom_status_dot.complaint { background-color: #ef4444; }
+
+.custom_status_dot.done {
+    background-color: #10b981;
+}
+
+.custom_status_dot.in_progress {
+    background-color: #0284c7;
+}
+
+.custom_status_dot.pending {
+    background-color: #f59e0b;
+}
+
+.custom_status_dot.complaint {
+    background-color: #ef4444;
+}
 
 /* Employee avatar initial circle */
 .custom_emp_badge {
@@ -587,15 +602,22 @@ div[name="note"] .o-wysiwyg {
     border-left-style: solid !important;
 }
 
-/* Remove dot, bullet, circle and extra symbols before event title */
+/* Remove dot, bullet, circle, avatar images and extra symbols before event title */
 .o_calendar_view .fc-daygrid-event-dot,
 .o_calendar_view .fc-event-dot,
 .o_calendar_view .fc-event-time,
+.o_calendar_view .fc-event img,
+.o_calendar_view .fc-daygrid-event img,
+.o_calendar_view .fc-event .o_avatar,
+.o_calendar_view .fc-event .rounded-circle,
 .o_calendar_view .fc-event-main::before,
 .o_calendar_view .fc-event-title::before,
 .o_calendar_view .fc-daygrid-event::before {
     display: none !important;
     content: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    visibility: hidden !important;
 }
 
 /* 1. Done (task_color = 10) -> Emerald Green (#10b981, bg: #d1fae5, bold deep dark green text #064e3b) */
@@ -613,6 +635,7 @@ div[name="note"] .o-wysiwyg {
     border-left: 4px solid #10b981 !important;
     color: #064e3b !important;
 }
+
 .o_calendar_view .o_calendar_color_10 *,
 .o_calendar_view [class*="o_calendar_color_10"] *,
 .o_calendar_view .fc-event.o_calendar_color_10 *,
@@ -639,6 +662,7 @@ div[name="note"] .o-wysiwyg {
     border-left: 4px solid #f59e0b !important;
     color: #78350f !important;
 }
+
 .o_calendar_view .o_calendar_color_1 *,
 .o_calendar_view [class*="o_calendar_color_1"] *,
 .o_calendar_view .fc-event.o_calendar_color_1 *,
@@ -665,6 +689,7 @@ div[name="note"] .o-wysiwyg {
     border-left: 4px solid #0284c7 !important;
     color: #073656 !important;
 }
+
 .o_calendar_view .o_calendar_color_2 *,
 .o_calendar_view [class*="o_calendar_color_2"] *,
 .o_calendar_view .fc-event.o_calendar_color_2 *,
@@ -691,6 +716,7 @@ div[name="note"] .o-wysiwyg {
     border-left: 4px solid #ef4444 !important;
     color: #7f1d1d !important;
 }
+
 .o_calendar_view .o_calendar_color_9 *,
 .o_calendar_view [class*="o_calendar_color_9"] *,
 .o_calendar_view .fc-event.o_calendar_color_9 *,
@@ -752,6 +778,7 @@ div[name="note"] .o-wysiwyg {
     color: #0369a1 !important;
     border-bottom-color: #bae6fd !important;
 }
+
 .popover.o_calendar_color_2 .popover-header *,
 .popover:has(*:contains("In Progress")) .popover-header *,
 .popover:has(*:contains("In Progress")) .card-header * {
@@ -779,6 +806,7 @@ div[name="note"] .o-wysiwyg {
     color: #92400e !important;
     border-bottom-color: #fde68a !important;
 }
+
 .popover.o_calendar_color_1 .popover-header *,
 .popover:has(*:contains("Pending")) .popover-header *,
 .popover:has(*:contains("Pending")) .card-header * {
@@ -806,6 +834,7 @@ div[name="note"] .o-wysiwyg {
     color: #065f46 !important;
     border-bottom-color: #a7f3d0 !important;
 }
+
 .popover.o_calendar_color_10 .popover-header *,
 .popover:has(*:contains("Done")) .popover-header *,
 .popover:has(*:contains("Done")) .card-header * {
@@ -834,6 +863,7 @@ div[name="note"] .o-wysiwyg {
     color: #991b1b !important;
     border-bottom-color: #fecaca !important;
 }
+
 .popover.o_calendar_color_9 .popover-header *,
 .popover:has(*:contains("Issue")) .popover-header *,
 .popover:has(*:contains("Complaint")) .card-header * {

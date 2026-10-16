@@ -322,9 +322,10 @@ function syncCalendarElements() {
                 el.style.setProperty("background", "transparent", "important");
                 el.style.setProperty("background-color", "transparent", "important");
             });
-            // Remove any bullet, dot or time symbol before the event title
-            eventEl.querySelectorAll(".fc-daygrid-event-dot, .fc-event-dot, .fc-event-time").forEach((dot) => {
+            // Remove any bullet, dot, time symbol, or avatar icon before the event title
+            eventEl.querySelectorAll(".fc-daygrid-event-dot, .fc-event-dot, .fc-event-time, img, .o_avatar, .rounded-circle").forEach((dot) => {
                 dot.style.setProperty("display", "none", "important");
+                dot.remove();
             });
         }
     });
