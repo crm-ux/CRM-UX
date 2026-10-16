@@ -163,22 +163,6 @@ function renderCustomSidebarFilters() {
         }
     });
 
-    // Base default fallback employees
-    const defaultEmps = ["Anurag", "Pratham", "Vishal", "Virat"];
-    defaultEmps.forEach(name => {
-        if (!seenNames.has(name)) {
-            seenNames.add(name);
-            empItems.push({
-                name: name,
-                initial: name.charAt(0).toUpperCase(),
-                checked: true,
-            });
-            if (activeFilters.employees[name] === undefined) {
-                activeFilters.employees[name] = true;
-            }
-        }
-    });
-
     const finalEmployees = empItems;
     finalEmployees.forEach(emp => {
         if (activeFilters.employees[emp.name] === undefined) {
