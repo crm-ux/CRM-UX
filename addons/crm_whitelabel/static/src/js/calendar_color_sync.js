@@ -8,10 +8,10 @@
  * - Issue / Complaint -> Crimson Red (#fee2e2, text #991b1b)
  */
 const STATUS_COLORS = {
-    done: { bg: "#d1fae5", text: "#065f46", border: "#10b981", accent: "#10b981" },
-    pending: { bg: "#fef3c7", text: "#92400e", border: "#f59e0b", accent: "#f59e0b" },
-    in_progress: { bg: "#e0f2fe", text: "#0369a1", border: "#0284c7", accent: "#0284c7" },
-    complaint: { bg: "#fee2e2", text: "#991b1b", border: "#ef4444", accent: "#ef4444" },
+    done: { bg: "#d1fae5", text: "#043c2e", border: "#10b981", accent: "#10b981" },
+    pending: { bg: "#fef3c7", text: "#78350f", border: "#f59e0b", accent: "#f59e0b" },
+    in_progress: { bg: "#e0f2fe", text: "#0c4a6e", border: "#0284c7", accent: "#0284c7" },
+    complaint: { bg: "#fee2e2", text: "#7f1d1d", border: "#ef4444", accent: "#ef4444" },
 };
 
 function getStatusKey(text) {
