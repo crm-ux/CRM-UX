@@ -50,12 +50,45 @@ function applyPopoverColors(popoverEl) {
         el.removeAttribute("href");
     });
 
-    // Ensure Edit button has high contrast, crystal-clear white text
+    // Ensure Edit button opens task form in full screen (not in modal/dialog)
     popoverEl.querySelectorAll(".card-footer .btn-primary, .popover-footer .btn-primary, .o_cw_popover .btn-primary, button.btn-primary").forEach(btn => {
         btn.style.setProperty("color", "#ffffff", "important");
         btn.style.setProperty("background-color", "#0b3d91", "important");
         btn.style.setProperty("border-color", "#0b3d91", "important");
         btn.style.setProperty("font-weight", "600", "important");
+
+        if (!btn.__hasFullScreenHandler) {
+            btn.__hasFullScreenHandler = true;
+            btn.addEventListener("click", (e) => {
+                // Find task ID from popover links, record, or attributes
+                let taskId = null;
+                const link = popoverEl.querySelector("a[href*='crm.task.management/'], [data-res-id], a[href*='id=']");
+                if (link) {
+                    const match = (link.getAttribute("href") || "").match(/crm\.task\.management\/(\d+)/) ||
+                                  (link.getAttribute("href") || "").match(/id=(\d+)/);
+                    if (match) taskId = match[1];
+                    if (!taskId && link.dataset?.resId) taskId = link.dataset.resId;
+                }
+
+                if (!taskId) {
+                    // Try to inspect the popover container or active event data
+                    const activePopover = popoverEl.closest(".popover, .o_cw_popover");
+                    const dataId = activePopover?.getAttribute("data-res-id") || activePopover?.getAttribute("data-event-id");
+                    if (dataId) taskId = dataId;
+                }
+
+                if (taskId) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Close the small popover
+                    const closeBtn = popoverEl.querySelector(".btn-close, .o_cw_popover_close, [data-bs-dismiss='popover']");
+                    if (closeBtn) closeBtn.click();
+
+                    // Navigate directly in full screen
+                    window.location.hash = `#action=custom_crm_extended.action_crm_task_management&model=crm.task.management&view_type=form&id=${taskId}`;
+                }
+            }, true);
+        }
     });
 }
 
