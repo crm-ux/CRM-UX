@@ -40,6 +40,15 @@ function applyPopoverColors(popoverEl) {
             el.style.setProperty("box-shadow", "none", "important");
         });
     }
+
+    // Disable link/pointer-events on person/employee names in the popover body so profile never opens
+    popoverEl.querySelectorAll("a, [data-field='assigned_to_id'], [data-field='assigned_by_id'], .o_field_many2one, .o_form_uri").forEach(el => {
+        el.style.setProperty("pointer-events", "none", "important");
+        el.style.setProperty("cursor", "default", "important");
+        el.style.setProperty("text-decoration", "none", "important");
+        el.style.setProperty("color", "inherit", "important");
+        el.removeAttribute("href");
+    });
 }
 
 // Keep track of active filters state
