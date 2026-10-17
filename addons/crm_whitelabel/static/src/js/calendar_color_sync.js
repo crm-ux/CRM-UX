@@ -499,6 +499,10 @@ function listenForUnauthorizedDropRevert() {
                             });
                         });
                     }
+                    // Clean up modal search bar: remove toggler dropdown and popup menu
+                    node.querySelectorAll(".o_searchview_dropdown_toggler, button.o_dropdown_button, .o_search_bar_menu").forEach(el => {
+                        el.remove();
+                    });
                 }
             }
         }

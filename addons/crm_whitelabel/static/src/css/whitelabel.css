@@ -1042,41 +1042,48 @@ div[name="note"] .o-wysiwyg {
     background-color: #082a66 !important;
 }
 
-/* Modal View: Clean header without dashboard button, without cogwheel, without filter dropdowns */
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_control_panel_main_buttons {
+/* Modal View: Clean header without dashboard button, keep gear icon (with import/export/delete) */
+.modal-dialog:has(.o_list_view) .o_control_panel_main_buttons {
     display: none !important;
 }
 
-/* Completely hide cogwheel/gear button */
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_cp_action_menus {
-    display: none !important;
-}
-
-/* Show Action menu ONLY when items are selected with checkbox for bulk delete */
-.modal-dialog:has([string="Unscheduled Tasks"]):has(.o_data_row.o_data_row_selected) .o_cp_action_menus,
-.modal-dialog:has([string="Unscheduled Tasks"]):has(.o_list_selection_box) .o_cp_action_menus {
+/* KEEP the Gear Icon (.o_cp_action_menus) visible for Import, Export, and Delete! */
+.modal-dialog:has(.o_list_view) .o_cp_action_menus {
     display: flex !important;
+    visibility: visible !important;
 }
 
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_control_panel_breadcrumbs {
+/* REMOVE the Filter / Group By / Favorites popup menu completely! */
+.modal-dialog:has(.o_list_view) .o_search_bar_menu,
+.o_search_bar_menu:has(*:contains("Filters")),
+.modal .o_search_bar_menu,
+.o_dialog .o_search_bar_menu {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
-/* Clean, simple search bar: Remove the dropdown arrow and Filters/GroupBy/Favorites menu completely! */
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview_dropdown_toggler,
-.modal-dialog:has([string="Unscheduled Tasks"]) button.o_dropdown_button,
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_search_bar_menu {
+/* REMOVE the dropdown toggle arrow from the search bar so it is just a plain, simple search box! */
+.modal-dialog:has(.o_list_view) .o_searchview_dropdown_toggler,
+.modal-dialog:has(.o_list_view) button.o_dropdown_button,
+.modal-dialog:has(.o_list_view) .o_searchview i.fa-caret-down,
+.modal-dialog:has(.o_list_view) .o_searchview i.fa-caret-right {
     display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview {
+.modal-dialog:has(.o_list_view) .o_searchview {
     border-radius: 6px !important;
     border: 1px solid #cbd5e1 !important;
-    padding-right: 8px !important;
+    padding-right: 10px !important;
     background: #ffffff !important;
 }
 
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview:focus-within {
+.modal-dialog:has(.o_list_view) .o_searchview:focus-within {
     border-color: #0b3d91 !important;
     box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.15) !important;
 }
