@@ -83,32 +83,6 @@
         </field>
     </record>
 
-    <!-- Task Attachments Standalone List View -->
-    <record id="view_crm_task_attachment_tree" model="ir.ui.view">
-        <field name="name">crm.task.attachment.list</field>
-        <field name="model">crm.task.attachment</field>
-        <field name="arch" type="xml">
-            <list editable="bottom" string="Attachments">
-                <field name="name" string="File Name"/>
-                <field name="file" filename="name" widget="binary" string="File"/>
-                <button name="action_preview_file" 
-                        type="object" 
-                        icon="fa-eye" 
-                        title="Preview" 
-                        invisible="not file"
-                        class="btn btn-sm btn-link text-primary p-0" 
-                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
-                <button name="action_download_file" 
-                        type="object" 
-                        icon="fa-download" 
-                        title="Download" 
-                        invisible="not file"
-                        class="btn btn-sm btn-link text-primary p-0 ms-1" 
-                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
-            </list>
-        </field>
-    </record>
-
     <!-- Form View -->
     <record id="view_crm_task_management_form" model="ir.ui.view">
         <field name="name">crm.task.management.form</field>
@@ -174,7 +148,26 @@
                         <field name="task_attachment_ids" 
                                nolabel="1"
                                colspan="2"
-                               readonly="not can_edit_manager_fields"/>
+                               readonly="not can_edit_manager_fields">
+                            <list editable="bottom" string="Attachments">
+                                <field name="name" string="File Name"/>
+                                <field name="file" filename="name" widget="binary" string="File"/>
+                                <button name="action_preview_file" 
+                                        type="object" 
+                                        icon="fa-eye" 
+                                        title="Preview" 
+                                        invisible="not file"
+                                        class="btn btn-sm btn-link text-primary p-0" 
+                                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
+                                <button name="action_download_file" 
+                                        type="object" 
+                                        icon="fa-download" 
+                                        title="Download" 
+                                        invisible="not file"
+                                        class="btn btn-sm btn-link text-primary p-0 ms-1" 
+                                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
+                            </list>
+                        </field>
                     </group>
 
                     <notebook>
