@@ -1382,6 +1382,34 @@ button[name="action_cancel_future_series"] i {
     transform: scale(1.15) !important;
 }
 
+/* Force Task Form Modal to True Full Screen */
+.modal:has(.crm-task-management-form),
+.modal:has([name="task_attachment_ids"]),
+.o_dialog:has(.crm-task-management-form),
+.o_dialog:has([name="task_attachment_ids"]) {
+    padding: 0 !important;
+}
+
+.modal:has(.crm-task-management-form) .modal-dialog,
+.modal:has([name="task_attachment_ids"]) .modal-dialog,
+.o_dialog:has(.crm-task-management-form) .modal-dialog,
+.o_dialog:has([name="task_attachment_ids"]) .modal-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.modal:has(.crm-task-management-form) .modal-content,
+.modal:has([name="task_attachment_ids"]) .modal-content,
+.o_dialog:has(.crm-task-management-form) .modal-content,
+.o_dialog:has([name="task_attachment_ids"]) .modal-content {
+    height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+
 /* Modal View: Clean header without dashboard button */
 .modal .o_control_panel_main_buttons {
     display: none !important;

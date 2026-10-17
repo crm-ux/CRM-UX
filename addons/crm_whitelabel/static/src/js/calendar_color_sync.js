@@ -65,7 +65,7 @@ function applyPopoverColors(popoverEl) {
                 const link = popoverEl.querySelector("a[href*='crm.task.management/'], [data-res-id], a[href*='id=']");
                 if (link) {
                     const match = (link.getAttribute("href") || "").match(/crm\.task\.management\/(\d+)/) ||
-                                  (link.getAttribute("href") || "").match(/id=(\d+)/);
+                        (link.getAttribute("href") || "").match(/id=(\d+)/);
                     if (match) taskId = match[1];
                     if (!taskId && link.dataset?.resId) taskId = link.dataset.resId;
                 }
@@ -534,7 +534,7 @@ function listenForUnauthorizedDropRevert() {
         }
     });
 
-    // Observer to detect when the UserError modal closes, immediately reload the calendar to snap event back to original date
+    // AND if a modal form opens for crm.task.management ("Open: ..."), immediately redirect it to full screen!
     const modalObserver = new MutationObserver((mutations) => {
         for (const m of mutations) {
             for (const node of m.addedNodes) {
@@ -549,6 +549,34 @@ function listenForUnauthorizedDropRevert() {
                             });
                         });
                     }
+
+                    // If modal is opening the Task Form (title starts with "Open: " or has .crm-task-management-form)
+                    const modalTitle = node.querySelector(".modal-title")?.textContent || "";
+                    const hasTaskForm = node.querySelector(".crm-task-management-form, [name='task_attachment_ids']");
+                    if (modalTitle.startsWith("Open:") || hasTaskForm) {
+                        // Immediately trigger the full-screen expand button in the modal header!
+                        const expandBtn = node.querySelector("button[title*='full screen' i], button[title*='expand' i], .fa-expand, .fa-arrows-alt")?.closest("button");
+                        if (expandBtn) {
+                            expandBtn.click();
+                        } else {
+                            // Maximize modal to true 100vw x 100vh full screen
+                            node.classList.add("modal-fullscreen");
+                            const dialog = node.querySelector(".modal-dialog");
+                            if (dialog) {
+                                dialog.classList.add("modal-fullscreen");
+                                dialog.style.setProperty("width", "100vw", "important");
+                                dialog.style.setProperty("max-width", "100vw", "important");
+                                dialog.style.setProperty("height", "100vh", "important");
+                                dialog.style.setProperty("margin", "0", "important");
+                            }
+                            const content = node.querySelector(".modal-content");
+                            if (content) {
+                                content.style.setProperty("height", "100vh", "important");
+                                content.style.setProperty("border-radius", "0", "important");
+                            }
+                        }
+                    }
+
                     // Clean up modal search bar: remove toggler dropdown and popup menu
                     node.querySelectorAll(".o_searchview_dropdown_toggler, button.o_dropdown_button, .o_search_bar_menu").forEach(el => {
                         el.remove();
