@@ -593,7 +593,7 @@ function initTaskBulkUploadSupport() {
                 <i class="fa fa-cloud-upload" style="font-size: 1.25rem; color: #0b3d91;"></i>
             </div>
             <button type="button" class="crm_btn_bulk_upload">
-                <i class="fa fa-folder-open-o"></i> Select Multiple Files
+                <i class="fa fa-folder-open-o"></i> Select Files
             </button>
             <input type="file" multiple style="display: none;" class="crm_bulk_hidden_input"/>
         `;
