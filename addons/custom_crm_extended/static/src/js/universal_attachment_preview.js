@@ -547,46 +547,73 @@ export class CrmTaskManagementFormController extends FormController {
                 let previewContent = null;
                 let recId = null;
 
-                // 1. If row is unsaved or file is cached in DOM input
-                const fileInp = row.querySelector("input[type='file']");
-                if (fileInp && fileInp.files && fileInp.files[0]) {
-                    const localFile = fileInp.files[0];
-                    const base64 = await new Promise((resolve) => {
-                        const r = new FileReader();
-                        r.onload = () => resolve(r.result.split(",")[1]);
-                        r.readAsDataURL(localFile);
-                    });
-                    fileData = base64;
+                // Auto-save form if dirty so all attachment rows are persisted
+                const record = this.model?.root;
+                const isDirty = record?.isDirty ? await record.isDirty() : false;
+                if (isDirty) {
+                    try {
+                        await record.save();
+                    } catch (e) {
+                        console.warn("Could not auto-save before preview:", e);
+                    }
                 }
 
-                // 2. If saved in database, fetch fileData directly via orm.read
-                if (!fileData) {
-                    const link = row.querySelector("a[href*='/web/content/']");
-                    if (link) {
-                        const href = link.getAttribute("href");
-                        const idMatch = href.match(/crm\.task\.attachment\/(\d+)/) || href.match(/id=(\d+)/);
-                        if (idMatch) recId = parseInt(idMatch[1]);
-                    }
-                    if (!recId) {
-                        const trDataId = row.getAttribute("data-id") || "";
-                        const trIdMatch = trDataId.match(/(\d+)/);
-                        if (trIdMatch) recId = parseInt(trIdMatch[1]);
-                    }
-
-                    if (recId) {
-                        try {
-                            const res = await this.env.services.orm.read("crm.task.attachment", [recId], ["file", "name"], { context: { bin_size: false } });
-                            if (res && res[0]) {
-                                fileData = res[0].file;
-                                if (!filename && res[0].name) filename = res[0].name;
-                            }
-                        } catch (readErr) {
-                            console.warn("Could not read crm.task.attachment:", readErr);
+                // 1. Get attachment record directly from Odoo form model data
+                const attachmentList = record?.data?.task_attachment_ids;
+                let attachmentRecord = null;
+                if (attachmentList && attachmentList.records) {
+                    // Match by filename or row DOM position
+                    attachmentRecord = attachmentList.records.find(r => r.data.name === filename) ||
+                                       attachmentList.records.find(r => (r.data.file && filename && filename.includes(r.data.name)));
+                    if (!attachmentRecord) {
+                        const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                        const rowIndex = allRows.indexOf(row);
+                        if (rowIndex >= 0 && rowIndex < attachmentList.records.length) {
+                            attachmentRecord = attachmentList.records[rowIndex];
                         }
                     }
                 }
 
-                // 3. For office documents/excel/zip, reuse equipment.master server preview converter
+                if (attachmentRecord) {
+                    recId = attachmentRecord.resId || recId;
+                    if (!filename && attachmentRecord.data.name) {
+                        filename = attachmentRecord.data.name;
+                    }
+                    fileData = attachmentRecord.data.file || fileData;
+                }
+
+                // 2. If row is unsaved or file is cached in DOM input
+                if (!fileData) {
+                    const fileInp = row.querySelector("input[type='file']");
+                    if (fileInp && fileInp.files && fileInp.files[0]) {
+                        const localFile = fileInp.files[0];
+                        const base64 = await new Promise((resolve) => {
+                            const r = new FileReader();
+                            r.onload = () => resolve(r.result.split(",")[1]);
+                            r.readAsDataURL(localFile);
+                        });
+                        fileData = base64;
+                    }
+                }
+
+                // 3. If fileData is size string or empty, fetch raw binary via orm.read
+                const isSizeString = typeof fileData === "string" && (
+                    fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
+                );
+
+                if (recId && (!fileData || isSizeString)) {
+                    try {
+                        const res = await this.env.services.orm.read("crm.task.attachment", [recId], ["file", "name"], { context: { bin_size: false } });
+                        if (res && res[0]) {
+                            fileData = res[0].file;
+                            if (res[0].name) filename = res[0].name;
+                        }
+                    } catch (readErr) {
+                        console.warn("Could not read crm.task.attachment:", readErr);
+                    }
+                }
+
+                // 4. For office documents/excel/zip, reuse equipment.master server preview converter
                 const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
                     (filename || "").toLowerCase().endsWith("." + ext)
                 );
@@ -604,7 +631,7 @@ export class CrmTaskManagementFormController extends FormController {
                     }
                 }
 
-                // 4. Reuse UniversalAttachmentPreviewDialog with exact same props as equipment master
+                // 5. Reuse UniversalAttachmentPreviewDialog with exact same props as equipment master
                 const fileUrl = recId ? `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false` : null;
 
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
