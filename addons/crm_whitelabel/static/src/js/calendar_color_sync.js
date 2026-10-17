@@ -656,56 +656,6 @@ function initTaskBulkUploadSupport() {
         });
     }
 
-        hiddenInput.addEventListener("change", async (ev) => {
-            const files = Array.from(ev.target.files || []);
-            if (!files.length) return;
-
-            const originalBtnHtml = btn.innerHTML;
-            btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Adding ${files.length} file(s)...`;
-            btn.disabled = true;
-
-            try {
-                // Find Odoo list add button
-                for (const file of files) {
-                    const addBtn = attachmentField.querySelector(".o_field_x2many_list_row_add a, .o_list_button_add, tfoot a");
-                    if (addBtn) {
-                        addBtn.click();
-                        await new Promise(r => setTimeout(r, 150));
-
-                        const activeRow = attachmentField.querySelector("tr.o_selected_row, .o_data_row:last-child");
-                        if (activeRow) {
-                            // Fill name
-                            const nameInp = activeRow.querySelector("input[name='name'], [name='name'] input");
-                            if (nameInp) {
-                                nameInp.value = file.name;
-                                nameInp.dispatchEvent(new Event("input", { bubbles: true }));
-                                nameInp.dispatchEvent(new Event("change", { bubbles: true }));
-                            }
-
-                            // Trigger file input
-                            const fileInp = activeRow.querySelector("input[type='file']");
-                            if (fileInp) {
-                                const dt = new DataTransfer();
-                                dt.items.add(file);
-                                fileInp.files = dt.files;
-                                fileInp.dispatchEvent(new Event("change", { bubbles: true }));
-                            }
-                        }
-                        await new Promise(r => setTimeout(r, 150));
-                    }
-                }
-            } catch (err) {
-                console.error("Multi upload error:", err);
-            } finally {
-                btn.innerHTML = originalBtnHtml;
-                btn.disabled = false;
-                hiddenInput.value = "";
-            }
-        });
-
-        attachmentField.prepend(wrap);
-    }
-
     const observer = new MutationObserver(() => {
         injectBulkBar();
     });
