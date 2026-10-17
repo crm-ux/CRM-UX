@@ -1042,20 +1042,31 @@ div[name="note"] .o-wysiwyg {
     background-color: #082a66 !important;
 }
 
-/* Modal View: Clean header without dashboard button, keep gear icon (with import/export/delete) */
-.modal-dialog:has(.o_list_view) .o_control_panel_main_buttons {
+/* Modal View: Clean header without dashboard button */
+.modal .o_control_panel_main_buttons {
     display: none !important;
 }
 
-/* KEEP the Gear Icon (.o_cp_action_menus) visible for Import, Export, and Delete! */
-.modal-dialog:has(.o_list_view) .o_cp_action_menus {
-    display: flex !important;
+/* KEEP the Gear / Action Button (.o_cp_action_menus) ALWAYS VISIBLE! */
+.modal .o_cp_action_menus,
+.modal .o_cp_action_menus .btn-group,
+.modal .o_control_panel_actions {
+    display: inline-flex !important;
     visibility: visible !important;
+    opacity: 1 !important;
+    margin-right: 8px !important;
+}
+
+/* Ensure Gear / Action dropdown menu items (Export, Delete) are visible when clicked */
+.modal .o_cp_action_menus .dropdown-menu {
+    display: none;
+    z-index: 1060 !important;
+}
+.modal .o_cp_action_menus .dropdown-menu.show {
+    display: block !important;
 }
 
 /* REMOVE the Filter / Group By / Favorites popup menu completely! */
-.modal-dialog:has(.o_list_view) .o_search_bar_menu,
-.o_search_bar_menu:has(*:contains("Filters")),
 .modal .o_search_bar_menu,
 .o_dialog .o_search_bar_menu {
     display: none !important;
@@ -1065,10 +1076,10 @@ div[name="note"] .o-wysiwyg {
 }
 
 /* REMOVE the dropdown toggle arrow from the search bar so it is just a plain, simple search box! */
-.modal-dialog:has(.o_list_view) .o_searchview_dropdown_toggler,
-.modal-dialog:has(.o_list_view) button.o_dropdown_button,
-.modal-dialog:has(.o_list_view) .o_searchview i.fa-caret-down,
-.modal-dialog:has(.o_list_view) .o_searchview i.fa-caret-right {
+.modal .o_searchview_dropdown_toggler,
+.modal button.o_dropdown_button,
+.modal .o_searchview i.fa-caret-down,
+.modal .o_searchview i.fa-caret-right {
     display: none !important;
     visibility: hidden !important;
     width: 0 !important;
@@ -1076,14 +1087,14 @@ div[name="note"] .o-wysiwyg {
     margin: 0 !important;
 }
 
-.modal-dialog:has(.o_list_view) .o_searchview {
+.modal .o_searchview {
     border-radius: 6px !important;
     border: 1px solid #cbd5e1 !important;
     padding-right: 10px !important;
     background: #ffffff !important;
 }
 
-.modal-dialog:has(.o_list_view) .o_searchview:focus-within {
+.modal .o_searchview:focus-within {
     border-color: #0b3d91 !important;
     box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.15) !important;
 }
