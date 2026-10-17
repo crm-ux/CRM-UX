@@ -514,14 +514,79 @@ function listenForUnauthorizedDropRevert() {
     }
 }
 
+/**
+ * Universal Copy-Paste support for Task Attachments
+ * Captures clipboard paste (Ctrl+V / Cmd+V) containing images, screenshots, or files
+ * and dispatches them directly to the many2many_binary file upload input in both Form & Wizard!
+ */
+function initAttachmentPasteSupport() {
+    window.addEventListener("paste", function (e) {
+        // If user is focused on a text input/textarea that is not in the attachment zone, let normal text paste
+        const activeEl = document.activeElement;
+        const isTextInput = activeEl && (activeEl.tagName === "INPUT" && activeEl.type === "text" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable);
+
+        const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+        if (!items || !items.length) return;
+
+        let pastedFiles = [];
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].kind === "file") {
+                const file = items[i].getAsFile();
+                if (file) {
+                    // If filename is generic image.png, give it a timestamped name
+                    let finalFile = file;
+                    if (file.name === "image.png") {
+                        const nowStr = new Date().toISOString().replace(/[-:T.]/g, "").slice(0, 14);
+                        finalFile = new File([file], `Pasted_Screenshot_${nowStr}.png`, { type: file.type });
+                    }
+                    pastedFiles.push(finalFile);
+                }
+            }
+        }
+
+        if (pastedFiles.length === 0) return;
+
+        // Find the active modal wizard or main task form
+        const activeModal = document.querySelector(".modal.show, .modal-dialog, .o_dialog");
+        const scope = activeModal || document.querySelector(".crm-task-management-form, .o_form_view") || document;
+
+        // Locate the file input inside many2many_binary widget
+        const fileInput = scope.querySelector(".o_field_many2many_binary input[type='file'], [name='attachment_ids'] input[type='file'], .crm-wizard-dropzone input[type='file']");
+
+        if (fileInput) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const dataTransfer = new DataTransfer();
+            pastedFiles.forEach(f => dataTransfer.items.add(f));
+            fileInput.files = dataTransfer.files;
+
+            // Trigger change event so Odoo's binary widget uploads the file(s)
+            fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+
+            // Show a brief friendly toast/border feedback
+            const dropzone = fileInput.closest(".crm-wizard-dropzone, .o_field_many2many_binary, .o_field_widget");
+            if (dropzone) {
+                dropzone.style.transition = "all 0.3s ease";
+                dropzone.style.boxShadow = "0 0 0 3px rgba(11, 61, 145, 0.4)";
+                setTimeout(() => {
+                    dropzone.style.boxShadow = "";
+                }, 1000);
+            }
+        }
+    }, true);
+}
+
 if (typeof document !== "undefined") {
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => {
             initPopoverObserver();
             listenForUnauthorizedDropRevert();
+            initAttachmentPasteSupport();
         });
     } else {
         initPopoverObserver();
         listenForUnauthorizedDropRevert();
+        initAttachmentPasteSupport();
     }
 }

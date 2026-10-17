@@ -53,10 +53,17 @@ class CrmTaskManagement(models.Model):
     # Sequential Task Delivery (Unlocks for employee only when prior task is Done)
     is_unlocked = fields.Boolean(string='Is Active / Unlocked', default=True, tracking=True)
 
-    # Work Instructions & Attachment
+    # Work Instructions & Attachments (Supports 1 or N bulk attachments)
     instructions = fields.Text(string='Work Details / Instructions')
     attachment_name = fields.Char(string='Attachment Name')
     attachment_file = fields.Binary(string='Attachment', attachment=True)
+    attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'crm_task_management_ir_attachment_rel',
+        'task_id',
+        'attachment_id',
+        string='Attachments'
+    )
 
     # Employee Action & Reporting
     state = fields.Selection([
@@ -149,7 +156,7 @@ class CrmTaskManagement(models.Model):
             record.can_edit_manager_fields = False
 
     def write(self, vals):
-        manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'related_model'}
+        manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'attachment_ids', 'related_model'}
         if any(f in vals for f in manager_fields):
             current_user = self.env.user
             is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)

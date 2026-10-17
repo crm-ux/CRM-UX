@@ -13,6 +13,7 @@ class CrmTaskAssignWizard(models.TransientModel):
     instructions = fields.Text(string='Work Details / Instructions')
     attachment_name = fields.Char(string='Attachment Name')
     attachment_file = fields.Binary(string='Attachment', attachment=True)
+    attachment_ids = fields.Many2many('ir.attachment', string='Attachments')
 
     # Company (Optional)
     company_id = fields.Many2one('res.company', string='Company')
@@ -90,6 +91,7 @@ class CrmTaskAssignWizard(models.TransientModel):
             'instructions': self.instructions.strip() if self.instructions else '',
             'attachment_name': self.attachment_name or '',
             'attachment_file': self.attachment_file or False,
+            'attachment_ids': [(6, 0, self.attachment_ids.ids)] if self.attachment_ids else False,
             'company_id': self.company_id.id if self.company_id else False,
             'related_model': self.related_model or False,
             'lead_id': self.lead_id.id if self.lead_id else False,
@@ -135,6 +137,7 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'instructions': self.instructions.strip() if self.instructions else '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
+                    'attachment_ids': [(6, 0, self.attachment_ids.ids)] if self.attachment_ids else False,
                     'company_id': self.company_id.id if self.company_id else False,
                     'related_model': self.related_model or False,
                     'lead_id': self.lead_id.id if self.lead_id else False,

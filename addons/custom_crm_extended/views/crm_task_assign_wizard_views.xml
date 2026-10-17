@@ -80,14 +80,13 @@
                                placeholder="Add instructions or requirements for this task..."/>
                     </div>
 
-                    <!-- Section 4: Attachment -->
+                    <!-- Section 4: Attachments (Bulk Multi-upload) -->
                     <div class="crm-wizard-group crm-wizard-attachment-group">
-                        <label for="attachment_file" class="crm-wizard-label">
-                            Attachment <small style="color: #64748b; font-weight: 500;">(Drawings, PO, Photos, PDF up to 20MB)</small>
+                        <label for="attachment_ids" class="crm-wizard-label">
+                            Attachments 
                         </label>
                         <div class="crm-wizard-dropzone">
-                            <field name="attachment_name" invisible="1"/>
-                            <field name="attachment_file" filename="attachment_name" nolabel="1" widget="binary"/>
+                            <field name="attachment_ids" widget="many2many_binary" nolabel="1"/>
                         </div>
                     </div>
                 </sheet>
