@@ -79,17 +79,15 @@
                 <field name="name" string="Task"/>
                 <field name="assigned_to_id" string="Assigned To"/>
                 <field name="assigned_by_id" string="Assigned By"/>
-                <field name="company_id" string="Company" groups="base.group_multi_company"/>
-                <filter string="My Tasks" name="my_tasks" domain="[('assigned_to_id', '=', uid)]"/>
-                <filter string="Assigned By Me" name="assigned_by_me" domain="[('assigned_by_id', '=', uid)]"/>
-                <separator/>
+                <field name="company_id" string="Company"/>
                 <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]"/>
                 <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
                 <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <separator/>
                 <group expand="0" string="Group By">
                     <filter string="Assigned Employee" name="group_assigned_to" context="{'group_by': 'assigned_to_id'}"/>
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
+                    <filter string="Company" name="group_company" context="{'group_by': 'company_id'}"/>
                 </group>
             </search>
         </field>
