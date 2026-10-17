@@ -976,6 +976,15 @@ div[name="note"] .o-wysiwyg {
 .popover [data-field="assigned_by_id"],
 .o_cw_popover .o_field_many2one a,
 .o_cw_popover [data-field="assigned_to_id"],
+.o_cw_popover [data-field="assigned_by_id"] {
+    pointer-events: none !important;
+    cursor: default !important;
+    text-decoration: none !important;
+    color: #1e293b !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
 /* Calendar Popover Edit button: high-contrast crystal-clear white text */
 .popover .btn-primary,
 .popover .btn-primary *,
