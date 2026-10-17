@@ -188,7 +188,6 @@
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
         <field name="view_mode">calendar,list,form</field>
-        <field name="search_view_id" ref="view_crm_task_management_search"/>
     </record>
 
     <!-- Action Window for Unscheduled Tasks Modal -->
