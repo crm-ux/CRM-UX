@@ -33,7 +33,7 @@ class CrmPersonalTodo(models.Model):
         ('pending', 'Pending'),
         ('in_progress', 'In Progress'),
         ('done', 'Done'),
-        ('issue', 'Issue / Hold'),
+        ('complaint', 'Issue / Hold'),
     ], string='Status', default='pending', required=True)
 
     notes = fields.Text(string='Personal Notes / Checklist')
@@ -73,7 +73,7 @@ class CrmPersonalTodo(models.Model):
         self.write({'state': 'pending'})
 
     def action_set_complaint(self):
-        self.write({'state': 'issue'})
+        self.write({'state': 'complaint'})
 
     @api.model
     def check_todo_reminders_cron(self):

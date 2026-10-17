@@ -14,7 +14,7 @@
                        decoration-warning="state == 'pending'"
                        decoration-info="state == 'in_progress'"
                        decoration-success="state == 'done'"
-                       decoration-danger="state == 'issue'"/>
+                       decoration-danger="state == 'complaint'"/>
                 <field name="is_overdue" invisible="1"/>
                 <field name="user_id" invisible="1"/>
                 <button name="action_set_done" type="object" string="Mark Done" icon="fa-check" invisible="state == 'done'" class="text-success"/>
@@ -32,9 +32,9 @@
                 <header>
                     <button name="action_set_done" type="object" string="Mark as Done" class="btn-success" icon="fa-check" invisible="state == 'done'"/>
                     <button name="action_set_in_progress" type="object" string="Start Work" class="btn-primary" icon="fa-play" invisible="state == 'in_progress'"/>
-                    <button name="action_set_complaint" type="object" string="Report Issue / Hold" class="btn-danger" icon="fa-exclamation-triangle" invisible="state == 'issue'"/>
+                    <button name="action_set_complaint" type="object" string="Report Issue / Hold" class="btn-danger" icon="fa-exclamation-triangle" invisible="state == 'complaint'"/>
                     <button name="action_set_pending" type="object" string="Reset to Pending" class="btn-secondary" icon="fa-undo" invisible="state == 'pending'"/>
-                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,issue"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -43,7 +43,7 @@
                             <field name="name" placeholder="e.g. Call Client regarding installation readiness..." style="font-weight: 700;"/>
                         </h1>
                     </div>
-                    <div class="alert alert-danger mt-2" role="alert" invisible="state != 'issue'">
+                    <div class="alert alert-danger mt-2" role="alert" invisible="state != 'complaint'">
                         <strong><i class="fa fa-exclamation-triangle me-1"></i> Issue / Hold Details:</strong>
                         <field name="issue_reason" placeholder="Describe what issue or blocker you are facing with this To-Do..."/>
                     </div>
