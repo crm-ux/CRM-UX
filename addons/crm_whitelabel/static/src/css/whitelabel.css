@@ -1042,6 +1042,29 @@ div[name="note"] .o-wysiwyg {
     background-color: #082a66 !important;
 }
 
+/* Cancel Upcoming Schedule solid crimson red button matching design */
+button[name="action_cancel_future_series"],
+.btn-danger[name="action_cancel_future_series"] {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+}
+
+button[name="action_cancel_future_series"]:hover,
+.btn-danger[name="action_cancel_future_series"]:hover {
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #ffffff !important;
+}
+
+button[name="action_cancel_future_series"] i {
+    color: #ffffff !important;
+    margin-right: 4px !important;
+}
+
 /* Ensure Gear / Action dropdown menu items (Export, Delete) are always visible and properly styled */
 .o_cp_action_menus .dropdown-menu {
     z-index: 1060 !important;
