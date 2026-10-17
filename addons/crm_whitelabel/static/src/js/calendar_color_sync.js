@@ -636,15 +636,6 @@ function initTaskBulkUploadSupport() {
                                 dt.items.add(file);
                                 fileInp.files = dt.files;
                                 fileInp.dispatchEvent(new Event("change", { bubbles: true }));
-
-                                // Ensure file name is displayed immediately in File column text
-                                const fileContainer = activeRow.querySelector("td[name='file'], .o_field_binary");
-                                if (fileContainer && !fileContainer.querySelector(".crm_file_label_text")) {
-                                    const span = document.createElement("span");
-                                    span.className = "crm_file_label_text ms-1 fw-medium text-dark";
-                                    span.innerText = file.name;
-                                    fileContainer.appendChild(span);
-                                }
                             }
                         }
                         await new Promise(r => setTimeout(r, 150));
