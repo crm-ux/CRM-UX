@@ -966,6 +966,24 @@ div[name="note"] .o-wysiwyg {
     background-color: transparent !important;
 }
 
+/* Disable user profile links inside Calendar Popover (strip click) */
+.popover .o_field_many2one,
+.popover .o_field_many2one a,
+.popover a[href*="res.users"],
+.popover a[href*="res_partner"],
+.popover a[href*="model=res.users"],
+.popover [data-field="assigned_to_id"],
+.popover [data-field="assigned_by_id"],
+.o_cw_popover .o_field_many2one a,
+.o_cw_popover [data-field="assigned_to_id"],
+.o_cw_popover [data-field="assigned_by_id"],
+.o_cw_popover .o_form_uri {
+    pointer-events: none !important;
+    cursor: default !important;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
 /* =========================================================================
    Bottom Collapsible Tray: Unscheduled Tasks (Tasks Without Deadline)
    ========================================================================= */
