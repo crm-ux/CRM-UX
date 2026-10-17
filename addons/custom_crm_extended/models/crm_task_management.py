@@ -64,6 +64,11 @@ class CrmTaskManagement(models.Model):
         'attachment_id',
         string='Attachments'
     )
+    task_attachment_ids = fields.One2many(
+        'crm.task.attachment',
+        'task_id',
+        string='Task Attachments'
+    )
 
     # Employee Action & Reporting
     state = fields.Selection([
