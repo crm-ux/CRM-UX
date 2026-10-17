@@ -562,7 +562,6 @@ export class CrmTaskManagementFormController extends FormController {
                 // 2. If saved in database, fetch fileData directly via orm.read
                 if (!fileData) {
                     const link = row.querySelector("a[href*='/web/content/']");
-                    let recId = null;
                     if (link) {
                         const href = link.getAttribute("href");
                         const idMatch = href.match(/crm\.task\.attachment\/(\d+)/) || href.match(/id=(\d+)/);
