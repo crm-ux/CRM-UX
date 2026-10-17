@@ -577,16 +577,88 @@ function initAttachmentPasteSupport() {
     }, true);
 }
 
+/**
+ * Bulk Multi-file Upload Bar injection for Task Attachment Table
+ * Allows selecting 5, 10, or 20 files at once from file explorer
+ */
+function initTaskBulkUploadSupport() {
+    function injectBulkBar() {
+        const attachmentField = document.querySelector("[name='task_attachment_ids']");
+        if (!attachmentField || attachmentField.querySelector(".crm_task_bulk_upload_wrap")) return;
+
+        const wrap = document.createElement("div");
+        wrap.className = "crm_task_bulk_upload_wrap";
+        wrap.innerHTML = `
+            <div style="font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px;">
+                <i class="fa fa-cloud-upload" style="font-size: 1.25rem; color: #0b3d91;"></i>
+                <span><strong>Multi-file Upload:</strong> Select or drag & drop 10-20 files at once</span>
+            </div>
+            <button type="button" class="crm_btn_bulk_upload">
+                <i class="fa fa-folder-open-o"></i> Select Multiple Files
+            </button>
+            <input type="file" multiple style="display: none;" class="crm_bulk_hidden_input"/>
+        `;
+
+        const hiddenInput = wrap.querySelector(".crm_bulk_hidden_input");
+        const btn = wrap.querySelector(".crm_btn_bulk_upload");
+
+        btn.addEventListener("click", () => hiddenInput.click());
+
+        hiddenInput.addEventListener("change", async (ev) => {
+            const files = ev.target.files;
+            if (!files || !files.length) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const addLineBtn = attachmentField.querySelector(".o_field_x2many_list_row_add a");
+                if (addLineBtn) {
+                    addLineBtn.click();
+                    await new Promise(r => setTimeout(r, 200));
+
+                    const lastRow = attachmentField.querySelector(".o_data_row:last-child, tr:last-child");
+                    if (lastRow) {
+                        const nameInput = lastRow.querySelector("input[name='name']");
+                        const fileInp = lastRow.querySelector("input[type='file']");
+                        if (nameInput) {
+                            nameInput.value = file.name;
+                            nameInput.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+                        if (fileInp) {
+                            const dt = new DataTransfer();
+                            dt.items.add(file);
+                            fileInp.files = dt.files;
+                            fileInp.dispatchEvent(new Event("change", { bubbles: true }));
+                        }
+                    }
+                }
+            }
+        });
+
+        attachmentField.prepend(wrap);
+    }
+
+    const observer = new MutationObserver(() => {
+        injectBulkBar();
+    });
+
+    const targetNode = document.body || document.documentElement;
+    if (targetNode) {
+        observer.observe(targetNode, { childList: true, subtree: true });
+    }
+}
+
 if (typeof document !== "undefined") {
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => {
             initPopoverObserver();
             listenForUnauthorizedDropRevert();
             initAttachmentPasteSupport();
+            initTaskBulkUploadSupport();
         });
     } else {
         initPopoverObserver();
         listenForUnauthorizedDropRevert();
         initAttachmentPasteSupport();
+        initTaskBulkUploadSupport();
     }
 }

@@ -1143,6 +1143,44 @@ button[name="action_cancel_future_series"] i {
     z-index: 1060 !important;
 }
 
+/* Bulk Multi-file Upload bar for Task Attachments */
+.crm_task_bulk_upload_wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+
+.crm_task_bulk_upload_wrap:hover,
+.crm_task_bulk_upload_wrap.drag-over {
+    border-color: #0b3d91;
+    background: #f0f7ff;
+}
+
+.crm_btn_bulk_upload {
+    background: #0b3d91 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 6px 14px !important;
+    border-radius: 5px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 1px 3px rgba(11, 61, 145, 0.2) !important;
+}
+
+.crm_btn_bulk_upload:hover {
+    background: #082d6e !important;
+}
+
 /* Modal View: Clean header without dashboard button */
 .modal .o_control_panel_main_buttons {
     display: none !important;
