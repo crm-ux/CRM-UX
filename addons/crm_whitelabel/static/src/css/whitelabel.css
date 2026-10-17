@@ -1219,29 +1219,53 @@ button[name="action_cancel_future_series"] i {
     background-color: transparent !important;
 }
 
-/* ── TASK ATTACHMENT TABLE FIXES ── */
-/* 1. Remove blue selection background on active row in File column */
+/* ── TASK ATTACHMENT TABLE FIXES (Task Form & Assign Work Wizard) ── */
+/* 1. Remove blue/purple selection background on active row in File column */
 [name="task_attachment_ids"] .o_data_row input::selection,
-[name="task_attachment_ids"] .o_data_row *::selection {
+[name="task_attachment_ids"] .o_data_row *::selection,
+[name="wizard_attachment_ids"] .o_data_row input::selection,
+[name="wizard_attachment_ids"] .o_data_row *::selection {
     background: transparent !important;
 }
 
-[name="task_attachment_ids"] .o_selected_row td {
+[name="task_attachment_ids"] .o_selected_row td,
+[name="wizard_attachment_ids"] .o_selected_row td {
     background-color: #f8fafc !important;
+}
+
+/* Custom dark blue border and text for file name & input */
+[name="wizard_attachment_ids"] .o_data_row input:focus,
+[name="wizard_attachment_ids"] .o_data_row td:focus-within {
+    border-bottom: 2px solid #0b3d91 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+[name="wizard_attachment_ids"] .o_field_char input,
+[name="wizard_attachment_ids"] td[name="name"] input {
+    color: #0b3d91 !important;
+    font-weight: 600 !important;
 }
 
 /* 2. Remove duplicate middle delete/clear button from inside the binary widget */
 [name="task_attachment_ids"] .o_clear_file_button,
 [name="task_attachment_ids"] .fa-trash:not(.o_list_record_remove *),
-[name="task_attachment_ids"] .fa-trash-o:not(.o_list_record_remove *) {
+[name="task_attachment_ids"] .fa-trash-o:not(.o_list_record_remove *),
+[name="wizard_attachment_ids"] .o_clear_file_button,
+[name="wizard_attachment_ids"] .fa-trash:not(.o_list_record_remove *),
+[name="wizard_attachment_ids"] .fa-trash-o:not(.o_list_record_remove *) {
     display: none !important;
 }
 
-/* Ensure Edit Pencil and Download icon inside binary cell are permanently visible */
+/* Ensure Edit Pencil and Download icon inside binary cell are permanently visible and Dark Blue */
 [name="task_attachment_ids"] .fa-pencil,
 [name="task_attachment_ids"] .fa-pencil-square-o,
 [name="task_attachment_ids"] .o_select_file_button,
-[name="task_attachment_ids"] .fa-download {
+[name="task_attachment_ids"] .fa-download,
+[name="wizard_attachment_ids"] .fa-pencil,
+[name="wizard_attachment_ids"] .fa-pencil-square-o,
+[name="wizard_attachment_ids"] .o_select_file_button,
+[name="wizard_attachment_ids"] .fa-download {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 0.9 !important;
@@ -1249,19 +1273,23 @@ button[name="action_cancel_future_series"] i {
 }
 
 /* 3. Keep File name permanently visible across all rows */
-[name="task_attachment_ids"] td.o_data_cell[name="file"] {
+[name="task_attachment_ids"] td.o_data_cell[name="file"],
+[name="wizard_attachment_ids"] td.o_data_cell[name="file"] {
     min-width: 220px !important;
 }
 
 [name="task_attachment_ids"] .o_field_binary_file,
-[name="task_attachment_ids"] .o_field_binary {
+[name="task_attachment_ids"] .o_field_binary,
+[name="wizard_attachment_ids"] .o_field_binary_file,
+[name="wizard_attachment_ids"] .o_field_binary {
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
 }
 
 /* Make preview button and delete button sit neatly side-by-side on the right */
-[name="task_attachment_ids"] .o_list_record_remove {
+[name="task_attachment_ids"] .o_list_record_remove,
+[name="wizard_attachment_ids"] .o_list_record_remove {
     width: 60px !important;
     text-align: right !important;
 }
@@ -1286,7 +1314,10 @@ button[name="action_cancel_future_series"] i {
 /* Delete / Trash icon in custom dark blue color */
 [name="task_attachment_ids"] .o_list_record_remove .fa-trash,
 [name="task_attachment_ids"] .o_list_record_remove .fa-trash-o,
-[name="task_attachment_ids"] .o_list_record_remove button {
+[name="task_attachment_ids"] .o_list_record_remove button,
+[name="wizard_attachment_ids"] .o_list_record_remove .fa-trash,
+[name="wizard_attachment_ids"] .o_list_record_remove .fa-trash-o,
+[name="wizard_attachment_ids"] .o_list_record_remove button {
     color: #0b3d91 !important;
     font-size: 1.15rem !important;
     opacity: 0.85 !important;
@@ -1295,7 +1326,10 @@ button[name="action_cancel_future_series"] i {
 
 [name="task_attachment_ids"] .o_list_record_remove:hover .fa-trash,
 [name="task_attachment_ids"] .o_list_record_remove:hover .fa-trash-o,
-[name="task_attachment_ids"] .o_list_record_remove button:hover {
+[name="task_attachment_ids"] .o_list_record_remove button:hover,
+[name="wizard_attachment_ids"] .o_list_record_remove:hover .fa-trash,
+[name="wizard_attachment_ids"] .o_list_record_remove:hover .fa-trash-o,
+[name="wizard_attachment_ids"] .o_list_record_remove button:hover {
     color: #082d6e !important;
     opacity: 1 !important;
     transform: scale(1.15) !important;
