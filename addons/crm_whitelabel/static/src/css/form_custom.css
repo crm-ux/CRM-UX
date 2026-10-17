@@ -118,19 +118,55 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   overflow: visible !important;
   width: 100% !important;
+  padding: 6px 12px !important;
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  border-radius: 8px 8px 0 0 !important;
 }
-.crm-personal-todo-form .o_form_statusbar button.btn-success {
+
+/* Custom styled action buttons matching design system */
+.crm-personal-todo-form .o_form_statusbar .btn {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 6px 16px !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease !important;
+  margin-right: 6px !important;
   margin-left: 0 !important;
 }
+.crm-personal-todo-form .o_form_statusbar button.btn-success {
+  background-color: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  margin-left: 0 !important;
+}
+.crm-personal-todo-form .o_form_statusbar button.btn-primary {
+  background-color: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+.crm-personal-todo-form .o_form_statusbar button.btn-danger {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+.crm-personal-todo-form .o_form_statusbar button.btn-secondary {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
 .crm-personal-todo-form .o_statusbar_status {
   display: flex !important;
   margin-left: auto !important;
   visibility: visible !important;
   opacity: 1 !important;
   flex-shrink: 0 !important;
+  gap: 6px !important;
 }
 
 /* ===== Subordinates / Direct Reports Clean Table Styling ===== */
