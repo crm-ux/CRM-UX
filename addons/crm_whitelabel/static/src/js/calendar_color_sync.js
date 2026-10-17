@@ -604,32 +604,86 @@ function initTaskBulkUploadSupport() {
         btn.addEventListener("click", () => hiddenInput.click());
 
         hiddenInput.addEventListener("change", async (ev) => {
-            const files = ev.target.files;
-            if (!files || !files.length) return;
+            const files = Array.from(ev.target.files || []);
+            if (!files.length) return;
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const addLineBtn = attachmentField.querySelector(".o_field_x2many_list_row_add a");
-                if (addLineBtn) {
-                    addLineBtn.click();
-                    await new Promise(r => setTimeout(r, 200));
+            // Show loading indicator on button
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Uploading ${files.length} file(s)...`;
+            btn.disabled = true;
 
-                    const lastRow = attachmentField.querySelector(".o_data_row:last-child, tr:last-child");
-                    if (lastRow) {
-                        const nameInput = lastRow.querySelector("input[name='name']");
-                        const fileInp = lastRow.querySelector("input[type='file']");
-                        if (nameInput) {
-                            nameInput.value = file.name;
-                            nameInput.dispatchEvent(new Event("change", { bubbles: true }));
-                        }
-                        if (fileInp) {
-                            const dt = new DataTransfer();
-                            dt.items.add(file);
-                            fileInp.files = dt.files;
-                            fileInp.dispatchEvent(new Event("change", { bubbles: true }));
+            try {
+                // Get task record ID if already saved
+                const resIdMatch = window.location.hash.match(/id=(\d+)/) || window.location.href.match(/id=(\d+)/);
+                const taskId = resIdMatch ? parseInt(resIdMatch[1]) : null;
+
+                for (const file of files) {
+                    const base64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result.split(",")[1]);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+
+                    // If task exists on server, create attachment directly
+                    if (taskId && window.odoo && window.odoo.__session_info__) {
+                        await fetch("/web/dataset/call_kw/crm.task.attachment/create", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                jsonrpc: "2.0",
+                                method: "call",
+                                params: {
+                                    model: "crm.task.attachment",
+                                    method: "create",
+                                    args: [{
+                                        task_id: taskId,
+                                        name: file.name,
+                                        file: base64,
+                                    }],
+                                    kwargs: {},
+                                },
+                            }),
+                        });
+                    } else {
+                        // Otherwise click 'Add a line' and set file data
+                        const addLineBtn = attachmentField.querySelector(".o_field_x2many_list_row_add a, .o_list_button_add, .o_field_x2many_list_row_add button");
+                        if (addLineBtn) {
+                            addLineBtn.click();
+                            await new Promise(r => setTimeout(r, 250));
+                            const lastRow = attachmentField.querySelector(".o_data_row:last-child");
+                            if (lastRow) {
+                                const nameInput = lastRow.querySelector("input[name='name']");
+                                const fileInp = lastRow.querySelector("input[type='file']");
+                                if (nameInput) {
+                                    nameInput.value = file.name;
+                                    nameInput.dispatchEvent(new Event("change", { bubbles: true }));
+                                }
+                                if (fileInp) {
+                                    const dt = new DataTransfer();
+                                    dt.items.add(file);
+                                    fileInp.files = dt.files;
+                                    fileInp.dispatchEvent(new Event("change", { bubbles: true }));
+                                }
+                            }
                         }
                     }
                 }
+
+                // If saved via API, reload the view to show all newly created rows
+                if (taskId) {
+                    const formView = document.querySelector(".o_form_view");
+                    const reloadBtn = document.querySelector(".o_cp_action_menus, .breadcrumb-item a:last-child");
+                    // Reload current view
+                    window.dispatchEvent(new Event("hashchange"));
+                    location.reload();
+                }
+            } catch (err) {
+                console.error("Bulk upload error:", err);
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+                hiddenInput.value = "";
             }
         });
 

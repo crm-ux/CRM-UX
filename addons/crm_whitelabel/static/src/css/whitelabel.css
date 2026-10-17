@@ -1181,6 +1181,35 @@ button[name="action_cancel_future_series"] i {
     background: #082d6e !important;
 }
 
+/* Custom dark blue for "Upload your file" button and icon in task attachments */
+[name="task_attachment_ids"] .o_field_binary .o_select_file_button,
+[name="task_attachment_ids"] .btn-link,
+[name="task_attachment_ids"] .o_attach,
+[name="task_attachment_ids"] button.o_select_file_button,
+.o_field_binary .o_select_file_button {
+    color: #0b3d91 !important;
+    background: transparent !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+
+[name="task_attachment_ids"] .o_field_binary .o_select_file_button:hover,
+[name="task_attachment_ids"] .btn-link:hover {
+    color: #082d6e !important;
+}
+
+[name="task_attachment_ids"] .o_field_binary .fa,
+[name="task_attachment_ids"] .o_select_file_button .fa,
+.o_select_file_button .fa {
+    color: #0b3d91 !important;
+}
+
+/* Remove pink/red background from empty binary file cell */
+[name="task_attachment_ids"] .o_field_binary.o_field_invalid,
+[name="task_attachment_ids"] td.o_field_invalid {
+    background-color: transparent !important;
+}
+
 /* Modal View: Clean header without dashboard button */
 .modal .o_control_panel_main_buttons {
     display: none !important;
