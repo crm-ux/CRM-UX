@@ -588,7 +588,64 @@ div[name="note"] .o-wysiwyg {
     flex-shrink: 0;
 }
 
-/* --- Calendar Event Strips on Dates (FullCalendar / Odoo) --- */
+/* --- Calendar Month Grid Equal Row Heights & Internal Day Scroll --- */
+.o_calendar_view .fc-daygrid-body,
+.o_calendar_view .fc-daygrid-body table,
+.o_calendar_view .fc-scrollgrid-sync-table {
+    height: 100% !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+/* Force each of the 5-6 week rows to take equal proportional height */
+.o_calendar_view .fc-daygrid-body tr,
+.o_calendar_view .fc-scrollgrid-sync-table tr {
+    height: 20% !important;
+}
+
+.o_calendar_view .fc-daygrid-day-frame {
+    height: 100% !important;
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.o_calendar_view .fc-daygrid-day-top {
+    flex-shrink: 0 !important;
+    padding: 2px 4px !important;
+}
+
+/* Event list inside the day cell: Takes remaining height, scrolls smoothly if tasks exceed! */
+.o_calendar_view .fc-daygrid-day-events {
+    flex: 1 1 auto !important;
+    margin-bottom: 0 !important;
+    padding: 1px 2px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+/* Thin modern scrollbar inside busy day cells */
+.o_calendar_view .fc-daygrid-day-events::-webkit-scrollbar {
+    width: 3px !important;
+}
+
+.o_calendar_view .fc-daygrid-day-events::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.o_calendar_view .fc-daygrid-day-events::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-radius: 3px !important;
+}
+
+.o_calendar_view .fc-daygrid-day-events::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8 !important;
+}
 
 /* Force all calendar events to take dynamic background & sizing uniformly */
 .o_calendar_view .fc-event,
@@ -597,16 +654,18 @@ div[name="note"] .o-wysiwyg {
 .o_calendar_view .fc-daygrid-block-event {
     border-radius: 4px !important;
     font-weight: 700 !important;
-    font-size: var(--fc-event-font-size, clamp(11.5px, 0.85rem, 13px)) !important;
-    line-height: 1.4 !important;
+    font-size: var(--fc-event-font-size, clamp(11px, 0.8rem, 12.5px)) !important;
+    line-height: 1.3 !important;
     border: 1px solid transparent !important;
     border-left: 1px solid transparent !important;
     border-left-width: 1px !important;
-    padding: var(--fc-event-padding, 0.25rem 0.45rem) !important;
-    min-height: var(--fc-event-min-height, 1.6rem) !important;
+    padding: 2px 5px !important;
+    min-height: 20px !important;
+    margin: 1px 0 !important;
     display: flex !important;
     align-items: center !important;
     box-sizing: border-box !important;
+    flex-shrink: 0 !important;
 }
 
 .o_calendar_view .fc-event-title,
