@@ -1042,13 +1042,19 @@ div[name="note"] .o-wysiwyg {
     background-color: #082a66 !important;
 }
 
-/* Modal View: Clean header without dashboard button, keep action menu available when items are selected for delete */
+/* Modal View: Clean header without dashboard button, without cogwheel, without filter dropdowns */
 .modal-dialog:has([string="Unscheduled Tasks"]) .o_control_panel_main_buttons {
     display: none !important;
 }
 
-/* Hide cogwheel by default, but show Action dropdown when records are selected for Bulk Delete */
-.modal-dialog:has([string="Unscheduled Tasks"]) .o_cp_action_menus:not(:has(.o_list_selection_box)) {
+/* Completely hide cogwheel/gear button */
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_cp_action_menus {
+    display: none !important;
+}
+
+/* Show Action menu ONLY when items are selected with checkbox for bulk delete */
+.modal-dialog:has([string="Unscheduled Tasks"]):has(.o_data_row.o_data_row_selected) .o_cp_action_menus,
+.modal-dialog:has([string="Unscheduled Tasks"]):has(.o_list_selection_box) .o_cp_action_menus {
     display: flex !important;
 }
 
@@ -1056,13 +1062,23 @@ div[name="note"] .o-wysiwyg {
     display: none !important;
 }
 
-.modal-dialog:has([string="Unscheduled Tasks"]) .modal-dialog {
-    max-width: 90vw !important;
+/* Clean, simple search bar: Remove the dropdown arrow and Filters/GroupBy/Favorites menu completely! */
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview_dropdown_toggler,
+.modal-dialog:has([string="Unscheduled Tasks"]) button.o_dropdown_button,
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_search_bar_menu {
+    display: none !important;
 }
 
 .modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview {
     border-radius: 6px !important;
     border: 1px solid #cbd5e1 !important;
+    padding-right: 8px !important;
+    background: #ffffff !important;
+}
+
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview:focus-within {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.15) !important;
 }
 
 .crm_unscheduled_badge {
