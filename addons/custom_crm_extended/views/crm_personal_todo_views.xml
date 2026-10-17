@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- List / Tree View for Personal To-Do -->
+    <!-- List / Tree View for Personal To-Do: Standard Non-editable list so clicking New opens Form directly -->
     <record id="view_crm_personal_todo_tree" model="ir.ui.view">
         <field name="name">crm.personal.todo.list</field>
         <field name="model">crm.personal.todo</field>
         <field name="arch" type="xml">
-            <list string="My Private To-Do List" default_order="priority desc, target_date asc" editable="bottom">
+            <list string="My Private To-Do List" default_order="priority desc, target_date asc">
                 <field name="priority" widget="priority" nolabel="1"/>
                 <field name="name" string="To-Do Item"/>
                 <field name="target_date" string="Target Date" decoration-danger="is_overdue"/>
@@ -23,43 +23,42 @@
         </field>
     </record>
 
-    <!-- Form View for Personal To-Do -->
+    <!-- Dedicated Full Form View for Personal To-Do -->
     <record id="view_crm_personal_todo_form" model="ir.ui.view">
         <field name="name">crm.personal.todo.form</field>
         <field name="model">crm.personal.todo</field>
         <field name="arch" type="xml">
-            <form string="Personal To-Do">
+            <form string="Personal To-Do" class="crm-personal-todo-form">
                 <header>
-                    <button name="action_set_done" type="object" string="Mark Done" class="btn-success" invisible="state == 'done'"/>
-                    <button name="action_set_in_progress" type="object" string="Start Work" class="btn-primary" invisible="state != 'pending'"/>
-                    <button name="action_set_pending" type="object" string="Set to Pending" class="btn-secondary" invisible="state == 'pending'"/>
+                    <button name="action_set_done" type="object" string="Mark as Done" class="btn-success" icon="fa-check" invisible="state == 'done'"/>
+                    <button name="action_set_in_progress" type="object" string="Start Work" class="btn-primary" icon="fa-play" invisible="state != 'pending'"/>
+                    <button name="action_set_pending" type="object" string="Reset to Pending" class="btn-secondary" icon="fa-undo" invisible="state == 'pending'"/>
                     <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <label for="name" string="To-Do Title"/>
+                        <label for="name" string="To-Do Title" class="oe_edit_only" style="font-weight: 700; color: #0b3d91; font-size: 14px;"/>
                         <h1>
-                            <field name="name" placeholder="e.g. Call Client regarding installation readiness..."/>
+                            <field name="name" placeholder="e.g. Call Client regarding installation readiness..." style="font-weight: 700;"/>
                         </h1>
                     </div>
                     <group>
-                        <group string="Schedule &amp; Reminder">
-                            <field name="target_date"/>
-                            <field name="reminder_datetime"/>
-                            <field name="priority" widget="priority"/>
+                        <group string="Schedule &amp; Priority">
+                            <field name="target_date" string="Target Date"/>
+                            <field name="reminder_datetime" string="Reminder Date &amp; Time"/>
+                            <field name="priority" widget="priority" string="Priority"/>
                         </group>
                         <group string="Ownership &amp; Status">
-                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                            <field name="user_id" readonly="1" options="{'no_open': True}" string="Owner (Private)"/>
                             <field name="is_overdue" invisible="1"/>
-                            <field name="reminder_sent" readonly="1" optional="hide"/>
                         </group>
                     </group>
                     <notebook>
-                        <page string="Personal Notes / Checklist">
-                            <field name="notes" placeholder="Write step-by-step notes or personal checklist items here..."/>
+                        <page string="Personal Notes / Checklist" icon="fa-pencil-square-o">
+                            <field name="notes" placeholder="Write step-by-step checklist items, reminders, or private notes here..." style="min-height: 120px;"/>
                         </page>
-                        <page string="Attachments">
-                            <field name="attachment_ids" widget="many2many_binary"/>
+                        <page string="Attachments &amp; Files" icon="fa-paperclip">
+                            <field name="attachment_ids" widget="many2many_binary" string="Attach Files"/>
                         </page>
                     </notebook>
                 </sheet>
