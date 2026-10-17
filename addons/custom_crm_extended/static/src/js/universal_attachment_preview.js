@@ -545,6 +545,7 @@ export class CrmTaskManagementFormController extends FormController {
 
                 let fileData = null;
                 let previewContent = null;
+                let recId = null;
 
                 // 1. If row is unsaved or file is cached in DOM input
                 const fileInp = row.querySelector("input[type='file']");
