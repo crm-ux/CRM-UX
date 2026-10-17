@@ -56,6 +56,8 @@ class CrmPersonalTodo(models.Model):
             else:
                 rec.is_overdue = False
 
+    issue_reason = fields.Text(string='Issue / Blocker Details')
+
     def action_set_done(self):
         self.write({'state': 'done'})
 
@@ -64,6 +66,9 @@ class CrmPersonalTodo(models.Model):
 
     def action_set_pending(self):
         self.write({'state': 'pending'})
+
+    def action_set_complaint(self):
+        self.write({'state': 'complaint'})
 
     @api.model
     def check_todo_reminders_cron(self):
