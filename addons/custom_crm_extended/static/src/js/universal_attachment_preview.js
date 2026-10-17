@@ -604,8 +604,12 @@ export class CrmTaskManagementFormController extends FormController {
                     }
                 }
 
+                // 4. Reuse UniversalAttachmentPreviewDialog with exact same props as equipment master
+                const fileUrl = recId ? `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false` : null;
+
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
-                    title: filename,
+                    title: filename || _t("Document Preview"),
+                    fileUrl: fileUrl,
                     fileData: fileData,
                     filename: filename,
                     previewContent: previewContent,
