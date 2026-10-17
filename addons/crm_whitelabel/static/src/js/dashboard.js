@@ -1564,6 +1564,12 @@ class CrmDashboard extends Component {
         this.actionService.doAction("custom_crm_extended.action_crm_task_management");
     }
 
+    openPersonalTodo(ev) {
+        if (ev) ev.stopPropagation();
+        this.state.notifOpen = false;
+        this.actionService.doAction("custom_crm_extended.action_crm_personal_todo");
+    }
+
     openLead(notif) {
         this.state.notifOpen = false;
         if (notif.model === 'crm.lead') {

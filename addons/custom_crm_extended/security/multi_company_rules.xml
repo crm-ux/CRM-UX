@@ -132,5 +132,13 @@
                 ]
             </field>
         </record>
+
+        <!-- Strict 100% Privacy Record Rule for Personal To-Do: Only the record owner has access -->
+        <record id="rule_crm_personal_todo_strict_privacy" model="ir.rule">
+            <field name="name">Personal To-Do: Strict 100% Privacy (Owner Only)</field>
+            <field name="model_id" ref="model_crm_personal_todo"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
     </data>
 </odoo>

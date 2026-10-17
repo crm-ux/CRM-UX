@@ -51,6 +51,7 @@
         'views/crm_product_stock_views.xml',
         'views/crm_task_assign_wizard_views.xml',
         'views/crm_task_management_views.xml',
+        'views/crm_personal_todo_views.xml',
         'views/sale_order_duplicate_wizard_view.xml',
     ],
     'assets': {

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List / Tree View for Personal To-Do -->
+    <record id="view_crm_personal_todo_tree" model="ir.ui.view">
+        <field name="name">crm.personal.todo.list</field>
+        <field name="model">crm.personal.todo</field>
+        <field name="arch" type="xml">
+            <list string="My Private To-Do List" default_order="priority desc, target_date asc" editable="bottom">
+                <field name="priority" widget="priority" nolabel="1"/>
+                <field name="name" string="To-Do Item"/>
+                <field name="target_date" string="Target Date" decoration-danger="is_overdue"/>
+                <field name="reminder_datetime" string="Reminder At" optional="show"/>
+                <field name="state" string="Status" widget="badge"
+                       decoration-warning="state == 'pending'"
+                       decoration-info="state == 'in_progress'"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'complaint'"/>
+                <field name="is_overdue" invisible="1"/>
+                <field name="user_id" invisible="1"/>
+                <button name="action_set_done" type="object" string="Mark Done" icon="fa-check" invisible="state == 'done'" class="text-success"/>
+                <button name="action_set_in_progress" type="object" string="In Progress" icon="fa-play" invisible="state in ('in_progress', 'done')" class="text-primary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Personal To-Do -->
+    <record id="view_crm_personal_todo_form" model="ir.ui.view">
+        <field name="name">crm.personal.todo.form</field>
+        <field name="model">crm.personal.todo</field>
+        <field name="arch" type="xml">
+            <form string="Personal To-Do">
+                <header>
+                    <button name="action_set_done" type="object" string="Mark Done" class="btn-success" invisible="state == 'done'"/>
+                    <button name="action_set_in_progress" type="object" string="Start Work" class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_set_pending" type="object" string="Set to Pending" class="btn-secondary" invisible="state == 'pending'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="To-Do Title"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Call Client regarding installation readiness..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Schedule &amp; Reminder">
+                            <field name="target_date"/>
+                            <field name="reminder_datetime"/>
+                            <field name="priority" widget="priority"/>
+                        </group>
+                        <group string="Ownership &amp; Status">
+                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                            <field name="is_overdue" invisible="1"/>
+                            <field name="reminder_sent" readonly="1" optional="hide"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Personal Notes / Checklist">
+                            <field name="notes" placeholder="Write step-by-step notes or personal checklist items here..."/>
+                        </page>
+                        <page string="Attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View for Personal To-Do -->
+    <record id="view_crm_personal_todo_search" model="ir.ui.view">
+        <field name="name">crm.personal.todo.search</field>
+        <field name="model">crm.personal.todo</field>
+        <field name="arch" type="xml">
+            <search string="Search To-Do">
+                <field name="name" string="To-Do Title"/>
+                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="High Priority" name="filter_high" domain="[('priority', 'in', ('2', '3'))]"/>
+                <filter string="Overdue" name="filter_overdue" domain="[('is_overdue', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Target Date" name="group_target_date" context="{'group_by': 'target_date'}"/>
+                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action Window for Personal To-Do -->
+    <record id="action_crm_personal_todo" model="ir.actions.act_window">
+        <field name="name">My To-Do List</field>
+        <field name="res_model">crm.personal.todo</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_crm_personal_todo_search"/>
+        <field name="context">{'search_default_filter_pending': 1, 'search_default_filter_in_progress': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first private To-Do item!
+            </p>
+            <p>
+                This To-Do list is 100% private. Only you can view, edit, and manage your tasks.
+            </p>
+        </field>
+    </record>
+
+    <!-- Scheduled Action / Cron for To-Do Reminders -->
+    <record id="ir_cron_crm_personal_todo_reminder" model="ir.cron">
+        <field name="name">Personal To-Do: Process Due Reminders</field>
+        <field name="model_id" ref="model_crm_personal_todo"/>
+        <field name="state">code</field>
+        <field name="code">model.check_todo_reminders_cron()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

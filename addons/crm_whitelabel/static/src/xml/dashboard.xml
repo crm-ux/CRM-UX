@@ -56,6 +56,12 @@
                             <span>Task Management</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link" t-on-click="openPersonalTodo">
+                            <i class="fa fa-check-square-o"></i>
+                            <span>To Do List</span>
+                        </a>
+                    </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewAmc">
                         <a class="crm-nav-link" t-on-click="openAmcContracts">
                             <i class="fa fa-file-text-o"></i>
