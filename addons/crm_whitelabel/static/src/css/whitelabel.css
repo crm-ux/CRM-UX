@@ -1260,19 +1260,45 @@ button[name="action_cancel_future_series"] i {
     gap: 8px !important;
 }
 
-/* Make preview & download buttons visible and styled cleanly on every row */
-[name="task_attachment_ids"] button[name="action_preview_file"],
-[name="task_attachment_ids"] button[name="action_download_file"] {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 0.85 !important;
-    margin-left: 6px !important;
+/* Make preview button and delete button sit neatly side-by-side on the right */
+[name="task_attachment_ids"] .o_list_record_remove {
+    width: 60px !important;
+    text-align: right !important;
 }
 
-[name="task_attachment_ids"] button[name="action_preview_file"]:hover,
-[name="task_attachment_ids"] button[name="action_download_file"]:hover {
+[name="task_attachment_ids"] button[name="action_preview_file"] {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 0.9 !important;
+    margin-right: 12px !important;
+    color: #0b3d91 !important;
+    font-size: 1.15rem !important;
+    vertical-align: middle !important;
+    transition: all 0.15s ease !important;
+}
+
+[name="task_attachment_ids"] button[name="action_preview_file"]:hover {
     opacity: 1 !important;
-    transform: scale(1.1) !important;
+    transform: scale(1.15) !important;
+    color: #082d6e !important;
+}
+
+/* Delete / Trash icon in custom dark blue color */
+[name="task_attachment_ids"] .o_list_record_remove .fa-trash,
+[name="task_attachment_ids"] .o_list_record_remove .fa-trash-o,
+[name="task_attachment_ids"] .o_list_record_remove button {
+    color: #0b3d91 !important;
+    font-size: 1.15rem !important;
+    opacity: 0.85 !important;
+    transition: all 0.15s ease !important;
+}
+
+[name="task_attachment_ids"] .o_list_record_remove:hover .fa-trash,
+[name="task_attachment_ids"] .o_list_record_remove:hover .fa-trash-o,
+[name="task_attachment_ids"] .o_list_record_remove button:hover {
+    color: #082d6e !important;
+    opacity: 1 !important;
+    transform: scale(1.15) !important;
 }
 
 /* Modal View: Clean header without dashboard button */

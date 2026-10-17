@@ -543,32 +543,47 @@ export class CrmTaskManagementFormController extends FormController {
                 const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
                 const filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
 
-                // Extract record ID from row (or link URL)
-                const link = row.querySelector("a[href*='/web/content/']");
-                let fileData = null;
-                let previewContent = null;
-                let fileUrl = null;
+                // 1. If row is unsaved or file is cached in DOM input
+                const fileInp = row.querySelector("input[type='file']");
+                if (fileInp && fileInp.files && fileInp.files[0]) {
+                    const localFile = fileInp.files[0];
+                    const base64 = await new Promise((resolve) => {
+                        const r = new FileReader();
+                        r.onload = () => resolve(r.result.split(",")[1]);
+                        r.readAsDataURL(localFile);
+                    });
+                    fileData = base64;
+                }
 
-                if (link) {
-                    const href = link.getAttribute("href");
-                    const idMatch = href.match(/crm\.task\.attachment\/(\d+)/) || href.match(/id=(\d+)/);
-                    if (idMatch) {
-                        const recId = parseInt(idMatch[1]);
-                        fileUrl = `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false`;
+                // 2. If saved in database, fetch fileData directly via orm.read
+                if (!fileData) {
+                    const link = row.querySelector("a[href*='/web/content/']");
+                    let recId = null;
+                    if (link) {
+                        const href = link.getAttribute("href");
+                        const idMatch = href.match(/crm\.task\.attachment\/(\d+)/) || href.match(/id=(\d+)/);
+                        if (idMatch) recId = parseInt(idMatch[1]);
+                    }
+                    if (!recId) {
+                        const trDataId = row.getAttribute("data-id") || "";
+                        const trIdMatch = trDataId.match(/(\d+)/);
+                        if (trIdMatch) recId = parseInt(trIdMatch[1]);
+                    }
+
+                    if (recId) {
                         try {
-                            const readRes = await this.env.services.orm.read("crm.task.attachment", [recId], ["file", "name"], { context: { bin_size: false } });
-                            if (readRes && readRes[0]) {
-                                fileData = readRes[0].file;
+                            const res = await this.env.services.orm.read("crm.task.attachment", [recId], ["file", "name"], { context: { bin_size: false } });
+                            if (res && res[0]) {
+                                fileData = res[0].file;
+                                if (!filename && res[0].name) filename = res[0].name;
                             }
-                        } catch (e) {
-                            console.warn("Could not read attachment binary directly:", e);
+                        } catch (readErr) {
+                            console.warn("Could not read crm.task.attachment:", readErr);
                         }
-                    } else {
-                        fileUrl = href.replace("download=true", "download=false");
                     }
                 }
 
-                // If doc/zip/excel/pdf, get preview content via equipment.master method
+                // 3. For office documents/excel/zip, reuse equipment.master server preview converter
                 const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
                     (filename || "").toLowerCase().endsWith("." + ext)
                 );
@@ -588,7 +603,6 @@ export class CrmTaskManagementFormController extends FormController {
 
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename,
-                    fileUrl: fileUrl,
                     fileData: fileData,
                     filename: filename,
                     previewContent: previewContent,
