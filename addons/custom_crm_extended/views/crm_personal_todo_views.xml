@@ -90,7 +90,6 @@
         <field name="code">model.check_todo_reminders_cron()</field>
         <field name="interval_number">5</field>
         <field name="interval_type">minutes</field>
-        <field name="numbercall">-1</field>
         <field name="active" eval="True"/>
     </record>
 </odoo>
