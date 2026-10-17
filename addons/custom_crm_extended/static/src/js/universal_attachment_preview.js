@@ -543,6 +543,9 @@ export class CrmTaskManagementFormController extends FormController {
                 const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
                 const filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
 
+                let fileData = null;
+                let previewContent = null;
+
                 // 1. If row is unsaved or file is cached in DOM input
                 const fileInp = row.querySelector("input[type='file']");
                 if (fileInp && fileInp.files && fileInp.files[0]) {
