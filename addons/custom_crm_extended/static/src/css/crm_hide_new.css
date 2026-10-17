@@ -848,50 +848,42 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 /* =========================================================================
-   TASK MANAGEMENT & PERSONAL TO-DO: Statusbar & Custom Button Layout
+   TASK MANAGEMENT ONLY: Mobile Statusbar (All 4 stages in 1 single row)
+   Strictly scoped to Task Management form view - Does NOT touch Quotations
    ========================================================================= */
 .crm_task_management_form .o_form_statusbar,
 .o_form_view[js_class="crm_task_management_form"] .o_form_statusbar,
 .crm_task_management_form header,
-.o_form_view[js_class="crm_task_management_form"] header,
-.crm-personal-todo-form .o_form_statusbar,
-.crm-personal-todo-form header {
+.o_form_view[js_class="crm_task_management_form"] header {
     display: flex !important;
     width: 100% !important;
-    padding: 6px 10px !important;
+    padding: 4px 6px !important;
     background: transparent !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
 }
 
 .crm_task_management_form .o_statusbar_status,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status,
-.crm-personal-todo-form .o_statusbar_status {
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
+    width: 100% !important;
     align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 6px !important;
-    margin: 0 0 0 auto !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    margin: 0 !important;
     overflow: visible !important;
-    flex-shrink: 0 !important;
 }
 
-/* Uncollapse Odoo's mobile dropdown in Task Management & To-Do so all stages stay visible */
+/* Uncollapse Odoo's mobile dropdown in Task Management so all stages stay visible */
 .crm_task_management_form .o_statusbar_status .o-dropdown,
 .o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown,
-.crm-personal-todo-form .o_statusbar_status .o-dropdown,
 .crm_task_management_form .o_statusbar_status .o-dropdown.o_first,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown.o_first,
-.crm-personal-todo-form .o_statusbar_status .o-dropdown.o_first {
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown.o_first {
     display: contents !important;
 }
 
 .crm_task_management_form .o_statusbar_status .o-dropdown > .dropdown-menu,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > .dropdown-menu,
-.crm-personal-todo-form .o_statusbar_status .o-dropdown > .dropdown-menu {
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > .dropdown-menu {
     display: contents !important;
     position: static !important;
     border: none !important;
@@ -900,33 +892,33 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 }
 
 .crm_task_management_form .o_statusbar_status .o-dropdown > button.dropdown-toggle,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > button.dropdown-toggle,
-.crm-personal-todo-form .o_statusbar_status .o-dropdown > button.dropdown-toggle {
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > button.dropdown-toggle {
     display: none !important;
 }
 
-/* Render all 4 stage buttons as custom, beautiful pills matching statusbar design */
+/* Render all 4 stage buttons as compact equal strips in 1 single row */
 .crm_task_management_form .o_statusbar_status button,
 .o_form_view[js_class="crm_task_management_form"] .o_statusbar_status button,
 .crm_task_management_form .o_statusbar_status .o_arrow_button,
 .o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o_arrow_button,
 .crm_task_management_form .o_statusbar_status .o_first.o_arrow_button_current,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o_first.o_arrow_button_current,
-.crm-personal-todo-form .o_statusbar_status button,
-.crm-personal-todo-form .o_statusbar_status .o_arrow_button {
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o_first.o_arrow_button_current {
     display: inline-flex !important;
-    padding: 6px 14px !important;
-    font-size: 12px !important;
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    padding: 5px 2px !important;
+    font-size: 10px !important;
     font-weight: 600 !important;
-    line-height: 1.2 !important;
+    line-height: 1.1 !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
     margin: 0 !important;
-    clip-path: none !important;
-    -webkit-clip-path: none !important;
 }
 
 /* ── CRM Lead: Completely hide Odoo default probability, AI badge, AI %, and 'at' label ── */
