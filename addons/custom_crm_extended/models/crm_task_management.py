@@ -401,5 +401,21 @@ class CrmTaskAttachment(models.Model):
     name = fields.Char(string='File Name', required=True)
     file = fields.Binary(string='File', attachment=True, required=True)
 
+    def action_preview_file(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/crm.task.attachment/{self.id}/file/{self.name}?download=false',
+            'target': 'new',
+        }
+
+    def action_download_file(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/crm.task.attachment/{self.id}/file/{self.name}?download=true',
+            'target': 'self',
+        }
+
 
 
