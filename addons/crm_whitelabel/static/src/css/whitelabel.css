@@ -1019,19 +1019,27 @@ div[name="note"] .o-wysiwyg {
     font-weight: 600 !important;
     display: inline-flex !important;
     align-items: center !important;
+    gap: 6px !important;
+}
+
+.crm_btn_unscheduled_tasks i {
+    color: #0b3d91 !important;
+    font-size: 13.5px !important;
 }
 
 .crm_unscheduled_header_badge {
-    background-color: #0284c7 !important;
+    background-color: #0b3d91 !important;
     color: #ffffff !important;
     font-size: 11px !important;
     font-weight: 700 !important;
     padding: 2px 7px !important;
-    line-height: 1 !important;
+    margin-left: 6px !important;
+    line-height: 1.1 !important;
+    border-radius: 10px !important;
 }
 
 .crm_btn_unscheduled_tasks:hover .crm_unscheduled_header_badge {
-    background-color: #0369a1 !important;
+    background-color: #082a66 !important;
 }
 
 .crm_unscheduled_badge {

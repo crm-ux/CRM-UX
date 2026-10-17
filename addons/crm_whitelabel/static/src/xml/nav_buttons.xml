@@ -13,9 +13,9 @@
             <button class="btn btn-secondary ms-1 crm_btn_unscheduled_tasks"
                     t-if="canShowTaskCalendarNewButton"
                     t-on-click="toggleUnscheduledTasksModal">
-                <i class="fa fa-tasks me-1 text-primary"></i>
+                <i class="fa fa-tasks me-1" style="color: #0b3d91 !important;"></i>
                 <span>Unscheduled Tasks</span>
-                <span class="badge rounded-pill ms-1 crm_unscheduled_header_badge" t-esc="unscheduledTasksCount"/>
+                <span class="badge rounded-pill ms-2 crm_unscheduled_header_badge" t-esc="unscheduledTasksCount"/>
             </button>
 
             <!-- 3rd: Stage Dropdown with matching 31px height -->
