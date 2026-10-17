@@ -1042,6 +1042,29 @@ div[name="note"] .o-wysiwyg {
     background-color: #082a66 !important;
 }
 
+/* Modal View: Clean header without dashboard button, keep action menu available when items are selected for delete */
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_control_panel_main_buttons {
+    display: none !important;
+}
+
+/* Hide cogwheel by default, but show Action dropdown when records are selected for Bulk Delete */
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_cp_action_menus:not(:has(.o_list_selection_box)) {
+    display: flex !important;
+}
+
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_control_panel_breadcrumbs {
+    display: none !important;
+}
+
+.modal-dialog:has([string="Unscheduled Tasks"]) .modal-dialog {
+    max-width: 90vw !important;
+}
+
+.modal-dialog:has([string="Unscheduled Tasks"]) .o_searchview {
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
 .crm_unscheduled_badge {
     background: #0284c7;
     color: #ffffff;

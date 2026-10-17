@@ -131,20 +131,22 @@ patch(ControlPanel.prototype, {
         return resModel === "crm.task.management" && viewType === "calendar";
     },
 
+    get canShowDashboardButton() {
+        // Do NOT show Dashboard button inside modal popup dialogs!
+        const ctx = this.env.searchModel?.context || {};
+        if (ctx.is_unscheduled_modal || this.env.config?.target === "new") {
+            return false;
+        }
+        return true;
+    },
+
     get unscheduledTasksCount() {
         return window.__crm_unscheduled_count || 0;
     },
 
     async toggleUnscheduledTasksModal() {
-        // Open Unscheduled tasks in a clean modal view
-        return this.action.doAction({
-            type: "ir.actions.act_window",
-            name: "Unscheduled Tasks",
-            res_model: "crm.task.management",
-            views: [[false, "list"], [false, "form"]],
-            domain: [["date_deadline", "=", false], ["state", "=", "pending"]],
-            target: "new",
-        });
+        // Open Unscheduled tasks in the dedicated custom wizard action
+        return this.action.doAction("custom_crm_extended.action_crm_unscheduled_tasks");
     },
 
     get isTotalPipelineView() {

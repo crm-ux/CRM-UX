@@ -47,6 +47,42 @@
         </field>
     </record>
 
+    <!-- Dedicated Unscheduled Tasks List View: Exactly 10 records per page limit, full delete enabled -->
+    <record id="view_crm_task_management_unscheduled_tree" model="ir.ui.view">
+        <field name="name">crm.task.management.unscheduled.list</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <list string="Unscheduled Tasks" limit="10" create="0" delete="1" default_order="date_assigned desc">
+                <field name="name" string="Task"/>
+                <field name="assigned_to_id" string="Assigned To"/>
+                <field name="assigned_by_id" string="Assigned By"/>
+                <field name="date_deadline" string="Deadline"/>
+                <field name="related_model" string="Entity Type"/>
+                <field name="related_record_display" string="Linked Record"/>
+                <field name="state" string="Status" widget="badge" 
+                       decoration-warning="state == 'pending'" 
+                       decoration-info="state == 'in_progress'" 
+                       decoration-success="state == 'done'" 
+                       decoration-danger="state == 'complaint'"/>
+                <field name="completion_remarks" string="Work Remarks"/>
+                <field name="complaint_notes" string="Issue Faced"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Dedicated Clean Search View for Unscheduled Tasks: Simple Search Bar Only -->
+    <record id="view_crm_task_management_unscheduled_search" model="ir.ui.view">
+        <field name="name">crm.task.management.unscheduled.search</field>
+        <field name="model">crm.task.management</field>
+        <field name="arch" type="xml">
+            <search string="Search Unscheduled Tasks">
+                <field name="name" string="Task" filter_domain="['|', ('name', 'ilike', self), ('assigned_to_id', 'ilike', self)]"/>
+                <field name="assigned_to_id" string="Assigned To"/>
+                <field name="assigned_by_id" string="Assigned By"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Form View -->
     <record id="view_crm_task_management_form" model="ir.ui.view">
         <field name="name">crm.task.management.form</field>
@@ -145,5 +181,19 @@
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
         <field name="view_mode">calendar,list,form</field>
+    </record>
+
+    <!-- Action Window for Unscheduled Tasks Modal -->
+    <record id="action_crm_unscheduled_tasks" model="ir.actions.act_window">
+        <field name="name">Unscheduled Tasks</field>
+        <field name="res_model">crm.task.management</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_crm_task_management_unscheduled_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_crm_task_management_form')})]"/>
+        <field name="search_view_id" ref="view_crm_task_management_unscheduled_search"/>
+        <field name="domain">[("date_deadline", "=", False), ("state", "=", "pending")]</field>
+        <field name="context">{'is_unscheduled_modal': True}</field>
+        <field name="target">new</field>
     </record>
 </odoo>
