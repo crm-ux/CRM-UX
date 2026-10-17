@@ -541,7 +541,7 @@ export class CrmTaskManagementFormController extends FormController {
 
                 // Extract filename
                 const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
-                const filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
+                let filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
 
                 let fileData = null;
                 let previewContent = null;
