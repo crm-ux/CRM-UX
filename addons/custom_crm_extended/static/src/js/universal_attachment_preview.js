@@ -527,8 +527,78 @@ export class CrmTaskManagementFormController extends FormController {
                     boxSelector: ".crm_task_attachment_box",
                 },
             ]);
+
+            // Handle Preview Click on any Many2many Attachment Chip / Card
+            const handleM2MPreviewClick = async (ev) => {
+                const attachmentCard = ev.target.closest(".o_field_many2many_binary .o_attachment, [name='attachment_ids'] .o_attachment");
+                if (!attachmentCard) return;
+
+                // Don't intercept if clicking the delete button
+                if (ev.target.closest(".o_attachment_delete, .o_attachment_delete_cross, [class*='delete']")) {
+                    return;
+                }
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                // Extract filename and attachment ID or URL
+                const nameEl = attachmentCard.querySelector(".o_attachment_name, .caption, [class*='title'], [class*='name']") || attachmentCard;
+                const filename = (nameEl.innerText || nameEl.getAttribute("title") || "attachment.pdf").trim();
+
+                // Check for attachment ID from data attribute or link
+                const linkEl = attachmentCard.querySelector("a[href*='/web/content/']") || attachmentCard.closest("a");
+                let fileUrl = linkEl ? linkEl.getAttribute("href") : null;
+
+                // Try to get attachment ID from link or DOM
+                let attId = null;
+                if (fileUrl) {
+                    const match = fileUrl.match(/\/web\/content\/(\d+)/);
+                    if (match) attId = parseInt(match[1]);
+                }
+
+                if (!fileUrl && attId) {
+                    fileUrl = `/web/content/${attId}?download=false`;
+                }
+
+                let previewContent = null;
+                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                    (filename || "").toLowerCase().endsWith("." + ext)
+                );
+
+                if (isDocOrZipOrExcel && attId) {
+                    try {
+                        const fetched = await this.env.services.orm.read(
+                            "ir.attachment",
+                            [attId],
+                            ["datas", "name"],
+                            { context: { bin_size: false } }
+                        );
+                        if (fetched && fetched.length > 0 && fetched[0].datas) {
+                            previewContent = await this.env.services.orm.call(
+                                "equipment.master",
+                                "action_get_invoice_preview_content",
+                                [false, fetched[0].datas, filename],
+                                {}
+                            );
+                        }
+                    } catch (callErr) {
+                        console.warn("Could not load rich preview for m2m attachment:", callErr);
+                    }
+                }
+
+                this.dialogService.add(UniversalAttachmentPreviewDialog, {
+                    title: filename,
+                    fileUrl: fileUrl,
+                    filename: filename,
+                    previewContent: previewContent,
+                });
+            };
+
+            document.addEventListener("click", handleM2MPreviewClick, true);
+
             onWillUnmount(() => {
                 if (cleanupAttachments) cleanupAttachments();
+                document.removeEventListener("click", handleM2MPreviewClick, true);
             });
         }
     }

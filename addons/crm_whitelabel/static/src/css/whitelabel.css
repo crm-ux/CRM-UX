@@ -1160,13 +1160,25 @@ button[name="action_cancel_future_series"] i {
     box-shadow: 0 2px 6px rgba(11, 61, 145, 0.08) !important;
 }
 
-/* Remove default purple background from delete (X) button */
+/* Remove default purple background from delete (X) button on all screen sizes */
+.o_field_many2many_binary .o_attachment,
+.o_field_many2many_binary .o_attachment_card,
+.o_field_many2many_binary [class*="attachment"] {
+    --o-color-primary: #0b3d91 !important;
+}
+
 .o_field_many2many_binary .o_attachment .o_attachment_delete,
 .o_field_many2many_binary .o_attachment .o_attachment_delete_cross,
 .o_field_many2many_binary .o_attachment_delete_cross,
-.o_attachment .o_attachment_delete {
-    background-color: #e2e8f0 !important;
+.o_field_many2many_binary [class*="delete"],
+.o_field_many2many_binary button[class*="delete"],
+.o_field_many2many_binary .btn-danger,
+.o_field_many2many_binary .o_attachment > button,
+.o_field_many2many_binary .o_attachment > div:last-child {
+    background-color: #f1f5f9 !important;
+    background: #f1f5f9 !important;
     color: #475569 !important;
+    border-color: #cbd5e1 !important;
     border-top-right-radius: 5px !important;
     border-bottom-right-radius: 5px !important;
     transition: all 0.2s ease !important;
@@ -1175,22 +1187,30 @@ button[name="action_cancel_future_series"] i {
 /* Delete hover turns into solid clean red */
 .o_field_many2many_binary .o_attachment .o_attachment_delete:hover,
 .o_field_many2many_binary .o_attachment .o_attachment_delete_cross:hover,
-.o_attachment .o_attachment_delete:hover {
+.o_field_many2many_binary [class*="delete"]:hover,
+.o_field_many2many_binary button[class*="delete"]:hover,
+.o_field_many2many_binary .o_attachment > button:hover,
+.o_field_many2many_binary .o_attachment > div:last-child:hover {
     background-color: #dc2626 !important;
+    background: #dc2626 !important;
     color: #ffffff !important;
 }
 
 /* Mobile & Tablet support: Ensure delete button and items are ALWAYS visible without waiting for mouse hover! */
 @media (max-width: 991px), (hover: none) {
     .o_field_many2many_binary .o_attachment .o_attachment_delete,
-    .o_field_many2many_binary .o_attachment .o_attachment_delete_cross {
+    .o_field_many2many_binary .o_attachment .o_attachment_delete_cross,
+    .o_field_many2many_binary [class*="delete"],
+    .o_field_many2many_binary .o_attachment > button,
+    .o_field_many2many_binary .o_attachment > div:last-child {
         opacity: 1 !important;
         visibility: visible !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        min-width: 32px !important;
-        background-color: #f1f5f9 !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        background-color: #fee2e2 !important;
         color: #dc2626 !important;
     }
 }
