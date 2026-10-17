@@ -976,12 +976,16 @@ div[name="note"] .o-wysiwyg {
 .popover [data-field="assigned_by_id"],
 .o_cw_popover .o_field_many2one a,
 .o_cw_popover [data-field="assigned_to_id"],
-.o_cw_popover [data-field="assigned_by_id"],
-.o_cw_popover .o_form_uri {
-    pointer-events: none !important;
-    cursor: default !important;
-    text-decoration: none !important;
-    color: inherit !important;
+/* Calendar Popover Edit button: high-contrast crystal-clear white text */
+.popover .btn-primary,
+.popover .btn-primary *,
+.o_cw_popover .btn-primary,
+.o_cw_popover .btn-primary * {
+    color: #ffffff !important;
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
 }
 
 /* =========================================================================

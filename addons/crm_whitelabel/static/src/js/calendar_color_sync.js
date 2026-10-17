@@ -41,13 +41,21 @@ function applyPopoverColors(popoverEl) {
         });
     }
 
-    // Disable link/pointer-events on person/employee names in the popover body so profile never opens
-    popoverEl.querySelectorAll("a, [data-field='assigned_to_id'], [data-field='assigned_by_id'], .o_field_many2one, .o_form_uri").forEach(el => {
+    // Disable link/pointer-events strictly on person/employee names, NOT buttons
+    popoverEl.querySelectorAll("[data-field='assigned_to_id'] a, [data-field='assigned_by_id'] a, .o_field_many2one a.o_form_uri").forEach(el => {
         el.style.setProperty("pointer-events", "none", "important");
         el.style.setProperty("cursor", "default", "important");
         el.style.setProperty("text-decoration", "none", "important");
-        el.style.setProperty("color", "inherit", "important");
+        el.style.setProperty("color", "#1e293b", "important");
         el.removeAttribute("href");
+    });
+
+    // Ensure Edit button has high contrast, crystal-clear white text
+    popoverEl.querySelectorAll(".card-footer .btn-primary, .popover-footer .btn-primary, .o_cw_popover .btn-primary, button.btn-primary").forEach(btn => {
+        btn.style.setProperty("color", "#ffffff", "important");
+        btn.style.setProperty("background-color", "#0b3d91", "important");
+        btn.style.setProperty("border-color", "#0b3d91", "important");
+        btn.style.setProperty("font-weight", "600", "important");
     });
 }
 
