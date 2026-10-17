@@ -528,8 +528,43 @@ export class CrmTaskManagementFormController extends FormController {
                 },
             ]);
 
+            // Handle Preview Button on Task Attachment Lines
+            const handleTaskRowPreview = async (ev) => {
+                const previewBtn = ev.target.closest("button[name='action_preview_file']");
+                if (!previewBtn) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const row = previewBtn.closest("tr, .o_data_row");
+                if (!row) return;
+
+                // Extract filename
+                const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
+                const filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
+
+                // Extract link URL or download URL
+                const link = row.querySelector("a[href*='/web/content/']");
+                let fileUrl = link ? link.getAttribute("href") : null;
+
+                // If no direct link found yet, extract attachment ID or task_attachment ID
+                if (!fileUrl) {
+                    const idMatch = row.getAttribute("data-id") || "";
+                    fileUrl = `/web/content?model=crm.task.attachment&field=file&filename=${encodeURIComponent(filename)}`;
+                }
+
+                this.dialogService.add(UniversalAttachmentPreviewDialog, {
+                    title: filename,
+                    fileUrl: fileUrl,
+                    filename: filename,
+                });
+            };
+
+            document.addEventListener("click", handleTaskRowPreview, true);
+
             onWillUnmount(() => {
                 if (cleanupAttachments) cleanupAttachments();
+                document.removeEventListener("click", handleTaskRowPreview, true);
             });
         }
     }

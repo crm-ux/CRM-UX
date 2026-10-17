@@ -1245,6 +1245,22 @@ button[name="action_cancel_future_series"] i {
     display: none !important;
 }
 
+/* Hide the extra duplicate download icon on the left of filename */
+[name="task_attachment_ids"] td[name="file"] a .fa-download,
+[name="task_attachment_ids"] td[name="file"] .o_form_uri .fa-download,
+[name="task_attachment_ids"] td[name="file"] a > .fa:first-child {
+    display: none !important;
+}
+
+/* Ensure Edit Pencil is permanently visible and styled */
+[name="task_attachment_ids"] .fa-pencil,
+[name="task_attachment_ids"] .fa-pencil-square-o,
+[name="task_attachment_ids"] .o_select_file_button {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 0.9 !important;
+}
+
 /* 3. Keep File name permanently visible across all rows */
 [name="task_attachment_ids"] td.o_data_cell[name="file"] {
     min-width: 220px !important;
