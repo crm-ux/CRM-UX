@@ -79,7 +79,7 @@
                 <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
                 <separator/>
                 <filter string="High Priority" name="filter_high" domain="[('priority', 'in', ('2', '3'))]"/>
-                <filter string="Overdue" name="filter_overdue" domain="[('is_overdue', '=', True)]"/>
+                <filter string="Overdue" name="filter_overdue" domain="[('target_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', 'in', ('pending', 'in_progress'))]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Target Date" name="group_target_date" context="{'group_by': 'target_date'}"/>
