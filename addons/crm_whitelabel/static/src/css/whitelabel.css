@@ -1065,6 +1065,32 @@ button[name="action_cancel_future_series"] i {
     margin-right: 4px !important;
 }
 
+/* Custom Notebook Tabs: Dark Navy Blue instead of default purple */
+.nav-tabs .nav-link,
+.o_notebook .nav-tabs .nav-link {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+.nav-tabs .nav-link:hover,
+.o_notebook .nav-tabs .nav-link:hover {
+    color: #0b3d91 !important;
+    border-color: transparent !important;
+}
+
+.nav-tabs .nav-link.active,
+.o_notebook .nav-tabs .nav-link.active {
+    color: #0b3d91 !important;
+    font-weight: 700 !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: 3px solid #0b3d91 !important;
+}
+
 /* Ensure Gear / Action dropdown menu items (Export, Delete) are always visible and properly styled */
 .o_cp_action_menus .dropdown-menu {
     z-index: 1060 !important;
