@@ -67,35 +67,11 @@
         </field>
     </record>
 
-    <!-- Search View for Personal To-Do -->
-    <record id="view_crm_personal_todo_search" model="ir.ui.view">
-        <field name="name">crm.personal.todo.search</field>
-        <field name="model">crm.personal.todo</field>
-        <field name="arch" type="xml">
-            <search string="Search To-Do">
-                <field name="name" string="To-Do Title"/>
-                <filter string="Pending" name="filter_pending" domain="[('state', '=', 'pending')]"/>
-                <filter string="In Progress" name="filter_in_progress" domain="[('state', '=', 'in_progress')]"/>
-                <filter string="Done" name="filter_done" domain="[('state', '=', 'done')]"/>
-                <separator/>
-                <filter string="High Priority" name="filter_high" domain="[('priority', 'in', ('2', '3'))]"/>
-                <filter string="Overdue" name="filter_overdue" domain="[('target_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', 'in', ('pending', 'in_progress'))]"/>
-                <group expand="0" string="Group By">
-                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Target Date" name="group_target_date" context="{'group_by': 'target_date'}"/>
-                    <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- Action Window for Personal To-Do -->
     <record id="action_crm_personal_todo" model="ir.actions.act_window">
         <field name="name">My To-Do List</field>
         <field name="res_model">crm.personal.todo</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="view_crm_personal_todo_search"/>
-        <field name="context">{'search_default_filter_pending': 1, 'search_default_filter_in_progress': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create your first private To-Do item!
