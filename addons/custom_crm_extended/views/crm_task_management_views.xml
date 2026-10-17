@@ -151,7 +151,7 @@
                                readonly="not can_edit_manager_fields">
                             <list editable="bottom" string="Attachments">
                                 <field name="name" string="File Name"/>
-                                <field name="file" filename="name" widget="binary" string="File"/>
+                                <field name="file" filename="name" widget="binary" string="File" options="{'no_clear': True}"/>
                                 <button name="action_preview_file" 
                                         type="object" 
                                         icon="fa-eye" 

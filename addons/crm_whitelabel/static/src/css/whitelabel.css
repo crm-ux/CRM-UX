@@ -1182,10 +1182,21 @@ button[name="action_cancel_future_series"] i {
 }
 
 /* Custom dark blue for "Upload your file" button and icon in task attachments */
+[name="task_attachment_ids"],
+[name="task_attachment_ids"] table,
+[name="task_attachment_ids"] tr,
+[name="task_attachment_ids"] td {
+    --o-color-primary: #0b3d91 !important;
+    --primary: #0b3d91 !important;
+    --o-brand-odoo: #0b3d91 !important;
+}
+
 [name="task_attachment_ids"] .o_field_binary .o_select_file_button,
 [name="task_attachment_ids"] .btn-link,
 [name="task_attachment_ids"] .o_attach,
 [name="task_attachment_ids"] button.o_select_file_button,
+[name="task_attachment_ids"] a,
+[name="task_attachment_ids"] .o_form_uri,
 .o_field_binary .o_select_file_button {
     color: #0b3d91 !important;
     background: transparent !important;
@@ -1194,12 +1205,18 @@ button[name="action_cancel_future_series"] i {
 }
 
 [name="task_attachment_ids"] .o_field_binary .o_select_file_button:hover,
-[name="task_attachment_ids"] .btn-link:hover {
+[name="task_attachment_ids"] .btn-link:hover,
+[name="task_attachment_ids"] a:hover {
     color: #082d6e !important;
 }
 
 [name="task_attachment_ids"] .o_field_binary .fa,
 [name="task_attachment_ids"] .o_select_file_button .fa,
+[name="task_attachment_ids"] .fa-pencil,
+[name="task_attachment_ids"] .fa-pencil-square-o,
+[name="task_attachment_ids"] .fa-cloud-upload,
+[name="task_attachment_ids"] .fa-eye,
+[name="task_attachment_ids"] .fa-download,
 .o_select_file_button .fa {
     color: #0b3d91 !important;
 }
@@ -1208,6 +1225,51 @@ button[name="action_cancel_future_series"] i {
 [name="task_attachment_ids"] .o_field_binary.o_field_invalid,
 [name="task_attachment_ids"] td.o_field_invalid {
     background-color: transparent !important;
+}
+
+/* ── TASK ATTACHMENT TABLE FIXES ── */
+/* 1. Remove blue selection background on active row in File column */
+[name="task_attachment_ids"] .o_data_row input::selection,
+[name="task_attachment_ids"] .o_data_row *::selection {
+    background: transparent !important;
+}
+
+[name="task_attachment_ids"] .o_selected_row td {
+    background-color: #f8fafc !important;
+}
+
+/* 2. Remove duplicate middle delete/clear button from inside the binary widget */
+[name="task_attachment_ids"] .o_clear_file_button,
+[name="task_attachment_ids"] .fa-trash:not(.o_list_record_remove *),
+[name="task_attachment_ids"] .fa-trash-o:not(.o_list_record_remove *) {
+    display: none !important;
+}
+
+/* 3. Keep File name permanently visible across all rows */
+[name="task_attachment_ids"] td.o_data_cell[name="file"] {
+    min-width: 220px !important;
+}
+
+[name="task_attachment_ids"] .o_field_binary_file,
+[name="task_attachment_ids"] .o_field_binary {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Make preview & download buttons visible and styled cleanly on every row */
+[name="task_attachment_ids"] button[name="action_preview_file"],
+[name="task_attachment_ids"] button[name="action_download_file"] {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 0.85 !important;
+    margin-left: 6px !important;
+}
+
+[name="task_attachment_ids"] button[name="action_preview_file"]:hover,
+[name="task_attachment_ids"] button[name="action_download_file"]:hover {
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
 }
 
 /* Modal View: Clean header without dashboard button */
