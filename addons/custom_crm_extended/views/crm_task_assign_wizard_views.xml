@@ -80,15 +80,17 @@
                                placeholder="Add instructions or requirements for this task..."/>
                     </div>
 
-                    <!-- Section 4: Attachment -->
+                    <!-- Section 4: Attachments (Multiple Files) -->
                     <div class="crm-wizard-group crm-wizard-attachment-group">
-                        <label for="attachment_file" class="crm-wizard-label">
-                            Attachment
+                        <label for="wizard_attachment_ids" class="crm-wizard-label mb-2">
+                            Attachments 
                         </label>
-                        <div class="crm-wizard-dropzone">
-                            <field name="attachment_name" invisible="1"/>
-                            <field name="attachment_file" filename="attachment_name" nolabel="1" widget="binary"/>
-                        </div>
+                        <field name="wizard_attachment_ids" nolabel="1">
+                            <list editable="bottom" string="Attachments">
+                                <field name="name" string="File Name"/>
+                                <field name="file" filename="name" widget="binary" string="File" options="{'no_clear': True}"/>
+                            </list>
+                        </field>
                     </div>
                 </sheet>
                 <footer>

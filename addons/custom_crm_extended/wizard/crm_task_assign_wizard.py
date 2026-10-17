@@ -14,6 +14,11 @@ class CrmTaskAssignWizard(models.TransientModel):
     attachment_name = fields.Char(string='Attachment Name')
     attachment_file = fields.Binary(string='Attachment', attachment=True)
     attachment_ids = fields.Many2many('ir.attachment', string='Attachments')
+    wizard_attachment_ids = fields.One2many(
+        'crm.task.assign.wizard.attachment',
+        'wizard_id',
+        string='Attachments'
+    )
 
     # Company (Optional)
     company_id = fields.Many2one('res.company', string='Company')
@@ -113,6 +118,14 @@ class CrmTaskAssignWizard(models.TransientModel):
                 'name': self.attachment_name,
                 'file': self.attachment_file,
             })
+
+        for w_att in self.wizard_attachment_ids:
+            if w_att.file:
+                self.env['crm.task.attachment'].create({
+                    'task_id': task_rec.id,
+                    'name': w_att.name or 'attachment',
+                    'file': w_att.file,
+                })
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
@@ -220,4 +233,13 @@ class CrmTaskAssignWizard(models.TransientModel):
                 pass
 
         return {'type': 'ir.actions.act_window_close'}
+
+
+class CrmTaskAssignWizardAttachment(models.TransientModel):
+    _name = 'crm.task.assign.wizard.attachment'
+    _description = 'Assign Work Wizard Attachment'
+
+    wizard_id = fields.Many2one('crm.task.assign.wizard', string='Wizard', ondelete='cascade')
+    name = fields.Char(string='File Name')
+    file = fields.Binary(string='File', attachment=True)
 
