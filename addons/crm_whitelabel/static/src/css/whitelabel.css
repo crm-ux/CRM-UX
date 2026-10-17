@@ -645,6 +645,26 @@ div[name="note"] .o-wysiwyg {
     background: #94a3b8 !important;
 }
 
+/* Remove +more link: All tasks show directly in the day's internal scrollbar! */
+.o_calendar_view .fc-daygrid-more-link,
+.o_calendar_view a.fc-more,
+.o_calendar_view .fc-more-link,
+.o_calendar_view .fc-daygrid-day-bottom {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ensure any hidden/collapsed event rows are forced visible inside the scrollbar */
+.o_calendar_view .fc-daygrid-day-events .fc-daygrid-event-harness,
+.o_calendar_view .fc-daygrid-day-events .fc-event {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* Force all calendar events to take dynamic background & sizing uniformly */
 .o_calendar_view .fc-event,
 .o_calendar_view .fc-daygrid-event,
