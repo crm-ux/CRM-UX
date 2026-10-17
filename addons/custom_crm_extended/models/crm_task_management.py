@@ -393,4 +393,13 @@ class CrmTaskManagement(models.Model):
         )
 
 
+class CrmTaskAttachment(models.Model):
+    _name = 'crm.task.attachment'
+    _description = 'Task Attachment'
+
+    task_id = fields.Many2one('crm.task.management', string='Task', ondelete='cascade', required=True)
+    name = fields.Char(string='File Name', required=True)
+    file = fields.Binary(string='File', attachment=True, required=True)
+
+
 
