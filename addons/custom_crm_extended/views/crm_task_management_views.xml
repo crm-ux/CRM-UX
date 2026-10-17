@@ -145,16 +145,14 @@
                     </group>
 
                     <group string="Attachments &amp; Files">
-                        <field name="attachment_ids" 
-                               widget="many2many"
+                        <field name="task_attachment_ids" 
+                               widget="one2many"
                                nolabel="1"
                                colspan="2"
                                readonly="not can_edit_manager_fields">
-                            <tree string="Attachments">
+                            <tree editable="bottom">
                                 <field name="name" string="File Name"/>
-                                <field name="mimetype" string="Type" optional="hide"/>
-                                <field name="file_size" string="Size"/>
-                                <field name="create_date" string="Date"/>
+                                <field name="file" filename="name" widget="binary" string="Download / File"/>
                             </tree>
                         </field>
                     </group>
