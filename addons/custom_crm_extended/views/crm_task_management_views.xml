@@ -166,7 +166,7 @@
                         <page string="Employee Action &amp; Reporting">
                             <group class="crm-single-line-group" style="max-width: 900px;">
                                 <field name="state" string="Task Status"/>
-                                <field name="completion_remarks" placeholder="Enter work completion remarks..."/>
+                                <field name="completion_remarks" placeholder="Type remarks, paste links, add images, audio or documents (type '/' for quick tools)..."/>
                                 <field name="complaint_notes" placeholder="Report any issue, bottleneck, or complaint faced..."/>
                             </group>
                         </page>

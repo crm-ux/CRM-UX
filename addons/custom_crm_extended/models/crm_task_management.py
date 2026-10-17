@@ -66,7 +66,7 @@ class CrmTaskManagement(models.Model):
         ('complaint', 'Issue / Complaint'),
     ], string='Status', default='pending', required=True, tracking=True)
 
-    completion_remarks = fields.Text(string='Work Completion Remarks', tracking=True)
+    completion_remarks = fields.Html(string='Work Completion Remarks', tracking=True, sanitize=False)
     complaint_notes = fields.Text(string='Complaint / Issue Faced', tracking=True)
 
     # Color index for Calendar Event strip matching exact status:
