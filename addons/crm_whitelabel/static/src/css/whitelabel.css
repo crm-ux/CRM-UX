@@ -680,8 +680,8 @@ div[name="note"] .o-wysiwyg {
     border: 1px solid transparent !important;
     border-left: 1px solid transparent !important;
     border-left-width: 1px !important;
-    padding: var(--fc-event-padding, 0.25rem 0.45rem) !important;
-    min-height: var(--fc-event-min-height, 1.6rem) !important;
+    padding: 0.12rem 0.4rem !important;
+    min-height: 1.25rem !important;
     width: 100% !important;
     display: flex !important;
     align-items: center !important;
