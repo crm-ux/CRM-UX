@@ -145,8 +145,23 @@ patch(ControlPanel.prototype, {
     },
 
     async toggleUnscheduledTasksModal() {
-        // Open Unscheduled tasks in the dedicated custom wizard action
-        return this.action.doAction("custom_crm_extended.action_crm_unscheduled_tasks");
+        // Open Unscheduled tasks in standard view target with full Action menus, Delete, Export and Search
+        return this.action.doAction({
+            type: "ir.actions.act_window",
+            name: "Unscheduled Tasks",
+            res_model: "crm.task.management",
+            views: [
+                [false, "list"],
+                [false, "form"],
+            ],
+            view_mode: "list,form",
+            domain: [["date_deadline", "=", false], ["state", "=", "pending"]],
+            context: {
+                search_default_pending: 1,
+                default_state: "pending",
+            },
+            target: "current",
+        });
     },
 
     get isTotalPipelineView() {
