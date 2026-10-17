@@ -161,7 +161,7 @@ class CrmTaskManagement(models.Model):
             record.can_edit_manager_fields = False
 
     def write(self, vals):
-        manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'attachment_ids', 'related_model'}
+        manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'attachment_ids', 'task_attachment_ids', 'related_model'}
         if any(f in vals for f in manager_fields):
             current_user = self.env.user
             is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
