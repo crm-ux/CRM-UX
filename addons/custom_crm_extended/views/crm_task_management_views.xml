@@ -146,14 +146,15 @@
 
                     <group string="Attachments &amp; Files">
                         <field name="attachment_ids" 
-                               mode="tree" 
+                               widget="many2many"
                                nolabel="1"
                                colspan="2"
                                readonly="not can_edit_manager_fields">
-                            <tree editable="bottom" create="1" delete="1">
+                            <tree string="Attachments">
                                 <field name="name" string="File Name"/>
-                                <field name="datas" filename="name" widget="binary" string="File"/>
-                                <field name="file_size" string="Size" optional="show"/>
+                                <field name="mimetype" string="Type" optional="hide"/>
+                                <field name="file_size" string="Size"/>
+                                <field name="create_date" string="Date"/>
                             </tree>
                         </field>
                     </group>
