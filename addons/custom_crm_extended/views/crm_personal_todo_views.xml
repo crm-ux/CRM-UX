@@ -63,7 +63,19 @@
                             <field name="notes" placeholder="Write step-by-step checklist items, reminders, or private notes here..." style="min-height: 120px;"/>
                         </page>
                         <page string="Attachments &amp; Files" icon="fa-paperclip">
-                            <field name="attachment_ids" widget="many2many_binary" string="Attach Files"/>
+                            <field name="todo_attachment_ids" nolabel="1">
+                                <list editable="bottom" string="Attachments">
+                                    <field name="name" string="File Name"/>
+                                    <field name="file" filename="name" widget="binary" string="File" options="{'no_clear': True}"/>
+                                    <button name="action_preview_file" 
+                                            type="object" 
+                                            icon="fa-eye" 
+                                            title="Preview" 
+                                            invisible="not file"
+                                            class="btn btn-sm btn-link text-primary p-0 ms-2" 
+                                            style="font-size: 1.15rem; color: #0b3d91 !important;"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>

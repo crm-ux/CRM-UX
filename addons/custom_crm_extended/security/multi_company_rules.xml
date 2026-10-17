@@ -140,5 +140,13 @@
             <field name="global" eval="True"/>
             <field name="domain_force">[('user_id', '=', user.id)]</field>
         </record>
+
+        <!-- Strict 100% Privacy for Personal To-Do Attachments -->
+        <record id="rule_crm_personal_todo_attachment_strict_privacy" model="ir.rule">
+            <field name="name">Personal To-Do Attachment: Strict 100% Privacy</field>
+            <field name="model_id" ref="model_crm_personal_todo_attachment"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('todo_id.user_id', '=', user.id)]</field>
+        </record>
     </data>
 </odoo>

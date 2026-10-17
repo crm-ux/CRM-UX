@@ -40,3 +40,4 @@ access_crm_task_assign_wizard,crm.task.assign.wizard,model_crm_task_assign_wizar
 access_crm_task_assign_wizard_attachment,crm.task.assign.wizard.attachment,model_crm_task_assign_wizard_attachment,base.group_user,1,1,1,1
 access_sale_order_duplicate_wizard,sale.order.duplicate.wizard,model_sale_order_duplicate_wizard,base.group_user,1,1,1,1
 access_crm_personal_todo,crm.personal.todo,model_crm_personal_todo,base.group_user,1,1,1,1
+access_crm_personal_todo_attachment,crm.personal.todo.attachment,model_crm_personal_todo_attachment,base.group_user,1,1,1,1

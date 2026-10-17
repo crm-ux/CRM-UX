@@ -44,6 +44,11 @@ class CrmPersonalTodo(models.Model):
         'attachment_id',
         string='Attachments'
     )
+    todo_attachment_ids = fields.One2many(
+        'crm.personal.todo.attachment',
+        'todo_id',
+        string='To-Do Attachments'
+    )
 
     is_overdue = fields.Boolean(string='Overdue', compute='_compute_is_overdue', store=False)
 
@@ -91,3 +96,28 @@ class CrmPersonalTodo(models.Model):
                 })
             todo.write({'reminder_sent': True})
         return True
+
+
+class CrmPersonalTodoAttachment(models.Model):
+    _name = 'crm.personal.todo.attachment'
+    _description = 'Personal To-Do Attachment'
+
+    todo_id = fields.Many2one('crm.personal.todo', string='To-Do', ondelete='cascade')
+    name = fields.Char(string='File Name')
+    file = fields.Binary(string='File', attachment=True)
+
+    def action_preview_file(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/crm.personal.todo.attachment/{self.id}/file/{self.name}?download=false',
+            'target': 'new',
+        }
+
+    def action_download_file(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/crm.personal.todo.attachment/{self.id}/file/{self.name}?download=true',
+            'target': 'self',
+        }
