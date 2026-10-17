@@ -591,7 +591,6 @@ function initTaskBulkUploadSupport() {
         wrap.innerHTML = `
             <div style="font-size: 13px; color: #475569; display: flex; align-items: center; gap: 8px;">
                 <i class="fa fa-cloud-upload" style="font-size: 1.25rem; color: #0b3d91;"></i>
-                <span><strong>Multi-file Upload:</strong> Select or drag & drop 10-20 files at once</span>
             </div>
             <button type="button" class="crm_btn_bulk_upload">
                 <i class="fa fa-folder-open-o"></i> Select Multiple Files
