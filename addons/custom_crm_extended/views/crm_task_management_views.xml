@@ -85,10 +85,10 @@
 
     <!-- Task Attachments Standalone List View -->
     <record id="view_crm_task_attachment_tree" model="ir.ui.view">
-        <field name="name">crm.task.attachment.tree</field>
+        <field name="name">crm.task.attachment.list</field>
         <field name="model">crm.task.attachment</field>
         <field name="arch" type="xml">
-            <tree editable="bottom" string="Attachments">
+            <list editable="bottom" string="Attachments">
                 <field name="name" string="File Name"/>
                 <field name="file" filename="name" widget="binary" string="File"/>
                 <button name="action_preview_file" 
@@ -105,7 +105,7 @@
                         invisible="not file"
                         class="btn btn-sm btn-link text-primary p-0 ms-1" 
                         style="font-size: 1.15rem; color: #0b3d91 !important;"/>
-            </tree>
+            </list>
         </field>
     </record>
 
