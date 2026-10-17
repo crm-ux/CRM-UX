@@ -528,7 +528,7 @@ export class CrmTaskManagementFormController extends FormController {
                 },
             ]);
 
-            // Handle Preview Button on Task Attachment Lines
+            // Handle Preview Button on Task Attachment Lines (Uses the exact working preview system from equipment.master / service ticket)
             const handleTaskRowPreview = async (ev) => {
                 const previewBtn = ev.target.closest("button[name='action_preview_file']");
                 if (!previewBtn) return;
@@ -543,20 +543,55 @@ export class CrmTaskManagementFormController extends FormController {
                 const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
                 const filename = (nameCell ? (nameCell.value || nameCell.innerText) : "attachment.pdf").trim();
 
-                // Extract link URL or download URL
+                // Extract record ID from row (or link URL)
                 const link = row.querySelector("a[href*='/web/content/']");
-                let fileUrl = link ? link.getAttribute("href") : null;
+                let fileData = null;
+                let previewContent = null;
+                let fileUrl = null;
 
-                // If no direct link found yet, extract attachment ID or task_attachment ID
-                if (!fileUrl) {
-                    const idMatch = row.getAttribute("data-id") || "";
-                    fileUrl = `/web/content?model=crm.task.attachment&field=file&filename=${encodeURIComponent(filename)}`;
+                if (link) {
+                    const href = link.getAttribute("href");
+                    const idMatch = href.match(/crm\.task\.attachment\/(\d+)/) || href.match(/id=(\d+)/);
+                    if (idMatch) {
+                        const recId = parseInt(idMatch[1]);
+                        fileUrl = `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false`;
+                        try {
+                            const readRes = await this.env.services.orm.read("crm.task.attachment", [recId], ["file", "name"], { context: { bin_size: false } });
+                            if (readRes && readRes[0]) {
+                                fileData = readRes[0].file;
+                            }
+                        } catch (e) {
+                            console.warn("Could not read attachment binary directly:", e);
+                        }
+                    } else {
+                        fileUrl = href.replace("download=true", "download=false");
+                    }
+                }
+
+                // If doc/zip/excel/pdf, get preview content via equipment.master method
+                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                    (filename || "").toLowerCase().endsWith("." + ext)
+                );
+
+                if (isDocOrZipOrExcel && fileData) {
+                    try {
+                        previewContent = await this.env.services.orm.call(
+                            "equipment.master",
+                            "action_get_invoice_preview_content",
+                            [false, fileData, filename],
+                            {}
+                        );
+                    } catch (callErr) {
+                        console.error("Error retrieving preview content:", callErr);
+                    }
                 }
 
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename,
                     fileUrl: fileUrl,
+                    fileData: fileData,
                     filename: filename,
+                    previewContent: previewContent,
                 });
             };
 

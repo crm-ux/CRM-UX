@@ -157,14 +157,7 @@
                                         icon="fa-eye" 
                                         title="Preview" 
                                         invisible="not file"
-                                        class="btn btn-sm btn-link text-primary p-0" 
-                                        style="font-size: 1.15rem; color: #0b3d91 !important;"/>
-                                <button name="action_download_file" 
-                                        type="object" 
-                                        icon="fa-download" 
-                                        title="Download" 
-                                        invisible="not file"
-                                        class="btn btn-sm btn-link text-primary p-0 ms-1" 
+                                        class="btn btn-sm btn-link text-primary p-0 ms-2" 
                                         style="font-size: 1.15rem; color: #0b3d91 !important;"/>
                             </list>
                         </field>

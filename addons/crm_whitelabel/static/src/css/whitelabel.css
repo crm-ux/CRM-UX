@@ -1092,43 +1092,35 @@ button[name="action_cancel_future_series"] i {
 }
 
 /* Replace Odoo default purple bottom line / border on all form fields with custom dark blue */
-.o_form_view .o_field_widget input:focus,
-.o_form_view .o_field_widget textarea:focus,
-.o_form_view .o_field_widget select:focus,
-.o_form_view .o_field_widget .o_input:focus,
-.o_form_view input.o_input:focus,
-.o_form_view textarea.o_input:focus,
-.o_form_view select.o_input:focus {
+/* Scope blue lines ONLY AND ONLY to Task Management Form (.crm-task-management-form) */
+.crm-task-management-form .o_field_widget input:focus,
+.crm-task-management-form .o_field_widget textarea:focus,
+.crm-task-management-form .o_field_widget select:focus,
+.crm-task-management-form .o_field_widget .o_input:focus,
+.crm-task-management-form input.o_input:focus,
+.crm-task-management-form textarea.o_input:focus,
+.crm-task-management-form select.o_input:focus {
     border-color: #0b3d91 !important;
     box-shadow: 0 1px 0 #0b3d91 !important;
     outline: none !important;
 }
 
-/* Odoo standard bottom underline on inputs */
-.o_form_view .o_field_widget.o_required_modifier > .o_input,
-.o_form_view .o_field_widget > .o_input {
-    border-bottom-color: #cbd5e1;
-}
-
-.o_form_view .o_field_widget.o_required_modifier > .o_input:focus,
-.o_form_view .o_field_widget > .o_input:focus,
-.o_form_view .o_field_widget:focus-within {
+.crm-task-management-form .o_field_widget:focus-within {
     border-bottom-color: #0b3d91 !important;
 }
 
-/* Selection dropdown & text input bottom border line */
-.o_form_view select.o_input,
-.o_form_view .o_field_selection select,
-.o_form_view .o_field_text textarea,
-.o_form_view .o_field_html,
-.o_form_view .o_field_char input {
+.crm-task-management-form select.o_input,
+.crm-task-management-form .o_field_selection select,
+.crm-task-management-form .o_field_text textarea,
+.crm-task-management-form .o_field_html,
+.crm-task-management-form .o_field_char input {
     border-bottom-color: #0b3d91 !important;
 }
 
-.o_form_view select.o_input:focus,
-.o_form_view .o_field_selection select:focus,
-.o_form_view .o_field_text textarea:focus,
-.o_form_view .o_field_char input:focus {
+.crm-task-management-form select.o_input:focus,
+.crm-task-management-form .o_field_selection select:focus,
+.crm-task-management-form .o_field_text textarea:focus,
+.crm-task-management-form .o_field_char input:focus {
     border-bottom: 2px solid #0b3d91 !important;
     box-shadow: none !important;
 }
@@ -1245,20 +1237,15 @@ button[name="action_cancel_future_series"] i {
     display: none !important;
 }
 
-/* Hide the extra duplicate download icon on the left of filename */
-[name="task_attachment_ids"] td[name="file"] a .fa-download,
-[name="task_attachment_ids"] td[name="file"] .o_form_uri .fa-download,
-[name="task_attachment_ids"] td[name="file"] a > .fa:first-child {
-    display: none !important;
-}
-
-/* Ensure Edit Pencil is permanently visible and styled */
+/* Ensure Edit Pencil and Download icon inside binary cell are permanently visible */
 [name="task_attachment_ids"] .fa-pencil,
 [name="task_attachment_ids"] .fa-pencil-square-o,
-[name="task_attachment_ids"] .o_select_file_button {
+[name="task_attachment_ids"] .o_select_file_button,
+[name="task_attachment_ids"] .fa-download {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 0.9 !important;
+    color: #0b3d91 !important;
 }
 
 /* 3. Keep File name permanently visible across all rows */

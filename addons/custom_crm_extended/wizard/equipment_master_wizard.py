@@ -320,8 +320,27 @@ class EquipmentMasterWizard(models.TransientModel):
         if not seq_id:
             seq_id = self._get_or_create_equipment_sequence()
 
-        # Officially consume the sequence on SAVE
-        assigned_eq_id = seq_id.next_by_id() if seq_id else self.equipment_id
+        # Solution A: Synchronize sequence to always skip already existing numbers
+        if seq_id:
+            prefix = seq_id.prefix or ""
+            suffix = seq_id.suffix or ""
+            pad = seq_id.padding or 0
+            
+            # Find the actual next unique number
+            num = seq_id.number_next or 1
+            num_str = str(num).zfill(pad) if pad else str(num)
+            candidate_id = f"{prefix}{num_str}{suffix}"
+            while self.env["equipment.master"].sudo().search_count([("equipment_id", "=", candidate_id)]) > 0:
+                num += 1
+                num_str = str(num).zfill(pad) if pad else str(num)
+                candidate_id = f"{prefix}{num_str}{suffix}"
+
+            # Update the sequence so its next number is permanently synchronized!
+            seq_id.sudo().write({"number_next": num + 1})
+            assigned_eq_id = candidate_id
+        else:
+            assigned_eq_id = self.equipment_id
+
         if not assigned_eq_id:
             raise ValidationError(_("Please enter Equipment ID before saving."))
 
