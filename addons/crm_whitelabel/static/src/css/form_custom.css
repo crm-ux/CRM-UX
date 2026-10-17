@@ -349,8 +349,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   z-index: 2 !important;
 }
 
-.crm-assign-work-wizard-form input.o_input,
-.crm-assign-work-wizard-form .o_input,
+.crm-assign-work-wizard-form input.o_input:not([name="wizard_attachment_ids"] *),
+.crm-assign-work-wizard-form .o_input:not([name="wizard_attachment_ids"] *),
 .crm-assign-work-wizard-form textarea {
   width: 100% !important;
   min-width: 100% !important;
@@ -368,6 +368,17 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   display: block !important;
 }
 
+/* Make table cells inside wizard_attachment_ids completely flat & seamless without surrounding rounded boxes */
+.crm-assign-work-wizard-form [name="wizard_attachment_ids"] input.o_input,
+.crm-assign-work-wizard-form [name="wizard_attachment_ids"] .o_input {
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  padding: 4px 6px !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 .crm-assign-work-wizard-form .o_field_many2one input.o_input {
   padding-right: 2.2rem !important;
 }
@@ -377,8 +388,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   resize: vertical !important;
 }
 
-.crm-assign-work-wizard-form input.o_input:focus,
-.crm-assign-work-wizard-form .o_input:focus,
+.crm-assign-work-wizard-form input.o_input:not([name="wizard_attachment_ids"] *):focus,
+.crm-assign-work-wizard-form .o_input:not([name="wizard_attachment_ids"] *):focus,
 .crm-assign-work-wizard-form textarea:focus {
   border-color: #0b3d91 !important;
   box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.12) !important;
