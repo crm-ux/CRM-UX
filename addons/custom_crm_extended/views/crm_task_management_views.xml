@@ -83,6 +83,18 @@
         </field>
     </record>
 
+    <!-- Task Attachments Standalone List View -->
+    <record id="view_crm_task_attachment_tree" model="ir.ui.view">
+        <field name="name">crm.task.attachment.list</field>
+        <field name="model">crm.task.attachment</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="name" string="File Name"/>
+                <field name="file" filename="name" widget="binary" string="Download / File"/>
+            </list>
+        </field>
+    </record>
+
     <!-- Form View -->
     <record id="view_crm_task_management_form" model="ir.ui.view">
         <field name="name">crm.task.management.form</field>
