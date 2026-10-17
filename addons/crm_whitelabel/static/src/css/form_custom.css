@@ -113,6 +113,14 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   margin-left: auto !important;
 }
 
+/* On Personal To-Do form, do not push Done button to far right so stage statusbar stays visible */
+.crm-personal-todo-form .o_form_statusbar button.btn-success {
+  margin-left: 0 !important;
+}
+.crm-personal-todo-form .o_statusbar_status {
+  margin-left: auto !important;
+}
+
 /* ===== Subordinates / Direct Reports Clean Table Styling ===== */
 .subordinates_clean_table table {
   width: 100% !important;
