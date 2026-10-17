@@ -118,6 +118,9 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
+  flex-wrap: wrap !important;
+  overflow: visible !important;
+  width: 100% !important;
 }
 .crm-personal-todo-form .o_form_statusbar button.btn-success {
   margin-left: 0 !important;
@@ -126,6 +129,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   display: flex !important;
   margin-left: auto !important;
   visibility: visible !important;
+  opacity: 1 !important;
+  flex-shrink: 0 !important;
 }
 
 /* ===== Subordinates / Direct Reports Clean Table Styling ===== */
