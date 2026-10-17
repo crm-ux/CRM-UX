@@ -107,6 +107,13 @@ class CrmTaskAssignWizard(models.TransientModel):
             'state': 'pending',
         })
 
+        if self.attachment_file and self.attachment_name:
+            self.env['crm.task.attachment'].create({
+                'task_id': task_rec.id,
+                'name': self.attachment_name,
+                'file': self.attachment_file,
+            })
+
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
             target_deadline = fields.Date.from_string(str(self.date_deadline)[:10])

@@ -157,9 +157,9 @@
                     </group>
 
                     <group string="Attachments &amp; Files">
-                        <field name="attachment_ids" 
-                               widget="many2many_binary"
-                               string="Attachments"
+                        <field name="task_attachment_ids" 
+                               nolabel="1"
+                               colspan="2"
                                readonly="not can_edit_manager_fields"/>
                     </group>
 
