@@ -243,3 +243,6 @@ class CrmTaskAssignWizardAttachment(models.TransientModel):
     name = fields.Char(string='File Name')
     file = fields.Binary(string='File', attachment=True)
 
+    def action_preview_file(self):
+        return True
+

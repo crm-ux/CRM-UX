@@ -1257,15 +1257,27 @@ button[name="action_cancel_future_series"] i {
     display: none !important;
 }
 
-/* Ensure Edit Pencil and Download icon inside binary cell are permanently visible and Dark Blue */
+/* In Assign Work Wizard: show only File Name, File, and Delete trash icon (hide download/extra icons) */
+[name="wizard_attachment_ids"] .fa-download,
+[name="wizard_attachment_ids"] a.o_image,
+[name="wizard_attachment_ids"] button[name="action_preview_file"] {
+    display: none !important;
+}
+
+/* Ensure Edit Pencil and Download icon inside binary cell are permanently visible and Dark Blue in Task Form */
 [name="task_attachment_ids"] .fa-pencil,
 [name="task_attachment_ids"] .fa-pencil-square-o,
 [name="task_attachment_ids"] .o_select_file_button,
-[name="task_attachment_ids"] .fa-download,
+[name="task_attachment_ids"] .fa-download {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 0.9 !important;
+    color: #0b3d91 !important;
+}
+
 [name="wizard_attachment_ids"] .fa-pencil,
 [name="wizard_attachment_ids"] .fa-pencil-square-o,
-[name="wizard_attachment_ids"] .o_select_file_button,
-[name="wizard_attachment_ids"] .fa-download {
+[name="wizard_attachment_ids"] .o_select_file_button {
     display: inline-flex !important;
     visibility: visible !important;
     opacity: 0.9 !important;
@@ -1288,10 +1300,14 @@ button[name="action_cancel_future_series"] i {
 }
 
 /* Make preview button and delete button sit neatly side-by-side on the right */
-[name="task_attachment_ids"] .o_list_record_remove,
-[name="wizard_attachment_ids"] .o_list_record_remove {
+[name="task_attachment_ids"] .o_list_record_remove {
     width: 60px !important;
     text-align: right !important;
+}
+
+[name="wizard_attachment_ids"] .o_list_record_remove {
+    width: 40px !important;
+    text-align: center !important;
 }
 
 [name="task_attachment_ids"] button[name="action_preview_file"] {
