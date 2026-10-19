@@ -1014,7 +1014,7 @@
                     <!-- ======================================================== -->
                     <!-- DEMO: REALISTIC HUMAN-CRAFTED DASHBOARD PREVIEW (INLINE CSS ONLY) -->
                     <!-- ======================================================== -->
-                    <div style="grid-column: 1 / -1; margin-top: 2rem; margin-bottom: 1.5rem;">
+                    <!-- <div style="grid-column: 1 / -1; margin-top: 2rem; margin-bottom: 1.5rem;">
                         <!-- Section Badge / Separator -->
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e2e8f0;">
                             <div style="display: flex; align-items: center; gap: 0.6rem;">
@@ -1254,7 +1254,7 @@
                             </div>
 
                         </div>
-                    </div>
+                    </div> -->
                 </section>
                 <div class="crm-pro-footer"><t t-esc="state.companyName"/> in CRM</div>
             </main>
