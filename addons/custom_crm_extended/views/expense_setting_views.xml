@@ -145,19 +145,13 @@
         <field name="model">service.ticket.voucher.line</field>
         <field name="arch" type="xml">
             <search string="Search Vouchers">
-                <field name="user_id"/>
-                <field name="department_id"/>
+                <field name="description"/>
                 <field name="ticket_id"/>
-                <field name="expense_type_id"/>
-                <separator/>
                 <filter string="Pending Approval" name="filter_submitted" domain="[('status', '=', 'submitted')]"/>
                 <filter string="Approved" name="filter_approved" domain="[('status', '=', 'approved')]"/>
                 <filter string="Rejected" name="filter_rejected" domain="[('status', '=', 'rejected')]"/>
                 <group expand="0" string="Group By">
-                    <filter string="Employee" name="group_user" context="{'group_by': 'user_id'}"/>
-                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
-                    <filter string="Expense Type" name="group_expense_type" context="{'group_by': 'expense_type_id'}"/>
                 </group>
             </search>
         </field>
@@ -169,7 +163,7 @@
         <field name="res_model">service.ticket.voucher.line</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_service_ticket_voucher_line_search"/>
-        <field name="context">{'search_default_filter_submitted': 1}</field>
+        <field name="context">{}</field>
     </record>
 
     <!-- Action to open voucher settings form -->
