@@ -104,14 +104,14 @@
                             class="btn-success"
                             icon="fa-check-circle"
                             confirm="Are you sure you want to complete this schedule early? This will mark this task as Done and remove all remaining future scheduled tasks from the calendar."
-                            invisible="not recurring_group_id or state == 'done'"/>
+                            invisible="(not recurring_group_id and not is_recurring) or state == 'done'"/>
                     <button name="action_cancel_future_series"
                             type="object"
                             string="Cancel Upcoming Schedule"
                             class="btn-danger"
                             icon="fa-ban"
                             confirm="Are you sure you want to cancel the upcoming schedule? All remaining future tasks will be removed from the calendar."
-                            invisible="not recurring_group_id"/>
+                            invisible="not recurring_group_id and not is_recurring"/>
                     <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>
@@ -142,7 +142,6 @@
                             
                             <field name="is_recurring" string="Repeat Task" readonly="not can_edit_manager_fields"/>
                             <field name="recurrence_period" invisible="not is_recurring" readonly="not can_edit_manager_fields"/>
-                            <field name="recurrence_end_date" invisible="not is_recurring" readonly="not can_edit_manager_fields"/>
                         </group>
                     </group>
 

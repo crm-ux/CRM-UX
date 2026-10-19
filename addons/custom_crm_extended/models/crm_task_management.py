@@ -283,12 +283,19 @@ class CrmTaskManagement(models.Model):
         self.sudo().write({'state': 'done', 'is_recurring': False})
 
         # 2. Remove all future pending tasks for this series
-        domain = [
-            ('assigned_to_id', '=', self.assigned_to_id.id),
-            ('name', '=', self.name),
-            ('state', '=', 'pending'),
-            ('id', '!=', self.id),
-        ]
+        if self.recurring_group_id:
+            domain = [
+                ('recurring_group_id', '=', self.recurring_group_id),
+                ('state', '=', 'pending'),
+                ('id', '!=', self.id),
+            ]
+        else:
+            domain = [
+                ('assigned_to_id', '=', self.assigned_to_id.id),
+                ('name', '=', self.name),
+                ('state', '=', 'pending'),
+                ('id', '!=', self.id),
+            ]
         if self.date_deadline:
             domain.append(('date_deadline', '>=', self.date_deadline))
 
@@ -317,12 +324,19 @@ class CrmTaskManagement(models.Model):
             raise UserError(_("Only the task assigner, senior manager, or admin can cancel future recurring tasks."))
 
         # Find all future pending tasks matching this series
-        domain = [
-            ('assigned_to_id', '=', self.assigned_to_id.id),
-            ('name', '=', self.name),
-            ('state', '=', 'pending'),
-            ('id', '!=', self.id),
-        ]
+        if self.recurring_group_id:
+            domain = [
+                ('recurring_group_id', '=', self.recurring_group_id),
+                ('state', '=', 'pending'),
+                ('id', '!=', self.id),
+            ]
+        else:
+            domain = [
+                ('assigned_to_id', '=', self.assigned_to_id.id),
+                ('name', '=', self.name),
+                ('state', '=', 'pending'),
+                ('id', '!=', self.id),
+            ]
         if self.date_deadline:
             domain.append(('date_deadline', '>=', self.date_deadline))
 
