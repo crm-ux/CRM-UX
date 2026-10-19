@@ -104,7 +104,7 @@
         <field name="model_id" ref="model_crm_personal_todo"/>
         <field name="state">code</field>
         <field name="code">model.check_todo_reminders_cron()</field>
-        <field name="interval_number">5</field>
+        <field name="interval_number">1</field>
         <field name="interval_type">minutes</field>
         <field name="active" eval="True"/>
     </record>

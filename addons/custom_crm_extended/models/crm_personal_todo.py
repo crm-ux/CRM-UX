@@ -63,6 +63,11 @@ class CrmPersonalTodo(models.Model):
 
     issue_reason = fields.Text(string='Issue / Blocker Details')
 
+    def write(self, vals):
+        if 'reminder_datetime' in vals:
+            vals['reminder_sent'] = False
+        return super().write(vals)
+
     def action_set_done(self):
         self.write({'state': 'done'})
 
