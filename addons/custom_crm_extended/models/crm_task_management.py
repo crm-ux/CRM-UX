@@ -216,8 +216,25 @@ class CrmTaskManagement(models.Model):
             self.sudo().write({'recurring_group_id': series_id})
 
         start_date = fields.Date.from_string(str(self.date_deadline)[:10])
-        for i in range(1, 13):
-            next_date = start_date + relativedelta(months=i)
+        cycle = self.recurrence_period or 'monthly'
+        steps = 12
+        if cycle == 'daily':
+            steps = 30
+        elif cycle == 'weekly':
+            steps = 12
+        elif cycle == 'yearly':
+            steps = 5
+
+        for i in range(1, steps + 1):
+            if cycle == 'daily':
+                next_date = start_date + relativedelta(days=i)
+            elif cycle == 'weekly':
+                next_date = start_date + relativedelta(weeks=i)
+            elif cycle == 'yearly':
+                next_date = start_date + relativedelta(years=i)
+            else:
+                next_date = start_date + relativedelta(months=i)
+
             existing = self.sudo().search_count([
                 ('assigned_to_id', '=', self.assigned_to_id.id),
                 ('name', '=', self.name),
@@ -242,7 +259,7 @@ class CrmTaskManagement(models.Model):
                     'ticket_id': self.ticket_id.id if self.ticket_id else False,
                     'amc_id': self.amc_id.id if self.amc_id else False,
                     'is_recurring': True,
-                    'recurrence_period': 'monthly',
+                    'recurrence_period': cycle,
                     'recurring_group_id': self.recurring_group_id,
                     'is_unlocked': True,
                     'state': 'pending',
