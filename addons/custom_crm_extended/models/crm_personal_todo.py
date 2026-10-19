@@ -102,6 +102,27 @@ class CrmPersonalTodo(models.Model):
             todo.write({'reminder_sent': True})
         return True
 
+    @api.model
+    def get_live_due_reminders(self):
+        """Called directly by active user's browser to deliver instant reminders with zero cron delay."""
+        now = fields.Datetime.now()
+        due_todos = self.search([
+            ('user_id', '=', self.env.user.id),
+            ('reminder_sent', '=', False),
+            ('reminder_datetime', '!=', False),
+            ('reminder_datetime', '<=', now),
+            ('state', 'in', ('pending', 'in_progress')),
+        ])
+        results = []
+        for todo in due_todos:
+            results.append({
+                'id': todo.id,
+                'title': _('Personal To-Do Reminder'),
+                'message': todo.name,
+            })
+            todo.write({'reminder_sent': True})
+        return results
+
 
 class CrmPersonalTodoAttachment(models.Model):
     _name = 'crm.personal.todo.attachment'
