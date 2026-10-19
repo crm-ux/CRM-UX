@@ -49,12 +49,13 @@
         </field>
     </record>
 
-    <!-- Action to open this expense setting view -->
+    <!-- Action to open this expense setting view (Only System Administrator) -->
     <record id="action_expense_setting" model="ir.actions.act_window">
         <field name="name">Expense Setting</field>
         <field name="res_model">expense.setting</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>
+        <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
     </record>
 
     <!-- Sequence Form: Equipment Series Name Dropdown, Category Selection & Hide Company -->

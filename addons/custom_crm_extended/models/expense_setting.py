@@ -8,6 +8,21 @@ class ExpenseSetting(models.Model):
     _description = 'Expense Setting'
 
     name = fields.Char(string="Name", default="Expense Setting")
+
+    # Authorized Expense Managers who can access this page alongside Admin
+    authorized_manager_ids = fields.Many2many(
+        'res.users',
+        'expense_setting_authorized_users_rel',
+        'setting_id',
+        'user_id',
+        string="Authorized Expense Managers",
+        domain="[('share', '=', False)]",
+        compute='_compute_authorized_managers',
+        inverse='_inverse_authorized_managers',
+        store=False,
+        help="Selected users will have permission to view and manage Expense Settings alongside System Admins."
+    )
+
     # Expense Configuration Fields
     new_expense_type_name = fields.Char(string="New Expense Type")
     expense_type_ids = fields.Many2many(
@@ -16,6 +31,43 @@ class ExpenseSetting(models.Model):
         compute='_compute_expense_type_ids',
         readonly=False
     )
+
+    def _compute_authorized_managers(self):
+        company = self.env.company
+        for rec in self:
+            rec.authorized_manager_ids = company.crm_authorized_expense_manager_ids
+
+    def _inverse_authorized_managers(self):
+        company = self.env.company
+        for rec in self:
+            company.sudo().write({
+                'crm_authorized_expense_manager_ids': [(6, 0, rec.authorized_manager_ids.ids)]
+            })
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return super().check_access_rights(operation, raise_exception=raise_exception)
+        
+        # Check if user is in authorized_manager_ids
+        company = self.env.company
+        authorized_ids = company.sudo().crm_authorized_expense_manager_ids.ids
+        if user.id in authorized_ids:
+            return super().check_access_rights(operation, raise_exception=raise_exception)
+
+        if raise_exception:
+            raise ValidationError(_("Access Denied: Only System Administrators and Authorized Expense Managers can view or modify Expense Settings."))
+        return False
+
+    @api.model
+    def user_has_expense_settings_access(self):
+        """Helper called by dashboard to check if logged-in user has permission."""
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        company = self.env.company
+        return user.id in company.sudo().crm_authorized_expense_manager_ids.ids
 
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])

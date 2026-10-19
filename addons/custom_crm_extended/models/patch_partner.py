@@ -26,6 +26,13 @@ from odoo.exceptions import UserError
 class ResCompanyDefaultCard(models.Model):
     _inherit = 'res.company'
     x_default_signature_card = fields.Binary(string='Default Quotation Signature Card')
+    crm_authorized_expense_manager_ids = fields.Many2many(
+        'res.users',
+        'res_company_expense_managers_rel',
+        'company_id',
+        'user_id',
+        string="Authorized Expense Managers"
+    )
 
     def _user_can_create_company(self):
         user = self.env.user
