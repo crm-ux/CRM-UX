@@ -1582,6 +1582,19 @@ class HrDepartment(models.Model):
         help='The senior manager whom the department head reports to (e.g. Director, VP, CEO).'
     )
 
+    voucher_manager_id = fields.Many2one(
+        'res.users',
+        string='Department Voucher Approver',
+        domain="[('share', '=', False)]",
+        help='Designated manager who approves vouchers for employees in this department.'
+    )
+
+    voucher_approval_active = fields.Boolean(
+        string='Voucher Approver Active',
+        default=True,
+        help='Toggle active status of this department voucher approver.'
+    )
+
     member_user_ids = fields.One2many(
         'res.users',
         'crm_department_id',

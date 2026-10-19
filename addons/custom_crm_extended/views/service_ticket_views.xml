@@ -100,28 +100,43 @@
 
                                 <!-- Top Inline Input Bar -->
                                 <div class="row g-2 align-items-center">
-                                    <!-- Expense Type: 20% -->
-                                    <div class="col-12 col-md-2">
+                                    <field name="new_voucher_is_km" invisible="1"/>
+                                    <!-- Expense Type -->
+                                    <div class="col-12 col-md-3">
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
                                             domain="[('active', '=', True)]" 
                                             placeholder="Select Expense Type..."/>
                                     </div>
 
-                                    <!-- Description: 42% (WIDE & SPACIOUS) -->
-                                    <div class="col-12 col-md-5">
-                                        <field name="new_voucher_description" 
-                                            class="w-100" 
-                                            placeholder="Enter detailed description..."/>
+                                    <!-- KM Inputs when Expense Type is KM-based -->
+                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                        <field name="new_voucher_start_km" placeholder="Start KM"/>
+                                    </div>
+                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                        <field name="new_voucher_end_km" placeholder="End KM"/>
+                                    </div>
+                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                        <field name="new_voucher_total_km" placeholder="Total KM"/>
+                                    </div>
+                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                        <field name="new_voucher_rate_per_km" placeholder="₹/KM"/>
                                     </div>
 
-                                    <!-- Amount: 12% -->
+                                    <!-- Description -->
+                                    <div class="col-12 col-md-3">
+                                        <field name="new_voucher_description" 
+                                            class="w-100" 
+                                            placeholder="Enter description..."/>
+                                    </div>
+
+                                    <!-- Amount -->
                                     <div class="col-12 col-md-1">
                                         <field name="new_voucher_amount" 
                                             placeholder="Amount (₹)"/>
                                     </div>
 
-                                    <!-- Attach Bill: 20% -->
+                                    <!-- Attach Bill -->
                                     <div class="col-12 col-md-2">
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
@@ -130,10 +145,10 @@
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
 
-                                    <!-- Add Button: 16% -->
-                                    <div class="col-12 col-md-2 text-end">
+                                    <!-- Add Button -->
+                                    <div class="col-12 col-md-1 text-end">
                                         <button name="action_add_voucher_line" 
-                                                string="+ Add Expense" 
+                                                string="+ Add" 
                                                 type="object" 
                                                 class="btn btn-primary w-100"/>
                                     </div>
@@ -143,12 +158,20 @@
                             <field name="voucher_line_ids" class="o_voucher_card_list">
                                 <list editable="bottom" create="0" delete="1">
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
+                                    <field name="is_km_based" column_invisible="1"/>
+                                    <field name="start_km" invisible="not is_km_based" optional="show"/>
+                                    <field name="end_km" invisible="not is_km_based" optional="show"/>
+                                    <field name="total_km" invisible="not is_km_based" optional="show"/>
+                                    <field name="rate_per_km" invisible="not is_km_based" optional="show"/>
                                     <field name="description" placeholder="Enter description..." widget="text"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="amount" sum="Total" class="fw-bold text-end"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                                     <field name="bill_filename" column_invisible="1"/>
                                     <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="font-size: 1.15rem;"/>
+                                    <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                                    <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
+                                    <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
                                 </list>
                             </field>
                         </page>

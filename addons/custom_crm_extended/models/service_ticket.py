@@ -93,12 +93,29 @@ class ServiceTicket(models.Model):
 
     # Quick Add Voucher Fields on Ticket
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
+    new_voucher_is_km = fields.Boolean(related='new_voucher_expense_type_id.is_km_based', readonly=True)
+    new_voucher_start_km = fields.Float(string='Start KM')
+    new_voucher_end_km = fields.Float(string='End KM')
+    new_voucher_total_km = fields.Float(string='Total KM')
+    new_voucher_rate_per_km = fields.Float(string='Rate/KM (₹)')
     new_voucher_description = fields.Char(string='Description')
     new_voucher_amount = fields.Monetary(string='Amount', currency_field='currency_id')
     new_voucher_bill_file = fields.Binary(string='Upload Bill')
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
 
+    @api.onchange('new_voucher_expense_type_id')
+    def _onchange_new_voucher_expense_type(self):
+        if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based:
+            self.new_voucher_rate_per_km = self.new_voucher_expense_type_id.km_rate or 0.0
+
+    @api.onchange('new_voucher_start_km', 'new_voucher_end_km', 'new_voucher_rate_per_km')
+    def _onchange_new_voucher_km_calc(self):
+        if self.new_voucher_is_km:
+            if self.new_voucher_end_km >= self.new_voucher_start_km and (self.new_voucher_start_km > 0 or self.new_voucher_end_km > 0):
+                self.new_voucher_total_km = self.new_voucher_end_km - self.new_voucher_start_km
+            if self.new_voucher_total_km > 0 and self.new_voucher_rate_per_km > 0:
+                self.new_voucher_amount = self.new_voucher_total_km * self.new_voucher_rate_per_km
 
     def action_add_voucher_line(self):
         self.ensure_one()
@@ -106,13 +123,22 @@ class ServiceTicket(models.Model):
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
                 'expense_type_id': self.new_voucher_expense_type_id.id,
+                'start_km': self.new_voucher_start_km,
+                'end_km': self.new_voucher_end_km,
+                'total_km': self.new_voucher_total_km,
+                'rate_per_km': self.new_voucher_rate_per_km,
                 'description': self.new_voucher_description or '',
                 'amount': self.new_voucher_amount,
                 'bill_file': self.new_voucher_bill_file,
                 'bill_filename': self.new_voucher_bill_filename,
+                'status': 'submitted',
             })
             self.write({
                 'new_voucher_expense_type_id': False,
+                'new_voucher_start_km': 0.0,
+                'new_voucher_end_km': 0.0,
+                'new_voucher_total_km': 0.0,
+                'new_voucher_rate_per_km': 0.0,
                 'new_voucher_description': False,
                 'new_voucher_amount': 0.0,
                 'new_voucher_bill_file': False,

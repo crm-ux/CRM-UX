@@ -25,12 +25,27 @@ class ExpenseSetting(models.Model):
 
     # Expense Configuration Fields
     new_expense_type_name = fields.Char(string="New Expense Type")
+    new_expense_type_is_km = fields.Boolean(string="Calculate by KM", default=False)
+    new_expense_type_km_rate = fields.Float(string="Rate per KM (₹)", default=0.0)
+    
     expense_type_ids = fields.Many2many(
         'service.ticket.expense.type',
         string="Expense Types",
         compute='_compute_expense_type_ids',
         readonly=False
     )
+
+    department_ids = fields.Many2many(
+        'hr.department',
+        string="Departments",
+        compute='_compute_department_ids',
+        readonly=False
+    )
+
+    def _compute_department_ids(self):
+        depts = self.env['hr.department'].search([])
+        for rec in self:
+            rec.department_ids = depts
 
     def _compute_authorized_managers(self):
         company = self.env.company
@@ -81,9 +96,13 @@ class ExpenseSetting(models.Model):
             if name:
                 self.env['service.ticket.expense.type'].create({
                     'name': name,
+                    'is_km_based': bool(self.new_expense_type_is_km),
+                    'km_rate': self.new_expense_type_km_rate or 0.0,
                     'active': True,
                 })
             self.new_expense_type_name = False
+            self.new_expense_type_is_km = False
+            self.new_expense_type_km_rate = 0.0
         return {
             'type': 'ir.actions.client',
             'tag': 'reload',

@@ -6,11 +6,16 @@
         <field name="arch" type="xml">
             <form string="Voucher Management" create="0" delete="0">
                 <!-- MAIN TITLE: Voucher Management -->
-                <div class="d-flex align-items-center pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
-                    <i class="fa fa-money me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
-                    <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
-                        Voucher Management
-                    </h2>
+                <div class="d-flex align-items-center justify-content-between pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-money me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
+                        <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
+                            Voucher Configuration &amp; Settings
+                        </h2>
+                    </div>
+                    <div>
+                        <button string="← Back to Submissions" type="action" name="%(custom_crm_extended.action_service_ticket_voucher_line)d" class="btn btn-outline-primary btn-sm"/>
+                    </div>
                 </div>
 
                 <div class="row g-4 mb-4" style="width:100%; margin:0;">
@@ -19,28 +24,62 @@
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100" style="border-left: 4px solid #0284c7 !important;">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-user-shield me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Authorized Expense / Voucher Managers</strong>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Global Authorized Expense / Voucher Managers</strong>
                             </div>
-                            <p class="text-muted small mb-3">By default, only System Administrators can access this page. Select specific users who are granted permission to access and manage Voucher Settings.</p>
+                            <p class="text-muted small mb-3">By default, System Administrators have full access. Select specific users who are granted permission to access and approve vouchers globally alongside Admins.</p>
 
                             <field name="authorized_manager_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Select authorized managers (e.g. Accounts Head, Operation Manager)..."/>
                         </div>
                     </div>
                 </div>
 
+                <!-- CARD: Department-wise Voucher Approver Settings with Active Toggle -->
+                <div class="row g-4 mb-4" style="width:100%; margin:0;">
+                    <div class="col-12 ps-0 pe-0">
+                        <div class="p-4 border rounded-3 bg-white shadow-sm w-100" style="border-left: 4px solid #10b981 !important;">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fa fa-building me-2 text-success" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Department-wise Voucher Approver &amp; Status</strong>
+                            </div>
+                            <p class="text-muted small mb-3">Assign designated voucher approvers per department. Use the Active toggle to enable/disable approval rights dynamically.</p>
+
+                            <field name="department_ids" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="name" string="Department" readonly="1" class="fw-bold"/>
+                                    <field name="manager_user_id" string="Department Head" readonly="1"/>
+                                    <field name="voucher_manager_id" string="Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="voucher_approval_active" string="Active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD: Expense Types & KM Calculation -->
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types</strong>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types &amp; KM Calculation</strong>
                             </div>
-                            <p class="text-muted small mb-3">Add expense categories below. All added types will show in the list with active status.</p>
+                            <p class="text-muted small mb-3">Add expense categories below. You can enable KM calculation (e.g. for Travel) with custom rate per KM.</p>
 
                             <!-- Direct Inline Input Box (Quick Add) -->
-                            <div class="d-flex align-items-center gap-2 mb-3" style="max-width: 600px;">
-                                <field name="new_expense_type_name" nolabel="1" class="flex-grow-1" placeholder="Type expense name (e.g. Travel, Food, Fuel)..."/>
-                                <button name="action_add_expense_type" string="+ Add Expense" type="object" class="btn btn-primary btn-sm px-3"/>
+                            <div class="row g-2 align-items-center mb-3">
+                                <div class="col-12 col-md-4">
+                                    <field name="new_expense_type_name" nolabel="1" placeholder="Type expense name (e.g. Travel, Fuel, Food)..."/>
+                                </div>
+                                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                                    <field name="new_expense_type_is_km" widget="boolean_toggle"/>
+                                    <label for="new_expense_type_is_km" string="KM Based?" class="m-0 small fw-semibold"/>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <field name="new_expense_type_km_rate" placeholder="Rate per KM (₹)"/>
+                                </div>
+                                <div class="col-12 col-md-2 text-end">
+                                    <button name="action_add_expense_type" string="+ Add Type" type="object" class="btn btn-primary btn-sm w-100"/>
+                                </div>
                             </div>
 
                             <!-- The List View Right Here on this card -->
@@ -54,6 +93,8 @@
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" string="Expense Type"/>
+                                    <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
+                                    <field name="km_rate" string="Rate / KM (₹)"/>
                                     <field name="active" widget="boolean_toggle"/>
                                 </list>
                             </field>
@@ -64,9 +105,78 @@
         </field>
     </record>
 
-    <!-- Action to open this voucher management view (Security validated in model check_access_rights) -->
+    <!-- Voucher Line Tree/List View: DEFAULT SUBMISSIONS LIST -->
+    <record id="view_service_ticket_voucher_line_tree" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.line.tree</field>
+        <field name="model">service.ticket.voucher.line</field>
+        <field name="arch" type="xml">
+            <list string="Submitted Vouchers" create="0" edit="1" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
+                <header>
+                    <!-- Quick Top Action to open settings -->
+                    <button name="%(custom_crm_extended.action_expense_setting)d" string="⚙️ Voucher Settings" type="action" class="btn btn-secondary"/>
+                </header>
+                <field name="create_date" string="Submitted Date" widget="date"/>
+                <field name="user_id" string="Employee" widget="many2one_avatar_user"/>
+                <field name="department_id" string="Department"/>
+                <field name="ticket_id" string="Service Ticket"/>
+                <field name="expense_type_id" string="Expense Type"/>
+                <field name="is_km_based" column_invisible="1"/>
+                <field name="start_km" string="Start KM" optional="show"/>
+                <field name="end_km" string="End KM" optional="show"/>
+                <field name="total_km" string="Total KM" optional="show"/>
+                <field name="rate_per_km" string="₹/KM" optional="show"/>
+                <field name="description" string="Description"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
+                <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
+                <field name="bill_filename" column_invisible="1"/>
+                <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0"/>
+                <field name="expense_manager_id" string="Approver" optional="show"/>
+                <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
+                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Voucher Line Search View -->
+    <record id="view_service_ticket_voucher_line_search" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.line.search</field>
+        <field name="model">service.ticket.voucher.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Vouchers">
+                <field name="user_id" string="Employee"/>
+                <field name="department_id" string="Department"/>
+                <field name="ticket_id" string="Service Ticket"/>
+                <field name="expense_type_id" string="Expense Type"/>
+                <filter string="Pending Approval" name="filter_submitted" domain="[('status', '=', 'submitted')]"/>
+                <filter string="Approved" name="filter_approved" domain="[('status', '=', 'approved')]"/>
+                <filter string="Rejected" name="filter_rejected" domain="[('status', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="KM Based" name="filter_km" domain="[('is_km_based', '=', True)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
+                    <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
+                    <filter string="Expense Type" name="group_expense_type" context="{'group_by': 'expense_type_id'}"/>
+                    <filter string="Service Ticket" name="group_ticket" context="{'group_by': 'ticket_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action to open submitted vouchers (DEFAULT VIEW) -->
+    <record id="action_service_ticket_voucher_line" model="ir.actions.act_window">
+        <field name="name">Voucher Submissions</field>
+        <field name="res_model">service.ticket.voucher.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_service_ticket_voucher_line_search"/>
+        <field name="context">{'search_default_filter_submitted': 1}</field>
+    </record>
+
+    <!-- Action to open voucher settings form -->
     <record id="action_expense_setting" model="ir.actions.act_window">
-        <field name="name">Voucher Management</field>
+        <field name="name">Voucher Settings</field>
         <field name="res_model">expense.setting</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>

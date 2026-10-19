@@ -862,7 +862,8 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 .o_calendar_view .fc-event.o_calendar_color_1 .fc-event-main,
 .o_calendar_view .o_calendar_color_1 .fc-event-title,
 .o_calendar_view .fc-event.o_calendar_color_1 .fc-event-title {
-  color: #92400e !important;
+  color: #78350f !important;
+  font-weight: 700 !important;
 }
 
 /* 2. In Progress (task_color = 2): Vibrant Blue (#0284c7) */
@@ -874,14 +875,15 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background: #e0f2fe !important;
   border-color: #0284c7 !important;
   border-left: 4px solid #0284c7 !important;
-  color: #075985 !important;
+  color: #0c4a6e !important;
 }
 
 .o_calendar_view .o_calendar_color_2 .fc-event-main,
 .o_calendar_view .fc-event.o_calendar_color_2 .fc-event-main,
 .o_calendar_view .o_calendar_color_2 .fc-event-title,
 .o_calendar_view .fc-event.o_calendar_color_2 .fc-event-title {
-  color: #075985 !important;
+  color: #082f49 !important;
+  font-weight: 700 !important;
 }
 
 /* 3. Done (task_color = 10): Emerald Green (#10b981) */
@@ -893,14 +895,15 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background: #d1fae5 !important;
   border-color: #10b981 !important;
   border-left: 4px solid #10b981 !important;
-  color: #065f46 !important;
+  color: #064e3b !important;
 }
 
 .o_calendar_view .o_calendar_color_10 .fc-event-main,
 .o_calendar_view .fc-event.o_calendar_color_10 .fc-event-main,
 .o_calendar_view .o_calendar_color_10 .fc-event-title,
 .o_calendar_view .fc-event.o_calendar_color_10 .fc-event-title {
-  color: #065f46 !important;
+  color: #022c22 !important;
+  font-weight: 700 !important;
 }
 
 /* 4. Issue / Complaint (task_color = 9): Crimson Red (#ef4444) */
@@ -912,14 +915,15 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   background: #fee2e2 !important;
   border-color: #ef4444 !important;
   border-left: 4px solid #ef4444 !important;
-  color: #991b1b !important;
+  color: #7f1d1d !important;
 }
 
 .o_calendar_view .o_calendar_color_9 .fc-event-main,
 .o_calendar_view .fc-event.o_calendar_color_9 .fc-event-main,
 .o_calendar_view .o_calendar_color_9 .fc-event-title,
 .o_calendar_view .fc-event.o_calendar_color_9 .fc-event-title {
-  color: #991b1b !important;
+  color: #7f1d1d !important;
+  font-weight: 700 !important;
 }
 
 /* End of Calendar Rules */
