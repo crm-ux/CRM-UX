@@ -145,21 +145,19 @@
         <field name="model">service.ticket.voucher.line</field>
         <field name="arch" type="xml">
             <search string="Search Vouchers">
-                <field name="user_id" string="Employee"/>
-                <field name="department_id" string="Department"/>
-                <field name="ticket_id" string="Service Ticket"/>
-                <field name="expense_type_id" string="Expense Type"/>
+                <field name="user_id"/>
+                <field name="department_id"/>
+                <field name="ticket_id"/>
+                <field name="expense_type_id"/>
+                <separator/>
                 <filter string="Pending Approval" name="filter_submitted" domain="[('status', '=', 'submitted')]"/>
                 <filter string="Approved" name="filter_approved" domain="[('status', '=', 'approved')]"/>
                 <filter string="Rejected" name="filter_rejected" domain="[('status', '=', 'rejected')]"/>
-                <separator/>
-                <filter string="KM Based" name="filter_km" domain="[('is_km_based', '=', True)]"/>
                 <group expand="0" string="Group By">
                     <filter string="Employee" name="group_user" context="{'group_by': 'user_id'}"/>
                     <filter string="Department" name="group_dept" context="{'group_by': 'department_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'status'}"/>
                     <filter string="Expense Type" name="group_expense_type" context="{'group_by': 'expense_type_id'}"/>
-                    <filter string="Service Ticket" name="group_ticket" context="{'group_by': 'ticket_id'}"/>
                 </group>
             </search>
         </field>

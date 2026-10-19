@@ -358,7 +358,7 @@ class ServiceTicketVoucherLine(models.Model):
     user_id = fields.Many2one('res.users', string='Employee', compute='_compute_user_id', store=True, readonly=False)
     department_id = fields.Many2one('hr.department', string='Department', related='user_id.crm_department_id', store=True)
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
-    is_km_based = fields.Boolean(related='expense_type_id.is_km_based', readonly=True)
+    is_km_based = fields.Boolean(related='expense_type_id.is_km_based', store=True, readonly=True)
 
     @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
     def _compute_user_id(self):
