@@ -108,6 +108,17 @@ class ExpenseSetting(models.Model):
             'tag': 'reload',
         }
 
+    def action_back_to_submissions(self):
+        self.ensure_one()
+        return {
+            'name': _('Voucher Submissions'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.line',
+            'view_mode': 'list,form',
+            'context': {'search_default_filter_submitted': 1},
+            'target': 'current',
+        }
+
 
 class IrSequence(models.Model):
     _inherit = 'ir.sequence'

@@ -14,7 +14,7 @@
                         </h2>
                     </div>
                     <div>
-                        <button string="← Back to Submissions" type="action" name="%(custom_crm_extended.action_service_ticket_voucher_line)d" class="btn btn-outline-primary btn-sm"/>
+                        <button string="← Back to Submissions" type="object" name="action_back_to_submissions" class="btn btn-outline-primary btn-sm"/>
                     </div>
                 </div>
 
