@@ -113,7 +113,7 @@
             <list string="Submitted Vouchers" create="0" edit="1" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
                 <header>
                     <!-- Quick Top Action to open settings -->
-                    <button name="%(custom_crm_extended.action_expense_setting)d" string="⚙️ Voucher Settings" type="action" class="btn btn-secondary"/>
+                    <button name="action_open_expense_settings" string="⚙️ Voucher Settings" type="object" class="btn btn-secondary"/>
                 </header>
                 <field name="create_date" string="Submitted Date" widget="date"/>
                 <field name="user_id" string="Employee" widget="many2one_avatar_user"/>
