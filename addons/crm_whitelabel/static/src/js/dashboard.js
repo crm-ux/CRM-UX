@@ -1449,6 +1449,7 @@ class CrmDashboard extends Component {
                         args: [[['partner_ids', 'in', [partnerId]]]],
                         kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 50, order: 'date desc' }
                     });
+                }
                 let activeMessages = messages.filter(m => !dismissedIds.includes(m.id));
 
                 // Verify that task-related notifications still have existing tasks

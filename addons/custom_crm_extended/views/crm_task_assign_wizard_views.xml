@@ -41,7 +41,7 @@
                     <div class="crm-wizard-grid-2-equal">
                         <div>
                             <label for="company_id" string="Company (Optional)" class="crm-wizard-label"/>
-                            <field name="company_id" nolabel="1" options="{'no_create': True}" placeholder="Leave empty for all companies..."/>
+                            <field name="company_id" nolabel="1" options="{'no_create': True, 'no_open': True}" placeholder="Leave empty for all companies..."/>
                         </div>
                         <div>
                             <label for="related_model" string="Related Entity (Optional)" class="crm-wizard-label"/>
