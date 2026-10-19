@@ -1429,9 +1429,16 @@ class CrmDashboard extends Component {
                 model: 'mail.message',
                 method: 'search_read',
                 args: [[['partner_ids', 'in', [partnerId]]]],
-                kwargs: { fields: ['id'], limit: 50, order: 'date desc' }
+                kwargs: { fields: ['id', 'model', 'author_id'], limit: 50, order: 'date desc' }
             });
-            const activeMessages = messages.filter(m => !dismissedIds.includes(m.id));
+            // Exclude task assignments created by oneself (e.g. Admin assigning task to Anurag)
+            const activeMessages = messages.filter(m => {
+                if (dismissedIds.includes(m.id)) return false;
+                if (m.model === 'crm.task.management' && m.author_id && m.author_id[0] === partnerId) {
+                    return false;
+                }
+                return true;
+            });
             this.state.notifCount = activeMessages.filter(m => !readIds.includes(m.id)).length;
         } catch (e) { this.state.notifCount = 0; }
     }
@@ -1450,7 +1457,14 @@ class CrmDashboard extends Component {
                         kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 50, order: 'date desc' }
                     });
                 }
-                let activeMessages = messages.filter(m => !dismissedIds.includes(m.id));
+                // Exclude dismissed AND self-authored task assignment notifications
+                let activeMessages = messages.filter(m => {
+                    if (dismissedIds.includes(m.id)) return false;
+                    if (m.model === 'crm.task.management' && m.author_id && m.author_id[0] === partnerId) {
+                        return false;
+                    }
+                    return true;
+                });
 
                 // Verify that task-related notifications still have existing tasks
                 const taskMessages = activeMessages.filter(m => m.model === 'crm.task.management' && m.res_id);
@@ -1559,7 +1573,7 @@ class CrmDashboard extends Component {
         }
     }
 
-    dismissNotification(notifId, ev) {
+    async dismissNotification(notifId, ev) {
         if (ev) ev.stopPropagation();
         const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
         if (!dismissedIds.includes(notifId)) {
@@ -1568,11 +1582,29 @@ class CrmDashboard extends Component {
         }
         this.state.notifications = this.state.notifications.filter(n => n.id !== notifId);
         this.loadNotifCount();
+
+        // Also remove notification from database for current user
+        try {
+            const partnerId = await this._getCurrentPartnerId();
+            if (partnerId && notifId) {
+                await rpc('/web/dataset/call_kw', {
+                    model: 'mail.message',
+                    method: 'write',
+                    args: [[notifId], {
+                        partner_ids: [[3, partnerId]]
+                    }],
+                    kwargs: {}
+                });
+            }
+        } catch (e) {
+            // Ignore
+        }
     }
 
-    clearAllNotifications(ev) {
+    async clearAllNotifications(ev) {
         if (ev) ev.stopPropagation();
         const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
+        const idsToRemove = this.state.notifications.map(n => n.id);
         this.state.notifications.forEach(n => {
             if (!dismissedIds.includes(n.id)) {
                 dismissedIds.push(n.id);
@@ -1581,6 +1613,25 @@ class CrmDashboard extends Component {
         localStorage.setItem('crm_dismissed_notifs', JSON.stringify(dismissedIds));
         this.state.notifications = [];
         this.state.notifCount = 0;
+
+        // Permanently unbind partner from all cleared messages in database
+        try {
+            const partnerId = await this._getCurrentPartnerId();
+            if (partnerId && idsToRemove.length > 0) {
+                for (const mid of idsToRemove) {
+                    await rpc('/web/dataset/call_kw', {
+                        model: 'mail.message',
+                        method: 'write',
+                        args: [[mid], {
+                            partner_ids: [[3, partnerId]]
+                        }],
+                        kwargs: {}
+                    });
+                }
+            }
+        } catch (e) {
+            // Ignore
+        }
     }
 
     openTaskManagement(ev) {
