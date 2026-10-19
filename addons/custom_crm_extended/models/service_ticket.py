@@ -344,21 +344,50 @@ class ServiceTicketExpenseType(models.Model):
 
     name = fields.Char(string='Expense Type', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
+    is_km_based = fields.Boolean(string='Calculate by KM', default=False)
+    km_rate = fields.Float(string='Rate per KM (₹)', default=0.0)
     active = fields.Boolean(string='Active', default=True)
 
 class ServiceTicketVoucherLine(models.Model):
     _name = 'service.ticket.voucher.line'
     _description = 'Service Ticket Voucher Line'
-    _order = 'id asc'
+    _order = 'id desc'
 
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
+    user_id = fields.Many2one('res.users', string='Employee', related='ticket_id.user_id', store=True)
+    department_id = fields.Many2one('hr.department', string='Department', related='user_id.crm_department_id', store=True)
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
+    is_km_based = fields.Boolean(related='expense_type_id.is_km_based', readonly=True)
+    start_km = fields.Float(string='Start KM')
+    end_km = fields.Float(string='End KM')
+    total_km = fields.Float(string='Total KM')
+    rate_per_km = fields.Float(string='Rate/KM (₹)')
     description = fields.Char(string='Description', placeholder='Enter description...')
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
     amount = fields.Monetary(string='Amount', currency_field='currency_id')
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
+    status = fields.Selection([
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], string='Status', default='submitted', required=True)
+    expense_manager_id = fields.Many2one('res.users', string='Approved By', readonly=True)
+
+    def action_approve(self):
+        for rec in self:
+            rec.write({
+                'status': 'approved',
+                'expense_manager_id': self.env.user.id,
+            })
+
+    def action_reject(self):
+        for rec in self:
+            rec.write({
+                'status': 'rejected',
+                'expense_manager_id': self.env.user.id,
+            })
 
     def action_preview_bill(self):
         self.ensure_one()
