@@ -216,12 +216,6 @@ class CrmTaskManagement(models.Model):
                 if next_task:
                     next_task.write({'is_unlocked': True})
 
-        # Auto-heal: If an existing task has is_recurring=True, ensure its future occurrences are pre-created
-        if 'is_recurring' in vals or 'recurrence_period' in vals or 'date_deadline' in vals or 'recurrence_end_date' in vals:
-            for rec in self:
-                if rec.is_recurring and rec.date_deadline:
-                    rec._generate_future_recurring_occurrences()
-
         return res
 
     def _generate_future_recurring_occurrences(self):
@@ -234,30 +228,29 @@ class CrmTaskManagement(models.Model):
             series_id = f"SERIES_{self.id}_{self.date_deadline.strftime('%Y%m%d')}"
             self.sudo().write({'recurring_group_id': series_id})
 
-        start_date = fields.Date.from_string(str(self.date_deadline)[:10])
+        end_date = fields.Date.from_string(str(self.date_deadline)[:10])
+        today = fields.Date.today()
         cycle = self.recurrence_period or 'monthly'
-        steps = 12
-        if cycle == 'daily':
-            steps = 30
-        elif cycle == 'weekly':
-            steps = 12
-        elif cycle == 'yearly':
-            steps = 5
 
-        for i in range(1, steps + 1):
+        current_date = today
+        count = 0
+        while count < 60:
             if cycle == 'daily':
-                next_date = start_date + relativedelta(days=i)
+                current_date = current_date + relativedelta(days=1)
             elif cycle == 'weekly':
-                next_date = start_date + relativedelta(weeks=i)
+                current_date = current_date + relativedelta(weeks=1)
             elif cycle == 'yearly':
-                next_date = start_date + relativedelta(years=i)
+                current_date = current_date + relativedelta(years=1)
             else:
-                next_date = start_date + relativedelta(months=i)
+                current_date = current_date + relativedelta(months=1)
+
+            if current_date > end_date:
+                break
 
             existing = self.sudo().search_count([
                 ('assigned_to_id', '=', self.assigned_to_id.id),
                 ('name', '=', self.name),
-                ('date_deadline', '=', next_date),
+                ('date_deadline', '=', current_date),
             ])
             if not existing:
                 self.sudo().create({
@@ -265,7 +258,7 @@ class CrmTaskManagement(models.Model):
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.assigned_by_id.id if self.assigned_by_id else self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
-                    'date_deadline': next_date,
+                    'date_deadline': current_date,
                     'instructions': self.instructions or '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
@@ -283,6 +276,7 @@ class CrmTaskManagement(models.Model):
                     'is_unlocked': True,
                     'state': 'pending',
                 })
+            count += 1
 
     @api.model
     def action_auto_generate_all_recurring(self):
