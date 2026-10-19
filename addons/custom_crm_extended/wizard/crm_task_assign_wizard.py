@@ -132,31 +132,15 @@ class CrmTaskAssignWizard(models.TransientModel):
 
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
-            target_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
-            today = fields.Date.today()
-            target_day = target_deadline.day
-            
-            # Start from this month / next month with the same target day
-            # If target_deadline is in the future, create all intermediate months up to target_deadline
-            current_date = today
-            # Align current_date to target day
-            try:
-                current_date = current_date.replace(day=target_day)
-            except ValueError:
-                pass # e.g. Feb 30th
-            
-            # If current month's target day has already passed or is today, start next month
-            if current_date <= today:
-                current_date = current_date + relativedelta(months=1)
-                
-            count = 0
-            while current_date < target_deadline and count < 36:
+            start_date = fields.Date.from_string(str(self.date_deadline)[:10])
+            for i in range(1, 13):
+                next_date = start_date + relativedelta(months=i)
                 self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
-                    'date_deadline': current_date,
+                    'date_deadline': next_date,
                     'instructions': self.instructions.strip() if self.instructions else '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
@@ -170,13 +154,11 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'ticket_id': self.ticket_id.id if self.ticket_id else False,
                     'amc_id': self.amc_id.id if self.amc_id else False,
                     'is_recurring': True,
-                    'recurrence_period': self.recurrence_period or 'monthly',
+                    'recurrence_period': 'monthly',
                     'recurring_group_id': series_group_id,
                     'is_unlocked': True,
                     'state': 'pending',
                 })
-                current_date = current_date + relativedelta(months=1)
-                count += 1
 
         # 2. Notification message to assigned user with Direct Clickable Link
         sender = self.env.user

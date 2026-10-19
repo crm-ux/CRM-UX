@@ -67,10 +67,6 @@
                             <field name="is_recurring" nolabel="1"/>
                             <label for="is_recurring" string="Repeat this Task Automatically (Recurring)" class="crm-wizard-label"/>
                         </div>
-                        <div class="mt-2" invisible="not is_recurring">
-                            <label for="recurrence_period" string="Repeat Cycle" class="crm-wizard-label"/>
-                            <field name="recurrence_period" nolabel="1"/>
-                        </div>
                     </div>
 
                     <!-- Section 3: Work Details / Instructions -->
