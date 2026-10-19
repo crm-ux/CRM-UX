@@ -1449,8 +1449,32 @@ class CrmDashboard extends Component {
                         args: [[['partner_ids', 'in', [partnerId]]]],
                         kwargs: { fields: ['id', 'record_name', 'body', 'date', 'res_id', 'model', 'author_id', 'subject'], limit: 50, order: 'date desc' }
                     });
+                let activeMessages = messages.filter(m => !dismissedIds.includes(m.id));
+
+                // Verify that task-related notifications still have existing tasks
+                const taskMessages = activeMessages.filter(m => m.model === 'crm.task.management' && m.res_id);
+                if (taskMessages.length > 0) {
+                    const taskIds = Array.from(new Set(taskMessages.map(m => m.res_id)));
+                    try {
+                        const existingTasks = await rpc('/web/dataset/call_kw', {
+                            model: 'crm.task.management',
+                            method: 'search_read',
+                            args: [[['id', 'in', taskIds]]],
+                            kwargs: { fields: ['id'] },
+                        });
+                        const existingIds = new Set((existingTasks || []).map(t => t.id));
+                        activeMessages = activeMessages.filter(m => {
+                            if (m.model === 'crm.task.management' && m.res_id) {
+                                return existingIds.has(m.res_id);
+                            }
+                            return true;
+                        });
+                    } catch (err) {
+                        // Keep activeMessages on error
+                    }
                 }
-                const activeMessages = messages.filter(m => !dismissedIds.includes(m.id)).slice(0, 10);
+
+                activeMessages = activeMessages.slice(0, 10);
                 const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
                 const newReadIds = Array.from(new Set([...readIds, ...activeMessages.map(m => m.id)]));
                 localStorage.setItem('crm_read_notifs', JSON.stringify(newReadIds));

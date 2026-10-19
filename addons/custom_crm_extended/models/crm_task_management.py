@@ -364,6 +364,22 @@ class CrmTaskManagement(models.Model):
             'target': 'current',
         }
 
+    def unlink(self):
+        """Clean up associated notification messages and activities so deleted tasks do not linger in notification bell."""
+        task_ids = self.ids
+        if task_ids:
+            # Delete related notification messages
+            self.env['mail.message'].sudo().search([
+                ('model', '=', 'crm.task.management'),
+                ('res_id', 'in', task_ids),
+            ]).unlink()
+            # Delete related activities
+            self.env['mail.activity'].sudo().search([
+                ('res_model', '=', 'crm.task.management'),
+                ('res_id', 'in', task_ids),
+            ]).unlink()
+        return super(CrmTaskManagement, self).unlink()
+
     def action_open_full_detail_form(self):
         """Opens the full detailed task form view from the calendar quick popup."""
         self.ensure_one()

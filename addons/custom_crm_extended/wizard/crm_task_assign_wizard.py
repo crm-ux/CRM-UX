@@ -87,7 +87,7 @@ class CrmTaskAssignWizard(models.TransientModel):
         is_unlocked = (active_tasks_count == 0)
 
         # 1. Create the persistent task management record (Initial occurrence)
-        task_rec = self.env['crm.task.management'].create({
+        task_rec = self.env['crm.task.management'].sudo().create({
             'name': self.name.strip(),
             'assigned_to_id': self.assigned_to_id.id,
             'assigned_by_id': self.env.user.id,
@@ -113,7 +113,7 @@ class CrmTaskAssignWizard(models.TransientModel):
         })
 
         if self.attachment_file and self.attachment_name:
-            self.env['crm.task.attachment'].create({
+            self.env['crm.task.attachment'].sudo().create({
                 'task_id': task_rec.id,
                 'name': self.attachment_name,
                 'file': self.attachment_file,
@@ -121,7 +121,7 @@ class CrmTaskAssignWizard(models.TransientModel):
 
         for w_att in self.wizard_attachment_ids:
             if w_att.file:
-                self.env['crm.task.attachment'].create({
+                self.env['crm.task.attachment'].sudo().create({
                     'task_id': task_rec.id,
                     'name': w_att.name or 'attachment',
                     'file': w_att.file,
