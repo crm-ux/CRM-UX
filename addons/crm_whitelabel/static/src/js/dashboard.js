@@ -151,6 +151,7 @@ class CrmDashboard extends Component {
         // Check admin status reliably using user service
         const isAdm = Boolean(user.isAdmin);
         this.state.isAdmin = isAdm;
+        this.state.canManageExpenseSettings = isAdm;
 
         // Restore View As user from sessionStorage only (resets when website/tab is closed)
         try {
@@ -302,6 +303,18 @@ class CrmDashboard extends Component {
             this.state.canAssignTask = Boolean(canAssign);
         } catch (e) {
             this.state.canAssignTask = Boolean(this.state.isAdmin);
+        }
+
+        try {
+            const canManageExpense = await rpc("/web/dataset/call_kw", {
+                model: "expense.setting",
+                method: "user_has_expense_settings_access",
+                args: [],
+                kwargs: {},
+            });
+            this.state.canManageExpenseSettings = Boolean(canManageExpense);
+        } catch (e) {
+            this.state.canManageExpenseSettings = Boolean(this.state.isAdmin);
         }
     }
 

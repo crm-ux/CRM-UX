@@ -22,6 +22,7 @@ access_equipment_category_user,equipment.category.user,model_equipment_category,
 access_equipment_master_wizard_user,equipment.master.wizard.user,model_equipment_master_wizard,base.group_user,1,1,1,1
 access_service_ticket_user,service.ticket.user,model_service_ticket,base.group_user,1,1,1,1
 access_service_ticket_wizard_user,service.ticket.wizard.user,model_service_ticket_wizard,base.group_user,1,1,1,1
+access_expense_setting_user,expense.setting.user,model_expense_setting,base.group_user,1,1,1,1
 access_expense_setting_admin,expense.setting.admin,model_expense_setting,base.group_system,1,1,1,1
 
 access_service_ticket_expense_type_user,service.ticket.expense.type.user,model_service_ticket_expense_type,base.group_user,1,1,1,1

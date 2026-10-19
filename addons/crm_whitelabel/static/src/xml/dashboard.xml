@@ -118,7 +118,7 @@
                         </ul>
                     </li>
 
-                    <li class="crm-nav-item" t-if="state.isAdmin" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
                         <a class="crm-nav-link" t-on-click="openSettings">
                             <i class="fa fa-cog"></i>
                             <span>Settings &amp; Configuration</span>
