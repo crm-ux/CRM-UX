@@ -3,11 +3,11 @@ from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 
-class CrmCustomSettings(models.Model):
-    _name = 'crm.custom.settings'
-    _description = 'CRM Custom Settings'
+class ExpenseSetting(models.Model):
+    _name = 'expense.setting'
+    _description = 'Expense Setting'
 
-    name = fields.Char(string="Name", default="CRM Settings")
+    name = fields.Char(string="Name", default="Expense Setting")
     # Expense Configuration Fields
     new_expense_type_name = fields.Char(string="New Expense Type")
     expense_type_ids = fields.Many2many(

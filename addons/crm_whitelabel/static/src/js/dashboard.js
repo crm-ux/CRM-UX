@@ -211,7 +211,7 @@ class CrmDashboard extends Component {
         this.state.todayDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
     openSettings() {
-        this.go("custom_crm_extended.action_crm_custom_settings");
+        this.go("custom_crm_extended.action_expense_setting");
     }
 
     openEquipmentSeries() {
