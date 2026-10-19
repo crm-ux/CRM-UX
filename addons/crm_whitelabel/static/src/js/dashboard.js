@@ -180,6 +180,11 @@ class CrmDashboard extends Component {
             this.loadCompanyInfo();
             this.setGreeting();
             this.setDate();
+
+            this.notifPollTimer = setInterval(() => {
+                this.loadNotifCount();
+            }, 1000);
+
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.crm-dropdown-container')) {
                     this.state.userDropdownOpen = false;
@@ -190,6 +195,12 @@ class CrmDashboard extends Component {
                 if (!e.target.closest('.crm-search-box')) this.state.searchOpen = false;
                 if (!e.target.closest('.crm-fy-container')) this.state.fyDropdownOpen = false;
             });
+        });
+
+        onWillUnmount(() => {
+            if (this.notifPollTimer) {
+                clearInterval(this.notifPollTimer);
+            }
         });
     }
     setGreeting() {
