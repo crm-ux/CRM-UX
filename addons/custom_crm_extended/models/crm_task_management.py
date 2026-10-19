@@ -140,16 +140,22 @@ class CrmTaskManagement(models.Model):
         self.amc_id = False
         self.related_res_id = 0
 
-    @api.depends('assigned_to_id', 'assigned_by_id')
+    @api.depends('assigned_to_id', 'assigned_by_id', 'create_uid')
     def _compute_can_edit_manager_fields(self):
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        is_admin = (
+            current_user.has_group('base.group_system') or 
+            current_user.has_group('base.group_erp_manager') or 
+            current_user.id in (1, 2)
+        )
         for record in self:
             if is_admin:
                 record.can_edit_manager_fields = True
                 continue
-            # The person who assigned the task can always edit
-            if record.assigned_by_id and record.assigned_by_id.id == current_user.id:
+            # The person who assigned the task or created the task can always edit
+            assigner_id = record.assigned_by_id.id if record.assigned_by_id else False
+            creator_id = record.create_uid.id if record.create_uid else False
+            if current_user.id in (assigner_id, creator_id):
                 record.can_edit_manager_fields = True
                 continue
             # Senior managers/supervisors of the assignee can edit

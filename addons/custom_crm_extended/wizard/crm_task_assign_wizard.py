@@ -109,7 +109,7 @@ class CrmTaskAssignWizard(models.TransientModel):
             'ticket_id': self.ticket_id.id if self.ticket_id else False,
             'amc_id': self.amc_id.id if self.amc_id else False,
             'is_recurring': bool(self.is_recurring),
-            'recurrence_period': 'monthly' if self.is_recurring else False,
+            'recurrence_period': self.recurrence_period if self.is_recurring else False,
             'recurring_group_id': series_group_id,
             'is_unlocked': is_unlocked,
             'state': 'pending',
