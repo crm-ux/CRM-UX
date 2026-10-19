@@ -122,6 +122,7 @@ class ServiceTicket(models.Model):
         if self.new_voucher_expense_type_id and self.new_voucher_amount:
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
+                'user_id': self.engineer_id.id or self.env.user.id,
                 'expense_type_id': self.new_voucher_expense_type_id.id,
                 'start_km': self.new_voucher_start_km,
                 'end_km': self.new_voucher_end_km,
@@ -354,10 +355,16 @@ class ServiceTicketVoucherLine(models.Model):
     _order = 'id desc'
 
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
-    user_id = fields.Many2one('res.users', string='Employee', related='ticket_id.user_id', store=True)
+    user_id = fields.Many2one('res.users', string='Employee', compute='_compute_user_id', store=True, readonly=False)
     department_id = fields.Many2one('hr.department', string='Department', related='user_id.crm_department_id', store=True)
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
     is_km_based = fields.Boolean(related='expense_type_id.is_km_based', readonly=True)
+
+    @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
+    def _compute_user_id(self):
+        for rec in self:
+            if not rec.user_id:
+                rec.user_id = rec.ticket_id.engineer_id or rec.ticket_id.create_uid or self.env.user
     start_km = fields.Float(string='Start KM')
     end_km = fields.Float(string='End KM')
     total_km = fields.Float(string='Total KM')
