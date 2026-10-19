@@ -105,12 +105,14 @@ class CrmPersonalTodo(models.Model):
     @api.model
     def get_live_due_reminders(self):
         """Called directly by active user's browser to deliver instant reminders with zero cron delay."""
-        now = fields.Datetime.now()
+        # Add 30s buffer so if client time and server time differ by seconds, reminder triggers immediately
+        from datetime import timedelta
+        check_time = fields.Datetime.now() + timedelta(seconds=30)
         due_todos = self.search([
             ('user_id', '=', self.env.user.id),
             ('reminder_sent', '=', False),
             ('reminder_datetime', '!=', False),
-            ('reminder_datetime', '<=', now),
+            ('reminder_datetime', '<=', check_time),
             ('state', 'in', ('pending', 'in_progress')),
         ])
         results = []
