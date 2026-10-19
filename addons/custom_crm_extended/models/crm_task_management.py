@@ -10,6 +10,19 @@ class CrmTaskManagement(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date_deadline asc, id desc'
 
+    def init(self):
+        super().init()
+        # Clean Odoo ORM: ensure all series tasks have is_recurring=True
+        series_tasks = self.sudo().search([
+            ('recurring_group_id', '!=', False),
+            ('is_recurring', '=', False),
+        ])
+        for task in series_tasks:
+            task.write({
+                'is_recurring': True,
+                'recurrence_period': task.recurrence_period or 'monthly',
+            })
+
     name = fields.Char(string='Task Title', required=True, tracking=True)
     assigned_to_id = fields.Many2one('res.users', string='Assigned Employee', required=True, tracking=True)
     assigned_by_id = fields.Many2one('res.users', string='Assigned By', default=lambda self: self.env.user, readonly=True, tracking=True)

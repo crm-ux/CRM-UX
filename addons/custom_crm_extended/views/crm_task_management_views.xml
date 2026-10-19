@@ -140,8 +140,8 @@
                             <field name="ticket_id" invisible="related_model != 'service.ticket'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
                             <field name="amc_id" invisible="related_model != 'amc.contract'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
                             
-                            <field name="is_recurring" string="Repeat Task" readonly="not can_edit_manager_fields"/>
-                            <field name="recurrence_period" string="Repeat Every" invisible="not is_recurring" readonly="not can_edit_manager_fields"/>
+                            <field name="is_recurring" string="Repeat Task"/>
+                            <field name="recurrence_period" string="Repeat Every" invisible="not is_recurring"/>
                         </group>
                     </group>
 
