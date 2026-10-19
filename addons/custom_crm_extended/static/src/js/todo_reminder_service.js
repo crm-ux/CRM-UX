@@ -106,7 +106,9 @@ export const todoReminderService = {
                     model: "crm.personal.todo",
                     method: "get_live_due_reminders",
                     args: [],
-                    kwargs: {},
+                    kwargs: {
+                        client_now: new Date().toISOString(),
+                    },
                 });
                 if (Array.isArray(dueTodos) && dueTodos.length > 0) {
                     for (const item of dueTodos) {

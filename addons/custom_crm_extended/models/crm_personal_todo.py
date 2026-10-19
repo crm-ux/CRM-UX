@@ -103,12 +103,22 @@ class CrmPersonalTodo(models.Model):
         return True
 
     @api.model
-    def get_live_due_reminders(self):
+    def get_live_due_reminders(self, client_now=None):
         """Called directly by active user's browser to deliver instant reminders with zero cron delay."""
-        # Add 30s buffer so if client time and server time differ by seconds, reminder triggers immediately
         from datetime import timedelta
-        check_time = fields.Datetime.now() + timedelta(seconds=30)
-        due_todos = self.search([
+        import dateutil.parser
+
+        # Use client timestamp if provided (translated to UTC by Odoo / dateutil), or fallback to server now
+        if client_now:
+            try:
+                server_now = dateutil.parser.parse(client_now)
+            except Exception:
+                server_now = fields.Datetime.now()
+        else:
+            server_now = fields.Datetime.now()
+
+        check_time = server_now + timedelta(seconds=60)
+        due_todos = self.sudo().search([
             ('user_id', '=', self.env.user.id),
             ('reminder_sent', '=', False),
             ('reminder_datetime', '!=', False),
