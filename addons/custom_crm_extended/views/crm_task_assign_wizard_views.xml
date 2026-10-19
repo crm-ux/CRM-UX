@@ -13,6 +13,7 @@
                                string="Assign To" 
                                nolabel="1"
                                required="1"
+                               domain="[('id', '!=', uid)]"
                                context="{'show_rich_user_name': True}"
                                options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'no_open': True}" 
                                placeholder="Select team member..."/>
