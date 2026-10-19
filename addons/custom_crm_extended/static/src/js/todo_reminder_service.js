@@ -19,6 +19,7 @@ export const todoReminderService = {
             notification.add(message, {
                 title: `🔔 ${title}`,
                 type: "warning",
+                className: "todo-reminder-toast",
                 sticky: true,
                 buttons: todoId ? [
                     {

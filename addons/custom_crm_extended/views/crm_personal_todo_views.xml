@@ -50,7 +50,7 @@
                     <group>
                         <group string="Schedule &amp; Priority">
                             <field name="target_date" string="Target Date"/>
-                            <field name="reminder_datetime" string="Reminder Date &amp; Time"/>
+                            <field name="reminder_datetime" string="Reminder Date &amp; Time" widget="datetime" options="{'step': 1}"/>
                             <field name="priority" widget="priority" string="Priority"/>
                         </group>
                         <group string="Ownership &amp; Status">

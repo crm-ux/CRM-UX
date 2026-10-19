@@ -931,3 +931,44 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
   border-color: #f59e0b !important;
   color: #92400e !important;
 }
+
+/* ===== Personal To-Do Reminder Toast Styling ===== */
+.o_notification.todo-reminder-toast {
+  border-left: 5px solid #f59e0b !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  padding: 12px 16px !important;
+  background: #ffffff !important;
+  min-width: 320px !important;
+}
+.o_notification.todo-reminder-toast .o_notification_title {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #b45309 !important;
+  margin-bottom: 4px !important;
+}
+.o_notification.todo-reminder-toast .o_notification_content {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  line-height: 1.4 !important;
+  margin-bottom: 8px !important;
+}
+.o_notification.todo-reminder-toast .o_notification_buttons {
+  margin-top: 8px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+.o_notification.todo-reminder-toast .o_notification_buttons button {
+  background-color: #0b3d91 !important;
+  border-color: #0b3d91 !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  padding: 4px 12px !important;
+  border-radius: 5px !important;
+}
+.o_notification.todo-reminder-toast .o_notification_buttons button:hover {
+  background-color: #082d6b !important;
+  border-color: #082d6b !important;
+}
