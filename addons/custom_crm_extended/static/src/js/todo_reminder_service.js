@@ -44,7 +44,7 @@ function createSmoothToast(todoId, title, message, actionService) {
 
     const openBtn = document.createElement("button");
     openBtn.className = "todo-toast-open-btn";
-    openBtn.textContent = "Open To-Do ↗";
+    openBtn.textContent = "Open To-Do";
 
     footer.appendChild(openBtn);
 
