@@ -87,7 +87,7 @@ class CrmTaskAssignWizard(models.TransientModel):
         is_unlocked = (active_tasks_count == 0)
 
         # Generate a unique series group ID if this task is recurring
-        series_group_id = f"SERIES_{fields.Datetime.now().strftime('%Y%m%d%H%M%S')}_{self.id}" if self.is_recurring else False
+        series_group_id = f"SERIES_{self.env.user.id}_{int(fields.Datetime.now().timestamp())}" if self.is_recurring else False
 
         # 1. Create the persistent task management record (Initial occurrence)
         task_rec = self.env['crm.task.management'].sudo().create({
@@ -108,8 +108,8 @@ class CrmTaskAssignWizard(models.TransientModel):
             'equipment_id': self.equipment_id.id if self.equipment_id else False,
             'ticket_id': self.ticket_id.id if self.ticket_id else False,
             'amc_id': self.amc_id.id if self.amc_id else False,
-            'is_recurring': self.is_recurring,
-            'recurrence_period': self.recurrence_period if self.is_recurring else False,
+            'is_recurring': bool(self.is_recurring),
+            'recurrence_period': 'monthly' if self.is_recurring else False,
             'recurring_group_id': series_group_id,
             'is_unlocked': is_unlocked,
             'state': 'pending',

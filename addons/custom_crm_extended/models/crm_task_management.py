@@ -208,29 +208,20 @@ class CrmTaskManagement(models.Model):
     def _generate_future_recurring_occurrences(self):
         """Generates future occurrences for this recurring task if they do not exist already."""
         self.ensure_one()
-        if not self.is_recurring or not self.date_deadline or not self.recurrence_period:
+        if not self.is_recurring or not self.date_deadline:
             return
 
-        target_deadline = fields.Date.from_string(str(self.date_deadline)[:10])
-        today = fields.Date.today()
-        target_day = target_deadline.day
+        if not self.recurring_group_id:
+            series_id = f"SERIES_{self.id}_{self.date_deadline.strftime('%Y%m%d')}"
+            self.sudo().write({'recurring_group_id': series_id})
 
-        current_date = today
-        try:
-            current_date = current_date.replace(day=target_day)
-        except ValueError:
-            pass
-
-        if current_date <= today:
-            current_date = current_date + relativedelta(months=1)
-
-        count = 0
-        while current_date < target_deadline and count < 36:
-            # Check if this occurrence already exists
+        start_date = fields.Date.from_string(str(self.date_deadline)[:10])
+        for i in range(1, 13):
+            next_date = start_date + relativedelta(months=i)
             existing = self.sudo().search_count([
-                ('name', '=', self.name),
                 ('assigned_to_id', '=', self.assigned_to_id.id),
-                ('date_deadline', '=', current_date),
+                ('name', '=', self.name),
+                ('date_deadline', '=', next_date),
             ])
             if not existing:
                 self.sudo().create({
@@ -238,7 +229,7 @@ class CrmTaskManagement(models.Model):
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.assigned_by_id.id if self.assigned_by_id else self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
-                    'date_deadline': current_date,
+                    'date_deadline': next_date,
                     'instructions': self.instructions or '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
@@ -250,14 +241,12 @@ class CrmTaskManagement(models.Model):
                     'equipment_id': self.equipment_id.id if self.equipment_id else False,
                     'ticket_id': self.ticket_id.id if self.ticket_id else False,
                     'amc_id': self.amc_id.id if self.amc_id else False,
-                    'is_recurring': False,
-                    'recurrence_period': False,
-                    'recurrence_end_date': False,
+                    'is_recurring': True,
+                    'recurrence_period': 'monthly',
+                    'recurring_group_id': self.recurring_group_id,
                     'is_unlocked': True,
                     'state': 'pending',
                 })
-            current_date = current_date + relativedelta(months=1)
-            count += 1
 
     @api.model
     def action_auto_generate_all_recurring(self):
