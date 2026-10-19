@@ -1010,6 +1010,260 @@
                             <i class="fa fa-arrow-right" style="font-size: 0.75rem; color: #94a3b8; margin-left: 2px;"></i>
                         </button>
                     </div>
+
+                    <!-- ======================================================== -->
+                    <!-- DEMO: REALISTIC HUMAN-CRAFTED DASHBOARD PREVIEW (INLINE CSS ONLY) -->
+                    <!-- ======================================================== -->
+                    <div style="grid-column: 1 / -1; margin-top: 2rem; margin-bottom: 1.5rem;">
+                        <!-- Section Badge / Separator -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e2e8f0;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span style="background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 6px; letter-spacing: 0.05em; text-transform: uppercase;">Design Proposal</span>
+                                <h3 style="margin: 0; font-size: 1.15rem; font-weight: 700; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Enterprise Operations &amp; Performance (Realistic UI)</h3>
+                            </div>
+                            <span style="font-size: 0.75rem; color: #64748b; font-weight: 500;"><i class="fa fa-eye" style="margin-right: 4px;"></i>Client Presentation Mockup</span>
+                        </div>
+
+                        <!-- 4-Card Realistic Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(460px, 1fr)); gap: 1.25rem;">
+                            
+                            <!-- CARD 1: Monthly Sales & Revenue Growth (Realistic Enterprise Chart) -->
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem;">
+                                    <div>
+                                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">Sales &amp; Revenue Realization</div>
+                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Target vs Actual monthly performance</div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 3px; border-radius: 6px;">
+                                        <span style="font-size: 0.7rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; background: #ffffff; color: #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">6M</span>
+                                        <span style="font-size: 0.7rem; font-weight: 500; padding: 3px 8px; color: #64748b; cursor: pointer;">1Y</span>
+                                        <span style="font-size: 0.7rem; font-weight: 500; padding: 3px 8px; color: #64748b; cursor: pointer;">FY 25-26</span>
+                                    </div>
+                                </div>
+
+                                <!-- Key Stats Mini Row -->
+                                <div style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px dashed #f1f5f9;">
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Total Revenue</div>
+                                        <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a;">₹ 42.8 Lakh <span style="font-size: 0.7rem; font-weight: 700; color: #16a34a; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">+14.2%</span></div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Avg / Month</div>
+                                        <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a;">₹ 7.13 Lakh</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 600;">Conversion</div>
+                                        <div style="font-size: 1.15rem; font-weight: 800; color: #0f172a;">68.4%</div>
+                                    </div>
+                                </div>
+
+                                <!-- Realistic Bar Chart with Gridlines & Human Aesthetics -->
+                                <div style="position: relative; height: 160px; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 0.5rem 1.75rem 0.5rem; border-bottom: 1px solid #cbd5e1;">
+                                    <!-- Background faint gridlines -->
+                                    <div style="position: absolute; top: 0; left: 0; right: 0; border-top: 1px dashed #e2e8f0;"></div>
+                                    <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px dashed #e2e8f0;"></div>
+                                    
+                                    <!-- Month 1: May -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: #475569; margin-bottom: 4px;">₹5.2L</span>
+                                        <div style="width: 28px; height: 55%; background: #3b82f6; border-radius: 4px 4px 0 0;"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #64748b; font-weight: 600;">May</span>
+                                    </div>
+                                    <!-- Month 2: Jun -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: #475569; margin-bottom: 4px;">₹6.8L</span>
+                                        <div style="width: 28px; height: 72%; background: #3b82f6; border-radius: 4px 4px 0 0;"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #64748b; font-weight: 600;">Jun</span>
+                                    </div>
+                                    <!-- Month 3: Jul -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: #475569; margin-bottom: 4px;">₹4.9L</span>
+                                        <div style="width: 28px; height: 48%; background: #3b82f6; border-radius: 4px 4px 0 0;"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #64748b; font-weight: 600;">Jul</span>
+                                    </div>
+                                    <!-- Month 4: Aug -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: #475569; margin-bottom: 4px;">₹8.4L</span>
+                                        <div style="width: 28px; height: 88%; background: #3b82f6; border-radius: 4px 4px 0 0;"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #64748b; font-weight: 600;">Aug</span>
+                                    </div>
+                                    <!-- Month 5: Sep -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 700; color: #475569; margin-bottom: 4px;">₹7.9L</span>
+                                        <div style="width: 28px; height: 80%; background: #3b82f6; border-radius: 4px 4px 0 0;"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #64748b; font-weight: 600;">Sep</span>
+                                    </div>
+                                    <!-- Month 6: Oct (Active/Current highlighted) -->
+                                    <div style="display: flex; flex-direction: column; align-items: center; width: 14%; height: 100%; justify-content: flex-end;">
+                                        <span style="font-size: 0.65rem; font-weight: 800; color: #1d4ed8; margin-bottom: 4px;">₹9.6L</span>
+                                        <div style="width: 28px; height: 96%; background: #1d4ed8; border-radius: 4px 4px 0 0; box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);"></div>
+                                        <span style="position: absolute; bottom: 2px; font-size: 0.7rem; color: #1d4ed8; font-weight: 700;">Oct '26</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARD 2: Service & Complaint Resolution Health (Realistic SLA Tracker) -->
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                                    <div>
+                                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">Complaint &amp; Service Dispatch</div>
+                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Resolution load and priority workload</div>
+                                    </div>
+                                    <span style="font-size: 0.72rem; font-weight: 700; background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px;">24 Active Tickets</span>
+                                </div>
+
+                                <!-- Rows with Realistic Proportions & Details -->
+                                <div style="display: flex; flex-direction: column; gap: 0.85rem; margin: 1rem 0;">
+                                    <!-- Breakdown -->
+                                    <div style="background: #fafafa; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.6rem 0.85rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></span>
+                                                <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">Critical Breakdown</span>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #64748b;"><strong style="color: #ef4444; font-size: 0.95rem;">6</strong> / 24 tickets (25%)</div>
+                                        </div>
+                                        <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                                            <div style="width: 25%; height: 100%; background: #ef4444; border-radius: 999px;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- PM Preventive -->
+                                    <div style="background: #fafafa; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.6rem 0.85rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></span>
+                                                <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">Preventive Maintenance (PM)</span>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #64748b;"><strong style="color: #d97706; font-size: 0.95rem;">14</strong> / 24 tickets (58%)</div>
+                                        </div>
+                                        <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                                            <div style="width: 58%; height: 100%; background: #f59e0b; border-radius: 999px;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Free Call -->
+                                    <div style="background: #fafafa; border: 1px solid #f1f5f9; border-radius: 8px; padding: 0.6rem 0.85rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+                                                <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">Routine Check / Free Call</span>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: #64748b;"><strong style="color: #10b981; font-size: 0.95rem;">4</strong> / 24 tickets (17%)</div>
+                                        </div>
+                                        <div style="height: 6px; background: #e2e8f0; border-radius: 999px; overflow: hidden;">
+                                            <div style="width: 17%; height: 100%; background: #10b981; border-radius: 999px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; font-size: 0.74rem; color: #64748b; padding-top: 0.4rem; border-top: 1px solid #f1f5f9;">
+                                    <span>Average First Response: <strong>42 Mins</strong></span>
+                                    <span>SLA Compliance: <strong style="color: #16a34a;">96.4%</strong></span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 3: AMC Contract Renewals Pipeline (Realistic Professional Pipeline) -->
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem;">
+                                    <div>
+                                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">AMC Renewals &amp; Retention</div>
+                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Contract expiry forecasting &amp; risk funnel</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">Active Portfolio</div>
+                                        <div style="font-size: 1rem; font-weight: 800; color: #0f172a;">₹ 84.5 Lakh</div>
+                                    </div>
+                                </div>
+
+                                <!-- 4 Clean Solid Corporate Metric Blocks -->
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 0.75rem 0;">
+                                    <!-- Block 1 -->
+                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-top: 3px solid #64748b; border-radius: 8px; padding: 0.65rem 0.5rem; text-align: center;">
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Expired</div>
+                                        <div style="font-size: 1.2rem; font-weight: 800; color: #334155; margin: 2px 0;">3</div>
+                                        <div style="font-size: 0.72rem; font-weight: 600; color: #64748b;">₹45.0K</div>
+                                    </div>
+                                    <!-- Block 2 -->
+                                    <div style="background: #fef2f2; border: 1px solid #fee2e2; border-top: 3px solid #ef4444; border-radius: 8px; padding: 0.65rem 0.5rem; text-align: center;">
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #b91c1c; text-transform: uppercase;">&lt; 30 Days</div>
+                                        <div style="font-size: 1.2rem; font-weight: 800; color: #b91c1c; margin: 2px 0;">5</div>
+                                        <div style="font-size: 0.72rem; font-weight: 600; color: #dc2626;">₹1.80L</div>
+                                    </div>
+                                    <!-- Block 3 -->
+                                    <div style="background: #fffbeb; border: 1px solid #fef3c7; border-top: 3px solid #f59e0b; border-radius: 8px; padding: 0.65rem 0.5rem; text-align: center;">
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #b45309; text-transform: uppercase;">30-60 Days</div>
+                                        <div style="font-size: 1.2rem; font-weight: 800; color: #b45309; margin: 2px 0;">12</div>
+                                        <div style="font-size: 0.72rem; font-weight: 600; color: #d97706;">₹5.40L</div>
+                                    </div>
+                                    <!-- Block 4 -->
+                                    <div style="background: #f0fdf4; border: 1px solid #dcfce7; border-top: 3px solid #10b981; border-radius: 8px; padding: 0.65rem 0.5rem; text-align: center;">
+                                        <div style="font-size: 0.68rem; font-weight: 700; color: #15803d; text-transform: uppercase;">Safe (&gt;60D)</div>
+                                        <div style="font-size: 1.2rem; font-weight: 800; color: #15803d; margin: 2px 0;">48</div>
+                                        <div style="font-size: 0.72rem; font-weight: 600; color: #16a34a;">₹76.8L</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #64748b; padding-top: 0.5rem; border-top: 1px solid #f1f5f9;">
+                                    <span>Renewal Action Rate: <strong style="color: #0f172a;">91.2%</strong></span>
+                                    <span style="color: #2563eb; font-weight: 600; cursor: pointer;">Open Renewals Manager →</span>
+                                </div>
+                            </div>
+
+                            <!-- CARD 4: Inventory & Reorder Intelligence (Clean Enterprise Table) -->
+                            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05); display: flex; flex-direction: column; justify-content: space-between;">
+                                <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                                    <div>
+                                        <div style="font-size: 0.95rem; font-weight: 700; color: #0f172a;">Inventory Reorder Alerts</div>
+                                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Critical replenishment &amp; stock health</div>
+                                    </div>
+                                    <span style="font-size: 0.72rem; font-weight: 700; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 3px 8px; border-radius: 6px;">2 Critical Items</span>
+                                </div>
+
+                                <!-- Item List Table -->
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin: 0.75rem 0;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 8px; background: #fef2f2; border: 1px solid #fee2e2;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-exclamation-triangle" style="color: #ef4444; font-size: 0.85rem;"></i>
+                                            <div>
+                                                <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">10" Hardness Stabilizing Unit</div>
+                                                <div style="font-size: 0.68rem; color: #64748b;">SKU: [06.5452] · Pacific Systems</div>
+                                            </div>
+                                        </div>
+                                        <span style="font-size: 0.72rem; font-weight: 800; background: #ef4444; color: #fff; padding: 3px 8px; border-radius: 6px;">2 / 5 Units</span>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 8px; background: #fffbeb; border: 1px solid #fef3c7;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-clock-o" style="color: #f59e0b; font-size: 0.85rem;"></i>
+                                            <div>
+                                                <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">4ft Direct Duct Exhaust Transition</div>
+                                                <div style="font-size: 0.68rem; color: #64748b;">SKU: [1911314] · General Spares</div>
+                                            </div>
+                                        </div>
+                                        <span style="font-size: 0.72rem; font-weight: 800; background: #fef3c7; color: #b45309; padding: 3px 8px; border-radius: 6px;">4 / 5 Units</span>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class="fa fa-check-circle" style="color: #10b981; font-size: 0.85rem;"></i>
+                                            <div>
+                                                <div style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Accessory Set For Vulcan</div>
+                                                <div style="font-size: 0.68rem; color: #64748b;">SKU: [50049200] · Vulcan OEM</div>
+                                            </div>
+                                        </div>
+                                        <span style="font-size: 0.72rem; font-weight: 700; background: #e2e8f0; color: #475569; padding: 3px 8px; border-radius: 6px;">8 / 10 Units</span>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: #64748b; padding-top: 0.5rem; border-top: 1px solid #f1f5f9;">
+                                    <span>Total Stock Value: <strong>₹ 18.2 Lakh</strong></span>
+                                    <span style="color: #2563eb; font-weight: 600; cursor: pointer;">Generate Purchase PO →</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </section>
                 <div class="crm-pro-footer"><t t-esc="state.companyName"/> in CRM</div>
             </main>
