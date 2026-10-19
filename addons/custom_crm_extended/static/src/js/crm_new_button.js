@@ -26,14 +26,17 @@ async function openTaskAssignWizard(env, controller, extraContext = {}) {
         },
     }, {
         onClose: async () => {
-            // Smoothly reload active controller model if present, otherwise reload action
-            if (controller?.model?.load) {
-                await controller.model.load();
-            } else if (controller?.model?.root?.load) {
-                await controller.model.root.load();
-            } else if (env.services.action.currentController) {
-                await env.services.action.currentController.model?.load?.() ||
-                      env.services.action.currentController.model?.root?.load?.();
+            try {
+                if (controller?.model?.load) {
+                    await controller.model.load();
+                } else if (controller?.model?.root?.load) {
+                    await controller.model.root.load();
+                } else if (env.services.action.currentController?.model?.load) {
+                    await env.services.action.currentController.model.load();
+                }
+            } catch (e) {
+                // Ignore controller restore errors smoothly
+                console.warn("[CRM] Safe catch during wizard close reload:", e);
             }
         },
     });
