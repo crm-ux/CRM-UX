@@ -130,36 +130,56 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'file': w_att.file,
                 })
 
-        # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
+        # When Recurring is checked:
+        # The user-selected 'Deadline' is treated as the 'Repeat Until' (final deadline) of the recurring series!
+        # Occurrences start from today (or the first cycle date) and repeat up until that final deadline.
         if self.is_recurring and self.date_deadline:
-            start_date = fields.Date.from_string(str(self.date_deadline)[:10])
+            end_date = fields.Date.from_string(str(self.date_deadline)[:10])
+            today = fields.Date.today()
+            target_day = end_date.day
             cycle = self.recurrence_period or 'monthly'
-            
-            # Create forward occurrences based on cycle (12 monthly, 12 weekly, 30 daily, or 5 yearly)
-            steps = 12
-            if cycle == 'daily':
-                steps = 30
-            elif cycle == 'weekly':
-                steps = 12
-            elif cycle == 'yearly':
-                steps = 5
 
-            for i in range(1, steps + 1):
+            # 1. Determine first occurrence date
+            first_date = today
+            if cycle == 'monthly':
+                try:
+                    first_date = today.replace(day=target_day)
+                except ValueError:
+                    first_date = today
+                if first_date <= today:
+                    first_date = first_date + relativedelta(months=1)
+            elif cycle == 'daily':
+                first_date = today + relativedelta(days=1)
+            elif cycle == 'weekly':
+                first_date = today + relativedelta(weeks=1)
+            elif cycle == 'yearly':
+                first_date = today + relativedelta(years=1)
+
+            # Ensure initial task record has the proper first occurrence deadline
+            task_rec.sudo().write({'date_deadline': first_date if first_date <= end_date else end_date})
+
+            # 2. Pre-create intermediate occurrences strictly up to the final 'Repeat Until' deadline
+            current_date = first_date
+            count = 0
+            while count < 60:
                 if cycle == 'daily':
-                    next_date = start_date + relativedelta(days=i)
+                    current_date = current_date + relativedelta(days=1)
                 elif cycle == 'weekly':
-                    next_date = start_date + relativedelta(weeks=i)
+                    current_date = current_date + relativedelta(weeks=1)
                 elif cycle == 'yearly':
-                    next_date = start_date + relativedelta(years=i)
+                    current_date = current_date + relativedelta(years=1)
                 else:
-                    next_date = start_date + relativedelta(months=i)
+                    current_date = current_date + relativedelta(months=1)
+
+                if current_date > end_date:
+                    break
 
                 self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),
                     'assigned_to_id': self.assigned_to_id.id,
                     'assigned_by_id': self.env.user.id,
                     'date_assigned': fields.Datetime.now(),
-                    'date_deadline': next_date,
+                    'date_deadline': current_date,
                     'instructions': self.instructions.strip() if self.instructions else '',
                     'attachment_name': self.attachment_name or '',
                     'attachment_file': self.attachment_file or False,
@@ -178,6 +198,7 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'is_unlocked': True,
                     'state': 'pending',
                 })
+                count += 1
 
         # 2. Notification message to assigned user with Direct Clickable Link
         sender = self.env.user
