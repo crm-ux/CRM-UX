@@ -133,8 +133,27 @@ class CrmTaskAssignWizard(models.TransientModel):
         # Pre-create all future recurring occurrences on the calendar so user can view next dates immediately
         if self.is_recurring and self.date_deadline:
             start_date = fields.Date.from_string(str(self.date_deadline)[:10])
-            for i in range(1, 13):
-                next_date = start_date + relativedelta(months=i)
+            cycle = self.recurrence_period or 'monthly'
+            
+            # Create forward occurrences based on cycle (12 monthly, 12 weekly, 30 daily, or 5 yearly)
+            steps = 12
+            if cycle == 'daily':
+                steps = 30
+            elif cycle == 'weekly':
+                steps = 12
+            elif cycle == 'yearly':
+                steps = 5
+
+            for i in range(1, steps + 1):
+                if cycle == 'daily':
+                    next_date = start_date + relativedelta(days=i)
+                elif cycle == 'weekly':
+                    next_date = start_date + relativedelta(weeks=i)
+                elif cycle == 'yearly':
+                    next_date = start_date + relativedelta(years=i)
+                else:
+                    next_date = start_date + relativedelta(months=i)
+
                 self.env['crm.task.management'].sudo().create({
                     'name': self.name.strip(),
                     'assigned_to_id': self.assigned_to_id.id,
@@ -154,7 +173,7 @@ class CrmTaskAssignWizard(models.TransientModel):
                     'ticket_id': self.ticket_id.id if self.ticket_id else False,
                     'amc_id': self.amc_id.id if self.amc_id else False,
                     'is_recurring': True,
-                    'recurrence_period': 'monthly',
+                    'recurrence_period': cycle,
                     'recurring_group_id': series_group_id,
                     'is_unlocked': True,
                     'state': 'pending',
