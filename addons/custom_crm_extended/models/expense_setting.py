@@ -5,9 +5,9 @@ from odoo.exceptions import ValidationError
 
 class ExpenseSetting(models.Model):
     _name = 'expense.setting'
-    _description = 'Expense Setting'
+    _description = 'Voucher Management'
 
-    name = fields.Char(string="Name", default="Expense Setting")
+    name = fields.Char(string="Name", default="Voucher Management")
 
     # Authorized Expense Managers who can access this page alongside Admin
     authorized_manager_ids = fields.Many2many(

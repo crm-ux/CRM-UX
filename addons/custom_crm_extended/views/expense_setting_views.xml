@@ -4,24 +4,24 @@
         <field name="name">expense.setting.form</field>
         <field name="model">expense.setting</field>
         <field name="arch" type="xml">
-            <form string="Expense Setting" create="0" delete="0">
-                <!-- MAIN TITLE: Expense Setting -->
+            <form string="Voucher Management" create="0" delete="0">
+                <!-- MAIN TITLE: Voucher Management -->
                 <div class="d-flex align-items-center pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
-                    <i class="fa fa-credit-card me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
+                    <i class="fa fa-money me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
                     <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
-                        Expense Setting
+                        Voucher Management
                     </h2>
                 </div>
 
                 <div class="row g-4 mb-4" style="width:100%; margin:0;">
-                    <!-- CARD: Authorized Expense Managers (Who can access this settings page) -->
+                    <!-- CARD: Authorized Expense / Voucher Managers -->
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100" style="border-left: 4px solid #0284c7 !important;">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-user-shield me-2 text-primary" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Authorized Expense Managers</strong>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Authorized Expense / Voucher Managers</strong>
                             </div>
-                            <p class="text-muted small mb-3">By default, only System Administrators can access this page. Select specific users who are granted permission to access and manage Expense Settings.</p>
+                            <p class="text-muted small mb-3">By default, only System Administrators can access this page. Select specific users who are granted permission to access and manage Voucher Settings.</p>
 
                             <field name="authorized_manager_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Select authorized managers (e.g. Accounts Head, Operation Manager)..."/>
                         </div>
@@ -64,9 +64,9 @@
         </field>
     </record>
 
-    <!-- Action to open this expense setting view (Security validated in model check_access_rights) -->
+    <!-- Action to open this voucher management view (Security validated in model check_access_rights) -->
     <record id="action_expense_setting" model="ir.actions.act_window">
-        <field name="name">Expense Setting</field>
+        <field name="name">Voucher Management</field>
         <field name="res_model">expense.setting</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>

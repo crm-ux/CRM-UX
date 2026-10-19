@@ -50,6 +50,12 @@
                             <span>Service Tickets</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings">
+                        <a class="crm-nav-link" t-on-click="openVoucherManagement">
+                            <i class="fa fa-money"></i>
+                            <span>Voucher Management</span>
+                        </a>
+                    </li>
                     <li class="crm-nav-item">
                         <a class="crm-nav-link" t-on-click="openTaskManagement">
                             <i class="fa fa-tasks"></i>
@@ -118,12 +124,6 @@
                         </ul>
                     </li>
 
-                    <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings" style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 0.5rem;">
-                        <a class="crm-nav-link" t-on-click="openSettings">
-                            <i class="fa fa-cog"></i>
-                            <span>Settings &amp; Configuration</span>
-                        </a>
-                    </li>
                 </ul>
             </aside>
 
