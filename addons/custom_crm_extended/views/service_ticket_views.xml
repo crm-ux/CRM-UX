@@ -91,113 +91,111 @@
                             </group>
                         </page>
                         <page string="Voucher" name="voucher_tab">
-                            <div class="p-2 bg-light rounded border mb-2">
-                                <!-- Top Quick-Add Header -->
-                                <div class="d-flex align-items-center mb-1">
-                                    <i class="fa fa-plus-circle me-1 text-primary" style="font-size: 0.95rem;" title="Add Expense"/>
-                                    <strong class="text-dark small">Quick Add Expense</strong>
+                            <!-- Quick-Add Header -->
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fa fa-plus-circle me-1 text-primary" style="font-size: 0.95rem;" title="Add Expense"/>
+                                <strong class="text-dark small">Quick Add Expense</strong>
+                            </div>
+
+                            <!-- Single Full-Width Form Card (1 Field Per Row: Label on Left, Input on Right) -->
+                            <div class="p-3 bg-white rounded border o_voucher_quick_add_bar w-100 mb-3">
+                                <field name="new_voucher_is_km" invisible="1"/>
+                                
+                                <!-- Row 1: Employee(s) -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Employee(s):</span>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_user_ids"
+                                            widget="many2many_tags"
+                                            options="{'no_create': True}"
+                                            class="w-100"
+                                            placeholder="Select Employee(s)..."/>
+                                    </div>
                                 </div>
 
-                                <!-- Single-column Form Stack (1 Field Per Row: Label on Left, Input on Right) -->
-                                <div class="p-3 bg-white rounded border o_voucher_quick_add_bar w-100" style="max-width: 650px;">
-                                    <field name="new_voucher_is_km" invisible="1"/>
-                                    
-                                    <!-- Row 1: Employee(s) -->
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Employee(s):</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_user_ids"
-                                                widget="many2many_tags"
-                                                options="{'no_create': True}"
-                                                class="w-100"
-                                                placeholder="Select Employee(s)..."/>
-                                        </div>
+                                <!-- Row 2: Expense Type -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Expense Type:</span>
                                     </div>
-
-                                    <!-- Row 2: Expense Type -->
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Expense Type:</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_expense_type_id" 
-                                                widget="selection" 
-                                                domain="[('active', '=', True)]" 
-                                                class="w-100"
-                                                placeholder="Select Expense Type..."/>
-                                        </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_expense_type_id" 
+                                            widget="selection" 
+                                            domain="[('active', '=', True)]" 
+                                            class="w-100"
+                                            placeholder="Select Expense Type..."/>
                                     </div>
+                                </div>
 
-                                    <!-- Row 3: KM (if KM based) -->
-                                    <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Total KM:</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_total_km" class="w-100" placeholder="Enter total kilometers..."/>
-                                        </div>
+                                <!-- Row 3: KM (if KM based) -->
+                                <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Total KM:</span>
                                     </div>
-
-                                    <!-- Row 4: Rate / KM (if KM based) -->
-                                    <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Rate / KM (₹):</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_rate_per_km" readonly="1" class="w-100 fw-bold text-dark"/>
-                                        </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_total_km" class="w-100" placeholder="Enter total kilometers..."/>
                                     </div>
+                                </div>
 
-                                    <!-- Row 5: Description -->
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Description:</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_description" 
-                                                class="w-100" 
-                                                placeholder="Enter description / note..."/>
-                                        </div>
+                                <!-- Row 4: Rate / KM (if KM based) -->
+                                <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Rate / KM (₹):</span>
                                     </div>
-
-                                    <!-- Row 6: Amount -->
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Amount (₹):</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_amount" 
-                                                class="w-100"
-                                                placeholder="₹ 0.00"/>
-                                        </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_rate_per_km" readonly="1" class="w-100 fw-bold text-dark"/>
                                     </div>
+                                </div>
 
-                                    <!-- Row 7: Attach Bill -->
-                                    <div class="row mb-2 align-items-center">
-                                        <div class="col-sm-3">
-                                            <span class="fw-semibold text-secondary">Attach Bill:</span>
-                                        </div>
-                                        <div class="col-sm-9">
-                                            <field name="new_voucher_bill_file" 
-                                                filename="new_voucher_bill_filename" 
-                                                widget="binary" 
-                                                string="Upload Bill"/>
-                                            <field name="new_voucher_bill_filename" invisible="1"/>
-                                        </div>
+                                <!-- Row 5: Description -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Description:</span>
                                     </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_description" 
+                                            class="w-100" 
+                                            placeholder="Enter description / note..."/>
+                                    </div>
+                                </div>
 
-                                    <!-- Action Button Row -->
-                                    <div class="row mt-3">
-                                        <div class="col-sm-3"></div>
-                                        <div class="col-sm-9">
-                                            <button name="action_add_voucher_line" 
-                                                    string="+ Add Expense" 
-                                                    type="object" 
-                                                    class="btn btn-primary btn-voucher-add px-4 py-1 fw-bold shadow-sm"
-                                                    style="height: 36px !important; min-width: 140px;"/>
-                                        </div>
+                                <!-- Row 6: Amount -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Amount (₹):</span>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_amount" 
+                                            class="w-100"
+                                            placeholder="₹ 0.00"/>
+                                    </div>
+                                </div>
+
+                                <!-- Row 7: Attach Bill -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Attach Bill:</span>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_bill_file" 
+                                            filename="new_voucher_bill_filename" 
+                                            widget="binary" 
+                                            string="Upload Bill"/>
+                                        <field name="new_voucher_bill_filename" invisible="1"/>
+                                    </div>
+                                </div>
+
+                                <!-- Action Button Row -->
+                                <div class="row mt-3">
+                                    <div class="col-sm-2 col-md-2"></div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <button name="action_add_voucher_line" 
+                                                string="+ Add Expense" 
+                                                type="object" 
+                                                class="btn btn-primary btn-voucher-add px-4 py-2 fw-bold shadow-sm"
+                                                style="height: 38px !important; min-width: 150px;"/>
                                     </div>
                                 </div>
                             </div>
