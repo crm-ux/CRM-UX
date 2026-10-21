@@ -648,28 +648,56 @@ class ServiceTicketVoucherLine(models.Model):
         }
 
     def action_reject(self):
-        for rec in self:
-            rec.write({
-                'status': 'rejected',
-                'expense_manager_id': self.env.user.id,
-            })
-        reason_msg = f" Reason: {self.reject_reason}" if self.reject_reason else ""
+        self.ensure_one()
+        return {
+            'name': _('Reject Voucher Remark'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.reject.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_voucher_line_id': self.id,
+                'default_reject_reason': self.reject_reason or '',
+            },
+        }
+
+
+class ServiceTicketVoucherRejectWizard(models.TransientModel):
+    _name = 'service.ticket.voucher.reject.wizard'
+    _description = 'Reject Voucher Remark Wizard'
+
+    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', required=True)
+    employee_name = fields.Char(related='voucher_line_id.user_id.name', string='Employee', readonly=True)
+    expense_type_name = fields.Char(related='voucher_line_id.expense_type_id.name', string='Expense Type', readonly=True)
+    amount = fields.Monetary(related='voucher_line_id.amount', string='Amount', currency_field='currency_id', readonly=True)
+    currency_id = fields.Many2one(related='voucher_line_id.currency_id', readonly=True)
+    reject_reason = fields.Text(string='Rejection Remark / Reason', required=True)
+
+    def action_confirm_reject(self):
+        self.ensure_one()
+        line = self.voucher_line_id
+        line.write({
+            'status': 'rejected',
+            'reject_reason': self.reject_reason,
+            'expense_manager_id': self.env.user.id,
+        })
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Voucher Rejected'),
-                'message': _('Voucher for %s (%s) of ₹%0.2f has been rejected.%s') % (
-                    self.user_id.name or 'Employee',
-                    self.expense_type_id.name or 'Expense',
-                    self.amount or 0.0,
-                    reason_msg
+                'message': _('Voucher for %s (%s) of ₹%0.2f has been rejected. Reason: %s') % (
+                    line.user_id.name or 'Employee',
+                    line.expense_type_id.name or 'Expense',
+                    line.amount or 0.0,
+                    self.reject_reason
                 ),
                 'type': 'danger',
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
 
     def action_open_expense_settings(self):
         setting = self.env['expense.setting'].sudo().get_setting()

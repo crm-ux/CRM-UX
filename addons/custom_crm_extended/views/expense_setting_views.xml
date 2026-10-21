@@ -146,6 +146,28 @@
         <field name="context">{}</field>
     </record>
 
+    <!-- Reject Voucher Remark Wizard Popup Form -->
+    <record id="view_service_ticket_voucher_reject_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.reject.wizard.form</field>
+        <field name="model">service.ticket.voucher.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Voucher Submission">
+                <group>
+                    <field name="voucher_line_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="employee_name" string="Employee" readonly="1"/>
+                    <field name="expense_type_name" string="Expense Type" readonly="1"/>
+                    <field name="amount" string="Amount" readonly="1"/>
+                    <field name="reject_reason" string="Reason / Remark" placeholder="Enter reason or remark for rejection..." required="1"/>
+                </group>
+                <footer>
+                    <button string="Reject Voucher" type="object" name="action_confirm_reject" class="btn btn-danger"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Action to open voucher settings form -->
     <record id="action_expense_setting" model="ir.actions.act_window">
         <field name="name">Voucher Settings</field>
