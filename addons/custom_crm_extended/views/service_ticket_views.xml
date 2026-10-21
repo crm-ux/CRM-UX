@@ -149,14 +149,13 @@
                                         </div>
                                     </div>
 
-                                    <!-- Add Button (Disabled until expense selected and amount > 0) -->
+                                    <!-- Add Button (Always visible on screen) -->
                                     <div class="col-12 col-md-1 text-end">
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
                                                 class="btn text-white w-100 fw-bold"
-                                                style="background-color: #0b3d91; border-color: #0b3d91; min-height: 32px;"
-                                                invisible="not new_voucher_expense_type_id or new_voucher_amount &lt;= 0"/>
+                                                style="background-color: #0b3d91; border-color: #0b3d91; min-height: 32px;"/>
                                     </div>
                                 </div>
                             </div>
