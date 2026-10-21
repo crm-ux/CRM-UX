@@ -138,13 +138,15 @@
                                             placeholder="Amount (₹)"/>
                                     </div>
 
-                                    <!-- Attach Bill -->
-                                    <div class="col-6 col-md-1">
-                                        <field name="new_voucher_bill_file" 
-                                            filename="new_voucher_bill_filename" 
-                                            widget="binary" 
-                                            string="Upload Bill"/>
-                                        <field name="new_voucher_bill_filename" invisible="1"/>
+                                    <!-- Attach Bill (Single line button) -->
+                                    <div class="col-6 col-md-2 d-flex align-items-center">
+                                        <div class="w-100 text-nowrap o_voucher_upload_wrapper" style="white-space: nowrap;">
+                                            <field name="new_voucher_bill_file" 
+                                                filename="new_voucher_bill_filename" 
+                                                widget="binary" 
+                                                string="Attach Bill"/>
+                                            <field name="new_voucher_bill_filename" invisible="1"/>
+                                        </div>
                                     </div>
 
                                     <!-- Add Button (Disabled until expense selected and amount > 0) -->
@@ -152,8 +154,8 @@
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
-                                                class="btn text-white w-100"
-                                                style="background-color: #0b3d91; border-color: #0b3d91;"
+                                                class="btn text-white w-100 fw-bold"
+                                                style="background-color: #0b3d91; border-color: #0b3d91; min-height: 32px;"
                                                 invisible="not new_voucher_expense_type_id or new_voucher_amount &lt;= 0"/>
                                     </div>
                                 </div>
