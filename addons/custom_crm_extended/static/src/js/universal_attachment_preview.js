@@ -316,30 +316,62 @@ if (typeof window !== "undefined") {
  */
 export const SUPPORTED_ATTACHMENT_EXTENSIONS = [
     "pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg",
-    "docx", "doc", "xlsx", "xls", "csv", "txt", "zip", "rar", "7z", "tar", "gz"
-];
+    "docx", "doc", "xlsx", "xls", "csv", "txt", "zip", "rar", "7z", "tar", "gz"]
+
+export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+export function validateAttachmentFile(fileOrName, notificationService, fileSize = null) {
+    let filename = "";
+    let size = fileSize;
+
+    if (fileOrName && typeof fileOrName === "object" && fileOrName.name) {
+        filename = fileOrName.name;
+        size = fileOrName.size;
+    } else if (typeof fileOrName === "string") {
+        filename = fileOrName;
+    }
+
+    const ext = (filename || "").toLowerCase().split(".").pop();
+
+    // 1. Prohibited Executable & Dangerous Extensions Check
+    if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py", "app", "jar", "apk", "gadget", "wsf", "cpl"].includes(ext)) {
+        const msg = _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext);
+        if (notificationService) {
+            notificationService.add(msg, { type: "danger", title: _t("File Upload Blocked"), sticky: true });
+        } else {
+            alert(msg);
+        }
+        return false;
+    }
+
+    // 2. 10 MB File Size Validation
+    if (size && size > MAX_ATTACHMENT_SIZE_BYTES) {
+        const sizeMB = (size / (1024 * 1024)).toFixed(2);
+        const msg = _t("File size exceeds 10 MB limit! (Selected file is %s MB). Please upload a file smaller than 10 MB.").replace("%s", sizeMB);
+        if (notificationService) {
+            notificationService.add(msg, { type: "danger", title: _t("File Too Large"), sticky: true });
+        } else {
+            alert(msg);
+        }
+        return false;
+    }
+
+    // 3. Supported File Extensions Check
+    if (!SUPPORTED_ATTACHMENT_EXTENSIONS.includes(ext)) {
+        const msg = _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed.");
+        if (notificationService) {
+            notificationService.add(msg, { type: "danger", title: _t("Invalid File Format"), sticky: true });
+        } else {
+            alert(msg);
+        }
+        return false;
+    }
+
+    return true;
+}
 
 export function validateAttachmentExtension(filename, notificationService) {
-    const ext = (filename || "").toLowerCase().split(".").pop();
-    if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py"].includes(ext)) {
-        if (notificationService) {
-            notificationService.add(
-                _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext),
-                { type: "danger", title: _t("File Upload Blocked") }
-            );
-        }
-        return false;
-    }
-    if (!SUPPORTED_ATTACHMENT_EXTENSIONS.includes(ext)) {
-        if (notificationService) {
-            notificationService.add(
-                _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed."),
-                { type: "danger", title: _t("Invalid File Format") }
-            );
-        }
-        return false;
-    }
-    return true;
+    return validateAttachmentFile(filename, notificationService, null);
 }
 
 /**
@@ -354,10 +386,10 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
     // 1. File Input Validation & In-Memory Cache
     const handleFileInputChange = (e) => {
         const input = e.target;
-        if (input.type === "file" && input.closest(".crm_invoice_field_box")) {
+        if (input.type === "file") {
             const file = input.files && input.files[0];
             if (file) {
-                if (!validateAttachmentExtension(file.name, controller.env.services.notification)) {
+                if (!validateAttachmentFile(file, controller.env.services.notification)) {
                     input.value = "";
                     e.preventDefault();
                     e.stopPropagation();
@@ -577,7 +609,7 @@ export class CrmTaskManagementFormController extends FormController {
                 if (attachmentList && attachmentList.records) {
                     // Match by filename or row DOM position
                     attachmentRecord = attachmentList.records.find(r => r.data.name === filename) ||
-                                       attachmentList.records.find(r => (r.data.file && filename && filename.includes(r.data.name)));
+                        attachmentList.records.find(r => (r.data.file && filename && filename.includes(r.data.name)));
                     if (!attachmentRecord) {
                         const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
                         const rowIndex = allRows.indexOf(row);
@@ -715,6 +747,21 @@ if (typeof window !== "undefined") {
             });
         } else if (fileUrl) {
             window.open(fileUrl, "_blank");
+        }
+    }, true);
+
+    // Global file input listener across entire Odoo (Task, Service Ticket, Chatter, Voucher, Settings, etc.)
+    document.addEventListener("change", (ev) => {
+        const input = ev.target;
+        if (input && input.type === "file" && input.files && input.files[0]) {
+            const file = input.files[0];
+            const env = odoo.__WOWL_DEBUG__?.root?.env;
+            const notificationService = env?.services?.notification;
+            if (!validateAttachmentFile(file, notificationService)) {
+                input.value = "";
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
         }
     }, true);
 }
