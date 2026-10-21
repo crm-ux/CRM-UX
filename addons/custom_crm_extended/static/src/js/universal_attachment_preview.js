@@ -546,11 +546,6 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
         filename = filename || "document.pdf";
 
         if (resId || fileData) {
-            let previewContent = null;
-            const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                (filename || "").toLowerCase().endsWith("." + ext)
-            );
-
             const previewContent = await fetchUniversalPreviewContent(fileData, filename, resModel, resId, matchedConfig.dataField);
 
             const url = resId ? `/web/content/${resModel}/${resId}/${matchedConfig.dataField}/${filename}?download=false` : null;
