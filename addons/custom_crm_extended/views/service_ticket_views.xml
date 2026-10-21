@@ -193,9 +193,10 @@
                                     <div class="col-sm-2 col-md-2"></div>
                                     <div class="col-sm-10 col-md-10">
                                         <button name="action_add_voucher_line" 
-                                                string="+ Add Expense" 
+                                                string="Add Expense" 
                                                 type="object" 
                                                 class="btn btn-primary btn-voucher-add px-4 py-2 fw-bold shadow-sm"
+                                                readonly="new_voucher_amount &lt;= 0 or not new_voucher_expense_type_id"
                                                 style="height: 38px !important; min-width: 150px;"/>
                                     </div>
                                 </div>
