@@ -957,16 +957,8 @@ div[name="automated_probability"],
 }
 
 /* Service Ticket: Quick Add Expense File Upload */
-.o_field_widget[name="new_voucher_bill_file"] .btn,
-.o_field_widget[name="new_voucher_bill_file"] button,
-.o_field_widget[name="new_voucher_bill_file"] .o_select_file_button {
-    white-space: nowrap !important;
-}
-
-.o_field_widget[name="new_voucher_bill_file"] .btn:hover,
-.o_field_widget[name="new_voucher_bill_file"] button:hover,
-.o_field_widget[name="new_voucher_bill_file"] .o_select_file_button:hover {
-    color: #ffffff !important;
+.o_field_widget[name="new_voucher_bill_file"] {
+    width: auto !important;
 }
 
 /* Service Ticket Quick Add + Add Button */
