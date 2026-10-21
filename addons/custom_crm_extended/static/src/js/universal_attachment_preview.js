@@ -185,18 +185,28 @@ export class UniversalAttachmentPreviewDialog extends Component {
                     </div>
                 </t>
 
-                <!-- 6. Generic Fallback -->
+                <!-- 6. Generic Fallback for Unsupported File Types -->
                 <t t-else="">
-                    <div class="card border border-2 border-secondary border-opacity-25 bg-white text-dark p-4 mx-auto my-5 shadow-sm" style="max-width: 520px; border-radius: 12px;">
+                    <div class="card border border-2 border-warning border-opacity-50 bg-white text-dark p-4 mx-auto my-5 shadow-sm" style="max-width: 540px; border-radius: 12px;">
                         <div class="card-body text-center">
                             <div class="mb-3">
-                                <i class="fa fa-file-text-o text-secondary" style="font-size: 4.5rem;"></i>
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-warning bg-opacity-10 p-3">
+                                    <i class="fa fa-exclamation-triangle text-warning" style="font-size: 3.5rem;"></i>
+                                </span>
                             </div>
-                            <h4 class="fw-bold mb-2 text-dark text-break" t-esc="props.filename || 'Attached Document'"/>
-                            <p class="text-muted small mb-3">
-                                <span class="badge bg-secondary px-2 py-1 me-1 text-uppercase" t-esc="fileExtension || 'DOCUMENT'"/>
-                                <span>Attached File</span>
-                            </p>
+                            <h5 class="fw-bold mb-2 text-dark text-break" t-esc="props.filename || 'Attached File'"/>
+                            <div class="badge bg-warning bg-opacity-25 text-dark px-3 py-1 mb-3 text-uppercase fw-semibold" style="letter-spacing: 0.5px;">
+                                <t t-esc="fileExtension ? (fileExtension + ' File') : 'Unsupported Format'"/>
+                            </div>
+                            <div class="alert alert-warning text-start small mb-4 py-2 px-3 border-0 bg-warning bg-opacity-10 text-dark">
+                                <i class="fa fa-info-circle me-1 text-warning"></i>
+                                <span>Preview is not available for this file format (<strong>.<t t-esc="fileExtension"/></strong>). You can download the file to view or run it on your computer.</span>
+                            </div>
+                            <t t-if="props.fileUrl">
+                                <a t-att-href="props.fileUrl + '&amp;download=true'" class="btn btn-outline-primary px-4 py-2 fw-semibold">
+                                    <i class="fa fa-download me-2"></i>Download File
+                                </a>
+                            </t>
                         </div>
                     </div>
                 </t>
