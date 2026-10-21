@@ -960,6 +960,19 @@ div[name="automated_probability"],
 .o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] {
     display: inline-block !important;
     width: auto !important;
+    position: relative !important;
+}
+
+/* Hide the ugly native browser 'Choose File / No file chosen' input completely */
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] input[type="file"],
+.o_voucher_quick_add_bar .o_field_binary_file input[type="file"],
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .o_file_input {
+    display: none !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    pointer-events: none !important;
 }
 
 .o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button,
