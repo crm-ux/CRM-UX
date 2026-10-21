@@ -262,7 +262,7 @@ export class ServiceTicketFormController extends FormController {
                         if (this.model && this.model.root && this.model.root.update) {
                             this.model.root.update({ new_voucher_amount: calculated });
                         }
-                        // 2. Also update DOM input or readonly span if rendered
+                        // 2. Also update DOM inside the readonly box or input
                         const amountField = bar.querySelector("[name='new_voucher_amount']");
                         if (amountField) {
                             const inp = amountField.querySelector("input, .o_input");
@@ -270,12 +270,11 @@ export class ServiceTicketFormController extends FormController {
                                 inp.value = calculated.toFixed(2);
                                 inp.dispatchEvent(new Event("input", { bubbles: true }));
                                 inp.dispatchEvent(new Event("change", { bubbles: true }));
-                            } else {
-                                // If rendered as readonly text/span
-                                const span = amountField.querySelector("span, .o_field_monetary");
-                                if (span) {
-                                    span.innerText = `₹ ${calculated.toFixed(2)}`;
-                                }
+                            }
+                            // Also update text inside field or o_readonly_box
+                            const box = bar.querySelector(".o_readonly_box [name='new_voucher_amount']");
+                            if (box) {
+                                box.innerText = `${calculated.toFixed(2)}`;
                             }
                         }
                     }
