@@ -198,85 +198,85 @@ class ServiceTicket(models.Model):
         exp_type = self.new_voucher_expense_type_id
         split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
 
-            # 1. Determine each user's specific per-visit limit for this expense category
-            # Look for position-specific rule or fallback to exp_type.budget_limit
-            user_limits = {}
+        # 1. Determine each user's specific per-visit limit for this expense category
+        # Look for position-specific rule or fallback to exp_type.budget_limit
+        user_limits = {}
+        for u in target_users:
+            user_job = u.crm_job_id
+            u_limit = 0.0
+            if user_job:
+                # Look for expense type specifically matching this user's job position with same base name
+                # e.g., "Food (Manager)" or where job_ids contains user_job
+                pos_types = self.env['service.ticket.expense.type'].search([
+                    ('active', '=', True),
+                    ('job_ids', 'in', [user_job.id]),
+                    ('is_km_based', '=', exp_type.is_km_based),
+                ])
+                # Check if matching base category or fallback
+                matched = pos_types.filtered(lambda t: exp_type.name.split('(')[0].strip().lower() in t.name.lower())
+                if matched:
+                    u_limit = matched[0].budget_limit or 0.0
+            
+            # If no specific position limit found, use the selected exp_type limit
+            if u_limit <= 0.0:
+                u_limit = exp_type.budget_limit or 0.0
+
+            user_limits[u.id] = u_limit
+
+        # 2. Proportional Split Calculation
+        total_budget = sum(user_limits.values())
+        has_positive_limits = total_budget > 0 and all(user_limits[u.id] > 0 for u in target_users)
+
+        user_splits = {}
+        if not exp_type.is_km_based and has_positive_limits:
+            # Total bill is distributed according to each person's limit ratio: (user_limit / total_budget)
+            # Capped at each individual's maximum allowed limit
             for u in target_users:
-                user_job = u.crm_job_id
-                u_limit = 0.0
-                if user_job:
-                    # Look for expense type specifically matching this user's job position with same base name
-                    # e.g., "Food (Manager)" or where job_ids contains user_job
-                    pos_types = self.env['service.ticket.expense.type'].search([
-                        ('active', '=', True),
-                        ('job_ids', 'in', [user_job.id]),
-                        ('is_km_based', '=', exp_type.is_km_based),
-                    ])
-                    # Check if matching base category or fallback
-                    matched = pos_types.filtered(lambda t: exp_type.name.split('(')[0].strip().lower() in t.name.lower())
-                    if matched:
-                        u_limit = matched[0].budget_limit or 0.0
-                
-                # If no specific position limit found, use the selected exp_type limit
-                if u_limit <= 0.0:
-                    u_limit = exp_type.budget_limit or 0.0
-
-                user_limits[u.id] = u_limit
-
-            # 2. Proportional Split Calculation
-            total_budget = sum(user_limits.values())
-            has_positive_limits = total_budget > 0 and all(user_limits[u.id] > 0 for u in target_users)
-
-            user_splits = {}
-            if not exp_type.is_km_based and has_positive_limits:
-                # Total bill is distributed according to each person's limit ratio: (user_limit / total_budget)
-                # Capped at each individual's maximum allowed limit
-                for u in target_users:
-                    u_ratio = user_limits[u.id] / total_budget
-                    u_share = round(self.new_voucher_amount * u_ratio, 2)
-                    # Cap strictly to individual limit
-                    if u_share > user_limits[u.id]:
-                        u_share = user_limits[u.id]
-                    user_splits[u.id] = u_share
-            else:
-                # Equal division fallback (capped if limit defined)
-                raw_split = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
-                for u in target_users:
-                    u_limit = user_limits.get(u.id, 0.0)
-                    if not exp_type.is_km_based and u_limit > 0 and raw_split > u_limit:
-                        user_splits[u.id] = u_limit
-                    else:
-                        user_splits[u.id] = raw_split
-
+                u_ratio = user_limits[u.id] / total_budget
+                u_share = round(self.new_voucher_amount * u_ratio, 2)
+                # Cap strictly to individual limit
+                if u_share > user_limits[u.id]:
+                    u_share = user_limits[u.id]
+                user_splits[u.id] = u_share
+        else:
+            # Equal division fallback (capped if limit defined)
+            raw_split = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
             for u in target_users:
-                dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
-                self.env['service.ticket.voucher.line'].create({
-                    'ticket_id': self.id,
-                    'user_id': u.id,
-                    'department_id': dept.id if dept else False,
-                    'expense_type_id': exp_type.id,
-                    'is_km_based': exp_type.is_km_based,
-                    'total_km': split_km,
-                    'rate_per_km': self.new_voucher_rate_per_km,
-                    'description': self.new_voucher_description or '',
-                    'amount': user_splits.get(u.id, 0.0),
-                    'bill_file': self.new_voucher_bill_file,
-                    'bill_filename': self.new_voucher_bill_filename,
-                    'status': 'draft',
-                })
+                u_limit = user_limits.get(u.id, 0.0)
+                if not exp_type.is_km_based and u_limit > 0 and raw_split > u_limit:
+                    user_splits[u.id] = u_limit
+                else:
+                    user_splits[u.id] = raw_split
 
-            self.write({
-                'new_voucher_expense_type_id': False,
-                'new_voucher_user_ids': [(5, 0, 0)],
-                'new_voucher_start_km': 0.0,
-                'new_voucher_end_km': 0.0,
-                'new_voucher_total_km': 0.0,
-                'new_voucher_rate_per_km': 0.0,
-                'new_voucher_description': False,
-                'new_voucher_amount': 0.0,
-                'new_voucher_bill_file': False,
-                'new_voucher_bill_filename': False,
+        for u in target_users:
+            dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
+            self.env['service.ticket.voucher.line'].create({
+                'ticket_id': self.id,
+                'user_id': u.id,
+                'department_id': dept.id if dept else False,
+                'expense_type_id': exp_type.id,
+                'is_km_based': exp_type.is_km_based,
+                'total_km': split_km,
+                'rate_per_km': self.new_voucher_rate_per_km,
+                'description': self.new_voucher_description or '',
+                'amount': user_splits.get(u.id, 0.0),
+                'bill_file': self.new_voucher_bill_file,
+                'bill_filename': self.new_voucher_bill_filename,
+                'status': 'draft',
             })
+
+        self.write({
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_rate_per_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
         return False
 
     # Group Voucher Submission fields & helpers
