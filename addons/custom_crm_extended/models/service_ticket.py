@@ -279,6 +279,23 @@ class ServiceTicket(models.Model):
         })
         return False
 
+    def action_clear_voucher_fields(self):
+        """ Clears all Quick Add Expense inputs on Cancel / Clear click """
+        self.ensure_one()
+        self.write({
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_rate_per_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
+        return False
+
     # Group Voucher Submission fields & helpers
     voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')
     voucher_employee_count = fields.Integer(compute='_compute_voucher_strip', string='Employee Count')
@@ -333,6 +350,28 @@ class ServiceTicket(models.Model):
 
     def action_move_to_closed(self):
         self.write({'ticket_status': 'closed'})
+
+    def write(self, vals):
+        # When ticket itself is saved by user or system, ensure temporary Quick Add voucher draft fields are reset
+        res = super(ServiceTicket, self).write(vals)
+        # If write was not directly updating new_voucher fields, clear them if any were left unsaved
+        voucher_keys = {'new_voucher_expense_type_id', 'new_voucher_user_ids', 'new_voucher_total_km', 'new_voucher_amount', 'new_voucher_description', 'new_voucher_bill_file'}
+        if not voucher_keys.intersection(vals.keys()):
+            for rec in self:
+                if rec.new_voucher_expense_type_id or rec.new_voucher_user_ids or rec.new_voucher_total_km or rec.new_voucher_amount:
+                    super(ServiceTicket, rec).write({
+                        'new_voucher_expense_type_id': False,
+                        'new_voucher_user_ids': [(5, 0, 0)],
+                        'new_voucher_start_km': 0.0,
+                        'new_voucher_end_km': 0.0,
+                        'new_voucher_total_km': 0.0,
+                        'new_voucher_rate_per_km': 0.0,
+                        'new_voucher_description': False,
+                        'new_voucher_amount': 0.0,
+                        'new_voucher_bill_file': False,
+                        'new_voucher_bill_filename': False,
+                    })
+        return res
 
     @api.model_create_multi
     def create(self, vals_list):
