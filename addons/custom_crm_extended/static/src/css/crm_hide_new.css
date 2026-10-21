@@ -974,6 +974,23 @@ div[name="automated_probability"],
     word-break: keep-all !important;
 }
 
+/* Service Ticket Quick Add + Add Button */
+.btn-voucher-add,
+button[name="action_add_voucher_line"] {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    color: #ffffff !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.btn-voucher-add:hover,
+button[name="action_add_voucher_line"]:hover {
+    background-color: #082d6e !important;
+    border-color: #082d6e !important;
+}
+
 /* Expense Setting Table: Hide bottom add row and footer */
 .o_expense_type_table .o_field_x2many_list_row_add,
 .o_expense_type_table tfoot {
