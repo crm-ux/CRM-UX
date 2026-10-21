@@ -270,11 +270,8 @@ export class ServiceTicketFormController extends FormController {
                                 inp.value = calculated.toFixed(2);
                                 inp.dispatchEvent(new Event("input", { bubbles: true }));
                                 inp.dispatchEvent(new Event("change", { bubbles: true }));
-                            }
-                            // Also update text inside field or o_readonly_box
-                            const box = bar.querySelector(".o_readonly_box [name='new_voucher_amount']");
-                            if (box) {
-                                box.innerText = `${calculated.toFixed(2)}`;
+                            } else {
+                                amountField.innerText = `₹ ${calculated.toFixed(2)}`;
                             }
                         }
                     }
