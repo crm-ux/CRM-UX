@@ -10,28 +10,39 @@ import { _t } from "@web/core/l10n/translation";
 /**
  * Universal helper to fetch converted preview content from our dedicated controller
  */
-export async function fetchUniversalPreviewContent(rawB64, filename, resModel = null, resId = null, fieldName = null) {
+export async function fetchUniversalPreviewContent(rawB64, filename, resModel = null, resId = null, fieldName = null, rpcService = null) {
     const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
         (filename || "").toLowerCase().endsWith("." + ext)
     );
     if (!isDocOrZipOrExcel) return null;
+
+    const params = {
+        raw_b64: rawB64 || false,
+        filename: filename || false,
+        res_model: resModel || false,
+        res_id: resId || false,
+        field_name: fieldName || false,
+    };
+
+    if (rpcService) {
+        try {
+            return await rpcService("/custom_crm/attachment/preview_content", params);
+        } catch (rpcErr) {
+            console.error("Universal rpc preview error:", rpcErr);
+        }
+    }
 
     try {
         const response = await fetch("/custom_crm/attachment/preview_content", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
             },
             body: JSON.stringify({
                 jsonrpc: "2.0",
                 method: "call",
-                params: {
-                    raw_b64: rawB64 || false,
-                    filename: filename || false,
-                    res_model: resModel || false,
-                    res_id: resId || false,
-                    field_name: fieldName || false,
-                },
+                params: params,
             }),
         });
         const resJson = await response.json();
