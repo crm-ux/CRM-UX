@@ -157,7 +157,7 @@
 
                                     <!-- Add Button (Aligned with inputs) -->
                                     <div style="min-width: 85px;">
-                                        <label string="&#160;" class="small mb-1 d-block" style="visibility: hidden;"/>
+                                        <span class="small mb-1 d-block invisible">&#160;</span>
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
