@@ -121,7 +121,7 @@
                 <field name="is_km_based" column_invisible="1"/>
                 <field name="total_km" string="Total KM" optional="show"/>
                 <field name="rate_per_km" string="₹/KM" optional="show"/>
-                <field name="description" string="Description" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"/>
+                <field name="description" string="Description"/>
                 <button name="action_view_description" type="object" icon="fa-file-text-o" title="View Full Description" invisible="not description" class="btn p-0 text-secondary"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
