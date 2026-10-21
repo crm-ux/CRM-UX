@@ -110,13 +110,7 @@
                                     </div>
 
                                     <!-- KM Inputs when Expense Type is KM-based -->
-                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
-                                        <field name="new_voucher_start_km" placeholder="Start KM"/>
-                                    </div>
-                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
-                                        <field name="new_voucher_end_km" placeholder="End KM"/>
-                                    </div>
-                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                    <div class="col-12 col-md-2" invisible="not new_voucher_is_km">
                                         <field name="new_voucher_total_km" placeholder="Total KM"/>
                                     </div>
                                     <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
@@ -159,8 +153,6 @@
                                 <list editable="bottom" create="0" delete="1">
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
-                                    <field name="start_km" invisible="not is_km_based" optional="show"/>
-                                    <field name="end_km" invisible="not is_km_based" optional="show"/>
                                     <field name="total_km" invisible="not is_km_based" optional="show"/>
                                     <field name="rate_per_km" invisible="not is_km_based" optional="show"/>
                                     <field name="description" placeholder="Enter description..." widget="text"/>

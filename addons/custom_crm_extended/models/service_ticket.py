@@ -108,12 +108,12 @@ class ServiceTicket(models.Model):
     def _onchange_new_voucher_expense_type(self):
         if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based:
             self.new_voucher_rate_per_km = self.new_voucher_expense_type_id.km_rate or 0.0
+            if self.new_voucher_total_km > 0 and self.new_voucher_rate_per_km > 0:
+                self.new_voucher_amount = self.new_voucher_total_km * self.new_voucher_rate_per_km
 
-    @api.onchange('new_voucher_start_km', 'new_voucher_end_km', 'new_voucher_rate_per_km')
+    @api.onchange('new_voucher_total_km', 'new_voucher_rate_per_km')
     def _onchange_new_voucher_km_calc(self):
         if self.new_voucher_is_km:
-            if self.new_voucher_end_km >= self.new_voucher_start_km and (self.new_voucher_start_km > 0 or self.new_voucher_end_km > 0):
-                self.new_voucher_total_km = self.new_voucher_end_km - self.new_voucher_start_km
             if self.new_voucher_total_km > 0 and self.new_voucher_rate_per_km > 0:
                 self.new_voucher_amount = self.new_voucher_total_km * self.new_voucher_rate_per_km
 
@@ -365,13 +365,25 @@ class ServiceTicketVoucherLine(models.Model):
         for rec in self:
             if not rec.user_id:
                 rec.user_id = rec.ticket_id.engineer_id or rec.ticket_id.create_uid or self.env.user
-    start_km = fields.Float(string='Start KM')
-    end_km = fields.Float(string='End KM')
     total_km = fields.Float(string='Total KM')
     rate_per_km = fields.Float(string='Rate/KM (₹)')
     description = fields.Char(string='Description', placeholder='Enter description...')
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
     amount = fields.Monetary(string='Amount', currency_field='currency_id')
+
+    @api.onchange('expense_type_id')
+    def _onchange_voucher_line_expense_type(self):
+        if self.expense_type_id:
+            self.is_km_based = self.expense_type_id.is_km_based
+            if self.is_km_based:
+                self.rate_per_km = self.expense_type_id.km_rate or 0.0
+                if self.total_km and self.rate_per_km:
+                    self.amount = self.total_km * self.rate_per_km
+
+    @api.onchange('total_km', 'rate_per_km')
+    def _onchange_voucher_line_km_calc(self):
+        if self.is_km_based and self.total_km and self.rate_per_km:
+            self.amount = self.total_km * self.rate_per_km
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)

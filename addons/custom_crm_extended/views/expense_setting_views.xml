@@ -121,8 +121,6 @@
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="expense_type_id" string="Expense Type"/>
                 <field name="is_km_based" column_invisible="1"/>
-                <field name="start_km" string="Start KM" optional="show"/>
-                <field name="end_km" string="End KM" optional="show"/>
                 <field name="total_km" string="Total KM" optional="show"/>
                 <field name="rate_per_km" string="₹/KM" optional="show"/>
                 <field name="description" string="Description"/>
