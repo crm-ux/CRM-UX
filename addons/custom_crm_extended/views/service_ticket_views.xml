@@ -98,20 +98,22 @@
                                     <strong class="text-dark small">Quick Add Expense</strong>
                                 </div>
 
-                                <!-- Top Inline Input Bar (Flex layout, compact height, all in 1 single line) -->
-                                <div class="d-flex align-items-center gap-2 flex-nowrap w-100">
+                                <!-- Top Inline Input Bar with Field Labels (All in 1 Row) -->
+                                <div class="d-flex align-items-end gap-2 flex-nowrap w-100">
                                     <field name="new_voucher_is_km" invisible="1"/>
                                     
                                     <!-- Multiple Employee Selection (Group Voucher) -->
                                     <div style="flex: 2; min-width: 140px;">
+                                        <label for="new_voucher_user_ids" string="Employee(s)" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_user_ids"
                                             widget="many2many_tags"
                                             options="{'no_create': True}"
-                                            placeholder="Employees / Team..."/>
+                                            placeholder="Select Employee(s)..."/>
                                     </div>
 
                                     <!-- Expense Type -->
                                     <div style="flex: 1.5; min-width: 110px;">
+                                        <label for="new_voucher_expense_type_id" string="Expense Type" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
                                             domain="[('active', '=', True)]" 
@@ -120,14 +122,17 @@
 
                                     <!-- KM Inputs when Expense Type is KM-based -->
                                     <div style="flex: 1; min-width: 75px;" invisible="not new_voucher_is_km">
+                                        <label for="new_voucher_total_km" string="KM" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_total_km" placeholder="KM"/>
                                     </div>
                                     <div style="flex: 1; min-width: 65px;" invisible="not new_voucher_is_km">
+                                        <label for="new_voucher_rate_per_km" string="₹/KM" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_rate_per_km" placeholder="₹/KM"/>
                                     </div>
 
                                     <!-- Description -->
                                     <div style="flex: 2; min-width: 120px;">
+                                        <label for="new_voucher_description" string="Description" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_description" 
                                             class="w-100" 
                                             placeholder="Description..."/>
@@ -135,12 +140,14 @@
 
                                     <!-- Amount -->
                                     <div style="flex: 1; min-width: 80px;">
+                                        <label for="new_voucher_amount" string="Amount (₹)" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_amount" 
-                                            placeholder="Amount (₹)"/>
+                                            placeholder="₹ 0.00"/>
                                     </div>
 
                                     <!-- Attach Bill -->
-                                    <div class="d-flex align-items-center" style="flex: 1.5; min-width: 120px; white-space: nowrap;">
+                                    <div style="flex: 1.5; min-width: 120px; white-space: nowrap;">
+                                        <label for="new_voucher_bill_file" string="Bill File" class="small fw-semibold text-muted mb-1 d-block"/>
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
                                             widget="binary" 
@@ -148,12 +155,13 @@
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
 
-                                    <!-- Add Button (Always in the same row) -->
+                                    <!-- Add Button (Aligned with inputs) -->
                                     <div style="min-width: 85px;">
+                                        <label string="&#160;" class="small mb-1 d-block" style="visibility: hidden;"/>
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
-                                                class="btn text-white fw-bold px-3 py-1"
+                                                class="btn text-white fw-bold px-3 py-1 w-100"
                                                 style="background-color: #0b3d91; border-color: #0b3d91; font-size: 0.85rem; height: 32px; white-space: nowrap;"/>
                                     </div>
                                 </div>
