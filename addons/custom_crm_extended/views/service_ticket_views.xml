@@ -93,8 +93,7 @@
                         <page string="Voucher" name="voucher_tab">
                             <!-- Quick-Add Header -->
                             <div class="d-flex align-items-center mb-2">
-                                <i class="fa fa-plus-circle me-1 text-primary" style="font-size: 0.95rem;" title="Add Expense"/>
-                                <strong class="text-dark small">Add Voucher</strong>
+                                <strong class="text-dark small">Quick Add Expense</strong>
                             </div>
 
                             <!-- Single Full-Width Form Card (1 Field Per Row: Label on Left, Input on Right) -->
