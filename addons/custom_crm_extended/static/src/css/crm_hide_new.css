@@ -956,39 +956,16 @@ div[name="automated_probability"],
     color: #08285e !important;
 }
 
-/* Service Ticket: Quick Add Expense File Upload in single line */
-.o_voucher_upload_wrapper .o_field_binary_file,
-.o_field_widget[name="new_voucher_bill_file"] {
-    display: inline-flex !important;
-    align-items: center !important;
-    white-space: nowrap !important;
-}
-
-.o_voucher_upload_wrapper .o_field_binary_file .btn,
-.o_voucher_upload_wrapper .o_field_binary_file button,
+/* Service Ticket: Quick Add Expense File Upload */
 .o_field_widget[name="new_voucher_bill_file"] .btn,
 .o_field_widget[name="new_voucher_bill_file"] button,
-.o_voucher_upload_wrapper .o_select_file_button,
 .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button {
     white-space: nowrap !important;
-    word-break: keep-all !important;
-    background-color: #f8fafc !important;
-    border: 1px solid #0b3d91 !important;
-    color: #0b3d91 !important;
-    font-weight: 600 !important;
-    padding: 6px 14px !important;
-    border-radius: 4px !important;
-    transition: all 0.15s ease-in-out !important;
 }
 
-.o_voucher_upload_wrapper .o_field_binary_file .btn:hover,
-.o_voucher_upload_wrapper .o_field_binary_file button:hover,
 .o_field_widget[name="new_voucher_bill_file"] .btn:hover,
 .o_field_widget[name="new_voucher_bill_file"] button:hover,
-.o_voucher_upload_wrapper .o_select_file_button:hover,
 .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button:hover {
-    background-color: #0b3d91 !important;
-    border-color: #0b3d91 !important;
     color: #ffffff !important;
 }
 
