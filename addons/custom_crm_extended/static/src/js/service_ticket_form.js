@@ -258,11 +258,9 @@ export class ServiceTicketFormController extends FormController {
 
                     if (kmVal > 0 && rateVal > 0) {
                         const calculated = parseFloat((kmVal * rateVal).toFixed(2));
-                        // 1. If Odoo model root is accessible, update record directly
                         if (this.model && this.model.root && this.model.root.update) {
                             this.model.root.update({ new_voucher_amount: calculated });
                         }
-                        // 2. Also update DOM inside the readonly box or input
                         const amountField = bar.querySelector("[name='new_voucher_amount']");
                         if (amountField) {
                             const inp = amountField.querySelector("input, .o_input");
@@ -272,6 +270,22 @@ export class ServiceTicketFormController extends FormController {
                                 inp.dispatchEvent(new Event("change", { bubbles: true }));
                             } else {
                                 amountField.innerText = `₹ ${calculated.toFixed(2)}`;
+                            }
+                        }
+                    } else {
+                        // When user backspaces or clears KM to 0/empty, immediately calculate Amount to 0.00
+                        if (this.model && this.model.root && this.model.root.update) {
+                            this.model.root.update({ new_voucher_amount: 0.0 });
+                        }
+                        const amountField = bar.querySelector("[name='new_voucher_amount']");
+                        if (amountField) {
+                            const inp = amountField.querySelector("input, .o_input");
+                            if (inp) {
+                                inp.value = "0.00";
+                                inp.dispatchEvent(new Event("input", { bubbles: true }));
+                                inp.dispatchEvent(new Event("change", { bubbles: true }));
+                            } else {
+                                amountField.innerText = "₹ 0.00";
                             }
                         }
                     }
