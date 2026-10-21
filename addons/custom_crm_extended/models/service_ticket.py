@@ -662,6 +662,27 @@ class ServiceTicketVoucherLine(models.Model):
         }
 
 
+    def action_open_expense_settings(self):
+        setting = self.env['expense.setting'].sudo().get_setting()
+        return {
+            'name': _('Voucher Settings'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'expense.setting',
+            'res_id': setting.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_preview_bill(self):
+        self.ensure_one()
+        url = f'/web/content/{self._name}/{self.id}/bill_file/{self.bill_filename or "bill"}?download=false'
+        return {
+            'type': 'ir.actions.act_url',
+            'url': url,
+            'target': 'new',
+        }
+
+
 class ServiceTicketVoucherRejectWizard(models.TransientModel):
     _name = 'service.ticket.voucher.reject.wizard'
     _description = 'Reject Voucher Remark Wizard'
@@ -698,23 +719,3 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
             }
         }
 
-
-    def action_open_expense_settings(self):
-        setting = self.env['expense.setting'].sudo().get_setting()
-        return {
-            'name': _('Voucher Settings'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'expense.setting',
-            'res_id': setting.id,
-            'view_mode': 'form',
-            'target': 'current',
-        }
-
-    def action_preview_bill(self):
-        self.ensure_one()
-        url = f'/web/content/{self._name}/{self.id}/bill_file/{self.bill_filename or "bill"}?download=false'
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'new',
-        }
