@@ -171,6 +171,7 @@
                                         <field name="new_voucher_amount" 
                                             class="w-100"
                                             readonly="new_voucher_is_km"
+                                            force_save="1"
                                             placeholder="₹ 0.00"/>
                                     </div>
                                 </div>
