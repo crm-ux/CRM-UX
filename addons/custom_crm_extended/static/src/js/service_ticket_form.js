@@ -98,6 +98,32 @@ export class ServiceTicketFormController extends FormController {
                 },
             ]);
 
+            // Cache for tracking newly picked bill files immediately in memory before saving
+            const voucherFileCache = new Map();
+
+            const handleVoucherFileInputChange = (e) => {
+                const input = e.target;
+                if (input.type === "file") {
+                    const row = input.closest("tr, .o_data_row");
+                    const isVoucherRow = row && (row.closest(".o_voucher_card_list") || row.closest("[name='voucher_line_ids']"));
+                    const isQuickAdd = input.closest("[name='new_voucher_bill_file']");
+
+                    const file = input.files && input.files[0];
+                    if (file && (isVoucherRow || isQuickAdd)) {
+                        const reader = new FileReader();
+                        reader.onload = (loadEvt) => {
+                            const b64 = loadEvt.target.result.split(",")[1];
+                            if (isQuickAdd) {
+                                voucherFileCache.set("quick_add", { data: b64, filename: file.name });
+                            } else if (row) {
+                                voucherFileCache.set(row, { data: b64, filename: file.name });
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            };
+
             // Handle Eye Preview button on Voucher lines (Custom preview dialog instead of opening a new browser tab)
             const handleVoucherBillPreview = async (ev) => {
                 const previewBtn = ev.target.closest("button[name='action_preview_bill']");
@@ -113,7 +139,29 @@ export class ServiceTicketFormController extends FormController {
                 let fileData = null;
                 let recId = null;
 
-                // Match with voucher_line_ids in root record data
+                // 1. Check if user just selected a new file on this row (unsaved in memory)
+                const cachedRowFile = voucherFileCache.get(row);
+                if (cachedRowFile) {
+                    fileData = cachedRowFile.data;
+                    filename = cachedRowFile.filename;
+                }
+
+                // 2. Also check if file input in this row has a chosen file
+                if (!fileData) {
+                    const fileInp = row.querySelector("input[type='file']");
+                    if (fileInp && fileInp.files && fileInp.files[0]) {
+                        const localFile = fileInp.files[0];
+                        filename = localFile.name || filename;
+                        fileData = await new Promise((resolve) => {
+                            const r = new FileReader();
+                            r.onload = () => resolve(r.result.split(",")[1]);
+                            r.readAsDataURL(localFile);
+                        });
+                        voucherFileCache.set(row, { data: fileData, filename: filename });
+                    }
+                }
+
+                // 3. Match with voucher_line_ids in root record data
                 const record = this.model?.root;
                 const voucherList = record?.data?.voucher_line_ids;
                 let voucherRecord = null;
@@ -127,25 +175,14 @@ export class ServiceTicketFormController extends FormController {
 
                 if (voucherRecord) {
                     recId = voucherRecord.resId || null;
-                    filename = voucherRecord.data.bill_filename || filename;
-                    fileData = voucherRecord.data.bill_file || null;
-                }
-
-                // If not yet saved or cached in file input
-                if (!fileData) {
-                    const fileInp = row.querySelector("input[type='file']");
-                    if (fileInp && fileInp.files && fileInp.files[0]) {
-                        const localFile = fileInp.files[0];
-                        filename = localFile.name || filename;
-                        fileData = await new Promise((resolve) => {
-                            const r = new FileReader();
-                            r.onload = () => resolve(r.result.split(",")[1]);
-                            r.readAsDataURL(localFile);
-                        });
+                    // If no newly selected local file, take from current record
+                    if (!fileData) {
+                        filename = voucherRecord.data.bill_filename || filename;
+                        fileData = voucherRecord.data.bill_file || null;
                     }
                 }
 
-                // If fileData is a size string, fetch raw binary from server
+                // 4. If fileData is a size string, fetch raw binary from server
                 const isSizeString = typeof fileData === "string" && (
                     fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
                 );
@@ -185,7 +222,9 @@ export class ServiceTicketFormController extends FormController {
                     }
                 }
 
-                const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
+                // If not yet saved or if user just selected a new file, don't use stale server URL
+                const hasUnsavedNewFile = cachedRowFile || (fileData && !isSizeString && fileData.length > 100);
+                const fileUrl = (!hasUnsavedNewFile && recId) ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
 
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename || _t("Bill Preview"),
@@ -196,6 +235,7 @@ export class ServiceTicketFormController extends FormController {
                 });
             };
 
+            document.addEventListener("change", handleVoucherFileInputChange, true);
             document.addEventListener("click", handleVoucherBillPreview, true);
 
             onMounted(() => {
@@ -212,6 +252,7 @@ export class ServiceTicketFormController extends FormController {
                 if (cleanupAttachments) {
                     cleanupAttachments();
                 }
+                document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
             });
         }
