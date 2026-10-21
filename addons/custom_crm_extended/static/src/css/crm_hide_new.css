@@ -1072,10 +1072,8 @@ button[name="action_add_voucher_line"]:hover {
     transition: border-color 0.15s ease-in-out !important;
 }
 
-.o_voucher_quick_add_bar .o_readonly_box,
 .o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier,
-.o_voucher_quick_add_bar .o_field_widget[readonly],
-.o_voucher_quick_add_bar .o_field_widget input[readonly] {
+.o_voucher_quick_add_bar .o_field_widget[readonly] {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     padding: 6px 10px !important;
@@ -1087,6 +1085,16 @@ button[name="action_add_voucher_line"]:hover {
     display: flex !important;
     align-items: center !important;
     width: 100% !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier input,
+.o_voucher_quick_add_bar .o_field_widget[readonly] input,
+.o_voucher_quick_add_bar .o_field_widget input[readonly] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    height: auto !important;
+    box-shadow: none !important;
 }
 
 /* Focused / active dropdown in quick add: Brand Blue instead of Odoo Purple */

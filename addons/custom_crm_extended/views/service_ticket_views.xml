@@ -144,9 +144,7 @@
                                         <span class="fw-semibold text-secondary">Rate / KM (₹):</span>
                                     </div>
                                     <div class="col-sm-10 col-md-10">
-                                        <div class="o_readonly_box">
-                                            <field name="new_voucher_rate_per_km" readonly="1" class="fw-bold text-dark"/>
-                                        </div>
+                                        <field name="new_voucher_rate_per_km" readonly="1" class="w-100 fw-bold text-dark"/>
                                     </div>
                                 </div>
 
