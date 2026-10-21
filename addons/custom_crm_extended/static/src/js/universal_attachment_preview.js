@@ -335,9 +335,9 @@ export function validateAttachmentFile(fileOrName, notificationService, fileSize
 
     // 1. Prohibited Executable & Dangerous Extensions Check
     if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py", "app", "jar", "apk", "gadget", "wsf", "cpl"].includes(ext)) {
-        const msg = _t("Executable files (.%s) are strictly prohibited for security reasons!").replace("%s", ext);
+        const msg = _t("This file format (.%s) is not supported. Please upload your documents as PDF, Image, Word, or Excel files.").replace("%s", ext);
         if (notificationService) {
-            notificationService.add(msg, { type: "danger", title: _t("File Upload Blocked"), sticky: true });
+            notificationService.add(msg, { type: "warning", title: _t("Unsupported File Format"), sticky: true });
         } else {
             alert(msg);
         }
@@ -349,7 +349,7 @@ export function validateAttachmentFile(fileOrName, notificationService, fileSize
         const sizeMB = (size / (1024 * 1024)).toFixed(2);
         const msg = _t("File size exceeds 10 MB limit! (Selected file is %s MB). Please upload a file smaller than 10 MB.").replace("%s", sizeMB);
         if (notificationService) {
-            notificationService.add(msg, { type: "danger", title: _t("File Too Large"), sticky: true });
+            notificationService.add(msg, { type: "warning", title: _t("File Too Large"), sticky: true });
         } else {
             alert(msg);
         }
@@ -358,9 +358,9 @@ export function validateAttachmentFile(fileOrName, notificationService, fileSize
 
     // 3. Supported File Extensions Check
     if (!SUPPORTED_ATTACHMENT_EXTENSIONS.includes(ext)) {
-        const msg = _t("File format not supported! Only PDF, Images, Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR) are allowed.");
+        const msg = _t("This file format (.%s) is not supported. Allowed formats: PDF, Images (PNG, JPG), Word (DOCX), Excel (XLSX, CSV), and Zip.").replace("%s", ext);
         if (notificationService) {
-            notificationService.add(msg, { type: "danger", title: _t("Invalid File Format"), sticky: true });
+            notificationService.add(msg, { type: "warning", title: _t("Unsupported File Format"), sticky: true });
         } else {
             alert(msg);
         }

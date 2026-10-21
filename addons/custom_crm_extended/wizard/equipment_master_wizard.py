@@ -74,14 +74,14 @@ class EquipmentMasterWizard(models.TransientModel):
                 # Block executables and dangerous scripts
                 if ext in ('exe', 'bat', 'cmd', 'sh', 'bin', 'msi', 'com', 'scr', 'vbs', 'js', 'py'):
                     raise ValidationError(_(
-                        "Executable files (.%s) are strictly prohibited for security reasons!\n"
-                        "Please upload a supported document (PDF, Images, DOCX, XLSX, TXT, ZIP)."
+                        "This file format (.%s) is not supported.\n"
+                        "Please upload your documents as PDF, Image, Word, or Excel files."
                     ) % ext)
                 if ext not in self.SUPPORTED_EXTENSIONS:
                     raise ValidationError(_(
-                        "The file format '%s' is not supported!\n"
-                        "Supported formats are: PDF, Images (PNG, JPG, WEBP, SVG), Word (DOCX), Excel (XLSX, CSV), Text (TXT), and Archives (ZIP, RAR)."
-                    ) % (ext.upper() if ext else 'Unknown'))
+                        "This file format (.%s) is not supported.\n"
+                        "Allowed formats are: PDF, Images (PNG, JPG, WEBP, SVG), Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR)."
+                    ) % (ext.lower() if ext else 'unknown'))
 
     def action_preview_invoice(self):
         """Action button method for form/wizard view (UI preview intercepted in JS)."""
