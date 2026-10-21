@@ -1049,11 +1049,32 @@ button[name="action_add_voucher_line"]:hover {
     box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
-/* Tags in Quick Add: Corporate blue instead of purple */
+/* Tags in Quick Add: Horizontal layout, cross on right side, clean spacing */
 .o_voucher_quick_add_bar .badge {
-    background-color: rgba(11, 61, 145, 0.1) !important;
-    color: #0b3d91 !important;
-    border: 1px solid rgba(11, 61, 145, 0.3) !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 8px !important;
+    margin: 2px 4px 2px 0 !important;
+    background-color: #e0e7ff !important;
+    color: #1e3a8a !important;
+    border: 1px solid #93c5fd !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+}
+
+.o_voucher_quick_add_bar .badge .o_delete,
+.o_voucher_quick_add_bar .badge .fa-times,
+.o_voucher_quick_add_bar .badge a {
+    order: 2 !important;
+    margin-left: 4px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    cursor: pointer !important;
+    color: #1e3a8a !important;
 }
 
 /* Single clean border on o_field_many2many_tags container without internal boxes */
@@ -1062,7 +1083,7 @@ button[name="action_add_voucher_line"]:hover {
     border-radius: 4px !important;
     padding: 3px 8px !important;
     background-color: #ffffff !important;
-    min-height: 36px !important;
+    min-height: 38px !important;
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
@@ -1075,12 +1096,33 @@ button[name="action_add_voucher_line"]:hover {
 }
 
 .o_voucher_quick_add_bar .o_field_many2many_tags input,
-.o_voucher_quick_add_bar .o_field_many2many_tags .o_input {
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_input,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_widget {
     border: none !important;
     box-shadow: none !important;
     height: auto !important;
     padding: 2px 4px !important;
     outline: none !important;
+    background: transparent !important;
+}
+
+/* Fix + Add Expense Button: clear white text, readable high-contrast */
+.o_voucher_quick_add_bar .btn-voucher-add,
+.o_voucher_quick_add_bar button[name="action_add_voucher_line"] {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.o_voucher_quick_add_bar .btn-voucher-add *,
+.o_voucher_quick_add_bar button[name="action_add_voucher_line"] * {
+    color: #ffffff !important;
 }
 
 /* Expense Setting Table: Hide bottom add row and footer */
