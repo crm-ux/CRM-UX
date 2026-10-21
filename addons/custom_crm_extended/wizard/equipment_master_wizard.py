@@ -71,16 +71,10 @@ class EquipmentMasterWizard(models.TransientModel):
             if rec.invoice_attachment and rec.invoice_filename:
                 fn = rec.invoice_filename.strip().lower()
                 ext = fn.split('.')[-1] if '.' in fn else ''
-                # Block executables and dangerous scripts
-                if ext in ('exe', 'bat', 'cmd', 'sh', 'bin', 'msi', 'com', 'scr', 'vbs', 'js', 'py'):
-                    raise ValidationError(_(
-                        "This file format (.%s) is not supported.\n"
-                        "Please upload your documents as PDF, Image, Word, or Excel files."
-                    ) % ext)
                 if ext not in self.SUPPORTED_EXTENSIONS:
                     raise ValidationError(_(
                         "This file format (.%s) is not supported.\n"
-                        "Allowed formats are: PDF, Images (PNG, JPG, WEBP, SVG), Word (DOCX), Excel (XLSX, CSV), and Archives (ZIP, RAR)."
+                        "Please upload your documents as PDF, Image, Word, or Excel files."
                     ) % (ext.lower() if ext else 'unknown'))
 
     def action_preview_invoice(self):

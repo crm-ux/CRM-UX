@@ -333,9 +333,9 @@ export function validateAttachmentFile(fileOrName, notificationService, fileSize
 
     const ext = (filename || "").toLowerCase().split(".").pop();
 
-    // 1. Prohibited Executable & Dangerous Extensions Check
-    if (["exe", "bat", "cmd", "sh", "bin", "msi", "com", "scr", "vbs", "js", "py", "app", "jar", "apk", "gadget", "wsf", "cpl"].includes(ext)) {
-        const msg = _t("This file format (.%s) is not supported. Please upload your documents as PDF, Image, Word, or Excel files.").replace("%s", ext);
+    // 1. Supported File Extensions Check (Whitelist only)
+    if (!SUPPORTED_ATTACHMENT_EXTENSIONS.includes(ext)) {
+        const msg = _t("This file format (.%s) is not supported. Please upload your documents as PDF, Image, Word, or Excel files.").replace("%s", ext || "unknown");
         if (notificationService) {
             notificationService.add(msg, { type: "warning", title: _t("Unsupported File Format"), sticky: true });
         } else {
@@ -350,17 +350,6 @@ export function validateAttachmentFile(fileOrName, notificationService, fileSize
         const msg = _t("File size exceeds 10 MB limit! (Selected file is %s MB). Please upload a file smaller than 10 MB.").replace("%s", sizeMB);
         if (notificationService) {
             notificationService.add(msg, { type: "warning", title: _t("File Too Large"), sticky: true });
-        } else {
-            alert(msg);
-        }
-        return false;
-    }
-
-    // 3. Supported File Extensions Check
-    if (!SUPPORTED_ATTACHMENT_EXTENSIONS.includes(ext)) {
-        const msg = _t("This file format (.%s) is not supported. Allowed formats: PDF, Images (PNG, JPG), Word (DOCX), Excel (XLSX, CSV), and Zip.").replace("%s", ext);
-        if (notificationService) {
-            notificationService.add(msg, { type: "warning", title: _t("Unsupported File Format"), sticky: true });
         } else {
             alert(msg);
         }
