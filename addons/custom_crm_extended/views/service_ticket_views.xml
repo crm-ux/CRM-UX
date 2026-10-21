@@ -98,8 +98,8 @@
                                     <strong class="text-dark small">Quick Add Expense</strong>
                                 </div>
 
-                                <!-- Top Inline Input Bar with Field Labels (Aligned Grid) -->
-                                <div class="row g-2 align-items-end w-100 m-0">
+                                <!-- Top Inline Input Bar with Field Labels (Form-like Horizontal Row) -->
+                                <div class="row g-2 align-items-end w-100 m-0 o_voucher_quick_add_bar">
                                     <field name="new_voucher_is_km" invisible="1"/>
                                     
                                     <!-- Multiple Employee Selection (Group Voucher) -->
@@ -167,10 +167,10 @@
                                 </div>
                             </div>
 
-                            <!-- Horizontal Employee Names Strip & Group Submission Bar (Only shows when multiple employees exist) -->
-                            <field name="voucher_employee_count" invisible="1"/>
+                            <!-- Horizontal Employee Names Strip & Group Submission Bar (Only shows when multiple employees exist and have active draft submissions) -->
+                            <field name="show_voucher_strip" invisible="1"/>
                             <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" 
-                                 invisible="voucher_employee_count &lt;= 1"
+                                 invisible="not show_voucher_strip"
                                  style="border-left: 4px solid #0b3d91 !important;">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                     <span class="small fw-bold" style="color: #0b3d91;">

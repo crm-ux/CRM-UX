@@ -991,6 +991,60 @@ button[name="action_add_voucher_line"]:hover {
     border-color: #082d6e !important;
 }
 
+/* Service Ticket Quick Add: Form-like horizontal input boxes & custom blue theme (No Purple) */
+.o_voucher_quick_add_bar .o_field_widget input,
+.o_voucher_quick_add_bar .o_field_widget select,
+.o_voucher_quick_add_bar .o_field_widget .o_input,
+.o_voucher_quick_add_bar .o_field_widget textarea {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 4px 8px !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    color: #1e293b !important;
+    transition: border-color 0.15s ease-in-out !important;
+}
+
+/* Focused / active dropdown in quick add: Brand Blue instead of Odoo Purple */
+.o_voucher_quick_add_bar .o_field_widget input:focus,
+.o_voucher_quick_add_bar .o_field_widget select:focus,
+.o_voucher_quick_add_bar .o_field_widget .o_input:focus,
+.o_voucher_quick_add_bar .o_field_widget textarea:focus,
+.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within,
+.o_voucher_quick_add_bar .o_field_widget.o_required_modifier input,
+.o_voucher_quick_add_bar .o_field_widget.o_required_modifier {
+    border-color: #0b3d91 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+/* Tags in Quick Add: Corporate blue instead of purple */
+.o_voucher_quick_add_bar .badge {
+    background-color: rgba(11, 61, 145, 0.1) !important;
+    color: #0b3d91 !important;
+    border: 1px solid rgba(11, 61, 145, 0.3) !important;
+}
+
+/* Underline border in o_field_many2many_tags dropdown */
+.o_voucher_quick_add_bar .o_field_many2many_tags {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 2px 6px !important;
+    background-color: #ffffff !important;
+    min-height: 34px !important;
+}
+
+.o_voucher_quick_add_bar .o_field_many2many_tags.o_focused,
+.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+.o_voucher_quick_add_bar .o_field_many2many_tags input {
+    border: none !important;
+    box-shadow: none !important;
+}
+
 /* Expense Setting Table: Hide bottom add row and footer */
 .o_expense_type_table .o_field_x2many_list_row_add,
 .o_expense_type_table tfoot {

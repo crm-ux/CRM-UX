@@ -230,6 +230,7 @@ class ServiceTicket(models.Model):
     voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')
     voucher_employee_count = fields.Integer(compute='_compute_voucher_strip', string='Employee Count')
     has_draft_vouchers = fields.Boolean(compute='_compute_voucher_strip', string='Has Draft Vouchers')
+    show_voucher_strip = fields.Boolean(compute='_compute_voucher_strip', string='Show Voucher Strip')
     total_voucher_amount = fields.Monetary(compute='_compute_voucher_strip', string='Total Voucher Amount', currency_field='currency_id')
 
     @api.depends('voucher_line_ids', 'voucher_line_ids.status', 'voucher_line_ids.user_id', 'voucher_line_ids.amount')
@@ -247,6 +248,8 @@ class ServiceTicket(models.Model):
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
             rec.has_draft_vouchers = has_draft
+            # Strip is only visible when there are multiple employees AND active draft/pending submissions to act on
+            rec.show_voucher_strip = len(names) > 1 and has_draft
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
@@ -520,6 +523,7 @@ class ServiceTicketVoucherLine(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
     expense_manager_id = fields.Many2one('res.users', string='Approved By', readonly=True)
+    reject_reason = fields.Char(string='Rejection Reason')
 
     def action_approve(self):
         for rec in self:
@@ -527,6 +531,21 @@ class ServiceTicketVoucherLine(models.Model):
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
             })
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Approved'),
+                'message': _('Voucher for %s (%s) of ₹%0.2f has been approved successfully.') % (
+                    self.user_id.name or 'Employee',
+                    self.expense_type_id.name or 'Expense',
+                    self.amount or 0.0
+                ),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
     def action_reject(self):
         for rec in self:
@@ -534,6 +553,23 @@ class ServiceTicketVoucherLine(models.Model):
                 'status': 'rejected',
                 'expense_manager_id': self.env.user.id,
             })
+        reason_msg = f" Reason: {self.reject_reason}" if self.reject_reason else ""
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Rejected'),
+                'message': _('Voucher for %s (%s) of ₹%0.2f has been rejected.%s') % (
+                    self.user_id.name or 'Employee',
+                    self.expense_type_id.name or 'Expense',
+                    self.amount or 0.0,
+                    reason_msg
+                ),
+                'type': 'danger',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
     def action_open_expense_settings(self):
         setting = self.env['expense.setting'].sudo().get_setting()
