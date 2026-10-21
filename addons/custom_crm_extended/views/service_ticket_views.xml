@@ -182,8 +182,8 @@
                                     <div class="col-sm-10 col-md-10">
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
-                                            widget="binary" 
-                                            string="Upload Bill"/>
+                                            widget="binary"
+                                            options="{'no_download': True}"/>
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
                                 </div>
