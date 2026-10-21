@@ -8,6 +8,41 @@ import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 
 /**
+ * Universal helper to fetch converted preview content from our dedicated controller
+ */
+export async function fetchUniversalPreviewContent(rawB64, filename, resModel = null, resId = null, fieldName = null) {
+    const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+        (filename || "").toLowerCase().endsWith("." + ext)
+    );
+    if (!isDocOrZipOrExcel) return null;
+
+    try {
+        const response = await fetch("/custom_crm/attachment/preview_content", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                jsonrpc: "2.0",
+                method: "call",
+                params: {
+                    raw_b64: rawB64 || false,
+                    filename: filename || false,
+                    res_model: resModel || false,
+                    res_id: resId || false,
+                    field_name: fieldName || false,
+                },
+            }),
+        });
+        const resJson = await response.json();
+        return resJson?.result || null;
+    } catch (e) {
+        console.error("Universal attachment preview fetch error:", e);
+        return null;
+    }
+}
+
+/**
  * Universal Dialog for Previewing Attached Documents (DOCX, Excel, ZIP, PDF, Images)
  */
 export class UniversalAttachmentPreviewDialog extends Component {
@@ -264,6 +299,9 @@ export class UniversalAttachmentPreviewDialog extends Component {
     }
 
     get isPdf() {
+        if (this.props.previewContent?.type === "pdf_content") {
+            return true;
+        }
         return this.fileExtension === "pdf";
     }
 
@@ -284,9 +322,10 @@ export class UniversalAttachmentPreviewDialog extends Component {
     }
 
     get pdfBlobUrl() {
-        if (!this.props.fileData) return this.props.fileUrl;
+        const rawB64 = this.props.previewContent?.pdf_base64 || this.props.fileData;
+        if (!rawB64) return this.props.fileUrl;
         try {
-            const byteCharacters = atob(this.props.fileData);
+            const byteCharacters = atob(rawB64);
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -512,18 +551,7 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
                 (filename || "").toLowerCase().endsWith("." + ext)
             );
 
-            if (isDocOrZipOrExcel) {
-                try {
-                    previewContent = await controller.env.services.orm.call(
-                        "equipment.master",
-                        "action_get_invoice_preview_content",
-                        [false, fileData || false, filename || false],
-                        {}
-                    );
-                } catch (callErr) {
-                    console.error("Error retrieving preview content:", callErr);
-                }
-            }
+            const previewContent = await fetchUniversalPreviewContent(fileData, filename, resModel, resId, matchedConfig.dataField);
 
             const url = resId ? `/web/content/${resModel}/${resId}/${matchedConfig.dataField}/${filename}?download=false` : null;
             controller.dialogService.add(UniversalAttachmentPreviewDialog, {
@@ -648,23 +676,8 @@ export class CrmTaskManagementFormController extends FormController {
                     }
                 }
 
-                // 4. For office documents/excel/zip, reuse equipment.master server preview converter
-                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                    (filename || "").toLowerCase().endsWith("." + ext)
-                );
-
-                if (isDocOrZipOrExcel && fileData) {
-                    try {
-                        previewContent = await this.env.services.orm.call(
-                            "equipment.master",
-                            "action_get_invoice_preview_content",
-                            [false, fileData, filename],
-                            {}
-                        );
-                    } catch (callErr) {
-                        console.error("Error retrieving preview content:", callErr);
-                    }
-                }
+                // 4. For office documents/excel/zip, retrieve formatted preview content from universal controller
+                previewContent = await fetchUniversalPreviewContent(fileData, filename, "crm.task.attachment", recId, "file");
 
                 // 5. Open UniversalAttachmentPreviewDialog
                 const fileUrl = recId ? `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false` : null;
