@@ -138,7 +138,7 @@ class ServiceTicket(models.Model):
                 'amount': self.new_voucher_amount,
                 'bill_file': self.new_voucher_bill_file,
                 'bill_filename': self.new_voucher_bill_filename,
-                'status': 'submitted',
+                'status': 'draft',
             })
             self.write({
                 'new_voucher_expense_type_id': False,
@@ -152,6 +152,65 @@ class ServiceTicket(models.Model):
                 'new_voucher_bill_filename': False,
             })
         return False
+
+    # Group Voucher Submission fields & helpers
+    voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')
+    has_draft_vouchers = fields.Boolean(compute='_compute_voucher_strip', string='Has Draft Vouchers')
+    has_submitted_vouchers = fields.Boolean(compute='_compute_voucher_strip', string='Has Submitted Vouchers')
+    total_voucher_amount = fields.Monetary(compute='_compute_voucher_strip', string='Total Voucher Amount', currency_field='currency_id')
+
+    @api.depends('voucher_line_ids', 'voucher_line_ids.status', 'voucher_line_ids.user_id', 'voucher_line_ids.amount')
+    def _compute_voucher_strip(self):
+        for rec in self:
+            names = []
+            has_draft = False
+            has_submitted = False
+            total_amt = 0.0
+            for line in rec.voucher_line_ids:
+                total_amt += line.amount or 0.0
+                if line.user_id and line.user_id.name and line.user_id.name not in names:
+                    names.append(line.user_id.name)
+                if line.status == 'draft':
+                    has_draft = True
+                elif line.status == 'submitted':
+                    has_submitted = True
+            rec.voucher_employee_names = ", ".join(names) if names else ''
+            rec.has_draft_vouchers = has_draft
+            rec.has_submitted_vouchers = has_submitted
+            rec.total_voucher_amount = total_amt
+
+    def action_submit_all_vouchers(self):
+        """Submit all draft voucher lines together as a group."""
+        self.ensure_one()
+        draft_lines = self.voucher_line_ids.filtered(lambda l: l.status == 'draft')
+        if not draft_lines:
+            # If all are already submitted/empty, submit any pending lines
+            draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected'))
+        if draft_lines:
+            draft_lines.write({'status': 'submitted'})
+        return True
+
+    def action_approve_all_vouchers(self):
+        """Manager approves all submitted voucher lines."""
+        self.ensure_one()
+        submitted = self.voucher_line_ids.filtered(lambda l: l.status == 'submitted')
+        if submitted:
+            submitted.write({
+                'status': 'approved',
+                'expense_manager_id': self.env.user.id,
+            })
+        return True
+
+    def action_reject_all_vouchers(self):
+        """Manager rejects all submitted voucher lines."""
+        self.ensure_one()
+        submitted = self.voucher_line_ids.filtered(lambda l: l.status == 'submitted')
+        if submitted:
+            submitted.write({
+                'status': 'rejected',
+                'expense_manager_id': self.env.user.id,
+            })
+        return True
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
     @api.depends('ticket_status')
@@ -394,10 +453,11 @@ class ServiceTicketVoucherLine(models.Model):
     bill_filename = fields.Char(string='File Name')
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
     status = fields.Selection([
+        ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
-    ], string='Status', default='submitted', required=True)
+    ], string='Status', default='draft', required=True)
     expense_manager_id = fields.Many2one('res.users', string='Approved By', readonly=True)
 
     def action_approve(self):

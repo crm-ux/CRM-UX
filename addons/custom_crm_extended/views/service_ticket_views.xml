@@ -149,8 +149,46 @@
                                 </div>
                             </div>
 
+                            <!-- Horizontal Employee Names Strip & Group Submission Bar -->
+                            <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" invisible="not voucher_line_ids">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="text-muted small fw-semibold">
+                                        <i class="fa fa-users text-primary me-1"></i>Employees:
+                                    </span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1 px-2 fw-semibold">
+                                        <field name="voucher_employee_names" readonly="1" class="d-inline"/>
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <field name="has_draft_vouchers" invisible="1"/>
+                                    <field name="has_submitted_vouchers" invisible="1"/>
+                                    <!-- Submit All Button (Visible when lines are in draft) -->
+                                    <button name="action_submit_all_vouchers"
+                                            string="Submit All Expenses"
+                                            type="object"
+                                            class="btn btn-sm btn-primary fw-semibold px-3"
+                                            invisible="not has_draft_vouchers"
+                                            icon="fa-paper-plane"/>
+
+                                    <!-- Manager Bulk Approve / Reject Buttons -->
+                                    <button name="action_approve_all_vouchers"
+                                            string="Approve All"
+                                            type="object"
+                                            class="btn btn-sm btn-success fw-semibold px-3"
+                                            invisible="not has_submitted_vouchers"
+                                            icon="fa-check"/>
+                                    <button name="action_reject_all_vouchers"
+                                            string="Reject All"
+                                            type="object"
+                                            class="btn btn-sm btn-outline-danger fw-semibold px-2"
+                                            invisible="not has_submitted_vouchers"
+                                            icon="fa-times"/>
+                                </div>
+                            </div>
+
                             <field name="voucher_line_ids" class="o_voucher_card_list">
                                 <list editable="bottom" create="0" delete="1">
+                                    <field name="user_id" string="Employee" readonly="1" optional="show"/>
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
                                     <field name="total_km" column_invisible="not parent.has_km_lines"/>
@@ -161,7 +199,7 @@
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                                     <field name="bill_filename" column_invisible="1"/>
                                     <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
-                                    <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                                    <field name="status" widget="badge" decoration-info="status == 'draft'" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
                                 </list>
                             </field>
                         </page>
