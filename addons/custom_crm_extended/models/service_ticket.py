@@ -93,6 +93,13 @@ class ServiceTicket(models.Model):
 
     # Quick Add Voucher Fields on Ticket
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
+    has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
+
+    @api.depends('voucher_line_ids.is_km_based')
+    def _compute_has_km_lines(self):
+        for rec in self:
+            rec.has_km_lines = any(line.is_km_based for line in rec.voucher_line_ids)
+
     new_voucher_is_km = fields.Boolean(related='new_voucher_expense_type_id.is_km_based', readonly=True)
     new_voucher_start_km = fields.Float(string='Start KM')
     new_voucher_end_km = fields.Float(string='End KM')
