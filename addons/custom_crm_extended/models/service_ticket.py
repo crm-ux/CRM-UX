@@ -160,7 +160,6 @@ class ServiceTicket(models.Model):
             rec.stage_visible = rec.ticket_status or 'new'
 
     def action_move_to_contacted(self):
-        x = 1 / 0
         self.write({'ticket_status': 'contacted'})
 
     def action_move_to_ongoing(self):
