@@ -71,6 +71,7 @@
             'custom_crm_extended/static/src/js/user_access_labels.js',
             'custom_crm_extended/static/src/js/record_log_action.js',
             'custom_crm_extended/static/src/js/todo_reminder_service.js',
+            'custom_crm_extended/static/src/js/custom_error_handler.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
