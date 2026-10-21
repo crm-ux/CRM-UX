@@ -157,7 +157,7 @@
 
                                     <!-- Add Button (Always visible on screen with dedicated class) -->
                                     <div class="col-3 col-md-1 text-end">
-                                        <label string="Action" class="small fw-semibold mb-1 d-block invisible" style="opacity: 0;">Add</label>
+                                        <span class="small fw-semibold mb-1 d-block invisible" style="opacity: 0;">Add</span>
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
