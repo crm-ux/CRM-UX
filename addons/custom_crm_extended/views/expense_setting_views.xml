@@ -55,36 +55,33 @@
                     </div>
                 </div>
 
-                <!-- CARD: Expense Types & Global Points / Budget System -->
+                <!-- CARD: Expense Types & Per-Visit Cost Limits by Job Position -->
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types, Global Budget/Points &amp; Role Permissions</strong>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types &amp; Per-Visit Cost Limits by Job Position</strong>
                             </div>
-                            <p class="text-muted small mb-3">Configure expense categories, global budget/points limit, reset cycle, KM calculations, and enable/disable by specific Job Positions.</p>
+                            <p class="text-muted small mb-3">Add expense types with their allowed cost limit per visit. Select multiple Job Positions allowed to claim this expense (leave empty to allow all positions).</p>
 
                             <!-- Direct Inline Input Box (Quick Add) -->
                             <div class="row g-2 align-items-center mb-3">
                                 <div class="col-12 col-md-3">
-                                    <field name="new_expense_type_name" nolabel="1" placeholder="Expense name (e.g. Travel, Food, Hotel)..."/>
+                                    <field name="new_expense_type_name" nolabel="1" placeholder="Expense Type Name (e.g. Food - Engineer, Food - Manager)..."/>
                                 </div>
                                 <div class="col-6 col-md-2">
-                                    <field name="new_expense_type_budget_limit" placeholder="Budget / Points (₹)"/>
+                                    <field name="new_expense_type_budget_limit" placeholder="Limit Per Visit (₹)"/>
                                 </div>
-                                <div class="col-6 col-md-2">
-                                    <field name="new_expense_type_budget_cycle"/>
-                                </div>
-                                <div class="col-12 col-md-3">
-                                    <field name="new_expense_type_job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Allowed Job Positions (All if blank)..."/>
+                                <div class="col-12 col-md-4">
+                                    <field name="new_expense_type_job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Allowed Job Positions (Multiple)..."/>
                                 </div>
                                 <div class="col-6 col-md-1 d-flex align-items-center gap-1">
                                     <field name="new_expense_type_is_km" widget="boolean_toggle"/>
                                     <label for="new_expense_type_is_km" string="KM?" class="m-0 small fw-semibold"/>
                                 </div>
-                                <div class="col-6 col-md-1 text-end">
-                                    <button name="action_add_expense_type" string="+ Add" type="object" class="btn btn-primary btn-sm w-100"/>
+                                <div class="col-6 col-md-2 text-end">
+                                    <button name="action_add_expense_type" string="+ Add Type" type="object" class="btn btn-primary btn-sm w-100"/>
                                 </div>
                             </div>
 
@@ -93,9 +90,8 @@
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" string="Expense Type" class="fw-semibold"/>
-                                    <field name="budget_limit" string="Global Budget / Points (₹)"/>
-                                    <field name="budget_cycle" string="Reset Cycle"/>
-                                    <field name="job_ids" widget="many2many_tags" string="Enabled Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
+                                    <field name="budget_limit" string="Limit Per Visit (₹)"/>
+                                    <field name="job_ids" widget="many2many_tags" string="Allowed Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
                                     <field name="km_rate" string="Rate / KM (₹)"/>
                                     <field name="active" string="Active" widget="boolean_toggle"/>
