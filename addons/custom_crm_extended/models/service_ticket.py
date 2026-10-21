@@ -280,7 +280,10 @@ class ServiceTicket(models.Model):
             'new_voucher_bill_file': False,
             'new_voucher_bill_filename': False,
         })
-        return False
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs on Cancel / Clear click """
@@ -296,7 +299,10 @@ class ServiceTicket(models.Model):
             'new_voucher_bill_file': False,
             'new_voucher_bill_filename': False,
         })
-        return False
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     # Group Voucher Submission fields & helpers
     voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')

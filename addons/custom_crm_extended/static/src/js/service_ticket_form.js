@@ -319,6 +319,17 @@ export class ServiceTicketFormController extends FormController {
 
     async discard() {
         if (this.props.resModel === "service.ticket") {
+            // Reset client-side quick add inputs immediately on discard/cancel
+            if (this.model && this.model.root && this.model.root.update) {
+                this.model.root.update({
+                    new_voucher_expense_type_id: false,
+                    new_voucher_user_ids: [[5, 0, 0]],
+                    new_voucher_total_km: 0.0,
+                    new_voucher_amount: 0.0,
+                    new_voucher_description: false,
+                    new_voucher_bill_file: false,
+                });
+            }
             const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
             const goBack = async () => {
                 await this.model.root.discard();
@@ -348,6 +359,23 @@ export class ServiceTicketFormController extends FormController {
             return;
         }
         return super.discard(...arguments);
+    }
+
+    async save() {
+        const res = await super.save(...arguments);
+        if (res && this.props.resModel === "service.ticket") {
+            if (this.model && this.model.root && this.model.root.update) {
+                this.model.root.update({
+                    new_voucher_expense_type_id: false,
+                    new_voucher_user_ids: [[5, 0, 0]],
+                    new_voucher_total_km: 0.0,
+                    new_voucher_amount: 0.0,
+                    new_voucher_description: false,
+                    new_voucher_bill_file: false,
+                });
+            }
+        }
+        return res;
     }
 }
 
