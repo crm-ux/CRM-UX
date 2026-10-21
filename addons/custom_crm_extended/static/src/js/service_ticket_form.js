@@ -238,6 +238,41 @@ export class ServiceTicketFormController extends FormController {
             document.addEventListener("change", handleVoucherFileInputChange, true);
             document.addEventListener("click", handleVoucherBillPreview, true);
 
+            // Instant Client-side calculation: Total KM * Rate/KM = Amount
+            const handleKmInstantCalc = (ev) => {
+                const target = ev.target;
+                if (!target) return;
+                const kmField = target.closest("[name='new_voucher_total_km']");
+                if (kmField) {
+                    const bar = target.closest(".o_voucher_quick_add_bar");
+                    if (!bar) return;
+                    const kmVal = parseFloat(target.value) || 0.0;
+                    
+                    // Find rate value from .o_readonly_box or rate field
+                    const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
+                    let rateVal = 0.0;
+                    if (rateBox) {
+                        const rateText = rateBox.innerText || rateBox.textContent || rateBox.value || "0";
+                        rateVal = parseFloat(rateText.replace(/[^0-9.]/g, "")) || 0.0;
+                    }
+
+                    const amountInp = bar.querySelector("[name='new_voucher_amount'] input, [name='new_voucher_amount'] .o_input");
+                    if (amountInp && kmVal > 0 && rateVal > 0) {
+                        const calculated = (kmVal * rateVal).toFixed(2);
+                        amountInp.value = calculated;
+                        amountInp.dispatchEvent(new Event("input", { bubbles: true }));
+                        amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+                    } else if (amountInp && kmVal === 0) {
+                        amountInp.value = "0.00";
+                        amountInp.dispatchEvent(new Event("input", { bubbles: true }));
+                        amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+                    }
+                }
+            };
+
+            document.addEventListener("input", handleKmInstantCalc, true);
+            document.addEventListener("change", handleKmInstantCalc, true);
+
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -254,6 +289,8 @@ export class ServiceTicketFormController extends FormController {
                 }
                 document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
+                document.removeEventListener("input", handleKmInstantCalc, true);
+                document.removeEventListener("change", handleKmInstantCalc, true);
             });
         }
     }
