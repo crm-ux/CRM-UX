@@ -98,56 +98,58 @@
                                     <strong class="text-dark small">Quick Add Expense</strong>
                                 </div>
 
-                                <!-- Top Inline Input Bar with Field Labels (Form-like Horizontal Row) -->
-                                <div class="row g-2 align-items-end w-100 m-0 o_voucher_quick_add_bar">
+                                <!-- Top Inline Input Bar with Horizontal Labels (Label & Input side-by-side horizontally) -->
+                                <div class="d-flex align-items-center flex-wrap gap-3 p-2 bg-white rounded border o_voucher_quick_add_bar w-100">
                                     <field name="new_voucher_is_km" invisible="1"/>
                                     
-                                    <!-- Multiple Employee Selection (Group Voucher) -->
-                                    <div class="col-12 col-md-3">
-                                        <label for="new_voucher_user_ids" string="Employee(s)" class="small fw-semibold text-muted mb-1 d-block"/>
+                                    <!-- Employee(s) -->
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 220px; flex: 2;">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Employee:</span>
                                         <field name="new_voucher_user_ids"
                                             widget="many2many_tags"
                                             options="{'no_create': True}"
-                                            placeholder="Select Employee(s)..."/>
+                                            class="w-100"
+                                            placeholder="Select..."/>
                                     </div>
 
                                     <!-- Expense Type -->
-                                    <div class="col-6 col-md-2">
-                                        <label for="new_voucher_expense_type_id" string="Expense Type" class="small fw-semibold text-muted mb-1 d-block"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 170px; flex: 1.5;">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Type:</span>
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
                                             domain="[('active', '=', True)]" 
-                                            placeholder="Expense Type..."/>
+                                            class="w-100"
+                                            placeholder="Expense..."/>
                                     </div>
 
                                     <!-- KM Inputs when Expense Type is KM-based -->
-                                    <div class="col-3 col-md-1" invisible="not new_voucher_is_km">
-                                        <label for="new_voucher_total_km" string="KM" class="small fw-semibold text-muted mb-1 d-block"/>
-                                        <field name="new_voucher_total_km" placeholder="KM"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 100px; flex: 0.8;" invisible="not new_voucher_is_km">
+                                        <span class="small fw-semibold text-secondary text-nowrap">KM:</span>
+                                        <field name="new_voucher_total_km" class="w-100" placeholder="0"/>
                                     </div>
-                                    <div class="col-3 col-md-1" invisible="not new_voucher_is_km">
-                                        <label for="new_voucher_rate_per_km" string="₹/KM" class="small fw-semibold text-muted mb-1 d-block"/>
-                                        <field name="new_voucher_rate_per_km" placeholder="₹/KM"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 100px; flex: 0.8;" invisible="not new_voucher_is_km">
+                                        <span class="small fw-semibold text-secondary text-nowrap">₹/KM:</span>
+                                        <field name="new_voucher_rate_per_km" readonly="1" class="w-100 fw-bold text-dark"/>
                                     </div>
 
                                     <!-- Description -->
-                                    <div class="col-6 col-md-2">
-                                        <label for="new_voucher_description" string="Description" class="small fw-semibold text-muted mb-1 d-block"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 180px; flex: 2;">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Desc:</span>
                                         <field name="new_voucher_description" 
                                             class="w-100" 
-                                            placeholder="Description..."/>
+                                            placeholder="Enter note..."/>
                                     </div>
 
                                     <!-- Amount -->
-                                    <div class="col-3 col-md-1">
-                                        <label for="new_voucher_amount" string="Amount (₹)" class="small fw-semibold text-muted mb-1 d-block"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 130px; flex: 1;">
+                                        <span class="small fw-semibold text-secondary text-nowrap">Amount:</span>
                                         <field name="new_voucher_amount" 
+                                            class="w-100"
                                             placeholder="₹ 0.00"/>
                                     </div>
 
                                     <!-- Attach Bill -->
-                                    <div class="col-6 col-md-1">
-                                        <label for="new_voucher_bill_file" string="Bill File" class="small fw-semibold text-muted mb-1 d-block"/>
+                                    <div class="d-flex align-items-center gap-1" style="min-width: 120px;">
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
                                             widget="binary" 
@@ -155,14 +157,13 @@
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
 
-                                    <!-- Add Button (Always visible on screen with dedicated class) -->
-                                    <div class="col-3 col-md-1 text-end">
-                                        <span class="small fw-semibold mb-1 d-block invisible" style="opacity: 0;">Add</span>
+                                    <!-- Add Button -->
+                                    <div class="ms-auto" style="min-width: 90px;">
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
-                                                class="btn btn-primary btn-voucher-add w-100 fw-bold shadow-sm"
-                                                style="height: 34px !important; min-width: 65px;"/>
+                                                class="btn btn-primary btn-voucher-add px-3 py-1 w-100 fw-bold shadow-sm"
+                                                style="height: 32px !important; white-space: nowrap;"/>
                                     </div>
                                 </div>
                             </div>
@@ -199,7 +200,7 @@
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
                                     <field name="total_km" column_invisible="not parent.has_km_lines"/>
-                                    <field name="rate_per_km" column_invisible="not parent.has_km_lines"/>
+                                    <field name="rate_per_km" column_invisible="not parent.has_km_lines" readonly="1"/>
                                     <field name="description" placeholder="Enter description..." widget="text"/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="amount" sum="Total" class="fw-bold text-end"/>

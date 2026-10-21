@@ -99,7 +99,7 @@ class ServiceTicket(models.Model):
         'user_id',
         string='Employees / Team',
         domain="[('share', '=', False)]",
-        help="Select one or multiple employees to divide the total expense cost equally."
+        help="Select one or multiple employees to divide the total expense cost."
     )
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
