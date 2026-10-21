@@ -256,16 +256,28 @@ export class ServiceTicketFormController extends FormController {
                         rateVal = parseFloat(rateText.replace(/[^0-9.]/g, "")) || 0.0;
                     }
 
-                    const amountInp = bar.querySelector("[name='new_voucher_amount'] input, [name='new_voucher_amount'] .o_input");
-                    if (amountInp && kmVal > 0 && rateVal > 0) {
-                        const calculated = (kmVal * rateVal).toFixed(2);
-                        amountInp.value = calculated;
-                        amountInp.dispatchEvent(new Event("input", { bubbles: true }));
-                        amountInp.dispatchEvent(new Event("change", { bubbles: true }));
-                    } else if (amountInp && kmVal === 0) {
-                        amountInp.value = "0.00";
-                        amountInp.dispatchEvent(new Event("input", { bubbles: true }));
-                        amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+                    if (kmVal > 0 && rateVal > 0) {
+                        const calculated = parseFloat((kmVal * rateVal).toFixed(2));
+                        // 1. If Odoo model root is accessible, update record directly
+                        if (this.model && this.model.root && this.model.root.update) {
+                            this.model.root.update({ new_voucher_amount: calculated });
+                        }
+                        // 2. Also update DOM input or readonly span if rendered
+                        const amountField = bar.querySelector("[name='new_voucher_amount']");
+                        if (amountField) {
+                            const inp = amountField.querySelector("input, .o_input");
+                            if (inp) {
+                                inp.value = calculated.toFixed(2);
+                                inp.dispatchEvent(new Event("input", { bubbles: true }));
+                                inp.dispatchEvent(new Event("change", { bubbles: true }));
+                            } else {
+                                // If rendered as readonly text/span
+                                const span = amountField.querySelector("span, .o_field_monetary");
+                                if (span) {
+                                    span.innerText = `₹ ${calculated.toFixed(2)}`;
+                                }
+                            }
+                        }
                     }
                 }
             };
