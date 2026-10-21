@@ -17,8 +17,86 @@ async function openServiceTicketWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
 }
 
-// 1. Intercept "New" button in List / Tree View
+// 1. Intercept "New" button in List / Tree View & enable Universal Preview on voucher lines
 patch(ListController.prototype, {
+    setup() {
+        super.setup();
+        if (
+            this.model?.root?.resModel === "service.ticket.voucher.line" ||
+            this.props?.resModel === "service.ticket.voucher.line"
+        ) {
+            const handleVoucherListBillPreview = async (ev) => {
+                const previewBtn = ev.target.closest("button[name='action_preview_bill']");
+                if (!previewBtn) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const row = previewBtn.closest("tr, .o_data_row");
+                if (!row) return;
+
+                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                const rowIndex = allRows.indexOf(row);
+                const records = this.model?.root?.records || [];
+                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+
+                const recId = record?.resId || null;
+                let filename = record?.data?.bill_filename || "bill.png";
+                let fileData = record?.data?.bill_file || null;
+
+                const isSizeString = typeof fileData === "string" && (
+                    fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
+                );
+                if (recId && (!fileData || isSizeString)) {
+                    try {
+                        const res = await this.env.services.orm.read(
+                            "service.ticket.voucher.line",
+                            [recId],
+                            ["bill_file", "bill_filename"],
+                            { context: { bin_size: false } }
+                        );
+                        if (res && res[0]) {
+                            fileData = res[0].bill_file || fileData;
+                            if (res[0].bill_filename) filename = res[0].bill_filename;
+                        }
+                    } catch (readErr) {
+                        console.warn("Could not read voucher bill_file:", readErr);
+                    }
+                }
+
+                let previewContent = null;
+                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                    (filename || "").toLowerCase().endsWith("." + ext)
+                );
+
+                if (isDocOrZipOrExcel && fileData) {
+                    try {
+                        previewContent = await this.env.services.orm.call(
+                            "equipment.master",
+                            "action_get_invoice_preview_content",
+                            [false, fileData, filename],
+                            {}
+                        );
+                    } catch (callErr) {
+                        console.error("Error retrieving voucher bill preview content:", callErr);
+                    }
+                }
+
+                const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
+
+                this.dialogService = this.dialogService || this.env.services.dialog;
+                this.dialogService.add(UniversalAttachmentPreviewDialog, {
+                    title: filename || _t("Bill Preview"),
+                    fileUrl: fileUrl,
+                    fileData: fileData,
+                    filename: filename,
+                    previewContent: previewContent,
+                });
+            };
+
+            document.addEventListener("click", handleVoucherListBillPreview, true);
+        }
+    },
     async createRecord() {
         if (
             this.model?.root?.resModel === TICKET_MODEL ||

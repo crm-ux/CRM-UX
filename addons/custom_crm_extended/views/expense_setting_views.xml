@@ -121,7 +121,8 @@
                 <field name="is_km_based" column_invisible="1"/>
                 <field name="total_km" string="Total KM" optional="show"/>
                 <field name="rate_per_km" string="₹/KM" optional="show"/>
-                <field name="description" string="Description"/>
+                <field name="description" string="Description" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"/>
+                <button name="action_view_description" type="object" icon="fa-file-text-o" title="View Full Description" invisible="not description" class="btn p-0 text-secondary"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
@@ -143,6 +144,22 @@
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_service_ticket_voucher_line_tree"/>
         <field name="context">{}</field>
+    </record>
+
+    <!-- View Voucher Description Wizard Popup Form -->
+    <record id="view_service_ticket_voucher_desc_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.desc.wizard.form</field>
+        <field name="model">service.ticket.voucher.desc.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Expense Description">
+                <group>
+                    <field name="description" nolabel="1" readonly="1" widget="text" style="min-height: 120px; font-size: 14px;"/>
+                </group>
+                <footer>
+                    <button string="Close" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
     </record>
 
     <!-- Reject Voucher Remark Wizard Popup Form -->

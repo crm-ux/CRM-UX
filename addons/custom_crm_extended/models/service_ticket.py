@@ -252,6 +252,10 @@ class ServiceTicket(models.Model):
                 else:
                     user_splits[u.id] = raw_split
 
+        rate_val = self.new_voucher_rate_per_km or exp_type.km_rate or 0.0
+        km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
+        split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
+
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             self.env['service.ticket.voucher.line'].create({
@@ -260,8 +264,8 @@ class ServiceTicket(models.Model):
                 'department_id': dept.id if dept else False,
                 'expense_type_id': exp_type.id,
                 'is_km_based': exp_type.is_km_based,
-                'total_km': split_km,
-                'rate_per_km': self.new_voucher_rate_per_km,
+                'total_km': split_km if exp_type.is_km_based else 0.0,
+                'rate_per_km': rate_val if exp_type.is_km_based else 0.0,
                 'description': self.new_voucher_description or '',
                 'amount': user_splits.get(u.id, 0.0),
                 'bill_file': self.new_voucher_bill_file,
@@ -667,6 +671,19 @@ class ServiceTicketVoucherLine(models.Model):
             },
         }
 
+    def action_view_description(self):
+        self.ensure_one()
+        return {
+            'name': _('Expense Description'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.desc.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_description': self.description or 'No description provided.',
+                'default_voucher_line_id': self.id,
+            },
+        }
 
     def action_open_expense_settings(self):
         setting = self.env['expense.setting'].sudo().get_setting()
@@ -724,4 +741,12 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
+
+class ServiceTicketVoucherDescWizard(models.TransientModel):
+    _name = 'service.ticket.voucher.desc.wizard'
+    _description = 'View Expense Description'
+
+    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', readonly=True)
+    description = fields.Text(string='Description', readonly=True)
 
