@@ -122,16 +122,23 @@ class ServiceTicket(models.Model):
 
     @api.onchange('new_voucher_expense_type_id')
     def _onchange_new_voucher_expense_type(self):
-        if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based:
-            self.new_voucher_rate_per_km = self.new_voucher_expense_type_id.km_rate or 0.0
-            if self.new_voucher_total_km > 0 and self.new_voucher_rate_per_km > 0:
-                self.new_voucher_amount = self.new_voucher_total_km * self.new_voucher_rate_per_km
+        if self.new_voucher_expense_type_id:
+            if self.new_voucher_expense_type_id.is_km_based:
+                self.new_voucher_rate_per_km = self.new_voucher_expense_type_id.km_rate or 0.0
+                if self.new_voucher_total_km > 0:
+                    self.new_voucher_amount = round(self.new_voucher_total_km * self.new_voucher_rate_per_km, 2)
+            else:
+                self.new_voucher_rate_per_km = 0.0
 
-    @api.onchange('new_voucher_total_km', 'new_voucher_rate_per_km')
+    @api.onchange('new_voucher_total_km', 'new_voucher_rate_per_km', 'new_voucher_expense_type_id')
     def _onchange_new_voucher_km_calc(self):
-        if self.new_voucher_is_km:
-            if self.new_voucher_total_km > 0 and self.new_voucher_rate_per_km > 0:
-                self.new_voucher_amount = self.new_voucher_total_km * self.new_voucher_rate_per_km
+        is_km = self.new_voucher_is_km or (self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based)
+        if is_km:
+            rate = self.new_voucher_rate_per_km or (self.new_voucher_expense_type_id.km_rate if self.new_voucher_expense_type_id else 0.0)
+            if self.new_voucher_total_km > 0 and rate > 0:
+                self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
+            elif self.new_voucher_total_km == 0:
+                self.new_voucher_amount = 0.0
 
     def action_add_voucher_line(self):
         self.ensure_one()
