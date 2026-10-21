@@ -116,7 +116,6 @@
                 </header>
                 <field name="create_date" string="Submitted Date" widget="date"/>
                 <field name="user_id" string="Employee" widget="many2one_avatar_user"/>
-                <field name="department_id" string="Department"/>
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="expense_type_id" string="Expense Type"/>
                 <field name="is_km_based" column_invisible="1"/>
@@ -128,7 +127,7 @@
                 <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                 <field name="bill_filename" column_invisible="1"/>
                 <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
-                <field name="expense_manager_id" string="Approver" optional="show"/>
+                <field name="expense_manager_id" string="Approver"/>
                 <field name="reject_reason" string="Reject Reason" optional="show"/>
                 <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>

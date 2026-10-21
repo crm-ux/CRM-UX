@@ -622,7 +622,13 @@ class ServiceTicketVoucherLine(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
-    expense_manager_id = fields.Many2one('res.users', string='Approved By', readonly=True)
+
+    def _default_expense_manager_id(self):
+        company = self.env.company
+        managers = company.crm_authorized_expense_manager_ids
+        return managers[0].id if managers else False
+
+    expense_manager_id = fields.Many2one('res.users', string='Approved By', default=_default_expense_manager_id)
     reject_reason = fields.Char(string='Rejection Reason')
 
     def action_approve(self):
