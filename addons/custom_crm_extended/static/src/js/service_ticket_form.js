@@ -8,7 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog, fetchUniversalPreviewContent } from "./universal_attachment_preview";
+import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
 const WIZARD_ACTION = "custom_crm_extended.action_service_ticket_wizard";
@@ -203,14 +203,24 @@ export class ServiceTicketFormController extends FormController {
                     }
                 }
 
-                // For office documents/excel/zip, retrieve formatted preview content from universal controller
-                const previewContent = await fetchUniversalPreviewContent(
-                    fileData,
-                    filename,
-                    "service.ticket.voucher.line",
-                    recId,
-                    "bill_file"
+                // For office documents/excel/zip, retrieve formatted preview content from server
+                let previewContent = null;
+                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                    (filename || "").toLowerCase().endsWith("." + ext)
                 );
+
+                if (isDocOrZipOrExcel && fileData) {
+                    try {
+                        previewContent = await this.env.services.orm.call(
+                            "equipment.master",
+                            "action_get_invoice_preview_content",
+                            [false, fileData, filename],
+                            {}
+                        );
+                    } catch (callErr) {
+                        console.error("Error retrieving voucher bill preview content:", callErr);
+                    }
+                }
 
                 // If not yet saved or if user just selected a new file, don't use stale server URL
                 const hasUnsavedNewFile = cachedRowFile || (fileData && !isSizeString && fileData.length > 100);
