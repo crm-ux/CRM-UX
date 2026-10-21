@@ -101,8 +101,72 @@ class EquipmentMaster(models.Model):
                     'total_count': len(file_list),
                 }
 
-            # 2. Parse Word Document (.docx is a ZIP containing word/document.xml)
+            # 2. Parse Word Document (.docx is converted via LibreOffice for 100% exact rendering)
             elif ext in ('docx', 'doc'):
+                import os
+                import shutil
+                import subprocess
+                import tempfile
+
+                # Detect LibreOffice / soffice binary
+                libreoffice_bin = (
+                    shutil.which('libreoffice') or
+                    shutil.which('soffice') or
+                    (os.path.exists('/usr/bin/libreoffice') and '/usr/bin/libreoffice') or
+                    (os.path.exists('/usr/bin/soffice') and '/usr/bin/soffice') or
+                    (os.path.exists('/usr/lib/libreoffice/program/soffice') and '/usr/lib/libreoffice/program/soffice') or
+                    (os.path.exists(r'C:\Program Files\LibreOffice\program\soffice.exe') and r'C:\Program Files\LibreOffice\program\soffice.exe') or
+                    (os.path.exists(r'C:\Program Files (x86)\LibreOffice\program\soffice.exe') and r'C:\Program Files (x86)\LibreOffice\program\soffice.exe')
+                )
+
+                if libreoffice_bin:
+                    try:
+                        with tempfile.TemporaryDirectory() as tmp_dir:
+                            doc_path = os.path.join(tmp_dir, f'doc_preview.{ext}')
+                            with open(doc_path, 'wb') as f:
+                                f.write(raw_bytes)
+
+                            user_profile_dir = os.path.join(tmp_dir, 'lo_profile')
+                            os.makedirs(user_profile_dir, exist_ok=True)
+                            cmd = [
+                                libreoffice_bin,
+                                '--headless',
+                                '--invisible',
+                                '--nocrashreport',
+                                '--nodefault',
+                                '--nofirststartwizard',
+                                '--nolockcheck',
+                                '--nologo',
+                                '-env:UserInstallation=file://' + os.path.abspath(user_profile_dir).replace('\\', '/'),
+                                '--convert-to',
+                                'pdf:writer_pdf_Export',
+                                doc_path,
+                                '--outdir',
+                                tmp_dir
+                            ]
+                            env = dict(os.environ)
+                            env['HOME'] = tmp_dir
+                            subprocess.run(cmd, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=45, env=env)
+
+                            pdf_path = os.path.join(tmp_dir, 'doc_preview.pdf')
+                            if not os.path.exists(pdf_path):
+                                for f in os.listdir(tmp_dir):
+                                    if f.endswith('.pdf'):
+                                        pdf_path = os.path.join(tmp_dir, f)
+                                        break
+
+                            if os.path.exists(pdf_path):
+                                with open(pdf_path, 'rb') as f:
+                                    pdf_data = f.read()
+                                return {
+                                    'type': 'pdf_content',
+                                    'filename': fname,
+                                    'pdf_base64': base64.b64encode(pdf_data).decode('ascii'),
+                                }
+                    except Exception:
+                        pass
+
+                # Fallback to existing XML parser if LibreOffice is not available
                 with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
                     if 'word/document.xml' not in z.namelist():
                         return {'type': 'docx_content', 'filename': fname, 'html': '<p class="text-muted">Empty document.</p>'}

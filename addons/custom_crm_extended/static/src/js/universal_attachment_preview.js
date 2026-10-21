@@ -264,6 +264,9 @@ export class UniversalAttachmentPreviewDialog extends Component {
     }
 
     get isPdf() {
+        if (this.props.previewContent?.type === "pdf_content") {
+            return true;
+        }
         return this.fileExtension === "pdf";
     }
 
@@ -284,9 +287,10 @@ export class UniversalAttachmentPreviewDialog extends Component {
     }
 
     get pdfBlobUrl() {
-        if (!this.props.fileData) return this.props.fileUrl;
+        const rawB64 = this.props.previewContent?.pdf_base64 || this.props.fileData;
+        if (!rawB64) return this.props.fileUrl;
         try {
-            const byteCharacters = atob(this.props.fileData);
+            const byteCharacters = atob(rawB64);
             const byteNumbers = new Array(byteCharacters.length);
             for (let i = 0; i < byteCharacters.length; i++) {
                 byteNumbers[i] = byteCharacters.charCodeAt(i);
