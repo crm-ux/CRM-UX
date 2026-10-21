@@ -89,12 +89,6 @@
                             </div>
 
                             <!-- The List View Right Here on this card -->
-                            <style>
-                                .o_expense_type_table .o_field_x2many_list_row_add,
-                                .o_expense_type_table tfoot {
-                                    display: none !important;
-                                }
-                            </style>
                             <field name="expense_type_ids" class="o_expense_type_table" context="{'active_test': False}" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
