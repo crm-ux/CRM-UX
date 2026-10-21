@@ -956,9 +956,42 @@ div[name="automated_probability"],
     color: #08285e !important;
 }
 
-/* Service Ticket: Quick Add Expense File Upload */
-.o_field_widget[name="new_voucher_bill_file"] {
+/* Service Ticket: Quick Add Expense File Upload styled as a button like Add Expense */
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] {
+    display: inline-block !important;
     width: auto !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button,
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] button,
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .btn {
+    background-color: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 8px 18px !important;
+    border-radius: 4px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button:hover,
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] button:hover,
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .btn:hover {
+    background-color: #082d6e !important;
+    border-color: #082d6e !important;
+    color: #ffffff !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] .o_select_file_button *,
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_bill_file"] button * {
+    color: #ffffff !important;
 }
 
 /* Service Ticket Quick Add + Add Button */
