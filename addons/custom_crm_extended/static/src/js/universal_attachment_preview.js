@@ -235,9 +235,10 @@ export class UniversalAttachmentPreviewDialog extends Component {
 
     get excelSheets() {
         if (this.props.previewContent?.type === "excel_content" || this.props.previewContent?.type === "spreadsheet") {
-            return this.props.previewContent.sheets || [];
+            const sheets = this.props.previewContent.sheets;
+            return (Array.isArray(sheets) && sheets.length > 0) ? sheets : null;
         }
-        return [];
+        return null;
     }
 
     get activeSheetRows() {

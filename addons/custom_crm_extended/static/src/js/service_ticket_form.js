@@ -166,6 +166,25 @@ export class ServiceTicketFormController extends FormController {
                     }
                 }
 
+                // For office documents/excel/zip, retrieve formatted preview content from server
+                let previewContent = null;
+                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
+                    (filename || "").toLowerCase().endsWith("." + ext)
+                );
+
+                if (isDocOrZipOrExcel && fileData) {
+                    try {
+                        previewContent = await this.env.services.orm.call(
+                            "equipment.master",
+                            "action_get_invoice_preview_content",
+                            [false, fileData, filename],
+                            {}
+                        );
+                    } catch (callErr) {
+                        console.error("Error retrieving voucher bill preview content:", callErr);
+                    }
+                }
+
                 const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
 
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
@@ -173,6 +192,7 @@ export class ServiceTicketFormController extends FormController {
                     fileUrl: fileUrl,
                     fileData: fileData,
                     filename: filename,
+                    previewContent: previewContent,
                 });
             };
 
