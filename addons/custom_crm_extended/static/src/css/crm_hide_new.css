@@ -992,16 +992,53 @@ button[name="action_add_voucher_line"]:hover {
 }
 
 /* Service Ticket Quick Add: Form-like horizontal input boxes & custom blue theme (No Purple) */
+.o_voucher_quick_add_bar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+}
+
+.o_voucher_quick_add_bar > div {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 0 !important;
+}
+
+.o_voucher_quick_add_bar span,
+.o_voucher_quick_add_bar label,
+.o_voucher_quick_add_bar .o_form_label {
+    display: inline-block !important;
+    margin-bottom: 0 !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget {
+    margin-bottom: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
 .o_voucher_quick_add_bar .o_field_widget input,
 .o_voucher_quick_add_bar .o_field_widget select,
 .o_voucher_quick_add_bar .o_field_widget .o_input,
 .o_voucher_quick_add_bar .o_field_widget textarea {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
-    padding: 4px 8px !important;
+    padding: 3px 8px !important;
+    height: 32px !important;
     background-color: #ffffff !important;
     box-shadow: none !important;
     color: #1e293b !important;
+    font-size: 13px !important;
     transition: border-color 0.15s ease-in-out !important;
 }
 
@@ -1031,7 +1068,10 @@ button[name="action_add_voucher_line"]:hover {
     border-radius: 4px !important;
     padding: 2px 6px !important;
     background-color: #ffffff !important;
-    min-height: 34px !important;
+    min-height: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
 .o_voucher_quick_add_bar .o_field_many2many_tags.o_focused,
@@ -1043,6 +1083,8 @@ button[name="action_add_voucher_line"]:hover {
 .o_voucher_quick_add_bar .o_field_many2many_tags input {
     border: none !important;
     box-shadow: none !important;
+    height: auto !important;
+    padding: 0 !important;
 }
 
 /* Expense Setting Table: Hide bottom add row and footer */
