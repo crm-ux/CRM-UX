@@ -991,39 +991,32 @@ button[name="action_add_voucher_line"]:hover {
     border-color: #082d6e !important;
 }
 
-/* Service Ticket Quick Add: Form-like horizontal input boxes & custom blue theme (No Purple) */
+/* Service Ticket Quick Add: Single-column Form Stack (1 Field Per Row) */
 .o_voucher_quick_add_bar {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    gap: 12px !important;
-    overflow-x: auto !important;
+    display: block !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
-.o_voucher_quick_add_bar > div {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 6px !important;
-    margin-bottom: 0 !important;
+.o_voucher_quick_add_bar .row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 .o_voucher_quick_add_bar span,
 .o_voucher_quick_add_bar label,
 .o_voucher_quick_add_bar .o_form_label {
     display: inline-block !important;
-    margin-bottom: 0 !important;
     white-space: nowrap !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 600 !important;
     color: #475569 !important;
 }
 
 .o_voucher_quick_add_bar .o_field_widget {
     margin-bottom: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
+    display: block !important;
     width: 100% !important;
 }
 
@@ -1033,12 +1026,13 @@ button[name="action_add_voucher_line"]:hover {
 .o_voucher_quick_add_bar .o_field_widget textarea {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
-    padding: 3px 8px !important;
-    height: 32px !important;
+    padding: 6px 10px !important;
+    height: 36px !important;
     background-color: #ffffff !important;
     box-shadow: none !important;
     color: #1e293b !important;
     font-size: 13px !important;
+    width: 100% !important;
     transition: border-color 0.15s ease-in-out !important;
 }
 
