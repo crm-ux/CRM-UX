@@ -159,15 +159,44 @@ class ServiceTicket(models.Model):
 
     def action_add_voucher_line(self):
         self.ensure_one()
-        if self.new_voucher_expense_type_id and self.new_voucher_amount > 0:
-            target_users = self.new_voucher_user_ids
-            if not target_users:
-                default_user = self.engineer_id or self.env.user
-                target_users = default_user
+        if not self.new_voucher_user_ids:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Employee',
+                    'message': 'Please select at least one Employee before adding an expense.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+        if not self.new_voucher_amount or self.new_voucher_amount <= 0:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Amount',
+                    'message': 'Please enter a valid expense Amount greater than 0.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+        if not self.new_voucher_expense_type_id:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Expense Type',
+                    'message': 'Please select an Expense Type.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
-            user_count = len(target_users)
-            exp_type = self.new_voucher_expense_type_id
-            split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
+        target_users = self.new_voucher_user_ids
+        user_count = len(target_users)
+        exp_type = self.new_voucher_expense_type_id
+        split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
 
             # 1. Determine each user's specific per-visit limit for this expense category
             # Look for position-specific rule or fallback to exp_type.budget_limit
