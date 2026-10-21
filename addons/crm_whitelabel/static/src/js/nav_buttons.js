@@ -140,6 +140,15 @@ patch(ControlPanel.prototype, {
         return true;
     },
 
+    get canShowVoucherConfigButton() {
+        const resModel = this.env.searchModel?.resModel || this.action?.currentController?.props?.resModel;
+        return resModel === "service.ticket.voucher.line";
+    },
+
+    openVoucherConfiguration() {
+        this.action.doAction("custom_crm_extended.action_expense_setting");
+    },
+
     get unscheduledTasksCount() {
         return window.__crm_unscheduled_count || 0;
     },
