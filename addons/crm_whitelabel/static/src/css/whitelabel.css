@@ -1358,16 +1358,39 @@ button[name="action_cancel_future_series"] i {
     color: #082d6e !important;
 }
 
-/* Delete / Trash icon in custom dark blue color */
+/* Delete / Trash icon and download icon in custom dark blue color across all forms, expense lines, and tables */
 [name="task_attachment_ids"] .o_list_record_remove .fa-trash,
 [name="task_attachment_ids"] .o_list_record_remove .fa-trash-o,
 [name="task_attachment_ids"] .o_list_record_remove button,
 [name="wizard_attachment_ids"] .o_list_record_remove .fa-trash,
 [name="wizard_attachment_ids"] .o_list_record_remove .fa-trash-o,
-[name="wizard_attachment_ids"] .o_list_record_remove button {
+[name="wizard_attachment_ids"] .o_list_record_remove button,
+.o_field_binary .fa-download,
+.o_field_binary_file .fa-download,
+.o_field_binary .fa-trash,
+.o_field_binary .fa-trash-o,
+.o_field_binary_file .fa-trash,
+.o_field_binary_file .fa-trash-o,
+.o_field_binary .fa-pencil,
+.o_field_binary_file .fa-pencil,
+.o_list_table .o_list_record_remove .fa-trash,
+.o_list_table .o_list_record_remove .fa-trash-o,
+.o_list_table .o_list_record_remove button,
+.o_list_table .fa-download,
+.o_field_widget .fa-download,
+.o_field_widget .fa-trash,
+.o_field_widget .fa-trash-o,
+[name="expense_ids"] .fa-download,
+[name="expense_ids"] .fa-trash,
+[name="expense_ids"] .fa-trash-o,
+[name="expense_line_ids"] .fa-download,
+[name="expense_line_ids"] .fa-trash,
+[name="expense_line_ids"] .fa-trash-o,
+[name="ticket_expense_ids"] .fa-download,
+[name="ticket_expense_ids"] .fa-trash,
+[name="ticket_expense_ids"] .fa-trash-o {
     color: #0b3d91 !important;
-    font-size: 1.15rem !important;
-    opacity: 0.85 !important;
+    opacity: 0.9 !important;
     transition: all 0.15s ease !important;
 }
 
@@ -1376,7 +1399,26 @@ button[name="action_cancel_future_series"] i {
 [name="task_attachment_ids"] .o_list_record_remove button:hover,
 [name="wizard_attachment_ids"] .o_list_record_remove:hover .fa-trash,
 [name="wizard_attachment_ids"] .o_list_record_remove:hover .fa-trash-o,
-[name="wizard_attachment_ids"] .o_list_record_remove button:hover {
+[name="wizard_attachment_ids"] .o_list_record_remove button:hover,
+.o_field_binary .fa-download:hover,
+.o_field_binary_file .fa-download:hover,
+.o_field_binary .fa-trash:hover,
+.o_field_binary .fa-trash-o:hover,
+.o_field_binary_file .fa-trash:hover,
+.o_field_binary_file .fa-trash-o:hover,
+.o_list_table .o_list_record_remove:hover .fa-trash,
+.o_list_table .o_list_record_remove:hover .fa-trash-o,
+.o_list_table .o_list_record_remove button:hover,
+.o_list_table .fa-download:hover,
+[name="expense_ids"] .fa-download:hover,
+[name="expense_ids"] .fa-trash:hover,
+[name="expense_ids"] .fa-trash-o:hover,
+[name="expense_line_ids"] .fa-download:hover,
+[name="expense_line_ids"] .fa-trash:hover,
+[name="expense_line_ids"] .fa-trash-o:hover,
+[name="ticket_expense_ids"] .fa-download:hover,
+[name="ticket_expense_ids"] .fa-trash:hover,
+[name="ticket_expense_ids"] .fa-trash-o:hover {
     color: #082d6e !important;
     opacity: 1 !important;
     transform: scale(1.15) !important;

@@ -154,7 +154,7 @@
                                 <field name="name" string="File Name"/>
                                 <field name="file" filename="name" widget="binary" string="File" options="{'no_clear': True}"/>
                                 <button name="action_preview_file" 
-                                        type="object" 
+                                        type="button" 
                                         icon="fa-eye" 
                                         title="Preview" 
                                         invisible="not file"

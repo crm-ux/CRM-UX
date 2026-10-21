@@ -2,6 +2,9 @@
 
 import { Component, xml, useState, onMounted, onPatched, onWillUnmount, useRef } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
+import { FormController } from "@web/views/form/form_controller";
+import { formView } from "@web/views/form/form_view";
+import { registry } from "@web/core/registry";
 import { _t } from "@web/core/l10n/translation";
 
 /**
@@ -294,6 +297,9 @@ export class UniversalAttachmentPreviewDialog extends Component {
         return this.props.fileUrl || "";
     }
 }
+if (typeof window !== "undefined") {
+    window.UniversalAttachmentPreviewDialog = UniversalAttachmentPreviewDialog;
+}
 
 /**
  * Universal Attachment Helpers (Reusable across any Form Controller)
@@ -510,9 +516,6 @@ export function setupUniversalAttachmentHandling(controller, fieldConfigs) {
 }
 
 // ── Auto-register Task Management Form View directly into Universal Handler ──
-import { FormController } from "@web/views/form/form_controller";
-import { formView } from "@web/views/form/form_view";
-import { registry } from "@web/core/registry";
 
 export class CrmTaskManagementFormController extends FormController {
     setup() {
@@ -631,16 +634,19 @@ export class CrmTaskManagementFormController extends FormController {
                     }
                 }
 
-                // 5. Reuse UniversalAttachmentPreviewDialog with exact same props as equipment master
+                // 5. Open UniversalAttachmentPreviewDialog
                 const fileUrl = recId ? `/web/content/crm.task.attachment/${recId}/file/${encodeURIComponent(filename)}?download=false` : null;
 
-                this.dialogService.add(UniversalAttachmentPreviewDialog, {
-                    title: filename || _t("Document Preview"),
-                    fileUrl: fileUrl,
-                    fileData: fileData,
-                    filename: filename,
-                    previewContent: previewContent,
-                });
+                const dialog = this.env.services.dialog || this.dialogService;
+                if (dialog) {
+                    dialog.add(UniversalAttachmentPreviewDialog, {
+                        title: filename || _t("Document Preview"),
+                        fileUrl: fileUrl,
+                        fileData: fileData,
+                        filename: filename,
+                        previewContent: previewContent,
+                    });
+                }
             };
 
             document.addEventListener("click", handleTaskRowPreview, true);
@@ -651,6 +657,56 @@ export class CrmTaskManagementFormController extends FormController {
             });
         }
     }
+}
+
+// Global fallback handler for previewing any task attachment or equipment attachment row anywhere in Odoo
+if (typeof window !== "undefined") {
+    document.addEventListener("click", async (ev) => {
+        const previewBtn = ev.target.closest("button[name='action_preview_file']");
+        if (!previewBtn) return;
+
+        const row = previewBtn.closest("tr, .o_data_row");
+        if (!row) return;
+
+        // Check if inside task attachments or wizard attachments
+        const isTaskRow = row.closest("[name='task_attachment_ids'], [name='wizard_attachment_ids'], .crm-task-management-form");
+        if (!isTaskRow) return;
+
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        const nameCell = row.querySelector("td[name='name'], [name='name'] input, [name='file'] a, [name='file']");
+        let filename = (nameCell ? (nameCell.value || nameCell.innerText) : "").trim();
+
+        // Check file link
+        const fileLink = row.querySelector("[name='file'] a, a.o_image");
+        let fileUrl = fileLink ? fileLink.getAttribute("href") : null;
+
+        // Check file input for unsaved file
+        let fileData = null;
+        const fileInp = row.querySelector("input[type='file']");
+        if (fileInp && fileInp.files && fileInp.files[0]) {
+            filename = filename || fileInp.files[0].name;
+            fileData = await new Promise((resolve) => {
+                const r = new FileReader();
+                r.onload = () => resolve(r.result.split(",")[1]);
+                r.readAsDataURL(fileInp.files[0]);
+            });
+        }
+
+        const env = odoo.__WOWL_DEBUG__?.root?.env;
+        const dialogService = env?.services?.dialog;
+        if (dialogService) {
+            dialogService.add(UniversalAttachmentPreviewDialog, {
+                title: filename || _t("Document Preview"),
+                fileUrl: fileUrl,
+                fileData: fileData,
+                filename: filename,
+            });
+        } else if (fileUrl) {
+            window.open(fileUrl, "_blank");
+        }
+    }, true);
 }
 
 registry.category("views").add("crm_task_management_form", {
