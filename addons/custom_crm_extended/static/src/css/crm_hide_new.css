@@ -934,3 +934,24 @@ div[name="automated_probability"],
 .o_field_widget[name="automated_probability"] {
     display: none !important;
 }
+
+/* Service Ticket & Voucher list: Make bill download link and eye preview icon custom blue instead of purple */
+.o_voucher_card_list [name="bill_file"] a,
+.o_voucher_card_list [name="bill_file"] a *,
+.o_voucher_card_list [name="action_preview_bill"],
+.o_voucher_card_list [name="action_preview_bill"] i,
+.o_voucher_card_list [name="action_preview_bill"] .fa,
+.o_list_view [name="bill_file"] a,
+.o_list_view [name="bill_file"] a *,
+.o_list_view [name="action_preview_bill"],
+.o_list_view [name="action_preview_bill"] i,
+.o_list_view [name="action_preview_bill"] .fa {
+    color: #0b3d91 !important;
+}
+
+.o_voucher_card_list [name="bill_file"] a:hover,
+.o_voucher_card_list [name="action_preview_bill"]:hover i,
+.o_list_view [name="bill_file"] a:hover,
+.o_list_view [name="action_preview_bill"]:hover i {
+    color: #08285e !important;
+}

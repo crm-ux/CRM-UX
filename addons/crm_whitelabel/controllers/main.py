@@ -25,7 +25,7 @@ class CrmWhitelabelController(http.Controller):
         action_id = action.id if action else ''
         return request.redirect(f'/web#action={action_id}')
 
-    @http.route('/crm/user/get_profile', type='json', auth='user')
+    @http.route('/crm/user/get_profile', type='jsonrpc', auth='user')
     def get_user_profile(self, user_id=None, **kw):
         try:
             target_uid = int(user_id) if user_id else (int(kw.get('user_id')) if kw.get('user_id') else request.env.user.id)
@@ -115,7 +115,7 @@ class CrmWhitelabelController(http.Controller):
                 'expense_manager': (getattr(u, 'crm_expense_manager_id', None) and u.crm_expense_manager_id.name) or '',
             }
 
-    @http.route('/crm/user/save_profile', type='json', auth='user')
+    @http.route('/crm/user/save_profile', type='jsonrpc', auth='user')
     def save_user_profile(self, name=None, login=None, email=None, phone=None, mobile=None, **kw):
         try:
             user = request.env.user.sudo()

@@ -98,6 +98,87 @@ export class ServiceTicketFormController extends FormController {
                 },
             ]);
 
+            // Handle Eye Preview button on Voucher lines (Custom preview dialog instead of opening a new browser tab)
+            const handleVoucherBillPreview = async (ev) => {
+                const previewBtn = ev.target.closest("button[name='action_preview_bill']");
+                if (!previewBtn) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const row = previewBtn.closest("tr, .o_data_row");
+                if (!row) return;
+
+                let filename = "bill.png";
+                let fileData = null;
+                let recId = null;
+
+                // Match with voucher_line_ids in root record data
+                const record = this.model?.root;
+                const voucherList = record?.data?.voucher_line_ids;
+                let voucherRecord = null;
+                if (voucherList && voucherList.records) {
+                    const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                    const rowIndex = allRows.indexOf(row);
+                    if (rowIndex >= 0 && rowIndex < voucherList.records.length) {
+                        voucherRecord = voucherList.records[rowIndex];
+                    }
+                }
+
+                if (voucherRecord) {
+                    recId = voucherRecord.resId || null;
+                    filename = voucherRecord.data.bill_filename || filename;
+                    fileData = voucherRecord.data.bill_file || null;
+                }
+
+                // If not yet saved or cached in file input
+                if (!fileData) {
+                    const fileInp = row.querySelector("input[type='file']");
+                    if (fileInp && fileInp.files && fileInp.files[0]) {
+                        const localFile = fileInp.files[0];
+                        filename = localFile.name || filename;
+                        fileData = await new Promise((resolve) => {
+                            const r = new FileReader();
+                            r.onload = () => resolve(r.result.split(",")[1]);
+                            r.readAsDataURL(localFile);
+                        });
+                    }
+                }
+
+                // If fileData is a size string, fetch raw binary from server
+                const isSizeString = typeof fileData === "string" && (
+                    fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
+                );
+                if (recId && (!fileData || isSizeString)) {
+                    try {
+                        const res = await this.env.services.orm.read(
+                            "service.ticket.voucher.line",
+                            [recId],
+                            ["bill_file", "bill_filename"],
+                            { context: { bin_size: false } }
+                        );
+                        if (res && res[0]) {
+                            fileData = res[0].bill_file || fileData;
+                            if (res[0].bill_filename) filename = res[0].bill_filename;
+                        }
+                    } catch (readErr) {
+                        console.warn("Could not read voucher bill_file:", readErr);
+                    }
+                }
+
+                const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
+
+                const { UniversalAttachmentPreviewDialog } = await import("./universal_attachment_preview");
+                this.dialogService.add(UniversalAttachmentPreviewDialog, {
+                    title: filename || _t("Bill Preview"),
+                    fileUrl: fileUrl,
+                    fileData: fileData,
+                    filename: filename,
+                });
+            };
+
+            document.addEventListener("click", handleVoucherBillPreview, true);
+
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -112,6 +193,7 @@ export class ServiceTicketFormController extends FormController {
                 if (cleanupAttachments) {
                     cleanupAttachments();
                 }
+                document.removeEventListener("click", handleVoucherBillPreview, true);
             });
         }
     }

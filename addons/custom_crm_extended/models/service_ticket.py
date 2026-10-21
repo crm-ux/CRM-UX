@@ -124,8 +124,7 @@ class ServiceTicket(models.Model):
                 'ticket_id': self.id,
                 'user_id': self.engineer_id.id or self.env.user.id,
                 'expense_type_id': self.new_voucher_expense_type_id.id,
-                'start_km': self.new_voucher_start_km,
-                'end_km': self.new_voucher_end_km,
+                'is_km_based': self.new_voucher_expense_type_id.is_km_based,
                 'total_km': self.new_voucher_total_km,
                 'rate_per_km': self.new_voucher_rate_per_km,
                 'description': self.new_voucher_description or '',
@@ -358,7 +357,7 @@ class ServiceTicketVoucherLine(models.Model):
     user_id = fields.Many2one('res.users', string='Employee', required=False, default=lambda self: self.env.user)
     department_id = fields.Many2one('hr.department', string='Department')
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
-    is_km_based = fields.Boolean(string='KM Based', default=False)
+    is_km_based = fields.Boolean(related='expense_type_id.is_km_based', string='KM Based', store=True, readonly=True)
 
     @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
     def _compute_user_id(self):
