@@ -8,7 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { setupUniversalAttachmentHandling } from "./universal_attachment_preview";
+import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
 const WIZARD_ACTION = "custom_crm_extended.action_service_ticket_wizard";
@@ -168,7 +168,6 @@ export class ServiceTicketFormController extends FormController {
 
                 const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
 
-                const { UniversalAttachmentPreviewDialog } = await import("./universal_attachment_preview");
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename || _t("Bill Preview"),
                     fileUrl: fileUrl,
