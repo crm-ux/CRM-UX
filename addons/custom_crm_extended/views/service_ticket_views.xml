@@ -101,8 +101,16 @@
                                 <!-- Top Inline Input Bar -->
                                 <div class="row g-2 align-items-center">
                                     <field name="new_voucher_is_km" invisible="1"/>
-                                    <!-- Expense Type -->
+                                    <!-- Multiple Employee Selection (Group Voucher) -->
                                     <div class="col-12 col-md-3">
+                                        <field name="new_voucher_user_ids"
+                                            widget="many2many_tags"
+                                            options="{'no_create': True}"
+                                            placeholder="Employees / Team (Cost Divided)..."/>
+                                    </div>
+
+                                    <!-- Expense Type -->
+                                    <div class="col-12 col-md-2">
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
                                             domain="[('active', '=', True)]" 
@@ -110,28 +118,28 @@
                                     </div>
 
                                     <!-- KM Inputs when Expense Type is KM-based -->
-                                    <div class="col-12 col-md-2" invisible="not new_voucher_is_km">
+                                    <div class="col-6 col-md-1" invisible="not new_voucher_is_km">
                                         <field name="new_voucher_total_km" placeholder="Total KM"/>
                                     </div>
-                                    <div class="col-12 col-md-1" invisible="not new_voucher_is_km">
+                                    <div class="col-6 col-md-1" invisible="not new_voucher_is_km">
                                         <field name="new_voucher_rate_per_km" placeholder="₹/KM"/>
                                     </div>
 
                                     <!-- Description -->
-                                    <div class="col-12 col-md-3">
+                                    <div class="col-12 col-md-2">
                                         <field name="new_voucher_description" 
                                             class="w-100" 
                                             placeholder="Enter description..."/>
                                     </div>
 
                                     <!-- Amount -->
-                                    <div class="col-12 col-md-1">
+                                    <div class="col-6 col-md-1">
                                         <field name="new_voucher_amount" 
                                             placeholder="Amount (₹)"/>
                                     </div>
 
                                     <!-- Attach Bill -->
-                                    <div class="col-12 col-md-2">
+                                    <div class="col-6 col-md-1">
                                         <field name="new_voucher_bill_file" 
                                             filename="new_voucher_bill_filename" 
                                             widget="binary" 
@@ -139,50 +147,41 @@
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
 
-                                    <!-- Add Button -->
+                                    <!-- Add Button (Disabled until expense selected and amount > 0) -->
                                     <div class="col-12 col-md-1 text-end">
                                         <button name="action_add_voucher_line" 
                                                 string="+ Add" 
                                                 type="object" 
-                                                class="btn btn-primary w-100"/>
+                                                class="btn text-white w-100"
+                                                style="background-color: #0b3d91; border-color: #0b3d91;"
+                                                invisible="not new_voucher_expense_type_id or new_voucher_amount &lt;= 0"/>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Horizontal Employee Names Strip & Group Submission Bar -->
-                            <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" invisible="not voucher_line_ids">
+                            <!-- Horizontal Employee Names Strip & Group Submission Bar (Only shows when multiple employees exist) -->
+                            <field name="voucher_employee_count" invisible="1"/>
+                            <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" 
+                                 invisible="voucher_employee_count &lt;= 1"
+                                 style="border-left: 4px solid #0b3d91 !important;">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="text-muted small fw-semibold">
-                                        <i class="fa fa-users text-primary me-1"></i>Employees:
+                                    <span class="small fw-bold" style="color: #0b3d91;">
+                                        <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
                                     </span>
-                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1 px-2 fw-semibold">
+                                    <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
                                         <field name="voucher_employee_names" readonly="1" class="d-inline"/>
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <field name="has_draft_vouchers" invisible="1"/>
-                                    <field name="has_submitted_vouchers" invisible="1"/>
                                     <!-- Submit All Button (Visible when lines are in draft) -->
                                     <button name="action_submit_all_vouchers"
                                             string="Submit All Expenses"
                                             type="object"
-                                            class="btn btn-sm btn-primary fw-semibold px-3"
+                                            class="btn btn-sm text-white fw-semibold px-3"
+                                            style="background-color: #0b3d91; border-color: #0b3d91;"
                                             invisible="not has_draft_vouchers"
                                             icon="fa-paper-plane"/>
-
-                                    <!-- Manager Bulk Approve / Reject Buttons -->
-                                    <button name="action_approve_all_vouchers"
-                                            string="Approve All"
-                                            type="object"
-                                            class="btn btn-sm btn-success fw-semibold px-3"
-                                            invisible="not has_submitted_vouchers"
-                                            icon="fa-check"/>
-                                    <button name="action_reject_all_vouchers"
-                                            string="Reject All"
-                                            type="object"
-                                            class="btn btn-sm btn-outline-danger fw-semibold px-2"
-                                            invisible="not has_submitted_vouchers"
-                                            icon="fa-times"/>
                                 </div>
                             </div>
 

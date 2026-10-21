@@ -55,30 +55,36 @@
                     </div>
                 </div>
 
-                <!-- CARD: Expense Types & KM Calculation -->
+                <!-- CARD: Expense Types & Global Points / Budget System -->
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                             <div class="d-flex align-items-center mb-1">
                                 <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
-                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Service Ticket Expense Types &amp; KM Calculation</strong>
+                                <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types, Global Budget/Points &amp; Role Permissions</strong>
                             </div>
-                            <p class="text-muted small mb-3">Add expense categories below. You can enable KM calculation (e.g. for Travel) with custom rate per KM.</p>
+                            <p class="text-muted small mb-3">Configure expense categories, global budget/points limit, reset cycle, KM calculations, and enable/disable by specific Job Positions.</p>
 
                             <!-- Direct Inline Input Box (Quick Add) -->
                             <div class="row g-2 align-items-center mb-3">
-                                <div class="col-12 col-md-4">
-                                    <field name="new_expense_type_name" nolabel="1" placeholder="Type expense name (e.g. Travel, Fuel, Food)..."/>
+                                <div class="col-12 col-md-3">
+                                    <field name="new_expense_type_name" nolabel="1" placeholder="Expense name (e.g. Travel, Food, Hotel)..."/>
                                 </div>
-                                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                                <div class="col-6 col-md-2">
+                                    <field name="new_expense_type_budget_limit" placeholder="Budget / Points (₹)"/>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <field name="new_expense_type_budget_cycle"/>
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <field name="new_expense_type_job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Allowed Job Positions (All if blank)..."/>
+                                </div>
+                                <div class="col-6 col-md-1 d-flex align-items-center gap-1">
                                     <field name="new_expense_type_is_km" widget="boolean_toggle"/>
-                                    <label for="new_expense_type_is_km" string="KM Based?" class="m-0 small fw-semibold"/>
+                                    <label for="new_expense_type_is_km" string="KM?" class="m-0 small fw-semibold"/>
                                 </div>
-                                <div class="col-6 col-md-3">
-                                    <field name="new_expense_type_km_rate" placeholder="Rate per KM (₹)"/>
-                                </div>
-                                <div class="col-12 col-md-2 text-end">
-                                    <button name="action_add_expense_type" string="+ Add Type" type="object" class="btn btn-primary btn-sm w-100"/>
+                                <div class="col-6 col-md-1 text-end">
+                                    <button name="action_add_expense_type" string="+ Add" type="object" class="btn btn-primary btn-sm w-100"/>
                                 </div>
                             </div>
 
@@ -92,10 +98,13 @@
                             <field name="expense_type_ids" class="o_expense_type_table" context="{'active_test': False}" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
-                                    <field name="name" string="Expense Type"/>
+                                    <field name="name" string="Expense Type" class="fw-semibold"/>
+                                    <field name="budget_limit" string="Global Budget / Points (₹)"/>
+                                    <field name="budget_cycle" string="Reset Cycle"/>
+                                    <field name="job_ids" widget="many2many_tags" string="Enabled Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
                                     <field name="km_rate" string="Rate / KM (₹)"/>
-                                    <field name="active" widget="boolean_toggle"/>
+                                    <field name="active" string="Active" widget="boolean_toggle"/>
                                 </list>
                             </field>
                         </div>

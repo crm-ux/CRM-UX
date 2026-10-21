@@ -92,6 +92,15 @@ class ServiceTicket(models.Model):
     ], string='Ticket Status', default='new', tracking=True)
 
     # Quick Add Voucher Fields on Ticket
+    new_voucher_user_ids = fields.Many2many(
+        'res.users',
+        'service_ticket_quick_voucher_user_rel',
+        'ticket_id',
+        'user_id',
+        string='Employees / Team',
+        domain="[('share', '=', False)]",
+        help="Select one or multiple employees to divide the total expense cost equally."
+    )
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
@@ -126,22 +135,36 @@ class ServiceTicket(models.Model):
 
     def action_add_voucher_line(self):
         self.ensure_one()
-        if self.new_voucher_expense_type_id and self.new_voucher_amount:
-            self.env['service.ticket.voucher.line'].create({
-                'ticket_id': self.id,
-                'user_id': self.engineer_id.id or self.env.user.id,
-                'expense_type_id': self.new_voucher_expense_type_id.id,
-                'is_km_based': self.new_voucher_expense_type_id.is_km_based,
-                'total_km': self.new_voucher_total_km,
-                'rate_per_km': self.new_voucher_rate_per_km,
-                'description': self.new_voucher_description or '',
-                'amount': self.new_voucher_amount,
-                'bill_file': self.new_voucher_bill_file,
-                'bill_filename': self.new_voucher_bill_filename,
-                'status': 'draft',
-            })
+        if self.new_voucher_expense_type_id and self.new_voucher_amount > 0:
+            target_users = self.new_voucher_user_ids
+            if not target_users:
+                default_user = self.engineer_id or self.env.user
+                target_users = default_user
+
+            user_count = len(target_users)
+            split_amount = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
+            split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
+
+            for u in target_users:
+                dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
+                self.env['service.ticket.voucher.line'].create({
+                    'ticket_id': self.id,
+                    'user_id': u.id,
+                    'department_id': dept.id if dept else False,
+                    'expense_type_id': self.new_voucher_expense_type_id.id,
+                    'is_km_based': self.new_voucher_expense_type_id.is_km_based,
+                    'total_km': split_km,
+                    'rate_per_km': self.new_voucher_rate_per_km,
+                    'description': self.new_voucher_description or '',
+                    'amount': split_amount,
+                    'bill_file': self.new_voucher_bill_file,
+                    'bill_filename': self.new_voucher_bill_filename,
+                    'status': 'draft',
+                })
+
             self.write({
                 'new_voucher_expense_type_id': False,
+                'new_voucher_user_ids': [(5, 0, 0)],
                 'new_voucher_start_km': 0.0,
                 'new_voucher_end_km': 0.0,
                 'new_voucher_total_km': 0.0,
@@ -155,8 +178,8 @@ class ServiceTicket(models.Model):
 
     # Group Voucher Submission fields & helpers
     voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')
+    voucher_employee_count = fields.Integer(compute='_compute_voucher_strip', string='Employee Count')
     has_draft_vouchers = fields.Boolean(compute='_compute_voucher_strip', string='Has Draft Vouchers')
-    has_submitted_vouchers = fields.Boolean(compute='_compute_voucher_strip', string='Has Submitted Vouchers')
     total_voucher_amount = fields.Monetary(compute='_compute_voucher_strip', string='Total Voucher Amount', currency_field='currency_id')
 
     @api.depends('voucher_line_ids', 'voucher_line_ids.status', 'voucher_line_ids.user_id', 'voucher_line_ids.amount')
@@ -164,7 +187,6 @@ class ServiceTicket(models.Model):
         for rec in self:
             names = []
             has_draft = False
-            has_submitted = False
             total_amt = 0.0
             for line in rec.voucher_line_ids:
                 total_amt += line.amount or 0.0
@@ -172,11 +194,9 @@ class ServiceTicket(models.Model):
                     names.append(line.user_id.name)
                 if line.status == 'draft':
                     has_draft = True
-                elif line.status == 'submitted':
-                    has_submitted = True
             rec.voucher_employee_names = ", ".join(names) if names else ''
+            rec.voucher_employee_count = len(names)
             rec.has_draft_vouchers = has_draft
-            rec.has_submitted_vouchers = has_submitted
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
@@ -188,28 +208,6 @@ class ServiceTicket(models.Model):
             draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected'))
         if draft_lines:
             draft_lines.write({'status': 'submitted'})
-        return True
-
-    def action_approve_all_vouchers(self):
-        """Manager approves all submitted voucher lines."""
-        self.ensure_one()
-        submitted = self.voucher_line_ids.filtered(lambda l: l.status == 'submitted')
-        if submitted:
-            submitted.write({
-                'status': 'approved',
-                'expense_manager_id': self.env.user.id,
-            })
-        return True
-
-    def action_reject_all_vouchers(self):
-        """Manager rejects all submitted voucher lines."""
-        self.ensure_one()
-        submitted = self.voucher_line_ids.filtered(lambda l: l.status == 'submitted')
-        if submitted:
-            submitted.write({
-                'status': 'rejected',
-                'expense_manager_id': self.env.user.id,
-            })
         return True
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
@@ -412,6 +410,21 @@ class ServiceTicketExpenseType(models.Model):
     sequence = fields.Integer(string='Sequence', default=10)
     is_km_based = fields.Boolean(string='Calculate by KM', default=False)
     km_rate = fields.Float(string='Rate per KM (₹)', default=0.0)
+    budget_limit = fields.Float(string='Global Points / Budget Limit (₹)', default=0.0)
+    budget_cycle = fields.Selection([
+        ('monthly', 'Monthly'),
+        ('weekly', 'Weekly'),
+        ('daily', 'Daily'),
+        ('per_ticket', 'Per Ticket'),
+    ], string='Reset Frequency', default='monthly')
+    job_ids = fields.Many2many(
+        'hr.job',
+        'expense_type_job_rel',
+        'expense_type_id',
+        'job_id',
+        string='Allowed Job Positions',
+        help='Select job positions allowed to claim this expense. Leave empty to allow all positions.'
+    )
     active = fields.Boolean(string='Active', default=True)
 
 class ServiceTicketVoucherLine(models.Model):
