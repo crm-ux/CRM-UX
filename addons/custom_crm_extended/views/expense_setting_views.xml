@@ -153,7 +153,7 @@
         <field name="arch" type="xml">
             <form string="Expense Description">
                 <group>
-                    <field name="description" nolabel="1" readonly="1" widget="text" style="min-height: 120px; font-size: 14px;"/>
+                    <field name="description" nolabel="1" readonly="1" widget="text"/>
                 </group>
                 <footer>
                     <button string="Close" class="btn btn-secondary" special="cancel"/>
