@@ -1215,7 +1215,7 @@ button[name="action_add_voucher_line"]:hover {
     display: none !important;
 }
 
-/* ── Description column in Voucher Submissions list: compact size, ellipsis, clickable ── */
+/* ── Description column in Voucher Submissions list: compact size, ellipsis, clickable toggle ── */
 .o_list_table th[data-name="description"],
 .o_list_table td[name="description"] {
     max-width: 130px !important;
@@ -1224,11 +1224,20 @@ button[name="action_add_voucher_line"]:hover {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     cursor: pointer !important;
+    user-select: text !important;
 }
 
-.o_list_table td[name="description"]:hover {
-    color: #104a91 !important;
-    text-decoration: underline !important;
+/* Expanded state on click toggle */
+.o_list_table td[name="description"].is-expanded {
+    white-space: normal !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    overflow: visible !important;
+    max-width: 320px !important;
+    background-color: #f8fafc !important;
+    padding: 8px 10px !important;
+    border-radius: 4px !important;
+    box-shadow: inset 0 0 0 1px #cbd5e1 !important;
 }
 
 /* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */

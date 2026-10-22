@@ -94,41 +94,34 @@ patch(ListController.prototype, {
                 });
             };
 
-            const handleVoucherDescriptionClick = async (ev) => {
+            const handleVoucherDescriptionClick = (ev) => {
                 const cell = ev.target.closest("td[name='description']");
                 if (!cell) return;
 
                 ev.preventDefault();
                 ev.stopPropagation();
 
-                const row = cell.closest("tr, .o_data_row");
-                if (!row) return;
+                // Toggle expansion directly in-place without popup dialog or tooltip
+                cell.removeAttribute("title");
+                const span = cell.querySelector("span");
+                if (span) span.removeAttribute("title");
 
-                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
-                const rowIndex = allRows.indexOf(row);
-                const records = this.model?.root?.records || [];
-                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+                cell.classList.toggle("is-expanded");
+            };
 
-                const descText = record?.data?.description || cell.innerText?.trim() || "";
-                if (!descText) return;
-
-                if (record?.resId) {
-                    await this.env.services.action.doAction({
-                        name: _t("Expense Description"),
-                        type: "ir.actions.act_window",
-                        res_model: "service.ticket.voucher.desc.wizard",
-                        view_mode: "form",
-                        target: "new",
-                        context: {
-                            default_description: descText,
-                            default_voucher_line_id: record.resId,
-                        },
-                    });
+            // Prevent native browser tooltip on hover over description cells
+            const handleVoucherDescriptionMouseOver = (ev) => {
+                const cell = ev.target.closest("td[name='description']");
+                if (cell) {
+                    if (cell.hasAttribute("title")) cell.removeAttribute("title");
+                    const span = cell.querySelector("span");
+                    if (span && span.hasAttribute("title")) span.removeAttribute("title");
                 }
             };
 
             document.addEventListener("click", handleVoucherListBillPreview, true);
             document.addEventListener("click", handleVoucherDescriptionClick, true);
+            document.addEventListener("mouseover", handleVoucherDescriptionMouseOver, true);
         }
     },
     async createRecord() {
