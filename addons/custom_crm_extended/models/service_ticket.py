@@ -330,19 +330,28 @@ class ServiceTicket(models.Model):
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
             rec.has_draft_vouchers = has_draft
-            # Strip is only visible when there are multiple employees AND active draft/pending submissions to act on
             rec.show_voucher_strip = len(names) > 1 and has_draft
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
-        """Submit all draft voucher lines together as a group."""
+        """Submit all draft voucher lines together to the Expense Manager."""
         self.ensure_one()
         draft_lines = self.voucher_line_ids.filtered(lambda l: l.status == 'draft')
         if not draft_lines:
-            # If all are already submitted/empty, submit any pending lines
             draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected'))
         if draft_lines:
             draft_lines.write({'status': 'submitted'})
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Expenses Submitted'),
+                    'message': _('%d expense voucher(s) have been submitted to the Expense Manager.') % len(draft_lines),
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
+            }
         return True
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)

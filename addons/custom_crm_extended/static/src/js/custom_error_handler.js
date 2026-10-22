@@ -34,7 +34,6 @@ export function customCleanErrorHandler(env, error, originalError) {
                 title: _t("Warning"),
                 body: err.data.message,
                 confirmLabel: _t("OK"),
-                cancel: () => {},
             });
         } else if (env.services?.notification) {
             env.services.notification.add(err.data.message, {
@@ -46,13 +45,12 @@ export function customCleanErrorHandler(env, error, originalError) {
     }
 
     // 3. For any technical error / crash:
-    // Open a clean, centered modal dialog with the agreed 1-line apology
+    // Open a clean, centered modal dialog with only OK button and the agreed 1-line apology
     if (env.services?.dialog) {
         env.services.dialog.add(ConfirmationDialog, {
             title: _t("System Notice"),
             body: _t(CUSTOM_USER_ERROR_MESSAGE),
             confirmLabel: _t("OK"),
-            cancel: () => {},
         });
     } else if (env.services?.notification) {
         env.services.notification.add(_t(CUSTOM_USER_ERROR_MESSAGE), {
