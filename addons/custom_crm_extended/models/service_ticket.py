@@ -50,14 +50,10 @@ class ServiceTicket(models.Model):
     serial_number = fields.Char(string='Serial Number')
     part_number = fields.Char(string='Part Number')
     
-    def _default_complaint_type_id(self):
-        return self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1).id
-
     # Complaint Details
     complaint_type_id = fields.Many2one(
         'service.ticket.complaint.type', 
         string='Complaint Type', 
-        default=_default_complaint_type_id,
         ondelete='restrict',
         tracking=True
     )
@@ -72,6 +68,15 @@ class ServiceTicket(models.Model):
         ('medium', 'Medium'),
         ('low', 'Low')
     ], string='Priority', default='medium', tracking=True)
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        if 'complaint_type_id' in fields_list and not res.get('complaint_type_id'):
+            ct = self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1)
+            if ct:
+                res['complaint_type_id'] = ct.id
+        return res
 
     @api.model_create_multi
     def create(self, vals_list):

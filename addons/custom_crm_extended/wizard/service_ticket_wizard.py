@@ -25,14 +25,10 @@ class ServiceTicketWizard(models.TransientModel):
     part_number = fields.Char(string='Part Number')
     company_id = fields.Many2one("res.company", string="Company", default=lambda self: self.env.company)
 
-    def _default_complaint_type_id(self):
-        return self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1).id
-
     # Step 2: Complaint Details
     complaint_type_id = fields.Many2one(
         'service.ticket.complaint.type', 
-        string='Complaint Type',
-        default=_default_complaint_type_id
+        string='Complaint Type'
     )
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
@@ -91,6 +87,12 @@ class ServiceTicketWizard(models.TransientModel):
             res['ticket_id'] = preview_id
         else:
             res['ticket_id'] = _('New')
+
+        if 'complaint_type_id' in fields_list and not res.get('complaint_type_id'):
+            ct = self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1)
+            if ct:
+                res['complaint_type_id'] = ct.id
+
         return res
 
 
