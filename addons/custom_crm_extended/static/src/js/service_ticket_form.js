@@ -448,44 +448,36 @@ export class ServiceTicketFormController extends FormController {
 
     async discard() {
         if (this.props.resModel === "service.ticket") {
-            // Reset client-side quick add inputs immediately on discard/cancel
+            // 1. Immediately clear the DOM inputs in the Quick Add Expense box
+            const bar = document.querySelector(".o_voucher_quick_add_bar");
+            if (bar) {
+                const inputs = bar.querySelectorAll("input:not([name='new_voucher_rate_per_km']), select, textarea");
+                inputs.forEach((inp) => {
+                    if (inp.type === "file") {
+                        inp.value = "";
+                    } else if (inp.type !== "hidden") {
+                        inp.value = "";
+                    }
+                });
+                // Remove tags
+                const badges = bar.querySelectorAll(".badge");
+                badges.forEach((b) => b.remove());
+            }
+
+            // 2. Clear model root state
             if (this.model && this.model.root && this.model.root.update) {
-                this.model.root.update({
+                await this.model.root.update({
                     new_voucher_expense_type_id: false,
                     new_voucher_user_ids: [[5, 0, 0]],
                     new_voucher_total_km: 0.0,
                     new_voucher_amount: 0.0,
                     new_voucher_description: false,
                     new_voucher_bill_file: false,
+                    new_voucher_bill_filename: false,
                 });
             }
-            const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
-            const goBack = async () => {
-                await this.model.root.discard();
-                const breadcrumbs = this.env.config?.breadcrumbs || [];
-                if (breadcrumbs.length > 1) {
-                    const prev = breadcrumbs[breadcrumbs.length - 2];
-                    if (prev && prev.jsId) {
-                        this.actionService.restore(prev.jsId);
-                        return;
-                    }
-                }
-                this.actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
-            };
 
-            if (isDirty) {
-                this.dialogService.add(ConfirmationDialog, {
-                    title: _t("Discard changes?"),
-                    body: _t("The changes you made will be lost. Do you want to discard them and go back?"),
-                    confirmLabel: _t("Discard"),
-                    cancelLabel: _t("Stay Here"),
-                    confirm: goBack,
-                    cancel: () => { },
-                });
-                return;
-            }
-            await goBack();
-            return;
+            return super.discard(...arguments);
         }
         return super.discard(...arguments);
     }
