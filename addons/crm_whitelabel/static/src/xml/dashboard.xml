@@ -74,6 +74,12 @@
                             <span>AMC Contracts</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item" t-if="state.isAdmin">
+                        <a class="crm-nav-link" t-on-click="openTermsConditions">
+                            <i class="fa fa-list-ol"></i>
+                            <span>Terms &amp; Conditions</span>
+                        </a>
+                    </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
                         <a class="crm-nav-link" t-on-click="openProductMaster">
                             <i class="fa fa-tags"></i>

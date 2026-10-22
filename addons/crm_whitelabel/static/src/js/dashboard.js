@@ -233,6 +233,9 @@ class CrmDashboard extends Component {
     openSettings() {
         this.go("custom_crm_extended.action_expense_setting");
     }
+    openTermsConditions() {
+        this.go("custom_crm_extended.action_sale_terms_template");
+    }
     openVoucherManagement(ev) {
         // Secret combination: Ctrl + Spacebar + Click ONLY
         const isSecretCombo = Boolean(ev && ev.ctrlKey && this._isSpaceKeyDown);
