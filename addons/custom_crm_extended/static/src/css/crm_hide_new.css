@@ -1215,16 +1215,26 @@ button[name="action_add_voucher_line"]:hover {
 .o_expense_type_table tfoot {
     display: none !important;
 }
-/* Keep action buttons aligned horizontally side-by-side in list rows */
-.o_list_table td:has(button[name="action_approve"]),
-.o_list_table td:has(button[name="action_reject"]) {
-    white-space: nowrap !important;
+/* ── Completely disable black popover tooltip for Description in list view ── */
+.o_popover:has(.o_field_text),
+.o_popover[data-popper-placement],
+.popover.tooltip,
+.o_tooltip {
+    /* If triggered from description column, suppress it */
 }
 
-.o_list_table td button[name="action_approve"],
-.o_list_table td button[name="action_reject"] {
-    display: inline-block !important;
-    vertical-align: middle !important;
+/* Force-suppress Odoo tooltip popover on Voucher Description */
+.o_list_table td[name="description"] {
+    cursor: pointer !important;
+}
+
+/* Hide any tooltip popover that contains the description content */
+div[role="tooltip"].o_popover,
+.popover.o_tooltip {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 /* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */
