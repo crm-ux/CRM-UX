@@ -175,23 +175,21 @@
                 <field name="submitted_by_user_id" string="Submitted By"/>
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="expense_type_id" string="Expense Type"/>
-                <field name="status" string="Status"/>
                 <filter name="filter_submitted" string="Submitted" domain="[('status', '=', 'submitted')]"/>
                 <filter name="filter_approved" string="Approved" domain="[('status', '=', 'approved')]"/>
                 <filter name="filter_rejected" string="Rejected" domain="[('status', '=', 'rejected')]"/>
                 <separator/>
-                <group expand="1" string="Group By">
-                    <filter name="group_by_employee" string="Employee" context="{'group_by': 'user_id'}"/>
-                    <filter name="group_by_ticket" string="Service Ticket" context="{'group_by': 'ticket_id'}"/>
-                    <filter name="group_by_submitted_by" string="Submitted By" context="{'group_by': 'submitted_by_user_id'}"/>
-                    <filter name="group_by_date" string="Submission Date" context="{'group_by': 'create_date:day'}"/>
-                    <filter name="group_by_status" string="Status" context="{'group_by': 'status'}"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'user_id'}"/>
+                    <filter string="Service Ticket" name="group_by_ticket" context="{'group_by': 'ticket_id'}"/>
+                    <filter string="Submitted By" name="group_by_submitted_by" context="{'group_by': 'submitted_by_user_id'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <!-- Action to open submitted vouchers (DEFAULT VIEW: grouped by employee with total sum record) -->
+    <!-- Action to open submitted vouchers -->
     <record id="action_service_ticket_voucher_line" model="ir.actions.act_window">
         <field name="name">Voucher Submissions</field>
         <field name="res_model">service.ticket.voucher.line</field>
