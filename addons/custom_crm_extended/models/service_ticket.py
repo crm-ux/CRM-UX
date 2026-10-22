@@ -15,6 +15,12 @@ class ServiceTicketComplaintType(models.Model):
 
     def unlink(self):
         for rec in self:
+            name_clean = (rec.name or '').strip().lower()
+            if name_clean in ('breakdown', 'pm'):
+                raise UserError(_(
+                    "The Complaint Type '%s' is a core system requirement linked to AMC Contract quota (PM & CM/Breakdown) and cannot be deleted!"
+                ) % rec.name)
+
             count = self.env['service.ticket'].search_count([('complaint_type_id', '=', rec.id)])
             if count > 0:
                 raise UserError(_(
@@ -22,6 +28,17 @@ class ServiceTicketComplaintType(models.Model):
                     "Please archive/deactivate it instead by unchecking the 'Active' checkbox."
                 ) % (rec.name, count))
         return super().unlink()
+
+    def write(self, vals):
+        if 'name' in vals:
+            for rec in self:
+                name_clean = (rec.name or '').strip().lower()
+                new_clean = (vals.get('name') or '').strip().lower()
+                if name_clean in ('breakdown', 'pm') and name_clean != new_clean:
+                    raise UserError(_(
+                        "You cannot rename '%s' because AMC contract quota tracking depends directly on this type!"
+                    ) % rec.name)
+        return super().write(vals)
 
 
 class ServiceTicket(models.Model):
@@ -35,6 +52,29 @@ class ServiceTicket(models.Model):
     ticket_id = fields.Char(string='Ticket ID', required=True, copy=False, tracking=True, readonly=True)
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now, required=True, tracking=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, tracking=True)
+
+    def init(self):
+        super().init()
+        # Pure Odoo ORM backfill - zero plain SQL queries
+        ComplaintType = self.env['service.ticket.complaint.type'].sudo()
+        bd = ComplaintType.search([('name', '=ilike', 'Breakdown')], limit=1)
+        pm = ComplaintType.search([('name', '=ilike', 'PM')], limit=1)
+        fc = ComplaintType.search([('name', '=ilike', 'Free Call')], limit=1)
+        inst = ComplaintType.search([('name', '=ilike', 'Installation')], limit=1)
+
+        Ticket = self.sudo()
+        if bd:
+            Ticket.search([('complaint_type', '=', 'breakdown'), ('complaint_type_id', '=', False)]).write({'complaint_type_id': bd.id})
+        if pm:
+            Ticket.search([('complaint_type', '=', 'pm'), ('complaint_type_id', '=', False)]).write({'complaint_type_id': pm.id})
+        if fc:
+            Ticket.search([('complaint_type', '=', 'free_call'), ('complaint_type_id', '=', False)]).write({'complaint_type_id': fc.id})
+        if inst:
+            Ticket.search([('complaint_type', '=', 'installation'), ('complaint_type_id', '=', False)]).write({'complaint_type_id': inst.id})
+
+        # Any remaining ticket without complaint_type_id defaults to Breakdown
+        if bd:
+            Ticket.search([('complaint_type_id', '=', False)]).write({'complaint_type_id': bd.id})
 
     # Equipment & Customer Linkage
     equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
