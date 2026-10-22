@@ -75,8 +75,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
             for term in all_terms:
                 checked = 'checked' if term in rec.selected_term_ids else ''
                 html += '''<div style="margin:4px 0;">
-                    <input type="checkbox" data-term-id="%s" %s style="margin-right:8px;"/>
-                    <label style="font-size:13px;">%s</label>
+                    <input type="checkbox" data-term-id="%s" %s style="margin-right:8px; accent-color: #0b3d91 !important; width: 16px; height: 16px; cursor: pointer;"/>
+                    <label style="font-size:13px; cursor: pointer;">%s</label>
                 </div>''' % (term.id, checked, term.name)
             html += '</div>'
             rec.terms_html_widget = html
