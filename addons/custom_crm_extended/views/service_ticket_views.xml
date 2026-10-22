@@ -254,7 +254,7 @@
                             <!-- Bottom Action: Send all draft expenses to Expense Manager at once -->
                             <div class="d-flex justify-content-end align-items-center mt-3 pt-2">
                                 <button name="action_submit_all_vouchers"
-                                        string="Submit All Expenses to Manager"
+                                        string="Submit All Expenses"
                                         type="object"
                                         class="btn btn-primary px-4 py-2 fw-semibold shadow-sm"
                                         invisible="not has_draft_vouchers"

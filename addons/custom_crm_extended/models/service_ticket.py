@@ -260,21 +260,16 @@ class ServiceTicket(models.Model):
                 'status': 'draft',
             })
 
-        self.write({
-            'new_voucher_expense_type_id': False,
-            'new_voucher_user_ids': [(5, 0, 0)],
-            'new_voucher_start_km': 0.0,
-            'new_voucher_end_km': 0.0,
-            'new_voucher_total_km': 0.0,
-            'new_voucher_description': False,
-            'new_voucher_amount': 0.0,
-            'new_voucher_bill_file': False,
-            'new_voucher_bill_filename': False,
-        })
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        self.new_voucher_expense_type_id = False
+        self.new_voucher_user_ids = [(5, 0, 0)]
+        self.new_voucher_start_km = 0.0
+        self.new_voucher_end_km = 0.0
+        self.new_voucher_total_km = 0.0
+        self.new_voucher_description = False
+        self.new_voucher_amount = 0.0
+        self.new_voucher_bill_file = False
+        self.new_voucher_bill_filename = False
+        return True
 
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
