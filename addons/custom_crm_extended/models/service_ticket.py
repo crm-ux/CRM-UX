@@ -243,11 +243,15 @@ class ServiceTicket(models.Model):
         km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
         split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
 
+        login_user = self.env.user
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
+            other_names = ", ".join([other.name for other in target_users if other.id != u.id])
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
                 'user_id': u.id,
+                'submitted_by_user_id': login_user.id,
+                'other_employee_names': other_names or '',
                 'department_id': dept.id if dept else False,
                 'expense_type_id': exp_type.id,
                 'is_km_based': exp_type.is_km_based,
@@ -317,7 +321,16 @@ class ServiceTicket(models.Model):
         if not draft_lines:
             draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected'))
         if draft_lines:
-            draft_lines.write({'status': 'submitted'})
+            # Group lines by employee and assign batch_id if not already assigned
+            now_ts = fields.Datetime.now().strftime('%Y%m%d%H%M%S')
+            for emp in draft_lines.mapped('user_id'):
+                emp_lines = draft_lines.filtered(lambda l: l.user_id == emp)
+                batch_key = f"VCH-{self.id}-{emp.id}-{now_ts}"
+                emp_lines.write({
+                    'status': 'submitted',
+                    'batch_id': batch_key,
+                    'submitted_by_user_id': self.env.user.id,
+                })
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -593,6 +606,23 @@ class ServiceTicketVoucherLine(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
+
+    batch_id = fields.Char(string='Batch ID', index=True)
+    submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
+    other_employee_names = fields.Char(string='Other Employees')
+
+    def action_open_batch_detail(self):
+        self.ensure_one()
+        domain = [('batch_id', '=', self.batch_id)] if self.batch_id else [('id', '=', self.id)]
+        return {
+            'name': _('Expense Details - %s') % (self.user_id.name or 'Employee'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.line',
+            'view_mode': 'list,form',
+            'view_id': self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_detail_tree').id,
+            'domain': domain,
+            'target': 'current',
+        }
 
     def _default_expense_manager_id(self):
         company = self.env.company
