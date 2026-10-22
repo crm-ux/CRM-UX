@@ -18,14 +18,13 @@ class ServiceTicketComplaintType(models.Model):
             name_clean = (rec.name or '').strip().lower()
             if name_clean in ('breakdown', 'pm'):
                 raise UserError(_(
-                    "The Complaint Type '%s' is a core system requirement linked to AMC Contract quota (PM & CM/Breakdown) and cannot be deleted!"
+                    "The Complaint Type '%s' is a core system requirement and cannot be deleted."
                 ) % rec.name)
 
             count = self.env['service.ticket'].search_count([('complaint_type_id', '=', rec.id)])
             if count > 0:
                 raise UserError(_(
-                    "You cannot delete the Complaint Type '%s' because it is already used in %s Service Ticket(s).\n\n"
-                    "Please archive/deactivate it instead by unchecking the 'Active' checkbox."
+                    "The Complaint Type '%s' is used in %s Service Ticket(s) and cannot be deleted. You can uncheck 'Active' to archive it."
                 ) % (rec.name, count))
         return super().unlink()
 
@@ -36,7 +35,14 @@ class ServiceTicketComplaintType(models.Model):
                 new_clean = (vals.get('name') or '').strip().lower()
                 if name_clean in ('breakdown', 'pm') and name_clean != new_clean:
                     raise UserError(_(
-                        "You cannot rename '%s' because AMC contract quota tracking depends directly on this type!"
+                        "The Complaint Type '%s' is a core system requirement and cannot be renamed."
+                    ) % rec.name)
+        if vals.get('active') is False:
+            for rec in self:
+                name_clean = (rec.name or '').strip().lower()
+                if name_clean in ('breakdown', 'pm'):
+                    raise UserError(_(
+                        "The Complaint Type '%s' is a core system requirement and cannot be deactivated."
                     ) % rec.name)
         return super().write(vals)
 
