@@ -387,9 +387,6 @@
         <field name="name">Complaint Types</field>
         <field name="res_model">service.ticket.complaint.type</field>
         <field name="view_mode">list,form</field>
-        <field name="target">new</field>
-        <field name="binding_model_id" ref="model_service_ticket"/>
-        <field name="binding_view_types">list</field>
     </record>
 
     <!-- Menu Item -->
