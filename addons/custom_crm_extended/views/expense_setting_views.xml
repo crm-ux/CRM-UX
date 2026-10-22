@@ -155,23 +155,23 @@
                             <field name="user_id" readonly="1" options="{'no_open': True}"/>
                         </h1>
                         <h4 class="text-muted">
-                            <field name="ticket_id" readonly="1"/>
+                            <field name="ticket_id" readonly="1" options="{'no_open': True}"/>
                         </h4>
                     </div>
                     <group>
                         <group string="Expense Information">
-                            <field name="expense_type_id" readonly="1"/>
+                            <field name="expense_type_id" readonly="1" options="{'no_open': True}"/>
                             <field name="amount" readonly="1" class="fw-bold fs-5 text-primary"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="create_date" string="Submitted Date" readonly="1"/>
-                            <field name="submitted_by_user_id" string="Submitted By" readonly="1"/>
-                            <field name="other_employee_names" string="Other Employees" readonly="1"/>
+                            <field name="submitted_by_user_id" string="Submitted By" readonly="1" options="{'no_open': True}"/>
+                            <field name="other_employee_names" string="Other Employees" readonly="1" invisible="not other_employee_names"/>
                         </group>
                         <group string="Travel / Distance (if applicable)">
                             <field name="is_km_based" invisible="1"/>
                             <field name="total_km" readonly="1" invisible="not is_km_based"/>
                             <field name="rate_per_km" readonly="1" invisible="not is_km_based"/>
-                            <field name="expense_manager_id" readonly="1" string="Approver"/>
+                            <field name="expense_manager_id" readonly="1" string="Approver" options="{'no_open': True}"/>
                             <field name="reject_reason" readonly="1" invisible="not reject_reason"/>
                         </group>
                     </group>
