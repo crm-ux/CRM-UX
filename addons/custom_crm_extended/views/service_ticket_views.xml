@@ -326,8 +326,6 @@
     </record>
 
 
-
-
     <!-- Service Ticket Voucher Line Bill Preview Popup Modal -->
     <record id="view_service_ticket_voucher_line_preview_form" model="ir.ui.view">
         <field name="name">service.ticket.voucher.line.preview.form</field>

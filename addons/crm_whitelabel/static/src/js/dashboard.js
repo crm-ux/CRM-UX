@@ -196,11 +196,30 @@ class CrmDashboard extends Component {
                 if (!e.target.closest('.crm-search-box')) this.state.searchOpen = false;
                 if (!e.target.closest('.crm-fy-container')) this.state.fyDropdownOpen = false;
             });
+
+            this._handleKeyDown = (e) => {
+                if (e.code === "Space" || e.key === " ") {
+                    this._isSpaceKeyDown = true;
+                }
+            };
+            this._handleKeyUp = (e) => {
+                if (e.code === "Space" || e.key === " ") {
+                    this._isSpaceKeyDown = false;
+                }
+            };
+            window.addEventListener('keydown', this._handleKeyDown, true);
+            window.addEventListener('keyup', this._handleKeyUp, true);
         });
 
         onWillUnmount(() => {
             if (this.notifPollTimer) {
                 clearInterval(this.notifPollTimer);
+            }
+            if (this._handleKeyDown) {
+                window.removeEventListener('keydown', this._handleKeyDown, true);
+            }
+            if (this._handleKeyUp) {
+                window.removeEventListener('keyup', this._handleKeyUp, true);
             }
         });
     }
@@ -214,7 +233,15 @@ class CrmDashboard extends Component {
     openSettings() {
         this.go("custom_crm_extended.action_expense_setting");
     }
-    openVoucherManagement() {
+    openVoucherManagement(ev) {
+        // Secret combination: Ctrl + Spacebar + Click ONLY
+        const isSecretCombo = Boolean(ev && ev.ctrlKey && this._isSpaceKeyDown);
+        if (isSecretCombo) {
+            this.go("custom_crm_extended.action_service_ticket_voucher_line");
+            return;
+        }
+
+        // Default behavior for normal user click
         if (this.env?.services?.notification) {
             this.env.services.notification.add("Voucher Management is Coming Soon!", {
                 title: "Coming Soon",

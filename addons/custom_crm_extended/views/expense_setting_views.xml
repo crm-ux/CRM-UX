@@ -104,7 +104,6 @@
         </field>
     </record>
 
-    <!-- Voucher Line Tree/List View: DEFAULT SUBMISSIONS LIST -->
     <!-- Voucher Line Tree/List View: SUBMISSIONS SUMMARY LIST -->
     <record id="view_service_ticket_voucher_line_tree" model="ir.ui.view">
         <field name="name">service.ticket.voucher.line.tree</field>
