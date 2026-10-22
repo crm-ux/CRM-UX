@@ -1071,28 +1071,52 @@ button[name="action_add_voucher_line"]:hover {
     transition: border-color 0.15s ease-in-out !important;
 }
 
-.o_voucher_quick_add_bar .o_field_monetary {
+.o_voucher_quick_add_bar .o_field_monetary,
+.o_voucher_quick_add_bar .o_field_float,
+.o_voucher_quick_add_bar [name="new_voucher_amount"] {
     display: flex !important;
     width: 100% !important;
     align-items: center !important;
 }
 
-.o_voucher_quick_add_bar .o_field_monetary input {
+.o_voucher_quick_add_bar .o_field_monetary input,
+.o_voucher_quick_add_bar .o_field_float input,
+.o_voucher_quick_add_bar [name="new_voucher_amount"] input {
     flex: 1 1 auto !important;
     width: 100% !important;
-    pointer-events: auto !important;
-    cursor: text !important;
-}
-
-.o_voucher_quick_add_bar [name="new_voucher_amount"] input:not([readonly]) {
+    height: 36px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 6px 10px !important;
     background-color: #ffffff !important;
+    color: #1e293b !important;
+    font-size: 13px !important;
     pointer-events: auto !important;
     cursor: text !important;
     user-select: text !important;
 }
 
-.o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier:not(:has(input:not([readonly]))),
-.o_voucher_quick_add_bar .o_field_widget[readonly]:not(:has(input:not([readonly]))) {
+.o_voucher_quick_add_bar [name="new_voucher_amount"].o_readonly_modifier,
+.o_voucher_quick_add_bar [name="new_voucher_amount"][readonly] {
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    height: 36px !important;
+    cursor: not-allowed !important;
+}
+
+.o_voucher_quick_add_bar [name="new_voucher_amount"].o_readonly_modifier input,
+.o_voucher_quick_add_bar [name="new_voucher_amount"][readonly] input,
+.o_voucher_quick_add_bar [name="new_voucher_amount"] input[readonly] {
+    border: none !important;
+    background: transparent !important;
+    cursor: not-allowed !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+}
+
+.o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]),
+.o_voucher_quick_add_bar .o_field_widget[readonly]:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]) {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     padding: 6px 10px !important;
