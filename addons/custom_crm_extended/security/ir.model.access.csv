@@ -27,6 +27,7 @@ access_expense_setting_admin,expense.setting.admin,model_expense_setting,base.gr
 
 access_service_ticket_expense_type_user,service.ticket.expense.type.user,model_service_ticket_expense_type,base.group_user,1,1,1,1
 access_service_ticket_voucher_line_user,service.ticket.voucher.line.user,model_service_ticket_voucher_line,base.group_user,1,1,1,1
+access_service_ticket_voucher_batch_user,service.ticket.voucher.batch.user,model_service_ticket_voucher_batch,base.group_user,1,1,1,1
 access_service_ticket_voucher_reject_wizard,service.ticket.voucher.reject.wizard,model_service_ticket_voucher_reject_wizard,base.group_user,1,1,1,1
 access_service_ticket_voucher_desc_wizard,service.ticket.voucher.desc.wizard,model_service_ticket_voucher_desc_wizard,base.group_user,1,1,1,1
 access_amc_contract,amc.contract,model_amc_contract,base.group_user,1,1,1,1

@@ -325,10 +325,17 @@ class ServiceTicket(models.Model):
             now_ts = fields.Datetime.now().strftime('%Y%m%d%H%M%S')
             for emp in draft_lines.mapped('user_id'):
                 emp_lines = draft_lines.filtered(lambda l: l.user_id == emp)
-                batch_key = f"VCH-{self.id}-{emp.id}-{now_ts}"
+                first_line = emp_lines[0]
+                batch_rec = self.env['service.ticket.voucher.batch'].create({
+                    'ticket_id': self.id,
+                    'user_id': emp.id,
+                    'submitted_by_user_id': self.env.user.id,
+                    'other_employee_names': first_line.other_employee_names or '',
+                    'name': f"VCH-{self.ticket_id or self.name}-{emp.name}",
+                })
                 emp_lines.write({
                     'status': 'submitted',
-                    'batch_id': batch_key,
+                    'batch_id': batch_rec.id,
                     'submitted_by_user_id': self.env.user.id,
                 })
             return {
@@ -607,7 +614,8 @@ class ServiceTicketVoucherLine(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
 
-    batch_id = fields.Char(string='Batch ID', index=True)
+    batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
+    batch_key = fields.Char(string='Batch Key', index=True)
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
 
@@ -746,4 +754,59 @@ class ServiceTicketVoucherDescWizard(models.TransientModel):
 
     voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', readonly=True)
     description = fields.Text(string='Description', readonly=True)
+
+
+class ServiceTicketVoucherBatch(models.Model):
+    _name = 'service.ticket.voucher.batch'
+    _description = 'Service Ticket Voucher Submission'
+    _order = 'id desc'
+
+    name = fields.Char(string='Batch Reference', default=lambda self: _('New'))
+    create_date = fields.Datetime(string='Submitted Date', readonly=True)
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True, ondelete='cascade')
+    user_id = fields.Many2one('res.users', string='Employee', required=True)
+    submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
+    other_employee_names = fields.Char(string='Other Employees')
+    line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
+    currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
+    total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
+    status = fields.Selection([
+        ('submitted', 'Submitted'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ], string='Status', compute='_compute_status', store=True)
+    expense_manager_id = fields.Many2one('res.users', string='Approver')
+
+    @api.depends('line_ids.amount')
+    def _compute_total_amount(self):
+        for rec in self:
+            rec.total_amount = sum(rec.line_ids.mapped('amount'))
+
+    @api.depends('line_ids.status')
+    def _compute_status(self):
+        for rec in self:
+            statuses = rec.line_ids.mapped('status')
+            if all(s == 'approved' for s in statuses) if statuses else False:
+                rec.status = 'approved'
+            elif any(s == 'rejected' for s in statuses):
+                rec.status = 'rejected'
+            else:
+                rec.status = 'submitted'
+
+    def action_approve_all(self):
+        for rec in self:
+            rec.line_ids.write({
+                'status': 'approved',
+                'expense_manager_id': self.env.user.id,
+            })
+            rec.expense_manager_id = self.env.user.id
+
+    def action_reject_all(self):
+        for rec in self:
+            rec.line_ids.write({
+                'status': 'rejected',
+                'expense_manager_id': self.env.user.id,
+            })
+            rec.expense_manager_id = self.env.user.id
+
 

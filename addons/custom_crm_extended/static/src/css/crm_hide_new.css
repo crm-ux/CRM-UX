@@ -1307,3 +1307,15 @@ div[role="tooltip"].o_popover,
     color: #1e293b !important;
     overflow-x: hidden !important;
 }
+
+/* Hide 'New' button in control panel navbar for Voucher Submissions */
+.o_action:has(.o_service_ticket_voucher_batch_form) .o_control_panel .o_cp_buttons button.o_form_button_create,
+.o_action:has(.o_service_ticket_voucher_batch_form) .o_control_panel .o_cp_buttons button.o_list_button_add,
+.o_action:has([name="line_ids"]) .o_control_panel .o_cp_buttons button.o_form_button_create,
+.o_action:has([name="line_ids"]) .o_control_panel .o_cp_buttons button.o_list_button_add,
+.o_form_view:has([name="line_ids"]) .o_control_panel .o_form_button_create,
+.o_form_view:has([name="line_ids"]) .o_control_panel .btn-primary:has(span:contains("New")),
+.o_service_ticket_voucher_batch_form ~ .o_control_panel button.o_form_button_create {
+    display: none !important;
+    visibility: hidden !important;
+}
