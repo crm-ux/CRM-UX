@@ -94,8 +94,12 @@ export class CrmLeadFormController extends FormController {
             if (breadcrumbs.length > 1) {
                 const prev = breadcrumbs[breadcrumbs.length - 2];
                 if (prev && prev.jsId) {
-                    this.actionService.restore(prev.jsId);
-                    return;
+                    try {
+                        await this.actionService.restore(prev.jsId);
+                        return;
+                    } catch (restErr) {
+                        console.warn("Could not restore previous controller, falling back:", restErr);
+                    }
                 }
             }
             this.actionService.doAction(

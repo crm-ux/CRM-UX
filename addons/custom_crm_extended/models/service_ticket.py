@@ -277,7 +277,7 @@ class ServiceTicket(models.Model):
         }
 
     def action_clear_voucher_fields(self):
-        """ Clears all Quick Add Expense inputs on Cancel / Clear click """
+        """ Clears all Quick Add Expense inputs on Clear button click """
         self.ensure_one()
         self.write({
             'new_voucher_expense_type_id': False,
