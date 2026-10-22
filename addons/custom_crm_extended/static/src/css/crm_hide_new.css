@@ -1360,6 +1360,24 @@ div[role="tooltip"].o_popover,
 }
 
 /* Custom Blue Checkbox for Terms & Conditions Master and Quote Preview Wizard */
+[name="selected_term_ids"] .form-check-input,
+[name="selected_term_ids"] input[type="checkbox"],
+.o_sale_terms_condition_form .form-check-input,
+.o_sale_terms_condition_form input[type="checkbox"],
+.o_sale_terms_condition_list .form-check-input,
+.o_sale_terms_condition_list input[type="checkbox"],
+.o_terms_checkboxes input[type="checkbox"] {
+    border-color: #94a3b8 !important;
+}
+
+[name="selected_term_ids"] .form-check-input:hover,
+[name="selected_term_ids"] input[type="checkbox"]:hover,
+.o_sale_terms_condition_form .form-check-input:hover,
+.o_sale_terms_condition_list .form-check-input:hover,
+.o_terms_checkboxes input[type="checkbox"]:hover {
+    border-color: #0b3d91 !important;
+}
+
 [name="selected_term_ids"] .form-check-input:checked,
 [name="selected_term_ids"] input[type="checkbox"]:checked,
 .o_field_many2many_checkboxes:has([name="selected_term_ids"]) .form-check-input:checked,
