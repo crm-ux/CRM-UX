@@ -1214,3 +1214,48 @@ button[name="action_add_voucher_line"]:hover {
 .o_expense_type_table tfoot {
     display: none !important;
 }
+
+/* ── Description column in Voucher Submissions list: compact size, ellipsis, clickable ── */
+.o_list_table th[data-name="description"],
+.o_list_table td[name="description"] {
+    max-width: 130px !important;
+    width: 130px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    cursor: pointer !important;
+}
+
+.o_list_table td[name="description"]:hover {
+    color: #104a91 !important;
+    text-decoration: underline !important;
+}
+
+/* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */
+.modal:has(form[string="Expense Description"]) .modal-dialog,
+.modal:has(.o_service_ticket_voucher_desc_wizard) .modal-dialog {
+    max-width: 580px !important;
+    width: 90% !important;
+    margin: 1.75rem auto !important;
+}
+
+.modal:has(form[string="Expense Description"]) .modal-body,
+.modal:has(.o_service_ticket_voucher_desc_wizard) .modal-body {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    max-height: 70vh !important;
+    padding: 20px !important;
+}
+
+.modal:has(form[string="Expense Description"]) .o_field_text,
+.modal:has(form[string="Expense Description"]) textarea,
+.modal:has(form[string="Expense Description"]) span,
+.modal:has(.o_service_ticket_voucher_desc_wizard) .o_field_text {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.6 !important;
+    font-size: 14px !important;
+    color: #1e293b !important;
+    overflow-x: hidden !important;
+}

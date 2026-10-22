@@ -94,7 +94,41 @@ patch(ListController.prototype, {
                 });
             };
 
+            const handleVoucherDescriptionClick = async (ev) => {
+                const cell = ev.target.closest("td[name='description']");
+                if (!cell) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+
+                const row = cell.closest("tr, .o_data_row");
+                if (!row) return;
+
+                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                const rowIndex = allRows.indexOf(row);
+                const records = this.model?.root?.records || [];
+                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+
+                const descText = record?.data?.description || cell.innerText?.trim() || "";
+                if (!descText) return;
+
+                if (record?.resId) {
+                    await this.env.services.action.doAction({
+                        name: _t("Expense Description"),
+                        type: "ir.actions.act_window",
+                        res_model: "service.ticket.voucher.desc.wizard",
+                        view_mode: "form",
+                        target: "new",
+                        context: {
+                            default_description: descText,
+                            default_voucher_line_id: record.resId,
+                        },
+                    });
+                }
+            };
+
             document.addEventListener("click", handleVoucherListBillPreview, true);
+            document.addEventListener("click", handleVoucherDescriptionClick, true);
         }
     },
     async createRecord() {

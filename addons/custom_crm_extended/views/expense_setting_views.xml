@@ -122,7 +122,6 @@
                 <field name="total_km" string="Total KM" optional="show"/>
                 <field name="rate_per_km" string="₹/KM" optional="show"/>
                 <field name="description" string="Description"/>
-                <button name="action_view_description" type="object" icon="fa-file-text-o" title="View Full Description" invisible="not description" class="btn p-0 text-secondary"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
@@ -151,10 +150,10 @@
         <field name="name">service.ticket.voucher.desc.wizard.form</field>
         <field name="model">service.ticket.voucher.desc.wizard</field>
         <field name="arch" type="xml">
-            <form string="Expense Description">
-                <group>
-                    <field name="description" nolabel="1" readonly="1" widget="text"/>
-                </group>
+            <form string="Expense Description" class="o_service_ticket_voucher_desc_wizard">
+                <div class="p-3 bg-light rounded border text-break fs-6" style="max-height: 55vh; overflow-y: auto; overflow-x: hidden; line-height: 1.6; word-break: break-all; white-space: pre-wrap;">
+                    <field name="description" nolabel="1" readonly="1"/>
+                </div>
                 <footer>
                     <button string="Close" class="btn btn-secondary" special="cancel"/>
                 </footer>
