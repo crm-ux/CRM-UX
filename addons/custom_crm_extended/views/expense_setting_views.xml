@@ -60,7 +60,7 @@
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                             <div class="d-flex align-items-center mb-1">
-                                <i class="fa fa-tags me-2 text-info" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
+                                <i class="fa fa-tags me-2 text-info" title="Expense Types" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                 <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types &amp; Per-Visit Cost Limits by Job Position</strong>
                             </div>
                             <p class="text-muted small mb-3">Add expense types with their allowed cost limit per visit. Select multiple Job Positions allowed to claim this expense (leave empty to allow all positions).</p>
