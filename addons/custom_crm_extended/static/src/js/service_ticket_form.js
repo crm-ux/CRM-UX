@@ -95,7 +95,9 @@ patch(ListController.prototype, {
             };
 
             const handleVoucherDescriptionClick = async (ev) => {
-                const cell = ev.target.closest("td[name='description']");
+                const target = ev.target instanceof Element ? ev.target : ev.target?.parentElement;
+                if (!target || !target.closest) return;
+                const cell = target.closest("td[name='description']");
                 if (!cell) return;
 
                 ev.preventDefault();
@@ -122,7 +124,9 @@ patch(ListController.prototype, {
 
             // Completely block Odoo's popover tooltip service from triggering on description cells
             const handleVoucherDescriptionHoverBlock = (ev) => {
-                const cell = ev.target.closest("td[name='description']");
+                const target = ev.target instanceof Element ? ev.target : ev.target?.parentElement;
+                if (!target || !target.closest) return;
+                const cell = target.closest("td[name='description']");
                 if (cell) {
                     ev.stopPropagation();
                     cell.removeAttribute("title");
