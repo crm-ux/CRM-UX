@@ -30,12 +30,22 @@ class ServiceTicket(models.Model):
     serial_number = fields.Char(string='Serial Number')
     part_number = fields.Char(string='Part Number')
     
+    def _default_complaint_type_id(self):
+        return self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1).id
+
     # Complaint Details
+    complaint_type_id = fields.Many2one(
+        'service.ticket.complaint.type', 
+        string='Complaint Type', 
+        default=_default_complaint_type_id,
+        ondelete='restrict',
+        tracking=True
+    )
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
         ('pm', 'PM'),
         ('free_call', 'Free Call')
-    ], string='Complaint Type', default='breakdown', tracking=True)
+    ], string='Legacy Complaint Type', default='breakdown')
     complaint_description = fields.Text(string='Complaint Description', tracking=True)
     priority = fields.Selection([
         ('high', 'High'),
@@ -43,6 +53,47 @@ class ServiceTicket(models.Model):
         ('low', 'Low')
     ], string='Priority', default='medium', tracking=True)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            cid = vals.get('complaint_type_id')
+            if cid:
+                ct = self.env['service.ticket.complaint.type'].browse(cid)
+                name_lower = (ct.name or '').strip().lower()
+                if 'breakdown' in name_lower:
+                    vals['complaint_type'] = 'breakdown'
+                elif 'pm' in name_lower:
+                    vals['complaint_type'] = 'pm'
+                elif 'free' in name_lower:
+                    vals['complaint_type'] = 'free_call'
+            elif vals.get('complaint_type') and not cid:
+                code = vals.get('complaint_type')
+                ct = self.env['service.ticket.complaint.type'].search([
+                    ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+                ], limit=1)
+                if ct:
+                    vals['complaint_type_id'] = ct.id
+        return super().create(vals_list)
+
+    def write(self, vals):
+        cid = vals.get('complaint_type_id')
+        if cid:
+            ct = self.env['service.ticket.complaint.type'].browse(cid)
+            name_lower = (ct.name or '').strip().lower()
+            if 'breakdown' in name_lower:
+                vals['complaint_type'] = 'breakdown'
+            elif 'pm' in name_lower:
+                vals['complaint_type'] = 'pm'
+            elif 'free' in name_lower:
+                vals['complaint_type'] = 'free_call'
+        elif vals.get('complaint_type') and not cid:
+            code = vals.get('complaint_type')
+            ct = self.env['service.ticket.complaint.type'].search([
+                ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+            ], limit=1)
+            if ct:
+                vals['complaint_type_id'] = ct.id
+        return super().write(vals)
 
     # Assignment & Schedule
     engineer_id = fields.Many2one('res.users', string='Assigned Engineer', tracking=True)
@@ -832,5 +883,50 @@ class ServiceTicketVoucherBatch(models.Model):
                 'expense_manager_id': self.env.user.id,
             })
             rec.expense_manager_id = self.env.user.id
+
+
+class ServiceTicketComplaintType(models.Model):
+    _name = 'service.ticket.complaint.type'
+    _description = 'Service Ticket Complaint Type'
+    _order = 'sequence, id'
+
+    name = fields.Char(string='Complaint Type', required=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+
+    def unlink(self):
+        for rec in self:
+            count = self.env['service.ticket'].search_count([('complaint_type_id', '=', rec.id)])
+            if count > 0:
+                raise UserError(_(
+                    "You cannot delete the Complaint Type '%s' because it is already used in %s Service Ticket(s).\n\n"
+                    "Please archive/deactivate it instead by unchecking the 'Active' checkbox."
+                ) % (rec.name, count))
+        return super().unlink()
+
+    @api.model
+    def _migrate_existing_complaint_types(self):
+        """Automatically create standard complaint types if missing and link existing tickets."""
+        types_map = {
+            'breakdown': 'Breakdown',
+            'pm': 'PM',
+            'free_call': 'Free Call',
+            'installation': 'Installation',
+        }
+        rec_objs = {}
+        for idx, (code, label) in enumerate(types_map.items(), start=1):
+            ct = self.search([('name', '=ilike', label)], limit=1)
+            if not ct:
+                ct = self.create({'name': label, 'sequence': idx * 10})
+            rec_objs[code] = ct.id
+
+        # Populate complaint_type_id for any ticket that has legacy complaint_type
+        for code, cid in rec_objs.items():
+            tickets = self.env['service.ticket'].search([
+                ('complaint_type', '=', code),
+                ('complaint_type_id', '=', False)
+            ])
+            if tickets:
+                tickets.write({'complaint_type_id': cid})
 
 

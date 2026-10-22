@@ -174,9 +174,10 @@ class DashboardStats(models.Model):
 
         # Complaint Type Breakdown counts
         complaint_counts = {
-            'breakdown': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'breakdown')]),
-            'pm': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'pm')]),
-            'free_call': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type', '=', 'free_call')]),
+            'breakdown': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + ['|', ('complaint_type', '=', 'breakdown'), ('complaint_type_id.name', '=ilike', 'Breakdown')]),
+            'pm': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + ['|', ('complaint_type', '=', 'pm'), ('complaint_type_id.name', '=ilike', 'PM')]),
+            'free_call': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + ['|', ('complaint_type', '=', 'free_call'), ('complaint_type_id.name', '=ilike', 'Free Call')]),
+            'installation': self.env['service.ticket'].sudo().search_count(shared_company_filter + ticket_filter + [('complaint_type_id.name', '=ilike', 'Installation')]),
         }
 
         # AMC Contract counts: filtered by user's hierarchy (own, team, dept, all)

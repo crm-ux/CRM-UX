@@ -34,7 +34,7 @@
                     <group>
                         <group string="Ticket Information">
                             <field name="ticket_datetime"/>
-                            <field name="complaint_type" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
+                            <field name="complaint_type_id" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                             <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                         <group string="Customer Information">
@@ -289,7 +289,7 @@
                 <field name="ticket_datetime"/>
                 <field name="partner_id"/>
                 <field name="equipment_id"/>
-                <field name="complaint_type"/>
+                <field name="complaint_type_id" string="Complaint Type"/>
                 <field name="priority"/>
                 <field name="engineer_id"/>
                 <field name="visit_date"/>
@@ -310,6 +310,7 @@
                 <field name="partner_id"/>
                 <field name="equipment_id"/>
                 <field name="engineer_id"/>
+                <field name="complaint_type_id"/>
                 <filter string="New" name="new" domain="[('ticket_status', '=', 'new')]"/>
                 <filter string="On Going" name="ongoing" domain="[('ticket_status', '=', 'ongoing')]"/>
                 <filter string="Closed" name="closed" domain="[('ticket_status', '=', 'closed')]"/>
@@ -317,6 +318,7 @@
                 <filter string="High Priority" name="high_priority" domain="[('priority', '=', 'high')]"/>
                 <group>
                     <filter string="Customer" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Complaint Type" name="group_complaint_type" context="{'group_by': 'complaint_type_id'}"/>
                     <filter string="Status" name="group_status" context="{'group_by': 'ticket_status'}"/>
                     <filter string="Engineer" name="group_engineer" context="{'group_by': 'engineer_id'}"/>
                     <filter string="Priority" name="group_priority" context="{'group_by': 'priority'}"/>
@@ -350,6 +352,44 @@
                 Create a new Service Ticket
             </p>
         </field>
+    </record>
+
+    <!-- Complaint Type Views -->
+    <record id="view_service_ticket_complaint_type_list" model="ir.ui.view">
+        <field name="name">service.ticket.complaint.type.list</field>
+        <field name="model">service.ticket.complaint.type</field>
+        <field name="arch" type="xml">
+            <list string="Complaint Types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Complaint Type"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_service_ticket_complaint_type_form" model="ir.ui.view">
+        <field name="name">service.ticket.complaint.type.form</field>
+        <field name="model">service.ticket.complaint.type</field>
+        <field name="arch" type="xml">
+            <form string="Complaint Type">
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="e.g. Breakdown, Installation, PM..."/>
+                        <field name="sequence"/>
+                        <field name="active" widget="boolean_toggle"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_service_ticket_complaint_type" model="ir.actions.act_window">
+        <field name="name">Complaint Types</field>
+        <field name="res_model">service.ticket.complaint.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_service_ticket"/>
+        <field name="binding_view_types">list</field>
     </record>
 
     <!-- Menu Item -->

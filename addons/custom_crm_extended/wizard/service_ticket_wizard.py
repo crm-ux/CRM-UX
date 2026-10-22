@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -25,7 +25,15 @@ class ServiceTicketWizard(models.TransientModel):
     part_number = fields.Char(string='Part Number')
     company_id = fields.Many2one("res.company", string="Company", default=lambda self: self.env.company)
 
+    def _default_complaint_type_id(self):
+        return self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1).id
+
     # Step 2: Complaint Details
+    complaint_type_id = fields.Many2one(
+        'service.ticket.complaint.type', 
+        string='Complaint Type',
+        default=_default_complaint_type_id
+    )
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
         ('pm', 'PM'),
@@ -254,12 +262,13 @@ class ServiceTicketWizard(models.TransientModel):
                     raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
         elif self.step == 2:
             # Check remaining quota immediately when leaving Step 2
+            ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
             if self.amc_id:
-                if self.complaint_type == 'pm':
+                if 'pm' in ctype_name:
                     rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
                     if rem_pm <= 0:
                         raise ValidationError(_("This AMC contract has 0 remaining PM visits! You cannot proceed."))
-                elif self.complaint_type == 'breakdown':
+                elif 'breakdown' in ctype_name:
                     rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
                     if rem_cm <= 0:
                         raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits! You cannot proceed."))
@@ -288,13 +297,14 @@ class ServiceTicketWizard(models.TransientModel):
             assigned_id = self.ticket_id or _('New')
 
          # Check and deduct ONLY for PM or Breakdown
+        ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
         if self.amc_id:
-            if self.complaint_type == 'pm':
+            if 'pm' in ctype_name:
                 rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
                 if rem_pm <= 0:
                     raise ValidationError(_("This AMC contract has 0 remaining PM visits!"))
                 self.amc_id.sudo().write({'pm': str(rem_pm - 1)})
-            elif self.complaint_type == 'breakdown':
+            elif 'breakdown' in ctype_name:
                 rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
                 if rem_cm <= 0:
                     raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits!"))
@@ -319,7 +329,7 @@ class ServiceTicketWizard(models.TransientModel):
             'model_number': self.model_number,
             'serial_number': self.serial_number,
             'part_number': self.part_number,
-            'complaint_type': self.complaint_type or 'breakdown',
+            'complaint_type_id': self.complaint_type_id.id if self.complaint_type_id else False,
             'complaint_description': self.complaint_description,
             'priority': self.priority or 'medium',
             'engineer_id': self.engineer_id.id if self.engineer_id else False,

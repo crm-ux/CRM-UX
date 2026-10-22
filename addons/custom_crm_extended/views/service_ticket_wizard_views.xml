@@ -62,7 +62,7 @@
                         <div style="font-size:14px;font-weight:700;color:#000000;border-bottom:2px solid #0b3d91;padding-bottom:4px;margin-bottom:16px;">Complaint Details</div>
                         <group>
                             <group>
-                                <field name="complaint_type" string="Complaint Type"/>
+                                <field name="complaint_type_id" string="Complaint Type" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="priority" string="Priority"/>
                             </group>
                         </group>
