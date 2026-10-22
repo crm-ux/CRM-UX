@@ -107,6 +107,7 @@ button[name="action_sale_quotations_new"]:hover {
 
 /* Mobile & Tablet: allow clean touch swipe without cutting off or shrinking stages backwards */
 @media (max-width: 768px) {
+
     .o_form_view .o_form_statusbar,
     .o_form_statusbar {
         width: 100% !important;
@@ -882,8 +883,8 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     display: contents !important;
 }
 
-.crm_task_management_form .o_statusbar_status .o-dropdown > .dropdown-menu,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > .dropdown-menu {
+.crm_task_management_form .o_statusbar_status .o-dropdown>.dropdown-menu,
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown>.dropdown-menu {
     display: contents !important;
     position: static !important;
     border: none !important;
@@ -891,8 +892,8 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
     box-shadow: none !important;
 }
 
-.crm_task_management_form .o_statusbar_status .o-dropdown > button.dropdown-toggle,
-.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown > button.dropdown-toggle {
+.crm_task_management_form .o_statusbar_status .o-dropdown>button.dropdown-toggle,
+.o_form_view[js_class="crm_task_management_form"] .o_statusbar_status .o-dropdown>button.dropdown-toggle {
     display: none !important;
 }
 
@@ -1215,29 +1216,48 @@ button[name="action_add_voucher_line"]:hover {
     display: none !important;
 }
 
-/* ── Description column in Voucher Submissions list: compact size, ellipsis, clickable toggle ── */
-.o_list_table th[data-name="description"],
-.o_list_table td[name="description"] {
-    max-width: 130px !important;
-    width: 130px !important;
+/* ── Voucher Submissions table: Dynamic fluid layout with auto-truncation ── */
+.o_list_table {
+    table-layout: auto !important;
+    width: 100% !important;
+}
+
+.o_list_table th,
+.o_list_table td {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    max-width: 20vw !important;
+}
+
+/* Description column: dynamic width, compact by default, expands inline on toggle */
+.o_list_table th[data-name="description"],
+.o_list_table td[name="description"] {
+    max-width: 15vw !important;
     cursor: pointer !important;
     user-select: text !important;
 }
 
-/* Expanded state on click toggle */
 .o_list_table td[name="description"].is-expanded {
     white-space: normal !important;
     word-break: break-word !important;
     overflow-wrap: anywhere !important;
-    overflow: visible !important;
-    max-width: 320px !important;
+    max-width: 35vw !important;
     background-color: #f8fafc !important;
     padding: 8px 10px !important;
     border-radius: 4px !important;
-    box-shadow: inset 0 0 0 1px #cbd5e1 !important;
+}
+
+/* Bill filename link inside cell: dynamic truncation */
+.o_list_table td[name="bill_file"] a,
+.o_list_table td[name="bill_file"] span,
+.o_list_table td[name="bill_file"] .o_field_binary {
+    display: inline-block !important;
+    max-width: 14vw !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    vertical-align: middle !important;
 }
 
 /* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */
@@ -1267,4 +1287,4 @@ button[name="action_add_voucher_line"]:hover {
     font-size: 14px !important;
     color: #1e293b !important;
     overflow-x: hidden !important;
-}
+}
