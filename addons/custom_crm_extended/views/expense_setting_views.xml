@@ -132,37 +132,59 @@
                 <field name="expense_manager_id" string="Approver"/>
                 <field name="reject_reason" string="Reject Reason" optional="show"/>
                 <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
-                <button name="action_open_batch_detail" type="object" icon="fa-list text-primary" title="View Expense Details" class="btn p-0"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
             </list>
         </field>
     </record>
 
-    <!-- Detail Tree View: Opened when viewing specific batch or employee details -->
-    <record id="view_service_ticket_voucher_line_detail_tree" model="ir.ui.view">
-        <field name="name">service.ticket.voucher.line.detail.tree</field>
+    <!-- Detail Form View: Opened directly when clicking any record in the list -->
+    <record id="view_service_ticket_voucher_line_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.line.form</field>
         <field name="model">service.ticket.voucher.line</field>
         <field name="arch" type="xml">
-            <list string="Expense Details" create="0" edit="0" delete="0" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
-                <field name="create_date" string="Date" widget="date"/>
-                <field name="user_id" string="Employee" widget="many2one_avatar_user"/>
-                <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
-                <field name="other_employee_names" string="Other Employees"/>
-                <field name="ticket_id" string="Service Ticket"/>
-                <field name="expense_type_id" string="Expense Type"/>
-                <field name="total_km" string="Total KM" optional="show"/>
-                <field name="rate_per_km" string="₹/KM" optional="show"/>
-                <field name="description" string="Description"/>
-                <field name="currency_id" column_invisible="1"/>
-                <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
-                <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
-                <field name="bill_filename" column_invisible="1"/>
-                <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
-                <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
-                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
-                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
-            </list>
+            <form string="Expense Voucher Detail">
+                <header>
+                    <button name="action_approve" string="Approve" type="object" class="btn btn-success" invisible="status == 'approved'"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn btn-danger" invisible="status == 'rejected'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                        </h1>
+                        <h4 class="text-muted">
+                            <field name="ticket_id" readonly="1"/>
+                        </h4>
+                    </div>
+                    <group>
+                        <group string="Expense Information">
+                            <field name="expense_type_id" readonly="1"/>
+                            <field name="amount" readonly="1" class="fw-bold fs-5 text-primary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="create_date" string="Submitted Date" readonly="1"/>
+                            <field name="submitted_by_user_id" string="Submitted By" readonly="1"/>
+                            <field name="other_employee_names" string="Other Employees" readonly="1"/>
+                        </group>
+                        <group string="Travel / Distance (if applicable)">
+                            <field name="is_km_based" invisible="1"/>
+                            <field name="total_km" readonly="1" invisible="not is_km_based"/>
+                            <field name="rate_per_km" readonly="1" invisible="not is_km_based"/>
+                            <field name="expense_manager_id" readonly="1" string="Approver"/>
+                            <field name="reject_reason" readonly="1" invisible="not reject_reason"/>
+                        </group>
+                    </group>
+                    <group string="Description / Notes">
+                        <field name="description" nolabel="1" readonly="1" placeholder="No description provided."/>
+                    </group>
+                    <group string="Attached Bill / Receipt" invisible="not bill_file">
+                        <field name="bill_file" filename="bill_filename" widget="binary" readonly="1" string="Bill Document"/>
+                        <field name="bill_filename" invisible="1"/>
+                        <field name="bill_preview" widget="image" options="{'size': [600, 600]}" readonly="1" string="Receipt Preview"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
@@ -189,15 +211,17 @@
         </field>
     </record>
 
-    <!-- Action to open submitted vouchers (DEFAULT VIEW: grouped by employee with total sum record) -->
+    <!-- Action to open submitted vouchers (DEFAULT VIEW: list and full form on click) -->
     <record id="action_service_ticket_voucher_line" model="ir.actions.act_window">
         <field name="name">Voucher Submissions</field>
         <field name="res_model">service.ticket.voucher.line</field>
-        <field name="view_mode">list</field>
-        <field name="view_id" ref="view_service_ticket_voucher_line_tree"/>
+        <field name="view_mode">list,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_service_ticket_voucher_line_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_service_ticket_voucher_line_form')})]"/>
         <field name="search_view_id" ref="view_service_ticket_voucher_line_search"/>
         <field name="domain">[('status', 'in', ['submitted', 'approved', 'rejected'])]</field>
-        <field name="context">{'search_default_group_employee': 1}</field>
+        <field name="context">{}</field>
     </record>
 
     <!-- View Voucher Description Wizard Popup Form -->
