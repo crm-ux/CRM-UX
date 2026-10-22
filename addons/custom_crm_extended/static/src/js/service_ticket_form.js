@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, xml, onMounted, onWillUnmount } from "@odoo/owl";
 import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
 import { formView } from "@web/views/form/form_view";
@@ -12,6 +12,38 @@ import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } fr
 
 const TICKET_MODEL = "service.ticket";
 const WIZARD_ACTION = "custom_crm_extended.action_service_ticket_wizard";
+const cogMenuRegistry = registry.category("cogMenu");
+
+class ComplaintTypesCogMenuItem extends Component {
+    static template = xml`
+        <span class="dropdown-item d-flex align-items-center cursor-pointer" role="menuitem" t-on-click="onSelected">
+            <i class="fa fa-tags me-2"/>
+            <span>Complaint Types</span>
+        </span>
+    `;
+
+    async onSelected() {
+        await this.env.services.action.doAction({
+            name: _t("Complaint Types"),
+            type: "ir.actions.act_window",
+            res_model: "service.ticket.complaint.type",
+            views: [[false, "list"], [false, "form"]],
+            target: "new",
+        });
+    }
+}
+
+cogMenuRegistry.add("service_ticket_complaint_types", {
+    isDisplayed: (env) => {
+        const resModel = env.config?.resModel || env.searchModel?.resModel || env.config?.action?.res_model;
+        const viewType = env.config?.viewType;
+        const isListOrTree = !viewType || viewType === "list" || viewType === "tree";
+        return isListOrTree && resModel === TICKET_MODEL;
+    },
+    Component: ComplaintTypesCogMenuItem,
+    groupNumber: 20,
+    sequence: 30,
+});
 
 async function openServiceTicketWizard(env) {
     await env.services.action.doAction(WIZARD_ACTION);
@@ -165,29 +197,6 @@ patch(ListController.prototype, {
             return;
         }
         return super.openNewRecord(...arguments);
-    },
-    getActionMenuItems() {
-        const menuItems = super.getActionMenuItems ? super.getActionMenuItems(...arguments) : {};
-        if (
-            this.model?.root?.resModel === TICKET_MODEL ||
-            this.props?.resModel === TICKET_MODEL
-        ) {
-            menuItems.other = menuItems.other || [];
-            menuItems.other.push({
-                key: "complaint_types",
-                description: _t("Complaint Types"),
-                callback: async () => {
-                    await this.env.services.action.doAction({
-                        name: _t("Complaint Types"),
-                        type: "ir.actions.act_window",
-                        res_model: "service.ticket.complaint.type",
-                        views: [[false, "list"], [false, "form"]],
-                        target: "new",
-                    });
-                },
-            });
-        }
-        return menuItems;
     },
 });
 
