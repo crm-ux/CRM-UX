@@ -1358,3 +1358,24 @@ div[role="tooltip"].o_popover,
     pointer-events: auto !important;
     cursor: pointer !important;
 }
+
+/* Custom Blue Checkbox ONLY for Terms & Conditions Master and Quote Preview Wizard */
+.o_sale_terms_condition_form input[type="checkbox"]:checked,
+.o_sale_terms_condition_form .form-check-input:checked,
+.o_sale_terms_condition_form .o_field_boolean input:checked,
+.o_sale_terms_condition_list input[type="checkbox"]:checked,
+.o_sale_terms_condition_list .form-check-input:checked,
+.o_sale_terms_condition_list .o_field_boolean input:checked,
+.o_terms_checkboxes input[type="checkbox"]:checked,
+.modal:has(.o_terms_checkboxes) input[type="checkbox"]:checked {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    accent-color: #0b3d91 !important;
+}
+
+.o_sale_terms_condition_form input[type="checkbox"]:focus,
+.o_sale_terms_condition_list input[type="checkbox"]:focus,
+.o_terms_checkboxes input[type="checkbox"]:focus {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
+}

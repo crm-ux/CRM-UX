@@ -4,7 +4,7 @@
         <field name="name">sale.terms.condition.list</field>
         <field name="model">sale.terms.condition</field>
         <field name="arch" type="xml">
-            <list string="Terms &amp; Conditions">
+            <list string="Terms &amp; Conditions" class="o_sale_terms_condition_list">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="company_id" string="Company" placeholder="All Companies"/>
@@ -18,7 +18,7 @@
         <field name="name">sale.terms.condition.form</field>
         <field name="model">sale.terms.condition</field>
         <field name="arch" type="xml">
-            <form string="Terms &amp; Condition">
+            <form string="Terms &amp; Condition" class="o_sale_terms_condition_form">
                 <sheet>
                     <group>
                         <field name="name" string="Title"/>
