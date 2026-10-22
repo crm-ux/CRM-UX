@@ -1216,49 +1216,7 @@ button[name="action_add_voucher_line"]:hover {
     display: none !important;
 }
 
-/* ── Voucher Submissions table: Dynamic fluid layout with auto-truncation ── */
-.o_list_table {
-    table-layout: auto !important;
-    width: 100% !important;
-}
 
-.o_list_table th,
-.o_list_table td {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 20vw !important;
-}
-
-/* Description column: dynamic width, compact by default, expands inline on toggle */
-.o_list_table th[data-name="description"],
-.o_list_table td[name="description"] {
-    max-width: 15vw !important;
-    cursor: pointer !important;
-    user-select: text !important;
-}
-
-.o_list_table td[name="description"].is-expanded {
-    white-space: normal !important;
-    word-break: break-word !important;
-    overflow-wrap: anywhere !important;
-    max-width: 35vw !important;
-    background-color: #f8fafc !important;
-    padding: 8px 10px !important;
-    border-radius: 4px !important;
-}
-
-/* Bill filename link inside cell: dynamic truncation */
-.o_list_table td[name="bill_file"] a,
-.o_list_table td[name="bill_file"] span,
-.o_list_table td[name="bill_file"] .o_field_binary {
-    display: inline-block !important;
-    max-width: 14vw !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    vertical-align: middle !important;
-}
 
 /* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */
 .modal:has(form[string="Expense Description"]) .modal-dialog,
