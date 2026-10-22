@@ -23,13 +23,7 @@ class ComplaintTypesCogMenuItem extends Component {
     `;
 
     async onSelected() {
-        await this.env.services.action.doAction({
-            name: _t("Complaint Types"),
-            type: "ir.actions.act_window",
-            res_model: "service.ticket.complaint.type",
-            views: [[false, "list"], [false, "form"]],
-            target: "new",
-        });
+        await this.env.services.action.doAction("custom_crm_extended.action_service_ticket_complaint_type");
     }
 }
 
