@@ -359,7 +359,7 @@
         <field name="name">service.ticket.complaint.type.list</field>
         <field name="model">service.ticket.complaint.type</field>
         <field name="arch" type="xml">
-            <list string="Complaint Types" editable="bottom">
+            <list string="Complaint Types">
                 <field name="sequence" widget="handle"/>
                 <field name="name" string="Complaint Type"/>
                 <field name="active" widget="boolean_toggle"/>
