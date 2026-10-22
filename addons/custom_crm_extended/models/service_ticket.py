@@ -360,26 +360,7 @@ class ServiceTicket(models.Model):
         self.write({'ticket_status': 'closed'})
 
     def write(self, vals):
-        # When ticket itself is saved by user or system, ensure temporary Quick Add voucher draft fields are reset
-        res = super(ServiceTicket, self).write(vals)
-        # If write was not directly updating new_voucher fields, clear them if any were left unsaved
-        voucher_keys = {'new_voucher_expense_type_id', 'new_voucher_user_ids', 'new_voucher_total_km', 'new_voucher_amount', 'new_voucher_description', 'new_voucher_bill_file'}
-        if not voucher_keys.intersection(vals.keys()):
-            for rec in self:
-                if rec.new_voucher_expense_type_id or rec.new_voucher_user_ids or rec.new_voucher_total_km or rec.new_voucher_amount:
-                    super(ServiceTicket, rec).write({
-                        'new_voucher_expense_type_id': False,
-                        'new_voucher_user_ids': [(5, 0, 0)],
-                        'new_voucher_start_km': 0.0,
-                        'new_voucher_end_km': 0.0,
-                        'new_voucher_total_km': 0.0,
-                        'new_voucher_rate_per_km': 0.0,
-                        'new_voucher_description': False,
-                        'new_voucher_amount': 0.0,
-                        'new_voucher_bill_file': False,
-                        'new_voucher_bill_filename': False,
-                    })
-        return res
+        return super(ServiceTicket, self).write(vals)
 
     @api.model_create_multi
     def create(self, vals_list):
