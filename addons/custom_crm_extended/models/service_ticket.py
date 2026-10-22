@@ -4,6 +4,26 @@ from lxml import etree
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
 
+class ServiceTicketComplaintType(models.Model):
+    _name = 'service.ticket.complaint.type'
+    _description = 'Service Ticket Complaint Type'
+    _order = 'sequence, id'
+
+    name = fields.Char(string='Complaint Type', required=True)
+    sequence = fields.Integer(string='Sequence', default=10)
+    active = fields.Boolean(string='Active', default=True)
+
+    def unlink(self):
+        for rec in self:
+            count = self.env['service.ticket'].search_count([('complaint_type_id', '=', rec.id)])
+            if count > 0:
+                raise UserError(_(
+                    "You cannot delete the Complaint Type '%s' because it is already used in %s Service Ticket(s).\n\n"
+                    "Please archive/deactivate it instead by unchecking the 'Active' checkbox."
+                ) % (rec.name, count))
+        return super().unlink()
+
+
 class ServiceTicket(models.Model):
     _name = 'service.ticket'
     _description = 'Service Ticket'
@@ -883,50 +903,5 @@ class ServiceTicketVoucherBatch(models.Model):
                 'expense_manager_id': self.env.user.id,
             })
             rec.expense_manager_id = self.env.user.id
-
-
-class ServiceTicketComplaintType(models.Model):
-    _name = 'service.ticket.complaint.type'
-    _description = 'Service Ticket Complaint Type'
-    _order = 'sequence, id'
-
-    name = fields.Char(string='Complaint Type', required=True)
-    sequence = fields.Integer(string='Sequence', default=10)
-    active = fields.Boolean(string='Active', default=True)
-
-    def unlink(self):
-        for rec in self:
-            count = self.env['service.ticket'].search_count([('complaint_type_id', '=', rec.id)])
-            if count > 0:
-                raise UserError(_(
-                    "You cannot delete the Complaint Type '%s' because it is already used in %s Service Ticket(s).\n\n"
-                    "Please archive/deactivate it instead by unchecking the 'Active' checkbox."
-                ) % (rec.name, count))
-        return super().unlink()
-
-    @api.model
-    def _migrate_existing_complaint_types(self):
-        """Automatically create standard complaint types if missing and link existing tickets."""
-        types_map = {
-            'breakdown': 'Breakdown',
-            'pm': 'PM',
-            'free_call': 'Free Call',
-            'installation': 'Installation',
-        }
-        rec_objs = {}
-        for idx, (code, label) in enumerate(types_map.items(), start=1):
-            ct = self.search([('name', '=ilike', label)], limit=1)
-            if not ct:
-                ct = self.create({'name': label, 'sequence': idx * 10})
-            rec_objs[code] = ct.id
-
-        # Populate complaint_type_id for any ticket that has legacy complaint_type
-        for code, cid in rec_objs.items():
-            tickets = self.env['service.ticket'].search([
-                ('complaint_type', '=', code),
-                ('complaint_type_id', '=', False)
-            ])
-            if tickets:
-                tickets.write({'complaint_type_id': cid})
 
 
