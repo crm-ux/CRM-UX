@@ -114,7 +114,7 @@
                 <header>
                     <button name="action_open_expense_settings" string="⚙️ Voucher Settings" type="object" class="btn btn-secondary"/>
                 </header>
-                <field name="create_date" string="Submitted Date" widget="date"/>
+                <field name="create_date" string="Submitted Date"/>
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="user_id" string="Employee" widget="many2one_avatar_user"/>
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
@@ -194,7 +194,7 @@
         <field name="model">service.ticket.voucher.batch</field>
         <field name="arch" type="xml">
             <list string="Voucher Submissions" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
-                <field name="create_date" string="Submitted Date" widget="date"/>
+                <field name="create_date" string="Submitted Date"/>
                 <field name="ticket_id" string="Service Ticket" options="{'no_open': True}"/>
                 <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user" options="{'no_open': True}"/>
