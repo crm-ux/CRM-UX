@@ -1319,3 +1319,30 @@ div[role="tooltip"].o_popover,
     display: none !important;
     visibility: hidden !important;
 }
+
+/* Remove all blue hyperlink styling from employee, expense type, ticket in voucher batch views */
+.o_service_ticket_voucher_batch_form a,
+.o_service_ticket_voucher_batch_form .o_form_uri,
+.o_service_ticket_voucher_batch_form .o_field_many2one,
+.o_service_ticket_voucher_batch_form [name="expense_type_id"],
+.o_service_ticket_voucher_batch_form [name="user_id"],
+.o_service_ticket_voucher_batch_form [name="ticket_id"],
+.o_service_ticket_voucher_batch_form [name="submitted_by_user_id"] {
+    text-decoration: none !important;
+    color: inherit !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+/* Keep action buttons and bill preview clickable */
+.o_service_ticket_voucher_batch_form button,
+.o_service_ticket_voucher_batch_form .btn,
+.o_service_ticket_voucher_batch_form .o_statusbar_buttons button,
+.o_service_ticket_voucher_batch_form button[name="action_preview_bill"],
+.o_service_ticket_voucher_batch_form button[name="action_approve"],
+.o_service_ticket_voucher_batch_form button[name="action_reject"],
+.o_service_ticket_voucher_batch_form button[name="action_approve_all"],
+.o_service_ticket_voucher_batch_form button[name="action_reject_all"] {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}

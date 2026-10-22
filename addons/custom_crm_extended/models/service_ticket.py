@@ -768,6 +768,29 @@ class ServiceTicketVoucherBatch(models.Model):
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
     line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
+
+    @api.model
+    def init(self):
+        super().init()
+        # Automatically backfill existing orphan submitted/approved/rejected lines into batch records
+        orphans = self.env['service.ticket.voucher.line'].sudo().search([
+            ('batch_id', '=', False),
+            ('status', 'in', ['submitted', 'approved', 'rejected'])
+        ])
+        for line in orphans:
+            batch = self.search([
+                ('ticket_id', '=', line.ticket_id.id),
+                ('user_id', '=', line.user_id.id),
+            ], limit=1)
+            if not batch:
+                batch = self.create({
+                    'ticket_id': line.ticket_id.id,
+                    'user_id': line.user_id.id,
+                    'submitted_by_user_id': line.submitted_by_user_id.id if line.submitted_by_user_id else line.user_id.id,
+                    'other_employee_names': line.other_employee_names or '',
+                    'name': f"VCH-{line.ticket_id.ticket_id or line.ticket_id.name}-{line.user_id.name}",
+                })
+            line.write({'batch_id': batch.id})
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
     total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
     status = fields.Selection([
