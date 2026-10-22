@@ -1068,13 +1068,31 @@ button[name="action_add_voucher_line"]:hover {
     color: #1e293b !important;
     font-size: 13px !important;
     width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
     transition: border-color 0.15s ease-in-out !important;
 }
 
+.o_voucher_quick_add_bar .o_field_monetary {
+    display: flex !important;
+    width: 100% !important;
+    align-items: center !important;
+}
+
+.o_voucher_quick_add_bar .o_field_monetary input {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    pointer-events: auto !important;
+    cursor: text !important;
+}
+
+.o_voucher_quick_add_bar [name="new_voucher_amount"] input:not([readonly]) {
+    background-color: #ffffff !important;
+    pointer-events: auto !important;
+    cursor: text !important;
+    user-select: text !important;
+}
+
 .o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier:not(:has(input:not([readonly]))),
-.o_voucher_quick_add_bar .o_field_widget[readonly] {
+.o_voucher_quick_add_bar .o_field_widget[readonly]:not(:has(input:not([readonly]))) {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     padding: 6px 10px !important;
