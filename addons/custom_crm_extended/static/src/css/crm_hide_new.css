@@ -1215,8 +1215,17 @@ button[name="action_add_voucher_line"]:hover {
 .o_expense_type_table tfoot {
     display: none !important;
 }
+/* Keep action buttons aligned horizontally side-by-side in list rows */
+.o_list_table td:has(button[name="action_approve"]),
+.o_list_table td:has(button[name="action_reject"]) {
+    white-space: nowrap !important;
+}
 
-
+.o_list_table td button[name="action_approve"],
+.o_list_table td button[name="action_reject"] {
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
 
 /* ── Description Wizard Modal: Dynamic sizing, word wrap, no horizontal scrollbar ── */
 .modal:has(form[string="Expense Description"]) .modal-dialog,
