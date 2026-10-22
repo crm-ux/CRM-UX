@@ -788,6 +788,8 @@ class ServiceTicketVoucherBatch(models.Model):
             rec.rate_per_km = first_line.rate_per_km if first_line else 0.0
             rec.amount = rec.total_amount
             rec.reject_reason = ", ".join(filter(None, rec.line_ids.mapped('reject_reason'))) if rec.line_ids else ""
+            rec.bill_file = first_line.bill_file if first_line else False
+            rec.bill_filename = first_line.bill_filename if first_line else False
 
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
