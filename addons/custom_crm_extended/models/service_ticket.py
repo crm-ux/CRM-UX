@@ -775,6 +775,8 @@ class ServiceTicketVoucherBatch(models.Model):
     rate_per_km = fields.Float(string='Rate/KM', compute='_compute_batch_summary_fields')
     amount = fields.Monetary(string='Amount', currency_field='currency_id', compute='_compute_batch_summary_fields')
     reject_reason = fields.Char(string='Reject Reason', compute='_compute_batch_summary_fields')
+    bill_file = fields.Binary(string='Bill', compute='_compute_batch_summary_fields')
+    bill_filename = fields.Char(string='Bill Filename', compute='_compute_batch_summary_fields')
 
     def _compute_batch_summary_fields(self):
         for rec in self:
