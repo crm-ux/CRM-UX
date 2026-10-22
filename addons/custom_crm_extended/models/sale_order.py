@@ -31,7 +31,9 @@ class SaleOrder(models.Model):
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
         if 'note' in fields_list and not res.get('note'):
-            terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+            company_id = res.get('company_id') or self.env.company.id
+            domain = ['|', ('company_id', '=', False), ('company_id', '=', company_id)]
+            terms = self.env['sale.terms.condition'].search(domain, order='sequence, id')
             if terms:
                 items = ''.join('<li>%s</li>' % (t.content or '') for t in terms)
                 res['note'] = '<ol>%s</ol>' % items
@@ -430,8 +432,9 @@ class SaleOrder(models.Model):
     def _prepare_quote_preview_wizard_vals(self):
         """Build dictionary of values for sale.quote.preview.wizard."""
         self.ensure_one()
-        all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
-        saved_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        company_domain = ['|', ('company_id', '=', False), ('company_id', '=', self.company_id.id)]
+        all_terms = self.env['sale.terms.condition'].search(company_domain, order='sequence, id')
+        saved_terms = self.env['sale.terms.condition'].search(company_domain, order='sequence, id')
         if self.note:
             try:
                 from bs4 import BeautifulSoup

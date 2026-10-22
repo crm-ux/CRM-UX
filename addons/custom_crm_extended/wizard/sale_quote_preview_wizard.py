@@ -68,7 +68,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
     @api.depends('selected_term_ids')
     def _compute_terms_html(self):
         for rec in self:
-            all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+            company_id = rec.order_id.company_id.id if rec.order_id else self.env.company.id
+            domain = ['|', ('company_id', '=', False), ('company_id', '=', company_id)]
+            all_terms = self.env['sale.terms.condition'].search(domain, order='sequence, id')
             html = '<div class="o_terms_checkboxes">'
             for term in all_terms:
                 checked = 'checked' if term in rec.selected_term_ids else ''
@@ -88,8 +90,9 @@ class SaleQuotePreviewWizard(models.TransientModel):
         order = self.env['sale.order'].browse(self.env.context.get('default_order_id'))
         if not order:
             return res
-        # Restore draft term selection if saved, else default to all terms
-        all_terms = self.env['sale.terms.condition'].search([], order='sequence, id')
+        # Restore draft term selection if saved, else default to all terms for this order's company
+        domain = ['|', ('company_id', '=', False), ('company_id', '=', order.company_id.id)]
+        all_terms = self.env['sale.terms.condition'].search(domain, order='sequence, id')
         # has_draft: True if any draft field has been saved before
         has_draft = bool(order.x_draft_term_ids or order.x_draft_quote_name or order.x_draft_best_offer or order.x_draft_tech_specs)
         import logging

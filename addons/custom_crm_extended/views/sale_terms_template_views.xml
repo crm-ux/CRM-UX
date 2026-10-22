@@ -7,6 +7,7 @@
             <list string="Terms &amp; Conditions">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
+                <field name="company_id" string="Company" placeholder="All Companies"/>
                 <field name="content"/>
                 <field name="active"/>
             </list>
@@ -22,6 +23,7 @@
                     <group>
                         <field name="name" string="Title"/>
                         <field name="sequence"/>
+                        <field name="company_id" string="Company" options="{'no_create': True}" placeholder="All Companies (Global)"/>
                         <field name="active"/>
                     </group>
                     <field name="content" string="Content" widget="text"/>

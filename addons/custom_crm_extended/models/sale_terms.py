@@ -8,5 +8,6 @@ class SaleTermsCondition(models.Model):
 
     name = fields.Char(string='Title', required=True)
     sequence = fields.Integer(string='Sequence', default=10)
+    company_id = fields.Many2one('res.company', string='Company', help='Leave empty to apply to all companies.')
     content = fields.Text(string='Content', required=True)
     active = fields.Boolean(default=True)
