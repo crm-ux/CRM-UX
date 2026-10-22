@@ -1265,9 +1265,21 @@ button[name="action_add_voucher_line"]:hover {
     /* If triggered from description column, suppress it */
 }
 
-/* Force-suppress Odoo tooltip popover on Voucher Description */
+/* Force-suppress Odoo tooltip popover on Voucher Description and clamp cell height dynamically */
 .o_list_table td[name="description"] {
     cursor: pointer !important;
+    max-width: 25ch !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.5 !important;
+    vertical-align: middle !important;
+}
+.o_list_table td[name="description"] * {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 /* Hide any tooltip popover that contains the description content */
