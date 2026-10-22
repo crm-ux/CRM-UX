@@ -166,6 +166,29 @@ patch(ListController.prototype, {
         }
         return super.openNewRecord(...arguments);
     },
+    getActionMenuItems() {
+        const menuItems = super.getActionMenuItems ? super.getActionMenuItems(...arguments) : {};
+        if (
+            this.model?.root?.resModel === TICKET_MODEL ||
+            this.props?.resModel === TICKET_MODEL
+        ) {
+            menuItems.other = menuItems.other || [];
+            menuItems.other.push({
+                key: "complaint_types",
+                description: _t("Complaint Types"),
+                callback: async () => {
+                    await this.env.services.action.doAction({
+                        name: _t("Complaint Types"),
+                        type: "ir.actions.act_window",
+                        res_model: "service.ticket.complaint.type",
+                        views: [[false, "list"], [false, "form"]],
+                        target: "new",
+                    });
+                },
+            });
+        }
+        return menuItems;
+    },
 });
 
 // 2. Intercept "New" button in Detail Form View
