@@ -139,6 +139,37 @@ patch(ListController.prototype, {
                 }
             };
 
+            const handleVoucherRowClick = async (ev) => {
+                const target = ev.target instanceof Element ? ev.target : ev.target?.parentElement;
+                if (!target || !target.closest) return;
+
+                // Don't intercept clicks on buttons, inputs, links, or description modal triggers
+                if (target.closest("button, a, input, select, textarea, .o_list_record_selector, td[name='description']")) {
+                    return;
+                }
+
+                const row = target.closest("tr.o_data_row");
+                if (!row) return;
+
+                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                const rowIndex = allRows.indexOf(row);
+                const records = this.model?.root?.records || [];
+                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+
+                if (record && record.resId) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    await this.env.services.action.doAction({
+                        type: "ir.actions.act_window",
+                        res_model: "service.ticket.voucher.line",
+                        res_id: record.resId,
+                        views: [[false, "form"]],
+                        target: "current",
+                    });
+                }
+            };
+
+            document.addEventListener("click", handleVoucherRowClick, false);
             document.addEventListener("click", handleVoucherListBillPreview, true);
             document.addEventListener("click", handleVoucherDescriptionClick, true);
             document.addEventListener("mouseover", handleVoucherDescriptionHoverBlock, true);
