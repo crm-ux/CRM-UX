@@ -770,12 +770,22 @@ class ServiceTicketVoucherBatch(models.Model):
     line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
     description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
+    is_km_based = fields.Boolean(string='KM Based', compute='_compute_batch_summary_fields')
+    total_km = fields.Float(string='Total KM', compute='_compute_batch_summary_fields')
+    rate_per_km = fields.Float(string='Rate/KM', compute='_compute_batch_summary_fields')
+    amount = fields.Monetary(string='Amount', currency_field='currency_id', compute='_compute_batch_summary_fields')
+    reject_reason = fields.Char(string='Reject Reason', compute='_compute_batch_summary_fields')
 
     def _compute_batch_summary_fields(self):
         for rec in self:
             first_line = rec.line_ids[:1]
             rec.expense_type_id = first_line.expense_type_id.id if first_line else False
             rec.description = ", ".join(filter(None, rec.line_ids.mapped('description'))) if rec.line_ids else ""
+            rec.is_km_based = any(rec.line_ids.mapped('is_km_based'))
+            rec.total_km = sum(rec.line_ids.mapped('total_km'))
+            rec.rate_per_km = first_line.rate_per_km if first_line else 0.0
+            rec.amount = rec.total_amount
+            rec.reject_reason = ", ".join(filter(None, rec.line_ids.mapped('reject_reason'))) if rec.line_ids else ""
 
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
