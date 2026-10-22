@@ -201,9 +201,11 @@ export class ServiceTicketFormController extends FormController {
                 const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
                 if (container && breadcrumb && statusIndicator) {
-                    // 1. Move breadcrumb (ID + Gear) right after buttons
-                    if (breadcrumb.previousElementSibling !== statusIndicator) {
-                        container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                    // Safely verify both are direct children of container before reordering to prevent Owl NotFoundError
+                    if (breadcrumb.parentNode === container && statusIndicator.parentNode === container) {
+                        if (breadcrumb.previousElementSibling !== statusIndicator) {
+                            container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                        }
                     }
                     // 2. Remove flex-grow and margin gap in JS directly
                     statusIndicator.style.setProperty("margin-right", "16px", "important");
