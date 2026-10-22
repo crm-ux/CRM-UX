@@ -35,4 +35,11 @@
         <field name="res_model">sale.terms.condition</field>
         <field name="view_mode">list,form</field>
     </record>
+
+    <!-- Menu item in CRM Root Menu -->
+    <menuitem id="menu_sale_terms_condition_crm"
+              name="Terms &amp; Conditions Master"
+              parent="crm.crm_menu_root"
+              action="action_sale_terms_template"
+              sequence="25"/>
 </odoo>
