@@ -215,7 +215,13 @@ class CrmDashboard extends Component {
         this.go("custom_crm_extended.action_expense_setting");
     }
     openVoucherManagement() {
-        this.go("custom_crm_extended.action_service_ticket_voucher_line");
+        if (this.env?.services?.notification) {
+            this.env.services.notification.add("Voucher Management is Coming Soon!", {
+                title: "Coming Soon",
+                type: "info",
+                sticky: false,
+            });
+        }
     }
 
     openEquipmentSeries() {
