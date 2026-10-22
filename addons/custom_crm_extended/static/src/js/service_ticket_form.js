@@ -94,28 +94,39 @@ patch(ListController.prototype, {
                 });
             };
 
-            const handleVoucherDescriptionClick = (ev) => {
+            const handleVoucherDescriptionClick = async (ev) => {
                 const cell = ev.target.closest("td[name='description']");
                 if (!cell) return;
 
                 ev.preventDefault();
                 ev.stopPropagation();
 
-                // Toggle expansion directly in-place without popup dialog or tooltip
-                cell.removeAttribute("title");
-                const span = cell.querySelector("span");
-                if (span) span.removeAttribute("title");
+                const row = cell.closest("tr, .o_data_row");
+                if (!row) return;
 
-                cell.classList.toggle("is-expanded");
+                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                const rowIndex = allRows.indexOf(row);
+                const records = this.model?.root?.records || [];
+                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+
+                const descText = record?.data?.description || cell.innerText?.trim() || "";
+                if (!descText) return;
+
+                await this.env.services.action.doAction("custom_crm_extended.action_service_ticket_voucher_desc_wizard", {
+                    additionalContext: {
+                        default_description: descText,
+                        default_voucher_line_id: record?.resId || false,
+                    },
+                });
             };
 
-            // Prevent native browser tooltip on hover over description cells
+            // Remove native browser tooltip on hover over description cells
             const handleVoucherDescriptionMouseOver = (ev) => {
                 const cell = ev.target.closest("td[name='description']");
                 if (cell) {
-                    if (cell.hasAttribute("title")) cell.removeAttribute("title");
+                    cell.removeAttribute("title");
                     const span = cell.querySelector("span");
-                    if (span && span.hasAttribute("title")) span.removeAttribute("title");
+                    if (span) span.removeAttribute("title");
                 }
             };
 

@@ -161,6 +161,15 @@
         </field>
     </record>
 
+    <!-- Action for Description Wizard Popup -->
+    <record id="action_service_ticket_voucher_desc_wizard" model="ir.actions.act_window">
+        <field name="name">Expense Description</field>
+        <field name="res_model">service.ticket.voucher.desc.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_service_ticket_voucher_desc_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
     <!-- Reject Voucher Remark Wizard Popup Form -->
     <record id="view_service_ticket_voucher_reject_wizard_form" model="ir.ui.view">
         <field name="name">service.ticket.voucher.reject.wizard.form</field>
