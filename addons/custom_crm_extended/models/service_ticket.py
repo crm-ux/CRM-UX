@@ -768,6 +768,14 @@ class ServiceTicketVoucherBatch(models.Model):
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
     line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
+    expense_type_id = fields.Many2one('expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
+    description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
+
+    def _compute_batch_summary_fields(self):
+        for rec in self:
+            first_line = rec.line_ids[:1]
+            rec.expense_type_id = first_line.expense_type_id.id if first_line else False
+            rec.description = ", ".join(filter(None, rec.line_ids.mapped('description'))) if rec.line_ids else ""
 
     @api.model
     def init(self):
