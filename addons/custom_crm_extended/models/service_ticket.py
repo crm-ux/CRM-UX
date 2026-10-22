@@ -122,24 +122,11 @@ class ServiceTicket(models.Model):
     new_voucher_amount = fields.Monetary(
         string='Amount', 
         currency_field='currency_id',
-        compute='_compute_new_voucher_amount',
-        store=True,
-        readonly=False
+        default=0.0
     )
     new_voucher_bill_file = fields.Binary(string='Upload Bill')
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
-
-    @api.depends('new_voucher_total_km', 'new_voucher_expense_type_id', 'new_voucher_expense_type_id.km_rate', 'new_voucher_expense_type_id.is_km_based')
-    def _compute_new_voucher_amount(self):
-        for rec in self:
-            is_km = rec.new_voucher_is_km or (rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based)
-            if is_km:
-                rate = rec.new_voucher_expense_type_id.km_rate if rec.new_voucher_expense_type_id else 0.0
-                if rec.new_voucher_total_km > 0 and rate > 0:
-                    rec.new_voucher_amount = round(rec.new_voucher_total_km * rate, 2)
-                elif rec.new_voucher_total_km == 0:
-                    rec.new_voucher_amount = 0.0
 
     @api.onchange('new_voucher_expense_type_id')
     def _onchange_new_voucher_expense_type(self):
