@@ -120,19 +120,26 @@ patch(ListController.prototype, {
                 });
             };
 
-            // Remove native browser tooltip on hover over description cells
-            const handleVoucherDescriptionMouseOver = (ev) => {
+            // Completely block Odoo's popover tooltip service from triggering on description cells
+            const handleVoucherDescriptionHoverBlock = (ev) => {
                 const cell = ev.target.closest("td[name='description']");
                 if (cell) {
+                    ev.stopPropagation();
                     cell.removeAttribute("title");
-                    const span = cell.querySelector("span");
-                    if (span) span.removeAttribute("title");
+                    cell.removeAttribute("data-tooltip");
+                    const child = cell.firstElementChild;
+                    if (child) {
+                        child.removeAttribute("title");
+                        child.removeAttribute("data-tooltip");
+                    }
                 }
             };
 
             document.addEventListener("click", handleVoucherListBillPreview, true);
             document.addEventListener("click", handleVoucherDescriptionClick, true);
-            document.addEventListener("mouseover", handleVoucherDescriptionMouseOver, true);
+            document.addEventListener("mouseover", handleVoucherDescriptionHoverBlock, true);
+            document.addEventListener("mouseenter", handleVoucherDescriptionHoverBlock, true);
+            document.addEventListener("pointerenter", handleVoucherDescriptionHoverBlock, true);
         }
     },
     async createRecord() {
