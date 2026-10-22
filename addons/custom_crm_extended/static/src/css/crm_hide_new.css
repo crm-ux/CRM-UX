@@ -1409,7 +1409,44 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 [name="selected_term_ids"] input[type="checkbox"]:focus,
 .o_sale_terms_condition_form input[type="checkbox"]:focus,
 .o_sale_terms_condition_list input[type="checkbox"]:focus,
-.o_terms_checkboxes input[type="checkbox"]:focus {
+.o_terms_checkboxes input[type="checkbox"]:focus,
+.o_service_ticket_complaint_type_list input[type="checkbox"]:focus,
+.o_service_ticket_complaint_type_form input[type="checkbox"]:focus {
     border-color: #0b3d91 !important;
     box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
+}
+
+/* Custom Blue Checkboxes & Row Selection for Service Ticket Complaint Types */
+.o_service_ticket_complaint_type_list .form-check-input,
+.o_service_ticket_complaint_type_list input[type="checkbox"],
+.o_service_ticket_complaint_type_form .form-check-input,
+.o_service_ticket_complaint_type_form input[type="checkbox"] {
+    border-color: #94a3b8 !important;
+}
+
+.o_service_ticket_complaint_type_list .form-check-input:hover,
+.o_service_ticket_complaint_type_list input[type="checkbox"]:hover,
+.o_service_ticket_complaint_type_form .form-check-input:hover,
+.o_service_ticket_complaint_type_form input[type="checkbox"]:hover {
+    border-color: #0b3d91 !important;
+}
+
+.o_service_ticket_complaint_type_list .form-check-input:checked,
+.o_service_ticket_complaint_type_list input[type="checkbox"]:checked,
+.o_service_ticket_complaint_type_list .o_field_boolean input:checked,
+.o_service_ticket_complaint_type_form .form-check-input:checked,
+.o_service_ticket_complaint_type_form input[type="checkbox"]:checked,
+.o_service_ticket_complaint_type_form .o_field_boolean input:checked {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    accent-color: #0b3d91 !important;
+    --form-check-bg-color: #0b3d91 !important;
+}
+
+/* Selection row & header bar for Complaint Types list */
+.o_service_ticket_complaint_type_list tr.table-info,
+.o_service_ticket_complaint_type_list tr.o_data_row.table-info,
+.o_service_ticket_complaint_type_list .table-info > td,
+.o_service_ticket_complaint_type_list .table-info > th {
+    background-color: #e0edff !important;
 }
