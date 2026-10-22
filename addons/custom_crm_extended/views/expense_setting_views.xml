@@ -132,6 +132,7 @@
                 <field name="expense_manager_id" string="Approver"/>
                 <field name="reject_reason" string="Reject Reason" optional="show"/>
                 <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                <button name="action_open_batch_detail" type="object" icon="fa-list text-primary" title="View Expense Details" class="btn p-0"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
             </list>
@@ -165,14 +166,38 @@
         </field>
     </record>
 
+    <!-- Search View for Voucher Lines with Grouping -->
+    <record id="view_service_ticket_voucher_line_search" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.line.search</field>
+        <field name="model">service.ticket.voucher.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Voucher Submissions">
+                <field name="user_id"/>
+                <field name="submitted_by_user_id"/>
+                <field name="ticket_id"/>
+                <field name="expense_type_id"/>
+                <filter string="Submitted" name="status_submitted" domain="[('status', '=', 'submitted')]"/>
+                <filter string="Approved" name="status_approved" domain="[('status', '=', 'approved')]"/>
+                <filter string="Rejected" name="status_rejected" domain="[('status', '=', 'rejected')]"/>
+                <separator/>
+                <group>
+                    <filter string="Employee" name="group_employee" context="{'group_by': 'user_id'}"/>
+                    <filter string="Service Ticket" name="group_ticket" context="{'group_by': 'ticket_id'}"/>
+                    <filter string="Submitted By" name="group_submitted_by" context="{'group_by': 'submitted_by_user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <!-- Action to open submitted vouchers (DEFAULT VIEW: grouped by employee with total sum record) -->
     <record id="action_service_ticket_voucher_line" model="ir.actions.act_window">
         <field name="name">Voucher Submissions</field>
         <field name="res_model">service.ticket.voucher.line</field>
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_service_ticket_voucher_line_tree"/>
+        <field name="search_view_id" ref="view_service_ticket_voucher_line_search"/>
         <field name="domain">[('status', 'in', ['submitted', 'approved', 'rejected'])]</field>
-        <field name="context">{'group_by': 'user_id'}</field>
+        <field name="context">{'search_default_group_employee': 1}</field>
     </record>
 
     <!-- View Voucher Description Wizard Popup Form -->
