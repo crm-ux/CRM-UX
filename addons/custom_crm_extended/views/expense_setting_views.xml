@@ -179,10 +179,10 @@
                     </group>
                     <group string="Attached Bill / Receipt" invisible="not bill_file">
                         <label for="bill_file" string="Bill Document"/>
-                        <div class="d-inline-flex align-items-center gap-2">
+                        <div class="d-inline-flex align-items-center gap-2 crm-bill-preview-box">
                             <field name="bill_file" filename="bill_filename" widget="binary" readonly="1" class="d-inline-block oe_inline"/>
                             <field name="bill_filename" invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill Preview" class="btn p-0 border-0 shadow-none align-baseline ms-1" style="color: #0b3d91 !important; font-size: 1.15rem; line-height: 1; cursor: pointer;"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill Preview" class="btn p-0 border-0 shadow-none align-baseline crm-bill-eye-btn"/>
                         </div>
                     </group>
                 </sheet>
