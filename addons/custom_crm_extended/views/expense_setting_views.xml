@@ -195,9 +195,8 @@
             <list string="Voucher Submissions" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
                 <field name="create_date" string="Submitted Date"/>
                 <field name="ticket_id" string="Service Ticket" options="{'no_open': True}"/>
-                <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
+                <field name="all_employee_names" string="Employees"/>
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user" options="{'no_open': True}"/>
-                <field name="other_employee_names" string="Other Employees"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="expense_manager_id" string="Approver" options="{'no_open': True}"/>
@@ -213,11 +212,22 @@
         <field name="arch" type="xml">
             <form string="Voucher Submission Detail" create="0" edit="0" delete="0" class="o_service_ticket_voucher_batch_form">
                 <header>
-                    <button name="action_approve_all" string="Approve All Expenses" type="object" class="btn btn-success" invisible="status == 'approved'"/>
-                    <button name="action_reject_all" string="Reject All Expenses" type="object" class="btn btn-danger" invisible="status == 'rejected'"/>
+                    <button name="action_approve" string="Approve" type="object" class="btn btn-success" invisible="status == 'approved'"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn btn-danger" invisible="status == 'rejected'"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,approved,rejected"/>
                 </header>
                 <sheet>
+                    <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
+                    <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm"
+                         style="border-left: 4px solid #0b3d91 !important;">
+                        <span class="small fw-bold" style="color: #0b3d91;">
+                            <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
+                        </span>
+                        <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3); font-size: 0.9rem;">
+                            <field name="all_employee_names" readonly="1" class="d-inline"/>
+                        </span>
+                    </div>
+
                     <div class="oe_title">
                         <h1>
                             <field name="user_id" readonly="1" options="{'no_open': True}"/>
@@ -230,7 +240,6 @@
                         <group string="Submission Overview">
                             <field name="create_date" string="Submitted Date" readonly="1"/>
                             <field name="submitted_by_user_id" string="Submitted By" readonly="1" options="{'no_open': True}"/>
-                            <field name="other_employee_names" string="Other Employees" readonly="1"/>
                         </group>
                         <group string="Financials">
                             <field name="currency_id" invisible="1"/>
