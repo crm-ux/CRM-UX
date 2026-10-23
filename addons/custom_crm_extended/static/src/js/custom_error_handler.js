@@ -19,24 +19,17 @@ export function customCleanErrorHandler(env, error, originalError) {
     // 1. Always log complete technical details, traceback, and error object to developer console
     console.error("[Odoo Technical Error - Logged for Developers]:", err);
 
-    // 2. If it's a known user-intended validation error (UserError / ValidationError / Warning)
-    // with a specific functional message (e.g., "Ticket ID already exists"), allow standard display
-    const isUserValidationError =
-        err?.name === "RPC_ERROR" &&
-        (err?.data?.name === "odoo.exceptions.UserError" ||
-         err?.data?.name === "odoo.exceptions.ValidationError" ||
-         err?.data?.name === "odoo.exceptions.AccessDenied" ||
-         err?.data?.name === "odoo.exceptions.AccessError");
-
-    if (isUserValidationError && err?.data?.message) {
+    // 2. If it's an RPC error with a message, display the actual message to help understand what failed
+    const errorMsg = err?.data?.message || err?.message || (typeof err === "string" ? err : null);
+    if (errorMsg) {
         if (env.services?.dialog) {
             env.services.dialog.add(ConfirmationDialog, {
-                title: _t("Warning"),
-                body: err.data.message,
+                title: _t("Notice"),
+                body: errorMsg,
                 confirmLabel: _t("OK"),
             });
         } else if (env.services?.notification) {
-            env.services.notification.add(err.data.message, {
+            env.services.notification.add(errorMsg, {
                 type: "warning",
                 sticky: false,
             });

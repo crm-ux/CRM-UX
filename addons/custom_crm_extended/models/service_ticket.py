@@ -788,16 +788,20 @@ class ServiceTicketVoucherLine(models.Model):
         }
 
     def action_reject(self):
-        self.ensure_one()
+        line = self[:1]
+        if not line:
+            return False
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reject_wizard_form', raise_if_not_found=False)
         return {
             'name': _('Reject Voucher Remark'),
             'type': 'ir.actions.act_window',
             'res_model': 'service.ticket.voucher.reject.wizard',
             'view_mode': 'form',
+            'view_id': view.id if view else False,
             'target': 'new',
             'context': {
-                'default_voucher_line_id': self.id,
-                'default_reject_reason': self.reject_reason or '',
+                'default_voucher_line_id': line.id,
+                'default_reject_reason': line.reject_reason or '',
             },
         }
 
