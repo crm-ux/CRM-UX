@@ -447,22 +447,39 @@ class ServiceTicket(models.Model):
             now_ts = fields.Datetime.now().strftime('%Y%m%d%H%M%S')
             mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
             approver_uid = mgr.id if mgr else 2
+            
+            # Combine all employee names into one group submission
+            all_names = []
             for emp in draft_lines.mapped('user_id'):
-                emp_lines = draft_lines.filtered(lambda l: l.user_id == emp)
-                first_line = emp_lines[0]
-                batch_rec = self.env['service.ticket.voucher.batch'].create({
-                    'ticket_id': self.id,
-                    'user_id': emp.id,
-                    'submitted_by_user_id': self.env.user.id,
-                    'expense_manager_id': approver_uid,
-                    'other_employee_names': first_line.other_employee_names or '',
-                    'name': f"VCH-{self.ticket_id or self.name}-{emp.name}",
-                })
-                emp_lines.write({
-                    'status': 'submitted',
-                    'batch_id': batch_rec.id,
-                    'submitted_by_user_id': self.env.user.id,
-                })
+                if emp.name and emp.name not in all_names:
+                    all_names.append(emp.name)
+            for line in draft_lines:
+                if line.other_employee_names:
+                    for n in line.other_employee_names.split(','):
+                        n_clean = n.strip()
+                        if n_clean and n_clean not in all_names:
+                            all_names.append(n_clean)
+            
+            combined_emp_names = ", ".join(all_names)
+            primary_emp = draft_lines[0].user_id
+            
+            # Create ONE SINGLE BATCH for the group submission
+            batch_rec = self.env['service.ticket.voucher.batch'].create({
+                'ticket_id': self.id,
+                'user_id': primary_emp.id,
+                'submitted_by_user_id': self.env.user.id,
+                'expense_manager_id': approver_uid,
+                'other_employee_names': combined_emp_names,
+                'all_employee_names': combined_emp_names,
+                'name': f"VCH-{self.ticket_id or self.name}-{primary_emp.name}",
+            })
+            
+            # Link ALL lines together into this single batch
+            draft_lines.write({
+                'status': 'submitted',
+                'batch_id': batch_rec.id,
+                'submitted_by_user_id': self.env.user.id,
+            })
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',

@@ -254,6 +254,7 @@
                     <separator string="Expense Details"/>
                     <field name="line_ids" readonly="1">
                         <list create="0" edit="0" delete="0">
+                            <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
                             <field name="expense_type_id" string="Expense Type" options="{'no_open': True}"/>
                             <field name="is_km_based" column_invisible="1"/>
                             <field name="total_km" string="Total KM" optional="show"/>
