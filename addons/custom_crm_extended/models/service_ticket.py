@@ -743,7 +743,7 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_open_batch_detail(self):
         self.ensure_one()
-        domain = [('batch_id', '=', self.batch_id)] if self.batch_id else [('id', '=', self.id)]
+        domain = [('batch_id', '=', self.batch_id.id)] if self.batch_id else [('id', '=', self.id)]
         return {
             'name': _('Expense Details - %s') % (self.user_id.name or 'Employee'),
             'type': 'ir.actions.act_window',
@@ -764,20 +764,23 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_approve(self):
         for rec in self:
-            rec.write({
+            rec.sudo().write({
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
             })
+        msg = _('Voucher approved successfully.')
+        if len(self) == 1:
+            msg = _('Voucher for %s (%s) of ₹%0.2f has been approved successfully.') % (
+                self.user_id.name or 'Employee',
+                self.expense_type_id.name or 'Expense',
+                self.amount or 0.0
+            )
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Voucher Approved'),
-                'message': _('Voucher for %s (%s) of ₹%0.2f has been approved successfully.') % (
-                    self.user_id.name or 'Employee',
-                    self.expense_type_id.name or 'Expense',
-                    self.amount or 0.0
-                ),
+                'message': msg,
                 'type': 'success',
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
@@ -847,7 +850,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
     def action_confirm_reject(self):
         self.ensure_one()
         line = self.voucher_line_id
-        line.write({
+        line.sudo().write({
             'status': 'rejected',
             'reject_reason': self.reject_reason,
             'expense_manager_id': self.env.user.id,
