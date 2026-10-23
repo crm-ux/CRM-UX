@@ -184,7 +184,7 @@ class CrmDashboard extends Component {
 
             this.notifPollTimer = setInterval(() => {
                 this.loadNotifCount();
-            }, 1000);
+            }, 30000);
 
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.crm-dropdown-container')) {
@@ -1493,7 +1493,7 @@ class CrmDashboard extends Component {
                 method: 'search_read',
                 args: [[['partner_ids', 'in', [partnerId]]]],
                 kwargs: { fields: ['id', 'model', 'author_id'], limit: 50, order: 'date desc' }
-            });
+            }, { silent: true });
             // Exclude task assignments created by oneself (e.g. Admin assigning task to Anurag)
             const activeMessages = messages.filter(m => {
                 if (dismissedIds.includes(m.id)) return false;

@@ -35,6 +35,14 @@
     overflow-y: auto !important;
 }
 
+/* Suppress persistent background loading badge */
+.crm-pro-dashboard ~ .o_loading,
+body:has(.crm-pro-dashboard) .o_loading {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
 .crm-pro-dashboard {
     background-color: var(--bg-slate);
     color: var(--text-dark);
