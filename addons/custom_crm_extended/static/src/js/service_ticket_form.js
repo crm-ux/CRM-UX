@@ -229,24 +229,22 @@ export class ServiceTicketFormController extends FormController {
         if (this.props.resModel === "service.ticket") {
             let observer = null;
             const reorderToolbar = () => {
-                try {
-                    const container = document.querySelector(".o_control_panel_breadcrumbs");
-                    const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
-                    const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-                    if (container && breadcrumb && statusIndicator) {
-                        if (breadcrumb.parentNode === container && statusIndicator.parentNode === container) {
-                            if (breadcrumb.previousElementSibling !== statusIndicator) {
-                                container.insertBefore(breadcrumb, statusIndicator.nextSibling);
-                            }
-                        }
-                        statusIndicator.style.setProperty("margin-right", "16px", "important");
-                        statusIndicator.style.setProperty("flex-grow", "0", "important");
-                        statusIndicator.style.setProperty("width", "auto", "important");
-                        breadcrumb.style.setProperty("margin-left", "0", "important");
-                        breadcrumb.style.setProperty("flex-grow", "0", "important");
-                    }
-                } catch (e) {
-                    // Silently ignore DOM reordering race conditions
+                // Style via CSS only without mutating DOM nodes directly to prevent Owl lifecycle crash
+                const container = document.querySelector(".o_control_panel_breadcrumbs");
+                if (container) {
+                    container.style.setProperty("display", "flex", "important");
+                }
+                const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
+                if (statusIndicator) {
+                    statusIndicator.style.setProperty("order", "1", "important");
+                    statusIndicator.style.setProperty("margin-right", "16px", "important");
+                    statusIndicator.style.setProperty("flex-grow", "0", "important");
+                }
+                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                if (breadcrumb) {
+                    breadcrumb.style.setProperty("order", "2", "important");
+                    breadcrumb.style.setProperty("margin-left", "0", "important");
+                    breadcrumb.style.setProperty("flex-grow", "0", "important");
                 }
             };
 
