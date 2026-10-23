@@ -19,17 +19,21 @@ export function customCleanErrorHandler(env, error, originalError) {
     // 1. Always log complete technical details, traceback, and error object to developer console
     console.error("[Odoo Technical Error - Logged for Developers]:", err);
 
-    // 2. If it's an RPC error with a message, display the actual message to help understand what failed
-    const errorMsg = err?.data?.message || err?.message || (typeof err === "string" ? err : null);
-    if (errorMsg) {
+    // 2. If it's a known user-intended validation error (e.g. ValidationError / missing fields), allow standard display
+    const isUserValidationError =
+        err?.name === "RPC_ERROR" &&
+        (err?.data?.name === "odoo.exceptions.UserError" ||
+         err?.data?.name === "odoo.exceptions.ValidationError");
+
+    if (isUserValidationError && err?.data?.message) {
         if (env.services?.dialog) {
             env.services.dialog.add(ConfirmationDialog, {
                 title: _t("Notice"),
-                body: errorMsg,
+                body: err.data.message,
                 confirmLabel: _t("OK"),
             });
         } else if (env.services?.notification) {
-            env.services.notification.add(errorMsg, {
+            env.services.notification.add(err.data.message, {
                 type: "warning",
                 sticky: false,
             });
@@ -37,8 +41,9 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // 3. For any technical error / crash:
-    // Open a clean, centered modal dialog with only OK button and the agreed 1-line apology
+    // 3. For ANY technical DOM / Owl / JS error (like insertBefore, TypeError, RPC_ERROR, etc.):
+    // DO NOT display raw code or technical jargon to user.
+    // Show only the clean 1-line apology dialog modal:
     if (env.services?.dialog) {
         env.services.dialog.add(ConfirmationDialog, {
             title: _t("System Notice"),
