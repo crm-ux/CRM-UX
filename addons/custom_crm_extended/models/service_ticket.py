@@ -919,6 +919,7 @@ class ServiceTicketVoucherBatch(models.Model):
     other_employee_names = fields.Char(string='Other Employees')
     all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
     voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
+    ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
 
     @api.depends('user_id.name', 'other_employee_names', 'line_ids.user_id.name')
     def _compute_all_employee_names(self):
