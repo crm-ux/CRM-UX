@@ -832,10 +832,14 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_preview_bill(self):
         self.ensure_one()
-        url = f'/web/content/{self._name}/{self.id}/bill_file/{self.bill_filename or "bill"}?download=false'
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form', raise_if_not_found=False)
         return {
-            'type': 'ir.actions.act_url',
-            'url': url,
+            'name': _('Bill Preview - %s') % (self.bill_filename or self.expense_type_id.name or 'Receipt'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': view.id if view else False,
             'target': 'new',
         }
 
@@ -982,6 +986,12 @@ class ServiceTicketVoucherBatch(models.Model):
                 'default_reject_reason': '',
             },
         }
+
+    def action_preview_bill(self):
+        line = self.line_ids.filtered(lambda l: l.bill_file)[:1]
+        if not line:
+            return False
+        return line.action_preview_bill()
 
     def action_approve_all(self):
         for rec in self:

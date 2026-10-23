@@ -178,9 +178,12 @@
                         <field name="description" nolabel="1" readonly="1" placeholder="No description provided."/>
                     </group>
                     <group string="Attached Bill / Receipt" invisible="not bill_file">
-                        <field name="bill_file" filename="bill_filename" widget="binary" readonly="1" string="Bill Document"/>
-                        <field name="bill_filename" invisible="1"/>
-                        <field name="bill_preview" widget="image" options="{'size': [600, 600]}" readonly="1" string="Receipt Preview"/>
+                        <label for="bill_file" string="Bill Document"/>
+                        <div class="d-flex align-items-center gap-2">
+                            <field name="bill_file" filename="bill_filename" widget="binary" readonly="1" class="d-inline-block"/>
+                            <field name="bill_filename" invisible="1"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye" string="View Bill" class="btn btn-outline-primary btn-sm ms-2"/>
+                        </div>
                     </group>
                 </sheet>
             </form>
