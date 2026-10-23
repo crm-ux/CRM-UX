@@ -947,6 +947,27 @@ class ServiceTicketVoucherBatch(models.Model):
             else:
                 rec.status = 'submitted'
 
+    def action_approve(self):
+        """ Alias for batch-level approval """
+        return self.action_approve_all()
+
+    def action_reject(self):
+        """ Opens reject wizard for the batch or rejects all lines """
+        line = self.line_ids[:1]
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reject_wizard_form', raise_if_not_found=False)
+        return {
+            'name': _('Reject Voucher Submission'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.reject.wizard',
+            'view_mode': 'form',
+            'view_id': view.id if view else False,
+            'target': 'new',
+            'context': {
+                'default_voucher_line_id': line.id if line else False,
+                'default_reject_reason': '',
+            },
+        }
+
     def action_approve_all(self):
         for rec in self:
             rec.line_ids.sudo().write({
@@ -954,6 +975,17 @@ class ServiceTicketVoucherBatch(models.Model):
                 'expense_manager_id': self.env.user.id,
             })
             rec.sudo().write({'expense_manager_id': self.env.user.id})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Vouchers Approved'),
+                'message': _('All vouchers in this submission have been approved.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
     def action_reject_all(self):
         for rec in self:
@@ -962,5 +994,16 @@ class ServiceTicketVoucherBatch(models.Model):
                 'expense_manager_id': self.env.user.id,
             })
             rec.sudo().write({'expense_manager_id': self.env.user.id})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Vouchers Rejected'),
+                'message': _('All vouchers in this submission have been rejected.'),
+                'type': 'danger',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
 
