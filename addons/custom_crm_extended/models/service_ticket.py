@@ -760,6 +760,8 @@ class ServiceTicketVoucherLine(models.Model):
     batch_key = fields.Char(string='Batch Key', index=True)
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
+    ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
+    voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
 
     def action_open_batch_detail(self):
         self.ensure_one()
