@@ -445,6 +445,8 @@ class ServiceTicket(models.Model):
         if draft_lines:
             # Group lines by employee and assign batch_id if not already assigned
             now_ts = fields.Datetime.now().strftime('%Y%m%d%H%M%S')
+            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+            approver_uid = mgr.id if mgr else 2
             for emp in draft_lines.mapped('user_id'):
                 emp_lines = draft_lines.filtered(lambda l: l.user_id == emp)
                 first_line = emp_lines[0]
@@ -452,6 +454,7 @@ class ServiceTicket(models.Model):
                     'ticket_id': self.id,
                     'user_id': emp.id,
                     'submitted_by_user_id': self.env.user.id,
+                    'expense_manager_id': approver_uid,
                     'other_employee_names': first_line.other_employee_names or '',
                     'name': f"VCH-{self.ticket_id or self.name}-{emp.name}",
                 })
@@ -946,7 +949,11 @@ class ServiceTicketVoucherBatch(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True)
-    expense_manager_id = fields.Many2one('res.users', string='Approver')
+    def _default_expense_manager_id(self):
+        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+        return mgr.id if mgr else 2
+
+    expense_manager_id = fields.Many2one('res.users', string='Approver', default=_default_expense_manager_id)
 
     @api.depends('line_ids.amount')
     def _compute_total_amount(self):
