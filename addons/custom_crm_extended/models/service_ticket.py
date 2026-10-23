@@ -945,18 +945,18 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def action_approve_all(self):
         for rec in self:
-            rec.line_ids.write({
+            rec.line_ids.sudo().write({
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
             })
-            rec.expense_manager_id = self.env.user.id
+            rec.sudo().write({'expense_manager_id': self.env.user.id})
 
     def action_reject_all(self):
         for rec in self:
-            rec.line_ids.write({
+            rec.line_ids.sudo().write({
                 'status': 'rejected',
                 'expense_manager_id': self.env.user.id,
             })
-            rec.expense_manager_id = self.env.user.id
+            rec.sudo().write({'expense_manager_id': self.env.user.id})
 
 
