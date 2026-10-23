@@ -462,6 +462,10 @@ class ServiceTicket(models.Model):
             
             combined_emp_names = ", ".join(all_names)
             primary_emp = draft_lines[0].user_id
+            # In "Other Employees", only show the team members excluding who submitted it
+            submitter_name = self.env.user.name
+            other_names_list = [n for n in all_names if n != submitter_name]
+            other_team_names = ", ".join(other_names_list)
             
             # Create ONE SINGLE BATCH for the group submission
             batch_rec = self.env['service.ticket.voucher.batch'].create({
@@ -469,7 +473,7 @@ class ServiceTicket(models.Model):
                 'user_id': primary_emp.id,
                 'submitted_by_user_id': self.env.user.id,
                 'expense_manager_id': approver_uid,
-                'other_employee_names': combined_emp_names,
+                'other_employee_names': other_team_names,
                 'all_employee_names': combined_emp_names,
                 'name': f"VCH-{self.ticket_id or self.name}-{primary_emp.name}",
             })
