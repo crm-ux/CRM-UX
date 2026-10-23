@@ -899,6 +899,7 @@ class ServiceTicketVoucherBatch(models.Model):
     reject_reason = fields.Char(string='Reject Reason', compute='_compute_batch_summary_fields')
     bill_file = fields.Binary(string='Bill', compute='_compute_batch_summary_fields')
     bill_filename = fields.Char(string='Bill Filename', compute='_compute_batch_summary_fields')
+    bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
 
     def _compute_batch_summary_fields(self):
         for rec in self:
