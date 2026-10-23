@@ -2519,3 +2519,39 @@ body:has(.crm-pro-dashboard) .o_loading {
         padding: 10px 16px !important;
     }
 }
+
+/* ==========================================================================
+   VOUCHER / BILL PREVIEW STYLING (CUSTOM BLUE #0b3d91)
+   ========================================================================== */
+.crm-bill-preview-box a,
+.crm-bill-preview-box a:hover,
+.crm-bill-preview-box a:focus,
+.crm-bill-preview-box .o_field_binary_file a,
+.crm-bill-preview-box .o_field_widget a {
+    color: #0b3d91 !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+.crm-bill-preview-box a:hover {
+    text-decoration: underline !important;
+    color: #082d6e !important;
+}
+
+.crm-bill-eye-btn,
+.crm-bill-eye-btn i,
+.crm-bill-eye-btn .fa,
+.crm-bill-preview-box button.crm-bill-eye-btn {
+    color: #0b3d91 !important;
+    font-size: 1.15rem !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    transition: color 0.15s ease-in-out, transform 0.15s ease-in-out !important;
+}
+
+.crm-bill-eye-btn:hover,
+.crm-bill-eye-btn:hover i,
+.crm-bill-eye-btn:hover .fa {
+    color: #082d6e !important;
+    transform: scale(1.15) !important;
+}
