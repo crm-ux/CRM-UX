@@ -1102,6 +1102,7 @@ button[name="action_add_voucher_line"]:hover {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     height: 36px !important;
+    padding: 6px 10px !important;
     cursor: not-allowed !important;
 }
 
