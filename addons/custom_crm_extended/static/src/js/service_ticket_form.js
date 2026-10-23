@@ -229,22 +229,24 @@ export class ServiceTicketFormController extends FormController {
         if (this.props.resModel === "service.ticket") {
             let observer = null;
             const reorderToolbar = () => {
-                const container = document.querySelector(".o_control_panel_breadcrumbs");
-                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
-                const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-                if (container && breadcrumb && statusIndicator) {
-                    // Safely verify both are direct children of container before reordering to prevent Owl NotFoundError
-                    if (breadcrumb.parentNode === container && statusIndicator.parentNode === container) {
-                        if (breadcrumb.previousElementSibling !== statusIndicator) {
-                            container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                try {
+                    const container = document.querySelector(".o_control_panel_breadcrumbs");
+                    const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                    const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
+                    if (container && breadcrumb && statusIndicator) {
+                        if (breadcrumb.parentNode === container && statusIndicator.parentNode === container) {
+                            if (breadcrumb.previousElementSibling !== statusIndicator) {
+                                container.insertBefore(breadcrumb, statusIndicator.nextSibling);
+                            }
                         }
+                        statusIndicator.style.setProperty("margin-right", "16px", "important");
+                        statusIndicator.style.setProperty("flex-grow", "0", "important");
+                        statusIndicator.style.setProperty("width", "auto", "important");
+                        breadcrumb.style.setProperty("margin-left", "0", "important");
+                        breadcrumb.style.setProperty("flex-grow", "0", "important");
                     }
-                    // 2. Remove flex-grow and margin gap in JS directly
-                    statusIndicator.style.setProperty("margin-right", "16px", "important");
-                    statusIndicator.style.setProperty("flex-grow", "0", "important");
-                    statusIndicator.style.setProperty("width", "auto", "important");
-                    breadcrumb.style.setProperty("margin-left", "0", "important");
-                    breadcrumb.style.setProperty("flex-grow", "0", "important");
+                } catch (e) {
+                    // Silently ignore DOM reordering race conditions
                 }
             };
 
