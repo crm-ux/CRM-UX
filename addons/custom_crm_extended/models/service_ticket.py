@@ -368,7 +368,7 @@ class ServiceTicket(models.Model):
         login_user = self.env.user
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
-            other_names = ", ".join([other.name for other in target_users if other.id != u.id])
+            other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
                 'user_id': u.id,
