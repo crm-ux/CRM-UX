@@ -918,6 +918,7 @@ class ServiceTicketVoucherBatch(models.Model):
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
     all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
+    voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
 
     @api.depends('user_id.name', 'other_employee_names', 'line_ids.user_id.name')
     def _compute_all_employee_names(self):
