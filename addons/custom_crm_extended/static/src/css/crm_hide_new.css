@@ -1258,6 +1258,7 @@ button[name="action_add_voucher_line"]:hover {
 .o_expense_type_table tfoot {
     display: none !important;
 }
+
 /* ── Completely disable black popover tooltip for Description in list view ── */
 .o_popover:has(.o_field_text),
 .o_popover[data-popper-placement],
@@ -1277,6 +1278,7 @@ button[name="action_add_voucher_line"]:hover {
     line-height: 1.5 !important;
     vertical-align: middle !important;
 }
+
 .o_list_table td[name="description"] * {
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -1328,7 +1330,7 @@ div[role="tooltip"].o_popover,
 .o_action:has([name="line_ids"]) .o_control_panel .o_cp_buttons button.o_list_button_add,
 .o_form_view:has([name="line_ids"]) .o_control_panel .o_form_button_create,
 .o_form_view:has([name="line_ids"]) .o_control_panel .btn-primary:has(span:contains("New")),
-.o_service_ticket_voucher_batch_form ~ .o_control_panel button.o_form_button_create {
+.o_service_ticket_voucher_batch_form~.o_control_panel button.o_form_button_create {
     display: none !important;
     visibility: hidden !important;
 }
@@ -1368,7 +1370,7 @@ div[role="tooltip"].o_popover,
 .o_sale_terms_condition_list .form-check-input,
 .o_sale_terms_condition_list input[type="checkbox"],
 .o_terms_checkboxes input[type="checkbox"] {
-    border-color: #94a3b8 !important;
+    /* border-color: #94a3b8 !important; */
 }
 
 [name="selected_term_ids"] .form-check-input:hover,
@@ -1447,7 +1449,7 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 /* Selection row & header bar for Complaint Types list */
 .o_service_ticket_complaint_type_list tr.table-info,
 .o_service_ticket_complaint_type_list tr.o_data_row.table-info,
-.o_service_ticket_complaint_type_list .table-info > td,
-.o_service_ticket_complaint_type_list .table-info > th {
+.o_service_ticket_complaint_type_list .table-info>td,
+.o_service_ticket_complaint_type_list .table-info>th {
     background-color: #e0edff !important;
 }

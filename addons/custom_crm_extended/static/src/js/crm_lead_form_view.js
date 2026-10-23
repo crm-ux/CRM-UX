@@ -28,12 +28,20 @@ export class CrmLeadFormController extends FormController {
             let observer = null;
             const reorderToolbar = () => {
                 const container = document.querySelector(".o_control_panel_breadcrumbs");
-                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                if (container) {
+                    container.style.setProperty("display", "flex", "important");
+                }
                 const statusIndicator = document.querySelector(".o_control_panel_breadcrumbs > .o_form_status_indicator");
-                if (container && breadcrumb && statusIndicator) {
-                    if (breadcrumb.previousElementSibling !== statusIndicator) {
-                        container.insertBefore(breadcrumb, statusIndicator.nextSibling);
-                    }
+                if (statusIndicator) {
+                    statusIndicator.style.setProperty("order", "1", "important");
+                    statusIndicator.style.setProperty("margin-right", "16px", "important");
+                    statusIndicator.style.setProperty("flex-grow", "0", "important");
+                }
+                const breadcrumb = document.querySelector(".o_control_panel_breadcrumbs > .o_breadcrumb");
+                if (breadcrumb) {
+                    breadcrumb.style.setProperty("order", "2", "important");
+                    breadcrumb.style.setProperty("margin-left", "0", "important");
+                    breadcrumb.style.setProperty("flex-grow", "0", "important");
                 }
             };
 
