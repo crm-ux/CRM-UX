@@ -754,12 +754,7 @@ class ServiceTicketVoucherLine(models.Model):
             'target': 'current',
         }
 
-    def _default_expense_manager_id(self):
-        company = self.env.company
-        managers = company.crm_authorized_expense_manager_ids
-        return managers[0].id if managers else False
-
-    expense_manager_id = fields.Many2one('res.users', string='Approved By', default=_default_expense_manager_id)
+    expense_manager_id = fields.Many2one('res.users', string='Approved By')
     reject_reason = fields.Char(string='Rejection Reason')
 
     def action_approve(self):
@@ -900,9 +895,9 @@ class ServiceTicketVoucherBatch(models.Model):
     user_id = fields.Many2one('res.users', string='Employee', required=True)
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
-    all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees')
+    all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
 
-    @api.depends('user_id.name', 'other_employee_names')
+    @api.depends('user_id.name', 'other_employee_names', 'line_ids.user_id.name')
     def _compute_all_employee_names(self):
         for rec in self:
             names = []
@@ -913,6 +908,9 @@ class ServiceTicketVoucherBatch(models.Model):
                     n_clean = n.strip()
                     if n_clean and n_clean not in names:
                         names.append(n_clean)
+            for line in rec.line_ids:
+                if line.user_id and line.user_id.name and line.user_id.name not in names:
+                    names.append(line.user_id.name)
             rec.all_employee_names = ", ".join(names) if names else (rec.user_id.name or "")
 
     line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
