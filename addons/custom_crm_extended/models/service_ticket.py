@@ -232,7 +232,13 @@ class ServiceTicket(models.Model):
         for rec in self:
             rec.has_km_lines = any(line.is_km_based for line in rec.voucher_line_ids)
 
-    new_voucher_is_km = fields.Boolean(related='new_voucher_expense_type_id.is_km_based', readonly=True)
+    new_voucher_is_km = fields.Boolean(compute='_compute_new_voucher_is_km', string='Is KM Based')
+
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.is_km_based')
+    def _compute_new_voucher_is_km(self):
+        for rec in self:
+            rec.new_voucher_is_km = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based)
+    
     new_voucher_start_km = fields.Float(string='Start KM')
     new_voucher_end_km = fields.Float(string='End KM')
     new_voucher_total_km = fields.Float(string='Total KM')
@@ -254,7 +260,8 @@ class ServiceTicket(models.Model):
     @api.onchange('new_voucher_expense_type_id')
     def _onchange_new_voucher_expense_type(self):
         if self.new_voucher_expense_type_id:
-            if self.new_voucher_expense_type_id.is_km_based:
+            self.new_voucher_is_km = bool(self.new_voucher_expense_type_id.is_km_based)
+            if self.new_voucher_is_km:
                 rate = self.new_voucher_expense_type_id.km_rate or 0.0
                 if self.new_voucher_total_km > 0 and rate > 0:
                     self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
@@ -263,6 +270,7 @@ class ServiceTicket(models.Model):
                 self.new_voucher_start_km = 0.0
                 self.new_voucher_end_km = 0.0
         else:
+            self.new_voucher_is_km = False
             self.new_voucher_total_km = 0.0
             self.new_voucher_amount = 0.0
 
