@@ -21,5 +21,15 @@ patch(ListRenderer.prototype, {
             }
         } catch (e) {}
         return result;
-    }
+    },
+
+    async onDeleteRecord(record) {
+        const parentRecord = this.props?.list?.model?.root;
+        if (parentRecord && parentRecord.resModel === 'sale.order' && record.data?.display_type === 'line_section') {
+            // When deleting a section header, only delete the section header itself — NEVER delete products below it!
+            await record.delete();
+            return;
+        }
+        return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : record.delete();
+    },
 });
