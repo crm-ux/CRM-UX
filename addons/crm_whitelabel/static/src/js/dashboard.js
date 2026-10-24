@@ -807,10 +807,8 @@ class CrmDashboard extends Component {
         this.go({
             type: "ir.actions.act_window",
             name: "Companies",
-            res_model: "res.partner",
-            views: [[false, "list"], [false, "form"]],
-            domain: [["is_company", "=", true]],
-            context: { default_is_company: true, res_partner_search_mode: "customer" }
+            res_model: "res.company",
+            views: [[false, "list"], [false, "form"]]
         });
     }
     openProducts() {
