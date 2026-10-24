@@ -30,6 +30,7 @@
             'crm_whitelabel/static/src/js/statusbar_override.js',
             'crm_whitelabel/static/src/js/disable_mobile_search.js',
             'crm_whitelabel/static/src/js/calendar_color_sync.js',
+            'crm_whitelabel/static/src/js/date_formatter.js',
         ],
     },
     'controllers': ['controllers/main.py'],
