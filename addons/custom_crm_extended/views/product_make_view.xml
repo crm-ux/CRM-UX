@@ -10,6 +10,9 @@
             <xpath expr="//field[@name='default_code']" position="after">
                 <field name="x_make" string="Make / Brand"/>
             </xpath>
+            <xpath expr="//field[@name='categ_id']" position="attributes">
+                <attribute name="options">{'no_quick_create': True}</attribute>
+            </xpath>
         </field>
     </record>
 
