@@ -132,6 +132,23 @@ button.o_form_button_cancel,
     display: none !important;
 }
 
+/* Modals & Dialogs already have native text buttons ("Save", "Discard") — prevent duplicate ::after text */
+.o_dialog .o_form_button_save::after,
+.o_dialog .o_form_button_cancel::after,
+.modal .o_form_button_save::after,
+.modal .o_form_button_cancel::after,
+.modal-footer .o_form_button_save::after,
+.modal-footer .o_form_button_cancel::after {
+    content: none !important;
+}
+
+.o_dialog .o_form_button_save i,
+.o_dialog .o_form_button_save .fa,
+.modal .o_form_button_save i,
+.modal .o_form_button_save .fa {
+    display: inline-block !important;
+}
+
 .o_form_status_indicator {
     display: inline-flex !important;
     align-items: center !important;
