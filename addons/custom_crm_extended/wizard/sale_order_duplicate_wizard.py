@@ -14,7 +14,7 @@ class SaleOrderDuplicateWizard(models.TransientModel):
         string='Contact Person',
         domain="[('parent_id', '=', partner_id), ('is_company', '=', False)]",
     )
-    user_id = fields.Many2one('res.users', string='Salesperson', default=lambda self: self.env.user)
+    user_id = fields.Many2one('res.users', string='Salesperson')
 
     @api.model
     def default_get(self, fields_list):
@@ -24,12 +24,14 @@ class SaleOrderDuplicateWizard(models.TransientModel):
             order = self.env['sale.order'].browse(order_id)
             if order.exists():
                 res['order_id'] = order.id
-                if 'partner_id' in fields_list and not res.get('partner_id'):
+                if 'partner_id' in fields_list:
                     res['partner_id'] = order.partner_id.id if order.partner_id else False
-                if 'contact_person_id' in fields_list and not res.get('contact_person_id'):
+                if 'contact_person_id' in fields_list:
                     res['contact_person_id'] = order.x_contact_person_id.id if order.x_contact_person_id else False
-                if 'user_id' in fields_list and not res.get('user_id'):
-                    res['user_id'] = order.user_id.id if order.user_id else self.env.uid
+                if 'user_id' in fields_list:
+                    # Priority: quote user_id -> linked lead user_id -> current logged in user
+                    so_user = order.user_id or (order.opportunity_id and order.opportunity_id.user_id)
+                    res['user_id'] = so_user.id if so_user else self.env.uid
         return res
 
     @api.onchange('partner_id')
