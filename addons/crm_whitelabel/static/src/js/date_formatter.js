@@ -2,68 +2,58 @@
 
 import { registry } from "@web/core/registry";
 
-const formatters = registry.category("formatters");
-const fields = registry.category("fields");
+// 1. Force Luxon globally to format all dates as dd/MM/yyyy and datetimes as dd/MM/yyyy HH:mm
+const luxon = window.luxon;
+if (luxon && luxon.DateTime) {
+    const origToFormat = luxon.DateTime.prototype.toFormat;
+    luxon.DateTime.prototype.toFormat = function (fmt, opts) {
+        if (typeof fmt === "string") {
+            // If it's a relative/smart month-day format like "MMM d" or "MMM d, yyyy"
+            if (fmt.includes("MMM") || fmt.includes("MMMM")) {
+                if (fmt.includes("h") || fmt.includes("H") || fmt.includes("t") || fmt.includes("T")) {
+                    return origToFormat.call(this, "dd/MM/yyyy HH:mm", opts);
+                }
+                return origToFormat.call(this, "dd/MM/yyyy", opts);
+            }
+        }
+        return origToFormat.apply(this, arguments);
+    };
 
-/**
- * Helper to format Luxon DateTime or string to dd/MM/yyyy
- */
+    const origToLocaleString = luxon.DateTime.prototype.toLocaleString;
+    luxon.DateTime.prototype.toLocaleString = function (formatOpts, opts) {
+        // If Luxon is asked for standard medium/short localized dates with month names
+        if (formatOpts) {
+            const hasTime = formatOpts.hour || formatOpts.minute || formatOpts.timeStyle;
+            if (hasTime) {
+                return origToFormat.call(this, "dd/MM/yyyy HH:mm", opts);
+            }
+            return origToFormat.call(this, "dd/MM/yyyy", opts);
+        }
+        return origToLocaleString.apply(this, arguments);
+    };
+}
+
+// 2. Also ensure Odoo Formatters registry returns dd/MM/yyyy and dd/MM/yyyy HH:mm
+const formatters = registry.category("formatters");
 function toCustomDate(val) {
     if (!val) return "";
-    if (typeof val.toFormat === "function") {
-        return val.toFormat("dd/MM/yyyy");
-    }
+    if (typeof val.toFormat === "function") return val.toFormat("dd/MM/yyyy");
     const str = String(val);
     const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (m) {
-        return `${m[3]}/${m[2]}/${m[1]}`;
-    }
-    return str;
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : str;
 }
 
-/**
- * Helper to format Luxon DateTime or string to dd/MM/yyyy HH:mm (no seconds)
- */
 function toCustomDateTime(val) {
     if (!val) return "";
-    if (typeof val.toFormat === "function") {
-        return val.toFormat("dd/MM/yyyy HH:mm");
-    }
+    if (typeof val.toFormat === "function") return val.toFormat("dd/MM/yyyy HH:mm");
     const str = String(val);
     const m = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
-    if (m) {
-        return `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}`;
-    }
-    return str;
+    return m ? `${m[3]}/${m[2]}/${m[1]} ${m[4]}:${m[5]}` : str;
 }
 
-// 1. Override standard formatters used by List views, Kanban & Exports
 if (formatters.contains("date")) {
-    formatters.add("date", (value) => toCustomDate(value), { force: true });
+    formatters.add("date", (val) => toCustomDate(val), { force: true });
 }
 if (formatters.contains("datetime")) {
-    formatters.add("datetime", (value) => toCustomDateTime(value), { force: true });
-}
-
-// 2. Patch Form view DateField & DateTimeField components via fields registry
-const dateFieldDef = fields.get("date");
-if (dateFieldDef && dateFieldDef.component) {
-    const comp = dateFieldDef.component;
-    Object.defineProperty(comp.prototype, "formattedValue", {
-        get() {
-            return toCustomDate(this.props.record.data[this.props.name]);
-        },
-        configurable: true,
-    });
-}
-
-const dateTimeFieldDef = fields.get("datetime");
-if (dateTimeFieldDef && dateTimeFieldDef.component) {
-    const comp = dateTimeFieldDef.component;
-    Object.defineProperty(comp.prototype, "formattedValue", {
-        get() {
-            return toCustomDateTime(this.props.record.data[this.props.name]);
-        },
-        configurable: true,
-    });
+    formatters.add("datetime", (val) => toCustomDateTime(val), { force: true });
 }
