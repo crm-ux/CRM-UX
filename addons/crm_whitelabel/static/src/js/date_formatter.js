@@ -1,11 +1,9 @@
 /** @odoo-module **/
 
-import { patch } from "@web/core/utils/patch";
-import { DateField } from "@web/views/fields/date/date_field";
-import { DateTimeField } from "@web/views/fields/datetime/datetime_field";
 import { registry } from "@web/core/registry";
 
 const formatters = registry.category("formatters");
+const fields = registry.category("fields");
 
 /**
  * Helper to format Luxon DateTime or string to dd/MM/yyyy
@@ -47,20 +45,25 @@ if (formatters.contains("datetime")) {
     formatters.add("datetime", (value) => toCustomDateTime(value), { force: true });
 }
 
-// 2. Patch Form view DateField component
-if (DateField) {
-    patch(DateField.prototype, {
-        get formattedValue() {
+// 2. Patch Form view DateField & DateTimeField components via fields registry
+const dateFieldDef = fields.get("date");
+if (dateFieldDef && dateFieldDef.component) {
+    const comp = dateFieldDef.component;
+    Object.defineProperty(comp.prototype, "formattedValue", {
+        get() {
             return toCustomDate(this.props.record.data[this.props.name]);
         },
+        configurable: true,
     });
 }
 
-// 3. Patch Form view DateTimeField component
-if (DateTimeField) {
-    patch(DateTimeField.prototype, {
-        get formattedValue() {
+const dateTimeFieldDef = fields.get("datetime");
+if (dateTimeFieldDef && dateTimeFieldDef.component) {
+    const comp = dateTimeFieldDef.component;
+    Object.defineProperty(comp.prototype, "formattedValue", {
+        get() {
             return toCustomDateTime(this.props.record.data[this.props.name]);
         },
+        configurable: true,
     });
 }
