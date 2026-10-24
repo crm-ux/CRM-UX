@@ -113,9 +113,11 @@
                 <header>
                     <button name="action_open_expense_settings" string="⚙️ Voucher Settings" type="object" class="btn btn-secondary"/>
                 </header>
+                <field name="expense_date" string="Expense Date"/>
                 <field name="create_date" string="Submitted Date"/>
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
+                <field name="user_id" string="Employee" optional="hide"/>
                 <field name="other_employee_names" string="Other Employees"/>
                 <field name="expense_type_id" string="Expense Type"/>
                 <field name="is_km_based" column_invisible="1"/>
