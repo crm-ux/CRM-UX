@@ -184,7 +184,19 @@ export class CrmLeadListController extends ListController {
         return super.openRecord(...arguments);
     }
 
-    async duplicateRecords() {
+    get actionMenuItems() {
+        const menuItems = super.actionMenuItems;
+        if (menuItems && menuItems.action) {
+            for (const item of menuItems.action) {
+                if (item.key === "duplicate" || item.description === "Duplicate") {
+                    item.callback = () => this.actionDuplicateQuote();
+                }
+            }
+        }
+        return menuItems;
+    }
+
+    async actionDuplicateQuote() {
         const selectedResIds = await this.getSelectedResIds();
         if (selectedResIds && selectedResIds.length > 0) {
             const leadId = selectedResIds[0];
@@ -217,7 +229,6 @@ export class CrmLeadListController extends ListController {
                 });
             }
         }
-        return super.duplicateRecords(...arguments);
     }
 }
 
