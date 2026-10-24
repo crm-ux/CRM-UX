@@ -1455,28 +1455,43 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 }
 
 /* ── Universal List Selection Box Fix (Prevents 'Select all' overlapping on count) ── */
-.o_list_selection_box {
+.o_list_selection_box,
+.o_selection_box,
+div:has(> .o_list_select_domain),
+.o_control_panel_actions:has(.o_list_selection_box) {
     display: inline-flex !important;
     align-items: center !important;
     flex-wrap: nowrap !important;
-    gap: 10px !important;
+    gap: 8px !important;
     width: auto !important;
-    min-width: max-content !important;
+    min-width: fit-content !important;
+    max-width: none !important;
     height: auto !important;
-    min-height: 32px !important;
+    min-height: 30px !important;
     white-space: nowrap !important;
     position: relative !important;
-    padding: 2px 10px !important;
+    overflow: visible !important;
 }
 
+.o_list_selection_box *,
+.o_selection_box * {
+    position: static !important;
+    float: none !important;
+}
+
+.o_list_selection_box .o_list_select_domain,
 .o_list_selection_box .btn-link,
-.o_list_selection_box button {
+.o_list_selection_box button,
+.o_selection_box .o_list_select_domain,
+.o_selection_box .btn-link,
+.o_selection_box button {
     display: inline-block !important;
     white-space: nowrap !important;
     position: static !important;
     font-size: 13px !important;
     padding: 0 4px !important;
-    margin: 0 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
+    margin: 0 0 0 6px !important;
+    line-height: normal !important;
+    vertical-align: middle !important;
+}
+
