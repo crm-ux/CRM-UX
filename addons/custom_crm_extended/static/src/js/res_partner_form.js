@@ -12,6 +12,8 @@ export class ResPartnerFormController extends FormController {
         super.setup();
         if (this.props.resModel === "res.partner") {
             let observer = null;
+            let clickHandler = null;
+
             const reorderToolbar = () => {
                 const container = document.querySelector(".o_control_panel_breadcrumbs");
                 if (container) {
