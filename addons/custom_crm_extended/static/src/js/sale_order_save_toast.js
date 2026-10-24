@@ -126,8 +126,6 @@ patch(FormController.prototype, {
 });
 
 // Also intercept Duplicate action from List / Tree View ONLY for sale.order
-import { ListController } from "@web/views/list/list_controller";
-
 patch(ListController.prototype, {
     async duplicateRecords() {
         if (this.props.resModel === SALE_ORDER_MODEL) {
