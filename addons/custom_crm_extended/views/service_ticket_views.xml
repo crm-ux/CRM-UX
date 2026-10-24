@@ -231,6 +231,12 @@
                                     <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
                                         <field name="voucher_employee_names" readonly="1" class="d-inline"/>
                                     </span>
+                                    <span class="small fw-bold ms-2" style="color: #0b3d91;">
+                                        <i class="fa fa-calendar me-1" style="color: #0b3d91;"></i>Date(s):
+                                    </span>
+                                    <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
+                                        <field name="voucher_draft_dates" readonly="1" class="d-inline"/>
+                                    </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <field name="has_draft_vouchers" invisible="1"/>
