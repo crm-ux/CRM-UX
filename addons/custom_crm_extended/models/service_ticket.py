@@ -223,6 +223,7 @@ class ServiceTicket(models.Model):
         domain="[('share', '=', False)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
+    new_voucher_date = fields.Date(string='Expense Date', default=fields.Date.context_today)
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
@@ -371,6 +372,7 @@ class ServiceTicket(models.Model):
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
+                'expense_date': self.new_voucher_date or fields.Date.context_today(self),
                 'user_id': u.id,
                 'submitted_by_user_id': login_user.id,
                 'other_employee_names': other_names or '',
@@ -386,6 +388,7 @@ class ServiceTicket(models.Model):
                 'status': 'draft',
             })
 
+        self.new_voucher_date = fields.Date.context_today(self)
         self.new_voucher_expense_type_id = False
         self.new_voucher_user_ids = [(5, 0, 0)]
         self.new_voucher_start_km = 0.0
@@ -400,6 +403,7 @@ class ServiceTicket(models.Model):
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
         self.ensure_one()
+        self.new_voucher_date = fields.Date.context_today(self)
         self.new_voucher_expense_type_id = False
         self.new_voucher_user_ids = [(5, 0, 0)]
         self.new_voucher_start_km = 0.0
@@ -724,6 +728,7 @@ class ServiceTicketVoucherLine(models.Model):
     _order = 'id desc'
 
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
+    expense_date = fields.Date(string='Date', default=fields.Date.context_today, required=True, index=True)
     user_id = fields.Many2one('res.users', string='Employee', required=False, default=lambda self: self.env.user)
     department_id = fields.Many2one('hr.department', string='Department')
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
@@ -920,6 +925,8 @@ class ServiceTicketVoucherBatch(models.Model):
 
     name = fields.Char(string='Batch Reference', default=lambda self: _('New'))
     create_date = fields.Datetime(string='Submitted Date', readonly=True)
+    submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
+    expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True, ondelete='cascade')
     user_id = fields.Many2one('res.users', string='Employee', required=True)
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
@@ -927,6 +934,13 @@ class ServiceTicketVoucherBatch(models.Model):
     all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
     voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
+
+    @api.depends('line_ids.expense_date')
+    def _compute_expense_dates(self):
+        for rec in self:
+            dates = [d.strftime('%d-%b-%Y') for d in rec.line_ids.mapped('expense_date') if d]
+            unique_dates = list(dict.fromkeys(dates))
+            rec.expense_dates = ", ".join(unique_dates) if unique_dates else ""
 
     @api.depends('user_id.name', 'other_employee_names', 'line_ids.user_id.name')
     def _compute_all_employee_names(self):

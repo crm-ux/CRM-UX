@@ -114,7 +114,19 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 2: Expense Type -->
+                                <!-- Row 2: Expense Date -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Date:</span>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_date" 
+                                            class="w-100"
+                                            options="{'datepicker': {'warn_future': true}}"/>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Expense Type -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
                                         <span class="fw-semibold text-secondary">Expense Type:</span>
@@ -235,6 +247,7 @@
 
                             <field name="voucher_line_ids" class="o_voucher_card_list">
                                 <list editable="bottom" create="0" delete="1">
+                                    <field name="expense_date" string="Date" optional="show"/>
                                     <field name="user_id" string="Employee" readonly="1" optional="show"/>
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
