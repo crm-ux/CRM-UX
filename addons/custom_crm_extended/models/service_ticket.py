@@ -431,20 +431,20 @@ class ServiceTicket(models.Model):
             has_draft = False
             total_amt = 0.0
             for line in rec.voucher_line_ids:
+                total_amt += line.amount or 0.0
+                if line.user_id and line.user_id.name and line.user_id.name not in names:
+                    names.append(line.user_id.name)
+                if line.expense_date:
+                    d_str = line.expense_date.strftime('%d-%b-%Y')
+                    if d_str not in dates:
+                        dates.append(d_str)
                 if line.status == 'draft':
                     has_draft = True
-                    total_amt += line.amount or 0.0
-                    if line.user_id and line.user_id.name and line.user_id.name not in names:
-                        names.append(line.user_id.name)
-                    if line.expense_date:
-                        d_str = line.expense_date.strftime('%d-%b-%Y')
-                        if d_str not in dates:
-                            dates.append(d_str)
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
             rec.voucher_draft_dates = ", ".join(dates) if dates else ''
             rec.has_draft_vouchers = has_draft
-            rec.show_voucher_strip = has_draft
+            rec.show_voucher_strip = bool(rec.voucher_line_ids)
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
@@ -506,7 +506,6 @@ class ServiceTicket(models.Model):
                     'message': _('%d expense voucher(s) have been submitted to the Expense Manager.') % len(draft_lines),
                     'type': 'success',
                     'sticky': False,
-                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
                 }
             }
         return True
@@ -933,6 +932,7 @@ class ServiceTicketVoucherBatch(models.Model):
     name = fields.Char(string='Batch Reference', default=lambda self: _('New'))
     create_date = fields.Datetime(string='Submitted Date', readonly=True)
     submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
+    expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
     expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True, ondelete='cascade')
     user_id = fields.Many2one('res.users', string='Employee', required=True)
