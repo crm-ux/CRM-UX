@@ -39,6 +39,7 @@
 }
 
 /* ── Hide section subtotal amount on quotation order lines ── */
+tr.o_is_line_section td[name="price_subtotal"],
 tr.o_is_line_section td.o_list_subtotal,
 tr.o_is_line_section .o_list_subtotal,
 tr.o_is_line_section .o_section_and_note_subtotal,

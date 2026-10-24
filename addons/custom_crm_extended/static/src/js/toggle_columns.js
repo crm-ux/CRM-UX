@@ -23,10 +23,18 @@ patch(ListRenderer.prototype, {
         return result;
     },
 
+    getSectionSubtotal(record) {
+        const parentRecord = this.props?.list?.model?.root;
+        if (parentRecord && parentRecord.resModel === 'sale.order') {
+            return ""; // Completely stop calculating or showing any subtotal on section rows!
+        }
+        return super.getSectionSubtotal ? super.getSectionSubtotal(...arguments) : "";
+    },
+
     async onDeleteRecord(record) {
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order' && record.data?.display_type === 'line_section') {
-            // When deleting a section header, only delete the section header itself — NEVER delete products below it!
+            // When deleting a section header, only delete this 1 single record — NEVER delete products below it!
             await record.delete();
             return;
         }
