@@ -326,6 +326,17 @@ patch(ControlPanel.prototype, {
 
 patch(FormController.prototype, {
     async discard() {
+        // If inside a modal/dialog/wizard, simply close the dialog without redirecting to Dashboard
+        if (this.props.close || this.env.config?.target === "new" || this.env.dialogData) {
+            await this.model.root.discard();
+            if (typeof this.props.close === "function") {
+                this.props.close();
+            } else if (typeof this.env.dialogData?.close === "function") {
+                this.env.dialogData.close();
+            }
+            return;
+        }
+
         const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
         const goBack = async () => {
             await this.model.root.discard();
