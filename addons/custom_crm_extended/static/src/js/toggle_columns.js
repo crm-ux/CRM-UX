@@ -63,13 +63,23 @@ patch(ListRenderer.prototype, {
                         } else if (record.resId) {
                             await record.delete();
                         } else {
-                            // In-memory new record: remove from list model
                             await record.delete();
                         }
                     }
                 }
             };
             document.addEventListener("click", handleSectionClick, true);
+
+            // Auto-align section row colspan to span across all hidden amount columns
+            const fixSectionColspan = () => {
+                document.querySelectorAll(".o_sale_order tr.o_is_line_section td[name='product_id']").forEach(td => {
+                    if (td.getAttribute("colspan") !== "10") {
+                        td.setAttribute("colspan", "10");
+                    }
+                });
+            };
+            setTimeout(fixSectionColspan, 100);
+            document.addEventListener("click", () => setTimeout(fixSectionColspan, 50));
         }
     },
 });
