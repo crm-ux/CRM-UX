@@ -45,14 +45,24 @@ patch(ListRenderer.prototype, {
         super.setup ? super.setup() : null;
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order') {
-            // Listen for clicks on section delete icon
-            const originalOnSectionDelete = this.onSectionDelete;
-            if (originalOnSectionDelete) {
-                this.onSectionDelete = async (record) => {
-                    // Only delete the section row itself!
-                    await record.delete();
-                };
-            }
+            // Intercept click on the section options button to directly delete this single section row
+            const handleSectionClick = async (ev) => {
+                const btn = ev.target.closest("tr.o_is_line_section td.o_list_section_options button, tr.o_is_line_section .o_list_section_options");
+                if (!btn) return;
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+
+                const row = btn.closest("tr.o_is_line_section");
+                const dataId = row?.getAttribute("data-id");
+                if (dataId) {
+                    const record = (this.props?.list?.records || []).find(r => r.id === dataId);
+                    if (record) {
+                        await record.delete();
+                    }
+                }
+            };
+            document.addEventListener("click", handleSectionClick, true);
         }
     },
 });

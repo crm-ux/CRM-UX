@@ -74,6 +74,10 @@ tr.o_is_line_section td.o_list_section_options i.fa-ellipsis-v::before {
     font-size: 14px !important;
 }
 
+tr.o_is_line_section .dropdown-menu {
+    display: none !important;
+}
+
 /* ── GST tax totals ── */
 .o_field_widget[name="x_gst_included"]+* .tax-totals {
     display: none;
