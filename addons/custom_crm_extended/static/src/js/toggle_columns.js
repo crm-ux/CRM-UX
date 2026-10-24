@@ -70,16 +70,25 @@ patch(ListRenderer.prototype, {
             };
             document.addEventListener("click", handleSectionClick, true);
 
-            // Auto-align section row colspan to span across all hidden amount columns
+            // Auto-align section row colspan to span across all columns up to the trash button
             const fixSectionColspan = () => {
-                document.querySelectorAll(".o_sale_order tr.o_is_line_section td[name='product_id']").forEach(td => {
-                    if (td.getAttribute("colspan") !== "10") {
-                        td.setAttribute("colspan", "10");
+                document.querySelectorAll(".o_sale_order tr.o_is_line_section").forEach(tr => {
+                    const table = tr.closest("table");
+                    const headerCols = table ? (table.querySelectorAll("thead th").length || 12) : 12;
+                    const targetSpan = String(Math.max(1, headerCols - 2));
+                    const td = tr.querySelector("td[name='product_id']");
+                    if (td && td.getAttribute("colspan") !== targetSpan) {
+                        td.setAttribute("colspan", targetSpan);
                     }
                 });
             };
-            setTimeout(fixSectionColspan, 100);
+            setTimeout(fixSectionColspan, 50);
             document.addEventListener("click", () => setTimeout(fixSectionColspan, 50));
+            document.addEventListener("mouseover", (e) => {
+                if (e.target.closest("tr.o_is_line_section")) {
+                    fixSectionColspan();
+                }
+            });
         }
     },
 });

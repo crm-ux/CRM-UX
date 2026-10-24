@@ -39,12 +39,18 @@
 }
 
 /* ── Section rows on quotation lines: clean full-width strip without amounts ── */
-tr.o_is_line_section {
+tr.o_is_line_section,
+tr.o_is_line_section:hover,
+tr.o_is_line_section.o_selected_row,
+tr.o_is_line_section:focus-within {
     background-color: #f1f3f5 !important;
 }
 
-tr.o_is_line_section td {
-    background-color: transparent !important;
+tr.o_is_line_section td,
+tr.o_is_line_section:hover td,
+tr.o_is_line_section.o_selected_row td,
+tr.o_is_line_section:focus-within td {
+    background-color: #f1f3f5 !important;
 }
 
 tr.o_is_line_section td[name="price_subtotal"],
@@ -61,35 +67,46 @@ tr.o_is_line_section span[name="price_subtotal"] {
 }
 
 /* Section options button (⋮) styled as clean delete icon aligned at right edge */
-tr.o_is_line_section td[name="product_id"] {
-    width: 100% !important;
-}
-
 tr.o_is_line_section td.o_list_section_options {
-    background-color: transparent !important;
+    background-color: #f1f3f5 !important;
     vertical-align: middle !important;
     text-align: center !important;
     width: 32px !important;
     min-width: 32px !important;
-    padding: 0 4px !important;
+    max-width: 32px !important;
+    padding: 0 !important;
 }
 
 tr.o_is_line_section td.o_list_section_options button {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    color: #495057 !important;
+    color: #0b3d91 !important;
     background: transparent !important;
     border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
 }
 
 tr.o_is_line_section td.o_list_section_options i.fa-ellipsis-v::before {
     content: "\f014" !important; /* fa-trash-o */
-    color: #495057 !important;
+    color: #0b3d91 !important;
     font-size: 14px !important;
 }
 
-tr.o_is_line_section td.o_list_section_options:hover i.fa-ellipsis-v::before {
+tr.o_is_line_section td.o_list_section_options:hover i.fa-ellipsis-v::before,
+tr.o_is_line_section td.o_list_section_options button:hover i.fa-ellipsis-v::before {
+    color: #dc3545 !important;
+}
+
+/* Also ensure normal row trash icons match the brand custom blue #0b3d91 */
+.o_sale_order .o_list_record_remove button,
+.o_sale_order .o_list_record_remove button i {
+    color: #0b3d91 !important;
+}
+.o_sale_order .o_list_record_remove button:hover,
+.o_sale_order .o_list_record_remove button:hover i {
     color: #dc3545 !important;
 }
 
