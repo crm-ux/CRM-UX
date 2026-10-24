@@ -183,6 +183,42 @@ export class CrmLeadListController extends ListController {
         }
         return super.openRecord(...arguments);
     }
+
+    async duplicateRecords() {
+        const selectedResIds = await this.getSelectedResIds();
+        if (selectedResIds && selectedResIds.length > 0) {
+            const leadId = selectedResIds[0];
+            const orm = this.env.services.orm;
+            const action = this.env.services.action;
+
+            // Check if this lead has a quotation
+            const quotes = await orm.searchRead(
+                "sale.order",
+                [["opportunity_id", "=", leadId]],
+                ["id"],
+                { order: "id desc", limit: 1 }
+            );
+
+            if (quotes && quotes.length > 0) {
+                return action.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
+                    additionalContext: {
+                        default_order_id: quotes[0].id,
+                    },
+                });
+            } else {
+                // If lead has no quotation, duplicate the lead and open it
+                const newLeadId = await orm.call("crm.lead", "copy", [leadId]);
+                return action.doAction({
+                    type: "ir.actions.act_window",
+                    res_model: "crm.lead",
+                    res_id: newLeadId,
+                    views: [[false, "form"]],
+                    target: "current",
+                });
+            }
+        }
+        return super.duplicateRecords(...arguments);
+    }
 }
 
 export class CrmLeadKanbanController extends KanbanController {
