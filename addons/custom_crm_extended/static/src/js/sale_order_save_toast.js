@@ -2,6 +2,7 @@
 import { onMounted, onWillUnmount } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
+import { ListController } from "@web/views/list/list_controller";
 
 const SALE_ORDER_MODEL = "sale.order";
 
@@ -121,6 +122,26 @@ patch(FormController.prototype, {
             }
         }
         return super.duplicateRecord(...arguments);
+    },
+});
+
+// Also intercept Duplicate action from List / Tree View ONLY for sale.order
+import { ListController } from "@web/views/list/list_controller";
+
+patch(ListController.prototype, {
+    async duplicateRecords() {
+        if (this.props.resModel === SALE_ORDER_MODEL) {
+            const selectedResIds = await this.getSelectedResIds();
+            if (selectedResIds && selectedResIds.length > 0) {
+                const targetId = selectedResIds[0];
+                return this.actionService.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
+                    additionalContext: {
+                        default_order_id: targetId,
+                    },
+                });
+            }
+        }
+        return super.duplicateRecords(...arguments);
     },
 });
 
