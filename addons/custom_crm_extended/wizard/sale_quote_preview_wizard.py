@@ -473,7 +473,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # ── PAGE 1: INTRO ──
         _pdf_date = order.date_order.date() if order.date_order else fields.Date.today()
-        _pdf_date_str = _pdf_date.strftime('%d-%m-%Y')
+        _pdf_date_str = _pdf_date.strftime('%d/%m/%Y')
         intro_html = (
             '<div style="font-family:Calibri,sans-serif;font-size:11px;line-height:1.6;color:#222;margin-top:0;">'
             '<div style="overflow:hidden;margin-bottom:12px;">'
@@ -873,7 +873,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         qr = qd_table.rows[0].cells[1].paragraphs[0]
         qr.alignment = WD_ALIGN_PARAGRAPH.RIGHT
         _date = order.date_order.date() if order.date_order else fields.Date.today()
-        _date_str = _date.strftime('%d-%m-%Y')
+        _date_str = _date.strftime('%d/%m/%Y')
         qrr = qr.add_run('Date: %s' % _date_str)
         qrr.font.size = Pt(11)
         qrr.bold = True

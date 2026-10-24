@@ -459,7 +459,7 @@ class ServiceTicket(models.Model):
                 if line.user_id and line.user_id.name and line.user_id.name not in names:
                     names.append(line.user_id.name)
                 if line.expense_date:
-                    d_str = line.expense_date.strftime('%d-%b-%Y')
+                    d_str = line.expense_date.strftime('%d/%m/%Y')
                     if d_str not in dates:
                         dates.append(d_str)
             rec.voucher_employee_names = ", ".join(names) if names else ''
@@ -500,7 +500,7 @@ class ServiceTicket(models.Model):
             other_names_list = [n for n in all_names if n != submitter_name]
             other_team_names = ", ".join(other_names_list)
             
-            today_str = fields.Date.today().strftime('%d-%b-%Y')
+            today_str = fields.Date.today().strftime('%d/%m/%Y')
             batch_name = f"VCH/{self.ticket_id or self.name}/{today_str}"
             
             # Create ONE SINGLE BATCH for the group or single submission of the day
@@ -967,7 +967,7 @@ class ServiceTicketVoucherBatch(models.Model):
     @api.depends('line_ids.expense_date')
     def _compute_expense_dates(self):
         for rec in self:
-            dates = [d.strftime('%d-%b-%Y') for d in rec.line_ids.mapped('expense_date') if d]
+            dates = [d.strftime('%d/%m/%Y') for d in rec.line_ids.mapped('expense_date') if d]
             unique_dates = list(dict.fromkeys(dates))
             rec.expense_dates = ", ".join(unique_dates) if unique_dates else ""
 

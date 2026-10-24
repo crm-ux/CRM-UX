@@ -199,7 +199,7 @@ class CrmTaskManagement(models.Model):
                     if new_deadline < assigned_date:
                         raise UserError(_(
                             "Cannot reschedule task to %s. Target deadline cannot be earlier than the task assignment date (%s)."
-                        ) % (new_deadline.strftime('%d-%m-%Y'), assigned_date.strftime('%d-%m-%Y')))
+                        ) % (new_deadline.strftime('%d/%m/%Y'), assigned_date.strftime('%d/%m/%Y')))
 
         res = super(CrmTaskManagement, self).write(vals)
 

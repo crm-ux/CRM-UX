@@ -8,6 +8,23 @@ import { rpc } from "@web/core/network/rpc";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { notificationService } from "@web/core/notifications/notification_service";
+import * as dates from "@web/core/l10n/dates";
+
+// Global Date & DateTime Formatter: Always format as dd/MM/yyyy and dd/MM/yyyy HH:mm
+if (dates) {
+    if (typeof dates.formatDate === "function") {
+        const origFormatDate = dates.formatDate;
+        dates.formatDate = function (value, options = {}) {
+            return origFormatDate(value, { ...options, format: "dd/MM/yyyy" });
+        };
+    }
+    if (typeof dates.formatDateTime === "function") {
+        const origFormatDateTime = dates.formatDateTime;
+        dates.formatDateTime = function (value, options = {}) {
+            return origFormatDateTime(value, { ...options, format: "dd/MM/yyyy HH:mm" });
+        };
+    }
+}
 
 // Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
 // Centralized In-Page 404 Screen for Missing Records across ALL models
