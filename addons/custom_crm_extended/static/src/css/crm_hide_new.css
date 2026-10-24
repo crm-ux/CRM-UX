@@ -38,6 +38,19 @@
     display: none !important;
 }
 
+/* ── Hide section subtotal amount on quotation order lines ── */
+tr.o_is_line_section td.o_list_subtotal,
+tr.o_is_line_section .o_list_subtotal,
+tr.o_is_line_section .o_section_and_note_subtotal,
+tr.o_is_line_section .o_field_monetary,
+tr.o_is_line_section td:has(span[name="price_subtotal"]),
+tr.o_is_line_section span[name="price_subtotal"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+}
+
 /* ── GST tax totals ── */
 .o_field_widget[name="x_gst_included"]+* .tax-totals {
     display: none;
