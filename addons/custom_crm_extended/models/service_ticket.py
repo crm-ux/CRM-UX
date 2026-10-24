@@ -260,6 +260,11 @@ class ServiceTicket(models.Model):
                     self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
             else:
                 self.new_voucher_total_km = 0.0
+                self.new_voucher_start_km = 0.0
+                self.new_voucher_end_km = 0.0
+        else:
+            self.new_voucher_total_km = 0.0
+            self.new_voucher_amount = 0.0
 
     @api.onchange('new_voucher_total_km', 'new_voucher_expense_type_id')
     def _onchange_new_voucher_km_calc(self):
@@ -403,16 +408,18 @@ class ServiceTicket(models.Model):
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
         self.ensure_one()
-        self.new_voucher_date = fields.Date.context_today(self)
-        self.new_voucher_expense_type_id = False
-        self.new_voucher_user_ids = [(5, 0, 0)]
-        self.new_voucher_start_km = 0.0
-        self.new_voucher_end_km = 0.0
-        self.new_voucher_total_km = 0.0
-        self.new_voucher_description = False
-        self.new_voucher_amount = 0.0
-        self.new_voucher_bill_file = False
-        self.new_voucher_bill_filename = False
+        self.write({
+            'new_voucher_date': fields.Date.context_today(self),
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
         return True
 
     # Group Voucher Submission fields & helpers
