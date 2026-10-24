@@ -1454,44 +1454,55 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     background-color: #e0edff !important;
 }
 
-/* ── Universal List Selection Box Fix (Prevents 'Select all' overlapping on count) ── */
-.o_list_selection_box,
-.o_selection_box,
-div:has(> .o_list_select_domain),
-.o_control_panel_actions:has(.o_list_selection_box) {
+/* ── Universal List Selection Box Fix (Matches user inspect DOM) ── */
+.o_control_panel .o_control_panel_actions,
+.o_control_panel_actions {
+    flex: 0 0 auto !important;
+    max-width: none !important;
+    min-width: auto !important;
+    width: auto !important;
+}
+
+.o_selection_container {
     display: inline-flex !important;
     align-items: center !important;
     flex-wrap: nowrap !important;
     gap: 8px !important;
     width: auto !important;
-    min-width: fit-content !important;
     max-width: none !important;
-    height: auto !important;
-    min-height: 30px !important;
-    white-space: nowrap !important;
-    position: relative !important;
-    overflow: visible !important;
 }
 
-.o_list_selection_box *,
-.o_selection_box * {
-    position: static !important;
-    float: none !important;
+.o_selection_box {
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
 }
 
-.o_list_selection_box .o_list_select_domain,
-.o_list_selection_box .btn-link,
-.o_list_selection_box button,
-.o_selection_box .o_list_select_domain,
-.o_selection_box .btn-link,
-.o_selection_box button {
-    display: inline-block !important;
+.o_selection_box .list-group-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    width: auto !important;
+    padding: 3px 8px !important;
     white-space: nowrap !important;
-    position: static !important;
-    font-size: 13px !important;
-    padding: 0 4px !important;
-    margin: 0 0 0 6px !important;
-    line-height: normal !important;
-    vertical-align: middle !important;
 }
+
+.o_selection_box .o_select_domain {
+    display: inline-flex !important;
+    align-items: center !important;
+    position: static !important;
+    white-space: nowrap !important;
+    margin: 0 4px !important;
+    padding: 2px 8px !important;
+    font-size: 12px !important;
+    border-radius: 4px !important;
+}
+
+.o_selection_box .o_unselect_all {
+    margin-left: 4px !important;
+    padding: 2px 6px !important;
+}
+
 
