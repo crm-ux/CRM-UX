@@ -186,10 +186,18 @@ export class CrmLeadListController extends ListController {
 
     get actionMenuItems() {
         const menuItems = super.actionMenuItems;
+        const count = this.model?.root?.selection?.length || 0;
         if (menuItems && menuItems.action) {
-            for (const item of menuItems.action) {
-                if (item.key === "duplicate" || item.description === "Duplicate") {
-                    item.callback = () => this.actionDuplicateQuote();
+            if (count > 1) {
+                // Hide Duplicate option when more than one record is selected
+                menuItems.action = menuItems.action.filter(
+                    (item) => item.key !== "duplicate" && item.description !== "Duplicate"
+                );
+            } else {
+                for (const item of menuItems.action) {
+                    if (item.key === "duplicate" || item.description === "Duplicate") {
+                        item.callback = () => this.actionDuplicateQuote();
+                    }
                 }
             }
         }

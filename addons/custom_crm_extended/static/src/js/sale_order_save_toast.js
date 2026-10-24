@@ -125,53 +125,37 @@ patch(FormController.prototype, {
     },
 });
 
-// Also intercept Duplicate action from List / Tree View for sale.order and crm.lead
+// Also intercept Duplicate action from List / Tree View for sale.order
 patch(ListController.prototype, {
-    async duplicateRecords() {
-        const actionService = this.actionService || this.env.services.action;
-        const ormService = this.orm || this.env.services.orm;
-
+    get actionMenuItems() {
+        const menuItems = super.actionMenuItems;
         if (this.props.resModel === SALE_ORDER_MODEL) {
-            const selectedResIds = await this.getSelectedResIds();
-            if (selectedResIds && selectedResIds.length > 0) {
-                const targetId = selectedResIds[0];
-                return actionService.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
-                    additionalContext: {
-                        default_order_id: targetId,
-                    },
-                });
-            }
-        } else if (this.props.resModel === "crm.lead") {
-            const selectedResIds = await this.getSelectedResIds();
-            if (selectedResIds && selectedResIds.length > 0) {
-                const leadId = selectedResIds[0];
-                // Check if this lead has a linked quotation
-                const quotes = await ormService.searchRead(
-                    "sale.order",
-                    [["opportunity_id", "=", leadId]],
-                    ["id"],
-                    { order: "id desc", limit: 1 }
-                );
-                if (quotes && quotes.length > 0) {
-                    return actionService.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
-                        additionalContext: {
-                            default_order_id: quotes[0].id,
-                        },
-                    });
+            const count = this.model?.root?.selection?.length || 0;
+            if (menuItems && menuItems.action) {
+                if (count > 1) {
+                    menuItems.action = menuItems.action.filter(
+                        (item) => item.key !== "duplicate" && item.description !== "Duplicate"
+                    );
                 } else {
-                    // Lead without quotation: duplicate lead and open it directly
-                    const newLeadId = await ormService.call("crm.lead", "copy", [leadId]);
-                    return actionService.doAction({
-                        type: "ir.actions.act_window",
-                        res_model: "crm.lead",
-                        res_id: newLeadId,
-                        views: [[false, "form"]],
-                        target: "current",
-                    });
+                    for (const item of menuItems.action) {
+                        if (item.key === "duplicate" || item.description === "Duplicate") {
+                            item.callback = () => {
+                                const selectedResIds = (this.model?.root?.selection || []).map((r) => r.resId);
+                                if (selectedResIds.length === 1) {
+                                    const actionService = this.actionService || this.env.services.action;
+                                    return actionService.doAction("custom_crm_extended.action_sale_order_duplicate_wizard", {
+                                        additionalContext: {
+                                            default_order_id: selectedResIds[0],
+                                        },
+                                    });
+                                }
+                            };
+                        }
+                    }
                 }
             }
         }
-        return super.duplicateRecords(...arguments);
+        return menuItems;
     },
 });
 
