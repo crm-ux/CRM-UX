@@ -9,6 +9,19 @@ class ProductTemplate(models.Model):
     x_make = fields.Char(string='Make / Brand')
 
     @api.model
+    def default_get(self, fields_list):
+        res = super(ProductTemplate, self).default_get(fields_list)
+        if 'taxes_id' in fields_list:
+            company = self.env.company
+            default_tax = company.x_default_sale_tax_id
+            if not default_tax:
+                # Fallback to standard company account_sale_tax_id if set
+                default_tax = getattr(company, 'account_sale_tax_id', False)
+            if default_tax:
+                res['taxes_id'] = [(6, 0, [default_tax.id])]
+        return res
+
+    @api.model
     def _user_can(self, perm_name, default=False):
         user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):

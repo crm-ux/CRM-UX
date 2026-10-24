@@ -26,6 +26,12 @@ from odoo.exceptions import UserError
 class ResCompanyDefaultCard(models.Model):
     _inherit = 'res.company'
     x_default_signature_card = fields.Binary(string='Default Quotation Signature Card')
+    x_default_sale_tax_id = fields.Many2one(
+        'account.tax',
+        string='Default Sales Tax',
+        domain="[('type_tax_use', '=', 'sale'), '|', ('company_id', '=', False), ('company_id', '=', id)]",
+        help="Default Sales Tax pre-filled when creating new products."
+    )
     crm_authorized_expense_manager_ids = fields.Many2many(
         'res.users',
         'res_company_expense_managers_rel',

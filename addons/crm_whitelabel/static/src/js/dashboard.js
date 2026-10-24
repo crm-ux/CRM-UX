@@ -804,7 +804,14 @@ class CrmDashboard extends Component {
             this.showAccessDenied("Companies");
             return;
         }
-        this.go({ type: "ir.actions.act_window", name: "Companies", res_model: "res.company", views: [[false, "list"], [false, "form"]] });
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Companies",
+            res_model: "res.partner",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["is_company", "=", True]],
+            context: { default_is_company: True, res_partner_search_mode: "customer" }
+        });
     }
     openProducts() {
         if (!this.state.isAdmin && !this.state.canViewProduct) {
