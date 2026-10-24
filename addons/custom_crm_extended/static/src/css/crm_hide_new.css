@@ -75,7 +75,9 @@ tr.o_is_line_section td.o_list_section_options {
     background-color: #f1f3f5 !important;
     vertical-align: middle !important;
     text-align: center !important;
-    padding: 0 4px !important;
+    width: 1% !important;
+    white-space: nowrap !important;
+    padding: 0.35rem 0.5rem !important;
 }
 
 tr.o_is_line_section td.o_list_section_options button {
@@ -96,19 +98,31 @@ tr.o_is_line_section td.o_list_section_options i.fa-ellipsis-v::before {
     font-size: 14px !important;
 }
 
+/* Stop hover color red: keep icon blue #0b3d91 on hover */
 tr.o_is_line_section td.o_list_section_options:hover i.fa-ellipsis-v::before,
 tr.o_is_line_section td.o_list_section_options button:hover i.fa-ellipsis-v::before {
-    color: #dc3545 !important;
+    color: #0b3d91 !important;
+    opacity: 0.8 !important;
 }
 
-/* Also ensure normal row trash icons match the brand custom blue #0b3d91 */
+/* Also ensure normal row trash icons match the brand custom blue #0b3d91 and stop red hover */
+.o_sale_order .o_list_record_remove {
+    vertical-align: middle !important;
+    text-align: center !important;
+    width: 1% !important;
+    white-space: nowrap !important;
+    padding: 0.35rem 0.5rem !important;
+}
+
 .o_sale_order .o_list_record_remove button,
 .o_sale_order .o_list_record_remove button i {
     color: #0b3d91 !important;
 }
+
 .o_sale_order .o_list_record_remove button:hover,
 .o_sale_order .o_list_record_remove button:hover i {
-    color: #dc3545 !important;
+    color: #0b3d91 !important;
+    opacity: 0.8 !important;
 }
 
 tr.o_is_line_section .dropdown-menu {

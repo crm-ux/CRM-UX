@@ -75,11 +75,12 @@ patch(ListRenderer.prototype, {
                 document.querySelectorAll(".o_sale_order tr.o_is_line_section").forEach(tr => {
                     const table = tr.closest("table");
                     if (!table) return;
-                    const headerThs = table.querySelectorAll("thead th");
-                    // In Odoo, sequence is col 1, product_id is col 2, price_subtotal is penultimate, options is last
-                    // If subtotal td exists, product_id spans (totalCols - 3)
+                    const visibleThs = Array.from(table.querySelectorAll("thead th")).filter(th => th.offsetParent !== null);
+                    const totalVisible = visibleThs.length || 12;
                     const subtotalTd = tr.querySelector("td[name='price_subtotal'], td.o_list_subtotal");
-                    const targetSpan = subtotalTd ? String(Math.max(1, headerThs.length - 3)) : String(Math.max(1, headerThs.length - 2));
+                    // Columns: 1 handle + product_id (spans remainder) + (optional subtotal) + 1 trash
+                    const reservedCols = (subtotalTd && subtotalTd.offsetParent !== null) ? 3 : 2;
+                    const targetSpan = String(Math.max(1, totalVisible - reservedCols));
                     const td = tr.querySelector("td[name='product_id']");
                     if (td && td.getAttribute("colspan") !== targetSpan) {
                         td.setAttribute("colspan", targetSpan);
