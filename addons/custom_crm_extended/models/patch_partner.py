@@ -3,6 +3,15 @@ from odoo import models, api, fields
 class ResPartnerPatch(models.Model):
     _inherit = 'res.partner'
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        # Default new records on Customers form to Company
+        if 'company_type' in fields_list and not self.env.context.get('default_parent_id'):
+            res['company_type'] = 'company'
+            res['is_company'] = True
+        return res
+
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
