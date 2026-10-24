@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'CRM Extended - Lead, Quotation & Product Lines',
-    'version': '19.0.1.3.1',
+    'version': '19.0.1.3.2',
     'category': 'Sales/CRM',
     'summary': (
         'Extends CRM + Sales: customer type, assign-to rules, refusal workflow, '

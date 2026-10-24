@@ -1483,9 +1483,9 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     align-items: center !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 6px !important;
+    gap: 8px !important;
     width: auto !important;
-    padding: 3px 8px !important;
+    padding: 4px 10px !important;
     white-space: nowrap !important;
 }
 
@@ -1497,12 +1497,26 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     margin: 0 4px !important;
     padding: 2px 8px !important;
     font-size: 12px !important;
+    font-weight: 500 !important;
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
     border-radius: 4px !important;
+    line-height: 1.4 !important;
+}
+
+.o_selection_box .o_select_domain span {
+    margin-left: 3px !important;
+    font-weight: bold !important;
+}
+
+.o_selection_box .o_select_domain i {
+    margin-right: 4px !important;
 }
 
 .o_selection_box .o_unselect_all {
-    margin-left: 4px !important;
+    margin-left: 6px !important;
     padding: 2px 6px !important;
+    color: #495057 !important;
 }
 
 
