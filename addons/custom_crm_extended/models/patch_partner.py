@@ -40,6 +40,18 @@ class ResCompanyDefaultCard(models.Model):
         string="Authorized Expense Managers"
     )
 
+    def write(self, vals):
+        if 'x_default_sale_tax_id' in vals and hasattr(self, 'account_sale_tax_id'):
+            vals['account_sale_tax_id'] = vals['x_default_sale_tax_id']
+        return super().write(vals)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'x_default_sale_tax_id' in vals and hasattr(self, 'account_sale_tax_id'):
+                vals['account_sale_tax_id'] = vals['x_default_sale_tax_id']
+        return super().create(vals_list)
+
     def _user_can_create_company(self):
         user = self.env.user
         if user._is_admin() or user.has_group('base.group_system'):
