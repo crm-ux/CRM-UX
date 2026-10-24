@@ -1,11 +1,15 @@
 /** @odoo-module **/
 
+import { patch } from "@web/core/utils/patch";
+import { X2ManyField } from "@web/views/fields/x2many/x2many_field";
 import { onMounted, onWillUnmount } from "@odoo/owl";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { patch } from "@web/core/utils/patch";
+import { X2ManyField } from "@web/views/fields/x2many/x2many_field";
 
 export class ResPartnerFormController extends FormController {
     setup() {
@@ -95,3 +99,16 @@ export const resPartnerFormView = {
 };
 
 registry.category("views").add("res_partner_form", resPartnerFormView);
+
+// Force child contacts under existing company to always open in clean modal dialog wizard
+
+if (X2ManyField) {
+    patch(X2ManyField.prototype, {
+        async openRecord(record) {
+            if (this.props.name === "child_ids" && typeof this.openDialog === "function") {
+                return this.openDialog({ resId: record.resId });
+            }
+            return super.openRecord(...arguments);
+        },
+    });
+}
