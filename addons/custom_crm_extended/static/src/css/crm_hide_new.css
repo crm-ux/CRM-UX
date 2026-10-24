@@ -1453,3 +1453,30 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 .o_service_ticket_complaint_type_list .table-info>th {
     background-color: #e0edff !important;
 }
+
+/* ── Universal List Selection Box Fix (Prevents 'Select all' overlapping on count) ── */
+.o_list_selection_box {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 10px !important;
+    width: auto !important;
+    min-width: max-content !important;
+    height: auto !important;
+    min-height: 32px !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    padding: 2px 10px !important;
+}
+
+.o_list_selection_box .btn-link,
+.o_list_selection_box button {
+    display: inline-block !important;
+    white-space: nowrap !important;
+    position: static !important;
+    font-size: 13px !important;
+    padding: 0 4px !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
