@@ -179,6 +179,7 @@
                                     </div>
                                     <div class="col-sm-10 col-md-10">
                                         <field name="new_voucher_amount" 
+                                            widget="float"
                                             class="w-100"
                                             readonly="new_voucher_is_km"
                                             force_save="1"
