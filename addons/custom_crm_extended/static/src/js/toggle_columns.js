@@ -58,7 +58,14 @@ patch(ListRenderer.prototype, {
                 if (dataId) {
                     const record = (this.props?.list?.records || []).find(r => r.id === dataId);
                     if (record) {
-                        await record.delete();
+                        if (typeof this.props?.list?.delete === "function") {
+                            await this.props.list.delete(record);
+                        } else if (record.resId) {
+                            await record.delete();
+                        } else {
+                            // In-memory new record: remove from list model
+                            await record.delete();
+                        }
                     }
                 }
             };
