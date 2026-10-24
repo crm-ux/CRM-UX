@@ -433,7 +433,7 @@ class ServiceTicket(models.Model):
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
             rec.has_draft_vouchers = has_draft
-            rec.show_voucher_strip = len(names) > 1 and has_draft
+            rec.show_voucher_strip = has_draft
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
@@ -467,7 +467,10 @@ class ServiceTicket(models.Model):
             other_names_list = [n for n in all_names if n != submitter_name]
             other_team_names = ", ".join(other_names_list)
             
-            # Create ONE SINGLE BATCH for the group submission
+            today_str = fields.Date.today().strftime('%d-%b-%Y')
+            batch_name = f"VCH/{self.ticket_id or self.name}/{today_str}"
+            
+            # Create ONE SINGLE BATCH for the group or single submission of the day
             batch_rec = self.env['service.ticket.voucher.batch'].create({
                 'ticket_id': self.id,
                 'user_id': primary_emp.id,
@@ -475,7 +478,7 @@ class ServiceTicket(models.Model):
                 'expense_manager_id': approver_uid,
                 'other_employee_names': other_team_names,
                 'all_employee_names': combined_emp_names,
-                'name': f"VCH-{self.ticket_id or self.name}-{primary_emp.name}",
+                'name': batch_name,
             })
             
             # Link ALL lines together into this single batch
