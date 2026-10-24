@@ -53,17 +53,21 @@ tr.o_is_line_section:focus-within td {
     background-color: #f1f3f5 !important;
 }
 
+/* Keep section subtotal cell in layout to maintain 100% column grid alignment, but make content invisible */
 tr.o_is_line_section td[name="price_subtotal"],
-tr.o_is_line_section td.o_list_subtotal,
-tr.o_is_line_section .o_list_subtotal,
+tr.o_is_line_section td.o_list_subtotal {
+    background-color: #f1f3f5 !important;
+    color: transparent !important;
+    font-size: 0 !important;
+}
+
+tr.o_is_line_section td[name="price_subtotal"] *,
+tr.o_is_line_section td.o_list_subtotal *,
 tr.o_is_line_section .o_section_and_note_subtotal,
 tr.o_is_line_section .o_field_monetary,
-tr.o_is_line_section td:has(span[name="price_subtotal"]),
 tr.o_is_line_section span[name="price_subtotal"] {
     display: none !important;
     visibility: hidden !important;
-    opacity: 0 !important;
-    width: 0 !important;
 }
 
 /* Section options button (⋮) styled as clean delete icon aligned at right edge */
@@ -71,10 +75,7 @@ tr.o_is_line_section td.o_list_section_options {
     background-color: #f1f3f5 !important;
     vertical-align: middle !important;
     text-align: center !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
-    padding: 0 !important;
+    padding: 0 4px !important;
 }
 
 tr.o_is_line_section td.o_list_section_options button {
