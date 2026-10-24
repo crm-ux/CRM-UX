@@ -38,7 +38,15 @@
     display: none !important;
 }
 
-/* ── Hide section subtotal amount on quotation order lines ── */
+/* ── Section rows on quotation lines: clean full-width strip without amounts ── */
+tr.o_is_line_section {
+    background-color: #f1f3f5 !important;
+}
+
+tr.o_is_line_section td {
+    background-color: transparent !important;
+}
+
 tr.o_is_line_section td[name="price_subtotal"],
 tr.o_is_line_section td.o_list_subtotal,
 tr.o_is_line_section .o_list_subtotal,
@@ -50,6 +58,20 @@ tr.o_is_line_section span[name="price_subtotal"] {
     visibility: hidden !important;
     opacity: 0 !important;
     width: 0 !important;
+}
+
+/* Section options button (⋮) styled as clean delete icon */
+tr.o_is_line_section td.o_list_section_options {
+    background-color: transparent !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    width: 40px !important;
+}
+
+tr.o_is_line_section td.o_list_section_options i.fa-ellipsis-v::before {
+    content: "\f014" !important; /* fa-trash-o */
+    color: #0b3d91 !important;
+    font-size: 14px !important;
 }
 
 /* ── GST tax totals ── */

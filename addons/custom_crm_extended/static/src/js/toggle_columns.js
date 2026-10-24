@@ -40,4 +40,19 @@ patch(ListRenderer.prototype, {
         }
         return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : record.delete();
     },
+
+    setup() {
+        super.setup ? super.setup() : null;
+        const parentRecord = this.props?.list?.model?.root;
+        if (parentRecord && parentRecord.resModel === 'sale.order') {
+            // Listen for clicks on section delete icon
+            const originalOnSectionDelete = this.onSectionDelete;
+            if (originalOnSectionDelete) {
+                this.onSectionDelete = async (record) => {
+                    // Only delete the section row itself!
+                    await record.delete();
+                };
+            }
+        }
+    },
 });
