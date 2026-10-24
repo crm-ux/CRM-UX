@@ -26,12 +26,6 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="crm-nav-item" t-if="state.isAdmin or state.canViewLeadQuote">
-                        <a class="crm-nav-link" t-on-click="openLeads">
-                            <i class="fa fa-filter"></i>
-                            <span>Leads &amp; Pipeline</span>
-                        </a>
-                    </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewCustomer">
                         <a class="crm-nav-link" t-on-click="openContacts">
                             <i class="fa fa-users"></i>
