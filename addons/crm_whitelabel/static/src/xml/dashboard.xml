@@ -130,6 +130,14 @@
                         </ul>
                     </li>
 
+                    <!-- COMPANIES (AT LAST) -->
+                    <li class="crm-nav-item" t-if="state.isAdmin or state.canCreateCompany">
+                        <a class="crm-nav-link" t-on-click="openCompanies">
+                            <i class="fa fa-building-o"></i>
+                            <span>Companies</span>
+                        </a>
+                    </li>
+
                 </ul>
             </aside>
 
