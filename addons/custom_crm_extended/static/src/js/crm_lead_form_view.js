@@ -197,7 +197,12 @@ export class CrmLeadListController extends ListController {
     }
 
     async actionDuplicateQuote() {
-        const selectedResIds = await this.getSelectedResIds();
+        let selectedResIds = [];
+        if (this.model?.root?.selection?.length) {
+            selectedResIds = this.model.root.selection.map((r) => r.resId);
+        } else if (typeof this.getSelectedResIds === "function") {
+            selectedResIds = await this.getSelectedResIds();
+        }
         if (selectedResIds && selectedResIds.length > 0) {
             const leadId = selectedResIds[0];
             const orm = this.env.services.orm;
