@@ -220,12 +220,15 @@
                                 </div>
                             </div>
 
-                            <!-- Horizontal Employee Names Strip & Group Submission Bar (Only shows when multiple employees exist and have active draft submissions) -->
+                            <!-- 1. PENDING / DRAFT EXPENSES SECTION (with its own Date & Employee Strip + Submit Button) -->
                             <field name="show_voucher_strip" invisible="1"/>
                             <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" 
                                  invisible="not show_voucher_strip"
                                  style="border-left: 4px solid #0b3d91 !important;">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="small fw-bold" style="color: #0b3d91;">
+                                        <i class="fa fa-clock-o me-1" style="color: #0b3d91;"></i>Pending Expenses:
+                                    </span>
                                     <span class="small fw-bold" style="color: #0b3d91;">
                                         <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
                                     </span>
@@ -241,9 +244,8 @@
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <field name="has_draft_vouchers" invisible="1"/>
-                                    <!-- Submit All Button (Visible when lines are in draft) -->
                                     <button name="action_submit_all_vouchers"
-                                            string="Submit All Expenses"
+                                            string="Submit Pending Expenses"
                                             type="object"
                                             class="btn btn-sm text-white fw-semibold px-3"
                                             style="background-color: #0b3d91; border-color: #0b3d91;"
@@ -252,7 +254,8 @@
                                 </div>
                             </div>
 
-                            <field name="voucher_line_ids" class="o_voucher_card_list">
+                            <!-- Table for Pending / Draft Expenses Only -->
+                            <field name="draft_voucher_line_ids" class="o_voucher_card_list" invisible="not has_draft_vouchers">
                                 <list editable="bottom" create="0" delete="1">
                                     <field name="expense_date" string="Date" optional="show"/>
                                     <field name="user_id" string="Employee" readonly="1" optional="show"/>
@@ -266,18 +269,30 @@
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                                     <field name="bill_filename" column_invisible="1"/>
                                     <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
-                                    <field name="status" widget="badge" decoration-info="status == 'draft'" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                                    <field name="status" widget="badge" decoration-info="status == 'draft'"/>
                                 </list>
                             </field>
 
-                            <!-- Bottom Action: Send all draft expenses to Expense Manager at once -->
-                            <div class="d-flex justify-content-end align-items-center mt-3 pt-2">
-                                <button name="action_submit_all_vouchers"
-                                        string="Submit All Expenses"
-                                        type="object"
-                                        class="btn btn-primary px-4 py-2 fw-semibold shadow-sm"
-                                        invisible="not has_draft_vouchers"
-                                        icon="fa-paper-plane"/>
+                            <!-- 2. SUBMITTED VOUCHER SUBMISSIONS (Each Submission/Date in Its Own Separate Card/Table) -->
+                            <field name="has_submitted_batches" invisible="1"/>
+                            <div class="mt-4" invisible="not has_submitted_batches">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="fw-bold text-dark fs-6">
+                                        <i class="fa fa-folder-open-o me-2 text-primary"></i>Submitted Vouchers (Date-Wise)
+                                    </span>
+                                </div>
+
+                                <field name="voucher_batch_ids" readonly="1" nolabel="1">
+                                    <list create="0" edit="0" delete="0">
+                                        <field name="expense_dates" string="Expense Date(s)"/>
+                                        <field name="create_date" string="Submitted Date"/>
+                                        <field name="all_employee_names" string="Employees"/>
+                                        <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="total_amount" sum="Total" class="fw-bold text-end"/>
+                                        <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                                    </list>
+                                </field>
                             </div>
                         </page>
 

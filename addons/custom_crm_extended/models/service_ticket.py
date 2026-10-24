@@ -201,6 +201,9 @@ class ServiceTicket(models.Model):
     service_start_time = fields.Datetime(string='Service Start Time')
     service_end_time = fields.Datetime(string='Service End Time')
     voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Voucher Lines')
+    draft_voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Pending Expenses', domain=[('status', '=', 'draft')])
+    voucher_batch_ids = fields.One2many('service.ticket.voucher.batch', 'ticket_id', string='Voucher Submissions', domain=[('line_ids', '!=', False)])
+    has_submitted_batches = fields.Boolean(compute='_compute_has_submitted_batches', string='Has Submitted Vouchers')
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
     
@@ -214,6 +217,11 @@ class ServiceTicket(models.Model):
     ], string='Ticket Status', default='new', tracking=True)
 
     # Quick Add Voucher Fields on Ticket
+    @api.depends('voucher_batch_ids', 'voucher_batch_ids.line_ids')
+    def _compute_has_submitted_batches(self):
+        for rec in self:
+            rec.has_submitted_batches = any(batch.line_ids for batch in rec.voucher_batch_ids)
+
     new_voucher_user_ids = fields.Many2many(
         'res.users',
         'service_ticket_quick_voucher_user_rel',
@@ -445,7 +453,8 @@ class ServiceTicket(models.Model):
             dates = []
             has_draft = False
             total_amt = 0.0
-            for line in rec.voucher_line_ids:
+            for line in rec.voucher_line_ids.filtered(lambda l: l.status == 'draft'):
+                has_draft = True
                 total_amt += line.amount or 0.0
                 if line.user_id and line.user_id.name and line.user_id.name not in names:
                     names.append(line.user_id.name)
@@ -453,13 +462,11 @@ class ServiceTicket(models.Model):
                     d_str = line.expense_date.strftime('%d-%b-%Y')
                     if d_str not in dates:
                         dates.append(d_str)
-                if line.status == 'draft':
-                    has_draft = True
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
             rec.voucher_draft_dates = ", ".join(dates) if dates else ''
             rec.has_draft_vouchers = has_draft
-            rec.show_voucher_strip = bool(rec.voucher_line_ids)
+            rec.show_voucher_strip = has_draft
             rec.total_voucher_amount = total_amt
 
     def action_submit_all_vouchers(self):
