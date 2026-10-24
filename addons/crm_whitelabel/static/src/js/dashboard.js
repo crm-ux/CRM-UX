@@ -809,8 +809,8 @@ class CrmDashboard extends Component {
             name: "Companies",
             res_model: "res.partner",
             views: [[false, "list"], [false, "form"]],
-            domain: [["is_company", "=", True]],
-            context: { default_is_company: True, res_partner_search_mode: "customer" }
+            domain: [["is_company", "=", true]],
+            context: { default_is_company: true, res_partner_search_mode: "customer" }
         });
     }
     openProducts() {
