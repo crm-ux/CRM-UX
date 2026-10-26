@@ -626,6 +626,24 @@ class SaleOrder(models.Model):
             result = {'type': 'ir.actions.act_window_close'}
         return result
 
+    def action_cancel_form_with_confirm(self):
+        """Action for Cancel button on form view with confirmation."""
+        self.ensure_one()
+        if self.opportunity_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'crm.lead',
+                'res_id': self.opportunity_id.id,
+                'views': [[False, 'form']],
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'views': [[False, 'list'], [False, 'form']],
+            'target': 'current',
+        }
+
     def action_move_to_negotiation_from_sent(self):
         """Move quote from Sent to Negotiation stage."""
         self.ensure_one()
