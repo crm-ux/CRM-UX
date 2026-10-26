@@ -8,8 +8,6 @@ import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { patch } from "@web/core/utils/patch";
-import { X2ManyField } from "@web/views/fields/x2many/x2many_field";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 
 export class ResPartnerFormController extends FormController {
