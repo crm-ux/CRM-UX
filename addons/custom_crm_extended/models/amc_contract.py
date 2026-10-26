@@ -117,6 +117,33 @@ class AmcContract(models.Model):
             else:
                 self.contract_status = 'active'
 
+    @api.onchange('contract_status')
+    def _onchange_validate_status_with_end_date(self):
+        if self.contract_end_date:
+            today = fields.Date.context_today(self)
+            if self.contract_status == 'active' and self.contract_end_date < today:
+                self.contract_status = 'expired'
+                return {'warning': {
+                    'title': _("Invalid Status"),
+                    'message': _("Contract End Date is in the past. This contract cannot be marked as Active; it must be Expired.")
+                }}
+            elif self.contract_status == 'expired' and self.contract_end_date >= today:
+                self.contract_status = 'active'
+                return {'warning': {
+                    'title': _("Invalid Status"),
+                    'message': _("Contract End Date is in the future. This contract cannot be marked as Expired; it must be Active.")
+                }}
+
+    @api.constrains('contract_status', 'contract_end_date')
+    def _check_contract_status_end_date(self):
+        today = fields.Date.context_today(self)
+        for rec in self:
+            if rec.contract_end_date:
+                if rec.contract_status == 'active' and rec.contract_end_date < today:
+                    raise ValidationError(_("Cannot save contract as Active because the Contract End Date (%s) has already passed.") % rec.contract_end_date.strftime('%d/%m/%Y'))
+                if rec.contract_status == 'expired' and rec.contract_end_date >= today:
+                    raise ValidationError(_("Cannot save contract as Expired because the Contract End Date (%s) is in the future.") % rec.contract_end_date.strftime('%d/%m/%Y'))
+
     @api.onchange('contract_value')
     def _onchange_format_contract_value(self):
         if not self.contract_value:
@@ -340,6 +367,20 @@ class AmcContract(models.Model):
         if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_amc_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update AMC Contracts."))
+        
+        # Auto-evaluate status on date change if not explicitly overridden
+        if 'contract_end_date' in vals and 'contract_status' not in vals:
+            end_d = fields.Date.to_date(vals['contract_end_date']) if vals['contract_end_date'] else False
+            today = fields.Date.context_today(self)
+            if end_d:
+                if end_d < today:
+                    vals['contract_status'] = 'expired'
+                else:
+                    for rec in self:
+                        if rec.contract_status == 'expired':
+                            vals['contract_status'] = 'active'
+                            break
+
         new_status = vals.get('contract_status')
         if new_status:
             for record in self:
