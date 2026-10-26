@@ -131,10 +131,19 @@ if (AutoComplete) {
             });
         },
         get isOpen() {
-            if (this.options && this.options.length === 0) {
+            // NEVER show dropdown if options are empty
+            const opts = this.options;
+            if (!opts || opts.length === 0) {
                 return false;
             }
             return super.isOpen;
+        },
+        async loadOptions(val) {
+            await super.loadOptions(...arguments);
+            // If after loading there are 0 valid options, close immediately
+            if (!this.options || this.options.length === 0) {
+                this.close ? this.close() : null;
+            }
         },
     });
 }
@@ -143,18 +152,25 @@ if (AutoComplete) {
 if (typeof document !== "undefined") {
     const cleanEmptyDropdowns = () => {
         document.querySelectorAll(".dropdown-menu, .o-autocomplete--dropdown-menu, .ui-autocomplete").forEach(menu => {
+            if (!menu.children || menu.children.length === 0) {
+                menu.style.setProperty("display", "none", "important");
+                menu.style.setProperty("border", "none", "important");
+                menu.style.setProperty("box-shadow", "none", "important");
+                return;
+            }
             const hasVisibleItems = Array.from(menu.children).some(child => {
                 const style = window.getComputedStyle(child);
                 return style.display !== "none" && style.visibility !== "hidden" && child.offsetHeight > 0;
             });
-            if (!hasVisibleItems && menu.children.length === 0) {
+            if (!hasVisibleItems) {
                 menu.style.setProperty("display", "none", "important");
                 menu.style.setProperty("border", "none", "important");
                 menu.style.setProperty("box-shadow", "none", "important");
             }
         });
     };
-    document.addEventListener("input", () => setTimeout(cleanEmptyDropdowns, 20), true);
-    document.addEventListener("keyup", () => setTimeout(cleanEmptyDropdowns, 20), true);
+    document.addEventListener("input", cleanEmptyDropdowns, true);
+    document.addEventListener("keydown", cleanEmptyDropdowns, true);
+    document.addEventListener("keyup", cleanEmptyDropdowns, true);
 }
 
