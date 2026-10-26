@@ -207,24 +207,20 @@ button.o_form_button_cancel {
     align-items: center !important;
 }
 
-/* Hide ONLY the record title / name text */
+/* Hide ALL record title / name text (span, li, a, breadcrumb-item) */
 .o_control_panel_breadcrumbs .o_breadcrumb .breadcrumb-item,
-.o_control_panel_breadcrumbs .o_breadcrumb .o_last_breadcrumb_item {
+.o_control_panel_breadcrumbs .o_breadcrumb .o_last_breadcrumb_item,
+.o_control_panel_breadcrumbs .o_breadcrumb li,
+.o_control_panel_breadcrumbs .o_breadcrumb span,
+.o_control_panel_breadcrumbs .o_breadcrumb a {
     display: none !important;
 }
 
-.o_control_panel_breadcrumbs .o_breadcrumb span,
-.o_control_panel_breadcrumbs .o_breadcrumb .active,
-.o_control_panel_breadcrumbs .o_breadcrumb li,
-.o_control_panel_breadcrumbs .o_breadcrumb a {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    display: inline-block !important;
-    max-width: 100% !important;
-    line-height: normal !important;
-    color: #1e293b !important;
-    font-weight: 600 !important;
+/* KEEP ONLY the Gear Button (.o_cp_action_menus) visible */
+.o_control_panel .o_cp_action_menus,
+.o_control_panel_breadcrumbs .o_cp_action_menus {
+    display: inline-flex !important;
+    visibility: visible !important;
 }
 
 /* Save & Cancel container */
