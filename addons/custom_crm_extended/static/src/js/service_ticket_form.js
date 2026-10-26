@@ -453,15 +453,45 @@ export class ServiceTicketFormController extends FormController {
                 const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
                 if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
                     const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
-                    if (isSecretCombo) {
-                        return; // Allow opening the Voucher tab
-                    }
-
-                    // Block tab switch and show Coming Soon message
+                    // Always prevent default to stop browser from opening link in a new browser tab/window on Ctrl+Click
                     ev.preventDefault();
                     ev.stopPropagation();
                     ev.stopImmediatePropagation();
 
+                    if (isSecretCombo) {
+                        // Switch directly to the Voucher tab internally inside the same form
+                        tabLink.focus();
+                        tabLink.click();
+                        // Also trigger bootstrap / Odoo tab show if available
+                        if (window.bootstrap?.Tab) {
+                            const tabInstance = window.bootstrap.Tab.getOrCreateInstance(tabLink);
+                            if (tabInstance) tabInstance.show();
+                        } else {
+                            // Fallback: manually activate tab classes
+                            const parentNav = tabLink.closest(".nav-tabs, .o_notebook_headers");
+                            if (parentNav) {
+                                parentNav.querySelectorAll("a.nav-link, [role='tab']").forEach((el) => {
+                                    el.classList.remove("active");
+                                    el.setAttribute("aria-selected", "false");
+                                });
+                            }
+                            tabLink.classList.add("active");
+                            tabLink.setAttribute("aria-selected", "true");
+                            const targetSelector = tabLink.getAttribute("data-bs-target") || tabLink.getAttribute("href");
+                            if (targetSelector && targetSelector.startsWith("#")) {
+                                const targetPane = document.querySelector(targetSelector);
+                                if (targetPane && targetPane.parentElement) {
+                                    targetPane.parentElement.querySelectorAll(".tab-pane").forEach((pane) => {
+                                        pane.classList.remove("active", "show");
+                                    });
+                                    targetPane.classList.add("active", "show");
+                                }
+                            }
+                        }
+                        return;
+                    }
+
+                    // Otherwise show Coming Soon notification
                     if (this.env?.services?.notification) {
                         this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
                             title: _t("Coming Soon"),
