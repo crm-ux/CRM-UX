@@ -332,7 +332,7 @@ class ServiceTicket(models.Model):
                     rows_html.append(row)
 
                 batch_total = f"₹ {batch.total_amount:,.2f}" if batch.total_amount else "₹ 0.00"
-                col_span = 5 if has_km else 4
+                col_span = 6 if has_km else 4
 
                 table_html = f"""
                 <div class="table-responsive mb-4">
