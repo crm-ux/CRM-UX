@@ -110,10 +110,12 @@ class AmcContract(models.Model):
 
     @api.onchange('contract_end_date')
     def _onchange_contract_end_date_auto_expire(self):
-        if self.contract_end_date and self.contract_status == 'active':
+        if self.contract_end_date and self.contract_status in ('active', 'expired'):
             today = fields.Date.context_today(self)
             if self.contract_end_date < today:
                 self.contract_status = 'expired'
+            else:
+                self.contract_status = 'active'
 
     @api.onchange('contract_value')
     def _onchange_format_contract_value(self):
