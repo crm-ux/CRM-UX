@@ -8,7 +8,6 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { Notebook } from "@web/core/notebook/notebook";
 import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
@@ -432,61 +431,6 @@ export class ServiceTicketFormController extends FormController {
                 }
             };
 
-            // Track spacebar keydown state for secret combo (Ctrl + Spacebar + Click)
-            let isSpaceKeyDown = false;
-            const handleKeyDown = (e) => {
-                if (e.code === "Space" || e.key === " ") {
-                    isSpaceKeyDown = true;
-                }
-            };
-            const handleKeyUp = (e) => {
-                if (e.code === "Space" || e.key === " ") {
-                    isSpaceKeyDown = false;
-                }
-            };
-            window.addEventListener("keydown", handleKeyDown, true);
-            window.addEventListener("keyup", handleKeyUp, true);
-
-            // Patch Notebook component directly to govern Voucher tab switching
-            patch(Notebook.prototype, {
-                activatePage(pageName) {
-                    if (pageName === "voucher_tab") {
-                        // Strictly require Ctrl + Spacebar
-                        const isSecret = Boolean(window._voucherSecretAuthorized);
-                        if (!isSecret) {
-                            if (this.env?.services?.notification) {
-                                this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
-                                    title: _t("Coming Soon"),
-                                    type: "info",
-                                    sticky: false,
-                                });
-                            }
-                            return;
-                        }
-                    }
-                    return super.activatePage(...arguments);
-                },
-            });
-
-            // Prevent native browser link action on Voucher tab completely
-            const handleVoucherTabMouseDown = (ev) => {
-                const tabLink = ev.target.closest("a.nav-link, [role='tab'], .nav-item a, .nav-item button");
-                if (!tabLink) return;
-                const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
-                if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
-                    const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
-                    window._voucherSecretAuthorized = isSecretCombo;
-                    setTimeout(() => { window._voucherSecretAuthorized = false; }, 300);
-
-                    // Always prevent default on mousedown & click to stop browser from opening a new tab
-                    ev.preventDefault();
-                    if (!isSecretCombo) {
-                        ev.stopPropagation();
-                    }
-                }
-            };
-            document.addEventListener("mousedown", handleVoucherTabMouseDown, true);
-
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -501,9 +445,6 @@ export class ServiceTicketFormController extends FormController {
                 if (cleanupAttachments) {
                     cleanupAttachments();
                 }
-                window.removeEventListener("keydown", handleKeyDown, true);
-                window.removeEventListener("keyup", handleKeyUp, true);
-                document.removeEventListener("mousedown", handleVoucherTabMouseDown, true);
                 document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
                 document.removeEventListener("input", handleKmInstantCalc, true);
