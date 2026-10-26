@@ -140,7 +140,8 @@ class CrmLead(models.Model):
     x_lead_age_days = fields.Integer(
         string='Lead Age (Days)',
         compute='_compute_lead_age',
-        store=False,
+        store=True,
+        index=True,
         help='Number of days since lead was created.',
     )
 
