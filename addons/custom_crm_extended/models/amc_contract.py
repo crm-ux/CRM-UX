@@ -108,6 +108,13 @@ class AmcContract(models.Model):
             expired_contracts.write({'contract_status': 'expired'})
         return True
 
+    @api.onchange('contract_end_date')
+    def _onchange_contract_end_date_auto_expire(self):
+        if self.contract_end_date and self.contract_status == 'active':
+            today = fields.Date.context_today(self)
+            if self.contract_end_date < today:
+                self.contract_status = 'expired'
+
     @api.onchange('contract_value')
     def _onchange_format_contract_value(self):
         if not self.contract_value:
