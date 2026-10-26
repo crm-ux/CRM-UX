@@ -265,7 +265,14 @@ class ServiceTicket(models.Model):
                 st_label = st.capitalize()
 
                 vch_name = batch.name or 'New'
-                vch_dates = batch.expense_dates or (batch.submission_date.strftime('%d/%m/%Y') if batch.submission_date else '')
+                # Live compute unique expense dates from lines
+                line_dates = [l.expense_date.strftime('%d/%m/%Y') for l in batch.line_ids if l.expense_date]
+                unique_exp_dates = list(dict.fromkeys(line_dates))
+                vch_exp_dates = ", ".join(unique_exp_dates) if unique_exp_dates else ''
+                
+                # Submission date when sent to manager
+                sub_dt = batch.create_date or batch.submission_date
+                vch_sub_date = sub_dt.strftime('%d/%m/%Y') if sub_dt else ''
                 vch_emps = batch.all_employee_names or (batch.user_id.name if batch.user_id else '')
 
                 strip_html = f"""
@@ -274,8 +281,11 @@ class ServiceTicket(models.Model):
                         <span class="fw-bold" style="color: #0b3d91; font-size: 13px;">Voucher ID:</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_name}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
-                        <span class="fw-bold text-dark" style="font-size: 13px;">Date(s):</span>
-                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_dates}</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Submitted:</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-size: 13px;">{vch_sub_date}</span>
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Expense Date(s):</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_exp_dates}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         <span class="fw-bold text-dark" style="font-size: 13px;">Employee(s):</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_emps}</span>
@@ -339,7 +349,7 @@ class ServiceTicket(models.Model):
                     <table class="table table-sm align-middle w-100" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 0;">
                         <thead style="background-color: #f8fafc; font-size: 13px; color: #475569; font-weight: 600;">
                             <tr>
-                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Date</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Expense Date</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Employee</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Expense Type</th>
                                 {km_header}
