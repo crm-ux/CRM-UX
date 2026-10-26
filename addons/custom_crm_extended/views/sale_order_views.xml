@@ -124,10 +124,6 @@
                 <button name="action_move_to_negotiation" string="Move to Negotiation" type="object"
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
-                <button special="save" string="Save" type="object" class="btn-primary"/>
-                <button name="action_cancel" string="Cancel Quotation" type="object" class="btn-secondary"
-                        confirm="Are you sure you want to cancel this Quotation?"
-                        invisible="state in ['cancel', 'sale']"/>
             </xpath>
 
             <xpath expr="//field[@name='validity_date']" position="after">
