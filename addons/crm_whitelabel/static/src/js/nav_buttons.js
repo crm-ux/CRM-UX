@@ -392,7 +392,6 @@ patch(FormController.prototype, {
             }
         };
 
-        const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
         if (isDirty) {
             this.dialogService.add(ConfirmationDialog, {
                 title: _t("Cancel changes?"),
