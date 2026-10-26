@@ -1616,10 +1616,16 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 .partner_autocomplete_dropdown,
 .o_partner_autocomplete_suggestion,
 .o_partner_autocomplete_container,
+.o_partner_autocomplete,
+.o_field_partner_autocomplete .o_partner_autocomplete_dropdown,
 .o-autocomplete--dropdown-item:has(.o_partner_autocomplete_logo),
 .o-autocomplete--dropdown-item:has(img[src*="logo.clearbit.com"]),
-.o_partner_autocomplete,
-.o_field_partner_autocomplete .o_partner_autocomplete_dropdown {
+/* Hide "Searching Autocomplete..." loading item shown in dropdown */
+.o-autocomplete--dropdown-item:has(.fa-spinner),
+.o-autocomplete--dropdown-item:has(.fa-circle-o-notch),
+li.o_partner_autocomplete_loading,
+.o_partner_autocomplete_loading,
+.ui-autocomplete .o_partner_autocomplete_dropdown {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;

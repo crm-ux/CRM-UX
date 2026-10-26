@@ -29,6 +29,20 @@ class ResPartnerPatch(models.Model):
             return
         return super()._compute_display_name()
 
+    @api.model
+    def autocomplete(self, *args, **kwargs):
+        """Disable external partner autocomplete calls completely."""
+        return []
+
+    @api.model
+    def _autocomplete_query(self, *args, **kwargs):
+        """Disable external partner autocomplete queries completely."""
+        return []
+
+    @api.model
+    def _autocomplete(self, *args, **kwargs):
+        return []
+
 from lxml import etree
 from odoo.exceptions import UserError
 

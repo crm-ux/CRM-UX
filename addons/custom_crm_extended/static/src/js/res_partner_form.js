@@ -10,6 +10,7 @@ import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_d
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { X2ManyField } from "@web/views/fields/x2many/x2many_field";
+import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 
 export class ResPartnerFormController extends FormController {
     setup() {
@@ -109,6 +110,23 @@ if (X2ManyField) {
                 return this.openDialog({ resId: record.resId });
             }
             return super.openRecord(...arguments);
+        },
+    });
+}
+
+// Intercept AutoComplete to strip out external partner suggestions & "Searching Autocomplete..." spinner
+if (AutoComplete) {
+    patch(AutoComplete.prototype, {
+        get options() {
+            const list = super.options;
+            if (!Array.isArray(list)) return list;
+            return list.filter(item => {
+                const label = (item.label || "").toString().toLowerCase();
+                if (label.includes("searching autocomplete")) return false;
+                if (item.classList && item.classList.includes("o_partner_autocomplete")) return false;
+                if (item.is_autocomplete || item.autocomplete_data) return false;
+                return true;
+            });
         },
     });
 }

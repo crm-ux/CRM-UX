@@ -56,6 +56,7 @@
     ],
     'assets': {
         'web.assets_backend': [
+            'custom_crm_extended/static/src/js/res_partner_form.js',
             'custom_crm_extended/static/src/js/toggle_columns.js',
             'custom_crm_extended/static/src/css/crm_hide_new.css',
             'custom_crm_extended/static/src/js/crm_hide_new.js',
