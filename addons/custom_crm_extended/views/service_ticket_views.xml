@@ -117,7 +117,7 @@
                                 <!-- Row 2: Expense Date -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
-                                        <span class="fw-semibold text-secondary">Date:</span>
+                                        <span class="fw-semibold text-secondary">Expense Date:</span>
                                     </div>
                                     <div class="col-sm-10 col-md-10">
                                         <field name="new_voucher_date" 
