@@ -201,17 +201,9 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer Name: trims with ellipsis (...) only when name is long */
+/* Record / Customer Name: hidden on navbar form views to keep only the gear icon */
 .o_control_panel_breadcrumbs .o_breadcrumb {
-    display: inline-flex !important;
-    align-items: center !important;
-    min-width: 0 !important;
-    max-width: clamp(140px, 22vw, 260px) !important;
-    overflow: hidden !important;
-    margin-right: 0.5rem !important;
-    margin-left: 0 !important;
-    padding: 0 !important;
-    flex-shrink: 1 !important;
+    display: none !important;
 }
 
 .o_control_panel_breadcrumbs .o_breadcrumb span,
