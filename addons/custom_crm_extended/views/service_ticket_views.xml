@@ -270,26 +270,37 @@
                                     <field name="bill_filename" column_invisible="1"/>
                                     <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
                                     <field name="status" widget="badge" decoration-info="status == 'draft'"/>
+                                    <button name="action_submit_line" type="object" string="Submit" icon="fa-check" title="Submit this expense" class="btn btn-sm btn-primary py-0 px-2 fw-semibold" invisible="status != 'draft'"/>
                                 </list>
                             </field>
 
-                            <!-- 2. SUBMITTED VOUCHER SUBMISSIONS (Each Submission/Date in Its Own Separate Card/Table) -->
-                            <field name="has_submitted_batches" invisible="1"/>
-                            <div class="mt-4" invisible="not has_submitted_batches">
-                                <div class="d-flex align-items-center mb-2">
+                            <!-- Clean Horizontal Line Between Pending and Submitted Vouchers -->
+                            <hr class="my-4" style="border-top: 2px dashed #0b3d91; opacity: 0.35;" invisible="not has_submitted_vouchers"/>
+
+                            <!-- 2. DETAILED SUBMITTED VOUCHERS TABLE (Full Detail Rows Date-Wise with Horizontal Line) -->
+                            <field name="has_submitted_vouchers" invisible="1"/>
+                            <div class="mt-3" invisible="not has_submitted_vouchers">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
                                     <span class="fw-bold text-dark fs-6">
-                                        <i class="fa fa-folder-open-o me-2 text-primary"></i>Submitted Vouchers (Date-Wise)
+                                        <i class="fa fa-list-alt me-2 text-primary"></i>Submitted Expenses (Date-Wise Details)
                                     </span>
                                 </div>
 
-                                <field name="voucher_batch_ids" readonly="1" nolabel="1">
+                                <field name="submitted_voucher_line_ids" readonly="1" nolabel="1" class="o_voucher_card_list">
                                     <list create="0" edit="0" delete="0">
-                                        <field name="expense_dates" string="Expense Date(s)"/>
-                                        <field name="create_date" string="Submitted Date"/>
-                                        <field name="all_employee_names" string="Employees"/>
-                                        <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
+                                        <field name="expense_date" string="Date"/>
+                                        <field name="user_id" string="Employee"/>
+                                        <field name="expense_type_id" string="Expense Type" class="fw-semibold"/>
+                                        <field name="is_km_based" column_invisible="1"/>
+                                        <field name="total_km" string="Total KM" column_invisible="not parent.has_km_lines"/>
+                                        <field name="rate_per_km" string="Rate/KM (₹)" column_invisible="not parent.has_km_lines"/>
+                                        <field name="description" string="Description"/>
                                         <field name="currency_id" column_invisible="1"/>
-                                        <field name="total_amount" sum="Total" class="fw-bold text-end"/>
+                                        <field name="amount" sum="Total" class="fw-bold text-end"/>
+                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
+                                        <field name="bill_filename" column_invisible="1"/>
+                                        <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
+                                        <field name="submitted_by_user_id" string="Submitted By" optional="show"/>
                                         <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
                                     </list>
                                 </field>

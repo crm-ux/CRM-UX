@@ -202,8 +202,10 @@ class ServiceTicket(models.Model):
     service_end_time = fields.Datetime(string='Service End Time')
     voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Voucher Lines')
     draft_voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Pending Expenses', domain=[('status', '=', 'draft')])
+    submitted_voucher_line_ids = fields.One2many('service.ticket.voucher.line', 'ticket_id', string='Submitted Vouchers', domain=[('status', '!=', 'draft')])
     voucher_batch_ids = fields.One2many('service.ticket.voucher.batch', 'ticket_id', string='Voucher Submissions', domain=[('line_ids', '!=', False)])
     has_submitted_batches = fields.Boolean(compute='_compute_has_submitted_batches', string='Has Submitted Vouchers')
+    has_submitted_vouchers = fields.Boolean(compute='_compute_has_submitted_vouchers', string='Has Submitted Voucher Lines')
     customer_signature = fields.Binary(string='Customer Signature')
     engineer_signature = fields.Binary(string='Engineer Signature')
     
@@ -217,6 +219,11 @@ class ServiceTicket(models.Model):
     ], string='Ticket Status', default='new', tracking=True)
 
     # Quick Add Voucher Fields on Ticket
+    @api.depends('submitted_voucher_line_ids')
+    def _compute_has_submitted_vouchers(self):
+        for rec in self:
+            rec.has_submitted_vouchers = bool(rec.submitted_voucher_line_ids)
+
     @api.depends('voucher_batch_ids', 'voucher_batch_ids.line_ids')
     def _compute_has_submitted_batches(self):
         for rec in self:
@@ -802,6 +809,29 @@ class ServiceTicketVoucherLine(models.Model):
     other_employee_names = fields.Char(string='Other Employees')
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
+
+    def action_submit_line(self):
+        """Submit this single draft voucher line."""
+        for rec in self:
+            if rec.status == 'draft':
+                mgr = rec.ticket_id.company_id.crm_authorized_expense_manager_ids[:1] if rec.ticket_id.company_id else False
+                approver_uid = mgr.id if mgr else 2
+                today_str = fields.Date.today().strftime('%d/%m/%Y')
+                batch_name = f"VCH/{rec.ticket_id.ticket_id or rec.ticket_id.name}/{today_str}"
+                batch_rec = self.env['service.ticket.voucher.batch'].create({
+                    'ticket_id': rec.ticket_id.id,
+                    'user_id': rec.user_id.id,
+                    'submitted_by_user_id': self.env.user.id,
+                    'expense_manager_id': approver_uid,
+                    'other_employee_names': rec.other_employee_names or '',
+                    'all_employee_names': rec.user_id.name or '',
+                    'name': batch_name,
+                })
+                rec.write({
+                    'status': 'submitted',
+                    'batch_id': batch_rec.id,
+                })
+        return True
 
     def action_open_batch_detail(self):
         self.ensure_one()
