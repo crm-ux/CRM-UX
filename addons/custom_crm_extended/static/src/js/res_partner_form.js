@@ -8,7 +8,6 @@ import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 
 export class ResPartnerFormController extends FormController {
     setup() {
@@ -110,59 +109,5 @@ if (X2ManyField) {
             return super.openRecord(...arguments);
         },
     });
-}
-
-// Intercept AutoComplete to strip out external partner suggestions & "Searching Autocomplete..." spinner
-if (AutoComplete) {
-    patch(AutoComplete.prototype, {
-        get options() {
-            const list = super.options;
-            if (!Array.isArray(list)) return list;
-            return list.filter(item => {
-                const label = (item.label || "").toString().toLowerCase();
-                if (label.includes("searching autocomplete")) return false;
-                // External suggestions have string IDs or partner_autocomplete flags
-                if (typeof item.id === "string" && (item.id.includes("autocomplete") || item.id.includes("iap") || item.id.startsWith("partner_"))) return false;
-                if (item.classList && item.classList.includes("o_partner_autocomplete")) return false;
-                if (item.is_autocomplete || item.autocomplete_data || item.data?.is_autocomplete) return false;
-                // External company results come with city/state suffix appended
-                if (item.description && typeof item.id !== "number" && item.id !== false && item.id !== "create" && item.id !== "create_edit") return false;
-                return true;
-            });
-        },
-        get isOpen() {
-            const opts = this.options;
-            if (!opts || opts.length === 0) {
-                return false;
-            }
-            return super.isOpen;
-        },
-    });
-}
-
-// Global cleanup: instantly remove any empty floating dropdown or autocomplete boxes from the DOM
-if (typeof document !== "undefined") {
-    const cleanEmptyDropdowns = () => {
-        document.querySelectorAll(".dropdown-menu, .o-autocomplete--dropdown-menu, .ui-autocomplete").forEach(menu => {
-            if (!menu.children || menu.children.length === 0) {
-                menu.style.setProperty("display", "none", "important");
-                menu.style.setProperty("border", "none", "important");
-                menu.style.setProperty("box-shadow", "none", "important");
-                return;
-            }
-            const hasVisibleItems = Array.from(menu.children).some(child => {
-                const style = window.getComputedStyle(child);
-                return style.display !== "none" && style.visibility !== "hidden" && child.offsetHeight > 0;
-            });
-            if (!hasVisibleItems) {
-                menu.style.setProperty("display", "none", "important");
-                menu.style.setProperty("border", "none", "important");
-                menu.style.setProperty("box-shadow", "none", "important");
-            }
-        });
-    };
-    document.addEventListener("input", cleanEmptyDropdowns, true);
-    document.addEventListener("keydown", cleanEmptyDropdowns, true);
-    document.addEventListener("keyup", cleanEmptyDropdowns, true);
 }
 
