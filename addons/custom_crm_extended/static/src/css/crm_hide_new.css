@@ -1610,38 +1610,4 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     color: #495057 !important;
 }
 
-/* ── Disable Outside / External Partner Suggestions (partner_autocomplete) ── */
-/* Ensures only local database dropdown items appear, never external internet company suggestions */
-.o_partner_autocomplete_dropdown,
-.partner_autocomplete_dropdown,
-.o_partner_autocomplete_suggestion,
-.o_partner_autocomplete_container,
-.o_partner_autocomplete,
-.o_field_partner_autocomplete .o_partner_autocomplete_dropdown,
-.o-autocomplete--dropdown-item:has(.o_partner_autocomplete_logo),
-.o-autocomplete--dropdown-item:has(img[src*="logo.clearbit.com"]),
-/* Hide "Searching Autocomplete..." loading item shown in dropdown */
-.o-autocomplete--dropdown-item:has(.fa-spinner),
-.o-autocomplete--dropdown-item:has(.fa-circle-o-notch),
-li.o_partner_autocomplete_loading,
-.o_partner_autocomplete_loading,
-.ui-autocomplete .o_partner_autocomplete_dropdown,
-/* Do not show empty autocomplete dropdown container box when no items exist */
-.o-autocomplete--dropdown-menu:empty,
-.ui-autocomplete:empty,
-.dropdown-menu.o-autocomplete--dropdown-menu:not(:has(.o-autocomplete--dropdown-item)),
-.o_popover:has(.o-autocomplete--dropdown-menu:empty),
-.dropdown-menu:empty,
-.o_field_many2one .dropdown-menu:not(:has(li:not([style*="display: none"]), .dropdown-item:not([style*="display: none"]))) {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    min-height: 0 !important;
-    height: 0 !important;
-}
-
 
