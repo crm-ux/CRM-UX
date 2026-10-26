@@ -9,6 +9,14 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <record id="seq_service_ticket_voucher" model="ir.sequence">
+            <field name="name">Service Ticket Voucher Sequence</field>
+            <field name="code">service.ticket.voucher.seq</field>
+            <field name="prefix">VCH-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
         <!-- Pre-loaded Complaint Types -->
         <record id="complaint_type_breakdown" model="service.ticket.complaint.type">
             <field name="name">Breakdown</field>

@@ -224,6 +224,14 @@ class ServiceTicket(models.Model):
         for rec in self:
             rec.has_submitted_vouchers = bool(rec.submitted_voucher_line_ids)
 
+    submitted_voucher_names = fields.Char(compute='_compute_submitted_voucher_names', string='Voucher IDs')
+
+    @api.depends('voucher_batch_ids', 'voucher_batch_ids.name')
+    def _compute_submitted_voucher_names(self):
+        for rec in self:
+            names = [b.name for b in rec.voucher_batch_ids if b.name]
+            rec.submitted_voucher_names = ", ".join(names) if names else ''
+
     @api.depends('voucher_batch_ids', 'voucher_batch_ids.line_ids')
     def _compute_has_submitted_batches(self):
         for rec in self:
@@ -238,7 +246,7 @@ class ServiceTicket(models.Model):
         domain="[('share', '=', False)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
-    new_voucher_date = fields.Date(string='Expense Date', default=fields.Date.context_today)
+    new_voucher_date = fields.Date(string='Expense Date')
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
@@ -301,6 +309,17 @@ class ServiceTicket(models.Model):
 
     def action_add_voucher_line(self):
         self.ensure_one()
+        if not self.new_voucher_date:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Expense Date',
+                    'message': 'Please select an Expense Date.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
         if not self.new_voucher_user_ids:
             return {
                 'type': 'ir.actions.client',
@@ -416,7 +435,7 @@ class ServiceTicket(models.Model):
                 'status': 'draft',
             })
 
-        self.new_voucher_date = fields.Date.context_today(self)
+        self.new_voucher_date = False
         self.new_voucher_expense_type_id = False
         self.new_voucher_user_ids = [(5, 0, 0)]
         self.new_voucher_start_km = 0.0
@@ -432,7 +451,7 @@ class ServiceTicket(models.Model):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
         self.ensure_one()
         self.write({
-            'new_voucher_date': fields.Date.context_today(self),
+            'new_voucher_date': False,
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -507,21 +526,33 @@ class ServiceTicket(models.Model):
             other_names_list = [n for n in all_names if n != submitter_name]
             other_team_names = ", ".join(other_names_list)
             
-            today_str = fields.Date.today().strftime('%d/%m/%Y')
-            batch_name = f"VCH/{self.ticket_id or self.name}/{today_str}"
+            # Check if there is already an existing pending batch (not yet approved/rejected) on this ticket
+            pending_batch = self.voucher_batch_ids.filtered(lambda b: b.status == 'submitted')[:1]
+            if pending_batch:
+                batch_rec = pending_batch
+                # Update employee names on existing batch
+                existing_names = [n.strip() for n in (batch_rec.all_employee_names or '').split(',') if n.strip()]
+                for n in all_names:
+                    if n not in existing_names:
+                        existing_names.append(n)
+                batch_rec.all_employee_names = ", ".join(existing_names)
+            else:
+                seq_val = self.env['ir.sequence'].next_by_code('service.ticket.voucher.seq')
+                if not seq_val:
+                    year = fields.Date.today().year
+                    count = self.env['service.ticket.voucher.batch'].search_count([]) + 1
+                    seq_val = f"VCH-{year}-{count:05d}"
+                batch_rec = self.env['service.ticket.voucher.batch'].create({
+                    'ticket_id': self.id,
+                    'user_id': primary_emp.id,
+                    'submitted_by_user_id': self.env.user.id,
+                    'expense_manager_id': approver_uid,
+                    'other_employee_names': other_team_names,
+                    'all_employee_names': combined_emp_names,
+                    'name': seq_val,
+                })
             
-            # Create ONE SINGLE BATCH for the group or single submission of the day
-            batch_rec = self.env['service.ticket.voucher.batch'].create({
-                'ticket_id': self.id,
-                'user_id': primary_emp.id,
-                'submitted_by_user_id': self.env.user.id,
-                'expense_manager_id': approver_uid,
-                'other_employee_names': other_team_names,
-                'all_employee_names': combined_emp_names,
-                'name': batch_name,
-            })
-            
-            # Link ALL lines together into this single batch
+            # Link ALL lines together into this batch
             draft_lines.write({
                 'status': 'submitted',
                 'batch_id': batch_rec.id,
@@ -804,6 +835,7 @@ class ServiceTicketVoucherLine(models.Model):
     ], string='Status', default='draft', required=True)
 
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
+    voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
     batch_key = fields.Char(string='Batch Key', index=True)
     submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
     other_employee_names = fields.Char(string='Other Employees')
@@ -981,8 +1013,20 @@ class ServiceTicketVoucherBatch(models.Model):
     _description = 'Service Ticket Voucher Submission'
     _order = 'id desc'
 
-    name = fields.Char(string='Batch Reference', default=lambda self: _('New'))
+    name = fields.Char(string='Voucher ID', default=lambda self: _('New'))
     create_date = fields.Datetime(string='Submitted Date', readonly=True)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name') or vals.get('name') == _('New'):
+                seq_val = self.env['ir.sequence'].next_by_code('service.ticket.voucher.seq')
+                if not seq_val:
+                    year = fields.Date.today().year
+                    count = self.search_count([]) + 1
+                    seq_val = f"VCH-{year}-{count:05d}"
+                vals['name'] = seq_val
+        return super(ServiceTicketVoucherBatch, self).create(vals_list)
     submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
     expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
     expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)

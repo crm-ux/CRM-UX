@@ -14,7 +14,7 @@
                         </h2>
                     </div>
                     <div>
-                        <button string="← Back to Submissions" type="object" name="action_back_to_submissions" class="btn btn-outline-primary btn-sm"/>
+                        <button string="← Back to Submissions" type="object" name="action_back_to_submissions" class="btn btn-sm fw-semibold" style="color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
                                     <label for="new_expense_type_is_km" string="KM?" class="m-0 small fw-semibold"/>
                                 </div>
                                 <div class="col-6 col-md-2 text-end">
-                                    <button name="action_add_expense_type" string="+ Add Type" type="object" class="btn btn-primary btn-sm w-100"/>
+                                    <button name="action_add_expense_type" string="+ Add Type" type="object" class="btn btn-sm w-100 text-white fw-bold" style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
                                 </div>
                             </div>
 
@@ -193,7 +193,7 @@
                             <field name="amount" sum="Total" class="fw-bold text-end"/>
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
                             <field name="status" widget="badge" decoration-info="status == 'draft'" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
                         </list>
                     </field>
@@ -208,6 +208,7 @@
         <field name="model">service.ticket.voucher.batch</field>
         <field name="arch" type="xml">
             <list string="Voucher Submissions" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
+                <field name="name" string="Voucher ID" class="fw-bold"/>
                 <field name="create_date" string="Submitted Date"/>
                 <field name="expense_dates" string="Expense Date(s)"/>
                 <field name="ticket_id" string="Service Ticket" options="{'no_open': True}"/>
@@ -234,20 +235,26 @@
                 </header>
                 <sheet>
                     <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
-                    <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm"
+                    <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm flex-wrap"
                          style="border-left: 4px solid #0b3d91 !important;">
-                        <span class="small fw-bold" style="color: #0b3d91;">
-                            <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
+                        <span class="small fw-bold" style="color: #0b3d91;">Voucher ID:</span>
+                        <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3); font-size: 0.9rem;">
+                            <field name="name" readonly="1" class="d-inline"/>
                         </span>
+                        <span class="text-muted ms-1">|</span>
+                        <span class="small fw-bold ms-1" style="color: #0b3d91;">Employees:</span>
                         <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3); font-size: 0.9rem;">
                             <field name="all_employee_names" readonly="1" class="d-inline"/>
                         </span>
                     </div>
 
                     <div class="oe_title">
-                        <h1>
-                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                        <h1 style="color: #0b3d91;">
+                            <field name="name" readonly="1"/>
                         </h1>
+                        <h3>
+                            <field name="user_id" readonly="1" options="{'no_open': True}"/>
+                        </h3>
                         <h4 class="text-muted">
                             <field name="ticket_id" readonly="1" options="{'no_open': True}"/>
                         </h4>
