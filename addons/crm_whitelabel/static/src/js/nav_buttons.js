@@ -394,9 +394,9 @@ patch(FormController.prototype, {
 
         if (isDirty) {
             this.dialogService.add(ConfirmationDialog, {
-                title: _t("Discard changes?"),
-                body: _t("The changes you made will be lost. Do you want to discard them and go back?"),
-                confirmLabel: _t("Discard"),
+                title: _t("Cancel changes?"),
+                body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
+                confirmLabel: _t("Cancel"),
                 cancelLabel: _t("Stay Here"),
                 confirm: goBack,
                 cancel: () => { },
