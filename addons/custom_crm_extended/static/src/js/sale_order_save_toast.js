@@ -3,6 +3,8 @@ import { onMounted, onWillUnmount } from "@odoo/owl";
 import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { _t } from "@web/core/l10n/translation";
 
 const SALE_ORDER_MODEL = "sale.order";
 
@@ -79,28 +81,39 @@ patch(FormController.prototype, {
 
     async discard() {
         if (this.props.resModel === SALE_ORDER_MODEL) {
-            await this.model.root.discard();
-            const breadcrumbs = this.env.config?.breadcrumbs || [];
-            if (breadcrumbs.length > 1) {
-                const prev = breadcrumbs[breadcrumbs.length - 2];
-                if (prev && prev.jsId) {
-                    this.actionService.restore(prev.jsId);
-                    return;
+            const goBack = async () => {
+                await this.model.root.discard();
+                const breadcrumbs = this.env.config?.breadcrumbs || [];
+                if (breadcrumbs.length > 1) {
+                    const prev = breadcrumbs[breadcrumbs.length - 2];
+                    if (prev && prev.jsId) {
+                        this.actionService.restore(prev.jsId);
+                        return;
+                    }
                 }
-            }
-            try {
-                await this.actionService.doAction(
-                    {
-                        type: "ir.actions.act_window",
-                        name: "Quotations",
-                        res_model: "sale.order",
-                        views: [[false, "list"], [false, "form"]],
-                    },
-                    { clearBreadcrumbs: true }
-                );
-            } catch (e) {
-                console.error("Cancel redirect failed:", e);
-            }
+                try {
+                    await this.actionService.doAction(
+                        {
+                            type: "ir.actions.act_window",
+                            name: "Quotations",
+                            res_model: "sale.order",
+                            views: [[false, "list"], [false, "form"]],
+                        },
+                        { clearBreadcrumbs: true }
+                    );
+                } catch (e) {
+                    console.error("Cancel redirect failed:", e);
+                }
+            };
+
+            this.env.services.dialog.add(ConfirmationDialog, {
+                title: _t("Cancel changes?"),
+                body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
+                confirmLabel: _t("Cancel"),
+                cancelLabel: _t("Stay Here"),
+                confirm: goBack,
+                cancel: () => { },
+            });
             return;
         }
         return super.discard(...arguments);
