@@ -446,46 +446,56 @@ export class ServiceTicketFormController extends FormController {
             window.addEventListener("keydown", handleKeyDown, true);
             window.addEventListener("keyup", handleKeyUp, true);
 
-            // Intercept Voucher tab click: require Ctrl + Spacebar + Click
-            let isBypassingVoucherIntercept = false;
+            // Intercept Voucher tab click:
+            // Browser natively intercepts Ctrl+Click to open links in a new browser tab/window.
+            // Therefore, secret shortcut is: Alt + Click (or Alt + Spacebar + Click).
             const handleVoucherTabClick = (ev) => {
-                if (isBypassingVoucherIntercept) {
-                    return;
-                }
                 const tabLink = ev.target.closest("a.nav-link, [role='tab'], .nav-item a, .nav-item button");
                 if (!tabLink) return;
                 const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
                 if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
-                    const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
+                    const isSecretCombo = Boolean(ev.altKey || (ev.ctrlKey && isSpaceKeyDown));
 
-                    // Stop default browser behavior (prevents opening new window/tab on Ctrl+click)
+                    // Always prevent default link navigation
                     ev.preventDefault();
                     ev.stopPropagation();
                     ev.stopImmediatePropagation();
 
                     if (isSecretCombo) {
-                        // Trigger Owl's internal tab switch by dispatching a plain synthetic click
-                        isBypassingVoucherIntercept = true;
-                        try {
-                            const syntheticClick = new MouseEvent("click", {
-                                bubbles: true,
-                                cancelable: true,
-                                view: window,
-                                ctrlKey: false,
-                                altKey: false,
-                                shiftKey: false,
-                                metaKey: false,
+                        // Activate internal notebook tab on the same page
+                        const notebook = tabLink.closest(".o_notebook, .notebook");
+                        if (notebook) {
+                            // Deactivate all tab headers & panes
+                            notebook.querySelectorAll(".nav-link, [role='tab']").forEach((link) => {
+                                link.classList.remove("active");
+                                link.setAttribute("aria-selected", "false");
                             });
-                            tabLink.dispatchEvent(syntheticClick);
-                        } finally {
-                            setTimeout(() => {
-                                isBypassingVoucherIntercept = false;
-                            }, 100);
+                            notebook.querySelectorAll(".tab-pane, [role='tabpanel']").forEach((pane) => {
+                                pane.classList.remove("active", "show");
+                            });
+
+                            // Activate Voucher tab header
+                            tabLink.classList.add("active");
+                            tabLink.setAttribute("aria-selected", "true");
+
+                            // Activate Voucher tab pane
+                            const targetSelector = tabLink.getAttribute("data-bs-target") || tabLink.getAttribute("href");
+                            let targetPane = null;
+                            if (targetSelector && targetSelector.startsWith("#")) {
+                                targetPane = notebook.querySelector(targetSelector);
+                            }
+                            if (!targetPane) {
+                                // Fallback by page name
+                                targetPane = notebook.querySelector("[name='voucher_tab'], .tab-pane:nth-child(3)");
+                            }
+                            if (targetPane) {
+                                targetPane.classList.add("active", "show");
+                            }
                         }
                         return;
                     }
 
-                    // Otherwise show Coming Soon notification
+                    // Normal click: show notification and do not open
                     if (this.env?.services?.notification) {
                         this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
                             title: _t("Coming Soon"),
