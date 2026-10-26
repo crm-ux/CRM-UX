@@ -106,14 +106,19 @@ patch(FormController.prototype, {
                 }
             };
 
-            this.env.services.dialog.add(ConfirmationDialog, {
-                title: _t("Cancel changes?"),
-                body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
-                confirmLabel: _t("Cancel"),
-                cancelLabel: _t("Stay Here"),
-                confirm: goBack,
-                cancel: () => { },
-            });
+            const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
+            if (isDirty) {
+                this.env.services.dialog.add(ConfirmationDialog, {
+                    title: _t("Cancel changes?"),
+                    body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
+                    confirmLabel: _t("Cancel"),
+                    cancelLabel: _t("Stay Here"),
+                    confirm: goBack,
+                    cancel: () => { },
+                });
+                return;
+            }
+            await goBack();
             return;
         }
         return super.discard(...arguments);
