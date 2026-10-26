@@ -226,14 +226,14 @@
                                  invisible="not show_voucher_strip"
                                  style="border-left: 4px solid #0b3d91 !important;">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="small fw-bold" style="color: #0b3d91;">Pending Expenses</span>
-                                    <span class="text-muted">|</span>
-                                    <span class="small fw-semibold text-secondary">Employees:</span>
-                                    <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
+                                    <span class="fw-bold" style="color: #0b3d91; font-size: 14px;">Pending Expenses</span>
+                                    <span class="text-muted fw-bold mx-1">|</span>
+                                    <span class="fw-bold text-dark" style="font-size: 13px;">Employees:</span>
+                                    <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
                                         <field name="voucher_employee_names" readonly="1" class="d-inline"/>
                                     </span>
-                                    <span class="small fw-semibold text-secondary ms-2">Date(s):</span>
-                                    <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
+                                    <span class="fw-bold text-dark ms-2" style="font-size: 13px;">Date(s):</span>
+                                    <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
                                         <field name="voucher_draft_dates" readonly="1" class="d-inline"/>
                                     </span>
                                 </div>
@@ -242,8 +242,8 @@
                                     <button name="action_submit_all_vouchers"
                                             string="Submit for Approval"
                                             type="object"
-                                            class="btn btn-sm text-white fw-semibold px-3"
-                                            style="background-color: #0b3d91; border-color: #0b3d91;"
+                                            class="btn btn-sm text-white fw-bold px-3 py-1"
+                                            style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"
                                             invisible="not has_draft_vouchers"/>
                                 </div>
                             </div>
@@ -268,37 +268,23 @@
                             </field>
 
                             <!-- Horizontal Line Between Pending and Submitted Expenses -->
-                            <hr class="my-4" style="border-top: 2px solid #e9ecef;" invisible="not has_submitted_vouchers"/>
+                            <hr class="my-4" style="border-top: 2px solid #e9ecef;" invisible="not has_submitted_batches"/>
 
-                            <!-- 2. SUBMITTED EXPENSES SECTION -->
-                            <field name="has_submitted_vouchers" invisible="1"/>
-                            <div class="mt-3" invisible="not has_submitted_vouchers">
-                                <div class="d-flex align-items-center justify-content-between mb-2 p-2 px-3 rounded border bg-light">
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <span class="fw-bold text-dark fs-6">Submitted Expenses</span>
-                                        <span class="text-muted">|</span>
-                                        <span class="small fw-semibold text-secondary">Voucher ID(s):</span>
-                                        <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3);">
-                                            <field name="submitted_voucher_names" readonly="1" class="d-inline"/>
-                                        </span>
-                                    </div>
+                            <!-- 2. SUBMITTED EXPENSES SECTION (Each Voucher Separated with its Own ID, Date, and Employee) -->
+                            <field name="has_submitted_batches" invisible="1"/>
+                            <div class="mt-3" invisible="not has_submitted_batches">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="fw-bold fs-6" style="color: #0b3d91;">Submitted Expenses</span>
                                 </div>
 
-                                <field name="submitted_voucher_line_ids" readonly="1" nolabel="1" class="o_voucher_card_list">
+                                <field name="voucher_batch_ids" readonly="1" nolabel="1">
                                     <list create="0" edit="0" delete="0">
-                                        <field name="expense_date" string="Date"/>
-                                        <field name="voucher_id" string="Voucher ID" class="fw-bold"/>
-                                        <field name="user_id" string="Employee"/>
-                                        <field name="expense_type_id" string="Expense Type" class="fw-semibold"/>
-                                        <field name="is_km_based" column_invisible="1"/>
-                                        <field name="total_km" string="Total KM" column_invisible="not parent.has_km_lines"/>
-                                        <field name="rate_per_km" string="Rate/KM (₹)" column_invisible="not parent.has_km_lines"/>
+                                        <field name="name" string="Voucher ID" class="fw-bold" style="color: #0b3d91 !important;"/>
+                                        <field name="expense_dates" string="Date(s)" class="fw-bold text-dark"/>
+                                        <field name="all_employee_names" string="Employee(s)" class="fw-bold text-dark"/>
                                         <field name="description" string="Description"/>
                                         <field name="currency_id" column_invisible="1"/>
-                                        <field name="amount" sum="Total" class="fw-bold text-end"/>
-                                        <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
-                                        <field name="bill_filename" column_invisible="1"/>
-                                        <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
+                                        <field name="total_amount" sum="Total" class="fw-bold text-end"/>
                                         <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
                                     </list>
                                 </field>
