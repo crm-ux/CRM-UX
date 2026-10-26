@@ -121,8 +121,12 @@ if (AutoComplete) {
             return list.filter(item => {
                 const label = (item.label || "").toString().toLowerCase();
                 if (label.includes("searching autocomplete")) return false;
+                // External suggestions have string IDs or partner_autocomplete flags
+                if (typeof item.id === "string" && (item.id.includes("autocomplete") || item.id.includes("iap") || item.id.startsWith("partner_"))) return false;
                 if (item.classList && item.classList.includes("o_partner_autocomplete")) return false;
-                if (item.is_autocomplete || item.autocomplete_data) return false;
+                if (item.is_autocomplete || item.autocomplete_data || item.data?.is_autocomplete) return false;
+                // External company results come with city/state suffix appended
+                if (item.description && typeof item.id !== "number" && item.id !== false && item.id !== "create" && item.id !== "create_edit") return false;
                 return true;
             });
         },
