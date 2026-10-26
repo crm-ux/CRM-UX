@@ -131,19 +131,11 @@ if (AutoComplete) {
             });
         },
         get isOpen() {
-            // NEVER show dropdown if options are empty
             const opts = this.options;
             if (!opts || opts.length === 0) {
                 return false;
             }
             return super.isOpen;
-        },
-        async loadOptions(val) {
-            await super.loadOptions(...arguments);
-            // If after loading there are 0 valid options, close immediately
-            if (!this.options || this.options.length === 0) {
-                this.close ? this.close() : null;
-            }
         },
     });
 }
