@@ -447,46 +447,41 @@ export class ServiceTicketFormController extends FormController {
             window.addEventListener("keyup", handleKeyUp, true);
 
             // Intercept Voucher tab click: require Ctrl + Spacebar + Click
+            // Intercept Voucher tab click: require Ctrl + Spacebar + Click
+            let isBypassingVoucherIntercept = false;
             const handleVoucherTabClick = (ev) => {
-                const tabLink = ev.target.closest("a.nav-link, [role='tab']");
+                if (isBypassingVoucherIntercept) {
+                    return;
+                }
+                const tabLink = ev.target.closest("a.nav-link, [role='tab'], .nav-item a, .nav-item button");
                 if (!tabLink) return;
                 const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
                 if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
                     const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
-                    // Always prevent default to stop browser from opening link in a new browser tab/window on Ctrl+Click
+                    
+                    // Stop default browser behavior (prevents opening new window/tab on Ctrl+click)
                     ev.preventDefault();
                     ev.stopPropagation();
                     ev.stopImmediatePropagation();
 
                     if (isSecretCombo) {
-                        // Switch directly to the Voucher tab internally inside the same form
-                        tabLink.focus();
-                        tabLink.click();
-                        // Also trigger bootstrap / Odoo tab show if available
-                        if (window.bootstrap?.Tab) {
-                            const tabInstance = window.bootstrap.Tab.getOrCreateInstance(tabLink);
-                            if (tabInstance) tabInstance.show();
-                        } else {
-                            // Fallback: manually activate tab classes
-                            const parentNav = tabLink.closest(".nav-tabs, .o_notebook_headers");
-                            if (parentNav) {
-                                parentNav.querySelectorAll("a.nav-link, [role='tab']").forEach((el) => {
-                                    el.classList.remove("active");
-                                    el.setAttribute("aria-selected", "false");
-                                });
-                            }
-                            tabLink.classList.add("active");
-                            tabLink.setAttribute("aria-selected", "true");
-                            const targetSelector = tabLink.getAttribute("data-bs-target") || tabLink.getAttribute("href");
-                            if (targetSelector && targetSelector.startsWith("#")) {
-                                const targetPane = document.querySelector(targetSelector);
-                                if (targetPane && targetPane.parentElement) {
-                                    targetPane.parentElement.querySelectorAll(".tab-pane").forEach((pane) => {
-                                        pane.classList.remove("active", "show");
-                                    });
-                                    targetPane.classList.add("active", "show");
-                                }
-                            }
+                        // Trigger Owl's internal tab switch by dispatching a plain synthetic click
+                        isBypassingVoucherIntercept = true;
+                        try {
+                            const syntheticClick = new MouseEvent("click", {
+                                bubbles: true,
+                                cancelable: true,
+                                view: window,
+                                ctrlKey: false,
+                                altKey: false,
+                                shiftKey: false,
+                                metaKey: false,
+                            });
+                            tabLink.dispatchEvent(syntheticClick);
+                        } finally {
+                            setTimeout(() => {
+                                isBypassingVoucherIntercept = false;
+                            }, 100);
                         }
                         return;
                     }
