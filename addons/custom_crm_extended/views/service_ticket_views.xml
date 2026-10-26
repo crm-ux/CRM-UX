@@ -197,6 +197,8 @@
                                             filename="new_voucher_bill_filename" 
                                             widget="binary"
                                             options="{'no_download': True}"/>
+                                        <field name="new_voucher_bill_filename" invisible="1"/>
+                                    </div>
                                 </div>
 
                                 <!-- Action Button Row -->
