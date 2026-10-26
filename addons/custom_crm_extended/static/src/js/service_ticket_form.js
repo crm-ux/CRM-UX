@@ -8,6 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { Notebook } from "@web/core/notebook/notebook";
 import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
@@ -446,66 +447,45 @@ export class ServiceTicketFormController extends FormController {
             window.addEventListener("keydown", handleKeyDown, true);
             window.addEventListener("keyup", handleKeyUp, true);
 
-            // Intercept Voucher tab click:
-            // Browser natively intercepts Ctrl+Click to open links in a new browser tab/window.
-            // Therefore, secret shortcut is: Alt + Click (or Alt + Spacebar + Click).
-            const handleVoucherTabClick = (ev) => {
+            // Patch Notebook component directly to govern Voucher tab switching
+            patch(Notebook.prototype, {
+                activatePage(pageName) {
+                    if (pageName === "voucher_tab") {
+                        // Strictly require Ctrl + Spacebar
+                        const isSecret = Boolean(window._voucherSecretAuthorized);
+                        if (!isSecret) {
+                            if (this.env?.services?.notification) {
+                                this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
+                                    title: _t("Coming Soon"),
+                                    type: "info",
+                                    sticky: false,
+                                });
+                            }
+                            return;
+                        }
+                    }
+                    return super.activatePage(...arguments);
+                },
+            });
+
+            // Prevent native browser link action on Voucher tab completely
+            const handleVoucherTabMouseDown = (ev) => {
                 const tabLink = ev.target.closest("a.nav-link, [role='tab'], .nav-item a, .nav-item button");
                 if (!tabLink) return;
                 const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
                 if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
-                    const isSecretCombo = Boolean(ev.altKey || (ev.ctrlKey && isSpaceKeyDown));
+                    const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
+                    window._voucherSecretAuthorized = isSecretCombo;
+                    setTimeout(() => { window._voucherSecretAuthorized = false; }, 300);
 
-                    // Always prevent default link navigation
+                    // Always prevent default on mousedown & click to stop browser from opening a new tab
                     ev.preventDefault();
-                    ev.stopPropagation();
-                    ev.stopImmediatePropagation();
-
-                    if (isSecretCombo) {
-                        // Activate internal notebook tab on the same page
-                        const notebook = tabLink.closest(".o_notebook, .notebook");
-                        if (notebook) {
-                            // Deactivate all tab headers & panes
-                            notebook.querySelectorAll(".nav-link, [role='tab']").forEach((link) => {
-                                link.classList.remove("active");
-                                link.setAttribute("aria-selected", "false");
-                            });
-                            notebook.querySelectorAll(".tab-pane, [role='tabpanel']").forEach((pane) => {
-                                pane.classList.remove("active", "show");
-                            });
-
-                            // Activate Voucher tab header
-                            tabLink.classList.add("active");
-                            tabLink.setAttribute("aria-selected", "true");
-
-                            // Activate Voucher tab pane
-                            const targetSelector = tabLink.getAttribute("data-bs-target") || tabLink.getAttribute("href");
-                            let targetPane = null;
-                            if (targetSelector && targetSelector.startsWith("#")) {
-                                targetPane = notebook.querySelector(targetSelector);
-                            }
-                            if (!targetPane) {
-                                // Fallback by page name
-                                targetPane = notebook.querySelector("[name='voucher_tab'], .tab-pane:nth-child(3)");
-                            }
-                            if (targetPane) {
-                                targetPane.classList.add("active", "show");
-                            }
-                        }
-                        return;
-                    }
-
-                    // Normal click: show notification and do not open
-                    if (this.env?.services?.notification) {
-                        this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
-                            title: _t("Coming Soon"),
-                            type: "info",
-                            sticky: false,
-                        });
+                    if (!isSecretCombo) {
+                        ev.stopPropagation();
                     }
                 }
             };
-            document.addEventListener("click", handleVoucherTabClick, true);
+            document.addEventListener("mousedown", handleVoucherTabMouseDown, true);
 
             onMounted(() => {
                 reorderToolbar();
@@ -523,7 +503,7 @@ export class ServiceTicketFormController extends FormController {
                 }
                 window.removeEventListener("keydown", handleKeyDown, true);
                 window.removeEventListener("keyup", handleKeyUp, true);
-                document.removeEventListener("click", handleVoucherTabClick, true);
+                document.removeEventListener("mousedown", handleVoucherTabMouseDown, true);
                 document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
                 document.removeEventListener("input", handleKmInstantCalc, true);
