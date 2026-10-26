@@ -349,7 +349,11 @@ patch(FormController.prototype, {
                 }
             }
             // Smart Fallbacks when opened without breadcrumbs stack
-            if (this.props.resModel === "res.partner") {
+            if (this.props.resModel === "sale.order") {
+                this.actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
+            } else if (this.props.resModel === "crm.lead") {
+                this.actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+            } else if (this.props.resModel === "res.partner") {
                 this.actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Customers",
