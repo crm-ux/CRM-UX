@@ -201,8 +201,15 @@ button.o_form_button_cancel {
     flex-shrink: 0 !important;
 }
 
-/* Record / Customer Name: hidden on navbar form views to keep only the gear icon */
+/* Keep breadcrumb container visible so Gear icon stays */
 .o_control_panel_breadcrumbs .o_breadcrumb {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Hide ONLY the record title / name text */
+.o_control_panel_breadcrumbs .o_breadcrumb .breadcrumb-item,
+.o_control_panel_breadcrumbs .o_breadcrumb .o_last_breadcrumb_item {
     display: none !important;
 }
 
