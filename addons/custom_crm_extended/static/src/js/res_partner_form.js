@@ -138,3 +138,23 @@ if (AutoComplete) {
         },
     });
 }
+
+// Global cleanup: instantly remove any empty floating dropdown or autocomplete boxes from the DOM
+if (typeof document !== "undefined") {
+    const cleanEmptyDropdowns = () => {
+        document.querySelectorAll(".dropdown-menu, .o-autocomplete--dropdown-menu, .ui-autocomplete").forEach(menu => {
+            const hasVisibleItems = Array.from(menu.children).some(child => {
+                const style = window.getComputedStyle(child);
+                return style.display !== "none" && style.visibility !== "hidden" && child.offsetHeight > 0;
+            });
+            if (!hasVisibleItems && menu.children.length === 0) {
+                menu.style.setProperty("display", "none", "important");
+                menu.style.setProperty("border", "none", "important");
+                menu.style.setProperty("box-shadow", "none", "important");
+            }
+        });
+    };
+    document.addEventListener("input", () => setTimeout(cleanEmptyDropdowns, 20), true);
+    document.addEventListener("keyup", () => setTimeout(cleanEmptyDropdowns, 20), true);
+}
+
