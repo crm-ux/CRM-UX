@@ -95,6 +95,19 @@ class AmcContract(models.Model):
     def action_set_cancelled(self):
         self.write({'contract_status': 'cancelled'})
 
+    @api.model
+    def cron_check_amc_contract_expiry(self):
+        """Auto-change active contracts to expired when end date has passed."""
+        today = fields.Date.context_today(self)
+        expired_contracts = self.search([
+            ('contract_status', '=', 'active'),
+            ('contract_end_date', '!=', False),
+            ('contract_end_date', '<', today)
+        ])
+        if expired_contracts:
+            expired_contracts.write({'contract_status': 'expired'})
+        return True
+
     @api.onchange('contract_value')
     def _onchange_format_contract_value(self):
         if not self.contract_value:

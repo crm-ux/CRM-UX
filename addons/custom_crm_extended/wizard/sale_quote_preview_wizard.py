@@ -646,14 +646,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct) or bool(flat_disc)
 
         if has_any_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Gross Amount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Total Amount INR</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(original_amount))
         if overall_disc_pct:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Overall Discount (%s%%)</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Discount @ %s%%</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, int(overall_disc_pct) if overall_disc_pct == int(overall_disc_pct) else overall_disc_pct, _indian_format(overall_disc_amt))
+        elif line_disc_amt > 0.01:
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Discount Amount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(line_disc_amt))
         if flat_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Flat Discount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">- %s</td></tr>' % (col - 1, _indian_format(flat_disc))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Flat Discount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(flat_disc))
         if gst_on and tax_rates:
             totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">GST (%s%%)</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, int(total_tax_rate), _indian_format(gst_amt))
-        final_label = 'Final Total Amount' if has_any_disc else 'Total Amount'
+        final_label = 'Final Discounted Amount' if has_any_disc else 'Total Amount INR'
         totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, final_label, _indian_format(grand_total))
 
         table_html = (
@@ -1347,14 +1349,16 @@ class SaleQuotePreviewWizard(models.TransientModel):
         has_any_disc_d = (line_disc_amt_d > 0.01) or bool(overall_disc_pct_d) or bool(flat_disc_d)
 
         if has_any_disc_d:
-            _add_total_row('Gross Amount', _indian_format(original_amount_d))
+            _add_total_row('Total Amount INR', _indian_format(original_amount_d))
         if overall_disc_pct_d:
-            _add_total_row('Overall Discount (%s%%)' % (int(overall_disc_pct_d) if overall_disc_pct_d == int(overall_disc_pct_d) else overall_disc_pct_d), '- ' + _indian_format(overall_disc_amt_d))
+            _add_total_row('Discount @ %s%%' % (int(overall_disc_pct_d) if overall_disc_pct_d == int(overall_disc_pct_d) else overall_disc_pct_d), _indian_format(overall_disc_amt_d))
+        elif line_disc_amt_d > 0.01:
+            _add_total_row('Discount Amount', _indian_format(line_disc_amt_d))
         if flat_disc_d:
-            _add_total_row('Flat Discount', '- ' + _indian_format(flat_disc_d))
+            _add_total_row('Flat Discount', _indian_format(flat_disc_d))
         if gst_on_d and tax_rates_d:
             _add_total_row('GST (%s%%)' % int(total_tax_rate_d), _indian_format(gst_amt_d))
-        final_label_d = 'Final Total Amount' if has_any_disc_d else 'Total Amount'
+        final_label_d = 'Final Discounted Amount' if has_any_disc_d else 'Total Amount INR'
         _add_total_row(final_label_d, _indian_format(grand_total_d))
 
         # Terms & Conditions - new page if no tech specs or images
