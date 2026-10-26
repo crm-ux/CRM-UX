@@ -125,7 +125,7 @@
                         class="btn-warning"
                         invisible="x_quote_stage != 'won'"/>
                 <button special="save" string="Save" type="object" class="btn-primary"/>
-                <button special="cancel" string="Cancel" type="object" class="btn-secondary"
+                <button name="action_cancel_form_with_confirm" string="Cancel" type="object" class="btn-secondary"
                         confirm="The changes you made will be lost. Do you want to cancel and go back?"/>
             </xpath>
 
