@@ -232,7 +232,7 @@
                                     <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
                                         <field name="voucher_employee_names" readonly="1" class="d-inline"/>
                                     </span>
-                                    <span class="fw-bold text-dark ms-2" style="font-size: 13px;">Date(s):</span>
+                                    <span class="fw-bold text-dark ms-2" style="font-size: 13px;">Expense Date(s):</span>
                                     <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
                                         <field name="voucher_draft_dates" readonly="1" class="d-inline"/>
                                     </span>
@@ -251,7 +251,7 @@
                             <!-- Table for Pending Expenses Only -->
                             <field name="draft_voucher_line_ids" class="o_voucher_card_list" invisible="not has_draft_vouchers">
                                 <list editable="bottom" create="0" delete="1">
-                                    <field name="expense_date" string="Date" optional="show"/>
+                                    <field name="expense_date" string="Expense Date" optional="show"/>
                                     <field name="user_id" string="Employee" readonly="1" optional="show"/>
                                     <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
