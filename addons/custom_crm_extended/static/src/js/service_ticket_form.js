@@ -408,7 +408,7 @@ export class ServiceTicketFormController extends FormController {
                     const bar = target.closest(".o_voucher_quick_add_bar");
                     if (!bar) return;
                     const kmVal = parseFloat(target.value) || 0.0;
-                    
+
                     // Find rate value from .o_readonly_box or rate field
                     const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
                     let rateVal = 0.0;
@@ -458,7 +458,7 @@ export class ServiceTicketFormController extends FormController {
                 const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
                 if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
                     const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
-                    
+
                     // Stop default browser behavior (prevents opening new window/tab on Ctrl+click)
                     ev.preventDefault();
                     ev.stopPropagation();
