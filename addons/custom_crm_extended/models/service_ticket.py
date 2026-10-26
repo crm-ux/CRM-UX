@@ -237,6 +237,135 @@ class ServiceTicket(models.Model):
         for rec in self:
             rec.has_submitted_batches = any(batch.line_ids for batch in rec.voucher_batch_ids)
 
+    submitted_vouchers_html = fields.Html(
+        string='Submitted Expenses Display',
+        compute='_compute_submitted_vouchers_html',
+        sanitize=False,
+    )
+
+    @api.depends('voucher_batch_ids', 'voucher_batch_ids.line_ids', 'voucher_batch_ids.name', 'voucher_batch_ids.total_amount', 'voucher_batch_ids.status')
+    def _compute_submitted_vouchers_html(self):
+        for rec in self:
+            batches = rec.voucher_batch_ids.filtered(lambda b: b.line_ids)
+            if not batches:
+                rec.submitted_vouchers_html = False
+                continue
+
+            html_parts = []
+            for batch in batches:
+                st = batch.status or 'submitted'
+                badge_bg = '#fef3c7'
+                badge_color = '#d97706'
+                if st == 'approved':
+                    badge_bg = '#d1fae5'
+                    badge_color = '#059669'
+                elif st == 'rejected':
+                    badge_bg = '#fee2e2'
+                    badge_color = '#dc2626'
+                st_label = st.capitalize()
+
+                vch_name = batch.name or 'New'
+                vch_dates = batch.expense_dates or (batch.submission_date.strftime('%d/%m/%Y') if batch.submission_date else '')
+                vch_emps = batch.all_employee_names or (batch.user_id.name if batch.user_id else '')
+
+                strip_html = f"""
+                <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm flex-wrap" style="border-left: 4px solid #0b3d91 !important;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="fw-bold" style="color: #0b3d91; font-size: 13px;">Voucher ID:</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_name}</span>
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Date(s):</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_dates}</span>
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Employee(s):</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_emps}</span>
+                    </div>
+                    <div>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: {badge_bg}; color: {badge_color}; font-size: 12px; border-radius: 4px;">{st_label}</span>
+                    </div>
+                </div>
+                """
+
+                has_km = any(l.is_km_based for l in batch.line_ids)
+                km_header = '<th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Total KM</th><th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Rate/KM (₹)</th>' if has_km else ''
+
+                rows_html = []
+                for line in batch.line_ids:
+                    l_date = line.expense_date.strftime('%d/%m/%Y') if line.expense_date else ''
+                    l_emp = line.user_id.name if line.user_id else ''
+                    l_type = line.expense_type_id.name if line.expense_type_id else ''
+                    l_km = f"{line.total_km:.2f}" if line.is_km_based else "0.00"
+                    l_rate = f"{line.rate_per_km:.2f}" if line.is_km_based else "0.00"
+                    l_km_cells = f'<td style="padding: 8px; text-align: right;">{l_km}</td><td style="padding: 8px; text-align: right;">{l_rate}</td>' if has_km else ''
+                    l_desc = line.description or ''
+                    l_amt = f"₹ {line.amount:,.2f}" if line.amount else "₹ 0.00"
+                    
+                    if line.bill_file:
+                        fn = line.bill_filename or 'Bill'
+                        bill_link = f'<a href="/web/content/service.ticket.voucher.line/{line.id}/bill_file/{fn}?download=true" target="_blank" class="btn btn-sm p-0" style="color: #0b3d91 !important; font-weight: 600;" title="View / Download Bill"><i class="fa fa-paperclip me-1"></i>View Bill</a>'
+                    else:
+                        bill_link = '<span class="text-muted">-</span>'
+
+                    l_st = line.status or 'submitted'
+                    l_badge_bg = '#fef3c7'
+                    l_badge_color = '#d97706'
+                    if l_st == 'approved':
+                        l_badge_bg = '#d1fae5'
+                        l_badge_color = '#059669'
+                    elif l_st == 'rejected':
+                        l_badge_bg = '#fee2e2'
+                        l_badge_color = '#dc2626'
+                    l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color};">{l_st.capitalize()}</span>'
+
+                    row = f"""
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 8px;">{l_date}</td>
+                        <td style="padding: 8px; font-weight: 500;">{l_emp}</td>
+                        <td style="padding: 8px; font-weight: 600; color: #1e293b;">{l_type}</td>
+                        {l_km_cells}
+                        <td style="padding: 8px; color: #475569;">{l_desc}</td>
+                        <td style="padding: 8px; text-align: right; font-weight: 700; color: #0f172a;">{l_amt}</td>
+                        <td style="padding: 8px; text-align: center;">{bill_link}</td>
+                        <td style="padding: 8px; text-align: center;">{l_badge}</td>
+                    </tr>
+                    """
+                    rows_html.append(row)
+
+                batch_total = f"₹ {batch.total_amount:,.2f}" if batch.total_amount else "₹ 0.00"
+                col_span = 5 if has_km else 4
+
+                table_html = f"""
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm align-middle w-100" style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 0;">
+                        <thead style="background-color: #f8fafc; font-size: 13px; color: #475569; font-weight: 600;">
+                            <tr>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Date</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Employee</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Expense Type</th>
+                                {km_header}
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Description</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Amount</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Bill</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 13px;">
+                            {''.join(rows_html)}
+                        </tbody>
+                        <tfoot style="background-color: #f8fafc; border-top: 2px solid #e2e8f0;">
+                            <tr>
+                                <td colspan="{col_span}" style="padding: 8px; text-align: right; font-weight: 700; color: #334155;">Subtotal:</td>
+                                <td style="padding: 8px; text-align: right; font-weight: 800; font-size: 14px; color: #0b3d91;">{batch_total}</td>
+                                <td colspan="2"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                """
+                html_parts.append(strip_html + table_html)
+
+            rec.submitted_vouchers_html = "".join(html_parts)
+
     new_voucher_user_ids = fields.Many2many(
         'res.users',
         'service_ticket_quick_voucher_user_rel',
