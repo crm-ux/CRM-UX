@@ -26,6 +26,21 @@ if (Many2XAutocomplete) {
         openMobileSearch() {
             return;
         },
+        async loadOptionsSource(request) {
+            const options = await super.loadOptionsSource(...arguments);
+            if (!Array.isArray(options)) return options;
+            // Filter out external partner autocomplete suggestions
+            return options.filter(opt => {
+                if (opt.is_autocomplete || opt.classList?.includes("o_partner_autocomplete") || opt.classList?.includes("partner_autocomplete")) {
+                    return false;
+                }
+                // Odoo's partner_autocomplete injects items with external ID or company metadata
+                if (opt.isCompany || opt.autocomplete_data || opt.data?.is_autocomplete) {
+                    return false;
+                }
+                return true;
+            });
+        },
         onInputClick(ev) {
             // Stop mobile modal trigger
             if (this.env.isSmall) {

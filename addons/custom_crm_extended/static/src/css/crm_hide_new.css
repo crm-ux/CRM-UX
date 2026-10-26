@@ -1610,4 +1610,20 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     color: #495057 !important;
 }
 
+/* ── Disable Outside / External Partner Suggestions (partner_autocomplete) ── */
+/* Ensures only local database dropdown items appear, never external internet company suggestions */
+.o_partner_autocomplete_dropdown,
+.partner_autocomplete_dropdown,
+.o_partner_autocomplete_suggestion,
+.o_partner_autocomplete_container,
+.o-autocomplete--dropdown-item:has(.o_partner_autocomplete_logo),
+.o-autocomplete--dropdown-item:has(img[src*="logo.clearbit.com"]),
+.o_partner_autocomplete,
+.o_field_partner_autocomplete .o_partner_autocomplete_dropdown {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 

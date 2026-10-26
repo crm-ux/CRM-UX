@@ -19,7 +19,7 @@ patch(ListRenderer.prototype, {
                     result['x_profit_pct'] = showMargin;
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
         return result;
     },
 
