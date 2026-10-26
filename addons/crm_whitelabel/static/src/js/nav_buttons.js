@@ -392,17 +392,13 @@ patch(FormController.prototype, {
             }
         };
 
-        if (isDirty) {
-            this.dialogService.add(ConfirmationDialog, {
-                title: _t("Cancel changes?"),
-                body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
-                confirmLabel: _t("Cancel"),
-                cancelLabel: _t("Stay Here"),
-                confirm: goBack,
-                cancel: () => { },
-            });
-            return;
-        }
-        await goBack();
+        this.dialogService.add(ConfirmationDialog, {
+            title: _t("Cancel changes?"),
+            body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
+            confirmLabel: _t("Cancel"),
+            cancelLabel: _t("Stay Here"),
+            confirm: goBack,
+            cancel: () => { },
+        });
     }
 });
