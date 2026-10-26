@@ -842,7 +842,7 @@ class ServiceTicketVoucherLine(models.Model):
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
 
-    def action_submit_line(self):
+    def action_submit_line(self): 
         """Submit this single draft voucher line."""
         for rec in self:
             if rec.status == 'draft':
