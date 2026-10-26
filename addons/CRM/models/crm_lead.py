@@ -165,6 +165,13 @@ class CrmLead(models.Model):
                 lead.x_lead_age_days = 0
                 lead.x_is_overdue = False
 
+    @api.model
+    def _order_field_to_sql(self, alias, field_name, direction, nulls, query):
+        if field_name == 'x_lead_age_days':
+            inv_direction = 'ASC' if direction and direction.upper() == 'DESC' else 'DESC'
+            return super()._order_field_to_sql(alias, 'create_date', inv_direction, nulls, query)
+        return super()._order_field_to_sql(alias, field_name, direction, nulls, query)
+
     def _compute_assign_to_readonly(self):
         """
         Managers, Admins, and Hierarchy Leaders can always assign.
