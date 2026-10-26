@@ -431,8 +431,47 @@ export class ServiceTicketFormController extends FormController {
                 }
             };
 
-            document.addEventListener("input", handleKmInstantCalc, true);
-            document.addEventListener("change", handleKmInstantCalc, true);
+            // Track spacebar keydown state for secret combo (Ctrl + Spacebar + Click)
+            let isSpaceKeyDown = false;
+            const handleKeyDown = (e) => {
+                if (e.code === "Space" || e.key === " ") {
+                    isSpaceKeyDown = true;
+                }
+            };
+            const handleKeyUp = (e) => {
+                if (e.code === "Space" || e.key === " ") {
+                    isSpaceKeyDown = false;
+                }
+            };
+            window.addEventListener("keydown", handleKeyDown, true);
+            window.addEventListener("keyup", handleKeyUp, true);
+
+            // Intercept Voucher tab click: require Ctrl + Spacebar + Click
+            const handleVoucherTabClick = (ev) => {
+                const tabLink = ev.target.closest("a.nav-link, [role='tab']");
+                if (!tabLink) return;
+                const tabText = (tabLink.innerText || tabLink.textContent || "").trim();
+                if (tabText === "Voucher" || tabText.startsWith("Voucher")) {
+                    const isSecretCombo = Boolean(ev.ctrlKey && isSpaceKeyDown);
+                    if (isSecretCombo) {
+                        return; // Allow opening the Voucher tab
+                    }
+
+                    // Block tab switch and show Coming Soon message
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    ev.stopImmediatePropagation();
+
+                    if (this.env?.services?.notification) {
+                        this.env.services.notification.add(_t("Voucher Management is Coming Soon!"), {
+                            title: _t("Coming Soon"),
+                            type: "info",
+                            sticky: false,
+                        });
+                    }
+                }
+            };
+            document.addEventListener("click", handleVoucherTabClick, true);
 
             onMounted(() => {
                 reorderToolbar();
@@ -448,6 +487,9 @@ export class ServiceTicketFormController extends FormController {
                 if (cleanupAttachments) {
                     cleanupAttachments();
                 }
+                window.removeEventListener("keydown", handleKeyDown, true);
+                window.removeEventListener("keyup", handleKeyUp, true);
+                document.removeEventListener("click", handleVoucherTabClick, true);
                 document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
                 document.removeEventListener("input", handleKmInstantCalc, true);
