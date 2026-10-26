@@ -447,7 +447,6 @@ export class ServiceTicketFormController extends FormController {
             window.addEventListener("keyup", handleKeyUp, true);
 
             // Intercept Voucher tab click: require Ctrl + Spacebar + Click
-            // Intercept Voucher tab click: require Ctrl + Spacebar + Click
             let isBypassingVoucherIntercept = false;
             const handleVoucherTabClick = (ev) => {
                 if (isBypassingVoucherIntercept) {
