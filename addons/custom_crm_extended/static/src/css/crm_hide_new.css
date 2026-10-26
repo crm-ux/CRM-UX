@@ -1625,11 +1625,20 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
 .o-autocomplete--dropdown-item:has(.fa-circle-o-notch),
 li.o_partner_autocomplete_loading,
 .o_partner_autocomplete_loading,
-.ui-autocomplete .o_partner_autocomplete_dropdown {
+.ui-autocomplete .o_partner_autocomplete_dropdown,
+/* Do not show empty autocomplete dropdown container box when no items exist */
+.o-autocomplete--dropdown-menu:empty,
+.ui-autocomplete:empty,
+.dropdown-menu.o-autocomplete--dropdown-menu:not(:has(.o-autocomplete--dropdown-item)) {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+    height: 0 !important;
 }
 
 

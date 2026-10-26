@@ -130,5 +130,11 @@ if (AutoComplete) {
                 return true;
             });
         },
+        get isOpen() {
+            if (this.options && this.options.length === 0) {
+                return false;
+            }
+            return super.isOpen;
+        },
     });
 }
