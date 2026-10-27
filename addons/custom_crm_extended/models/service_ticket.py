@@ -238,8 +238,17 @@ class ServiceTicket(models.Model):
             if p:
                 allowed_partners = (p | company_partner | p.child_ids).ids
                 return {'domain': {'partner_id': [('id', 'in', allowed_partners)]}}
-            return {'domain': {'partner_id': []}}
         else:
+            # When Equipment is cleared in Form view, clear customer details & equipment specs
+            self.partner_id = False
+            self.site_name = False
+            self.contact_person = False
+            self.contact_number = False
+            self.email = False
+            self.model_number = False
+            self.serial_number = False
+            self.part_number = False
+            self.amc_id = False
             return {'domain': {'partner_id': []}}
     
     # Complaint Details

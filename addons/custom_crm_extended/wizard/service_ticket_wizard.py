@@ -165,7 +165,16 @@ class ServiceTicketWizard(models.TransientModel):
                 self.amc_id = False
 
             return {'domain': {'equipment_id': [('partner_id', 'in', [p.id, company_partner.id])]}}
-        
+    
+        # When Customer is cleared in wizard, also clear equipment & all related details
+        self.equipment_id = False
+        self.model_number = False
+        self.serial_number = False
+        self.part_number = False
+        self.site_name = False
+        self.contact_person = False
+        self.contact_number = False
+        self.email = False
         self.has_amc = False
         self.amc_id = False
         return {'domain': {'equipment_id': []}}
@@ -210,8 +219,18 @@ class ServiceTicketWizard(models.TransientModel):
             if p:
                 allowed_partners = (p | company_partner | p.child_ids).ids
                 return {'domain': {'partner_id': [('id', 'in', allowed_partners)]}}
-            return {'domain': {'partner_id': []}}
         else:
+            # When Equipment is cleared in wizard, also clear Customer & equipment specs
+            self.partner_id = False
+            self.model_number = False
+            self.serial_number = False
+            self.part_number = False
+            self.site_name = False
+            self.contact_person = False
+            self.contact_number = False
+            self.email = False
+            self.has_amc = False
+            self.amc_id = False
             return {'domain': {'partner_id': []}}
 
 
