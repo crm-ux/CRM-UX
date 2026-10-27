@@ -38,7 +38,9 @@
                             <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>
                         <group string="Customer Information">
-                            <field name="partner_id" context="{'show_equipment_serial': True}"/>
+                            <field name="allowed_partner_ids" invisible="1"/>
+                            <field name="allowed_equipment_ids" invisible="1"/>
+                            <field name="partner_id" context="{'show_equipment_serial': True}" domain="[('id', 'in', allowed_partner_ids)]"/>
                             <field name="site_name"/>
                             <field name="contact_person"/>
                             <field name="contact_number"/>
@@ -48,7 +50,7 @@
 
                     <group>
                         <group string="Equipment Details">
-                            <field name="equipment_id"/>
+                            <field name="equipment_id" domain="[('id', 'in', allowed_equipment_ids)]"/>
                             <field name="amc_id" options="{'no_create': True}" invisible="not amc_id"/>
                             <field name="model_number" string="Equipment Owner"/>
                             <field name="serial_number"/>

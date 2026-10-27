@@ -90,6 +90,29 @@ class ServiceTicket(models.Model):
     contact_person = fields.Char(string='Contact Person')
     contact_number = fields.Char(string='Contact Number')
     email = fields.Char(string='Customer Email')
+
+    allowed_partner_ids = fields.Many2many('res.partner', compute='_compute_allowed_partners_equipments')
+    allowed_equipment_ids = fields.Many2many('equipment.master', compute='_compute_allowed_partners_equipments')
+
+    @api.depends('equipment_id', 'partner_id')
+    def _compute_allowed_partners_equipments(self):
+        for rec in self:
+            # 1. Calculate allowed partners for equipment
+            if rec.equipment_id and rec.equipment_id.partner_id:
+                eq_p = rec.equipment_id.partner_id
+                company_p = eq_p.commercial_partner_id or (eq_p.parent_id if eq_p.parent_id else eq_p)
+                rec.allowed_partner_ids = eq_p | company_p | eq_p.child_ids
+            else:
+                rec.allowed_partner_ids = self.env['res.partner'].search([])
+
+            # 2. Calculate allowed equipments for partner
+            if rec.partner_id:
+                p = rec.partner_id
+                comp = p.commercial_partner_id or (p.parent_id if p.parent_id else p)
+                partner_set = (p | comp | p.child_ids).ids
+                rec.allowed_equipment_ids = self.env['equipment.master'].search([('partner_id', 'in', partner_set)])
+            else:
+                rec.allowed_equipment_ids = self.env['equipment.master'].search([])
     
     # Equipment Specs (Auto-filled from equipment)
     model_number = fields.Char(string='Model Number')

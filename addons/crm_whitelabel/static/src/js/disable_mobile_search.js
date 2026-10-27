@@ -38,3 +38,21 @@ if (Many2XAutocomplete) {
     });
 }
 
+// Globally block annoying Chrome "Manage addresses..." / autofill popups on all CRM inputs
+if (typeof document !== "undefined") {
+    const disableAutofill = (el) => {
+        if (el && el.tagName === "INPUT") {
+            el.setAttribute("autocomplete", "one-time-code");
+            el.setAttribute("autocorrect", "off");
+            el.setAttribute("autocapitalize", "off");
+            el.setAttribute("spellcheck", "false");
+            el.setAttribute("data-lpignore", "true");
+            el.setAttribute("data-form-type", "other");
+        }
+    };
+
+    document.addEventListener("focusin", (e) => disableAutofill(e.target), true);
+    document.addEventListener("mousedown", (e) => disableAutofill(e.target), true);
+}
+
+
