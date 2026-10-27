@@ -431,6 +431,44 @@ export class ServiceTicketFormController extends FormController {
                 }
             };
 
+            // Scoped to Service Ticket: instant clear when user backspaces/deletes text in partner_id or equipment_id
+            const handleTicketInputInstantClear = (ev) => {
+                const target = ev.target;
+                if (!target || target.tagName !== "INPUT") return;
+                const fieldName = target.closest("[name='partner_id'], [name='equipment_id']")?.getAttribute("name");
+                if (fieldName && target.value.trim() === "") {
+                    if (this.model?.root?.update) {
+                        if (fieldName === "partner_id") {
+                            this.model.root.update({
+                                partner_id: false,
+                                equipment_id: false,
+                                site_name: false,
+                                contact_person: false,
+                                contact_number: false,
+                                email: false,
+                                model_number: false,
+                                serial_number: false,
+                                part_number: false,
+                                amc_id: false,
+                            });
+                        } else if (fieldName === "equipment_id") {
+                            this.model.root.update({
+                                equipment_id: false,
+                                partner_id: false,
+                                site_name: false,
+                                contact_person: false,
+                                contact_number: false,
+                                email: false,
+                                model_number: false,
+                                serial_number: false,
+                                part_number: false,
+                                amc_id: false,
+                            });
+                        }
+                    }
+                }
+            };
+
             onMounted(() => {
                 reorderToolbar();
                 const panel = document.querySelector(".o_control_panel_breadcrumbs");
@@ -449,7 +487,10 @@ export class ServiceTicketFormController extends FormController {
                 document.removeEventListener("click", handleVoucherBillPreview, true);
                 document.removeEventListener("input", handleKmInstantCalc, true);
                 document.removeEventListener("change", handleKmInstantCalc, true);
+                document.removeEventListener("input", handleTicketInputInstantClear, true);
             });
+
+            document.addEventListener("input", handleTicketInputInstantClear, true);
         }
     }
 
