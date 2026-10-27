@@ -327,30 +327,29 @@ class ServiceTicket(models.Model):
     engineer_email = fields.Char(string='Engineer Email')
     visit_date = fields.Date(string='Visit Date', tracking=True)
 
-    @api.onchange('visit_date', 'ticket_datetime')
+    @api.onchange('visit_date')
     def _onchange_visit_date_warning(self):
-        if self.visit_date and self.ticket_datetime:
-            ticket_date = self.ticket_datetime.date()
-            if self.visit_date < ticket_date:
+        if self.visit_date:
+            today = fields.Date.today()
+            if self.visit_date < today:
                 inv_date = self.visit_date.strftime('%d-%m-%Y')
-                t_date = ticket_date.strftime('%d-%m-%Y')
+                today_str = today.strftime('%d-%m-%Y')
                 self.visit_date = False
                 return {
                     'warning': {
                         'title': _('Invalid Visit Date'),
-                        'message': _("Visit Date (%s) cannot be earlier than Ticket Date (%s).") % (inv_date, t_date),
+                        'message': _("Visit Date (%s) cannot be a past date. Please select today (%s) or a future date.") % (inv_date, today_str),
                     }
                 }
 
-    @api.constrains('visit_date', 'ticket_datetime')
+    @api.constrains('visit_date')
     def _check_visit_date(self):
+        today = fields.Date.today()
         for rec in self:
-            if rec.visit_date and rec.ticket_datetime:
-                ticket_date = rec.ticket_datetime.date()
-                if rec.visit_date < ticket_date:
-                    raise ValidationError(_(
-                        "Visit Date (%s) cannot be earlier than Ticket Date (%s)."
-                    ) % (rec.visit_date.strftime('%d-%m-%Y'), ticket_date.strftime('%d-%m-%Y')))
+            if rec.visit_date and rec.visit_date < today:
+                raise ValidationError(_(
+                    "Visit Date (%s) cannot be a past date. Please select today (%s) or a future date."
+                ) % (rec.visit_date.strftime('%d-%m-%Y'), today.strftime('%d-%m-%Y')))
 
     # Service Report & Attachment
     report_number = fields.Char(string='Report No.', tracking=True)

@@ -312,18 +312,18 @@ class ServiceTicketWizard(models.TransientModel):
             self.engineer_contact = False
             self.engineer_email = False
 
-    @api.onchange('visit_date', 'ticket_datetime')
+    @api.onchange('visit_date')
     def _onchange_visit_date_warning(self):
-        if self.visit_date and self.ticket_datetime:
-            ticket_date = self.ticket_datetime.date()
-            if self.visit_date < ticket_date:
+        if self.visit_date:
+            today = fields.Date.today()
+            if self.visit_date < today:
                 inv_date = self.visit_date.strftime('%d-%m-%Y')
-                t_date = ticket_date.strftime('%d-%m-%Y')
+                today_str = today.strftime('%d-%m-%Y')
                 self.visit_date = False
                 return {
                     'warning': {
                         'title': _('Invalid Visit Date'),
-                        'message': _("Visit Date (%s) cannot be earlier than Ticket Date (%s).") % (inv_date, t_date),
+                        'message': _("Visit Date (%s) cannot be a past date. Please select today (%s) or a future date.") % (inv_date, today_str),
                     }
                 }
 
@@ -393,13 +393,13 @@ class ServiceTicketWizard(models.TransientModel):
         if dup_ticket:
             raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % assigned_id)
 
-        # Validate Visit Date >= Ticket Date
-        if self.visit_date and self.ticket_datetime:
-            ticket_date = self.ticket_datetime.date()
-            if self.visit_date < ticket_date:
+        # Validate Visit Date is not in the past
+        if self.visit_date:
+            today = fields.Date.today()
+            if self.visit_date < today:
                 raise ValidationError(_(
-                    "Visit Date (%s) cannot be earlier than Ticket Date (%s)."
-                ) % (self.visit_date.strftime('%d-%m-%Y'), ticket_date.strftime('%d-%m-%Y')))
+                    "Visit Date (%s) cannot be a past date. Please select today (%s) or a future date."
+                ) % (self.visit_date.strftime('%d-%m-%Y'), today.strftime('%d-%m-%Y')))
 
         ticket_vals = {
             'ticket_id': assigned_id,
