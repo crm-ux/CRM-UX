@@ -640,7 +640,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Grand total = net + GST matching sales order page
         grand_total = net + gst_amt if gst_on else net
 
-        # Totals as closing rows inside the table: Gross, Overall Discount, Flat Discount, GST, Final Total
+        # Totals as closing rows inside the table: Gross, Overall Discount, Discount, GST, Final Total
         totals_rows = ''
         line_disc_amt = original_amount - untaxed
         has_any_disc = (line_disc_amt > 0.01) or bool(overall_disc_pct) or bool(flat_disc)
@@ -652,7 +652,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         elif line_disc_amt > 0.01:
             totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Discount Amount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(line_disc_amt))
         if flat_disc:
-            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Flat Discount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(flat_disc))
+            totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">Discount</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, _indian_format(flat_disc))
         if gst_on and tax_rates:
             totals_rows += '<tr><td colspan="%d" style="text-align:right;padding:5px 6px;border:1px solid #000;font-weight:bold;">GST (%s%%)</td><td style="text-align:center;padding:5px 6px;border:1px solid #000;font-weight:bold;">%s</td></tr>' % (col - 1, int(total_tax_rate), _indian_format(gst_amt))
         final_label = 'Final Discounted Amount' if has_any_disc else 'Total Amount INR'
@@ -1355,7 +1355,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         elif line_disc_amt_d > 0.01:
             _add_total_row('Discount Amount', _indian_format(line_disc_amt_d))
         if flat_disc_d:
-            _add_total_row('Flat Discount', _indian_format(flat_disc_d))
+            _add_total_row('Discount', _indian_format(flat_disc_d))
         if gst_on_d and tax_rates_d:
             _add_total_row('GST (%s%%)' % int(total_tax_rate_d), _indian_format(gst_amt_d))
         final_label_d = 'Final Discounted Amount' if has_any_disc_d else 'Total Amount INR'
