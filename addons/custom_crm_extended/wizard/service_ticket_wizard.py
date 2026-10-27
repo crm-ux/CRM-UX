@@ -211,6 +211,19 @@ class ServiceTicketWizard(models.TransientModel):
             raise ValidationError(_('Please enter Ticket ID before proceeding.'))
         if not self.partner_id:
             raise ValidationError(_('Please select Customer Name before proceeding.'))
+        if self.equipment_id and self.partner_id:
+            eq_partner = self.equipment_id.partner_id
+            if eq_partner:
+                valid_partners = self.partner_id | self.partner_id.commercial_partner_id | self.partner_id.child_ids
+                if eq_partner not in valid_partners and self.partner_id not in (eq_partner | eq_partner.commercial_partner_id | eq_partner.child_ids):
+                    raise ValidationError(_(
+                        "Equipment '%s' (Serial: %s) belongs to customer '%s', not '%s'. Please select matching customer and equipment."
+                    ) % (
+                        self.equipment_id.display_name,
+                        self.equipment_id.serial_number or '-',
+                        eq_partner.display_name,
+                        self.partner_id.display_name
+                    ))
         if self.ticket_id != _('New'):
             dup_ticket = self.env['service.ticket'].search([('ticket_id', '=', self.ticket_id.strip())], limit=1)
             if dup_ticket:

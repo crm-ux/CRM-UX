@@ -95,6 +95,122 @@ class ServiceTicket(models.Model):
     model_number = fields.Char(string='Model Number')
     serial_number = fields.Char(string='Serial Number')
     part_number = fields.Char(string='Part Number')
+
+    @api.constrains('equipment_id', 'partner_id')
+    def _check_equipment_partner_match(self):
+        for rec in self:
+            if rec.equipment_id and rec.partner_id:
+                eq_partner = rec.equipment_id.partner_id
+                if eq_partner:
+                    valid_partners = rec.partner_id | rec.partner_id.commercial_partner_id | rec.partner_id.child_ids
+                    if eq_partner not in valid_partners and rec.partner_id not in (eq_partner | eq_partner.commercial_partner_id | eq_partner.child_ids):
+                        raise ValidationError(_(
+                            "Equipment '%s' (Serial: %s) belongs to customer '%s', not '%s'. Please select matching customer and equipment."
+                        ) % (
+                            rec.equipment_id.display_name,
+                            rec.equipment_id.serial_number or '-',
+                            eq_partner.display_name,
+                            rec.partner_id.display_name
+                        ))
+
+    @api.onchange('partner_id')
+    def _onchange_partner_id_sync_equipment(self):
+        if not self.partner_id:
+            self.equipment_id = False
+            self.model_number = False
+            self.serial_number = False
+            self.part_number = False
+            self.site_name = False
+            self.contact_person = False
+            self.contact_number = False
+            self.email = False
+            self.amc_id = False
+            return {'domain': {'equipment_id': []}}
+
+        p = self.partner_id
+        company_partner = p.commercial_partner_id or (p.parent_id if p.parent_id else p)
+
+        # Basic customer contact info
+        if not self.contact_person:
+            self.contact_person = p.name
+        if not self.contact_number:
+            self.contact_number = getattr(p, 'phone', False) or getattr(p, 'mobile', False) or False
+        if not self.email:
+            self.email = getattr(p, 'email', False) or False
+        if not self.site_name:
+            self.site_name = getattr(p, 'x_site_name', False) or getattr(company_partner, 'x_site_name', False) or False
+
+        # Find all equipments owned by this partner or its parent/branches
+        partner_ids = (p | company_partner | p.child_ids).ids
+        equipments = self.env['equipment.master'].search([('partner_id', 'in', partner_ids)])
+
+        if len(equipments) == 1:
+            # Single equipment holder: auto-select and auto-fill specs!
+            eq = equipments[0]
+            self.equipment_id = eq
+            self.site_name = eq.site_name or self.site_name
+            self.contact_person = eq.contact_person or self.contact_person
+            self.contact_number = eq.contact_number or self.contact_number
+            self.email = eq.email or self.email
+            self.model_number = eq.model_number
+            self.serial_number = eq.serial_number
+            self.part_number = eq.part_number
+        else:
+            # Multiple equipments or none: if current equipment doesn't belong to this partner, clear it
+            if self.equipment_id and self.equipment_id.partner_id.id not in partner_ids:
+                self.equipment_id = False
+                self.model_number = False
+                self.serial_number = False
+                self.part_number = False
+
+        # Auto-detect Active AMC
+        amcs = self.env['amc.contract'].search([
+            ('contract_status', '!=', 'draft'),
+            '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
+        ])
+        if len(amcs) == 1:
+            self.amc_id = amcs[0].id
+        elif not amcs:
+            self.amc_id = False
+
+        return {'domain': {'equipment_id': [('partner_id', 'in', partner_ids)]}}
+
+    @api.onchange('equipment_id')
+    def _onchange_equipment_id_sync_partner(self):
+        if self.equipment_id:
+            eq = self.equipment_id
+            p = eq.partner_id
+            if p:
+                self.partner_id = p
+                company_partner = p.commercial_partner_id or (p.parent_id if p.parent_id else p)
+                self.site_name = eq.site_name or getattr(p, 'x_site_name', False) or getattr(company_partner, 'x_site_name', False) or False
+                self.contact_person = eq.contact_person or p.name or False
+                self.contact_number = eq.contact_number or getattr(p, 'phone', False) or getattr(p, 'mobile', False) or False
+                self.email = eq.email or getattr(p, 'email', False) or False
+            else:
+                self.site_name = eq.site_name or False
+                self.contact_person = eq.contact_person or False
+                self.contact_number = eq.contact_number or False
+                self.email = eq.email or False
+
+            self.model_number = eq.model_number
+            self.serial_number = eq.serial_number
+            self.part_number = eq.part_number
+
+            # Check if equipment is covered under an active AMC
+            eq_amcs = self.env['amc.contract'].search([
+                ('contract_status', '=', 'active'),
+                ('line_ids.equipment_id', '=', eq.id)
+            ], limit=1)
+            if eq_amcs:
+                self.amc_id = eq_amcs.id
+            elif p:
+                cust_amcs = self.env['amc.contract'].search([
+                    ('contract_status', '!=', 'draft'),
+                    '|', ('partner_id', '=', p.id), ('partner_id', '=', company_partner.id)
+                ])
+                if len(cust_amcs) == 1:
+                    self.amc_id = cust_amcs.id
     
     # Complaint Details
     complaint_type_id = fields.Many2one(
