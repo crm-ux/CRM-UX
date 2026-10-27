@@ -570,25 +570,10 @@ class SaleOrder(models.Model):
     def _compute_tax_totals(self):
         super()._compute_tax_totals()
         for order in self:
-            if not order.tax_totals:
-                continue
-            # 1. Update subtotal names and clean any leading '-' from formatted amounts
-            if order.tax_totals.get('subtotals'):
+            if order.tax_totals and order.tax_totals.get('subtotals'):
                 for subtotal in order.tax_totals['subtotals']:
                     if subtotal.get('name') == 'Untaxed Amount':
                         subtotal['name'] = 'Total Amount'
-                    # Strip leading minus from formatted display amount if present
-                    if 'formatted_amount' in subtotal and isinstance(subtotal['formatted_amount'], str):
-                        subtotal['formatted_amount'] = subtotal['formatted_amount'].replace('- ', '').replace('-', '').strip()
-
-            # 2. Clean any minus signs in tax/discount groups
-            groups_by_subtotal = order.tax_totals.get('groups_by_subtotal', {})
-            for subtotal_title, groups in groups_by_subtotal.items():
-                for group in groups:
-                    if 'formatted_tax_group_amount' in group and isinstance(group['formatted_tax_group_amount'], str):
-                        group['formatted_tax_group_amount'] = group['formatted_tax_group_amount'].replace('- ', '').replace('-', '').strip()
-                    if 'tax_group_amount' in group and group['tax_group_amount'] < 0:
-                        group['tax_group_amount'] = abs(group['tax_group_amount'])
 
     def write(self, vals):
         result = super().write(vals)
