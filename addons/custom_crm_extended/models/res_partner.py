@@ -11,6 +11,7 @@ class ResPartner(models.Model):
     x_department = fields.Char(string='Department')
     x_room_number = fields.Char(string='Room Number')
 
+
     @api.model
     def _user_can(self, perm_name, default=False):
         user = self.env.user

@@ -41,6 +41,7 @@ class ResUsers(models.Model):
             result.append((user.id, user.display_name or user.name or ''))
         return result
 
+
     @api.model
     def name_search(self, name='', domain=None, operator='ilike', limit=100):
         """Allow searching by name, email, or department."""
