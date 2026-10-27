@@ -211,6 +211,13 @@ class ServiceTicket(models.Model):
                 ])
                 if len(cust_amcs) == 1:
                     self.amc_id = cust_amcs.id
+
+            if p:
+                allowed_partners = (p | company_partner | p.child_ids).ids
+                return {'domain': {'partner_id': [('id', 'in', allowed_partners)]}}
+            return {'domain': {'partner_id': []}}
+        else:
+            return {'domain': {'partner_id': []}}
     
     # Complaint Details
     complaint_type_id = fields.Many2one(

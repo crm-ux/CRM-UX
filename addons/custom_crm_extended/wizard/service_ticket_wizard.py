@@ -184,6 +184,13 @@ class ServiceTicketWizard(models.TransientModel):
                     self.has_amc = False
                     self.amc_id = False
 
+            if p:
+                allowed_partners = (p | company_partner | p.child_ids).ids
+                return {'domain': {'partner_id': [('id', 'in', allowed_partners)]}}
+            return {'domain': {'partner_id': []}}
+        else:
+            return {'domain': {'partner_id': []}}
+
 
     @api.model
     def _get_or_create_service_sequence(self):

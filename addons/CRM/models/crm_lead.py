@@ -136,7 +136,7 @@ class CrmLead(models.Model):
 
     x_is_overdue = fields.Boolean(
         string='Overdue',
-        compute='_compute_lead_age',
+        compute='_compute_is_overdue',
         store=False,
         help='True if lead is older than 30 days without activity.',
     )
@@ -161,9 +161,17 @@ class CrmLead(models.Model):
             if lead.create_date:
                 delta = today - lead.create_date.date()
                 lead.x_lead_age_days = delta.days
-                lead.x_is_overdue = delta.days > 30
             else:
                 lead.x_lead_age_days = 0
+
+    @api.depends('create_date')
+    def _compute_is_overdue(self):
+        today = fields.Date.today()
+        for lead in self:
+            if lead.create_date:
+                delta = today - lead.create_date.date()
+                lead.x_is_overdue = delta.days > 30
+            else:
                 lead.x_is_overdue = False
 
 
