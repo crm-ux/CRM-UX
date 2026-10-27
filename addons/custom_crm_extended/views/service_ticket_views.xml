@@ -33,7 +33,7 @@
 
                     <group>
                         <group string="Ticket Information">
-                            <field name="ticket_datetime"/>
+                            <field name="ticket_datetime" readonly="1"/>
                             <field name="complaint_type_id" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                             <field name="priority" widget="radio" options="{'horizontal': true}" class="custom_radio_clean"/>
                         </group>

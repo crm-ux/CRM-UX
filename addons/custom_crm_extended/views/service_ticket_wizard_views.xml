@@ -44,7 +44,7 @@
                             <field name="email" string="Customer Email" placeholder="e.g. customer@email.com"/>
                         </group>
                         <group>
-                            <field name="ticket_datetime" string="Ticket Date &amp; Time"/>
+                            <field name="ticket_datetime" string="Ticket Date &amp; Time" readonly="1"/>
                             <field name="company_id" string="Company" options="{'no_create': True}" placeholder="Leave empty for all companies"/>
                         </group>
 
