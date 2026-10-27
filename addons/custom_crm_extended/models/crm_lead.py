@@ -54,6 +54,12 @@ class CrmLead(models.Model):
     # 1. ASSIGNMENT & OWNERSHIP
     # ------------------------------------------------------------------
     x_created_by_id = fields.Many2one('res.users', string='Created By', default=lambda self: self.env.user, readonly=True, store=True)
+    x_last_modified_by_id = fields.Many2one(
+        'res.users',
+        string='Last Modified By',
+        default=lambda self: self.env.user if self.env.user.id != 1 else False,
+        store=True,
+    )
     x_original_owner_id = fields.Many2one('res.users', string='Original Owner', store=True)
     x_assign_to_id = fields.Many2one(
         'res.users',
@@ -611,6 +617,8 @@ class CrmLead(models.Model):
             vals['user_id'] = vals['x_assign_to_id']
         elif 'user_id' in vals and 'x_assign_to_id' not in vals:
             vals['x_assign_to_id'] = vals['user_id']
+        if self.env.user and self.env.user.id != 1 and 'x_last_modified_by_id' not in vals:
+            vals['x_last_modified_by_id'] = self.env.user.id
         return super().write(vals)
 
     def get_formview_action(self, access_uid=None):

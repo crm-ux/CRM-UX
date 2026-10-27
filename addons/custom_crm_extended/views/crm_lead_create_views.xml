@@ -24,7 +24,7 @@
             </xpath>
             <xpath expr="//field[@name='stage_id']" position="after">
                 <field name="create_uid" string="Created By" optional="show"/>
-                <field name="write_uid" string="Last Modified By" optional="show"/>
+                <field name="x_last_modified_by_id" string="Last Modified By" optional="show"/>
             </xpath>
         </field>
     </record>
