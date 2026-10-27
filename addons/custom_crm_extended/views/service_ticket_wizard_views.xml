@@ -4,7 +4,7 @@
         <field name="name">service.ticket.wizard.form</field>
         <field name="model">service.ticket.wizard</field>
         <field name="arch" type="xml">
-            <form string="Service Ticket Creation">
+            <form string="Service Ticket Creation" js_class="service_ticket_wizard_form">
                 <field name="step" invisible="1"/>
                 <sheet>
                     <!-- Step indicators matching Equipment Master Wizard -->

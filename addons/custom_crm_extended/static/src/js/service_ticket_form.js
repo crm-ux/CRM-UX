@@ -226,7 +226,8 @@ patch(FormController.prototype, {
 export class ServiceTicketFormController extends FormController {
     setup() {
         super.setup();
-        if (this.props.resModel === "service.ticket") {
+        const isTicketOrWizard = this.props.resModel === "service.ticket" || this.props.resModel === "service.ticket.wizard";
+        if (isTicketOrWizard) {
             let observer = null;
             const reorderToolbar = () => {
                 // Style via CSS only without mutating DOM nodes directly to prevent Owl lifecycle crash
@@ -522,3 +523,4 @@ export const serviceTicketFormView = {
 };
 
 registry.category("views").add("service_ticket_form", serviceTicketFormView);
+registry.category("views").add("service_ticket_wizard_form", serviceTicketFormView);
