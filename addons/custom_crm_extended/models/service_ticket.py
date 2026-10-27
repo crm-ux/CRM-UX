@@ -326,7 +326,17 @@ class ServiceTicket(models.Model):
     engineer_contact = fields.Char(string='Engineer Contact')
     engineer_email = fields.Char(string='Engineer Email')
     visit_date = fields.Date(string='Visit Date', tracking=True)
-    
+
+    @api.constrains('visit_date', 'ticket_datetime')
+    def _check_visit_date(self):
+        for rec in self:
+            if rec.visit_date and rec.ticket_datetime:
+                ticket_date = rec.ticket_datetime.date()
+                if rec.visit_date < ticket_date:
+                    raise ValidationError(_(
+                        "Visit Date (%s) cannot be earlier than Ticket Date (%s)."
+                    ) % (rec.visit_date.strftime('%d-%m-%Y'), ticket_date.strftime('%d-%m-%Y')))
+
     # Service Report & Attachment
     report_number = fields.Char(string='Report No.', tracking=True)
     report_filename = fields.Char(string='Report Filename')

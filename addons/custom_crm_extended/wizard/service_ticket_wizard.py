@@ -378,6 +378,14 @@ class ServiceTicketWizard(models.TransientModel):
         if dup_ticket:
             raise ValidationError(_("Ticket ID '%s' already exists! Each service ticket must have a unique Ticket ID.") % assigned_id)
 
+        # Validate Visit Date >= Ticket Date
+        if self.visit_date and self.ticket_datetime:
+            ticket_date = self.ticket_datetime.date()
+            if self.visit_date < ticket_date:
+                raise ValidationError(_(
+                    "Visit Date (%s) cannot be earlier than Ticket Date (%s)."
+                ) % (self.visit_date.strftime('%d-%m-%Y'), ticket_date.strftime('%d-%m-%Y')))
+
         ticket_vals = {
             'ticket_id': assigned_id,
             'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
