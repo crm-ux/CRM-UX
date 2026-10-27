@@ -218,13 +218,49 @@
         </field>
     </record>
 
-    <!-- Show discount in totals -->
-    <record id="view_sale_order_discount_totals" model="ir.ui.view">
-        <field name="name">sale.order.discount.totals</field>
+    <!-- 1. Hide standard tax_totals when any discount (percent or flat) is applied -->
+    <record id="view_sale_order_hide_tax_totals" model="ir.ui.view">
+        <field name="name">sale.order.hide.tax.totals</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='sale_total']" position="before">
+            <xpath expr="//field[@name='tax_totals']" position="attributes">
+                <attribute name="invisible">x_flat_discount_pct != 0 or x_flat_discount != 0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 2. Show custom discount summary block without minus sign -->
+    <record id="view_sale_order_discount_display" model="ir.ui.view">
+        <field name="name">sale.order.discount.display</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_totals']" position="after">
+                <div invisible="not x_flat_discount_pct and not x_flat_discount" class="row justify-content-end mt-1">
+                    <div class="col-auto" style="min-width:300px;font-size:14px;">
+                        <div class="d-flex justify-content-between py-1 border-top">
+                            <span>Subtotal (After Line Discounts)</span>
+                            <field name="x_original_amount" nolabel="1" readonly="1"/>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center py-1 text-nowrap" invisible="not x_flat_discount_pct">
+                            <field name="x_discount_label" nolabel="1" readonly="1" class="text-nowrap flex-grow-1 text-start"/>
+                            <span class="text-nowrap ms-2"><field name="x_amount_after_discount" nolabel="1" readonly="1"/></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1" invisible="not x_flat_discount">
+                            <span>Flat Discount</span>
+                            <span><field name="x_flat_discount" nolabel="1" readonly="1"/></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1" invisible="not x_gst_included">
+                            <span>GST</span>
+                            <field name="amount_tax" nolabel="1" readonly="1"/>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-top">
+                            <strong>Final Discount Amount</strong>
+                            <strong><field name="x_net_total" nolabel="1" readonly="1"/></strong>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>
