@@ -12,7 +12,7 @@ class ServiceTicketWizard(models.TransientModel):
     ticket_id = fields.Char(string='Ticket ID')
     ticket_datetime = fields.Datetime(string='Ticket Date & Time', default=fields.Datetime.now)
     partner_id = fields.Many2one('res.partner', string='Customer Name', context={'show_equipment_serial': True})
-    equipment_id = fields.Many2one('equipment.master', string='Equipment', domain="[('partner_id', '=', partner_id)]", tracking=True)
+    equipment_id = fields.Many2one('equipment.master', string='Equipment', tracking=True)
     has_amc = fields.Boolean(string='Has AMC', default=False)
     amc_id = fields.Many2one('amc.contract', string='AMC Contract', domain="[('contract_status', '!=', 'draft'), '|', ('partner_id', '=', partner_id), ('partner_id.parent_id', '=', partner_id)]")
 
