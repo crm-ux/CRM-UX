@@ -57,9 +57,18 @@ class CrmLead(models.Model):
     x_last_modified_by_id = fields.Many2one(
         'res.users',
         string='Last Modified By',
-        default=lambda self: self.env.user if self.env.user.id != 1 else False,
+        compute='_compute_last_modified_by_id',
         store=True,
+        readonly=True,
     )
+
+    @api.depends('write_uid', 'create_uid')
+    def _compute_last_modified_by_id(self):
+        for rec in self:
+            if rec.write_uid and rec.write_uid.id != 1:
+                rec.x_last_modified_by_id = rec.write_uid
+            elif not rec.x_last_modified_by_id:
+                rec.x_last_modified_by_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
     x_original_owner_id = fields.Many2one('res.users', string='Original Owner', store=True)
     x_assign_to_id = fields.Many2one(
         'res.users',

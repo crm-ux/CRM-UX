@@ -1155,7 +1155,20 @@ class ServiceTicketVoucherLine(models.Model):
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
     voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
     batch_key = fields.Char(string='Batch Key', index=True)
-    submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
+    submitted_by_user_id = fields.Many2one(
+        'res.users',
+        string='Submitted By',
+        compute='_compute_submitted_by_user_id',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('create_uid', 'user_id')
+    def _compute_submitted_by_user_id(self):
+        for rec in self:
+            if not rec.submitted_by_user_id or rec.submitted_by_user_id.id == 1:
+                rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
+
     other_employee_names = fields.Char(string='Other Employees')
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
@@ -1350,7 +1363,20 @@ class ServiceTicketVoucherBatch(models.Model):
     expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True, ondelete='cascade')
     user_id = fields.Many2one('res.users', string='Employee', required=True)
-    submitted_by_user_id = fields.Many2one('res.users', string='Submitted By', default=lambda self: self.env.user)
+    submitted_by_user_id = fields.Many2one(
+        'res.users',
+        string='Submitted By',
+        compute='_compute_submitted_by_user_id',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('create_uid', 'user_id')
+    def _compute_submitted_by_user_id(self):
+        for rec in self:
+            if not rec.submitted_by_user_id or rec.submitted_by_user_id.id == 1:
+                rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
+
     other_employee_names = fields.Char(string='Other Employees')
     all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
     voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
