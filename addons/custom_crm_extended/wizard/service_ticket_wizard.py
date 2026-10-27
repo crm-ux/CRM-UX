@@ -312,6 +312,21 @@ class ServiceTicketWizard(models.TransientModel):
             self.engineer_contact = False
             self.engineer_email = False
 
+    @api.onchange('visit_date', 'ticket_datetime')
+    def _onchange_visit_date_warning(self):
+        if self.visit_date and self.ticket_datetime:
+            ticket_date = self.ticket_datetime.date()
+            if self.visit_date < ticket_date:
+                inv_date = self.visit_date.strftime('%d-%m-%Y')
+                t_date = ticket_date.strftime('%d-%m-%Y')
+                self.visit_date = False
+                return {
+                    'warning': {
+                        'title': _('Invalid Visit Date'),
+                        'message': _("Visit Date (%s) cannot be earlier than Ticket Date (%s).") % (inv_date, t_date),
+                    }
+                }
+
     def action_next_step(self):
         self.ensure_one()
         if self.step == 1:
