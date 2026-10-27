@@ -35,6 +35,16 @@ if (Many2XAutocomplete) {
                 return super.onInputClick(...arguments);
             }
         },
+        onInput(ev) {
+            // Instant clear: when user backspaces/deletes text to empty in many2one, immediately commit false
+            const val = ev.target && ev.target.value;
+            if (val === "" && this.props && this.props.update) {
+                this.props.update([false]);
+            }
+            if (super.onInput) {
+                return super.onInput(...arguments);
+            }
+        },
     });
 }
 

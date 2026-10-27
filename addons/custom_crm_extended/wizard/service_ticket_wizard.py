@@ -165,7 +165,6 @@ class ServiceTicketWizard(models.TransientModel):
                 self.amc_id = False
 
             return {'domain': {'equipment_id': [('partner_id', 'in', [p.id, company_partner.id])]}}
-    
         # When Customer is cleared in wizard, also clear equipment & all related details
         self.equipment_id = False
         self.model_number = False
@@ -220,7 +219,7 @@ class ServiceTicketWizard(models.TransientModel):
                 allowed_partners = (p | company_partner | p.child_ids).ids
                 return {'domain': {'partner_id': [('id', 'in', allowed_partners)]}}
         else:
-            # When Equipment is cleared in wizard, also clear Customer & equipment specs
+            # When Equipment is cleared in wizard, clear Customer & equipment specs
             self.partner_id = False
             self.model_number = False
             self.serial_number = False
