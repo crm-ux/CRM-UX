@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Server Maintenance - CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 20px;
+        }
+
+        .crm-maintenance-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 20px 45px -10px rgba(13, 62, 142, 0.12), 0 0 0 1px rgba(226, 232, 240, 0.85);
+            max-width: 480px;
+            width: 100%;
+            padding: 38px 34px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .crm-maintenance-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        .crm-maintenance-reason {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+            margin-bottom: 26px;
+        }
+
+        /* 3 Bouncing Wave Dots */
+        .crm-dots-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 22px;
+            height: 24px;
+        }
+
+        .crm-dots-wave span {
+            width: 12px;
+            height: 12px;
+            background-color: #0d3e8e;
+            border-radius: 50%;
+            display: inline-block;
+            animation: crmWaveDot 1.4s infinite ease-in-out both;
+        }
+
+        .crm-dots-wave span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .crm-dots-wave span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        .crm-dots-wave span:nth-child(3) {
+            animation-delay: 0s;
+        }
+
+        @keyframes crmWaveDot {
+            0%, 80%, 100% {
+                transform: scale(0.65);
+                opacity: 0.35;
+            }
+            40% {
+                transform: scale(1.15) translateY(-6px);
+                opacity: 1;
+            }
+        }
+
+        .crm-maintenance-note {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        /* Step 2: Connected Success State (Hidden by default) */
+        .crm-step-connected {
+            display: none;
+            animation: crmFadeIn 0.35s ease-out forwards;
+        }
+
+        .crm-check-circle {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+            font-weight: 700;
+        }
+
+        .crm-connected-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 6px;
+        }
+
+        .crm-connected-subtitle {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        @keyframes crmFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="crm-maintenance-card" id="maintenanceCard">
+        <!-- Step 1: Reconnecting State -->
+        <div class="crm-step-reconnecting" id="stepReconnecting">
+            <h1 class="crm-maintenance-title">Reconnecting to Server</h1>
+            <p class="crm-maintenance-reason">
+                The server is currently upgrading and undergoing routine maintenance. Services will resume shortly.
+            </p>
+            <div class="crm-dots-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="crm-maintenance-note">Please wait a moment, reconnecting...</div>
+        </div>
+
+        <!-- Step 2: Connected Success State -->
+        <div class="crm-step-connected" id="stepConnected">
+            <div class="crm-check-circle">&#10003;</div>
+            <div class="crm-connected-title">Connected!</div>
+            <div class="crm-connected-subtitle">Redirecting to CRM...</div>
+        </div>
+    </div>
+
+    <script>
+        // Automatic Background Server Health Polling
+        let isReconnected = false;
+
+        async function checkServer() {
+            if (isReconnected) return;
+
+            try {
+                // Ping lightweight web health check endpoint
+                const response = await fetch('/web/webclient/version_info', {
+                    method: 'GET',
+                    cache: 'no-store'
+                });
+
+                if (response.ok) {
+                    isReconnected = true;
+                    // Trigger Step 2: Show Green Checkmark & Connected
+                    document.getElementById('stepReconnecting').style.display = 'none';
+                    document.getElementById('stepConnected').style.display = 'block';
+
+                    // Redirect back to CRM smoothly
+                    setTimeout(function() {
+                        const targetUrl = window.location.pathname.includes('maintenance') ? '/app' : window.location.href;
+                        window.location.replace(targetUrl);
+                    }, 1200);
+                }
+            } catch (err) {
+                // Server still upgrading/restarting, poll again in 2.5s
+            }
+        }
+
+        // Poll every 2.5 seconds
+        setInterval(checkServer, 2500);
+        // Initial ping after 1 second
+        setTimeout(checkServer, 1000);
+    </script>
+</body>
+</html>

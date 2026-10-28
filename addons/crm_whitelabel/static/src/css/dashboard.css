@@ -35,10 +35,9 @@
     overflow-y: auto !important;
 }
 
-
 /* Prevent duplicate loading: On Dashboard, hide Odoo global indicator */
-.crm-pro-dashboard ~ .o_loading_indicator,
-.crm-pro-dashboard ~ .o_loading,
+.crm-pro-dashboard~.o_loading_indicator,
+.crm-pro-dashboard~.o_loading,
 body:has(.crm-pro-dashboard) .o_loading_indicator,
 body:has(.crm-pro-dashboard) .o_loading {
     display: none !important;
