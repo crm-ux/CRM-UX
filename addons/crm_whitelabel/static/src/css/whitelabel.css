@@ -22,6 +22,42 @@ nav.o_navbar,
     pointer-events: none !important;
 }
 
+/* Global Centered Loading Screen with Blur Backdrop */
+.crm-global-loader-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(248, 250, 252, 0.65) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    animation: crmFadeIn 0.2s ease-out;
+}
+
+/* Custom Swatch Blue Spinner (#0d3e8e) */
+.crm-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(13, 62, 142, 0.15) !important;
+    border-top: 4px solid #0d3e8e !important;
+    border-radius: 50% !important;
+    animation: crmSpin 0.8s linear infinite !important;
+}
+
+.crm-loader-text {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #0d3e8e !important;
+    letter-spacing: 0.5px !important;
+    font-family: inherit !important;
+}
+
 /* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible as text buttons */
 .o_control_panel .o_cp_buttons,
 .o_control_panel .o_form_buttons_view,
