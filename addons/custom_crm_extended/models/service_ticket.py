@@ -1212,12 +1212,6 @@ class ServiceTicketVoucherLine(models.Model):
     other_employee_names = fields.Char(string='Other Employees')
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
-    submitted_date = fields.Date(string='Submitted Date', compute='_compute_submitted_date')
-
-    @api.depends('create_date')
-    def _compute_submitted_date(self):
-        for rec in self:
-            rec.submitted_date = rec.create_date.date() if rec.create_date else fields.Date.context_today(self)
 
     def action_submit_line(self): 
         """Submit this single draft voucher line."""
