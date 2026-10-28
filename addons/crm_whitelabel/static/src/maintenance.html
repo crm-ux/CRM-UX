@@ -161,45 +161,51 @@
     </div>
 
     <script>
-        // Automatic Background Server Health Polling
+        // Bulletproof Auto-Reconnect Polling
         let isReconnected = false;
 
-        async function checkServer() {
+        function checkServer() {
             if (isReconnected) return;
 
-            try {
-                // Ping standard Odoo GET route with cache busting
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
+            // Use native XMLHttpRequest with timestamp to bypass all browser 502 caching
+            const xhr = new XMLHttpRequest();
+            xhr.open('HEAD', '/web/login?_ts=' + Date.now(), true);
+            xhr.timeout = 2000;
 
-                const response = await fetch('/web/login?_ping=' + Date.now(), {
-                    method: 'GET',
-                    cache: 'no-store',
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    // Status 200 or 303/302 redirect means Odoo is completely live!
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                        isReconnected = true;
+                        // Step 2: Show Green Checkmark
+                        document.getElementById('stepReconnecting').style.display = 'none';
+                        document.getElementById('stepConnected').style.display = 'block';
 
-                // When Odoo starts, NGINX will return 200 OK (not 502/503/504)
-                if (response.status === 200) {
-                    isReconnected = true;
-                    // Trigger Step 2: Show Green Checkmark & Connected
-                    document.getElementById('stepReconnecting').style.display = 'none';
-                    document.getElementById('stepConnected').style.display = 'block';
-
-                    // Smoothly reload the user's page
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
+                        // Reload without user clicking anything
+                        setTimeout(function() {
+                            window.location.replace(window.location.href);
+                        }, 900);
+                    }
                 }
-            } catch (err) {
-                // Server still booting / restarting
-            }
+            };
+
+            xhr.onerror = function() {
+                // Server still restarting / 502
+            };
+
+            xhr.send();
         }
 
-        // Poll every 2.5 seconds
-        setInterval(checkServer, 2500);
-        // Initial ping after 1 second
-        setTimeout(checkServer, 1000);
+        // Check every 2 seconds automatically
+        setInterval(checkServer, 2000);
+        setTimeout(checkServer, 800);
+
+        // Fallback: If 15 seconds elapse and ping was somehow blocked, auto-reload page
+        setTimeout(function() {
+            if (!isReconnected) {
+                window.location.reload();
+            }
+        }, 18000);
     </script>
 </body>
 </html>
