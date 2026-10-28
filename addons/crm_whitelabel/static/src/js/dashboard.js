@@ -613,7 +613,6 @@ class CrmDashboard extends Component {
 
         } catch (e) { console.log("Dashboard error:", e); }
         finally {
-            await new Promise(resolve => setTimeout(resolve, 10000));
             this.state.loading = false;
         }
     }
