@@ -168,26 +168,31 @@
             if (isReconnected) return;
 
             try {
-                // Ping lightweight web health check endpoint
-                const response = await fetch('/web/webclient/version_info', {
-                    method: 'GET',
-                    cache: 'no-store'
-                });
+                // Ping standard Odoo GET route with cache busting
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
 
-                if (response.ok) {
+                const response = await fetch('/web/login?_ping=' + Date.now(), {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                // When Odoo starts, NGINX will return 200 OK (not 502/503/504)
+                if (response.status === 200) {
                     isReconnected = true;
                     // Trigger Step 2: Show Green Checkmark & Connected
                     document.getElementById('stepReconnecting').style.display = 'none';
                     document.getElementById('stepConnected').style.display = 'block';
 
-                    // Redirect back to CRM smoothly
+                    // Smoothly reload the user's page
                     setTimeout(function() {
-                        const targetUrl = window.location.pathname.includes('maintenance') ? '/app' : window.location.href;
-                        window.location.replace(targetUrl);
-                    }, 1200);
+                        window.location.reload();
+                    }, 1000);
                 }
             } catch (err) {
-                // Server still upgrading/restarting, poll again in 2.5s
+                // Server still booting / restarting
             }
         }
 
