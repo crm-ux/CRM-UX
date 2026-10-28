@@ -41,6 +41,23 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
+    // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502):
+    // Reload immediately so NGINX smoothly serves the maintenance.html fallback page
+    const isConnectionLost = 
+        err?.status === 0 || 
+        err?.status === 502 || 
+        err?.status === 503 || 
+        err?.status === 504 || 
+        err?.name === "ConnectionLost" || 
+        err?.message?.includes?.("Failed to fetch") || 
+        err?.message?.includes?.("NetworkError") ||
+        err?.data?.name?.includes?.("ConnectionLost");
+
+    if (isConnectionLost) {
+        window.location.reload();
+        return true;
+    }
+
     // 3. For ANY technical DOM / Owl / JS error (like insertBefore, TypeError, RPC_ERROR, etc.):
     // DO NOT display raw code or technical jargon to user.
     // Show only the clean 1-line apology dialog modal:
