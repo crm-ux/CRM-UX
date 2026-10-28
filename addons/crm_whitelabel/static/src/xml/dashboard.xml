@@ -291,7 +291,7 @@
                 </button>
             </div>
 
-            <main class="crm-content">
+            <main class="crm-content" t-att-class="state.isReady ? 'crm-content-ready' : 'crm-content-loading'">
                 <!-- HERO SECTION WITH 4 ACTION BUTTONS -->
                 <section class="crm-hero">
                     <div class="crm-hero-left">

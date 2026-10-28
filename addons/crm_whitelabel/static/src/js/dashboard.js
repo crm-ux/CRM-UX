@@ -60,6 +60,7 @@ class CrmDashboard extends Component {
             canExport: false,
             canLog: false,
             loading: true,
+            isReady: false,
             viewAsUserId: null,
             viewAsUserName: "",
             viewAsModalOpen: false,
@@ -614,6 +615,7 @@ class CrmDashboard extends Component {
         } catch (e) { console.log("Dashboard error:", e); }
         finally {
             this.state.loading = false;
+            this.state.isReady = true;
         }
     }
     fmt(n) {
