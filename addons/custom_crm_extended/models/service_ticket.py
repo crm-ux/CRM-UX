@@ -1217,7 +1217,9 @@ class ServiceTicketVoucherLine(models.Model):
     @api.depends('create_date')
     def _compute_submitted_date(self):
         for rec in self:
-            rec.submitted_date = rec.create_date.date() if rec.create_date else fields.Date.context_today(self) 
+            rec.submitted_date = rec.create_date.date() if rec.create_date else fields.Date.context_today(self)
+
+    def action_submit_line(self): 
         """Submit this single draft voucher line."""
         for rec in self:
             if rec.status == 'draft':
