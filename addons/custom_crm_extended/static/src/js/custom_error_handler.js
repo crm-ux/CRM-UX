@@ -8,6 +8,31 @@ export const CUSTOM_USER_ERROR_MESSAGE = "We apologize for the inconvenience. Th
 
 const errorHandlerRegistry = registry.category("error_handlers");
 
+// GLOBAL NETWORK INTERCEPTOR FOR SERVER RESTARTS / 502 BAD GATEWAY
+// Whenever any user clicks anything while the server is restarting/upgrading:
+// Intercept the 502/network failure instantly and auto-reload to maintenance screen.
+if (typeof window !== "undefined" && !window._crmNetworkWatcherInstalled) {
+    window._crmNetworkWatcherInstalled = true;
+    const originalFetch = window.fetch;
+    window.fetch = async function (...args) {
+        try {
+            const response = await originalFetch.apply(this, args);
+            if (response.status === 502 || response.status === 503 || response.status === 504) {
+                // Server is updating! Auto-reload immediately so NGINX shows maintenance page
+                window.location.reload();
+            }
+            return response;
+        } catch (err) {
+            // Network failure / connection refused while server is dead
+            if (!window._isServerReconnecting) {
+                window._isServerReconnecting = true;
+                window.location.reload();
+            }
+            throw err;
+        }
+    };
+}
+
 /**
  * Universal error handler that catches uncaught technical exceptions / RPC errors,
  * logs the full technical error & traceback to browser developer console,
