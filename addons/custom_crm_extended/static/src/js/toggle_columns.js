@@ -121,6 +121,8 @@ patch(ListRenderer.prototype, {
                     if (table) table.style.display = "";
                 }
             }
+        };
+
         const stripDateTime = () => {
             const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
             if (!el) return;
