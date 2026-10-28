@@ -41,20 +41,33 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502):
-    // Reload immediately so NGINX smoothly serves the maintenance.html fallback page
+    // If we are already in the process of reconnecting/reloading, suppress ALL subsequent error dialogs
+    if (window._isServerReconnecting) {
+        return true;
+    }
+
+    // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502 / NetworkError):
+    // DO NOT show apology dialog! Navigate directly so NGINX serves the maintenance page
+    const errMsg = (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "");
     const isConnectionLost = 
         err?.status === 0 || 
         err?.status === 502 || 
         err?.status === 503 || 
         err?.status === 504 || 
+        err?.code === 502 ||
+        err?.code === 503 ||
+        err?.code === 504 ||
+        err?.code === 100 ||
         err?.name === "ConnectionLost" || 
-        err?.message?.includes?.("Failed to fetch") || 
-        err?.message?.includes?.("NetworkError") ||
-        err?.data?.name?.includes?.("ConnectionLost");
+        errMsg.toLowerCase().includes("failed to fetch") || 
+        errMsg.toLowerCase().includes("networkerror") ||
+        errMsg.toLowerCase().includes("connection lost") ||
+        errMsg.toLowerCase().includes("connection refused") ||
+        errMsg.toLowerCase().includes("server connection");
 
     if (isConnectionLost) {
-        window.location.reload();
+        window._isServerReconnecting = true;
+        window.location.replace(window.location.href);
         return true;
     }
 
