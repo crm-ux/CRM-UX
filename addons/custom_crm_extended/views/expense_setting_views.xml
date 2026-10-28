@@ -208,6 +208,7 @@
         <field name="model">service.ticket.voucher.batch</field>
         <field name="arch" type="xml">
             <list string="Voucher Submissions" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
+                <field name="active" column_invisible="1"/>
                 <field name="name" string="Voucher ID" class="fw-bold"/>
                 <field name="create_date" string="Submitted Date"/>
                 <field name="expense_dates" string="Expense Date(s)"/>
@@ -234,6 +235,8 @@
                     <field name="status" widget="statusbar" statusbar_visible="submitted,approved,rejected"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <field name="active" invisible="1"/>
                     <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
                     <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm flex-wrap"
                          style="border-left: 4px solid #0b3d91 !important;">
@@ -308,6 +311,8 @@
                 <filter string="Submitted" name="status_submitted" domain="[('status', '=', 'submitted')]"/>
                 <filter string="Approved" name="status_approved" domain="[('status', '=', 'approved')]"/>
                 <filter string="Rejected" name="status_rejected" domain="[('status', '=', 'rejected')]"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
                 <separator/>
                 <group>
                     <filter string="Employee" name="group_employee" context="{'group_by': 'user_id'}"/>

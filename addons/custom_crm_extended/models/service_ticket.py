@@ -1111,6 +1111,7 @@ class ServiceTicketVoucherLine(models.Model):
     _description = 'Service Ticket Voucher Line'
     _order = 'id desc'
 
+    active = fields.Boolean(string='Active', default=True)
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
     expense_date = fields.Date(string='Date', default=fields.Date.context_today, required=True, index=True)
     user_id = fields.Many2one('res.users', string='Employee', required=False, default=lambda self: self.env.user)
@@ -1344,8 +1345,15 @@ class ServiceTicketVoucherBatch(models.Model):
     _description = 'Service Ticket Voucher Submission'
     _order = 'id desc'
 
+    active = fields.Boolean(string='Active', default=True)
     name = fields.Char(string='Voucher ID', default=lambda self: _('New'))
     create_date = fields.Datetime(string='Submitted Date', readonly=True)
+
+    def write(self, vals):
+        res = super(ServiceTicketVoucherBatch, self).write(vals)
+        if 'active' in vals:
+            self.mapped('line_ids').write({'active': vals['active']})
+        return res
 
     @api.model_create_multi
     def create(self, vals_list):

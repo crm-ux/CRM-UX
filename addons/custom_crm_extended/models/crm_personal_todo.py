@@ -8,6 +8,7 @@ class CrmPersonalTodo(models.Model):
     _order = 'priority desc, target_date asc, id desc'
 
     name = fields.Char(string='To-Do Title', required=True)
+    active = fields.Boolean(string='Active', default=True)
     user_id = fields.Many2one(
         'res.users', 
         string='Owner', 
