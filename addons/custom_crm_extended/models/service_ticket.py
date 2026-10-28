@@ -425,7 +425,8 @@ class ServiceTicket(models.Model):
     @api.depends('voucher_batch_ids', 'voucher_batch_ids.line_ids', 'voucher_batch_ids.name', 'voucher_batch_ids.total_amount', 'voucher_batch_ids.status')
     def _compute_submitted_vouchers_html(self):
         for rec in self:
-            batches = rec.voucher_batch_ids.filtered(lambda b: b.line_ids)
+            rec._separate_mixed_voucher_batches()
+            batches = rec.voucher_batch_ids.filtered(lambda b: b.line_ids).sorted(key=lambda b: (b.submission_date or fields.Date.today(), b.id), reverse=True)
             if not batches:
                 rec.submitted_vouchers_html = False
                 continue
@@ -813,80 +814,118 @@ class ServiceTicket(models.Model):
             rec.show_voucher_strip = has_draft
             rec.total_voucher_amount = total_amt
 
+    def _separate_mixed_voucher_batches(self):
+        """Ensure each voucher batch only contains lines for a single expense date."""
+        for ticket in self:
+            for batch in ticket.voucher_batch_ids:
+                dates = batch.line_ids.mapped('expense_date')
+                unique_dates = sorted(list(set(filter(None, dates))))
+                if len(unique_dates) > 1:
+                    date_totals = {d: sum(batch.line_ids.filtered(lambda l: l.expense_date == d).mapped('amount')) for d in unique_dates}
+                    main_date = max(date_totals, key=date_totals.get)
+                    for other_date in unique_dates:
+                        if other_date == main_date:
+                            continue
+                        other_lines = batch.line_ids.filtered(lambda l: l.expense_date == other_date)
+                        if not other_lines:
+                            continue
+                        d_str = other_date.strftime('%d-%b-%Y')
+                        tck_name = ticket.ticket_id or ticket.name or 'TCK'
+                        new_batch_name = f"VCH/{tck_name}/{d_str}"
+                        target_batch = ticket.voucher_batch_ids.filtered(lambda b: b.name == new_batch_name)[:1]
+                        if not target_batch:
+                            target_batch = self.env['service.ticket.voucher.batch'].create({
+                                'ticket_id': ticket.id,
+                                'user_id': other_lines[0].user_id.id,
+                                'submitted_by_user_id': batch.submitted_by_user_id.id or self.env.user.id,
+                                'submission_date': batch.submission_date or other_date,
+                                'expense_manager_id': batch.expense_manager_id.id,
+                                'name': new_batch_name,
+                                'other_employee_names': batch.other_employee_names,
+                                'all_employee_names': batch.all_employee_names,
+                            })
+                        other_lines.write({'batch_id': target_batch.id})
+
     def action_submit_all_vouchers(self):
-        """Submit all draft voucher lines together to the Expense Manager."""
+        """Submit draft voucher lines into separate, clean date-wise batches for the Expense Manager."""
         self.ensure_one()
         draft_lines = self.voucher_line_ids.filtered(lambda l: l.status == 'draft')
         if not draft_lines:
-            draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected'))
-        if draft_lines:
-            # Group lines by employee and assign batch_id if not already assigned
-            now_ts = fields.Datetime.now().strftime('%Y%m%d%H%M%S')
-            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-            approver_uid = mgr.id if mgr else 2
-            
-            # Combine all employee names into one group submission
+            draft_lines = self.voucher_line_ids.filtered(lambda l: l.status not in ('approved', 'rejected') and not l.batch_id)
+        if not draft_lines:
+            return True
+
+        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+        approver_uid = mgr.id if mgr else 2
+        submit_date = fields.Date.context_today(self)
+        ticket_name = self.ticket_id or self.name or 'TCK'
+
+        # Group draft lines by expense_date so each date gets its own independent batch & table
+        dates = sorted(list(set(draft_lines.mapped('expense_date'))))
+        created_batches = []
+        for exp_date in dates:
+            lines_for_date = draft_lines.filtered(lambda l: l.expense_date == exp_date)
+            if not lines_for_date:
+                continue
+
             all_names = []
-            for emp in draft_lines.mapped('user_id'):
+            for emp in lines_for_date.mapped('user_id'):
                 if emp.name and emp.name not in all_names:
                     all_names.append(emp.name)
-            for line in draft_lines:
+            for line in lines_for_date:
                 if line.other_employee_names:
                     for n in line.other_employee_names.split(','):
                         n_clean = n.strip()
                         if n_clean and n_clean not in all_names:
                             all_names.append(n_clean)
-            
+
             combined_emp_names = ", ".join(all_names)
-            primary_emp = draft_lines[0].user_id
-            # In "Other Employees", only show the team members excluding who submitted it
+            primary_emp = lines_for_date[0].user_id
             submitter_name = self.env.user.name
             other_names_list = [n for n in all_names if n != submitter_name]
             other_team_names = ", ".join(other_names_list)
-            
-            # Check if there is already an existing pending batch (not yet approved/rejected) on this ticket
-            pending_batch = self.voucher_batch_ids.filtered(lambda b: b.status == 'submitted')[:1]
-            if pending_batch:
-                batch_rec = pending_batch
-                # Update employee names on existing batch
-                existing_names = [n.strip() for n in (batch_rec.all_employee_names or '').split(',') if n.strip()]
-                for n in all_names:
-                    if n not in existing_names:
-                        existing_names.append(n)
-                batch_rec.all_employee_names = ", ".join(existing_names)
+
+            # Determine unique batch name for this ticket and date
+            d_str = (exp_date or submit_date).strftime('%d-%b-%Y')
+            base_name = f"VCH/{ticket_name}/{d_str}"
+            existing_count = self.env['service.ticket.voucher.batch'].search_count([
+                ('ticket_id', '=', self.id),
+                ('name', '=like', f"{base_name}%")
+            ])
+            if existing_count == 0:
+                batch_name = base_name
             else:
-                seq_val = self.env['ir.sequence'].next_by_code('service.ticket.voucher.seq')
-                if not seq_val:
-                    year = fields.Date.today().year
-                    count = self.env['service.ticket.voucher.batch'].search_count([]) + 1
-                    seq_val = f"VCH-{year}-{count:05d}"
-                batch_rec = self.env['service.ticket.voucher.batch'].create({
-                    'ticket_id': self.id,
-                    'user_id': primary_emp.id,
-                    'submitted_by_user_id': self.env.user.id,
-                    'expense_manager_id': approver_uid,
-                    'other_employee_names': other_team_names,
-                    'all_employee_names': combined_emp_names,
-                    'name': seq_val,
-                })
-            
-            # Link ALL lines together into this batch
-            draft_lines.write({
+                batch_name = f"{base_name}-{existing_count + 1:02d}"
+
+            # Always create a brand-new separate batch (NEVER merge into old batches)
+            batch_rec = self.env['service.ticket.voucher.batch'].create({
+                'ticket_id': self.id,
+                'name': batch_name,
+                'submission_date': submit_date,
+                'user_id': primary_emp.id,
+                'submitted_by_user_id': self.env.user.id,
+                'expense_manager_id': approver_uid,
+                'other_employee_names': other_team_names,
+                'all_employee_names': combined_emp_names,
+            })
+            created_batches.append(batch_rec)
+
+            lines_for_date.write({
                 'status': 'submitted',
                 'batch_id': batch_rec.id,
                 'submitted_by_user_id': self.env.user.id,
             })
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Expenses Submitted'),
-                    'message': _('%d expense voucher(s) have been submitted to the Expense Manager.') % len(draft_lines),
-                    'type': 'success',
-                    'sticky': False,
-                }
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Expenses Submitted'),
+                'message': _('%d expense line(s) submitted across %d batch(es).') % (len(draft_lines), len(created_batches)),
+                'type': 'success',
+                'sticky': False,
             }
-        return True
+        }
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
     @api.depends('ticket_status')
