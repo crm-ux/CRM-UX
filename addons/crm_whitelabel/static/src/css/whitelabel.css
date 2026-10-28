@@ -398,6 +398,24 @@ button.o_form_button_cancel {
     opacity: 1 !important;
 }
 
+/* Custom Blue Theme (#0d3e8e) for Smiling Face Empty State instead of default purple */
+.o_view_nocontent_smiling_face,
+.crm-custom-empty-state .o_view_nocontent_smiling_face {
+    color: #0d3e8e !important;
+    font-weight: 700 !important;
+    --o-view-nocontent-color: #0d3e8e !important;
+}
+
+.o_view_nocontent_smiling_face::before,
+.crm-custom-empty-state .o_view_nocontent_smiling_face::before {
+    -webkit-mask: url(/web/static/img/smiling_face.svg) no-repeat center !important;
+    mask: url(/web/static/img/smiling_face.svg) no-repeat center !important;
+    -webkit-mask-size: contain !important;
+    mask-size: contain !important;
+    background-color: #0d3e8e !important;
+    background-image: none !important;
+}
+
 /* 1. Only the opened dropdown menu list should scroll */
 .dropdown-menu {
     max-height: clamp(15.625rem, 50vh, 31.25rem) !important;
