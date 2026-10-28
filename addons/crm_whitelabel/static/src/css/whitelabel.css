@@ -389,7 +389,10 @@ button.o_form_button_cancel {
 [data-model="crm.personal.todo"] .o_nocontent_help,
 [data-model="crm.task.management"] .o_view_nocontent,
 [data-model="crm.task.management"] .o_view_nocontent_smiling_face,
-[data-model="crm.task.management"] .o_nocontent_help {
+[data-model="crm.task.management"] .o_nocontent_help,
+.crm-custom-empty-state,
+.crm-custom-empty-state .o_view_nocontent_smiling_face,
+.crm-custom-empty-state .o_nocontent_help {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
