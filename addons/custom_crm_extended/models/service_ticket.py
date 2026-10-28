@@ -1210,7 +1210,7 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
 
     other_employee_names = fields.Char(string='Other Employees')
-    ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
+    ticket_voucher_line_ids = fields.One2many(related='batch_id.line_ids', string='Voucher Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
 
     def action_submit_line(self): 
