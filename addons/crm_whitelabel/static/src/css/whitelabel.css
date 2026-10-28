@@ -44,7 +44,8 @@ nav.o_navbar,
     box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-size: 0 !important; /* Hide original text */
+    font-size: 0 !important;
+    /* Hide original text */
     color: transparent !important;
     /* Debounce: Do NOT show for fast <350ms micro-requests; only show for real loads */
     animation: crmLoaderDebounce 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both !important;
@@ -55,6 +56,7 @@ nav.o_navbar,
         opacity: 0;
         visibility: hidden;
     }
+
     to {
         opacity: 1;
         visibility: visible;
@@ -87,8 +89,13 @@ nav.o_navbar,
 }
 
 @keyframes crmGlobalSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible as text buttons */
