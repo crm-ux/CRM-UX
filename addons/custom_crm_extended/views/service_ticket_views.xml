@@ -268,16 +268,6 @@
                                 </list>
                             </field>
 
-                            <!-- Submit All Expenses Button directly under Total with proper alignment and readability -->
-                            <div class="d-flex justify-content-end align-items-center mt-2 mb-3 pe-2" invisible="not show_voucher_strip">
-                                <button name="action_submit_all_vouchers"
-                                        string="Submit for Approval"
-                                        type="object"
-                                        icon="fa-paper-plane"
-                                        class="btn btn-primary fw-bold px-4 py-2 shadow-sm o_btn_submit_vouchers"
-                                        style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important; border-radius: 6px; font-size: 14px;"/>
-                            </div>
-
                             <!-- Horizontal Line Between Pending and Submitted Expenses -->
                             <hr class="my-4" style="border-top: 2px solid #e9ecef;" invisible="not has_submitted_batches"/>
 
