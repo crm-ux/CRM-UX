@@ -1689,3 +1689,26 @@ button[name="action_cancel_future_series"] i {
     padding: 1px 6px;
     border-radius: 4px;
 }
+
+/* Custom CRM Blue for all Checkboxes (Overriding Odoo default purple) */
+.form-check-input:checked,
+input[type="checkbox"]:checked,
+.o_list_record_selector input[type="checkbox"]:checked,
+.o_list_table th.o_list_record_selector input[type="checkbox"]:checked,
+.o_list_table td.o_list_record_selector input[type="checkbox"]:checked,
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+}
+
+.form-check-input:focus,
+input[type="checkbox"]:focus {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
+}
+
+.form-check-input:indeterminate,
+input[type="checkbox"]:indeterminate {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+}
