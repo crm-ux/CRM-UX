@@ -187,6 +187,14 @@
         <field name="name">Task Management</field>
         <field name="res_model">crm.task.management</field>
         <field name="view_mode">calendar,list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks yet
+            </p>
+            <p>
+                Track activities, assign work to team members, and monitor progress here.
+            </p>
+        </field>
     </record>
 
     <!-- Action Window for Unscheduled Tasks Modal -->
