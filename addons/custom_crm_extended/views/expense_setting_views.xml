@@ -111,7 +111,6 @@
         <field name="arch" type="xml">
             <list string="Submitted Vouchers" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
                 <field name="active" column_invisible="1"/>
-                <field name="voucher_id" string="Voucher ID" class="fw-bold text-primary"/>
                 <field name="expense_date" string="Expense Date"/>
                 <field name="create_date" string="Submitted Date" optional="hide"/>
                 <field name="ticket_id" string="Service Ticket"/>
