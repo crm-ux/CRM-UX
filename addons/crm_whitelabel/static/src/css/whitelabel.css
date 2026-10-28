@@ -30,9 +30,9 @@ nav.o_navbar,
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    background: rgba(248, 250, 252, 0.65) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
     z-index: 999999 !important;
     display: flex !important;
     flex-direction: column !important;

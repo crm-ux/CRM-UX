@@ -37,23 +37,7 @@
 
 
 
-/* Global Centered Loading Screen with Blur Backdrop */
-.crm-global-loader-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background: rgba(248, 250, 252, 0.65) !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 16px !important;
-    animation: crmFadeIn 0.2s ease-out;
-}
+
 
 /* Custom Swatch Blue Spinner (#0d3e8e) */
 .crm-spinner {
