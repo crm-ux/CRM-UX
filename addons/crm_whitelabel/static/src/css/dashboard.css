@@ -35,14 +35,7 @@
     overflow-y: auto !important;
 }
 
-/* Suppress persistent background loading badge */
-.o_loading,
-.crm-pro-dashboard ~ .o_loading,
-body:has(.crm-pro-dashboard) .o_loading {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-}
+
 
 /* Global Centered Loading Screen with Blur Backdrop */
 .crm-global-loader-overlay {
