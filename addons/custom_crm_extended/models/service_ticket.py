@@ -1210,8 +1210,26 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
 
     other_employee_names = fields.Char(string='Other Employees')
-    ticket_voucher_line_ids = fields.One2many(related='batch_id.line_ids', string='Voucher Expenses', readonly=True)
+    ticket_voucher_line_ids = fields.Many2many(
+        'service.ticket.voucher.line',
+        compute='_compute_ticket_voucher_line_ids',
+        string='Voucher Expenses',
+    )
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
+
+    @api.depends('batch_id', 'batch_id.line_ids', 'voucher_id', 'ticket_id')
+    def _compute_ticket_voucher_line_ids(self):
+        for rec in self:
+            if rec.batch_id and rec.batch_id.line_ids:
+                rec.ticket_voucher_line_ids = rec.batch_id.line_ids
+            elif rec.voucher_id:
+                rec.ticket_voucher_line_ids = self.search([
+                    ('ticket_id', '=', rec.ticket_id.id),
+                    ('voucher_id', '=', rec.voucher_id),
+                    ('status', '!=', 'draft'),
+                ])
+            else:
+                rec.ticket_voucher_line_ids = rec
 
     def action_submit_line(self): 
         """Submit this single draft voucher line."""
