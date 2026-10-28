@@ -1610,4 +1610,36 @@ div:has(> .o_terms_checkboxes) input[type="checkbox"]:checked,
     color: #495057 !important;
 }
 
+/* Service Ticket: Submit for Approval Button Styling & Readability */
+.o_btn_submit_vouchers,
+button[name="action_submit_all_vouchers"] {
+    background-color: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 13.5px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 5px rgba(11, 61, 145, 0.25) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: all 0.2s ease !important;
+}
+
+.o_btn_submit_vouchers:hover,
+button[name="action_submit_all_vouchers"]:hover {
+    background-color: #08285e !important;
+    border-color: #08285e !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 8px rgba(11, 61, 145, 0.35) !important;
+}
+
+.o_btn_submit_vouchers i,
+.o_btn_submit_vouchers .fa,
+button[name="action_submit_all_vouchers"] i,
+button[name="action_submit_all_vouchers"] .fa {
+    color: #ffffff !important;
+    font-size: 13px !important;
+}
+
 

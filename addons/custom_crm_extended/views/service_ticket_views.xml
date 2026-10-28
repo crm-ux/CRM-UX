@@ -243,8 +243,9 @@
                                     <button name="action_submit_all_vouchers"
                                             string="Submit for Approval"
                                             type="object"
-                                            class="btn btn-sm text-white fw-bold px-3 py-1 shadow-sm"
-                                            style="background-color: #0b3d91 !important; color: #ffffff !important; border-color: #0b3d91 !important;"/>
+                                            icon="fa-paper-plane"
+                                            class="btn btn-primary btn-sm fw-bold px-3 py-1 shadow-sm o_btn_submit_vouchers"
+                                            style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important;"/>
                                 </div>
                             </div>
 
@@ -267,13 +268,14 @@
                                 </list>
                             </field>
 
-                            <!-- Submit All Expenses Button directly under Total -->
-                            <div class="d-flex justify-content-end align-items-center mt-2 mb-3" invisible="not show_voucher_strip">
+                            <!-- Submit All Expenses Button directly under Total with proper alignment and readability -->
+                            <div class="d-flex justify-content-end align-items-center mt-2 mb-3 pe-2" invisible="not show_voucher_strip">
                                 <button name="action_submit_all_vouchers"
                                         string="Submit for Approval"
                                         type="object"
-                                        class="btn text-white fw-bold px-4 py-2 shadow-sm"
-                                        style="background-color: #0b3d91 !important; color: #ffffff !important; border-color: #0b3d91 !important; border-radius: 6px; font-size: 14px;"/>
+                                        icon="fa-paper-plane"
+                                        class="btn btn-primary fw-bold px-4 py-2 shadow-sm o_btn_submit_vouchers"
+                                        style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important; border-radius: 6px; font-size: 14px;"/>
                             </div>
 
                             <!-- Horizontal Line Between Pending and Submitted Expenses -->
