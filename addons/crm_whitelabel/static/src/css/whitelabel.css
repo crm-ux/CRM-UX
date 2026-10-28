@@ -408,7 +408,7 @@ button.o_form_button_cancel {
 
 .o_view_nocontent_smiling_face::before,
 .crm-custom-empty-state .o_view_nocontent_smiling_face::before {
-    filter: hue-rotate(190deg) saturate(200%) brightness(0.85) !important;
+    filter: brightness(0) saturate(100%) invert(18%) sepia(85%) saturate(3025%) hue-rotate(208deg) brightness(88%) contrast(98%) !important;
 }
 
 /* 1. Only the opened dropdown menu list should scroll */
