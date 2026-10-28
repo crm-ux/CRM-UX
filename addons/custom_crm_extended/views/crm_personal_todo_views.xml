@@ -85,11 +85,25 @@
         </field>
     </record>
 
+    <!-- Search View for Personal To-Do (Enables Native Odoo Search Bar) -->
+    <record id="view_crm_personal_todo_search" model="ir.ui.view">
+        <field name="name">crm.personal.todo.search</field>
+        <field name="model">crm.personal.todo</field>
+        <field name="arch" type="xml">
+            <search string="Personal To-Do">
+                <field name="name"/>
+                <separator/>
+                <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Action Window for Personal To-Do -->
     <record id="action_crm_personal_todo" model="ir.actions.act_window">
         <field name="name">My To-Do List</field>
         <field name="res_model">crm.personal.todo</field>
         <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_crm_personal_todo_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 No tasks yet
