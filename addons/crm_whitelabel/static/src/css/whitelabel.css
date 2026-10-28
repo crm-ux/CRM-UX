@@ -377,6 +377,24 @@ button.o_form_button_cancel {
     display: none !important;
 }
 
+/* Explicitly show smiling face empty state ONLY for Task Management and To-Do List */
+.o_crm_personal_todo .o_view_nocontent,
+.o_crm_personal_todo .o_view_nocontent_smiling_face,
+.o_crm_personal_todo .o_nocontent_help,
+.o_crm_task_management .o_view_nocontent,
+.o_crm_task_management .o_view_nocontent_smiling_face,
+.o_crm_task_management .o_nocontent_help,
+[data-model="crm.personal.todo"] .o_view_nocontent,
+[data-model="crm.personal.todo"] .o_view_nocontent_smiling_face,
+[data-model="crm.personal.todo"] .o_nocontent_help,
+[data-model="crm.task.management"] .o_view_nocontent,
+[data-model="crm.task.management"] .o_view_nocontent_smiling_face,
+[data-model="crm.task.management"] .o_nocontent_help {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* 1. Only the opened dropdown menu list should scroll */
 .dropdown-menu {
     max-height: clamp(15.625rem, 50vh, 31.25rem) !important;
