@@ -30,9 +30,9 @@ nav.o_navbar,
     bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    background: rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(14px) !important;
-    -webkit-backdrop-filter: blur(14px) !important;
+    background: rgba(255, 255, 255, 0.35) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
     z-index: 999999 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -46,6 +46,19 @@ nav.o_navbar,
     margin: 0 !important;
     font-size: 0 !important; /* Hide original text */
     color: transparent !important;
+    /* Debounce: Do NOT show for fast <350ms micro-requests; only show for real loads */
+    animation: crmLoaderDebounce 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both !important;
+}
+
+@keyframes crmLoaderDebounce {
+    from {
+        opacity: 0;
+        visibility: hidden;
+    }
+    to {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 /* Spinner directly on the global loader */

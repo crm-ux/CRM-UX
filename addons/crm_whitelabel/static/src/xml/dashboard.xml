@@ -1014,7 +1014,9 @@
                         </button>
                     </div>
                 </section>
-                <div class="crm-pro-footer"><t t-esc="state.companyName"/> in CRM</div>
+                <div class="crm-pro-footer">
+                    <span>Connect · Manage · Grow</span>
+                </div>
             </main>
         </div>
 
