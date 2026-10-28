@@ -2,6 +2,11 @@
 <templates>
     <t t-name="crm_whitelabel.Dashboard">
         <div class="crm-pro-dashboard">
+            <!-- INSTANT DASHBOARD BLUR LOADER (COVERS 0 CARDS FROM FRAME 1) -->
+            <div t-if="!state.isReady" class="crm-dashboard-loader-overlay">
+                <div class="crm-spinner"></div>
+                <div class="crm-loader-text">Loading...</div>
+            </div>
             <!-- FLOATING & COLLAPSIBLE LEFT SIDEBAR (DRAWER) -->
             <div class="crm-sidebar-overlay" t-att-class="state.sidebarOpen ? 'active' : ''" t-on-click="toggleSidebar"></div>
             <aside class="crm-sidebar" t-att-class="state.sidebarOpen ? 'open' : ''">

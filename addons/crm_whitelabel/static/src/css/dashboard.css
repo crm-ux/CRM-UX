@@ -36,8 +36,34 @@
 }
 
 
+/* Prevent duplicate loading: On Dashboard, hide Odoo global indicator */
+.crm-pro-dashboard ~ .o_loading_indicator,
+.crm-pro-dashboard ~ .o_loading,
+body:has(.crm-pro-dashboard) .o_loading_indicator,
+body:has(.crm-pro-dashboard) .o_loading {
+    display: none !important;
+}
 
-
+/* Dashboard-Only Instant Blur Overlay (Covers the screen at 0ms, hiding 0s) */
+.crm-dashboard-loader-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(248, 250, 252, 0.65) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 16px !important;
+}
 
 /* Custom Swatch Blue Spinner (#0d3e8e) */
 .crm-spinner {
@@ -58,13 +84,23 @@
 }
 
 @keyframes crmSpin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes crmFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .crm-pro-dashboard {
@@ -2349,7 +2385,7 @@
     box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.12) !important;
 }
 
-.crm-password-input:focus ~ .crm-password-field-icon {
+.crm-password-input:focus~.crm-password-field-icon {
     color: #0b3d91 !important;
 }
 
