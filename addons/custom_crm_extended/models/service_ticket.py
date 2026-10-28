@@ -565,7 +565,7 @@ class ServiceTicket(models.Model):
         domain="[('share', '=', False)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
-    new_voucher_date = fields.Date(string='Expense Date')
+    new_voucher_date = fields.Date(string='Expense Date', store=False)
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
@@ -1570,6 +1570,19 @@ class ServiceTicketVoucherBatch(models.Model):
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
+        }
+
+    def action_open_expense_settings(self):
+        setting = self.env['expense.setting'].search([], limit=1)
+        if not setting:
+            setting = self.env['expense.setting'].create({})
+        return {
+            'name': _('Voucher Management'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'expense.setting',
+            'view_mode': 'form',
+            'res_id': setting.id,
+            'target': 'current',
         }
 
 
