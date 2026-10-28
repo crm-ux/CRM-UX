@@ -330,6 +330,14 @@
         <field name="view_id" ref="view_service_ticket_voucher_batch_tree"/>
         <field name="search_view_id" ref="view_service_ticket_voucher_batch_search"/>
         <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No vouchers yet
+            </p>
+            <p>
+                All submitted expense vouchers and batches will appear here.
+            </p>
+        </field>
     </record>
 
 

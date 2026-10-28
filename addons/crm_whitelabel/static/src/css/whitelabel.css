@@ -330,13 +330,8 @@ button.o_form_button_cancel {
 }
 
 /* Hide default Odoo empty state messages in quotations */
-.o_view_nocontent .o_nocontent_help p:has-text,
 .o_sale_order .o_view_nocontent_smiling_face,
-.o_view_nocontent_smiling_face {
-    display: none !important;
-}
-
-.o_nocontent_help {
+.o_sale_order .o_nocontent_help {
     display: none !important;
 }
 
@@ -370,26 +365,30 @@ button.o_form_button_cancel {
 }
 
 /* Hide default Odoo empty state messages in quotations */
-.o_view_nocontent .o_nocontent_help p:has-text,
 .o_sale_order .o_view_nocontent_smiling_face,
-.o_view_nocontent_smiling_face,
-.o_nocontent_help {
+.o_sale_order .o_nocontent_help {
     display: none !important;
 }
 
-/* Explicitly show smiling face empty state ONLY for Task Management and To-Do List */
+/* Explicitly show smiling face empty state for Task Management, To-Do List, and Voucher Management */
 .o_crm_personal_todo .o_view_nocontent,
 .o_crm_personal_todo .o_view_nocontent_smiling_face,
 .o_crm_personal_todo .o_nocontent_help,
 .o_crm_task_management .o_view_nocontent,
 .o_crm_task_management .o_view_nocontent_smiling_face,
 .o_crm_task_management .o_nocontent_help,
+.o_service_ticket_voucher_batch .o_view_nocontent,
+.o_service_ticket_voucher_batch .o_view_nocontent_smiling_face,
+.o_service_ticket_voucher_batch .o_nocontent_help,
 [data-model="crm.personal.todo"] .o_view_nocontent,
 [data-model="crm.personal.todo"] .o_view_nocontent_smiling_face,
 [data-model="crm.personal.todo"] .o_nocontent_help,
 [data-model="crm.task.management"] .o_view_nocontent,
 [data-model="crm.task.management"] .o_view_nocontent_smiling_face,
 [data-model="crm.task.management"] .o_nocontent_help,
+[data-model="service.ticket.voucher.batch"] .o_view_nocontent,
+[data-model="service.ticket.voucher.batch"] .o_view_nocontent_smiling_face,
+[data-model="service.ticket.voucher.batch"] .o_nocontent_help,
 .crm-custom-empty-state,
 .crm-custom-empty-state .o_view_nocontent_smiling_face,
 .crm-custom-empty-state .o_nocontent_help {
@@ -398,17 +397,12 @@ button.o_form_button_cancel {
     opacity: 1 !important;
 }
 
-/* Custom Blue Theme (#0d3e8e) for Smiling Face Empty State instead of default purple */
+/* Custom Blue Theme (#0d3e8e) for Smiling Face Empty State text */
 .o_view_nocontent_smiling_face,
 .crm-custom-empty-state .o_view_nocontent_smiling_face {
     color: #0d3e8e !important;
     font-weight: 700 !important;
     --o-view-nocontent-color: #0d3e8e !important;
-}
-
-.o_view_nocontent_smiling_face::before,
-.crm-custom-empty-state .o_view_nocontent_smiling_face::before {
-    filter: brightness(0) saturate(100%) invert(18%) sepia(85%) saturate(3025%) hue-rotate(208deg) brightness(88%) contrast(98%) !important;
 }
 
 /* 1. Only the opened dropdown menu list should scroll */

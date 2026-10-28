@@ -47,7 +47,7 @@ patch(ListRenderer.prototype, {
 
         const checkEmptyState = () => {
             const resModel = this.props?.list?.resModel;
-            if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management') {
+            if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management' || resModel === 'service.ticket.voucher.batch') {
                 const count = this.props?.list?.records?.length ?? 0;
                 const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
                 if (!el) return;
@@ -106,10 +106,10 @@ patch(ListRenderer.prototype, {
                                     </g>
                                 </svg>
                                 <h4 style="font-weight: 700; color: #0d3e8e; margin: 0.5rem 0 0.35rem 0; font-size: 1.35rem;">
-                                    No tasks yet
+                                    ${resModel === 'service.ticket.voucher.batch' ? 'No vouchers yet' : 'No tasks yet'}
                                 </h4>
                                 <p class="text-muted" style="margin: 0; font-size: 0.95rem; max-width: 450px;">
-                                    ${resModel === 'crm.personal.todo' ? 'Keep track of your personal notes, reminders, and daily checklist here.' : 'Track activities, assign work to team members, and monitor progress here.'}
+                                    ${resModel === 'crm.personal.todo' ? 'Keep track of your personal notes, reminders, and daily checklist here.' : (resModel === 'service.ticket.voucher.batch' ? 'All submitted expense vouchers and batches will appear here.' : 'Track activities, assign work to team members, and monitor progress here.')}
                                 </p>
                             </div>
                         `;
