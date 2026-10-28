@@ -1,6 +1,7 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
+import { onMounted, onPatched } from "@odoo/owl";
 
 patch(ListRenderer.prototype, {
     computeOptionalActiveFields() {
@@ -43,6 +44,43 @@ patch(ListRenderer.prototype, {
 
     setup() {
         super.setup ? super.setup() : null;
+
+        const checkEmptyState = () => {
+            const resModel = this.props?.list?.resModel;
+            if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management') {
+                const count = this.props?.list?.records?.length ?? 0;
+                const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
+                if (!el) return;
+                let emptyEl = el.querySelector(".crm-custom-empty-state");
+                if (count === 0) {
+                    const table = el.querySelector("table.o_list_table");
+                    if (table) table.style.display = "none";
+                    if (!emptyEl) {
+                        emptyEl = document.createElement("div");
+                        emptyEl.className = "o_view_nocontent crm-custom-empty-state";
+                        emptyEl.style.cssText = "display: flex !important; flex-direction: column; align-items: center; justify-content: center; min-height: 45vh; text-align: center; width: 100%; margin: 2rem auto;";
+                        emptyEl.innerHTML = `
+                            <div class="o_nocontent_help" style="display: block !important;">
+                                <p class="o_view_nocontent_smiling_face" style="display: block !important;">
+                                    No tasks yet
+                                </p>
+                                <p class="text-muted" style="display: block !important; margin-top: 0.5rem; font-size: 0.95rem;">
+                                    ${resModel === 'crm.personal.todo' ? 'Keep track of your personal notes, reminders, and daily checklist here.' : 'Track activities, assign work to team members, and monitor progress here.'}
+                                </p>
+                            </div>
+                        `;
+                        el.appendChild(emptyEl);
+                    }
+                } else {
+                    if (emptyEl) emptyEl.remove();
+                    const table = el.querySelector("table.o_list_table");
+                    if (table) table.style.display = "";
+                }
+            }
+        };
+        onMounted(checkEmptyState);
+        onPatched(checkEmptyState);
+
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order') {
             // Intercept click on the section options button to directly delete this single section row
