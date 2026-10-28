@@ -408,12 +408,7 @@ button.o_form_button_cancel {
 
 .o_view_nocontent_smiling_face::before,
 .crm-custom-empty-state .o_view_nocontent_smiling_face::before {
-    -webkit-mask: url(/web/static/img/smiling_face.svg) no-repeat center !important;
-    mask: url(/web/static/img/smiling_face.svg) no-repeat center !important;
-    -webkit-mask-size: contain !important;
-    mask-size: contain !important;
-    background-color: #0d3e8e !important;
-    background-image: none !important;
+    filter: hue-rotate(190deg) saturate(200%) brightness(0.85) !important;
 }
 
 /* 1. Only the opened dropdown menu list should scroll */
