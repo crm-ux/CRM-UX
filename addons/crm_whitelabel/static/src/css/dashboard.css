@@ -79,22 +79,7 @@
     overflow-x: hidden;
 }
 
-/* Prevent 0s and ₹0 from flashing on hard refresh before data arrives */
-.crm-content-loading .crm-stat-val,
-.crm-content-loading .crm-stat-subval,
-.crm-content-loading .crm-pipe-col-val,
-.crm-content-loading .crm-pipe-col-amount {
-    visibility: hidden !important;
-}
 
-.crm-content-ready {
-    animation: crmContentFadeIn 0.25s ease-out;
-}
-
-@keyframes crmContentFadeIn {
-    from { opacity: 0.6; }
-    to { opacity: 1; }
-}
 
 /* Floating & Collapsible Sidebar Drawer */
 .crm-sidebar {
