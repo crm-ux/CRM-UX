@@ -122,31 +122,8 @@ patch(ListRenderer.prototype, {
                 }
             }
         };
-
-        const stripDateTime = () => {
-            const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
-            if (!el) return;
-            const cells = el.querySelectorAll("td[name='create_date']");
-            for (const td of cells) {
-                const target = td.querySelector("span") || td;
-                const text = (target.textContent || "").trim();
-                if (text.includes(" ") && text.includes("/")) {
-                    const datePart = text.split(/\s+/)[0];
-                    if (datePart && datePart.includes("/")) {
-                        target.textContent = datePart;
-                    }
-                }
-            }
-        };
-
-        onMounted(() => {
-            checkEmptyState();
-            stripDateTime();
-        });
-        onPatched(() => {
-            checkEmptyState();
-            stripDateTime();
-        });
+        onMounted(checkEmptyState);
+        onPatched(checkEmptyState);
 
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order') {
