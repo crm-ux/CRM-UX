@@ -46,9 +46,11 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502 / NetworkError):
+    // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502 Bad Gateway / NetworkError):
     // DO NOT show apology dialog! Navigate directly so NGINX serves the maintenance page
-    const errMsg = (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "");
+    const fullErrStr = JSON.stringify(err || {}) + " " + (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "") + " " + (err?.stack || "");
+    const fullErrLower = fullErrStr.toLowerCase();
+
     const isConnectionLost = 
         err?.status === 0 || 
         err?.status === 502 || 
@@ -58,12 +60,17 @@ export function customCleanErrorHandler(env, error, originalError) {
         err?.code === 503 ||
         err?.code === 504 ||
         err?.code === 100 ||
+        err?.response?.status === 502 ||
+        err?.response?.status === 503 ||
+        err?.response?.status === 504 ||
         err?.name === "ConnectionLost" || 
-        errMsg.toLowerCase().includes("failed to fetch") || 
-        errMsg.toLowerCase().includes("networkerror") ||
-        errMsg.toLowerCase().includes("connection lost") ||
-        errMsg.toLowerCase().includes("connection refused") ||
-        errMsg.toLowerCase().includes("server connection");
+        fullErrLower.includes("502") ||
+        fullErrLower.includes("bad gateway") ||
+        fullErrLower.includes("failed to fetch") || 
+        fullErrLower.includes("networkerror") ||
+        fullErrLower.includes("connection lost") ||
+        fullErrLower.includes("connection refused") ||
+        fullErrLower.includes("server connection");
 
     if (isConnectionLost) {
         window._isServerReconnecting = true;
