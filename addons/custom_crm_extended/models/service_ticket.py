@@ -1212,19 +1212,6 @@ class ServiceTicketVoucherLine(models.Model):
     other_employee_names = fields.Char(string='Other Employees')
     ticket_voucher_line_ids = fields.One2many(related='ticket_id.voucher_line_ids', string='All Ticket Expenses', readonly=True)
     voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
-    batch_line_ids = fields.Many2many(
-        'service.ticket.voucher.line',
-        compute='_compute_batch_line_ids',
-        string='Voucher Expenses',
-    )
-
-    @api.depends('batch_id', 'batch_id.line_ids', 'batch_id.line_ids.status')
-    def _compute_batch_line_ids(self):
-        for rec in self:
-            if rec.batch_id and rec.batch_id.line_ids:
-                rec.batch_line_ids = rec.batch_id.line_ids.filtered(lambda l: l.status != 'draft')
-            else:
-                rec.batch_line_ids = rec if rec.status != 'draft' else self.env['service.ticket.voucher.line']
 
     def action_submit_line(self): 
         """Submit this single draft voucher line."""
