@@ -240,13 +240,11 @@
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <field name="has_draft_vouchers" invisible="1"/>
                                     <button name="action_submit_all_vouchers"
                                             string="Submit for Approval"
                                             type="object"
                                             class="btn btn-sm text-white fw-bold px-3 py-1 shadow-sm"
-                                            style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"
-                                            invisible="not draft_voucher_line_ids"/>
+                                            style="background-color: #0b3d91 !important; color: #ffffff !important; border-color: #0b3d91 !important;"/>
                                 </div>
                             </div>
 
@@ -270,12 +268,12 @@
                             </field>
 
                             <!-- Submit All Expenses Button directly under Total -->
-                            <div class="d-flex justify-content-end align-items-center mt-2 mb-3" invisible="not draft_voucher_line_ids">
+                            <div class="d-flex justify-content-end align-items-center mt-2 mb-3" invisible="not show_voucher_strip">
                                 <button name="action_submit_all_vouchers"
                                         string="Submit for Approval"
                                         type="object"
                                         class="btn text-white fw-bold px-4 py-2 shadow-sm"
-                                        style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; border-radius: 6px; font-size: 14px;"/>
+                                        style="background-color: #0b3d91 !important; color: #ffffff !important; border-color: #0b3d91 !important; border-radius: 6px; font-size: 14px;"/>
                             </div>
 
                             <!-- Horizontal Line Between Pending and Submitted Expenses -->
