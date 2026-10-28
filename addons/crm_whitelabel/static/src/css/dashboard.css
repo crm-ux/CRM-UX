@@ -36,11 +36,69 @@
 }
 
 /* Suppress persistent background loading badge */
+.o_loading,
 .crm-pro-dashboard ~ .o_loading,
 body:has(.crm-pro-dashboard) .o_loading {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
+}
+
+/* Global Centered Loading Screen with Blur Backdrop */
+.crm-global-loader-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(248, 250, 252, 0.72) !important;
+    backdrop-filter: blur(8px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(8px) saturate(180%) !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    animation: crmFadeIn 0.2s ease-out;
+}
+
+.crm-loader-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 36px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px -15px rgba(11, 61, 145, 0.15), 0 0 0 1px rgba(226, 232, 240, 0.8);
+    gap: 14px;
+}
+
+/* Custom Blue Spinner */
+.crm-spinner {
+    width: 44px;
+    height: 44px;
+    border: 3.5px solid #e2e8f0;
+    border-top: 3.5px solid var(--primary-blue, #0b3d91);
+    border-right: 3.5px solid var(--accent-cyan, #0284c7);
+    border-radius: 50%;
+    animation: crmSpin 0.75s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+}
+
+.crm-loader-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--primary-blue, #0b3d91);
+    letter-spacing: 0.3px;
+    font-family: inherit;
+}
+
+@keyframes crmSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes crmFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .crm-pro-dashboard {

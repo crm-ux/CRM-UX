@@ -59,7 +59,7 @@ class CrmDashboard extends Component {
             canCreateCompany: false,
             canExport: false,
             canLog: false,
-            loading: false,
+            loading: true,
             viewAsUserId: null,
             viewAsUserName: "",
             viewAsModalOpen: false,
@@ -443,6 +443,7 @@ class CrmDashboard extends Component {
         } catch (e) { return {}; }
     }
     async loadStats() {
+        this.state.loading = true;
         try {
             const activeUserId = this.state.viewAsUserId || user.userId;
             const activeIsAdmin = this.state.viewAsUserId ? false : (this.state.isAdmin || user.isAdmin);

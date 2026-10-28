@@ -14,6 +14,14 @@ nav.o_navbar,
     visibility: hidden !important;
 }
 
+/* Globally suppress Odoo default bottom-right purple loading badge */
+.o_loading {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 /* Ensure Odoo Form View Save, Discard, and Action Buttons are fully visible as text buttons */
 .o_control_panel .o_cp_buttons,
 .o_control_panel .o_form_buttons_view,
