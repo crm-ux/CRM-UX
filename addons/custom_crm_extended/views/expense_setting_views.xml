@@ -113,7 +113,7 @@
                 <field name="active" column_invisible="1"/>
                 <field name="voucher_id" string="Voucher ID" class="fw-bold text-primary"/>
                 <field name="expense_date" string="Expense Date"/>
-                <field name="create_date" string="Submitted Date" widget="date"/>
+                <field name="create_date" string="Submitted Date"/>
                 <field name="ticket_id" string="Service Ticket"/>
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user"/>
                 <field name="user_id" string="Employee" optional="hide"/>
