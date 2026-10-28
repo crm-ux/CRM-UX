@@ -21,74 +21,74 @@
                 </div>
                 <ul class="crm-nav-list">
                     <li class="crm-nav-item">
-                        <a class="crm-nav-link active" t-on-click="toggleSidebar">
+                        <a class="crm-nav-link active" href="/app" t-on-click="toggleSidebar">
                             <i class="fa fa-pie-chart"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewCustomer">
-                        <a class="crm-nav-link" t-on-click="openContacts">
+                        <a class="crm-nav-link" href="/web#action=base.action_partner_form" t-on-click="openContacts">
                             <i class="fa fa-users"></i>
                             <span>Customers</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewEquipment">
-                        <a class="crm-nav-link" t-on-click="openEquipment">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_crm_equipment_master" t-on-click="openEquipment">
                             <i class="fa fa-cogs"></i>
                             <span>Equipment Master</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewTicket">
-                        <a class="crm-nav-link" t-on-click="openServiceTickets">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_service_ticket" t-on-click="openServiceTickets">
                             <i class="fa fa-ticket"></i>
                             <span>Service Tickets</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings">
-                        <a class="crm-nav-link" t-on-click="openVoucherManagement">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_service_ticket_voucher_line" t-on-click="openVoucherManagement">
                             <i class="fa fa-money"></i>
                             <span>Voucher Management</span>
                         </a>
                     </li>
                     <li class="crm-nav-item">
-                        <a class="crm-nav-link" t-on-click="openTaskManagement">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_crm_task_management" t-on-click="openTaskManagement">
                             <i class="fa fa-tasks"></i>
                             <span>Task Management</span>
                         </a>
                     </li>
                     <li class="crm-nav-item">
-                        <a class="crm-nav-link" t-on-click="openPersonalTodo">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_crm_personal_todo" t-on-click="openPersonalTodo">
                             <i class="fa fa-check-square-o"></i>
                             <span>To Do List</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewAmc">
-                        <a class="crm-nav-link" t-on-click="openAmcContracts">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_amc_contract" t-on-click="openAmcContracts">
                             <i class="fa fa-file-text-o"></i>
                             <span>AMC Contracts</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin">
-                        <a class="crm-nav-link" t-on-click="openTermsConditions">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_sale_terms_template" t-on-click="openTermsConditions">
                             <i class="fa fa-list-ol"></i>
                             <span>Terms &amp; Conditions</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
-                        <a class="crm-nav-link" t-on-click="openProductMaster">
+                        <a class="crm-nav-link" href="/web#action=product.product_template_action" t-on-click="openProductMaster">
                             <i class="fa fa-tags"></i>
                             <span>Product Master</span>
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
-                        <a class="crm-nav-link" t-on-click="openProductStock">
+                        <a class="crm-nav-link" href="/web#action=stock.action_product_template_stock" t-on-click="openProductStock">
                             <i class="fa fa-cubes"></i>
                             <span>Product Stock</span>
                             <span class="crm-sidebar-badge" style="background:#fee2e2; color:#ef4444;" t-if="state.lowStockItems and state.lowStockItems.length > 0">1 Low</span>
                         </a>
                     </li>
                     <li class="crm-nav-item">
-                        <a class="crm-nav-link" t-on-click="openInsightsComingSoon">
+                        <a class="crm-nav-link" href="/app?tab=analytics" t-on-click="openInsightsComingSoon">
                             <i class="fa fa-line-chart"></i>
                             <span>Analytics &amp; Insights</span>
                         </a>
@@ -102,10 +102,10 @@
                             <i class="fa fa-chevron-down crm-submenu-arrow"></i>
                         </a>
                         <ul class="crm-submenu-list">
-                            <li><a class="crm-sub-link" t-on-click="openRolesAndGroups"><i class="fa fa-shield"></i> Roles &amp; Permissions</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_res_groups" t-on-click="openRolesAndGroups"><i class="fa fa-shield"></i> Roles &amp; Permissions</a></li>
                             <li><a class="crm-sub-link" href="/app/settings/users"><i class="fa fa-user-circle"></i> Users</a></li>
-                            <li><a class="crm-sub-link" t-on-click="openDepartments"><i class="fa fa-building"></i> Departments</a></li>
-                            <li><a class="crm-sub-link" t-on-click="openEmployeeTags"><i class="fa fa-tags"></i> Employee Tags</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=hr.open_module_tree_department" t-on-click="openDepartments"><i class="fa fa-building"></i> Departments</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=hr.hr_employee_category_action" t-on-click="openEmployeeTags"><i class="fa fa-tags"></i> Employee Tags</a></li>
                         </ul>
                     </li>
 
@@ -117,16 +117,16 @@
                             <i class="fa fa-chevron-down crm-submenu-arrow"></i>
                         </a>
                         <ul class="crm-submenu-list">
-                            <li><a class="crm-sub-link" t-on-click="openQuotationSeries"><i class="fa fa-hashtag"></i> Quotation Series</a></li>
-                            <li><a class="crm-sub-link" t-on-click="openEquipmentSeries"><i class="fa fa-hashtag"></i> Equipment Series</a></li>
-                            <li><a class="crm-sub-link" t-on-click="openServiceTicketSeries"><i class="fa fa-hashtag"></i> Service Ticket Series</a></li>
-                            <li><a class="crm-sub-link" t-on-click="openAmcSeries"><i class="fa fa-hashtag"></i> AMC Series</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openQuotationSeries"><i class="fa fa-hashtag"></i> Quotation Series</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openEquipmentSeries"><i class="fa fa-hashtag"></i> Equipment Series</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openServiceTicketSeries"><i class="fa fa-hashtag"></i> Service Ticket Series</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openAmcSeries"><i class="fa fa-hashtag"></i> AMC Series</a></li>
                         </ul>
                     </li>
 
                     <!-- COMPANIES (AT LAST) -->
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canCreateCompany">
-                        <a class="crm-nav-link" t-on-click="openCompanies">
+                        <a class="crm-nav-link" href="/web#action=base.action_res_company_form" t-on-click="openCompanies">
                             <i class="fa fa-building-o"></i>
                             <span>Companies</span>
                         </a>
