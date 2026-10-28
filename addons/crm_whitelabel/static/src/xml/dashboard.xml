@@ -33,7 +33,7 @@
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewEquipment">
-                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_crm_equipment_master" t-on-click="openEquipment">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_equipment_master" t-on-click="openEquipment">
                             <i class="fa fa-cogs"></i>
                             <span>Equipment Master</span>
                         </a>
@@ -45,7 +45,7 @@
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings">
-                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_service_ticket_voucher_line" t-on-click="openVoucherManagement">
+                        <a class="crm-nav-link" t-on-click="openVoucherManagement">
                             <i class="fa fa-money"></i>
                             <span>Voucher Management</span>
                         </a>
@@ -81,7 +81,7 @@
                         </a>
                     </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canViewProduct">
-                        <a class="crm-nav-link" href="/web#action=stock.action_product_template_stock" t-on-click="openProductStock">
+                        <a class="crm-nav-link" href="/web#action=custom_crm_extended.action_crm_product_stock" t-on-click="openProductStock">
                             <i class="fa fa-cubes"></i>
                             <span>Product Stock</span>
                             <span class="crm-sidebar-badge" style="background:#fee2e2; color:#ef4444;" t-if="state.lowStockItems and state.lowStockItems.length > 0">1 Low</span>
