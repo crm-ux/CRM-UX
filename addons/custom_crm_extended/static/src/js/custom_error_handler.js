@@ -103,23 +103,17 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // 3. For ANY technical DOM / Owl / JS error (like insertBefore, TypeError, RPC_ERROR, etc.):
-    // DO NOT display raw code or technical jargon to user.
-    // Show only the clean 1-line apology dialog modal:
-    if (env.services?.dialog) {
-        env.services.dialog.add(ConfirmationDialog, {
-            title: _t("System Notice"),
-            body: _t(CUSTOM_USER_ERROR_MESSAGE),
-            confirmLabel: _t("OK"),
-        });
-    } else if (env.services?.notification) {
-        env.services.notification.add(_t(CUSTOM_USER_ERROR_MESSAGE), {
-            type: "danger",
-            sticky: false,
-        });
+    // If it's any RPC_ERROR or server error, NEVER show the apology dialog!
+    // Auto-reload immediately so NGINX shows the maintenance page if server is upgrading/restarting
+    if (err?.name === "RPC_ERROR" || !isUserValidationError) {
+        if (!window._isServerReconnecting) {
+            window._isServerReconnecting = true;
+            window.location.reload();
+        }
+        return true;
     }
 
-    return true; // Stop default giant traceback modal from displaying to the user
+    return true;
 }
 
 // Add with high sequence so it intercepts before Odoo's default dialog error handler
