@@ -314,7 +314,6 @@
                 <filter string="Rejected" name="status_rejected" domain="[('status', '=', 'rejected')]"/>
                 <separator/>
                 <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
-                <separator/>
                 <group>
                     <filter string="Employee" name="group_employee" context="{'group_by': 'user_id'}"/>
                     <filter string="Service Ticket" name="group_ticket" context="{'group_by': 'ticket_id'}"/>
