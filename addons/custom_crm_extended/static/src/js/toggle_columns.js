@@ -47,7 +47,7 @@ patch(ListRenderer.prototype, {
 
         const checkEmptyState = () => {
             const resModel = this.props?.list?.resModel;
-            if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management' || resModel === 'service.ticket.voucher.batch') {
+            if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management') {
                 const count = this.props?.list?.records?.length ?? 0;
                 const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
                 if (!el) return;
