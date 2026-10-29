@@ -126,7 +126,7 @@
                 <field name="amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}" optional="show"/>
                 <field name="bill_filename" column_invisible="1"/>
-                <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
+                <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                 <field name="expense_manager_id" string="Approver" optional="hide"/>
                 <field name="reject_reason" string="Reject Reason" optional="hide"/>
                 <field name="status" widget="badge" 
@@ -137,7 +137,7 @@
                        decoration-danger="status == 'rejected'"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo" title="Reset" invisible="status == 'submitted'" style="color: #0b3d91 !important;"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -151,8 +151,8 @@
                 <header>
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn text-white fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')" style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'" style="color: #0b3d91 !important; border: 1.5px solid #0b3d91 !important; background-color: #ffffff !important;"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
@@ -198,7 +198,7 @@
                             <field name="amount" sum="Total" class="fw-bold text-end"/>
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                             <field name="status" widget="badge" 
                                    decoration-muted="status == 'draft'" 
                                    decoration-warning="status in ('submitted', 'partially_approved')" 
@@ -207,7 +207,7 @@
                                    decoration-danger="status == 'rejected'"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo" title="Reset Line" invisible="status == 'submitted'" style="color: #0b3d91 !important;"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>
@@ -222,7 +222,7 @@
         <field name="arch" type="xml">
             <list string="Voucher Submissions" create="0" edit="0" delete="1" decoration-muted="status == 'rejected'" decoration-success="status == 'approved'">
                 <field name="active" column_invisible="1"/>
-                <field name="name" string="Voucher ID" class="fw-bold" style="color: #0b3d91 !important;"/>
+                <field name="name" string="Voucher ID" class="fw-bold text-crm-blue"/>
                 <field name="expense_dates" string="Expense Date(s)"/>
                 <field name="create_date" string="Submitted Date" optional="hide"/>
                 <field name="ticket_id" string="Service Ticket" options="{'no_open': True}"/>
@@ -239,7 +239,7 @@
                        decoration-danger="status == 'rejected'"/>
                 <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status == 'rejected'"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo" title="Reset" invisible="status == 'submitted'" style="color: #0b3d91 !important;"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -253,8 +253,8 @@
                 <header>
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn text-white fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')" style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'" style="color: #0b3d91 !important; border: 1.5px solid #0b3d91 !important; background-color: #ffffff !important;"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
@@ -305,7 +305,7 @@
                             <field name="amount" sum="Total" class="fw-bold text-end"/>
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                             <field name="status" widget="badge" 
                                    decoration-muted="status == 'draft'" 
                                    decoration-warning="status in ('submitted', 'partially_approved')" 
@@ -314,7 +314,7 @@
                                    decoration-danger="status == 'rejected'"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo" title="Reset Line" invisible="status == 'submitted'" style="color: #0b3d91 !important;"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>

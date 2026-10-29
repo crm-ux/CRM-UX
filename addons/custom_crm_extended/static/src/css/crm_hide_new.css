@@ -1664,5 +1664,35 @@ input[type="checkbox"]:indeterminate {
     border-color: #0b3d91 !important;
 }
 
+/* CRM Brand Blue Utility Classes for Views and Action Icons */
+.text-crm-blue,
+i.text-crm-blue {
+    color: #0b3d91 !important;
+}
+
+.btn-crm-blue-outline {
+    color: #0b3d91 !important;
+    border: 1.5px solid #0b3d91 !important;
+    background-color: #ffffff !important;
+}
+
+.btn-crm-blue-outline:hover {
+    color: #ffffff !important;
+    background-color: #0b3d91 !important;
+}
+
+.btn-crm-blue-solid {
+    color: #ffffff !important;
+    background-color: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+}
+
+.btn-crm-blue-solid:hover {
+    color: #ffffff !important;
+    background-color: #092c69 !important;
+    border-color: #092c69 !important;
+}
+
+
 
 
