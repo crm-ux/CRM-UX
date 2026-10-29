@@ -1827,18 +1827,56 @@ div[name="authorized_manager_ids"]:focus-within,
     box-shadow: none !important;
 }
 
-/* Authorized Managers Field: Single clean underline without inner borders */
+/* Authorized Managers Field: Single clean Brand Blue underline & full width (matches Allowed Job Positions) */
 [name="authorized_manager_ids"],
 div[name="authorized_manager_ids"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 34px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
     border: none !important;
     border-bottom: 2px solid #cbd5e1 !important;
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
+    padding: 0 0 2px 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
 }
 
+[name="authorized_manager_ids"]:focus-within,
+div[name="authorized_manager_ids"]:focus-within {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+}
+
+/* Dynamic full width for the dropdown selection area */
 [name="authorized_manager_ids"] .o_input_dropdown,
-[name="authorized_manager_ids"] input {
+[name="authorized_manager_ids"] .o-autocomplete,
+[name="authorized_manager_ids"] .o_dropdown {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+}
+
+/* Remove all inner borders from dropdown container, inputs, tags, and badges to completely eliminate double line */
+[name="authorized_manager_ids"] .o_input_dropdown input,
+[name="authorized_manager_ids"] .o_input_dropdown .o_input,
+[name="authorized_manager_ids"] input,
+[name="authorized_manager_ids"] .o_input,
+[name="authorized_manager_ids"] .badge,
+[name="authorized_manager_ids"] .o_tag {
     border: none !important;
     border-bottom: none !important;
     outline: none !important;
