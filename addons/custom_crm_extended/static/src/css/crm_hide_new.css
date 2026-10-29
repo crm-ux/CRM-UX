@@ -1738,6 +1738,7 @@ i.text-crm-blue {
     max-width: 100% !important;
     min-height: 34px !important;
     display: flex !important;
+    flex-wrap: wrap !important;
     align-items: center !important;
     border: none !important;
     border-bottom: 2px solid #cbd5e1 !important;
@@ -1746,16 +1747,49 @@ i.text-crm-blue {
     box-shadow: none !important;
     padding: 0 0 2px 0 !important;
     margin: 0 !important;
+    cursor: pointer !important;
 }
 
-/* Strip border ONLY from the input inside to prevent double line, while keeping dropdown menu functional */
-.crm_quick_add_box [name="new_expense_type_job_ids"] input {
+/* Dynamic full width for the dropdown selection area so clicks work across the entire area */
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input_dropdown,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o-autocomplete,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_dropdown {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    cursor: pointer !important;
+}
+
+/* Remove all inner borders from dropdown container and inputs to completely eliminate the second short line */
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input_dropdown input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input_dropdown .o_input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input {
     border: none !important;
     border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
     width: 100% !important;
+    flex: 1 1 auto !important;
+    cursor: pointer !important;
+}
+
+/* Ensure dropdown menu popover opens with proper styling */
+.crm_quick_add_box [name="new_expense_type_job_ids"] .dropdown-menu,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o-autocomplete--dropdown-menu {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    z-index: 1050 !important;
 }
 
 /* Brand Blue Focus Underlines */
