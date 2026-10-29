@@ -1243,7 +1243,7 @@ class ServiceTicketVoucherLine(models.Model):
                 batch_rec = self.env['service.ticket.voucher.batch'].create({
                     'ticket_id': rec.ticket_id.id,
                     'user_id': rec.user_id.id,
-                    'submitted_by_user_id': self.env.user.id,
+                    'submitted_by_user_id': self.env.user.id if self.env.user and self.env.user.id != 1 else (rec.user_id.id or 2),
                     'expense_manager_id': approver_uid,
                     'other_employee_names': rec.other_employee_names or '',
                     'all_employee_names': rec.user_id.name or '',
