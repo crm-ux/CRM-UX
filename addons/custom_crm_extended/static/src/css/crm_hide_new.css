@@ -93,7 +93,8 @@ tr.o_is_line_section td.o_list_section_options button {
 }
 
 tr.o_is_line_section td.o_list_section_options i.fa-ellipsis-v::before {
-    content: "\f014" !important; /* fa-trash-o */
+    content: "\f014" !important;
+    /* fa-trash-o */
     color: #0b3d91 !important;
     font-size: 14px !important;
 }
@@ -1693,6 +1694,42 @@ i.text-crm-blue {
     border-color: #092c69 !important;
 }
 
+/* ── Voucher & Expense Configuration Fields ONLY: Brand Blue Focus Underline ── */
+.o_form_view:has([name="new_expense_type_name"]) input,
+.o_form_view:has([name="new_expense_type_name"]) select,
+.o_form_view:has([name="new_expense_type_name"]) .o_input,
+[name="new_expense_type_name"] input,
+[name="new_expense_type_budget_limit"] input,
+[name="new_expense_type_km_rate"] input,
+[name="new_expense_type_job_ids"] input,
+[name="expense_type_ids"] input,
+[name="draft_voucher_line_ids"] input,
+[name="line_ids"] input,
+[name="ticket_voucher_line_ids"] input,
+.o_voucher_card_list input {
+    border-bottom: 2px solid #cbd5e1;
+}
 
+.o_form_view:has([name="new_expense_type_name"]) input:focus,
+.o_form_view:has([name="new_expense_type_name"]) select:focus,
+.o_form_view:has([name="new_expense_type_name"]) .o_input:focus,
+.o_form_view:has([name="new_expense_type_name"]) .o_field_widget:focus-within,
+[name="new_expense_type_name"] input:focus,
+[name="new_expense_type_budget_limit"] input:focus,
+[name="new_expense_type_km_rate"] input:focus,
+[name="new_expense_type_job_ids"]:focus-within,
+[name="expense_type_ids"] input:focus,
+[name="draft_voucher_line_ids"] input:focus,
+[name="line_ids"] input:focus,
+[name="ticket_voucher_line_ids"] input:focus,
+.o_voucher_card_list input:focus {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
 
-
+[name="new_expense_type_job_ids"] .o_input:focus,
+[name="authorized_manager_ids"] .o_input:focus {
+    border-bottom: 2px solid #0b3d91 !important;
+}
