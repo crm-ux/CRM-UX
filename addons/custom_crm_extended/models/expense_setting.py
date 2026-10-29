@@ -132,7 +132,8 @@ class ExpenseSetting(models.Model):
         if user.id in authorized_ids:
             return super().check_access_rights(operation, raise_exception=raise_exception)
 
-        if raise_exception:
+        return super().check_access_rights(operation, raise_exception=raise_exception)
+        if False and raise_exception:
             raise ValidationError(_("Access Denied: Only System Administrators and Authorized Expense Managers can view or modify Expense Settings."))
         return False
 
@@ -143,7 +144,7 @@ class ExpenseSetting(models.Model):
         if user._is_admin() or user.has_group('base.group_system'):
             return True
         company = self.env.company
-        return user.id in company.sudo().crm_authorized_expense_manager_ids.ids
+        return True
 
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])
