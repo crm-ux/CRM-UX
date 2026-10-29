@@ -67,30 +67,31 @@
 
                             <!-- Direct Inline Input Box (Quick Add) with Clean Labels & Proper Spacing -->
                             <div class="crm_quick_add_box p-3 mb-4 rounded-3 border" style="background-color: #f8fafc; border-color: #cbd5e1 !important;">
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-12 col-md-3">
-                                        <label for="new_expense_type_name" class="form-label small fw-bold text-dark mb-1 d-block">New Expense Type</label>
+                                <div class="row g-3 align-items-start">
+                                    <div class="col-12 col-md-4">
+                                        <label for="new_expense_type_name" class="form-label small fw-bold text-dark mb-1 d-block" style="height: 20px; line-height: 20px;">New Expense Type</label>
                                         <field name="new_expense_type_name" nolabel="1" placeholder="e.g. Travel, Food, Hotel, Conveyance..."/>
                                     </div>
                                     <div class="col-6 col-md-2">
-                                        <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block">Limit Per Visit (₹)</label>
+                                        <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block" style="height: 20px; line-height: 20px;">Limit Per Visit (₹)</label>
                                         <field name="new_expense_type_budget_limit" nolabel="1" placeholder="0.00"/>
                                     </div>
-                                    <div class="col flex-grow-1" style="min-width: 180px;">
-                                        <label for="new_expense_type_job_ids" class="form-label small fw-bold text-dark mb-1 d-block">Allowed Job Positions</label>
+                                    <div class="col">
+                                        <label for="new_expense_type_job_ids" class="form-label small fw-bold text-dark mb-1 d-block" style="height: 20px; line-height: 20px;">Allowed Job Positions</label>
                                         <field name="new_expense_type_job_ids" nolabel="1" widget="many2many_tags" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     </div>
-                                    <div class="col-auto text-center" style="min-width: 110px;">
-                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">KM Based ?</label>
+                                    <div class="col-auto text-center" style="min-width: 100px;">
+                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap" style="height: 20px; line-height: 20px;">KM Based ?</label>
                                         <div class="d-flex justify-content-center align-items-center" style="height: 34px;">
                                             <field name="new_expense_type_is_km" nolabel="1" widget="boolean_toggle"/>
                                         </div>
                                     </div>
-                                    <div class="col-auto" invisible="not new_expense_type_is_km" style="min-width: 130px;">
-                                        <label for="new_expense_type_km_rate" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Rate per KM (₹)</label>
+                                    <div class="col-auto" invisible="not new_expense_type_is_km" style="width: 120px;">
+                                        <label for="new_expense_type_km_rate" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap" style="height: 20px; line-height: 20px;">Rate per KM (₹)</label>
                                         <field name="new_expense_type_km_rate" nolabel="1" placeholder="0.00"/>
                                     </div>
                                     <div class="col-auto text-end" style="min-width: 90px;">
+                                        <div class="form-label small mb-1" style="height: 20px;">&nbsp;</div>
                                         <button name="action_add_expense_type" string="+ Add" type="object" class="btn_crm_add_type btn w-100 fw-bold shadow-sm" style="background-color: #0b3d91 !important; color: #ffffff !important; border: 1px solid #0b3d91 !important; height: 34px;"/>
                                     </div>
                                 </div>

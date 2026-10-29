@@ -1695,6 +1695,17 @@ i.text-crm-blue {
 }
 
 /* ── Voucher & Expense Configuration Fields ONLY: Brand Blue Focus Underline ── */
+.crm_quick_add_box .o_field_char,
+.crm_quick_add_box .o_field_float,
+.crm_quick_add_box .o_field_many2many_tags,
+.crm_quick_add_box [name="new_expense_type_name"],
+.crm_quick_add_box [name="new_expense_type_budget_limit"],
+.crm_quick_add_box [name="new_expense_type_km_rate"],
+.crm_quick_add_box [name="new_expense_type_job_ids"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
 .crm_quick_add_box [name="new_expense_type_name"] input,
 .crm_quick_add_box [name="new_expense_type_budget_limit"] input,
 .crm_quick_add_box [name="new_expense_type_km_rate"] input {
@@ -1721,12 +1732,11 @@ i.text-crm-blue {
     align-items: center !important;
 }
 
-/* Match Allowed Job Positions container height & baseline exactly to other inputs */
+/* Match Allowed Job Positions container baseline and single underline */
 .crm_quick_add_box [name="new_expense_type_job_ids"] {
     width: 100% !important;
     max-width: 100% !important;
     min-height: 34px !important;
-    height: 34px !important;
     display: flex !important;
     align-items: center !important;
     border: none !important;
@@ -1734,8 +1744,18 @@ i.text-crm-blue {
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
-    padding: 0 !important;
+    padding: 0 0 2px 0 !important;
     margin: 0 !important;
+}
+
+/* Strip border ONLY from the input inside to prevent double line, while keeping dropdown menu functional */
+.crm_quick_add_box [name="new_expense_type_job_ids"] input {
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    width: 100% !important;
 }
 
 /* Brand Blue Focus Underlines */
@@ -1767,19 +1787,6 @@ i.text-crm-blue {
     border-bottom: 2px solid #0b3d91 !important;
     outline: none !important;
     box-shadow: none !important;
-}
-
-/* STRICT FIX FOR DOUBLE LINE: Strip all borders/shadows/outlines from EVERY child inside Allowed Job Positions */
-.crm_quick_add_box [name="new_expense_type_job_ids"] *,
-.crm_quick_add_box [name="new_expense_type_job_ids"] input,
-.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input,
-.crm_quick_add_box [name="new_expense_type_job_ids"] div,
-[name="new_expense_type_job_ids"] * {
-    border: none !important;
-    border-bottom: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    background: transparent !important;
 }
 
 /* High Contrast + Add Button: Solid Brand Blue #0b3d91 with Bold White Text */
