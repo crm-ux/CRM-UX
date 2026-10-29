@@ -50,10 +50,18 @@ class ExpenseSetting(models.Model):
         help="Toggle to expand or shrink the Department Approver table."
     )
 
+    has_active_department_approvers = fields.Boolean(
+        string="Has Active Approvers",
+        compute='_compute_has_active_department_approvers',
+        store=False,
+        help="Indicates whether any department currently has an active voucher approver."
+    )
+
     department_ids = fields.Many2many(
         'hr.department',
         string="Departments",
         compute='_compute_department_ids',
+        inverse='_inverse_department_ids',
         readonly=False
     )
 
@@ -61,6 +69,32 @@ class ExpenseSetting(models.Model):
         depts = self.env['hr.department'].search([])
         for rec in self:
             rec.department_ids = depts
+
+    def _inverse_department_ids(self):
+        pass
+
+    @api.depends('department_ids.voucher_manager_id', 'department_ids.voucher_approval_active')
+    def _compute_has_active_department_approvers(self):
+        for rec in self:
+            has_active = any(bool(d.voucher_approval_active and d.voucher_manager_id) for d in rec.department_ids)
+            rec.has_active_department_approvers = has_active
+            if has_active:
+                rec.show_department_table = True
+
+    def write(self, vals):
+        if 'department_ids' in vals:
+            for cmd in vals['department_ids']:
+                if isinstance(cmd, (list, tuple)) and len(cmd) == 3 and cmd[0] == 1:
+                    dept_id = cmd[1]
+                    dept_vals = cmd[2]
+                    if dept_vals:
+                        self.env['hr.department'].browse(dept_id).write(dept_vals)
+        if 'show_department_table' in vals and not vals['show_department_table']:
+            for rec in self:
+                if rec.has_active_department_approvers:
+                    vals['show_department_table'] = True
+                    break
+        return super().write(vals)
 
     def _compute_authorized_managers(self):
         company = self.env.company

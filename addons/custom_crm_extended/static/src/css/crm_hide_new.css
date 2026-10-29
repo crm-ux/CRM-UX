@@ -1949,4 +1949,34 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 [name="department_ids"] td.o_list_record_remove,
 [name="department_ids"] th.o_list_record_remove {
     display: none !important;
+}
+
+/* Department-wise Voucher Approver: Highlight Toggle Switch with Custom Blue (#0b3d91) */
+.crm_dept_toggle_switch input:checked,
+[name="show_department_table"] input:checked,
+.crm_dept_toggle_switch .form-check-input:checked,
+[name="show_department_table"] .form-check-input:checked {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.25) !important;
+}
+
+/* Disabled Toggle Button when active managers exist (cannot shrink the card) */
+.crm_dept_toggle_switch input:disabled,
+[name="show_department_table"] input:disabled,
+.crm_dept_toggle_switch .form-check-input:disabled,
+[name="show_department_table"] .form-check-input:disabled,
+.crm_dept_toggle_switch.o_readonly_modifier,
+[name="show_department_table"].o_readonly_modifier {
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+.crm_dept_toggle_switch input:disabled:checked,
+[name="show_department_table"] input:disabled:checked,
+.crm_dept_toggle_switch .form-check-input:disabled:checked,
+[name="show_department_table"] .form-check-input:disabled:checked {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    opacity: 0.85 !important;
 }
