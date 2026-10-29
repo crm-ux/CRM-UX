@@ -13,9 +13,6 @@
                             Voucher Configuration &amp; Settings
                         </h2>
                     </div>
-                    <div>
-                        <button string="← Back to Submissions" type="object" name="action_back_to_submissions" class="btn btn-sm fw-semibold" style="color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
-                    </div>
                 </div>
 
                 <div class="row g-4 mb-4" style="width:100%; margin:0;">

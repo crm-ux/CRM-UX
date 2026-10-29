@@ -1847,4 +1847,11 @@ button[name="action_add_expense_type"]:hover {
 button[name="action_add_expense_type"] * {
     color: #ffffff !important;
     font-weight: 700 !important;
+}
+
+/* Hide pager (1 / 1 < >) on Voucher Configuration & Settings form */
+.o_action:has([name="new_expense_type_name"]) .o_cp_pager,
+body:has([name="new_expense_type_name"]) .o_cp_pager,
+.o_form_view:has([name="new_expense_type_name"]) ~ .o_control_panel .o_cp_pager {
+    display: none !important;
 }

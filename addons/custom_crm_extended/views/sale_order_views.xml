@@ -151,8 +151,8 @@
                 <field name="x_product_name_m2o" string="Product Name" optional="show" width="200px"
                        options="{'no_create': True, 'no_open': True}"
                        context="{'show_code_only': False}"/>
-                <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1" width="90px"/>
-                <field name="x_make" string="Make / Brand" optional="show" readonly="1" width="110px"/>
+                <field name="x_hsn_code" string="HSN/SAC" optional="show" readonly="1" force_save="1" width="90px"/>
+                <field name="x_make" string="Make / Brand" optional="show" readonly="1" force_save="1" width="110px"/>
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='discount']" position="attributes">
                 <attribute name="string">Discount %</attribute>
