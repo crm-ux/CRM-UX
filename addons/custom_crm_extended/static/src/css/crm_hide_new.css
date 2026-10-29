@@ -1852,14 +1852,16 @@ div[name="authorized_manager_ids"]:focus-within {
     border-bottom: 2px solid #0b3d91 !important;
 }
 
-/* Dynamic full width for the dropdown selection area */
+/* Dynamic full width for the dropdown selection area so clicks work across the entire area */
 [name="authorized_manager_ids"] .o_input_dropdown,
 [name="authorized_manager_ids"] .o-autocomplete,
-[name="authorized_manager_ids"] .o_dropdown {
-    width: 100% !important;
-    max-width: 100% !important;
-    flex: 1 1 auto !important;
-    display: flex !important;
+[name="authorized_manager_ids"] .o_dropdown,
+[name="authorized_manager_ids"] .dropdown {
+    flex: 1 1 200px !important;
+    flex-grow: 1 !important;
+    width: auto !important;
+    min-width: 120px !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     border: none !important;
@@ -1870,17 +1872,40 @@ div[name="authorized_manager_ids"]:focus-within {
     cursor: pointer !important;
 }
 
+/* Ensure the input element stretches across the full available area so clicks trigger dropdown */
+[name="authorized_manager_ids"] input,
+[name="authorized_manager_ids"] .o_input,
+[name="authorized_manager_ids"] .o-autocomplete--input {
+    width: 100% !important;
+    min-width: 100% !important;
+    flex: 1 1 auto !important;
+    flex-grow: 1 !important;
+    cursor: pointer !important;
+    height: 100% !important;
+    min-height: 28px !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 /* Remove all inner borders from dropdown container, inputs, tags, and badges to completely eliminate double line */
 [name="authorized_manager_ids"] .o_input_dropdown input,
 [name="authorized_manager_ids"] .o_input_dropdown .o_input,
-[name="authorized_manager_ids"] input,
-[name="authorized_manager_ids"] .o_input,
 [name="authorized_manager_ids"] .badge,
 [name="authorized_manager_ids"] .o_tag {
     border: none !important;
     border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+/* Push dropdown button / caret to the end */
+[name="authorized_manager_ids"] .o_dropdown_button,
+[name="authorized_manager_ids"] .fa-caret-down {
+    margin-left: auto !important;
+    cursor: pointer !important;
 }
 
 /* High Contrast + Add Button: Solid Brand Blue #0b3d91 with Bold White Text */
