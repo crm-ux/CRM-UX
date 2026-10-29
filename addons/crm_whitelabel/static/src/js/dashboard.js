@@ -238,21 +238,7 @@ class CrmDashboard extends Component {
         this.go("custom_crm_extended.action_sale_terms_template");
     }
     openVoucherManagement(ev) {
-        // Secret combination: Ctrl + Spacebar + Click ONLY
-        const isSecretCombo = Boolean(ev && ev.ctrlKey && this._isSpaceKeyDown);
-        if (isSecretCombo) {
-            this.go("custom_crm_extended.action_service_ticket_voucher_line");
-            return;
-        }
-
-        // Default behavior for normal user click
-        if (this.env?.services?.notification) {
-            this.env.services.notification.add("Voucher Management is Coming Soon!", {
-                title: "Coming Soon",
-                type: "info",
-                sticky: false,
-            });
-        }
+        this.go("custom_crm_extended.action_service_ticket_voucher_line");
     }
 
     openEquipmentSeries() {
