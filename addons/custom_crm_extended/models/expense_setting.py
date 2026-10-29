@@ -88,7 +88,9 @@ class ExpenseSetting(models.Model):
                     dept_id = cmd[1]
                     dept_vals = cmd[2]
                     if dept_vals:
-                        self.env['hr.department'].browse(dept_id).write(dept_vals)
+                        dept = self.env['hr.department'].browse(dept_id)
+                        dept.write(dept_vals)
+                        dept._sync_voucher_approver_to_members()
         if 'show_department_table' in vals and not vals['show_department_table']:
             for rec in self:
                 if rec.has_active_department_approvers:
@@ -102,6 +104,16 @@ class ExpenseSetting(models.Model):
             rec.authorized_manager_ids = company.crm_authorized_expense_manager_ids
 
     def _inverse_authorized_managers(self):
+        company = self.env.company
+        for rec in self:
+            company.sudo().write({
+                'crm_authorized_expense_manager_ids': [(6, 0, rec.authorized_manager_ids.ids)]
+            })
+            for d in self.env['hr.department'].sudo().search([]):
+                d._sync_voucher_approver_to_members()
+        return
+
+    def _unused_dummy(self):
         company = self.env.company
         for rec in self:
             company.sudo().write({

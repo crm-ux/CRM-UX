@@ -266,7 +266,7 @@
                                     <field name="amount" sum="Total" class="fw-bold text-end"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                                     <field name="bill_filename" column_invisible="1"/>
-                                    <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
+                                    <button name="action_prev   iew_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                                     <field name="status" widget="badge" decoration-info="status == 'draft'"/>
                                 </list>
                             </field>

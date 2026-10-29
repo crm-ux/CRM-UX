@@ -52,6 +52,7 @@
                                     <field name="name" string="Department" readonly="1" class="fw-bold"/>
                                     <field name="manager_user_id" string="Department Head" readonly="1"/>
                                     <field name="voucher_manager_id" string="Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="extra_department_ids" widget="many2many_tags" string="Extra Allowed Departments" domain="[('id', '!=', id)]" options="{'no_create': True}" placeholder="Assign other departments..."/>
                                     <field name="voucher_approval_active" string="Active" widget="boolean_toggle"/>
                                 </list>
                             </field>

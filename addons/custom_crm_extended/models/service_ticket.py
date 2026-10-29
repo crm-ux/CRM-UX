@@ -904,7 +904,19 @@ class ServiceTicket(models.Model):
         if not draft_lines:
             return True
 
-        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+        target_dept = draft_lines[0].user_id.crm_department_id if (draft_lines and draft_lines[0].user_id) else False
+        dept_approver = False
+        if target_dept and target_dept.voucher_manager_id and target_dept.voucher_approval_active:
+            dept_approver = target_dept.voucher_manager_id
+        elif target_dept:
+            extra_d = self.env['hr.department'].sudo().search([
+                ('extra_department_ids', 'in', [target_dept.id]),
+                ('voucher_manager_id', '!=', False),
+                ('voucher_approval_active', '=', True)
+            ], limit=1)
+            if extra_d:
+                dept_approver = extra_d.voucher_manager_id
+        mgr = dept_approver or self.env.company.crm_authorized_expense_manager_ids[:1]
         approver_uid = mgr.id if mgr else 2
         submit_date = fields.Date.context_today(self)
         ticket_name = self.ticket_id or self.name or 'TCK'
@@ -1373,7 +1385,51 @@ class ServiceTicketVoucherLine(models.Model):
     expense_manager_id = fields.Many2one('res.users', string='Approved By')
     reject_reason = fields.Char(string='Rejection Reason')
 
+    def _check_voucher_approval_access(self):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        company = self.env.company
+        if user.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+            return True
+        for line in self:
+            dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
+            if not dept:
+                raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
+            is_direct_mgr = (dept.voucher_manager_id.id == user.id and dept.voucher_approval_active)
+            is_extra_mgr = bool(self.env['hr.department'].sudo().search([
+                ('voucher_manager_id', '=', user.id),
+                ('voucher_approval_active', '=', True),
+                ('extra_department_ids', 'in', [dept.id]),
+            ], limit=1))
+            if not (is_direct_mgr or is_extra_mgr):
+                raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
+        return True
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        user = self.env.user
+        if not user._is_admin() and not self.env.su:
+            company = self.env.company
+            is_global = user.id in company.sudo().crm_authorized_expense_manager_ids.ids
+            if not is_global:
+                managed_depts = self.env['hr.department'].sudo().search([
+                    ('voucher_manager_id', '=', user.id),
+                    ('voucher_approval_active', '=', True),
+                ])
+                all_dept_ids = set(managed_depts.ids)
+                for d in managed_depts:
+                    all_dept_ids.update(d.extra_department_ids.ids)
+                if all_dept_ids:
+                    dept_filter = ['|', ('user_id', '=', user.id), '|', ('department_id', 'in', list(all_dept_ids)), ('user_id.crm_department_id', 'in', list(all_dept_ids))]
+                    domain = list(domain or []) + dept_filter
+                else:
+                    emp_filter = [('user_id', '=', user.id)]
+                    domain = list(domain or []) + emp_filter
+        return super()._search(domain, offset=offset, limit=limit, order=order)
+
     def action_approve(self):
+        self._check_voucher_approval_access()
         for rec in self:
             rec.sudo().write({
                 'status': 'approved',
@@ -1383,6 +1439,7 @@ class ServiceTicketVoucherLine(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_approve_all(self):
+        self._check_voucher_approval_access()
         for rec in self:
             target = rec.batch_id.line_ids if rec.batch_id else rec
             target.sudo().write({
@@ -1405,6 +1462,7 @@ class ServiceTicketVoucherLine(models.Model):
         }
 
     def action_reject_all(self):
+        self._check_voucher_approval_access()
         for rec in self:
             target = rec.batch_id.line_ids if rec.batch_id else rec
             target.sudo().write({
@@ -1702,7 +1760,19 @@ class ServiceTicketVoucherBatch(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True)
     def _default_expense_manager_id(self):
-        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+        target_dept = draft_lines[0].user_id.crm_department_id if (draft_lines and draft_lines[0].user_id) else False
+        dept_approver = False
+        if target_dept and target_dept.voucher_manager_id and target_dept.voucher_approval_active:
+            dept_approver = target_dept.voucher_manager_id
+        elif target_dept:
+            extra_d = self.env['hr.department'].sudo().search([
+                ('extra_department_ids', 'in', [target_dept.id]),
+                ('voucher_manager_id', '!=', False),
+                ('voucher_approval_active', '=', True)
+            ], limit=1)
+            if extra_d:
+                dept_approver = extra_d.voucher_manager_id
+        mgr = dept_approver or self.env.company.crm_authorized_expense_manager_ids[:1]
         return mgr.id if mgr else 2
 
     expense_manager_id = fields.Many2one('res.users', string='Approver', default=_default_expense_manager_id)
@@ -1731,7 +1801,51 @@ class ServiceTicketVoucherBatch(models.Model):
             else:
                 rec.status = 'submitted'
 
+    def _check_voucher_approval_access(self):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        company = self.env.company
+        if user.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+            return True
+        for line in self:
+            dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
+            if not dept:
+                raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
+            is_direct_mgr = (dept.voucher_manager_id.id == user.id and dept.voucher_approval_active)
+            is_extra_mgr = bool(self.env['hr.department'].sudo().search([
+                ('voucher_manager_id', '=', user.id),
+                ('voucher_approval_active', '=', True),
+                ('extra_department_ids', 'in', [dept.id]),
+            ], limit=1))
+            if not (is_direct_mgr or is_extra_mgr):
+                raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
+        return True
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        user = self.env.user
+        if not user._is_admin() and not self.env.su:
+            company = self.env.company
+            is_global = user.id in company.sudo().crm_authorized_expense_manager_ids.ids
+            if not is_global:
+                managed_depts = self.env['hr.department'].sudo().search([
+                    ('voucher_manager_id', '=', user.id),
+                    ('voucher_approval_active', '=', True),
+                ])
+                all_dept_ids = set(managed_depts.ids)
+                for d in managed_depts:
+                    all_dept_ids.update(d.extra_department_ids.ids)
+                if all_dept_ids:
+                    dept_filter = ['|', ('user_id', '=', user.id), '|', ('department_id', 'in', list(all_dept_ids)), ('user_id.crm_department_id', 'in', list(all_dept_ids))]
+                    domain = list(domain or []) + dept_filter
+                else:
+                    emp_filter = [('user_id', '=', user.id)]
+                    domain = list(domain or []) + emp_filter
+        return super()._search(domain, offset=offset, limit=limit, order=order)
+
     def action_approve(self):
+        self._check_voucher_approval_access()
         """ Alias for batch-level approval """
         return self.action_approve_all()
 
@@ -1759,6 +1873,7 @@ class ServiceTicketVoucherBatch(models.Model):
         return line.action_preview_bill()
 
     def action_approve_all(self):
+        self._check_voucher_approval_access()
         for rec in self:
             rec.line_ids.sudo().write({
                 'status': 'approved',
@@ -1779,6 +1894,7 @@ class ServiceTicketVoucherBatch(models.Model):
         }
 
     def action_reject_all(self):
+        self._check_voucher_approval_access()
         for rec in self:
             rec.line_ids.sudo().write({
                 'status': 'rejected',
