@@ -23,8 +23,12 @@ if (typeof window !== "undefined" && !window._crmNetworkWatcherInstalled) {
             }
             return response;
         } catch (err) {
+            // Ignore intentional aborted requests (debounced searches, user navigation, form unmounts)
+            if (err?.name === "AbortError") {
+                throw err;
+            }
             // Network failure / connection refused while server is dead
-            if (!window._isServerReconnecting) {
+            if (!window._isServerReconnecting && navigator.onLine === false) {
                 window._isServerReconnecting = true;
                 window.location.reload();
             }
@@ -103,16 +107,22 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // If it's any RPC_ERROR or server error, NEVER show the apology dialog!
-    // Auto-reload immediately so NGINX shows the maintenance page if server is upgrading/restarting
-    if (err?.name === "RPC_ERROR" || !isUserValidationError) {
-        if (!window._isServerReconnecting) {
-            window._isServerReconnecting = true;
-            window.location.reload();
-        }
-        return true;
+    // 3. For application / RPC errors: DO NOT auto-reload!
+    // Auto-reloading wipes the browser console ("blink and gone") and causes continuous reload loops.
+    // Keep error logged in console for developers and show clean notification/dialog:
+    const errorMsg = err?.data?.message || err?.message || _t(CUSTOM_USER_ERROR_MESSAGE);
+    if (env.services?.notification) {
+        env.services.notification.add(errorMsg, {
+            type: "danger",
+            sticky: false,
+        });
+    } else if (env.services?.dialog) {
+        env.services.dialog.add(ConfirmationDialog, {
+            title: _t("System Notice"),
+            body: errorMsg,
+            confirmLabel: _t("OK"),
+        });
     }
-
     return true;
 }
 
