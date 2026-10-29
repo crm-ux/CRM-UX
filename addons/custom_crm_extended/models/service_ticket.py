@@ -1210,7 +1210,20 @@ class ServiceTicketVoucherLine(models.Model):
             if not rec.submitted_by_user_id or rec.submitted_by_user_id.id == 1:
                 rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
 
-    other_employee_names = fields.Char(string='Other Employees')
+    other_employee_names = fields.Char(
+        string='Other Employees',
+        compute='_compute_other_employee_names',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('batch_id.other_employee_names', 'batch_id.submitted_by_user_id', 'batch_id.line_ids.user_id.name', 'user_id')
+    def _compute_other_employee_names(self):
+        for rec in self:
+            if rec.batch_id:
+                rec.other_employee_names = rec.batch_id.other_employee_names or ""
+            elif not rec.other_employee_names:
+                rec.other_employee_names = ""
     ticket_voucher_line_ids = fields.Many2many(
         'service.ticket.voucher.line',
         compute='_compute_ticket_voucher_line_ids',
