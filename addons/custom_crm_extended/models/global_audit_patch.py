@@ -12,16 +12,17 @@ class GlobalAuditTrailPatch(models.AbstractModel):
             return self.env.user
 
         # 2. If executed under system/bot (uid=1), resolve to the real human owner/creator of this record
-        if hasattr(self, 'user_id') and self.user_id and self.user_id.id != 1:
-            return self.user_id
-        if hasattr(self, 'create_uid') and self.create_uid and self.create_uid.id != 1:
-            return self.create_uid
-        if hasattr(self, 'x_created_by_id') and self.x_created_by_id and self.x_created_by_id.id != 1:
-            return self.x_created_by_id
-        if hasattr(self, 'assigned_user_id') and self.assigned_user_id and self.assigned_user_id.id != 1:
-            return self.assigned_user_id
-        if hasattr(self, 'salesperson_id') and self.salesperson_id and self.salesperson_id.id != 1:
-            return self.salesperson_id
+        rec = self[:1]
+        if hasattr(rec, 'user_id') and rec.user_id and rec.user_id[:1].id != 1:
+            return rec.user_id[:1]
+        if hasattr(rec, 'create_uid') and rec.create_uid and rec.create_uid[:1].id != 1:
+            return rec.create_uid[:1]
+        if hasattr(rec, 'x_created_by_id') and rec.x_created_by_id and rec.x_created_by_id[:1].id != 1:
+            return rec.x_created_by_id[:1]
+        if hasattr(rec, 'assigned_user_id') and rec.assigned_user_id and rec.assigned_user_id[:1].id != 1:
+            return rec.assigned_user_id[:1]
+        if hasattr(rec, 'salesperson_id') and rec.salesperson_id and rec.salesperson_id[:1].id != 1:
+            return rec.salesperson_id[:1]
         return False
 
     def write(self, vals):
