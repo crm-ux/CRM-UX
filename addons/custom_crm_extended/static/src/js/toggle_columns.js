@@ -45,12 +45,19 @@ patch(ListRenderer.prototype, {
     setup() {
         super.setup ? super.setup() : null;
 
-        const checkEmptyState = () => { return;
+        const checkEmptyState = () => {
             const resModel = this.props?.list?.resModel;
             if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management') {
                 const count = this.props?.list?.records?.length ?? 0;
                 const el = this.rootRef?.el || (this.el ? this.el : document.querySelector(".o_list_renderer"));
                 if (!el) return;
+                
+                // Remove Odoo default duplicate empty container if present
+                const defaultEmpty = el.querySelector(".o_view_nocontent:not(.crm-custom-empty-state)");
+                if (defaultEmpty) {
+                    defaultEmpty.style.display = "none";
+                }
+
                 let emptyEl = el.querySelector(".crm-custom-empty-state");
                 if (count === 0) {
                     const table = el.querySelector("table.o_list_table");
@@ -122,8 +129,8 @@ patch(ListRenderer.prototype, {
                 }
             }
         };
-        // onMounted(checkEmptyState);
-        // onPatched(checkEmptyState);
+        onMounted(checkEmptyState);
+        onPatched(checkEmptyState);
 
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order') {
@@ -138,44 +145,14 @@ patch(ListRenderer.prototype, {
                 const row = btn.closest("tr.o_is_line_section");
                 const dataId = row?.getAttribute("data-id");
                 if (dataId) {
-                    const record = (this.props?.list?.records || []).find(r => r.id === dataId);
-                    if (record) {
-                        if (typeof this.props?.list?.delete === "function") {
-                            await this.props.list.delete(record);
-                        } else if (record.resId) {
-                            await record.delete();
-                        } else {
-                            await record.delete();
-                        }
+                    const rec = this.props.list.records.find((r) => r.id === dataId);
+                    if (rec) {
+                        await rec.delete();
                     }
                 }
             };
-            document.addEventListener("click", handleSectionClick, true);
-
-            // Auto-align section row colspan to span across all columns up to the trash button
-            const fixSectionColspan = () => {
-                document.querySelectorAll(".o_sale_order tr.o_is_line_section").forEach(tr => {
-                    const table = tr.closest("table");
-                    if (!table) return;
-                    const visibleThs = Array.from(table.querySelectorAll("thead th")).filter(th => th.offsetParent !== null);
-                    const totalVisible = visibleThs.length || 12;
-                    const subtotalTd = tr.querySelector("td[name='price_subtotal'], td.o_list_subtotal");
-                    // Columns: 1 handle + product_id (spans remainder) + (optional subtotal) + 1 trash
-                    const reservedCols = (subtotalTd && subtotalTd.offsetParent !== null) ? 3 : 2;
-                    const targetSpan = String(Math.max(1, totalVisible - reservedCols));
-                    const td = tr.querySelector("td[name='product_id']");
-                    if (td && td.getAttribute("colspan") !== targetSpan) {
-                        td.setAttribute("colspan", targetSpan);
-                    }
-                });
-            };
-            setTimeout(fixSectionColspan, 50);
-            document.addEventListener("click", () => setTimeout(fixSectionColspan, 50));
-            document.addEventListener("mouseover", (e) => {
-                if (e.target.closest("tr.o_is_line_section")) {
-                    fixSectionColspan();
-                }
-            });
+            this.handleSectionClick = handleSectionClick;
+            document.addEventListener("click", this.handleSectionClick, true);
         }
     },
 });
