@@ -904,19 +904,7 @@ class ServiceTicket(models.Model):
         if not draft_lines:
             return True
 
-        target_dept = draft_lines[0].user_id.crm_department_id if (draft_lines and draft_lines[0].user_id) else False
-        dept_approver = False
-        if target_dept and target_dept.voucher_manager_id and target_dept.voucher_approval_active:
-            dept_approver = target_dept.voucher_manager_id
-        elif target_dept:
-            extra_d = self.env['hr.department'].sudo().search([
-                ('extra_department_ids', 'in', [target_dept.id]),
-                ('voucher_manager_id', '!=', False),
-                ('voucher_approval_active', '=', True)
-            ], limit=1)
-            if extra_d:
-                dept_approver = extra_d.voucher_manager_id
-        mgr = dept_approver or self.env.company.crm_authorized_expense_manager_ids[:1]
+        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
         approver_uid = mgr.id if mgr else 2
         submit_date = fields.Date.context_today(self)
         ticket_name = self.ticket_id or self.name or 'TCK'
@@ -1760,19 +1748,7 @@ class ServiceTicketVoucherBatch(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True)
     def _default_expense_manager_id(self):
-        target_dept = draft_lines[0].user_id.crm_department_id if (draft_lines and draft_lines[0].user_id) else False
-        dept_approver = False
-        if target_dept and target_dept.voucher_manager_id and target_dept.voucher_approval_active:
-            dept_approver = target_dept.voucher_manager_id
-        elif target_dept:
-            extra_d = self.env['hr.department'].sudo().search([
-                ('extra_department_ids', 'in', [target_dept.id]),
-                ('voucher_manager_id', '!=', False),
-                ('voucher_approval_active', '=', True)
-            ], limit=1)
-            if extra_d:
-                dept_approver = extra_d.voucher_manager_id
-        mgr = dept_approver or self.env.company.crm_authorized_expense_manager_ids[:1]
+        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
         return mgr.id if mgr else 2
 
     expense_manager_id = fields.Many2one('res.users', string='Approver', default=_default_expense_manager_id)
