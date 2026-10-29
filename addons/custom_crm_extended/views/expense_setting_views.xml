@@ -184,7 +184,7 @@
                         </group>
                         <group string="Approval Status">
                             <field name="expense_manager_id" readonly="1" string="Approver" options="{'no_open': True}"/>
-                            <field name="reject_reason" readonly="1" invisible="not reject_reason"/>
+                            <field name="reject_reason" readonly="1" invisible="status != 'rejected' or not reject_reason"/>
                         </group>
                     </group>
 
@@ -205,6 +205,7 @@
                                    decoration-success="status == 'approved'" 
                                    decoration-info="status == 'paid'" 
                                    decoration-danger="status == 'rejected'"/>
+                            <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
                             <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>
@@ -312,6 +313,7 @@
                                    decoration-success="status == 'approved'" 
                                    decoration-info="status == 'paid'" 
                                    decoration-danger="status == 'rejected'"/>
+                            <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
                             <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>

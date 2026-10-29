@@ -507,6 +507,9 @@ class ServiceTicket(models.Model):
                         l_badge_color = '#dc2626'
                     l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color};">{l_st.capitalize()}</span>'
 
+                    l_reason = line.reject_reason or ''
+                    l_reason_td = f'<span style="color: #dc2626; font-size: 12px; font-weight: 500;">{l_reason}</span>' if (l_st == 'rejected' and l_reason) else '<span class="text-muted">-</span>'
+
                     row = f"""
                     <tr style="border-bottom: 1px solid #f1f5f9;">
                         <td style="padding: 8px;">{l_date}</td>
@@ -517,6 +520,7 @@ class ServiceTicket(models.Model):
                         <td style="padding: 8px; text-align: right; font-weight: 700; color: #0f172a;">{l_amt}</td>
                         <td style="padding: 8px; text-align: center;">{bill_link}</td>
                         <td style="padding: 8px; text-align: center;">{l_badge}</td>
+                        <td style="padding: 8px;">{l_reason_td}</td>
                     </tr>
                     """
                     rows_html.append(row)
@@ -537,6 +541,7 @@ class ServiceTicket(models.Model):
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Amount</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Bill</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Status</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Reject Reason</th>
                             </tr>
                         </thead>
                         <tbody style="font-size: 13px;">
@@ -546,7 +551,7 @@ class ServiceTicket(models.Model):
                             <tr>
                                 <td colspan="{col_span}" style="padding: 8px; text-align: right; font-weight: 700; color: #334155;">Subtotal:</td>
                                 <td style="padding: 8px; text-align: right; font-weight: 800; font-size: 14px; color: #0b3d91;">{batch_total}</td>
-                                <td colspan="2"></td>
+                                <td colspan="3"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1207,6 +1212,7 @@ class ServiceTicketVoucherLine(models.Model):
         store=True,
         readonly=False,
     )
+    
 
     @api.depends('create_uid', 'user_id')
     def _compute_submitted_by_user_id(self):
