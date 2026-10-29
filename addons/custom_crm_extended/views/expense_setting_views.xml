@@ -50,8 +50,8 @@
                             <field name="department_ids" invisible="not show_department_table" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}">
                                 <list editable="bottom" create="0" delete="0">
                                     <field name="name" string="Department" readonly="1"/>
-                                    <field name="crm_voucher_approver_active" widget="boolean_toggle" string="Active"/>
-                                    <field name="crm_voucher_approver_id" 
+                                    <field name="voucher_approval_active" widget="boolean_toggle" string="Active"/>
+                                    <field name="voucher_manager_id" 
                                            string="Designated Voucher Approver" 
                                            options="{'no_create': True, 'no_create_edit': True}"
                                            domain="[('share', '=', False)]"
