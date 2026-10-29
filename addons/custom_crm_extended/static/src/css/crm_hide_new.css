@@ -1695,23 +1695,61 @@ i.text-crm-blue {
 }
 
 /* ── Voucher & Expense Configuration Fields ONLY: Brand Blue Focus Underline ── */
-.crm_quick_add_box .o_field_widget,
-.crm_quick_add_box .o_field_widget input,
-.crm_quick_add_box .o_field_widget .o_input,
 .crm_quick_add_box [name="new_expense_type_name"] input,
 .crm_quick_add_box [name="new_expense_type_budget_limit"] input,
-.crm_quick_add_box [name="new_expense_type_km_rate"] input,
+.crm_quick_add_box [name="new_expense_type_km_rate"] input {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 34px !important;
+    border: none !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Ensure boolean toggle renders cleanly as a switch */
+.crm_quick_add_box [name="new_expense_type_is_km"],
+.crm_quick_add_box .o_field_boolean_toggle {
+    width: auto !important;
+    max-width: none !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+/* Match Allowed Job Positions container height & baseline exactly to other inputs */
 .crm_quick_add_box [name="new_expense_type_job_ids"] {
     width: 100% !important;
     max-width: 100% !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
-.o_form_view:has([name="new_expense_type_name"]) input,
-.o_form_view:has([name="new_expense_type_name"]) select,
-.o_form_view:has([name="new_expense_type_name"]) .o_input,
-[name="new_expense_type_name"] input,
-[name="new_expense_type_budget_limit"] input,
-[name="new_expense_type_km_rate"] input,
+/* Brand Blue Focus Underlines */
+.crm_quick_add_box [name="new_expense_type_name"] input:focus,
+.crm_quick_add_box [name="new_expense_type_budget_limit"] input:focus,
+.crm_quick_add_box [name="new_expense_type_km_rate"] input:focus,
+.crm_quick_add_box [name="new_expense_type_job_ids"]:focus-within {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Table and voucher lines */
 [name="expense_type_ids"] input,
 [name="draft_voucher_line_ids"] input,
 [name="line_ids"] input,
@@ -1720,14 +1758,6 @@ i.text-crm-blue {
     border-bottom: 2px solid #cbd5e1;
 }
 
-.o_form_view:has([name="new_expense_type_name"]) input:focus,
-.o_form_view:has([name="new_expense_type_name"]) select:focus,
-.o_form_view:has([name="new_expense_type_name"]) .o_input:focus,
-.o_form_view:has([name="new_expense_type_name"]) .o_field_widget:focus-within,
-[name="new_expense_type_name"] input:focus,
-[name="new_expense_type_budget_limit"] input:focus,
-[name="new_expense_type_km_rate"] input:focus,
-[name="new_expense_type_job_ids"]:focus-within,
 [name="expense_type_ids"] input:focus,
 [name="draft_voucher_line_ids"] input:focus,
 [name="line_ids"] input:focus,
@@ -1739,15 +1769,17 @@ i.text-crm-blue {
     box-shadow: none !important;
 }
 
-/* FIX DOUBLE LINE: Remove inner input border on many2many tags so only ONE clean underline exists */
-[name="new_expense_type_job_ids"] input,
-[name="new_expense_type_job_ids"] .o_input,
-[name="new_expense_type_job_ids"] input:focus,
-[name="new_expense_type_job_ids"] .o_input:focus {
-    border-bottom: none !important;
+/* STRICT FIX FOR DOUBLE LINE: Strip all borders/shadows/outlines from EVERY child inside Allowed Job Positions */
+.crm_quick_add_box [name="new_expense_type_job_ids"] *,
+.crm_quick_add_box [name="new_expense_type_job_ids"] input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] .o_input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] div,
+[name="new_expense_type_job_ids"] * {
     border: none !important;
+    border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
+    background: transparent !important;
 }
 
 /* High Contrast + Add Button: Solid Brand Blue #0b3d91 with Bold White Text */
