@@ -1937,7 +1937,7 @@ button[name="action_add_expense_type"] * {
 /* Hide pager (1 / 1 < >) on Voucher Configuration & Settings form */
 .o_action:has([name="new_expense_type_name"]) .o_cp_pager,
 body:has([name="new_expense_type_name"]) .o_cp_pager,
-.o_form_view:has([name="new_expense_type_name"]) ~ .o_control_panel .o_cp_pager {
+.o_form_view:has([name="new_expense_type_name"])~.o_control_panel .o_cp_pager {
     display: none !important;
 }
 
@@ -2005,4 +2005,4 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
     opacity: 0.85 !important;
-}
+}

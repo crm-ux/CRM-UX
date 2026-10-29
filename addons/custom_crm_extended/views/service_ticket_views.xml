@@ -135,9 +135,10 @@
                                         <span class="fw-semibold text-secondary">Expense Type:</span>
                                     </div>
                                     <div class="col-sm-10 col-md-10">
+                                        <field name="allowed_voucher_expense_type_ids" invisible="1"/>
                                         <field name="new_voucher_expense_type_id" 
                                             widget="selection" 
-                                            domain="[('active', '=', True)]" 
+                                            domain="[('id', 'in', allowed_voucher_expense_type_ids)]" 
                                             class="w-100"
                                             placeholder="Select Expense Type..."/>
                                     </div>
@@ -255,7 +256,8 @@
                                 <list editable="bottom" create="0" delete="1">
                                     <field name="expense_date" string="Expense Date" optional="show"/>
                                     <field name="user_id" string="Employee" readonly="1" optional="show"/>
-                                    <field name="expense_type_id" widget="selection" domain="[('active', '=', True)]" class="fw-semibold"/>
+                                    <field name="allowed_expense_type_ids" column_invisible="1"/>
+                                    <field name="expense_type_id" widget="selection" domain="[('id', 'in', allowed_expense_type_ids)]" class="fw-semibold"/>
                                     <field name="is_km_based" column_invisible="1"/>
                                     <field name="total_km" column_invisible="not parent.has_km_lines"/>
                                     <field name="rate_per_km" column_invisible="not parent.has_km_lines" readonly="1"/>

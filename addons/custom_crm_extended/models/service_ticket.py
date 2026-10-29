@@ -576,6 +576,48 @@ class ServiceTicket(models.Model):
     )
     new_voucher_date = fields.Date(string='Expense Date', store=False)
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
+    allowed_voucher_expense_type_ids = fields.Many2many(
+        'service.ticket.expense.type',
+        compute='_compute_allowed_voucher_expense_type_ids',
+        string='Allowed Expense Types',
+    )
+
+    @api.depends('new_voucher_user_ids')
+    def _compute_allowed_voucher_expense_type_ids(self):
+        all_types = self.env['service.ticket.expense.type'].search([('active', '=', True)])
+        for rec in self:
+            target_users = rec.new_voucher_user_ids or self.env.user
+            allowed_ids = []
+            for t in all_types:
+                if not t.job_ids:
+                    # Global expense type -> allowed for everyone
+                    allowed_ids.append(t.id)
+                else:
+                    # Restricted expense type -> all target users must have an allowed job position
+                    user_ok = True
+                    for u in target_users:
+                        u_jobs = set()
+                        if u.crm_job_id:
+                            u_jobs.add(u.crm_job_id.id)
+                        if hasattr(u, 'employee_id') and u.employee_id and u.employee_id.job_id:
+                            u_jobs.add(u.employee_id.job_id.id)
+                        if hasattr(u, 'employee_ids'):
+                            for emp in u.employee_ids:
+                                if emp.job_id:
+                                    u_jobs.add(emp.job_id.id)
+                        if not any(j.id in u_jobs for j in t.job_ids):
+                            user_ok = False
+                            break
+                    if user_ok:
+                        allowed_ids.append(t.id)
+            rec.allowed_voucher_expense_type_ids = [(6, 0, allowed_ids)]
+
+    @api.onchange('new_voucher_user_ids')
+    def _onchange_new_voucher_user_ids_filter_type(self):
+        self._compute_allowed_voucher_expense_type_ids()
+        if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id not in self.allowed_voucher_expense_type_ids:
+            self.new_voucher_expense_type_id = False
+
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
     @api.depends('voucher_line_ids.is_km_based')
@@ -685,6 +727,32 @@ class ServiceTicket(models.Model):
         target_users = self.new_voucher_user_ids
         user_count = len(target_users)
         exp_type = self.new_voucher_expense_type_id
+
+        # Validate that all target users are authorized for this expense type
+        if exp_type.job_ids:
+            for u in target_users:
+                u_jobs = set()
+                if u.crm_job_id:
+                    u_jobs.add(u.crm_job_id.id)
+                if hasattr(u, 'employee_id') and u.employee_id and u.employee_id.job_id:
+                    u_jobs.add(u.employee_id.job_id.id)
+                if hasattr(u, 'employee_ids'):
+                    for emp in u.employee_ids:
+                        if emp.job_id:
+                            u_jobs.add(emp.job_id.id)
+                if not any(j.id in u_jobs for j in exp_type.job_ids):
+                    allowed_names = ", ".join(exp_type.job_ids.mapped('name'))
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': 'Job Position Restricted',
+                            'message': f"Expense Type '{exp_type.name}' is only allowed for Job Position(s): {allowed_names}. Employee '{u.name}' is not authorized.",
+                            'type': 'danger',
+                            'sticky': True,
+                        }
+                    }
+
         split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
 
         # 1. Determine each user's specific per-visit limit for this expense category
@@ -1129,7 +1197,52 @@ class ServiceTicketVoucherLine(models.Model):
     user_id = fields.Many2one('res.users', string='Employee', required=False, default=lambda self: self.env.user)
     department_id = fields.Many2one('hr.department', string='Department')
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', required=True)
+    allowed_expense_type_ids = fields.Many2many(
+        'service.ticket.expense.type',
+        compute='_compute_allowed_expense_type_ids',
+        string='Allowed Expense Types',
+    )
     is_km_based = fields.Boolean(related='expense_type_id.is_km_based', string='KM Based', store=True, readonly=True)
+
+    @api.depends('user_id')
+    def _compute_allowed_expense_type_ids(self):
+        all_types = self.env['service.ticket.expense.type'].search([('active', '=', True)])
+        for rec in self:
+            u = rec.user_id or self.env.user
+            u_jobs = set()
+            if u.crm_job_id:
+                u_jobs.add(u.crm_job_id.id)
+            if hasattr(u, 'employee_id') and u.employee_id and u.employee_id.job_id:
+                u_jobs.add(u.employee_id.job_id.id)
+            if hasattr(u, 'employee_ids'):
+                for emp in u.employee_ids:
+                    if emp.job_id:
+                        u_jobs.add(emp.job_id.id)
+            allowed = all_types.filtered(
+                lambda t: not t.job_ids or any(j.id in u_jobs for j in t.job_ids)
+            )
+            rec.allowed_expense_type_ids = [(6, 0, allowed.ids)]
+
+    @api.constrains('expense_type_id', 'user_id')
+    def _check_expense_type_job_permission(self):
+        for rec in self:
+            if rec.expense_type_id and rec.expense_type_id.job_ids:
+                u = rec.user_id or self.env.user
+                u_jobs = set()
+                if u.crm_job_id:
+                    u_jobs.add(u.crm_job_id.id)
+                if hasattr(u, 'employee_id') and u.employee_id and u.employee_id.job_id:
+                    u_jobs.add(u.employee_id.job_id.id)
+                if hasattr(u, 'employee_ids'):
+                    for emp in u.employee_ids:
+                        if emp.job_id:
+                            u_jobs.add(emp.job_id.id)
+                if not any(j.id in u_jobs for j in rec.expense_type_id.job_ids):
+                    allowed_names = ", ".join(rec.expense_type_id.job_ids.mapped('name'))
+                    raise ValidationError(
+                        _("Expense Type '%(type)s' is restricted to Job Position(s): %(jobs)s. Employee '%(user)s' is not authorized to claim this expense.")
+                        % {'type': rec.expense_type_id.name, 'jobs': allowed_names, 'user': u.name}
+                    )
 
     @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
     def _compute_user_id(self):
