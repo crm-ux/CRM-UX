@@ -69,7 +69,7 @@
                                         <label for="new_expense_type_name" class="form-label small fw-bold text-dark mb-1 d-block">New Expense Type</label>
                                         <field name="new_expense_type_name" nolabel="1" placeholder="e.g. Travel, Food, Hotel, Conveyance..."/>
                                     </div>
-                                    <div class="col-6 col-md-2" invisible="new_expense_type_is_km">
+                                    <div class="col-6 col-md-2">
                                         <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block">Limit Per Visit (₹)</label>
                                         <field name="new_expense_type_budget_limit" nolabel="1" placeholder="0.00"/>
                                     </div>
@@ -82,7 +82,7 @@
                                         <field name="new_expense_type_job_ids" nolabel="1" widget="many2many_tags" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     </div>
                                     <div class="col-6 col-md-1 text-center">
-                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">KM Based?</label>
+                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Calculate by KM</label>
                                         <div class="d-flex justify-content-center align-items-center" style="height: 32px;">
                                             <field name="new_expense_type_is_km" nolabel="1" widget="boolean_toggle"/>
                                         </div>
