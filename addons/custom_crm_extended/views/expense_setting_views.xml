@@ -13,9 +13,6 @@
                             Voucher Configuration &amp; Settings
                         </h2>
                     </div>
-                    <div>
-                        <button string="← Back to Submissions" type="object" name="action_back_to_submissions" class="btn btn-sm fw-semibold" style="color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
-                    </div>
                 </div>
 
                 <div class="row g-4 mb-4" style="width:100%; margin:0;">
@@ -72,11 +69,11 @@
                                         <label for="new_expense_type_name" class="form-label small fw-bold text-dark mb-1 d-block">New Expense Type</label>
                                         <field name="new_expense_type_name" nolabel="1" placeholder="e.g. Travel, Food, Hotel, Conveyance..."/>
                                     </div>
-                                    <div class="col-6 col-md-2">
+                                    <div class="col-6 col-md-2" invisible="new_expense_type_is_km">
                                         <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block">Limit Per Visit (₹)</label>
                                         <field name="new_expense_type_budget_limit" nolabel="1" placeholder="0.00"/>
                                     </div>
-                                    <div class="col-6 col-md-1">
+                                    <div class="col-6 col-md-2" invisible="not new_expense_type_is_km">
                                         <label for="new_expense_type_km_rate" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Rate per KM (₹)</label>
                                         <field name="new_expense_type_km_rate" nolabel="1" placeholder="0.00"/>
                                     </div>
@@ -85,7 +82,7 @@
                                         <field name="new_expense_type_job_ids" nolabel="1" widget="many2many_tags" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     </div>
                                     <div class="col-6 col-md-1 text-center">
-                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Calculate by KM</label>
+                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">KM Based?</label>
                                         <div class="d-flex justify-content-center align-items-center" style="height: 32px;">
                                             <field name="new_expense_type_is_km" nolabel="1" widget="boolean_toggle"/>
                                         </div>

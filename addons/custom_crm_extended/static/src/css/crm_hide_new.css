@@ -2006,3 +2006,11 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     border-color: #0b3d91 !important;
     opacity: 0.85 !important;
 }
+
+
+/* Equalize baseline alignment for quick add expense type box */
+.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
+    min-height: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+}
