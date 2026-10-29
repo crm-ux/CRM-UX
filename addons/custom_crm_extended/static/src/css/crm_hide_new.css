@@ -2012,16 +2012,21 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 .crm_quick_add_box .o_field_many2many_tags {
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+    border-bottom: none !important;
 }
 .crm_quick_add_box .o_field_many2many_tags .o_field_tags {
     min-height: 24px !important;
     margin-bottom: 0 !important;
     padding: 0 !important;
-    border-bottom: 1px solid #cbd5e1 !important;
+    border: none !important;
+    border-bottom: none !important;
     align-items: center !important;
 }
 .crm_quick_add_box .o_field_many2many_tags input {
     margin: 0 !important;
     padding: 0 0 2px 0 !important;
     line-height: normal !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
 }
