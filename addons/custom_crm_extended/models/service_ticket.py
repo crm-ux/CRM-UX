@@ -1198,6 +1198,7 @@ class ServiceTicketVoucherLine(models.Model):
 
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
     voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
+    name = fields.Char(related='voucher_id', string='Voucher ID', readonly=True)
     batch_key = fields.Char(string='Batch Key', index=True)
     submitted_by_user_id = fields.Many2one(
         'res.users',
@@ -1498,6 +1499,7 @@ class ServiceTicketVoucherBatch(models.Model):
 
     active = fields.Boolean(string='Active', default=True)
     name = fields.Char(string='Voucher ID', default=lambda self: _('New'))
+    voucher_id = fields.Char(related='name', string='Voucher ID', store=True, readonly=True)
     create_date = fields.Datetime(string='Submitted Date', readonly=True)
 
     def write(self, vals):
