@@ -898,12 +898,13 @@ class ServiceTicket(models.Model):
                 batch_name = f"{base_name}-{existing_count + 1:02d}"
 
             # Always create a brand-new separate batch (NEVER merge into old batches)
+            submitter_id = self.env.user.id if self.env.user and self.env.user.id != 1 else (primary_emp.id if primary_emp else 2)
             batch_rec = self.env['service.ticket.voucher.batch'].create({
                 'ticket_id': self.id,
                 'name': batch_name,
                 'submission_date': submit_date,
                 'user_id': primary_emp.id,
-                'submitted_by_user_id': self.env.user.id,
+                'submitted_by_user_id': submitter_id,
                 'expense_manager_id': approver_uid,
                 'other_employee_names': other_team_names,
                 'all_employee_names': combined_emp_names,
@@ -913,7 +914,7 @@ class ServiceTicket(models.Model):
             lines_for_date.write({
                 'status': 'submitted',
                 'batch_id': batch_rec.id,
-                'submitted_by_user_id': self.env.user.id,
+                'submitted_by_user_id': submitter_id,
             })
 
         return {
