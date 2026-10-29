@@ -1951,14 +1951,39 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     display: none !important;
 }
 
-/* Department-wise Voucher Approver: Highlight Toggle Switch with Custom Blue (#0b3d91) */
+/* Department-wise Voucher Approver: Highlight Toggle Switch with Custom Blue (#0b3d91) Border & Glow */
+.crm_dept_toggle_switch .form-check-input,
+.crm_dept_toggle_switch input[type="checkbox"],
+[name="show_department_table"] .form-check-input,
+[name="show_department_table"] input[type="checkbox"] {
+    border: 2px solid #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    cursor: pointer !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 1px rgba(11, 61, 145, 0.15) !important;
+    width: 2.5em !important;
+    height: 1.35em !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Hover effect on toggle switch */
+.crm_dept_toggle_switch .form-check-input:hover,
+.crm_dept_toggle_switch input[type="checkbox"]:hover,
+[name="show_department_table"] .form-check-input:hover,
+[name="show_department_table"] input[type="checkbox"]:hover {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 3px rgba(11, 61, 145, 0.25) !important;
+}
+
+/* Checked state: Solid Brand Blue #0b3d91 background & border */
 .crm_dept_toggle_switch input:checked,
 [name="show_department_table"] input:checked,
 .crm_dept_toggle_switch .form-check-input:checked,
 [name="show_department_table"] .form-check-input:checked {
     background-color: #0b3d91 !important;
+    border: 2px solid #0b3d91 !important;
     border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.25) !important;
+    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.3) !important;
 }
 
 /* Disabled Toggle Button when active managers exist (cannot shrink the card) */
@@ -1970,6 +1995,7 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 [name="show_department_table"].o_readonly_modifier {
     cursor: not-allowed !important;
     pointer-events: none !important;
+    opacity: 0.8 !important;
 }
 
 .crm_dept_toggle_switch input:disabled:checked,
