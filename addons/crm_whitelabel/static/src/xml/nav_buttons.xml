@@ -5,7 +5,7 @@
             <!-- 1st: Dashboard button -->
             <button class="btn btn-secondary" t-if="canShowDashboardButton" t-on-click="goDashboard">Dashboard</button>
             <!-- Configuration button for Voucher Submissions / Expense Management -->
-            <button class="btn btn-secondary ms-1" t-if="canShowVoucherConfigButton" t-on-click="openVoucherConfiguration" title="Configuration"><i class="fa fa-cog"></i></button>
+            <button class="btn btn-secondary ms-1" t-if="canShowVoucherConfigButton" t-on-click="openVoucherConfiguration">Configuration</button>
             <!-- 2nd: Standard New button for Task Management Calendar view ONLY -->
             <button class="btn btn-primary ms-1" 
                     t-if="canShowTaskCalendarNewButton" 
