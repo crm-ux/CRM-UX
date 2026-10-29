@@ -129,9 +129,15 @@
                 <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
                 <field name="expense_manager_id" string="Approver" optional="hide"/>
                 <field name="reject_reason" string="Reject Reason" optional="hide"/>
-                <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
-                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
+                <field name="status" widget="badge" 
+                       decoration-info="status == 'draft'" 
+                       decoration-warning="status in ('submitted', 'partially_approved')" 
+                       decoration-success="status == 'approved'" 
+                       decoration-primary="status == 'paid'" 
+                       decoration-danger="status == 'rejected'"/>
+                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-secondary" title="Rollback / Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -225,8 +231,15 @@
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user" options="{'no_open': True}"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_amount" sum="Total Amount" class="fw-bold text-end"/>
-                <field name="expense_manager_id" string="Approver" options="{'no_open': True}" optional="hide"/>
-                <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                <field name="status" widget="badge" 
+                       decoration-info="status == 'draft'" 
+                       decoration-warning="status in ('submitted', 'partially_approved')" 
+                       decoration-success="status == 'approved'" 
+                       decoration-primary="status == 'paid'" 
+                       decoration-danger="status == 'rejected'"/>
+                <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid')"/>
+                <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status == 'rejected'"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-secondary" title="Rollback / Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
