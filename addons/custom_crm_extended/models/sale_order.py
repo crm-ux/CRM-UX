@@ -888,6 +888,7 @@ class SaleOrderLine(models.Model):
         string='Product Name',
         store=True,
         ondelete='set null',
+    )
     x_hsn_code = fields.Char(
         string='HSN/SAC',
         compute='_compute_x_hsn_code',
