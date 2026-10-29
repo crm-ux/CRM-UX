@@ -1002,7 +1002,7 @@ class SaleOrderLine(models.Model):
         self.x_sub_category_id = categ if categ and categ.parent_id else False
         self.x_product_code = product.default_code or ''
         self.x_product_name = product.product_tmpl_id.with_context(lang='en_US').name or product.with_context(lang='en_US').name or ''
-        self.x_hsn_code = product.l10n_in_hsn_code or ''
+        self.x_hsn_code = product.l10n_in_hsn_code or product.product_tmpl_id.l10n_in_hsn_code or ''
         self.x_make = product.x_make or product.product_tmpl_id.x_make or ''
         self.x_default_price = product.list_price or 0.0
 
@@ -1027,7 +1027,7 @@ class SaleOrderLine(models.Model):
                 if not vals.get('x_product_name'):
                     vals['x_product_name'] = product.with_context(lang='en_US').name or ''
                 if not vals.get('x_hsn_code'):
-                    vals['x_hsn_code'] = product.l10n_in_hsn_code or ''
+                    vals['x_hsn_code'] = product.l10n_in_hsn_code or product.product_tmpl_id.l10n_in_hsn_code or ''
                 if not vals.get('x_make'):
                     vals['x_make'] = product.x_make or product.product_tmpl_id.x_make or ''
                 if not vals.get('x_default_price'):
@@ -1065,6 +1065,7 @@ class SaleOrderLineExtended(models.Model):
     def _onchange_product_name_m2o(self):
         if self.x_product_name_m2o:
             self.product_id = self.x_product_name_m2o
+            self._fill_custom_product_fields(self.x_product_name_m2o)
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
