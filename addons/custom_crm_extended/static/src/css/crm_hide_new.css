@@ -1816,9 +1816,31 @@ i.text-crm-blue {
 [name="draft_voucher_line_ids"] input:focus,
 [name="line_ids"] input:focus,
 [name="ticket_voucher_line_ids"] input:focus,
-.o_voucher_card_list input:focus {
+.o_voucher_card_list input:focus,
+[name="authorized_manager_ids"]:focus-within,
+div[name="authorized_manager_ids"]:focus-within,
+[name="authorized_manager_ids"] .o_input:focus,
+[name="authorized_manager_ids"] input:focus {
     border-color: #0b3d91 !important;
     border-bottom: 2px solid #0b3d91 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Authorized Managers Field: Single clean underline without inner borders */
+[name="authorized_manager_ids"],
+div[name="authorized_manager_ids"] {
+    border: none !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+[name="authorized_manager_ids"] .o_input_dropdown,
+[name="authorized_manager_ids"] input {
+    border: none !important;
+    border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
 }
