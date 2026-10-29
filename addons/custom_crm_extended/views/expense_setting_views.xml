@@ -85,7 +85,7 @@
 
                             <div class="mb-3">
                                 <label for="new_expense_type_job_ids" class="form-label text-muted small fw-bold mb-1">Allowed Job Positions</label>
-                                <field name="new_expense_type_job_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Leave empty for all roles..."/>
+                                <field name="new_expense_type_job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Leave empty for all roles..."/>
                             </div>
 
                             <div class="mb-3 form-check form-switch ps-0 d-flex align-items-center">
@@ -123,7 +123,7 @@
                                     <field name="is_km_based" string="By KM" widget="boolean_toggle"/>
                                     <field name="km_rate" string="Rate/KM (₹)" readonly="not is_km_based"/>
                                     <field name="budget_limit" string="Limit/Visit (₹)" readonly="is_km_based"/>
-                                    <field name="job_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" string="Allowed Positions"/>
+                                    <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" string="Allowed Positions"/>
                                     <field name="active" widget="boolean_toggle" string="Active"/>
                                 </list>
                             </field>
