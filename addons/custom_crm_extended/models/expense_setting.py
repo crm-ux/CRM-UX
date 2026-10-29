@@ -44,6 +44,12 @@ class ExpenseSetting(models.Model):
         readonly=False
     )
 
+    show_department_table = fields.Boolean(
+        string="Show Departments",
+        default=True,
+        help="Toggle to expand or shrink the Department Approver table."
+    )
+
     department_ids = fields.Many2many(
         'hr.department',
         string="Departments",

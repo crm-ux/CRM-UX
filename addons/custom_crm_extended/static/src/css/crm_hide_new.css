@@ -1939,4 +1939,14 @@ button[name="action_add_expense_type"] * {
 body:has([name="new_expense_type_name"]) .o_cp_pager,
 .o_form_view:has([name="new_expense_type_name"]) ~ .o_control_panel .o_cp_pager {
     display: none !important;
+}
+
+/* Department-wise Voucher Approver Table: Remove Add a line and Delete row buttons */
+[name="department_ids"] .o_field_x2many_list_row_add,
+[name="department_ids"] .o_list_record_add,
+[name="department_ids"] .o_list_button_add,
+[name="department_ids"] .o_list_record_remove,
+[name="department_ids"] td.o_list_record_remove,
+[name="department_ids"] th.o_list_record_remove {
+    display: none !important;
 }
