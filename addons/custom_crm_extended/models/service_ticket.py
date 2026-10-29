@@ -1190,7 +1190,9 @@ class ServiceTicketVoucherLine(models.Model):
     status = fields.Selection([
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
+        ('partially_approved', 'Partially Approved'),
         ('approved', 'Approved'),
+        ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
 
@@ -1290,25 +1292,102 @@ class ServiceTicketVoucherLine(models.Model):
             rec.sudo().write({
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
+                'reject_reason': False,
             })
-        msg = _('Voucher approved successfully.')
-        if len(self) == 1:
-            msg = _('Voucher for %s (%s) of ₹%0.2f has been approved successfully.') % (
-                self.user_id.name or 'Employee',
-                self.expense_type_id.name or 'Expense',
-                self.amount or 0.0
-            )
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    def action_approve_all(self):
+        for rec in self:
+            target = rec.batch_id.line_ids if rec.batch_id else rec
+            target.sudo().write({
+                'status': 'approved',
+                'expense_manager_id': self.env.user.id,
+                'reject_reason': False,
+            })
+            if rec.batch_id:
+                rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Voucher Approved'),
-                'message': msg,
+                'title': _('All Expenses Approved'),
+                'message': _('All lines in this voucher have been approved.'),
                 'type': 'success',
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
+    def action_reject_all(self):
+        for rec in self:
+            target = rec.batch_id.line_ids if rec.batch_id else rec
+            target.sudo().write({
+                'status': 'rejected',
+                'expense_manager_id': self.env.user.id,
+            })
+            if rec.batch_id:
+                rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('All Expenses Rejected'),
+                'message': _('All lines in this voucher have been rejected.'),
+                'type': 'danger',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_mark_paid(self):
+        for rec in self:
+            target = rec.batch_id.line_ids if rec.batch_id else rec
+            # Mark approved lines as paid
+            to_pay = target.filtered(lambda l: l.status in ('approved', 'partially_approved'))
+            if to_pay:
+                to_pay.sudo().write({'status': 'paid'})
+            elif target:
+                target.sudo().write({'status': 'paid'})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Payment Recorded'),
+                'message': _('Voucher marked as Paid.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_reset_to_submitted(self):
+        """Rollback: Reset all lines in the voucher back to Submitted so manager can re-evaluate."""
+        for rec in self:
+            target = rec.batch_id.line_ids if rec.batch_id else rec
+            target.sudo().write({
+                'status': 'submitted',
+                'reject_reason': False,
+            })
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Rolled Back'),
+                'message': _('Voucher lines reset to Submitted for re-evaluation.'),
+                'type': 'info',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_reset_line(self):
+        """Rollback a single line back to Submitted."""
+        for rec in self:
+            rec.sudo().write({
+                'status': 'submitted',
+                'reject_reason': False,
+            })
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_reject(self):
         line = self[:1]
@@ -1530,7 +1609,9 @@ class ServiceTicketVoucherBatch(models.Model):
     total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
     status = fields.Selection([
         ('submitted', 'Submitted'),
+        ('partially_approved', 'Partially Approved'),
         ('approved', 'Approved'),
+        ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True)
     def _default_expense_manager_id(self):
@@ -1547,11 +1628,19 @@ class ServiceTicketVoucherBatch(models.Model):
     @api.depends('line_ids.status')
     def _compute_status(self):
         for rec in self:
-            statuses = rec.line_ids.mapped('status')
-            if all(s == 'approved' for s in statuses) if statuses else False:
+            statuses = set(rec.line_ids.mapped('status'))
+            if not statuses:
+                rec.status = 'submitted'
+            elif all(s == 'paid' for s in statuses):
+                rec.status = 'paid'
+            elif all(s == 'approved' for s in statuses):
                 rec.status = 'approved'
-            elif any(s == 'rejected' for s in statuses):
+            elif all(s == 'rejected' for s in statuses):
                 rec.status = 'rejected'
+            elif any(s in ('approved', 'paid') for s in statuses) and any(s in ('rejected', 'submitted') for s in statuses):
+                rec.status = 'partially_approved'
+            elif any(s == 'rejected' for s in statuses) and any(s == 'submitted' for s in statuses):
+                rec.status = 'partially_approved'
             else:
                 rec.status = 'submitted'
 
@@ -1587,6 +1676,7 @@ class ServiceTicketVoucherBatch(models.Model):
             rec.line_ids.sudo().write({
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
+                'reject_reason': False,
             })
             rec.sudo().write({'expense_manager_id': self.env.user.id})
         return {
@@ -1615,6 +1705,44 @@ class ServiceTicketVoucherBatch(models.Model):
                 'title': _('Vouchers Rejected'),
                 'message': _('All vouchers in this submission have been rejected.'),
                 'type': 'danger',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_mark_paid(self):
+        for rec in self:
+            to_pay = rec.line_ids.filtered(lambda l: l.status in ('approved', 'partially_approved'))
+            if to_pay:
+                to_pay.sudo().write({'status': 'paid'})
+            elif rec.line_ids:
+                rec.line_ids.sudo().write({'status': 'paid'})
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Payment Recorded'),
+                'message': _('Voucher marked as Paid.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_reset_to_submitted(self):
+        """Rollback: Reset all lines in the voucher back to Submitted so manager can re-evaluate."""
+        for rec in self:
+            rec.line_ids.sudo().write({
+                'status': 'submitted',
+                'reject_reason': False,
+            })
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Rolled Back'),
+                'message': _('Voucher reset to Submitted for re-evaluation.'),
+                'type': 'info',
                 'sticky': False,
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }

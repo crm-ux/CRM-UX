@@ -143,9 +143,11 @@
         <field name="arch" type="xml">
             <form string="Expense Voucher Detail">
                 <header>
-                    <button name="action_approve" string="Approve" type="object" class="btn btn-success" invisible="status == 'approved'"/>
-                    <button name="action_reject" string="Reject" type="object" class="btn btn-danger" invisible="status == 'rejected'"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
+                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <button name="action_reset_to_submitted" string="Rollback / Reset" type="object" class="btn btn-outline-secondary px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
                     <div class="oe_title mb-3">
@@ -191,7 +193,15 @@
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
                             <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0" style="color: #0b3d91 !important;"/>
-                            <field name="status" widget="badge" decoration-info="status == 'draft'" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                            <field name="status" widget="badge" 
+                                   decoration-info="status == 'draft'" 
+                                   decoration-warning="status in ('submitted', 'partially_approved')" 
+                                   decoration-success="status == 'approved'" 
+                                   decoration-primary="status == 'paid'" 
+                                   decoration-danger="status == 'rejected'"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-secondary" title="Rollback Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>
@@ -228,9 +238,11 @@
         <field name="arch" type="xml">
             <form string="Voucher Submission Detail" create="0" edit="0" delete="0" class="o_service_ticket_voucher_batch_form">
                 <header>
-                    <button name="action_approve" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status == 'approved'"/>
-                    <button name="action_reject" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status == 'rejected'"/>
-                    <field name="status" widget="statusbar" statusbar_visible="submitted,approved,rejected"/>
+                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
+                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <button name="action_reset_to_submitted" string="Rollback / Reset" type="object" class="btn btn-outline-secondary px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -281,9 +293,15 @@
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
                             <button name="action_preview_bill" type="object" icon="fa-eye" title="View Bill" invisible="not bill_file" class="btn p-0 text-primary"/>
-                            <field name="status" widget="badge" decoration-warning="status == 'submitted'" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status == 'approved'"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
+                            <field name="status" widget="badge" 
+                                   decoration-info="status == 'draft'" 
+                                   decoration-warning="status in ('submitted', 'partially_approved')" 
+                                   decoration-success="status == 'approved'" 
+                                   decoration-primary="status == 'paid'" 
+                                   decoration-danger="status == 'rejected'"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-secondary" title="Rollback Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>
