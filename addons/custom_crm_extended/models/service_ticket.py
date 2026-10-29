@@ -439,10 +439,13 @@ class ServiceTicket(models.Model):
                 if st == 'approved':
                     badge_bg = '#d1fae5'
                     badge_color = '#059669'
+                elif st == 'paid':
+                    badge_bg = '#e0f2fe'
+                    badge_color = '#0284c7'
                 elif st == 'rejected':
                     badge_bg = '#fee2e2'
                     badge_color = '#dc2626'
-                st_label = st.capitalize()
+                st_label = dict(batch._fields['status'].selection).get(st, st.replace('_', ' ').title())
 
                 vch_name = batch.name or 'New'
                 # Live compute unique expense dates from lines
@@ -502,10 +505,14 @@ class ServiceTicket(models.Model):
                     if l_st == 'approved':
                         l_badge_bg = '#d1fae5'
                         l_badge_color = '#059669'
+                    elif l_st == 'paid':
+                        l_badge_bg = '#e0f2fe'
+                        l_badge_color = '#0284c7'
                     elif l_st == 'rejected':
                         l_badge_bg = '#fee2e2'
                         l_badge_color = '#dc2626'
-                    l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color};">{l_st.capitalize()}</span>'
+                    l_st_label = dict(line._fields['status'].selection).get(l_st, l_st.replace('_', ' ').title())
+                    l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color};">{l_st_label}</span>'
 
                     l_reason = line.reject_reason or ''
                     l_reason_td = f'<span style="color: #dc2626; font-size: 12px; font-weight: 500;">{l_reason}</span>' if (l_st == 'rejected' and l_reason) else '<span class="text-muted">-</span>'
