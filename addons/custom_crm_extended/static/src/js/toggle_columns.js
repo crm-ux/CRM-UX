@@ -45,7 +45,7 @@ patch(ListRenderer.prototype, {
     setup() {
         super.setup ? super.setup() : null;
 
-        const checkEmptyState = () => {
+        const checkEmptyState = () => { return;
             const resModel = this.props?.list?.resModel;
             if (resModel === 'crm.personal.todo' || resModel === 'crm.task.management') {
                 const count = this.props?.list?.records?.length ?? 0;
@@ -122,8 +122,8 @@ patch(ListRenderer.prototype, {
                 }
             }
         };
-        onMounted(checkEmptyState);
-        onPatched(checkEmptyState);
+        // onMounted(checkEmptyState);
+        // onPatched(checkEmptyState);
 
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order') {
