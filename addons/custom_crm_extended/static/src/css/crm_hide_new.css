@@ -1695,13 +1695,23 @@ i.text-crm-blue {
 }
 
 /* ── Voucher & Expense Configuration Fields ONLY: Brand Blue Focus Underline ── */
+.crm_quick_add_box .o_field_widget,
+.crm_quick_add_box .o_field_widget input,
+.crm_quick_add_box .o_field_widget .o_input,
+.crm_quick_add_box [name="new_expense_type_name"] input,
+.crm_quick_add_box [name="new_expense_type_budget_limit"] input,
+.crm_quick_add_box [name="new_expense_type_km_rate"] input,
+.crm_quick_add_box [name="new_expense_type_job_ids"] {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
 .o_form_view:has([name="new_expense_type_name"]) input,
 .o_form_view:has([name="new_expense_type_name"]) select,
 .o_form_view:has([name="new_expense_type_name"]) .o_input,
 [name="new_expense_type_name"] input,
 [name="new_expense_type_budget_limit"] input,
 [name="new_expense_type_km_rate"] input,
-[name="new_expense_type_job_ids"] input,
 [name="expense_type_ids"] input,
 [name="draft_voucher_line_ids"] input,
 [name="line_ids"] input,
@@ -1729,7 +1739,39 @@ i.text-crm-blue {
     box-shadow: none !important;
 }
 
-[name="new_expense_type_job_ids"] .o_input:focus,
-[name="authorized_manager_ids"] .o_input:focus {
-    border-bottom: 2px solid #0b3d91 !important;
+/* FIX DOUBLE LINE: Remove inner input border on many2many tags so only ONE clean underline exists */
+[name="new_expense_type_job_ids"] input,
+[name="new_expense_type_job_ids"] .o_input,
+[name="new_expense_type_job_ids"] input:focus,
+[name="new_expense_type_job_ids"] .o_input:focus {
+    border-bottom: none !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* High Contrast + Add Button: Solid Brand Blue #0b3d91 with Bold White Text */
+.btn_crm_add_type,
+button[name="action_add_expense_type"] {
+    background-color: #0b3d91 !important;
+    background: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 1px 3px rgba(11, 61, 145, 0.3) !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+.btn_crm_add_type:hover,
+button[name="action_add_expense_type"]:hover {
+    background-color: #082d6e !important;
+    border-color: #082d6e !important;
+    color: #ffffff !important;
+}
+
+.btn_crm_add_type *,
+button[name="action_add_expense_type"] * {
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
