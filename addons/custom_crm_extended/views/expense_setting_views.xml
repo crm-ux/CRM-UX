@@ -137,7 +137,7 @@
                        decoration-danger="status == 'rejected'"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected'"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-secondary" title="Reset" invisible="status == 'submitted'"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-primary" title="Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -152,7 +152,7 @@
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-outline-secondary px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-outline-primary fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
@@ -207,7 +207,7 @@
                                    decoration-danger="status == 'rejected'"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-secondary" title="Rollback Line" invisible="status == 'submitted'"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-primary" title="Reset Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>
@@ -239,7 +239,7 @@
                        decoration-danger="status == 'rejected'"/>
                 <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status == 'rejected'"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-secondary" title="Reset" invisible="status == 'submitted'"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-primary" title="Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -254,7 +254,7 @@
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-outline-secondary px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-outline-primary fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
                 </header>
                 <sheet>
@@ -314,7 +314,7 @@
                                    decoration-danger="status == 'rejected'"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected'"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-secondary" title="Rollback Line" invisible="status == 'submitted'"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-primary" title="Reset Line" invisible="status == 'submitted'"/>
                         </list>
                     </field>
                 </sheet>
