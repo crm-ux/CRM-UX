@@ -142,7 +142,9 @@ patch(ControlPanel.prototype, {
 
     get canShowVoucherConfigButton() {
         const resModel = this.env.searchModel?.resModel || this.action?.currentController?.props?.resModel;
-        return resModel === "service.ticket.voucher.line";
+        const viewType = this.env.config?.viewType || this.action?.currentController?.props?.type;
+        const isVoucherModel = resModel === "service.ticket.voucher.batch" || resModel === "service.ticket.voucher.line";
+        return isVoucherModel && viewType === "list";
     },
 
     openVoucherConfiguration() {
