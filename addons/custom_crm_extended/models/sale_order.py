@@ -888,8 +888,21 @@ class SaleOrderLine(models.Model):
         string='Product Name',
         store=True,
         ondelete='set null',
+    x_hsn_code = fields.Char(
+        string='HSN/SAC',
+        compute='_compute_x_hsn_code',
+        store=True,
+        readonly=False,
     )
-    x_hsn_code = fields.Char(string='HSN/SAC')
+
+    @api.depends('product_id', 'product_id.l10n_in_hsn_code')
+    def _compute_x_hsn_code(self):
+        for line in self:
+            if line.product_id:
+                line.x_hsn_code = line.product_id.l10n_in_hsn_code or line.product_id.product_tmpl_id.l10n_in_hsn_code or ''
+            elif not line.x_hsn_code:
+                line.x_hsn_code = ''
+
     x_make = fields.Char(string='Make / Brand')
     x_default_price = fields.Float(string='Master Price', digits='Product Price')
     x_notes = fields.Char(string='Notes')
