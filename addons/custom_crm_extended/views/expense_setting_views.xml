@@ -91,7 +91,7 @@
                                         <field name="new_expense_type_km_rate" nolabel="1" placeholder="0.00"/>
                                     </div>
                                     <div class="col-auto text-end" style="min-width: 90px;">
-                                        <div class="form-label small mb-1" style="height: 20px;">&nbsp;</div>
+                                        <div class="form-label small mb-1" style="height: 20px;">&#160;</div>
                                         <button name="action_add_expense_type" string="+ Add" type="object" class="btn_crm_add_type btn w-100 fw-bold shadow-sm" style="background-color: #0b3d91 !important; color: #ffffff !important; border: 1px solid #0b3d91 !important; height: 34px;"/>
                                     </div>
                                 </div>
