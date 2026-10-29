@@ -881,7 +881,8 @@ class ServiceTicket(models.Model):
 
             combined_emp_names = ", ".join(all_names)
             primary_emp = lines_for_date[0].user_id
-            submitter_name = self.env.user.name
+            submitter_user = self.env.user if self.env.user and self.env.user.id != 1 else (primary_emp or self.engineer_id)
+            submitter_name = submitter_user.name if submitter_user else ''
             other_names_list = [n for n in all_names if n != submitter_name]
             other_team_names = ", ".join(other_names_list)
 
@@ -1456,7 +1457,22 @@ class ServiceTicketVoucherBatch(models.Model):
             if not rec.submitted_by_user_id or rec.submitted_by_user_id.id == 1:
                 rec.submitted_by_user_id = rec.create_uid if rec.create_uid and rec.create_uid.id != 1 else rec.user_id
 
-    other_employee_names = fields.Char(string='Other Employees')
+    other_employee_names = fields.Char(
+        string='Other Employees',
+        compute='_compute_other_employee_names',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('submitted_by_user_id', 'user_id', 'line_ids.user_id.name')
+    def _compute_other_employee_names(self):
+        for rec in self:
+            submitter_name = (rec.submitted_by_user_id.name if rec.submitted_by_user_id and rec.submitted_by_user_id.id != 1 else rec.user_id.name) or ''
+            names = []
+            for emp_name in rec.line_ids.mapped('user_id.name'):
+                if emp_name and emp_name != submitter_name and emp_name not in names:
+                    names.append(emp_name)
+            rec.other_employee_names = ", ".join(names) if names else ""
     all_employee_names = fields.Char(compute='_compute_all_employee_names', string='Employees', store=True)
     voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
     ticket_voucher_line_ids = fields.One2many(related='line_ids', string='Voucher Expenses', readonly=True)
