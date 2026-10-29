@@ -2006,3 +2006,10 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     border-color: #0b3d91 !important;
     opacity: 0.85 !important;
 }
+
+
+/* Empty State Smiling Face: Replace default Odoo purple circle (#714B67) with CRM Brand Blue (#0b3d91) */
+.o_view_nocontent_smiling_face::before,
+.o_nocontent_help .o_view_nocontent_smiling_face::before {
+    filter: invert(16%) sepia(87%) saturate(3025%) hue-rotate(209deg) brightness(94%) contrast(104%) !important;
+}
