@@ -2010,23 +2010,12 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 
 /* Equalize baseline alignment for quick add expense type box */
 .crm_quick_add_box .o_field_many2many_tags {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-    border-bottom: none !important;
-}
-.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
-    min-height: 24px !important;
-    margin-bottom: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     border: none !important;
-    border-bottom: none !important;
-    align-items: center !important;
 }
-.crm_quick_add_box .o_field_many2many_tags input {
+.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
     margin: 0 !important;
-    padding: 0 0 2px 0 !important;
-    line-height: normal !important;
+    padding: 0 !important;
     border: none !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
 }
