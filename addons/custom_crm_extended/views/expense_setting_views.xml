@@ -120,9 +120,9 @@
                             <field name="expense_type_ids" nolabel="1">
                                 <list editable="bottom" create="0">
                                     <field name="name" string="Name"/>
-                                    <field name="is_km" string="By KM" widget="boolean_toggle"/>
-                                    <field name="km_rate" string="Rate/KM (₹)" readonly="not is_km"/>
-                                    <field name="budget_limit" string="Limit/Visit (₹)" readonly="is_km"/>
+                                    <field name="is_km_based" string="By KM" widget="boolean_toggle"/>
+                                    <field name="km_rate" string="Rate/KM (₹)" readonly="not is_km_based"/>
+                                    <field name="budget_limit" string="Limit/Visit (₹)" readonly="is_km_based"/>
                                     <field name="job_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" string="Allowed Positions"/>
                                     <field name="active" widget="boolean_toggle" string="Active"/>
                                 </list>
