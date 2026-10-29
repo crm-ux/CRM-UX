@@ -464,11 +464,8 @@ class ServiceTicket(models.Model):
                         <span class="fw-bold" style="color: #0b3d91; font-size: 13px;">Voucher ID:</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_name}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
-                        <span class="fw-bold text-dark" style="font-size: 13px;">Submitted:</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Submitted Date:</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-size: 13px;">{vch_sub_date}</span>
-                        <span class="text-muted fw-bold mx-1">|</span>
-                        <span class="fw-bold text-dark" style="font-size: 13px;">Expense Date(s):</span>
-                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_exp_dates}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         <span class="fw-bold text-dark" style="font-size: 13px;">Employee(s):</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_emps}</span>

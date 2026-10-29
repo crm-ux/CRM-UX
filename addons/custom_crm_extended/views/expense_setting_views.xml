@@ -276,11 +276,6 @@
                                 <field name="create_date" readonly="1" class="d-inline"/>
                             </span>
                             <span class="text-muted ms-1">|</span>
-                            <span class="small fw-bold text-dark ms-1">Expense Date(s):</span>
-                            <span class="badge py-1 px-2 fw-semibold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 0.9rem;">
-                                <field name="expense_dates" readonly="1" class="d-inline"/>
-                            </span>
-                            <span class="text-muted ms-1">|</span>
                             <span class="small fw-bold text-dark ms-1">Employees:</span>
                             <span class="badge py-1 px-2 fw-semibold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 0.9rem;">
                                 <field name="all_employee_names" readonly="1" class="d-inline"/>
