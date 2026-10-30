@@ -2104,18 +2104,10 @@ i.fa-dollar:before,
 }
 
 /* Smart buttons box in navbar/header: change all purple icons, text, and numbers to custom blue */
-.oe_button_box,
-.oe_button_box *,
-.o-form-buttonbox,
-.o-form-buttonbox *,
-.o_statusbar_buttons .btn,
-.o_statusbar_buttons .btn *,
 .o_control_panel_breadcrumbs .oe_button_box,
 .o_control_panel_breadcrumbs .oe_button_box *,
-div[name="button_box"],
-div[name="button_box"] *,
-.oe_stat_button,
-.oe_stat_button * {
+div[name="button_box"].oe_button_box,
+div[name="button_box"].oe_button_box * {
     color: #0b3d91 !important;
 }
 
