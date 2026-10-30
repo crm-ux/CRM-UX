@@ -262,7 +262,7 @@
         <field name="name">service.ticket.voucher.batch.form</field>
         <field name="model">service.ticket.voucher.batch</field>
         <field name="arch" type="xml">
-            <form string="Voucher Submission Detail" class="o_service_ticket_voucher_batch_form">
+            <form string="Voucher Submission Detail" create="0" edit="0" delete="0" class="o_service_ticket_voucher_batch_form">
                 <header>
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
@@ -300,16 +300,6 @@
 
                     <!-- Clean Expense Table -->
                     <separator string="Expense Details"/>
-                    <group>
-                        <group string="Submission Overview">
-                            <field name="create_date" string="Submitted Date" readonly="1"/>
-                            <field name="submitted_by_user_id" string="Submitted By" readonly="1" options="{'no_open': True}"/>
-                        </group>
-                        <group string="Approval Status">
-                            <field name="status" readonly="1" string="Current Status"/>
-                            <field name="total_amount" readonly="1" string="Total Amount" class="fw-bold text-dark"/>
-                        </group>
-                    </group>
                     <field name="line_ids" readonly="1" class="o_voucher_card_list">
                         <list create="0" edit="0" delete="0">
                             <field name="expense_date" string="Expense Date"/>
