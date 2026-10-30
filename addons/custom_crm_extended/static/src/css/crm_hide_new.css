@@ -2085,29 +2085,36 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 }
 
 /* Change Dollar icon to Tags icon on Customer Sales smart button and list view badges */
-.o_form_view .oe_button_box button[name="action_view_sale_order"] i,
+.o_control_panel_breadcrumbs .oe_button_box button[name="action_view_sale_order"] i,
+.o_control_panel_breadcrumbs button[name="action_view_sale_order"] i,
+.o_form_statusbar button[name="action_view_sale_order"] i,
+.o_control_panel button[name="action_view_sale_order"] i,
 .o_form_view button[name="action_view_sale_order"] i,
-.o_form_view .oe_stat_button[name="action_view_sale_order"] i,
+.oe_button_box button[name="action_view_sale_order"] i,
 .o_data_row i.fa-usd,
 .o_data_row i.fa-dollar {
     font-family: FontAwesome !important;
 }
 
-.o_form_view .oe_button_box button[name="action_view_sale_order"] i:before,
+.o_control_panel_breadcrumbs .oe_button_box button[name="action_view_sale_order"] i:before,
+.o_control_panel_breadcrumbs button[name="action_view_sale_order"] i:before,
+.o_form_statusbar button[name="action_view_sale_order"] i:before,
+.o_control_panel button[name="action_view_sale_order"] i:before,
 .o_form_view button[name="action_view_sale_order"] i:before,
-.o_form_view .oe_stat_button[name="action_view_sale_order"] i:before,
+.oe_button_box button[name="action_view_sale_order"] i:before,
 .o_data_row i.fa-usd:before,
 .o_data_row i.fa-dollar:before {
     content: "\f02c" !important; /* fa-tags */
 }
 
-/* Smart buttons in header/navbar: change purple icons and text to custom blue */
-.o_form_view .oe_button_box .oe_stat_button,
-.o_form_view .oe_button_box .oe_stat_button i,
-.o_form_view .oe_button_box .oe_stat_button .o_stat_info,
-.o_form_view .oe_button_box .oe_stat_button .o_stat_text,
-.o_form_view .oe_button_box .oe_stat_button .o_stat_value,
-.o_form_view .oe_button_box button,
-.o_form_view .oe_button_box button i {
+/* Control panel / navbar smart button box: change all purple icons, text, and numbers to custom blue */
+.o_control_panel .oe_button_box,
+.o_control_panel .oe_button_box *,
+.o_control_panel_breadcrumbs .oe_button_box,
+.o_control_panel_breadcrumbs .oe_button_box *,
+.oe_button_box .oe_stat_button,
+.oe_button_box .oe_stat_button *,
+.o_form_view .oe_button_box,
+.o_form_view .oe_button_box * {
     color: #0b3d91 !important;
 }
