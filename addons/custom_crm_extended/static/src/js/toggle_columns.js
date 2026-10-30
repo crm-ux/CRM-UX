@@ -1,28 +1,5 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
-import { registry } from "@web/core/registry";
-const notificationService = {
-    dependencies: ["notification"],
-    start(env, { notification }) {
-        const originalAdd = notification.add.bind(notification);
-        notification.add = (message, options = {}) => {
-            const strMsg = (typeof message === "string" ? message : (message?.toString ? message.toString() : "")) || "";
-            if (
-                strMsg.includes("couldn't be established") ||
-                strMsg.includes("was interrupted") ||
-                strMsg.includes("call_kw") ||
-                strMsg.includes("get_views")
-            ) {
-                console.warn("[Network Notice Intercepted]", strMsg);
-                return () => {};
-            }
-            return originalAdd(message, options);
-        };
-        return notification;
-    },
-};
-registry.category("services").add("notification", notificationService, { force: true });
-
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { onMounted, onPatched } from "@odoo/owl";
 
