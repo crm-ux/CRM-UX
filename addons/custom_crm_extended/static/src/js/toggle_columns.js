@@ -1,43 +1,7 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
-import { NotificationContainer } from "@web/core/notifications/notification_container";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { onMounted, onPatched } from "@odoo/owl";
-
-// Divert network connection interrupted notifications to console without breaking any services
-patch(NotificationContainer.prototype, {
-    setup() {
-        super.setup(...arguments);
-        if (this.notifications) {
-            const originalAdd = this.notifications.add ? this.notifications.add.bind(this.notifications) : null;
-            if (originalAdd) {
-                this.notifications.add = (id, notification) => {
-                    const notif = notification || id;
-                    let msg = "";
-                    if (typeof notif === "string") {
-                        msg = notif;
-                    } else if (typeof notif?.message === "string") {
-                        msg = notif.message;
-                    } else if (typeof notif?.title === "string") {
-                        msg = notif.title;
-                    } else if (notif?.message?.toString) {
-                        msg = notif.message.toString();
-                    }
-                    if (
-                        msg.includes("couldn't be established") ||
-                        msg.includes("was interrupted") ||
-                        msg.includes("call_kw") ||
-                        msg.includes("get_views")
-                    ) {
-                        console.warn("[Network Notice Diverted to Console]:", msg);
-                        return;
-                    }
-                    return originalAdd(id, notification);
-                };
-            }
-        }
-    },
-});
 
 patch(ListRenderer.prototype, {
     computeOptionalActiveFields() {

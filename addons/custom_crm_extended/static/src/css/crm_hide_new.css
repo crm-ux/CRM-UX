@@ -2139,3 +2139,27 @@ div[name="button_box"] *,
     background-color: #16a34a !important;
     color: #ffffff !important;
 }
+
+/* Global Navbar Order on Form Views: Dashboard -> New -> Save -> Cancel -> Gear */
+/* Exactly mirrors crm.lead behavior across all other models without touching crm.lead */
+.o_form_view .o_control_panel_breadcrumbs {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.o_form_view .o_control_panel_breadcrumbs > .o_form_status_indicator {
+    order: 1 !important;
+    margin-right: 8px !important;
+}
+
+.o_form_view .o_control_panel_breadcrumbs > .o_breadcrumb {
+    order: 2 !important;
+}
+
+.o_form_view .o_control_panel_breadcrumbs .o_cp_action_menus,
+.o_form_view .o_control_panel_breadcrumbs button:has(i.fa-cog),
+.o_form_view .o_control_panel_breadcrumbs button:has(i.fa-gear),
+.o_form_view .o_control_panel_breadcrumbs .dropdown_toggle:has(i.fa-cog) {
+    order: 10 !important;
+    margin-left: 4px !important;
+}
