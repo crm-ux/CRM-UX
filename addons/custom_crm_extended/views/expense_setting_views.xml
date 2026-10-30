@@ -82,7 +82,7 @@
                                         <field name="new_expense_type_job_ids" nolabel="1" widget="many2many_tags" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     </div>
                                     <div class="col-auto text-center px-2">
-                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">KM Based?</label>
+                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Calculate by KM</label>
                                         <div class="d-flex justify-content-center align-items-center" style="height: 32px;">
                                             <field name="new_expense_type_is_km" nolabel="1" widget="boolean_toggle"/>
                                         </div>

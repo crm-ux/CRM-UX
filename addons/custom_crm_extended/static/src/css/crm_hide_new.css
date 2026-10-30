@@ -2010,11 +2010,8 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 
 /* Equalize baseline alignment for quick add expense type box */
 .crm_quick_add_box .form-label {
-    height: 18px !important;
-    line-height: 18px !important;
-    margin-bottom: 6px !important;
-    display: flex !important;
-    align-items: flex-end !important;
+    margin-bottom: 4px !important;
+    white-space: nowrap !important;
 }
 
 .crm_quick_add_box .o_field_many2many_tags {
@@ -2022,6 +2019,7 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     padding: 0 !important;
     border: none !important;
     border-bottom: 1px solid #cbd5e1 !important;
+    height: 25px !important;
     min-height: 25px !important;
     display: flex !important;
     align-items: center !important;
@@ -2030,16 +2028,21 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 .crm_quick_add_box .o_field_many2many_tags .o_field_tags {
     margin: 0 !important;
     padding: 0 !important;
+    height: 100% !important;
     min-height: auto !important;
     border: none !important;
     border-bottom: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .crm_quick_add_box .o_field_many2many_tags input {
     margin: 0 !important;
     padding: 0 !important;
+    height: 100% !important;
+    line-height: 24px !important;
     border: none !important;
     border-bottom: none !important;
     outline: none !important;
@@ -2053,5 +2056,7 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 
 .crm_quick_add_box .o_field_many2many_tags .badge {
     margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
     margin-bottom: 0 !important;
 }
