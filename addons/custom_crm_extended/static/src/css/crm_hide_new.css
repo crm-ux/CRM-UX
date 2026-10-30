@@ -2083,3 +2083,25 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
+
+/* Change Dollar icon to Tags icon on Customer Sales smart button and list view badges */
+.o_form_view button[name="action_view_sale_order"] i.fa-usd,
+.o_form_view button[name="action_view_sale_order"] i.fa-dollar,
+.o_data_row i.fa-usd,
+.o_data_row i.fa-dollar {
+    font-family: FontAwesome !important;
+}
+.o_form_view button[name="action_view_sale_order"] i.fa-usd:before,
+.o_form_view button[name="action_view_sale_order"] i.fa-dollar:before,
+.o_data_row i.fa-usd:before,
+.o_data_row i.fa-dollar:before {
+    content: "\f02c" !important; /* fa-tags */
+}
+
+/* Customer list view purple badge changed to custom blue */
+.o_data_row .badge[class*="text-bg-"],
+.o_data_row .badge,
+.o_data_row span.badge {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
