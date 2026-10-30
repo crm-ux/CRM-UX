@@ -2139,3 +2139,14 @@ div[name="button_box"] *,
     background-color: #16a34a !important;
     color: #ffffff !important;
 }
+
+/* Suppress connection interrupted / get_views network toast notifications (log to console instead) */
+.o_notification:has(.o_notification_body:empty),
+.o_notification_manager .o_notification:has([class*="o_notification"]) {
+    /* base */
+}
+.o_notification:has(div:contains("couldn't be established")),
+.o_notification:has(div:contains("call_kw")),
+.o_notification:has(div:contains("interrupted")) {
+    display: none !important;
+}
