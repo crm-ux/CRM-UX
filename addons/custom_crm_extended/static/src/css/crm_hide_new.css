@@ -2164,13 +2164,8 @@ div[name="button_box"] *,
     margin-left: 4px !important;
 }
 
-/* Exhibition / Custom Green Action Buttons text readability */
-button.btn-success,
-.btn-success,
-button:has-text("Convert to Lead"),
-.o_form_statusbar button.btn-success,
-.o_form_view header button.btn-success,
-.o_form_view button.btn-success,
-.o_form_view button[name="action_convert_to_lead"] {
+/* Exhibition Contact ONLY: Convert to Lead button white text */
+.o_form_view button[name="action_convert_to_lead"],
+.o_form_view button[name="action_convert_to_lead"] * {
     color: #ffffff !important;
 }
