@@ -2118,3 +2118,24 @@ div[name="button_box"] *,
 .oe_stat_button * {
     color: #0b3d91 !important;
 }
+
+/* Sample B: Customer List View ONLY - Opportunities Blue, Sales Emerald Green */
+.o_list_view .o_data_row .badge:has(i.fa-star),
+.o_list_view .o_data_row span.badge:has(i.fa-star),
+.o_list_view .o_data_row td[name="opportunity_count"] .badge,
+.o_list_view .o_data_row td[name="opportunity_count"] span.badge {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+.o_list_view .o_data_row .badge:has(i.fa-usd),
+.o_list_view .o_data_row .badge:has(i.fa-dollar),
+.o_list_view .o_data_row .badge:has(i.fa-tags),
+.o_list_view .o_data_row span.badge:has(i.fa-usd),
+.o_list_view .o_data_row span.badge:has(i.fa-dollar),
+.o_list_view .o_data_row span.badge:has(i.fa-tags),
+.o_list_view .o_data_row td[name="sale_order_count"] .badge,
+.o_list_view .o_data_row td[name="sale_order_count"] span.badge {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+}
