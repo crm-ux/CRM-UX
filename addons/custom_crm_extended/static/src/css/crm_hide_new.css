@@ -2013,14 +2013,35 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-end !important;
+    align-self: stretch !important;
+    height: 65px !important;
 }
 
 .crm_quick_add_box label.o_form_label {
+    height: 22px !important;
     min-height: 22px !important;
     margin-bottom: 4px !important;
     display: flex !important;
     align-items: flex-end !important;
     white-space: nowrap !important;
+}
+
+.crm_quick_add_box .o_field_widget {
+    height: 25px !important;
+    min-height: 25px !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
+    height: 100% !important;
+    min-height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .crm_quick_add_box .o_field_many2many_tags .o_dropdown_button {
