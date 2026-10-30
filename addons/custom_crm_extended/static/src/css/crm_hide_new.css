@@ -2017,6 +2017,14 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     height: 65px !important;
 }
 
+.crm_quick_add_box .col-auto {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+    align-self: stretch !important;
+    height: 65px !important;
+}
+
 .crm_quick_add_box label.o_form_label {
     height: 22px !important;
     min-height: 22px !important;
@@ -2024,6 +2032,10 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     display: flex !important;
     align-items: flex-end !important;
     white-space: nowrap !important;
+}
+
+.crm_quick_add_box .col-auto label.o_form_label {
+    justify-content: center !important;
 }
 
 .crm_quick_add_box .o_field_widget {
@@ -2035,13 +2047,32 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
     padding: 0 !important;
 }
 
+.crm_quick_add_box .o_field_many2many_tags {
+    border: none !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+}
+
 .crm_quick_add_box .o_field_many2many_tags .o_field_tags {
     height: 100% !important;
     min-height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
     display: flex !important;
     align-items: center !important;
+}
+
+.crm_quick_add_box .o_field_many2many_tags input {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-bottom: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 .crm_quick_add_box .o_field_many2many_tags .o_dropdown_button {
