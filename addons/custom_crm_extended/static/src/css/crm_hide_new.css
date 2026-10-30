@@ -2157,7 +2157,14 @@ div[name="button_box"].oe_button_box * {
 }
 
 /* Exhibition Contact ONLY: Convert to Lead button white text */
-.o_form_view button[name="action_convert_to_lead"],
-.o_form_view button[name="action_convert_to_lead"] * {
+.o_form_view button[name="action_convert_to_lead"].btn-success,
+.o_form_view button[name="action_convert_to_lead"].btn-success * {
     color: #ffffff !important;
+}
+
+/* Exhibition Contact ONLY: View Linked Lead button readability */
+.o_form_view button[name="action_convert_to_lead"].btn-secondary,
+.o_form_view button[name="action_convert_to_lead"].btn-secondary * {
+    color: #0b3d91 !important;
+    font-weight: 600 !important;
 }
