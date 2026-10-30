@@ -11,8 +11,18 @@ patch(NotificationContainer.prototype, {
         if (this.notifications) {
             const originalAdd = this.notifications.add ? this.notifications.add.bind(this.notifications) : null;
             if (originalAdd) {
-                this.notifications.add = (notification) => {
-                    const msg = (typeof notification?.message === "string" ? notification.message : "") || "";
+                this.notifications.add = (id, notification) => {
+                    const notif = notification || id;
+                    let msg = "";
+                    if (typeof notif === "string") {
+                        msg = notif;
+                    } else if (typeof notif?.message === "string") {
+                        msg = notif.message;
+                    } else if (typeof notif?.title === "string") {
+                        msg = notif.title;
+                    } else if (notif?.message?.toString) {
+                        msg = notif.message.toString();
+                    }
                     if (
                         msg.includes("couldn't be established") ||
                         msg.includes("was interrupted") ||
@@ -22,7 +32,7 @@ patch(NotificationContainer.prototype, {
                         console.warn("[Network Notice Diverted to Console]:", msg);
                         return;
                     }
-                    return originalAdd(notification);
+                    return originalAdd(id, notification);
                 };
             }
         }
