@@ -3,28 +3,6 @@ import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
 import { onMounted, onPatched } from "@odoo/owl";
 
-// Auto-reload fallback when server is restarting / updating during user click
-let isReloading = false;
-window.addEventListener("unhandledrejection", (event) => {
-    const reason = event?.reason;
-    const msg = (typeof reason === "string" ? reason : (reason?.message || reason?.name || "")) || "";
-    if (
-        msg.includes("ConnectionLostError") ||
-        msg.includes("couldn't be established") ||
-        msg.includes("was interrupted") ||
-        msg.includes("Invalid controller to restore")
-    ) {
-        event.preventDefault();
-        if (!isReloading) {
-            isReloading = true;
-            console.warn("[Server restart/update detected during click] Auto-reloading page in 2s...");
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        }
-    }
-});
-
 patch(ListRenderer.prototype, {
     computeOptionalActiveFields() {
         const result = super.computeOptionalActiveFields(...arguments);

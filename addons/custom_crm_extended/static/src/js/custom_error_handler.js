@@ -27,10 +27,10 @@ if (typeof window !== "undefined" && !window._crmNetworkWatcherInstalled) {
             if (err?.name === "AbortError") {
                 throw err;
             }
-            // Network failure / connection refused while server is dead
-            if (!window._isServerReconnecting && navigator.onLine === false) {
+            // Network failure / connection refused while server is dead or restarting
+            if (!window._isServerReconnecting) {
                 window._isServerReconnecting = true;
-                window.location.reload();
+                window.location.replace(window.location.href);
             }
             throw err;
         }
@@ -99,7 +99,11 @@ export function customCleanErrorHandler(env, error, originalError) {
         fullErrLower.includes("networkerror") ||
         fullErrLower.includes("connection lost") ||
         fullErrLower.includes("connection refused") ||
-        fullErrLower.includes("server connection");
+        fullErrLower.includes("server connection") ||
+        fullErrLower.includes("couldn't be established") ||
+        fullErrLower.includes("was interrupted") ||
+        fullErrLower.includes("connectionlosterror") ||
+        fullErrLower.includes("invalid controller to restore");
 
     if (isConnectionLost) {
         window._isServerReconnecting = true;
