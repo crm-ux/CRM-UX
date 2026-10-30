@@ -2009,33 +2009,48 @@ body:has([name="new_expense_type_name"]) .o_cp_pager,
 
 
 /* Equalize baseline alignment for quick add expense type box */
+.crm_quick_add_box .form-label {
+    height: 18px !important;
+    line-height: 18px !important;
+    margin-bottom: 6px !important;
+    display: flex !important;
+    align-items: flex-end !important;
+}
+
 .crm_quick_add_box .o_field_many2many_tags {
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
-}
-.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
-    margin: 0 !important;
-    padding: 0 0 1px 0 !important;
-    min-height: 25px !important;
-    border: none !important;
     border-bottom: 1px solid #cbd5e1 !important;
-    border-radius: 0 !important;
+    min-height: 25px !important;
     display: flex !important;
     align-items: center !important;
+}
+
+.crm_quick_add_box .o_field_many2many_tags .o_field_tags {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
     background: transparent !important;
 }
-.crm_quick_add_box .o_field_many2many_tags .o_field_tags:focus-within {
-    border-bottom: 1px solid #0b3d91 !important;
-}
+
 .crm_quick_add_box .o_field_many2many_tags input {
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
+    border-bottom: none !important;
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
 }
+
+.crm_quick_add_box .o_field_many2many_tags .o_dropdown_button {
+    display: none !important;
+}
+
 .crm_quick_add_box .o_field_many2many_tags .badge {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
