@@ -144,7 +144,8 @@
                     <button name="action_cancel_task"
                             type="object"
                             string="Cancel / Revoke Task"
-                            class="btn-outline-danger"
+                            class="btn btn-outline-danger"
+                            style="background-color: #ffffff !important; color: #dc2626 !important; border: 1px solid #dc2626 !important;"
                             icon="fa-times-circle"
                             confirm="Are you sure you want to cancel and remove this task?"
                             invisible="not can_edit_manager_fields or state == 'done' or is_recurring or recurring_group_id"/>
