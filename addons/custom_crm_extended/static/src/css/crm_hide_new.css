@@ -2201,28 +2201,40 @@ div[name="button_box"].oe_button_box *,
 /* ── Control Panel Search Bar: Replace Purple Hover & Focus with Custom Blue ── */
 .o_cp_searchview .o_searchview,
 .o_searchview {
-    border-color: #cbd5e1 !important;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
 }
 
-/* Hover & Focus state: Custom Blue border & subtle glow */
+/* Hover & Focus state: Clean single 1px border matching the toggle button */
 .o_cp_searchview:hover .o_searchview,
 .o_cp_searchview:focus-within .o_searchview,
 .o_searchview:hover,
 .o_searchview:focus-within,
 .o_searchview.active {
-    border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 1px #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-/* Right toggle arrow button matching custom blue */
+/* Right toggle arrow button matching custom blue with single line border */
+.o_cp_searchview .o_searchview_dropdown_toggler,
+.o_searchview_dropdown_toggler {
+    border: 1px solid #cbd5e1 !important;
+    border-left: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+}
+
 .o_cp_searchview:hover .o_searchview_dropdown_toggler,
 .o_cp_searchview:focus-within .o_searchview_dropdown_toggler,
 .o_searchview_dropdown_toggler:hover,
 .o_searchview_dropdown_toggler:focus,
 .o_searchview_dropdown_toggler[aria-expanded="true"] {
-    border-color: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    border-left: 1px solid #0b3d91 !important;
     color: #0b3d91 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* Search icons inside searchbar */
@@ -2242,11 +2254,29 @@ div[name="button_box"].oe_button_box *,
 }
 
 /* Search dropdown icons (Filters, Group By, etc.) */
+.o_search_bar_menu i,
+.o_dropdown_menu i,
+.o_search_options i,
 .o_search_bar_menu .fa-filter,
 .o_search_bar_menu .oi-view-kanban,
+.o_search_bar_menu .oi-group,
 .o_search_bar_menu .fa-bars,
 .o_search_bar_menu .fa-layer-group,
+.o_search_bar_menu .fa-cubes,
+.o_search_bar_menu .oi-layer-group,
+.o_search_bar_menu span.fa,
+.o_search_bar_menu span.oi,
 .o_dropdown_menu .fa-filter,
-.o_dropdown_menu .fa-layer-group {
+.o_dropdown_menu .fa-layer-group,
+.o_dropdown_menu .oi-group,
+.o_dropdown_menu .oi-view-kanban,
+.o_dropdown_menu .fa-bars,
+.o_dropdown_menu .fa-cubes {
     color: #0b3d91 !important;
+}
+
+/* Keep Favorites star gold */
+.o_search_bar_menu .fa-star,
+.o_dropdown_menu .fa-star {
+    color: #f59e0b !important;
 }
