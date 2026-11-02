@@ -711,7 +711,10 @@ class CrmDashboard extends Component {
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [...leadDomain, ...cd],
-            context: { allowed_company_ids: this.state.selectedCompanies }
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                is_quote_stage: true,
+            }
         });
     }
 
@@ -729,6 +732,7 @@ class CrmDashboard extends Component {
             leadDomain.push(["x_stage_sequence", "!=", 90]);
         }
 
+        const isQuote = seq >= 30;
         this.go({
             type: "ir.actions.act_window",
             name: "Pipeline Leads",
@@ -739,6 +743,7 @@ class CrmDashboard extends Component {
                 allowed_company_ids: this.state.selectedCompanies,
                 search_default_assigned_to_me: 0,
                 search_default_my_leads: 0,
+                is_quote_stage: isQuote,
             }
         });
     }

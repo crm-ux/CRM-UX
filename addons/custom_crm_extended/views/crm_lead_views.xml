@@ -76,4 +76,25 @@
             'search_default_my_leads': 0
         }</field>
     </record>
+    <!-- Dynamic Column View: Opportunity -> Quote Number & Age -> Validity for 5 Quote Stages -->
+    <record id="view_crm_lead_tree_quote_columns" model="ir.ui.view">
+        <field name="name">crm.lead.tree.quote.columns</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="column_invisible">context.get('is_quote_stage')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="x_quote_number" string="Quote Number" column_invisible="not context.get('is_quote_stage')"/>
+            </xpath>
+            <xpath expr="//field[@name='x_lead_age_days']" position="attributes">
+                <attribute name="column_invisible">context.get('is_quote_stage')</attribute>
+            </xpath>
+            <xpath expr="//field[@name='x_lead_age_days']" position="after">
+                <field name="x_quote_validity" string="Validity" column_invisible="not context.get('is_quote_stage')"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>

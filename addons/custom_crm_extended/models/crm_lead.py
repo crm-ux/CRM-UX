@@ -343,6 +343,29 @@ class CrmLead(models.Model):
             'context': {'default_lead_id': self.id},
         }
 
+    x_quote_number = fields.Char(
+        string='Quote Number',
+        compute='_compute_quote_details',
+        store=True,
+    )
+    x_quote_validity = fields.Date(
+        string='Validity',
+        compute='_compute_quote_details',
+        store=True,
+    )
+
+    @api.depends('order_ids.name', 'order_ids.validity_date', 'order_ids.state', 'name')
+    def _compute_quote_details(self):
+        for rec in self:
+            quotes = rec.order_ids.filtered(lambda o: o.state != 'cancel')
+            if quotes:
+                latest_quote = quotes.sorted('id', reverse=True)[0]
+                rec.x_quote_number = latest_quote.name or rec.name
+                rec.x_quote_validity = latest_quote.validity_date or False
+            else:
+                rec.x_quote_number = rec.name or ''
+                rec.x_quote_validity = False
+
     x_stage_sequence = fields.Integer(
         string='Stage Sequence',
         compute='_compute_stage_sequence',
