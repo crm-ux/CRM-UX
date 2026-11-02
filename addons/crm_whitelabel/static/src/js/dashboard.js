@@ -2689,6 +2689,18 @@ class CrmDashboard extends Component {
             target: "current"
         });
     }
+
+    openInsightsComingSoon(ev) {
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+        }
+        this.actionService.doAction({
+            type: "ir.actions.client",
+            tag: "crm_analytics_dashboard",
+            target: "current",
+        });
+    }
 }
 registry.category("actions").add("crm_dashboard", CrmDashboard);
 export default CrmDashboard;
