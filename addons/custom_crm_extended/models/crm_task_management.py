@@ -479,64 +479,104 @@ class CrmTaskAttachment(models.Model):
 class CrmLeadRichName(models.Model):
     _inherit = 'crm.lead'
 
+    @api.depends('name', 'partner_id.name')
+    @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
+        super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
-            return
-        return super()._compute_display_name()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if self.env.context.get('task_mgmt_rich_display') and name:
+            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
+            return self._search(args, limit=limit)
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
 
 class SaleOrderRichName(models.Model):
     _inherit = 'sale.order'
 
+    @api.depends('name', 'partner_id.name')
+    @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
+        super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
-            return
-        return super()._compute_display_name()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if self.env.context.get('task_mgmt_rich_display') and name:
+            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
+            return self._search(args, limit=limit)
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
 
 class EquipmentMasterRichName(models.Model):
     _inherit = 'equipment.master'
 
+    @api.depends('equipment_id', 'serial_no', 'name.name', 'partner_id.name')
+    @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
+        super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
                 eq_no = rec.equipment_id or rec.serial_no or (rec.name.name if rec.name else "") or f"EQ #{rec.id}"
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{eq_no} - {partner_name}" if partner_name else eq_no
-            return
-        return super()._compute_display_name()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if self.env.context.get('task_mgmt_rich_display') and name:
+            args = list(args or []) + ['|', ('equipment_id', operator, name), ('partner_id.name', operator, name)]
+            return self._search(args, limit=limit)
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
 
 class ServiceTicketRichName(models.Model):
     _inherit = 'service.ticket'
 
+    @api.depends('ticket_id', 'name', 'partner_id.name')
+    @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
+        super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
                 tck_no = rec.ticket_id or rec.name or f"Ticket #{rec.id}"
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{tck_no} - {partner_name}" if partner_name else tck_no
-            return
-        return super()._compute_display_name()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if self.env.context.get('task_mgmt_rich_display') and name:
+            args = list(args or []) + ['|', ('ticket_id', operator, name), ('partner_id.name', operator, name)]
+            return self._search(args, limit=limit)
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
 
 class AmcContractRichName(models.Model):
     _inherit = 'amc.contract'
 
+    @api.depends('contract_id', 'name', 'partner_id.name')
+    @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
+        super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
                 amc_no = rec.contract_id or rec.name or f"AMC #{rec.id}"
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{amc_no} - {partner_name}" if partner_name else amc_no
-            return
-        return super()._compute_display_name()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if self.env.context.get('task_mgmt_rich_display') and name:
+            args = list(args or []) + ['|', ('contract_id', operator, name), ('partner_id.name', operator, name)]
+            return self._search(args, limit=limit)
+        return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
 
 
