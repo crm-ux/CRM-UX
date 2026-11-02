@@ -2133,15 +2133,16 @@ div[name="button_box"].oe_button_box *,
     color: #0b3d91 !important;
 }
 
-/* Stop partner company name autocomplete dropdown popup */
+/* Stop partner company name autocomplete dropdown popup on customer form */
+.o_form_view:has([name="company_type"]) div[name="name"] .o_field_partner_autocomplete .dropdown-menu,
+.o_form_view:has([name="company_type"]) div[name="name"] .dropdown-menu,
+.o_form_view:has([name="company_type"]) div[name="name"] .o-autocomplete--dropdown-menu,
+.o_form_view:has([name="company_type"]) div[name="name"] ul.ui-autocomplete,
 .o_partner_autocomplete_dropdown,
 .partner_autocomplete,
 .o_field_partner_autocomplete .dropdown-menu,
 .o_field_partner_autocomplete .o-autocomplete--dropdown-menu,
-.o_field_partner_autocomplete ul,
-.o-autocomplete--dropdown-menu:has([class*="partner"]),
-.o_autocomplete_dropdown,
-ul.ui-autocomplete {
+.o_field_partner_autocomplete ul {
     display: none !important;
 }
 
