@@ -519,13 +519,13 @@ class SaleOrderRichName(models.Model):
 class EquipmentMasterRichName(models.Model):
     _inherit = 'equipment.master'
 
-    @api.depends('equipment_id', 'serial_no', 'name.name', 'partner_id.name')
+    @api.depends('equipment_id', 'name.name', 'partner_id.name')
     @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
         super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
-                eq_no = rec.equipment_id or rec.serial_no or (rec.name.name if rec.name else "") or f"EQ #{rec.id}"
+                eq_no = rec.equipment_id or (rec.name.name if rec.name else "") or f"EQ #{rec.id}"
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{eq_no} - {partner_name}" if partner_name else eq_no
 
