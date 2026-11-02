@@ -301,22 +301,21 @@ class CrmTaskManagement(models.Model):
     # Computed property to check if current user is the assigned worker
     is_current_assigned_user = fields.Boolean(
         string='Is Assigned User',
-        compute='_compute_is_current_assigned_user'
+        compute='_compute_is_current_assigned_user',
+        compute_sudo=True
     )
 
-    @api.depends('assigned_to_id')
     def _compute_is_current_assigned_user(self):
-        current_uid = self.env.user.id
+        current_uid = self.env.uid
         for rec in self:
-            rec.is_current_assigned_user = (rec.assigned_to_id and rec.assigned_to_id.id == current_uid)
+            rec.is_current_assigned_user = bool(rec.assigned_to_id and rec.assigned_to_id.id == current_uid)
 
     def action_start_work(self):
         """Assigned employee starts work on the task."""
         self.ensure_one()
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
-        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
-            raise UserError(_("Only the assigned employee or manager can start this task."))
+        if self.assigned_to_id.id != current_user.id:
+            raise UserError(_("Only the assigned employee (%s) can start work on this task.") % (self.assigned_to_id.name or "assignee"))
         self.write({'state': 'in_progress'})
         return True
 
@@ -324,9 +323,8 @@ class CrmTaskManagement(models.Model):
         """Assigned employee marks task as Done."""
         self.ensure_one()
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
-        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
-            raise UserError(_("Only the assigned employee or manager can complete this task."))
+        if self.assigned_to_id.id != current_user.id:
+            raise UserError(_("Only the assigned employee (%s) can mark this task as Done.") % (self.assigned_to_id.name or "assignee"))
         self.write({'state': 'done'})
         return True
 
@@ -334,9 +332,8 @@ class CrmTaskManagement(models.Model):
         """Assigned employee reports an issue or bottleneck faced on the task."""
         self.ensure_one()
         current_user = self.env.user
-        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
-        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
-            raise UserError(_("Only the assigned employee or manager can report an issue."))
+        if self.assigned_to_id.id != current_user.id:
+            raise UserError(_("Only the assigned employee (%s) can report an issue on this task.") % (self.assigned_to_id.name or "assignee"))
         self.write({'state': 'complaint'})
         return True
 

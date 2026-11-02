@@ -91,28 +91,31 @@
         <field name="model">crm.task.management</field>
         <field name="arch" type="xml">
             <form string="Task Management" class="crm-task-management-form" js_class="crm_task_management_form">
+                <field name="is_current_assigned_user" invisible="1"/>
+                <field name="can_edit_manager_fields" invisible="1"/>
+                <field name="related_res_id" invisible="1"/>
                 <header>
-                    <!-- Assigned Worker Action Buttons -->
+                    <!-- Assigned Worker ONLY Action Buttons -->
                     <button name="action_start_work" 
                             type="object" 
                             string="Start Work" 
                             class="btn-primary" 
                             icon="fa-play"
-                            invisible="state != 'pending'"/>
+                            invisible="not is_current_assigned_user or state != 'pending'"/>
 
                     <button name="action_mark_done" 
                             type="object" 
                             string="Mark as Done" 
                             class="btn-success" 
                             icon="fa-check"
-                            invisible="state not in ('in_progress', 'complaint')"/>
+                            invisible="not is_current_assigned_user or state not in ('in_progress', 'complaint')"/>
 
                     <button name="action_report_issue" 
                             type="object" 
                             string="Report Issue" 
                             class="btn-warning" 
                             icon="fa-exclamation-triangle"
-                            invisible="state != 'in_progress'"/>
+                            invisible="not is_current_assigned_user or state != 'in_progress'"/>
 
                     <!-- Linked Record 1-Click Access -->
                     <button name="action_open_related_record" 
@@ -151,9 +154,6 @@
                     <field name="state" widget="statusbar" statusbar_visible="pending,in_progress,done,complaint"/>
                 </header>
                 <sheet>
-                    <field name="is_current_assigned_user" invisible="1"/>
-                    <field name="can_edit_manager_fields" invisible="1"/>
-                    <field name="related_res_id" invisible="1"/>
                     <div class="oe_title">
                         <label for="name" string="Task"/>
                         <h1>
