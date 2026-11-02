@@ -584,11 +584,33 @@ class MailActivityScheduleOverride(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        res = super().default_get(fields_list)
-        return res
+        # Fallback safeguard: if opened natively for any of the 6 models, redirect to Assign Work Wizard
+        res_model = self.env.context.get('active_model') or self.env.context.get('default_res_model')
+        res_id = self.env.context.get('active_id') or self.env.context.get('default_res_id')
+        valid_models = {
+            'crm.lead': 'lead_id',
+            'sale.order': 'order_id',
+            'res.partner': 'partner_id',
+            'equipment.master': 'equipment_id',
+            'service.ticket': 'ticket_id',
+            'amc.contract': 'amc_id',
+        }
+        if res_model in valid_models and res_id:
+            # Pre-create wizard context
+            self.env.context = dict(self.env.context, **{
+                'default_related_model': res_model,
+                f"default_{valid_models[res_model]}": int(res_id),
+                'default_res_id': int(res_id),
+            })
+        return super().default_get(fields_list)
 
-    def action_schedule_activities(self):
-        return super().action_schedule_activities()
+
+class MailActivityRedirect(models.Model):
+    _inherit = 'mail.activity'
+
+    @api.model
+    def action_feedback_schedule_next(self):
+        return super().action_feedback_schedule_next()
 
 
 class MailThreadActivityAction(models.AbstractModel):
