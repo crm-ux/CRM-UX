@@ -2286,3 +2286,18 @@ div[name="button_box"].oe_button_box *,
 .o_dropdown_menu .fa-star {
     color: #f59e0b !important;
 }
+
+/* ── Hide Email & SMS Action Buttons from Lead, Quote & Pipeline List Views ── */
+.o_list_table button:has(.fa-envelope),
+.o_list_table button:has(.fa-comment),
+.o_list_table button:has(.fa-comments),
+.o_list_table button:has(i[class*="envelope"]),
+.o_list_table button:has(i[class*="comment"]),
+.o_list_table td.o_list_button:has(button:has(.fa-envelope)),
+.o_list_table td.o_list_button:has(button:has(.fa-comment)),
+.o_list_table td.o_list_button:has(button:has(.fa-comments)),
+.o_list_table td:has(> button:has(.fa-envelope)),
+.o_list_table td:has(> button:has(.fa-comment)) {
+    display: none !important;
+}
+
