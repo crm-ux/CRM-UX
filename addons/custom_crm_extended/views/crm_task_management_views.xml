@@ -117,6 +117,21 @@
                             icon="fa-exclamation-triangle"
                             invisible="not is_current_assigned_user or state != 'in_progress'"/>
 
+                    <!-- Assigned Worker Previous Stage Buttons -->
+                    <button name="action_set_to_pending" 
+                            type="object" 
+                            string="Back to Pending" 
+                            class="btn-secondary" 
+                            icon="fa-undo"
+                            invisible="not is_current_assigned_user or state != 'in_progress'"/>
+
+                    <button name="action_resume_work" 
+                            type="object" 
+                            string="Resume Work" 
+                            class="btn-secondary" 
+                            icon="fa-undo"
+                            invisible="not is_current_assigned_user or state not in ('done', 'complaint')"/>
+
                     <!-- Linked Record 1-Click Access -->
                     <button name="action_open_related_record" 
                             type="object" 

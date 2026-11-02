@@ -319,6 +319,24 @@ class CrmTaskManagement(models.Model):
         self.write({'state': 'in_progress'})
         return True
 
+    def action_set_to_pending(self):
+        """Move back to Pending stage."""
+        self.ensure_one()
+        current_user = self.env.user
+        if self.assigned_to_id.id != current_user.id:
+            raise UserError(_("Only the assigned employee (%s) can move this task back to Pending.") % (self.assigned_to_id.name or "assignee"))
+        self.write({'state': 'pending'})
+        return True
+
+    def action_resume_work(self):
+        """Move back from Done or Issue to In Progress."""
+        self.ensure_one()
+        current_user = self.env.user
+        if self.assigned_to_id.id != current_user.id:
+            raise UserError(_("Only the assigned employee (%s) can move this task back to In Progress.") % (self.assigned_to_id.name or "assignee"))
+        self.write({'state': 'in_progress'})
+        return True
+
     def action_mark_done(self):
         """Assigned employee marks task as Done."""
         self.ensure_one()
