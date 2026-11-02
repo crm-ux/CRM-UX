@@ -42,8 +42,50 @@ patch(ListRenderer.prototype, {
         return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : record.delete();
     },
 
+    getActiveColumns(list) {
+        const columns = super.getActiveColumns ? super.getActiveColumns(...arguments) : [];
+        try {
+            const resModel = list?.resModel;
+            if (resModel === 'crm.lead' || resModel === 'sale.order') {
+                return columns.filter((col) => {
+                    if (col.type === 'field' && col.name) {
+                        return true;
+                    }
+                    const text = `${col.name || ''} ${col.string || ''} ${col.icon || ''} ${col.button?.string || ''} ${col.button?.name || ''} ${col.button?.icon || ''}`.toLowerCase();
+                    const isEmailBtn = text.includes('envelope') || (text.includes('email') && col.type === 'button');
+                    const isSmsBtn = text.includes('sms') || text.includes('comment');
+                    return !(isEmailBtn || isSmsBtn);
+                });
+            }
+        } catch (e) { }
+        return columns;
+    },
+
     setup() {
         super.setup ? super.setup() : null;
+
+        const filterEmailSmsColumns = (cols) => {
+            if (!Array.isArray(cols)) return cols;
+            return cols.filter((col) => {
+                if (col.type === 'field' && col.name) {
+                    return true;
+                }
+                const text = `${col.name || ''} ${col.string || ''} ${col.icon || ''} ${col.button?.string || ''} ${col.button?.name || ''} ${col.button?.icon || ''}`.toLowerCase();
+                const isEmailBtn = text.includes('envelope') || (text.includes('email') && col.type === 'button');
+                const isSmsBtn = text.includes('sms') || text.includes('comment');
+                return !(isEmailBtn || isSmsBtn);
+            });
+        };
+
+        const resModel = this.props?.list?.resModel;
+        if (resModel === 'crm.lead' || resModel === 'sale.order') {
+            if (this.state && Array.isArray(this.state.columns)) {
+                this.state.columns = filterEmailSmsColumns(this.state.columns);
+            }
+            if (Array.isArray(this.allColumns)) {
+                this.allColumns = filterEmailSmsColumns(this.allColumns);
+            }
+        }
 
         const checkEmptyState = () => {
             const resModel = this.props?.list?.resModel;
