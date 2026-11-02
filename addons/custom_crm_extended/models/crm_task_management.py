@@ -489,11 +489,11 @@ class CrmLeadRichName(models.Model):
                 rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
-            return self._search(args, limit=limit)
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            domain = list(domain or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
+            return self._search(domain, limit=limit)
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
 
 class SaleOrderRichName(models.Model):
@@ -509,11 +509,11 @@ class SaleOrderRichName(models.Model):
                 rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
-            return self._search(args, limit=limit)
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            domain = list(domain or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
+            return self._search(domain, limit=limit)
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
 
 class EquipmentMasterRichName(models.Model):
@@ -530,11 +530,11 @@ class EquipmentMasterRichName(models.Model):
                 rec.display_name = f"{eq_no} - {partner_name}" if partner_name else eq_no
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('equipment_id', operator, name), ('partner_id.name', operator, name)]
-            return self._search(args, limit=limit)
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            domain = list(domain or []) + ['|', ('equipment_id', operator, name), ('partner_id.name', operator, name)]
+            return self._search(domain, limit=limit)
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
 
 class ServiceTicketRichName(models.Model):
@@ -551,11 +551,11 @@ class ServiceTicketRichName(models.Model):
                 rec.display_name = f"{tck_no} - {partner_name}" if partner_name else tck_no
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('ticket_id', operator, name), ('partner_id.name', operator, name)]
-            return self._search(args, limit=limit)
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            domain = list(domain or []) + ['|', ('ticket_id', operator, name), ('partner_id.name', operator, name)]
+            return self._search(domain, limit=limit)
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
 
 class AmcContractRichName(models.Model):
@@ -572,11 +572,11 @@ class AmcContractRichName(models.Model):
                 rec.display_name = f"{amc_no} - {partner_name}" if partner_name else amc_no
 
     @api.model
-    def name_search(self, name='', args=None, operator='ilike', limit=100):
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
-            return self._search(args, limit=limit)
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+            domain = list(domain or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
+            return self._search(domain, limit=limit)
+        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
 
 
 
