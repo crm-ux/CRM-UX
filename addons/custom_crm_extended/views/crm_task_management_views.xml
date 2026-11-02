@@ -143,7 +143,7 @@
                     <!-- Assigner / Creator Actions for Normal Tasks -->
                     <button name="action_cancel_task"
                             type="object"
-                            string="Cancel / Revoke Task"
+                            string="Cancel Task"
                             class="btn bg-white text-danger border border-danger"
                             style="background-color: #ffffff !important; color: #dc2626 !important; border-color: #dc2626 !important;"
                             icon="fa-times-circle"
