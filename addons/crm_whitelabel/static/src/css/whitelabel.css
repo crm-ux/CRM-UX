@@ -1711,4 +1711,24 @@ input[type="checkbox"]:focus {
 input[type="checkbox"]:indeterminate {
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
-}
+}
+
+
+/* ── Completely remove Email & SMS action column in Lead and Quotation List Views ── */
+.o_list_renderer th.o_list_button,
+.o_list_renderer td.o_list_button,
+.o_list_table th.o_list_button,
+.o_list_table td.o_list_button,
+th.o_list_button,
+td.o_list_button {
+    display: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}

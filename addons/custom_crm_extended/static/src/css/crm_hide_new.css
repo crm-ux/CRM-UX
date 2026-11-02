@@ -2287,3 +2287,42 @@ div[name="button_box"].oe_button_box *,
     color: #f59e0b !important;
 }
 
+
+
+/* ── Hide Email and SMS buttons in Lead & Quotation List Views ── */
+.o_list_renderer table.o_list_table td button:has(i.fa-envelope),
+.o_list_renderer table.o_list_table td button:has(i.fa-comments),
+.o_list_renderer table.o_list_table td button:has(i.fa-comment),
+.o_list_renderer table.o_list_table button[name*="mail"],
+.o_list_renderer table.o_list_table button[name*="sms"],
+.o_list_renderer table.o_list_table td:has(button[name*="mail"]),
+.o_list_renderer table.o_list_table td:has(button[name*="sms"]),
+.o_list_renderer table.o_list_table td:has(button i.fa-envelope),
+.o_list_renderer table.o_list_table td:has(button i.fa-comments),
+.o_list_renderer table.o_list_table td:has(button i.fa-comment) {
+    display: none !important;
+    width: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+}
+
+
+/* ── Completely remove Email & SMS action column in Lead and Quotation List Views ── */
+.o_list_renderer th.o_list_button,
+.o_list_renderer td.o_list_button,
+.o_list_table th.o_list_button,
+.o_list_table td.o_list_button,
+th.o_list_button,
+td.o_list_button {
+    display: none !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
