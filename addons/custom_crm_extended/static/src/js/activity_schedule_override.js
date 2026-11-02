@@ -21,52 +21,45 @@ const MODEL_FIELD_MAP = {
     "amc.contract": "default_amc_id",
 };
 
-patch(ActivityListPopover.prototype, {
-    onClickSchedule(ev) {
-        if (ev) {
-            ev.preventDefault();
-            ev.stopPropagation();
-        }
+// 1. Patch the component directly
+if (ActivityListPopover && ActivityListPopover.prototype) {
+    patch(ActivityListPopover.prototype, {
+        onClickSchedule(ev) {
+            if (ev) {
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
 
-        // 1. Resolve resModel and resId across all Odoo 18 prop structures
-        let resModel = 
-            this.props?.activityList?.resModel || 
-            this.props?.activitylist?.resModel || 
-            this.props?.resModel || 
-            this.props?.record?.resModel ||
-            this.env?.model?.root?.resModel ||
-            (this.env?.searchModel && this.env.searchModel.resModel);
-
-        let resId = 
-            this.props?.activityList?.resId || 
-            this.props?.activitylist?.resId || 
-            this.props?.resId || 
-            this.props?.record?.resId ||
-            (this.props?.record && this.props.record.id);
-
-        // Fallback: Check if resId was passed as an array or object
-        if (Array.isArray(resId)) {
-            resId = resId[0];
-        }
-
-        // 2. If it belongs to any of our 6 entities, redirect to Assign Work Wizard
-        if (resModel && TARGET_MODELS.includes(resModel)) {
+            // Close the popover
             if (typeof this.props.close === "function") {
                 this.props.close();
             }
 
+            const record = this.props.record || this.props.activityList?.record || {};
+            const resModel = this.props.activityList?.resModel || 
+                             this.props.resModel || 
+                             record.resModel || 
+                             this.env?.searchModel?.resModel;
+
+            const resId = this.props.activityList?.resId || 
+                          this.props.resId || 
+                          record.resId || 
+                          record.id;
+
+            const finalResId = Array.isArray(resId) ? resId[0] : resId;
+
             const context = {
-                default_related_model: resModel,
-                default_res_id: resId ? Number(resId) : false,
-                active_model: resModel,
-                active_id: resId ? Number(resId) : false,
+                default_related_model: resModel || false,
+                default_res_id: finalResId ? Number(finalResId) : false,
+                active_model: resModel || false,
+                active_id: finalResId ? Number(finalResId) : false,
             };
 
-            if (MODEL_FIELD_MAP[resModel] && resId) {
-                context[MODEL_FIELD_MAP[resModel]] = Number(resId);
+            if (resModel && MODEL_FIELD_MAP[resModel] && finalResId) {
+                context[MODEL_FIELD_MAP[resModel]] = Number(finalResId);
             }
 
-            const actionService = this.env?.services?.action || this.action;
+            const actionService = this.env?.services?.action;
             if (actionService) {
                 return actionService.doAction({
                     type: "ir.actions.act_window",
@@ -78,9 +71,78 @@ patch(ActivityListPopover.prototype, {
                     context: context,
                 });
             }
-        }
+        },
+    });
+}
 
-        // Standard fallback for any other non-target models
-        return super.onClickSchedule ? super.onClickSchedule(...arguments) : null;
-    },
-});
+// 2. DOM Capture-phase safeguard: Catch click before native Owl handlers can fire
+document.addEventListener("click", function (ev) {
+    const btn = ev.target.closest(".o-mail-ActivityListPopover button");
+    if (!btn) {
+        return;
+    }
+    const txt = btn.textContent || "";
+    if (!txt.includes("Schedule an activity")) {
+        return;
+    }
+
+    // Stop native Odoo wizard
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+
+    // Close the popover DOM
+    const popover = btn.closest(".o-mail-ActivityListPopover");
+    if (popover) {
+        const parent = popover.closest(".o_popover") || popover.parentElement;
+        if (parent) {
+            parent.remove();
+        }
+    }
+
+    // Read active view context
+    const odooEnv = window.odoo?.__WOWL_DEBUG__?.root?.env;
+    let resModel = odooEnv?.searchModel?.resModel;
+    let resId = false;
+
+    // Detect row
+    const row = document.querySelector(".o_data_row:hover, .o_data_row.o_selected_row");
+    if (row) {
+        resId = row.dataset?.id || row.getAttribute("data-id");
+    }
+
+    // URL fallback for model
+    const href = window.location.href;
+    if (!resModel) {
+        for (const m of TARGET_MODELS) {
+            if (href.includes(m)) {
+                resModel = m;
+                break;
+            }
+        }
+    }
+
+    const context = {
+        default_related_model: resModel || false,
+        default_res_id: resId ? Number(resId) : false,
+        active_model: resModel || false,
+        active_id: resId ? Number(resId) : false,
+    };
+
+    if (resModel && MODEL_FIELD_MAP[resModel] && resId) {
+        context[MODEL_FIELD_MAP[resModel]] = Number(resId);
+    }
+
+    const actionService = odooEnv?.services?.action;
+    if (actionService) {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Assign Work",
+            res_model: "crm.task.assign.wizard",
+            view_mode: "form",
+            views: [[false, "form"]],
+            target: "new",
+            context: context,
+        });
+    }
+}, true);
