@@ -298,6 +298,72 @@ class CrmTaskManagement(models.Model):
             task._generate_future_recurring_occurrences()
         return True
 
+    # Computed property to check if current user is the assigned worker
+    is_current_assigned_user = fields.Boolean(
+        string='Is Assigned User',
+        compute='_compute_is_current_assigned_user'
+    )
+
+    @api.depends('assigned_to_id')
+    def _compute_is_current_assigned_user(self):
+        current_uid = self.env.user.id
+        for rec in self:
+            rec.is_current_assigned_user = (rec.assigned_to_id and rec.assigned_to_id.id == current_uid)
+
+    def action_start_work(self):
+        """Assigned employee starts work on the task."""
+        self.ensure_one()
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
+            raise UserError(_("Only the assigned employee or manager can start this task."))
+        self.write({'state': 'in_progress'})
+        return True
+
+    def action_mark_done(self):
+        """Assigned employee marks task as Done."""
+        self.ensure_one()
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
+            raise UserError(_("Only the assigned employee or manager can complete this task."))
+        self.write({'state': 'done'})
+        return True
+
+    def action_report_issue(self):
+        """Assigned employee reports an issue or bottleneck faced on the task."""
+        self.ensure_one()
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system') or current_user.has_group('base.group_erp_manager') or current_user.id in (1, 2)
+        if not is_admin and self.assigned_to_id.id != current_user.id and not self.can_edit_manager_fields:
+            raise UserError(_("Only the assigned employee or manager can report an issue."))
+        self.write({'state': 'complaint'})
+        return True
+
+    def action_reopen_task(self):
+        """Reopen a completed or issue task back to in-progress."""
+        self.ensure_one()
+        if not self.can_edit_manager_fields:
+            raise UserError(_("Only the assigner or manager can reopen this task."))
+        self.write({'state': 'in_progress'})
+        return True
+
+    def action_cancel_task(self):
+        """Assigner or manager cancels / revokes this task."""
+        self.ensure_one()
+        if not self.can_edit_manager_fields:
+            raise UserError(_("Only the task assigner, senior manager, or admin can cancel or revoke this task."))
+        # Delete related notifications / activities
+        self.env['mail.message'].sudo().search([
+            ('model', '=', 'crm.task.management'),
+            ('res_id', '=', self.id),
+        ]).unlink()
+        self.env['mail.activity'].sudo().search([
+            ('res_model', '=', 'crm.task.management'),
+            ('res_id', '=', self.id),
+        ]).unlink()
+        return self.unlink()
+
     def action_finish_entire_series(self):
         """Marks this task as Done and completes the whole series by removing remaining future pending tasks."""
         self.ensure_one()
