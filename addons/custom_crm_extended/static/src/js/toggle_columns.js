@@ -42,25 +42,6 @@ patch(ListRenderer.prototype, {
         return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : record.delete();
     },
 
-    getActiveColumns(list) {
-        const columns = super.getActiveColumns ? super.getActiveColumns(...arguments) : [];
-        try {
-            const resModel = list?.resModel;
-            if (resModel === 'crm.lead' || resModel === 'sale.order') {
-                return columns.filter((col) => {
-                    if (col.type === 'field' && col.name) {
-                        return true;
-                    }
-                    const text = `${col.name || ''} ${col.string || ''} ${col.icon || ''} ${col.button?.string || ''} ${col.button?.name || ''} ${col.button?.icon || ''}`.toLowerCase();
-                    const isEmailBtn = text.includes('envelope') || (text.includes('email') && col.type === 'button');
-                    const isSmsBtn = text.includes('sms') || text.includes('comment');
-                    return !(isEmailBtn || isSmsBtn);
-                });
-            }
-        } catch (e) { }
-        return columns;
-    },
-
     setup() {
         super.setup ? super.setup() : null;
 
