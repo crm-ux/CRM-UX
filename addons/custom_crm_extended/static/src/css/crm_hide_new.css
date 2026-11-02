@@ -2136,7 +2136,12 @@ div[name="button_box"].oe_button_box *,
 /* Stop partner company name autocomplete dropdown popup */
 .o_partner_autocomplete_dropdown,
 .partner_autocomplete,
-.o_field_partner_autocomplete .dropdown-menu {
+.o_field_partner_autocomplete .dropdown-menu,
+.o_field_partner_autocomplete .o-autocomplete--dropdown-menu,
+.o_field_partner_autocomplete ul,
+.o-autocomplete--dropdown-menu:has([class*="partner"]),
+.o_autocomplete_dropdown,
+ul.ui-autocomplete {
     display: none !important;
 }
 
