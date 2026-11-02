@@ -748,10 +748,11 @@ class CrmDashboard extends Component {
 
     toggleOrgSubmenu(ev) { if (ev) { ev.stopPropagation(); } this.state.orgSubmenuOpen = !this.state.orgSubmenuOpen; }
 
-    openRolesAndGroups() {
+    openRolesAndGroups(ev) {
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
         this.go({
             type: "ir.actions.act_window",
-            name: "Roles & Groups",
+            name: "Roles & Permissions",
             res_model: "hr.job",
             views: [[false, "list"], [false, "form"]],
             domain: [],
@@ -759,7 +760,8 @@ class CrmDashboard extends Component {
         });
     }
 
-    openDepartments() {
+    openDepartments(ev) {
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
         this.go({
             type: "ir.actions.act_window",
             name: "Departments",
@@ -768,7 +770,8 @@ class CrmDashboard extends Component {
         });
     }
 
-    openEmployeeTags() {
+    openEmployeeTags(ev) {
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
         this.go({
             type: "ir.actions.act_window",
             name: "Employee Tags",
