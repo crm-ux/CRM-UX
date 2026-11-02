@@ -60,6 +60,34 @@ class CrmTaskAssignWizard(models.TransientModel):
         if deadline and 'date_deadline' in fields_list and not res.get('date_deadline'):
             # If string contains time (e.g. '2026-10-24 00:00:00'), slice to date YYYY-MM-DD
             res['date_deadline'] = str(deadline)[:10]
+
+        # Auto-detect origin model and record if launched from Activity or record view
+        origin_model = (
+            self.env.context.get('default_related_model') or 
+            self.env.context.get('active_model') or 
+            self.env.context.get('default_res_model')
+        )
+        origin_id = (
+            self.env.context.get('default_res_id') or 
+            self.env.context.get('active_id') or 
+            self.env.context.get('default_activity_record_id')
+        )
+
+        valid_models = {
+            'crm.lead': 'lead_id',
+            'sale.order': 'order_id',
+            'res.partner': 'partner_id',
+            'equipment.master': 'equipment_id',
+            'service.ticket': 'ticket_id',
+            'amc.contract': 'amc_id',
+        }
+
+        if origin_model in valid_models:
+            res['related_model'] = origin_model
+            field_name = valid_models[origin_model]
+            if origin_id and field_name in fields_list:
+                res[field_name] = int(origin_id)
+
         return res
 
     @api.onchange('related_model')

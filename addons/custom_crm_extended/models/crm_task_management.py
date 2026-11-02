@@ -579,4 +579,46 @@ class AmcContractRichName(models.Model):
         return super()._name_search(name=name, domain=domain, operator=operator, limit=limit, order=order)
 
 
+class MailActivityScheduleOverride(models.TransientModel):
+    _inherit = 'mail.activity.schedule'
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        return res
+
+    def action_schedule_activities(self):
+        return super().action_schedule_activities()
+
+
+class MailThreadActivityAction(models.AbstractModel):
+    _inherit = 'mail.thread'
+
+    def action_schedule_activity(self):
+        """Redirect Schedule Activity on the 6 entities to Assign Work Wizard with prefilled context."""
+        self.ensure_one()
+        valid_models = {
+            'crm.lead': 'lead_id',
+            'sale.order': 'order_id',
+            'res.partner': 'partner_id',
+            'equipment.master': 'equipment_id',
+            'service.ticket': 'ticket_id',
+            'amc.contract': 'amc_id',
+        }
+        if self._name in valid_models:
+            wizard_action = self.env.ref('custom_crm_extended.action_crm_task_assign_wizard', raise_if_not_found=False)
+            if wizard_action:
+                action = wizard_action.read()[0]
+                action['context'] = {
+                    'default_related_model': self._name,
+                    'default_res_id': self.id,
+                    'active_model': self._name,
+                    'active_id': self.id,
+                    f"default_{valid_models[self._name]}": self.id,
+                }
+                return action
+        return super().action_schedule_activity() if hasattr(super(), 'action_schedule_activity') else False
+
+
+
 
