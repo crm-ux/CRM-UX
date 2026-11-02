@@ -117,10 +117,10 @@
                             <i class="fa fa-chevron-down crm-submenu-arrow"></i>
                         </a>
                         <ul class="crm-submenu-list">
-                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openQuotationSeries"><i class="fa fa-hashtag"></i> Quotation Series</a></li>
-                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openEquipmentSeries"><i class="fa fa-hashtag"></i> Equipment Series</a></li>
-                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openServiceTicketSeries"><i class="fa fa-hashtag"></i> Service Ticket Series</a></li>
-                            <li><a class="crm-sub-link" href="/web#action=base.action_ir_sequence_form" t-on-click="openAmcSeries"><i class="fa fa-hashtag"></i> AMC Series</a></li>
+                            <li><a class="crm-sub-link" href="javascript:void(0)" t-on-click="openQuotationSeries"><i class="fa fa-barcode"></i> Quotation Series</a></li>
+                            <li><a class="crm-sub-link" href="javascript:void(0)" t-on-click="openEquipmentSeries"><i class="fa fa-barcode"></i> Equipment Series</a></li>
+                            <li><a class="crm-sub-link" href="javascript:void(0)" t-on-click="openServiceTicketSeries"><i class="fa fa-barcode"></i> Service Ticket Series</a></li>
+                            <li><a class="crm-sub-link" href="javascript:void(0)" t-on-click="openAmcSeries"><i class="fa fa-barcode"></i> AMC Series</a></li>
                         </ul>
                     </li>
 
