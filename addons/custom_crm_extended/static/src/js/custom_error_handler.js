@@ -111,20 +111,19 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
-    // 3. For application / RPC errors: DO NOT auto-reload!
-    // Auto-reloading wipes the browser console ("blink and gone") and causes continuous reload loops.
-    // Keep error logged in console for developers and show clean notification/dialog:
-    const errorMsg = err?.data?.message || err?.message || _t(CUSTOM_USER_ERROR_MESSAGE);
-    if (env.services?.notification) {
-        env.services.notification.add(errorMsg, {
-            type: "danger",
-            sticky: false,
-        });
-    } else if (env.services?.dialog) {
+    // 3. For technical application / RPC errors:
+    // Log the full technical error & traceback ONLY to console, and show the clean 1-line apology message in UI
+    const userFacingMsg = _t(CUSTOM_USER_ERROR_MESSAGE);
+    if (env.services?.dialog) {
         env.services.dialog.add(ConfirmationDialog, {
             title: _t("System Notice"),
-            body: errorMsg,
+            body: userFacingMsg,
             confirmLabel: _t("OK"),
+        });
+    } else if (env.services?.notification) {
+        env.services.notification.add(userFacingMsg, {
+            type: "warning",
+            sticky: false,
         });
     }
     return true;
