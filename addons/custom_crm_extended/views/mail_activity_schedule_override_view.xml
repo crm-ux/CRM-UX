@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- View override for mail.activity.schedule wizard form -->
+    <!-- Ensures that any opening of the schedule activity wizard redirects to our custom Assign Work wizard -->
+    <record id="mail_activity_schedule_view_form_redirect_crm_task" model="ir.ui.view">
+        <field name="name">mail.activity.schedule.view.form.crm.task.redirect</field>
+        <field name="model">mail.activity.schedule</field>
+        <field name="inherit_id" ref="mail.mail_activity_schedule_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">mail_activity_schedule_redirect</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

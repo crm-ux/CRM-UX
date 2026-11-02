@@ -53,6 +53,7 @@
         'views/crm_task_management_views.xml',
         'views/crm_personal_todo_views.xml',
         'views/sale_order_duplicate_wizard_view.xml',
+        'views/mail_activity_schedule_override_view.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -74,6 +75,7 @@
             'custom_crm_extended/static/src/js/todo_reminder_service.js',
             'custom_crm_extended/static/src/js/custom_error_handler.js',
             'custom_crm_extended/static/src/js/activity_schedule_override.js',
+            'custom_crm_extended/static/src/js/mail_activity_schedule_redirect.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',
