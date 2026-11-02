@@ -45,9 +45,6 @@
         <record id="product.product_comp_rule" model="ir.rule">
             <field name="active" eval="False"/>
         </record>
-        <record id="product.product_template_comp_rule" model="ir.rule">
-            <field name="active" eval="False"/>
-        </record>
 
         <record id="sale.sale_order_line_personal_rule" model="ir.rule">
             <field name="active" eval="False"/>
