@@ -23,73 +23,52 @@ const MODEL_FIELD_MAP = {
 
 patch(ActivityListPopover.prototype, {
     onClickSchedule(ev) {
-        let resModel = this.props.activityList?.resModel || 
-                       this.props.activitylist?.resModel || 
-                       this.props.resModel || 
-                       (this.props.record && this.props.record.resModel);
-
-        let resId = this.props.activityList?.resId || 
-                     this.props.activitylist?.resId || 
-                     this.props.resId || 
-                     (this.props.record && this.props.record.resId);
-
-        if (!resModel && this.props.record) {
-            resModel = this.props.record.resModel;
-            resId = this.props.record.resId;
+        if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
         }
 
+        // 1. Resolve resModel and resId across all Odoo 18 prop structures
+        let resModel = 
+            this.props?.activityList?.resModel || 
+            this.props?.activitylist?.resModel || 
+            this.props?.resModel || 
+            this.props?.record?.resModel ||
+            this.env?.model?.root?.resModel ||
+            (this.env?.searchModel && this.env.searchModel.resModel);
+
+        let resId = 
+            this.props?.activityList?.resId || 
+            this.props?.activitylist?.resId || 
+            this.props?.resId || 
+            this.props?.record?.resId ||
+            (this.props?.record && this.props.record.id);
+
+        // Fallback: Check if resId was passed as an array or object
+        if (Array.isArray(resId)) {
+            resId = resId[0];
+        }
+
+        // 2. If it belongs to any of our 6 entities, redirect to Assign Work Wizard
         if (resModel && TARGET_MODELS.includes(resModel)) {
-            if (ev) {
-                ev.preventDefault();
-                ev.stopPropagation();
-            }
-            if (this.props.close) {
+            if (typeof this.props.close === "function") {
                 this.props.close();
             }
 
             const context = {
                 default_related_model: resModel,
-                default_res_id: resId,
+                default_res_id: resId ? Number(resId) : false,
                 active_model: resModel,
-                active_id: resId,
+                active_id: resId ? Number(resId) : false,
             };
 
             if (MODEL_FIELD_MAP[resModel] && resId) {
-                context[MODEL_FIELD_MAP[resModel]] = resId;
+                context[MODEL_FIELD_MAP[resModel]] = Number(resId);
             }
 
-            return this.env.services.action.doAction({
-                type: "ir.actions.act_window",
-                name: "Assign Work",
-                res_model: "crm.task.assign.wizard",
-                view_mode: "form",
-                views: [[false, "form"]],
-                target: "new",
-                context: context,
-            });
-        }
-
-        return super.onClickSchedule ? super.onClickSchedule(...arguments) : null;
-    },
-});
-
-// Also intercept activityService.scheduleActivity directly for global safety
-import { ActivityService } from "@mail/core/web/activity_service";
-
-if (ActivityService && ActivityService.prototype) {
-    patch(ActivityService.prototype, {
-        async scheduleActivity(resModel, resId, defaultActivityTypeId) {
-            if (resModel && TARGET_MODELS.includes(resModel)) {
-                const context = {
-                    default_related_model: resModel,
-                    default_res_id: resId,
-                    active_model: resModel,
-                    active_id: resId,
-                };
-                if (MODEL_FIELD_MAP[resModel] && resId) {
-                    context[MODEL_FIELD_MAP[resModel]] = resId;
-                }
-                return this.action.doAction({
+            const actionService = this.env?.services?.action || this.action;
+            if (actionService) {
+                return actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Assign Work",
                     res_model: "crm.task.assign.wizard",
@@ -99,7 +78,9 @@ if (ActivityService && ActivityService.prototype) {
                     context: context,
                 });
             }
-            return super.scheduleActivity(...arguments);
-        },
-    });
-}
+        }
+
+        // Standard fallback for any other non-target models
+        return super.onClickSchedule ? super.onClickSchedule(...arguments) : null;
+    },
+});
