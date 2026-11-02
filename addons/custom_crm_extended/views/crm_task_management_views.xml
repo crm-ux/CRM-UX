@@ -129,16 +129,16 @@
                             <field name="assigned_to_id" string="Assigned Employee" readonly="not can_edit_manager_fields" context="{'show_rich_user_name': True}" options="{'no_open': True, 'no_create': True}"/>
                             <field name="date_assigned" readonly="1"/>
                             <field name="date_deadline" readonly="not can_edit_manager_fields"/>
-                            <field name="company_id" options="{'no_create': True}" placeholder="All Companies" readonly="not can_edit_manager_fields"/>
+                            <field name="company_id" invisible="1"/>
                         </group>
                         <group string="Linked Entity &amp; Recurrence">
                             <field name="related_model" string="Related Entity" readonly="not can_edit_manager_fields"/>
-                            <field name="lead_id" invisible="related_model != 'crm.lead'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
-                            <field name="order_id" invisible="related_model != 'sale.order'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="lead_id" invisible="related_model != 'crm.lead'" readonly="not can_edit_manager_fields" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}"/>
+                            <field name="order_id" invisible="related_model != 'sale.order'" readonly="not can_edit_manager_fields" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}"/>
                             <field name="partner_id" invisible="related_model != 'res.partner'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
-                            <field name="equipment_id" invisible="related_model != 'equipment.master'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
-                            <field name="ticket_id" invisible="related_model != 'service.ticket'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
-                            <field name="amc_id" invisible="related_model != 'amc.contract'" readonly="not can_edit_manager_fields" options="{'no_create': True}"/>
+                            <field name="equipment_id" invisible="related_model != 'equipment.master'" readonly="not can_edit_manager_fields" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}"/>
+                            <field name="ticket_id" invisible="related_model != 'service.ticket'" readonly="not can_edit_manager_fields" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}"/>
+                            <field name="amc_id" invisible="related_model != 'amc.contract'" readonly="not can_edit_manager_fields" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}"/>
                             
                             <field name="is_recurring" string="Repeat Task"/>
                             <field name="recurrence_period" string="Repeat Every" invisible="not is_recurring"/>

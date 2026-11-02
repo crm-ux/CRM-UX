@@ -123,22 +123,30 @@ class CrmTaskManagement(models.Model):
         for rec in self:
             label = ''
             if rec.related_model == 'crm.lead' and rec.lead_id:
-                label = rec.lead_id.name or f"Lead #{rec.lead_id.id}"
+                partner_str = f" - {rec.lead_id.partner_id.name}" if rec.lead_id.partner_id else ""
+                label = f"{rec.lead_id.name or f'Lead #{rec.lead_id.id}'}{partner_str}"
                 rec.related_res_id = rec.lead_id.id
             elif rec.related_model == 'sale.order' and rec.order_id:
-                label = rec.order_id.name or f"Quote #{rec.order_id.id}"
+                partner_str = f" - {rec.order_id.partner_id.name}" if rec.order_id.partner_id else ""
+                label = f"{rec.order_id.name or f'Quote #{rec.order_id.id}'}{partner_str}"
                 rec.related_res_id = rec.order_id.id
             elif rec.related_model == 'res.partner' and rec.partner_id:
                 label = rec.partner_id.display_name or rec.partner_id.name or f"Customer #{rec.partner_id.id}"
                 rec.related_res_id = rec.partner_id.id
             elif rec.related_model == 'equipment.master' and rec.equipment_id:
-                label = f"{rec.equipment_id.equipment_id or ''} {rec.equipment_id.name.name if rec.equipment_id.name else ''}".strip()
+                eq_no = rec.equipment_id.equipment_id or rec.equipment_id.serial_no or f"EQ #{rec.equipment_id.id}"
+                partner_str = f" - {rec.equipment_id.partner_id.name}" if rec.equipment_id.partner_id else ""
+                label = f"{eq_no}{partner_str}"
                 rec.related_res_id = rec.equipment_id.id
             elif rec.related_model == 'service.ticket' and rec.ticket_id:
-                label = rec.ticket_id.ticket_id or f"Ticket #{rec.ticket_id.id}"
+                tck_no = rec.ticket_id.ticket_id or rec.ticket_id.name or f"Ticket #{rec.ticket_id.id}"
+                partner_str = f" - {rec.ticket_id.partner_id.name}" if rec.ticket_id.partner_id else ""
+                label = f"{tck_no}{partner_str}"
                 rec.related_res_id = rec.ticket_id.id
             elif rec.related_model == 'amc.contract' and rec.amc_id:
-                label = rec.amc_id.contract_id or f"AMC #{rec.amc_id.id}"
+                amc_no = rec.amc_id.contract_id or rec.amc_id.name or f"AMC #{rec.amc_id.id}"
+                partner_str = f" - {rec.amc_id.partner_id.name}" if rec.amc_id.partner_id else ""
+                label = f"{amc_no}{partner_str}"
                 rec.related_res_id = rec.amc_id.id
             rec.related_record_display = label
 
@@ -465,6 +473,70 @@ class CrmTaskAttachment(models.Model):
             'url': f'/web/content/crm.task.attachment/{self.id}/file/{self.name}?download=true',
             'target': 'self',
         }
+
+
+# ── Rich Display Name Customizations for Task Management Selection Dropdowns ──
+class CrmLeadRichName(models.Model):
+    _inherit = 'crm.lead'
+
+    def _compute_display_name(self):
+        if self.env.context.get('task_mgmt_rich_display'):
+            for rec in self:
+                partner_name = rec.partner_id.name if rec.partner_id else ""
+                rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
+            return
+        return super()._compute_display_name()
+
+
+class SaleOrderRichName(models.Model):
+    _inherit = 'sale.order'
+
+    def _compute_display_name(self):
+        if self.env.context.get('task_mgmt_rich_display'):
+            for rec in self:
+                partner_name = rec.partner_id.name if rec.partner_id else ""
+                rec.display_name = f"{rec.name} - {partner_name}" if partner_name else (rec.name or "")
+            return
+        return super()._compute_display_name()
+
+
+class EquipmentMasterRichName(models.Model):
+    _inherit = 'equipment.master'
+
+    def _compute_display_name(self):
+        if self.env.context.get('task_mgmt_rich_display'):
+            for rec in self:
+                eq_no = rec.equipment_id or rec.serial_no or (rec.name.name if rec.name else "") or f"EQ #{rec.id}"
+                partner_name = rec.partner_id.name if rec.partner_id else ""
+                rec.display_name = f"{eq_no} - {partner_name}" if partner_name else eq_no
+            return
+        return super()._compute_display_name()
+
+
+class ServiceTicketRichName(models.Model):
+    _inherit = 'service.ticket'
+
+    def _compute_display_name(self):
+        if self.env.context.get('task_mgmt_rich_display'):
+            for rec in self:
+                tck_no = rec.ticket_id or rec.name or f"Ticket #{rec.id}"
+                partner_name = rec.partner_id.name if rec.partner_id else ""
+                rec.display_name = f"{tck_no} - {partner_name}" if partner_name else tck_no
+            return
+        return super()._compute_display_name()
+
+
+class AmcContractRichName(models.Model):
+    _inherit = 'amc.contract'
+
+    def _compute_display_name(self):
+        if self.env.context.get('task_mgmt_rich_display'):
+            for rec in self:
+                amc_no = rec.contract_id or rec.name or f"AMC #{rec.id}"
+                partner_name = rec.partner_id.name if rec.partner_id else ""
+                rec.display_name = f"{amc_no} - {partner_name}" if partner_name else amc_no
+            return
+        return super()._compute_display_name()
 
 
 
