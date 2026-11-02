@@ -2197,3 +2197,56 @@ div[name="button_box"].oe_button_box *,
     color: #0b3d91 !important;
     font-weight: 600 !important;
 }
+
+/* ── Control Panel Search Bar: Replace Purple Hover & Focus with Custom Blue ── */
+.o_cp_searchview .o_searchview,
+.o_searchview {
+    border-color: #cbd5e1 !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+}
+
+/* Hover & Focus state: Custom Blue border & subtle glow */
+.o_cp_searchview:hover .o_searchview,
+.o_cp_searchview:focus-within .o_searchview,
+.o_searchview:hover,
+.o_searchview:focus-within,
+.o_searchview.active {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+/* Right toggle arrow button matching custom blue */
+.o_cp_searchview:hover .o_searchview_dropdown_toggler,
+.o_cp_searchview:focus-within .o_searchview_dropdown_toggler,
+.o_searchview_dropdown_toggler:hover,
+.o_searchview_dropdown_toggler:focus,
+.o_searchview_dropdown_toggler[aria-expanded="true"] {
+    border-color: #0b3d91 !important;
+    color: #0b3d91 !important;
+}
+
+/* Search icons inside searchbar */
+.o_searchview .oi-search,
+.o_searchview .fa-search,
+.o_searchview_icon {
+    color: #0b3d91 !important;
+}
+
+/* Search facets / tags when filtering */
+.o_searchview .o_searchview_facet {
+    border-color: #0b3d91 !important;
+}
+.o_searchview .o_searchview_facet .o_searchview_facet_label {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+/* Search dropdown icons (Filters, Group By, etc.) */
+.o_search_bar_menu .fa-filter,
+.o_search_bar_menu .oi-view-kanban,
+.o_search_bar_menu .fa-bars,
+.o_search_bar_menu .fa-layer-group,
+.o_dropdown_menu .fa-filter,
+.o_dropdown_menu .fa-layer-group {
+    color: #0b3d91 !important;
+}
