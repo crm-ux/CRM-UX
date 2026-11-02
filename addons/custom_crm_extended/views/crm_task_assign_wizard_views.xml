@@ -38,27 +38,22 @@
                         </div>
                     </div>
 
-                    <!-- Section 2.5: Company & Link to Record (Optional) -->
-                    <div class="crm-wizard-grid-2-equal">
-                        <div>
-                            <label for="company_id" string="Company (Optional)" class="crm-wizard-label"/>
-                            <field name="company_id" nolabel="1" options="{'no_create': True, 'no_open': True}" placeholder="Leave empty for all companies..."/>
-                        </div>
-                        <div>
-                            <label for="related_model" string="Related Entity (Optional)" class="crm-wizard-label"/>
-                            <field name="related_model" nolabel="1" placeholder="Link to Lead, Quote, Equipment..."/>
-                        </div>
+                    <!-- Section 2.5: Link to Record (Full Width) -->
+                    <field name="company_id" invisible="1"/>
+                    <div class="crm-wizard-group">
+                        <label for="related_model" string="Related Entity (Optional)" class="crm-wizard-label"/>
+                        <field name="related_model" nolabel="1" placeholder="Link to Lead, Quote, Equipment..."/>
                     </div>
 
                     <!-- Dynamic Linked Record Pickers -->
                     <div class="crm-wizard-group" invisible="not related_model">
                         <span class="o_form_label crm-wizard-label">Select Record</span>
-                        <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
-                        <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
+                        <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
+                        <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
                         <field name="partner_id" invisible="related_model != 'res.partner'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Customer..."/>
-                        <field name="equipment_id" invisible="related_model != 'equipment.master'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Equipment..."/>
-                        <field name="ticket_id" invisible="related_model != 'service.ticket'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Ticket..."/>
-                        <field name="amc_id" invisible="related_model != 'amc.contract'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select AMC Contract..."/>
+                        <field name="equipment_id" invisible="related_model != 'equipment.master'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Equipment..."/>
+                        <field name="ticket_id" invisible="related_model != 'service.ticket'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Ticket..."/>
+                        <field name="amc_id" invisible="related_model != 'amc.contract'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select AMC Contract..."/>
                     </div>
 
                     <!-- Recurring Options -->
