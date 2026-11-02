@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates>
     <t t-name="crm_whitelabel.Dashboard">
-        <div class="crm-pro-dashboard">
+         <div class="crm-pro-dashboard">
             <!-- INSTANT DASHBOARD BLUR LOADER (COVERS 0 CARDS FROM FRAME 1) -->
             <div t-if="!state.isReady" class="crm-dashboard-loader-overlay">
                 <div class="crm-spinner"></div>

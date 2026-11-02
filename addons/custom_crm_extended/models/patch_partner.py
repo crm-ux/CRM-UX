@@ -29,6 +29,11 @@ class ResPartnerPatch(models.Model):
             return
         return super()._compute_display_name()
 
+    @api.model
+    def autocomplete(self, query, timeout=15):
+        """Disable company autocomplete dropdown when typing company name."""
+        return []
+
 from lxml import etree
 from odoo.exceptions import UserError
 
