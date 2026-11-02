@@ -561,20 +561,20 @@ class ServiceTicketRichName(models.Model):
 class AmcContractRichName(models.Model):
     _inherit = 'amc.contract'
 
-    @api.depends('contract_id', 'name', 'partner_id.name')
+    @api.depends('name', 'partner_id.name')
     @api.depends_context('task_mgmt_rich_display')
     def _compute_display_name(self):
         super()._compute_display_name()
         if self.env.context.get('task_mgmt_rich_display'):
             for rec in self:
-                amc_no = rec.contract_id or rec.name or f"AMC #{rec.id}"
+                amc_no = rec.name or f"AMC #{rec.id}"
                 partner_name = rec.partner_id.name if rec.partner_id else ""
                 rec.display_name = f"{amc_no} - {partner_name}" if partner_name else amc_no
 
     @api.model
     def name_search(self, name='', args=None, operator='ilike', limit=100):
         if self.env.context.get('task_mgmt_rich_display') and name:
-            args = list(args or []) + ['|', ('contract_id', operator, name), ('partner_id.name', operator, name)]
+            args = list(args or []) + ['|', ('name', operator, name), ('partner_id.name', operator, name)]
             return self._search(args, limit=limit)
         return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
