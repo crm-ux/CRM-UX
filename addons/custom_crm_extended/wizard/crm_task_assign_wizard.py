@@ -117,6 +117,9 @@ class CrmTaskAssignWizard(models.TransientModel):
 
     @api.onchange('related_model')
     def _onchange_related_model(self):
+        # Do not wipe the preselected record when wizard first initializes with a pre-filled origin record!
+        if self.env.context.get('default_res_id') or self.env.context.get('active_id'):
+            return
         self.lead_id = False
         self.order_id = False
         self.partner_id = False
