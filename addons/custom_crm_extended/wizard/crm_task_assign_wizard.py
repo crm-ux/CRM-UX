@@ -73,6 +73,28 @@ class CrmTaskAssignWizard(models.TransientModel):
             self.env.context.get('default_activity_record_id')
         )
 
+        # Smart Stage Detection: If origin is crm.lead, check if it's in Quote stages (stages 6-10)
+        # or has a linked sale.order quotation
+        if origin_model == 'crm.lead' and origin_id:
+            try:
+                lead = self.env['crm.lead'].sudo().browse(int(origin_id))
+                if lead.exists():
+                    stage_seq = lead.x_stage_sequence or (lead.stage_id.sequence if lead.stage_id else 0)
+                    # Check if this lead has a linked quotation / sale.order
+                    latest_quote = lead.order_ids.filtered(lambda q: q.state != 'cancel')[:1] if hasattr(lead, 'order_ids') else False
+                    if not latest_quote and hasattr(lead, 'sale_order_ids'):
+                        latest_quote = lead.sale_order_ids.filtered(lambda q: q.state != 'cancel')[:1]
+                    if not latest_quote and lead.sale_order_id:
+                        latest_quote = lead.sale_order_id
+
+                    # If in quote stage (sequence > 5 or >= 50) or quote exists, switch to Quotation!
+                    if (stage_seq > 5 or stage_seq >= 50 or latest_quote):
+                        origin_model = 'sale.order'
+                        if latest_quote:
+                            origin_id = latest_quote.id
+            except Exception:
+                pass
+
         valid_models = {
             'crm.lead': 'lead_id',
             'sale.order': 'order_id',
@@ -85,8 +107,11 @@ class CrmTaskAssignWizard(models.TransientModel):
         if origin_model in valid_models:
             res['related_model'] = origin_model
             field_name = valid_models[origin_model]
-            if origin_id and field_name in fields_list:
-                res[field_name] = int(origin_id)
+            if origin_id:
+                try:
+                    res[field_name] = int(origin_id)
+                except (ValueError, TypeError):
+                    pass
 
         return res
 

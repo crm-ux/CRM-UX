@@ -12,16 +12,81 @@ const TARGET_MODELS = [
     "amc.contract",
 ];
 
-const MODEL_FIELD_MAP = {
-    "crm.lead": "default_lead_id",
-    "sale.order": "default_order_id",
-    "res.partner": "default_partner_id",
-    "equipment.master": "default_equipment_id",
-    "service.ticket": "default_ticket_id",
-    "amc.contract": "default_amc_id",
-};
+// Helper to extract the actual database ID (integer) from Odoo 18 popover props or records
+function extractDatabaseId(popoverComponent) {
+    const props = popoverComponent.props || {};
+    // 1. Direct resId on activityList or props
+    let id = props.activityList?.resId || props.resId || props.record?.resId;
+    if (id && Number.isInteger(Number(id)) && Number(id) > 0) {
+        return Number(id);
+    }
 
-// 1. Patch the component directly
+    // 2. From record object
+    if (props.record) {
+        if (props.record.resId && Number(props.record.resId) > 0) {
+            return Number(props.record.resId);
+        }
+        if (props.record.data?.id && Number(props.record.data.id) > 0) {
+            return Number(props.record.data.id);
+        }
+    }
+
+    // 3. From activity objects if any exist in the popover
+    const activities = props.activityList?.activities || props.activities || [];
+    if (activities.length > 0 && activities[0].res_id) {
+        return Number(activities[0].res_id);
+    }
+
+    // 4. From active row DOM element
+    const activeRow = document.querySelector(".o_data_row.o_selected_row, .o_data_row:hover");
+    if (activeRow) {
+        // Find if any cell or link in the row contains the record ID
+        const rowId = activeRow.dataset?.id;
+        // Check if there is an anchor or span with record id
+        const linkWithId = activeRow.querySelector("a[href*='id='], button[data-id]");
+        if (linkWithId) {
+            const match = linkWithId.getAttribute("href")?.match(/id=(\d+)/) || linkWithId.dataset?.id;
+            if (match) {
+                return Number(Array.isArray(match) ? match[1] : match);
+            }
+        }
+        // In Odoo datapoint, find record in odooEnv
+        const odooEnv = window.odoo?.__WOWL_DEBUG__?.root?.env;
+        if (odooEnv?.model?.root?.records) {
+            const matchedRec = odooEnv.model.root.records.find(r => r.id === rowId);
+            if (matchedRec && matchedRec.resId) {
+                return Number(matchedRec.resId);
+            }
+        }
+    }
+
+    return false;
+}
+
+// Helper to extract the model
+function extractModel(popoverComponent) {
+    const props = popoverComponent.props || {};
+    let model = props.activityList?.resModel || props.resModel || props.record?.resModel;
+    if (model && TARGET_MODELS.includes(model)) {
+        return model;
+    }
+
+    const odooEnv = window.odoo?.__WOWL_DEBUG__?.root?.env;
+    let envModel = odooEnv?.searchModel?.resModel || odooEnv?.model?.root?.resModel;
+    if (envModel && TARGET_MODELS.includes(envModel)) {
+        return envModel;
+    }
+
+    const url = window.location.href;
+    for (const m of TARGET_MODELS) {
+        if (url.includes(m)) {
+            return m;
+        }
+    }
+    return "crm.lead";
+}
+
+// 1. Direct Component Patch
 if (ActivityListPopover && ActivityListPopover.prototype) {
     patch(ActivityListPopover.prototype, {
         onClickSchedule(ev) {
@@ -30,34 +95,19 @@ if (ActivityListPopover && ActivityListPopover.prototype) {
                 ev.stopPropagation();
             }
 
-            // Close the popover
             if (typeof this.props.close === "function") {
                 this.props.close();
             }
 
-            const record = this.props.record || this.props.activityList?.record || {};
-            const resModel = this.props.activityList?.resModel || 
-                             this.props.resModel || 
-                             record.resModel || 
-                             this.env?.searchModel?.resModel;
-
-            const resId = this.props.activityList?.resId || 
-                          this.props.resId || 
-                          record.resId || 
-                          record.id;
-
-            const finalResId = Array.isArray(resId) ? resId[0] : resId;
+            const resModel = extractModel(this);
+            const resId = extractDatabaseId(this);
 
             const context = {
-                default_related_model: resModel || false,
-                default_res_id: finalResId ? Number(finalResId) : false,
-                active_model: resModel || false,
-                active_id: finalResId ? Number(finalResId) : false,
+                default_related_model: resModel,
+                default_res_id: resId || false,
+                active_model: resModel,
+                active_id: resId || false,
             };
-
-            if (resModel && MODEL_FIELD_MAP[resModel] && finalResId) {
-                context[MODEL_FIELD_MAP[resModel]] = Number(finalResId);
-            }
 
             const actionService = this.env?.services?.action;
             if (actionService) {
@@ -75,7 +125,7 @@ if (ActivityListPopover && ActivityListPopover.prototype) {
     });
 }
 
-// 2. DOM Capture-phase safeguard: Catch click before native Owl handlers can fire
+// 2. DOM Capture-phase listener
 document.addEventListener("click", function (ev) {
     const btn = ev.target.closest(".o-mail-ActivityListPopover button");
     if (!btn) {
@@ -86,12 +136,10 @@ document.addEventListener("click", function (ev) {
         return;
     }
 
-    // Stop native Odoo wizard
     ev.preventDefault();
     ev.stopPropagation();
     ev.stopImmediatePropagation();
 
-    // Close the popover DOM
     const popover = btn.closest(".o-mail-ActivityListPopover");
     if (popover) {
         const parent = popover.closest(".o_popover") || popover.parentElement;
@@ -100,22 +148,24 @@ document.addEventListener("click", function (ev) {
         }
     }
 
-    // Read active view context
     const odooEnv = window.odoo?.__WOWL_DEBUG__?.root?.env;
     let resModel = odooEnv?.searchModel?.resModel;
     let resId = false;
 
-    // Detect row
+    // Detect actual database record ID from hovered row in model root records
     const row = document.querySelector(".o_data_row:hover, .o_data_row.o_selected_row");
-    if (row) {
-        resId = row.dataset?.id || row.getAttribute("data-id");
+    if (row && odooEnv?.model?.root?.records) {
+        const dpId = row.dataset?.id;
+        const rec = odooEnv.model.root.records.find(r => r.id === dpId);
+        if (rec && rec.resId) {
+            resId = rec.resId;
+        }
     }
 
-    // URL fallback for model
-    const href = window.location.href;
     if (!resModel) {
+        const url = window.location.href;
         for (const m of TARGET_MODELS) {
-            if (href.includes(m)) {
+            if (url.includes(m)) {
                 resModel = m;
                 break;
             }
@@ -123,15 +173,11 @@ document.addEventListener("click", function (ev) {
     }
 
     const context = {
-        default_related_model: resModel || false,
+        default_related_model: resModel || "crm.lead",
         default_res_id: resId ? Number(resId) : false,
-        active_model: resModel || false,
+        active_model: resModel || "crm.lead",
         active_id: resId ? Number(resId) : false,
     };
-
-    if (resModel && MODEL_FIELD_MAP[resModel] && resId) {
-        context[MODEL_FIELD_MAP[resModel]] = Number(resId);
-    }
 
     const actionService = odooEnv?.services?.action;
     if (actionService) {
