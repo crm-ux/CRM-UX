@@ -315,14 +315,17 @@ class CrmLead(models.Model):
         for lead in self:
             prod_name = False
             # 1. From Product Interest lines
-            if lead.x_product_line_ids:
-                first_line = lead.x_product_line_ids[0]
-                prod_name = first_line.product_id.display_name or first_line.x_product_name or False
+            lines = lead.sudo().x_product_line_ids
+            if lines:
+                first_line = lines[0]
+                prod_name = first_line.sudo().product_id.display_name or first_line.x_product_name or False
             # 2. Fallback: From Quotation lines
-            if not prod_name and lead.order_ids:
-                for order in lead.order_ids.filtered(lambda o: o.state != 'cancel'):
-                    if order.order_line:
-                        prod_name = order.order_line[0].product_id.display_name or order.order_line[0].name
+            if not prod_name:
+                orders = lead.sudo().order_ids.filtered(lambda o: o.state != 'cancel')
+                for order in orders:
+                    order_lines = order.sudo().order_line
+                    if order_lines:
+                        prod_name = order_lines[0].sudo().product_id.display_name or order_lines[0].name
                         if prod_name:
                             break
             lead.x_first_product_name = prod_name or ''
@@ -357,7 +360,7 @@ class CrmLead(models.Model):
     @api.depends('order_ids.name', 'order_ids.validity_date', 'order_ids.state', 'name')
     def _compute_quote_details(self):
         for rec in self:
-            quotes = rec.order_ids.filtered(lambda o: o.state != 'cancel')
+            quotes = rec.sudo().order_ids.filtered(lambda o: o.state != 'cancel')
             if quotes:
                 latest_quote = quotes.sorted('id', reverse=True)[0]
                 rec.x_quote_number = latest_quote.name or rec.name
