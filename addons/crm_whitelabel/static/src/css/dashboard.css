@@ -329,25 +329,21 @@ body:has(.crm-pro-dashboard) .o_loading {
     flex-shrink: 0;
 }
 
-/* Individual Series Icons */
-.crm-sub-link i.fa-file-text-o,
-.crm-submenu-list li:nth-child(1) .crm-sub-link i.fa-hashtag {
-    color: #0284c7;
+/* Series Submenu Icons - Barcode */
+.crm-nav-item:has(span:contains("Series")) .crm-sub-link i::before,
+.crm-submenu-list li .crm-sub-link i.fa-hashtag::before {
+    content: "\f02a" !important; /* FontAwesome Unicode for fa-barcode */
+    font-family: FontAwesome !important;
 }
 
-.crm-sub-link i.fa-cogs,
-.crm-submenu-list li:nth-child(2) .crm-sub-link i.fa-hashtag {
-    color: #4f46e5;
+.crm-sub-link i.fa-barcode,
+.crm-submenu-list li .crm-sub-link i.fa-hashtag {
+    color: #475569 !important;
 }
 
-.crm-sub-link i.fa-ticket,
-.crm-submenu-list li:nth-child(3) .crm-sub-link i.fa-hashtag {
-    color: #d97706;
-}
-
-.crm-sub-link i.fa-handshake-o,
-.crm-submenu-list li:nth-child(4) .crm-sub-link i.fa-hashtag {
-    color: #059669;
+.crm-sub-link:hover i.fa-barcode,
+.crm-sub-link:hover i.fa-hashtag {
+    color: var(--primary-blue) !important;
 }
 
 .crm-sub-link:hover {
