@@ -840,94 +840,92 @@
 
                     <!-- 3. AMC Renewals -->
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewAmc">
+                        <t t-set="amcTotalCount" t-value="(state.amcExpired || 0) + (state.amcExpiring30 || 0) + (state.amcExpiring60 || 0) + (state.amcSecure || 0)"/>
                         <div class="crm-chart-head">
                             <span class="crm-chart-title">
                                 <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
                                 <span>AMC Renewals</span>
                             </span>
-                            <span class="crm-chart-badge"><t t-esc="(state.amcExpired || 0) + (state.amcExpiring30 || 0) + (state.amcExpiring60 || 0) + (state.amcSecure || 0)"/> Total</span>
+                            <span class="crm-chart-badge"><t t-esc="amcTotalCount"/> Total</span>
                         </div>
                 
-                        <!-- Horizontal Renewal Timeline / Countdown Track (Boxes stay in place with space-between) -->
-                        <div style="display: flex; flex-direction: column; justify-content: space-between; flex: 1; padding: 0.6rem 0.25rem 0.25rem 0.25rem;">
+                        <!-- Clean Horizontal Progress Bars for Renewal Timeline -->
+                        <div style="display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: 0.65rem; padding-top: 0.4rem; padding-bottom: 0.25rem;">
                             
-                            <!-- Connecting Continuous Track Bar -->
-                            <div class="crm-amc-horizon-track" style="position: relative; margin: 0.5rem 0 1.25rem 0;">
-                                <!-- Gradient Horizon Line -->
-                                <div style="position: absolute; top: 50%; left: 12.5%; right: 12.5%; height: 4px; transform: translateY(-50%); background: linear-gradient(90deg, #64748b 0%, #ef4444 33.3%, #f59e0b 66.6%, #10b981 100%); border-radius: 999px;"></div>
-                                
-                                <!-- 4 Milestone Dots -->
-                                <div style="position: absolute; top: 50%; left: 12.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #64748b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(100,116,139,0.2); z-index: 2;"></div>
-                                <div style="position: absolute; top: 50%; left: 37.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #ef4444; border-radius: 50%; box-shadow: 0 0 0 2px rgba(239,68,68,0.2); z-index: 2;"></div>
-                                <div style="position: absolute; top: 50%; left: 62.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #f59e0b; border-radius: 50%; box-shadow: 0 0 0 2px rgba(245,158,11,0.2); z-index: 2;"></div>
-                                <div style="position: absolute; top: 50%; left: 87.5%; transform: translate(-50%, -50%); width: 14px; height: 14px; background: #fff; border: 3px solid #10b981; border-radius: 50%; box-shadow: 0 0 0 2px rgba(16,185,129,0.2); z-index: 2;"></div>
-                                <div style="height: 14px;"></div>
+                            <!-- Tier 1: Expired -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;"
+                                t-on-click="() => this.openAmcRenewalList('expired', 'Expired')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Expired</span>
+                                </div>
+                                <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpired || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0b3d91; border-radius: 999px; transition: width 0.7s ease;'"></div>
+                                </div>
+                                <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpired || 0"/></span>
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #64748b;">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
+                                </div>
                             </div>
 
-                            <!-- 4 Milestone Columns (Original comfortable position) -->
-                            <div class="crm-amc-timeline-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; text-align: center;">
-
-                                <!-- Step 0: Expired (Grey) -->
-                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #e2e8f0; transition: all 0.2s ease;"
-                                    t-on-click="() => this.openAmcRenewalList('expired', 'Expired')">
-                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f1f5f9; color: #64748b; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                        <i class="fa fa-times-circle"></i>
-                                    </div>
-                                    <div style="font-size: 0.7rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.02em;">Expired</div>
-                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                        <t t-esc="state.amcExpired || 0"/>
-                                    </div>
-                                    <div style="font-size: 0.72rem; font-weight: 700; color: #64748b;">
-                                        <t t-esc="fmt(state.amcExpiredVal || 0)"/>
-                                    </div>
+                            <!-- Tier 2: < 30 Days -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;"
+                                t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">&lt; 30 Days</span>
                                 </div>
-
-                                <!-- Step 1: < 30 Days (Urgent) -->
-                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fee2e2; transition: all 0.2s ease;"
-                                    t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
-                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fee2e2; color: #ef4444; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                        <i class="fa fa-exclamation"></i>
-                                    </div>
-                                    <div style="font-size: 0.7rem; font-weight: 700; color: #991b1b; text-transform: uppercase; letter-spacing: 0.02em;">&lt; 30 Days</div>
-                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                        <t t-esc="state.amcExpiring30 || 0"/>
-                                    </div>
-                                    <div style="font-size: 0.72rem; font-weight: 700; color: #dc2626;">
-                                        <t t-esc="fmt(state.amcExpiring30Val || 0)"/>
-                                    </div>
+                                <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring30 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0369a1; border-radius: 999px; transition: width 0.7s ease;'"></div>
                                 </div>
-
-                                <!-- Step 2: 30–60 Days (Upcoming) -->
-                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #fef3c7; transition: all 0.2s ease;"
-                                    t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
-                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fef3c7; color: #d97706; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                        <i class="fa fa-clock-o"></i>
-                                    </div>
-                                    <div style="font-size: 0.7rem; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.02em;">30–60 Days</div>
-                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                        <t t-esc="state.amcExpiring60 || 0"/>
-                                    </div>
-                                    <div style="font-size: 0.72rem; font-weight: 700; color: #d97706;">
-                                        <t t-esc="fmt(state.amcExpiring60Val || 0)"/>
-                                    </div>
+                                <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring30 || 0"/></span>
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0369a1;">(<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
                                 </div>
-
-                                <!-- Step 3: > 60 Days / Secure -->
-                                <div class="crm-timeline-step" style="cursor: pointer; padding: 0.55rem 0.3rem; border-radius: 8px; background: #fff; border: 1px solid #dcfce7; transition: all 0.2s ease;"
-                                    t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
-                                    <div style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #dcfce7; color: #16a34a; font-size: 0.65rem; margin-bottom: 0.35rem;">
-                                        <i class="fa fa-shield"></i>
-                                    </div>
-                                    <div style="font-size: 0.7rem; font-weight: 700; color: #166534; text-transform: uppercase; letter-spacing: 0.02em;">&gt; 60 Days</div>
-                                    <div style="font-size: 1.1rem; font-weight: 800; color: #0f172a; margin: 0.15rem 0;">
-                                        <t t-esc="state.amcSecure || 0"/>
-                                    </div>
-                                    <div style="font-size: 0.72rem; font-weight: 700; color: #16a34a;">
-                                        <t t-esc="fmt(state.amcSecureVal || 0)"/>
-                                    </div>
-                                </div>
-
                             </div>
+
+                            <!-- Tier 3: 30–60 Days -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;"
+                                t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">30–60 Days</span>
+                                </div>
+                                <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring60 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s ease;'"></div>
+                                </div>
+                                <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring60 || 0"/></span>
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0284c7;">(<t t-esc="fmt(state.amcExpiring60Val || 0)"/>)</span>
+                                </div>
+                            </div>
+
+                            <!-- Tier 4: > 60 Days -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;"
+                                t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">&gt; 60 Days</span>
+                                </div>
+                                <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcSecure || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s ease;'"></div>
+                                </div>
+                                <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
+                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcSecure || 0"/></span>
+                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0284c7;">(<t t-esc="fmt(state.amcSecureVal || 0)"/>)</span>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Summary Strip: Total Protected Contract Value -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0.65rem; border-radius: 6px; background: #f0f9ff; border: 1px solid #bae6fd; font-size: 0.78rem; margin-top: 0.2rem;">
+                                <span style="color: #64748b;">
+                                    <i class="fa fa-shield" style="color: #0284c7; margin-right: 5px;"></i>Total Protected Contract Value:
+                                </span>
+                                <strong style="color: #0b3d91; font-size: 0.85rem;">
+                                    <t t-esc="fmt((state.amcExpiring30Val || 0) + (state.amcExpiring60Val || 0) + (state.amcSecureVal || 0))"/>
+                                </strong>
+                            </div>
+
                         </div>
                     </div>
 

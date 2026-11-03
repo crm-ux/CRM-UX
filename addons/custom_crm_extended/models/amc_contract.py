@@ -134,6 +134,25 @@ class AmcContract(models.Model):
                     'message': _("Contract End Date is in the future. This contract cannot be marked as Expired; it must be Active.")
                 }}
 
+    @api.constrains('contract_status', 'partner_id', 'contract_value', 'contract_start_date', 'contract_end_date')
+    def _check_amc_mandatory_fields(self):
+        """Validate that Customer, Contract Value, Start Date, and End Date are provided for Active, Expired, and Renewed."""
+        for rec in self:
+            if rec.contract_status in ('active', 'expired', 'renewed'):
+                missing = []
+                if not rec.partner_id:
+                    missing.append("Customer / Company Name")
+                if not rec.contract_value or not str(rec.contract_value).strip() or str(rec.contract_value).strip() in ('0', '0.0', '0.00'):
+                    missing.append("Contract Value (₹)")
+                if not rec.contract_start_date:
+                    missing.append("Contract Start Date")
+                if not rec.contract_end_date:
+                    missing.append("Contract End Date")
+                if missing:
+                    raise ValidationError(_("Please provide Customer Name, Contract Value (₹), Start Date, and End Date to proceed in %s status. Missing: %s") % (rec.contract_status.capitalize(), ", ".join(missing)))
+                if rec.contract_start_date and rec.contract_end_date and rec.contract_end_date < rec.contract_start_date:
+                    raise ValidationError(_("Contract End Date cannot be earlier than Contract Start Date."))
+
     @api.constrains('contract_status', 'contract_end_date')
     def _check_contract_status_end_date(self):
         today = fields.Date.context_today(self)
