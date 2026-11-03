@@ -99,8 +99,7 @@
                         transition: color 0.15s ease, transform 0.15s ease;
                     }
                     .o_expense_type_table td.o_list_button button:hover {
-                        color: #0284c7 !important;
-                        transform: scale(1.18);
+                        color: #041e42 !important;
                     }
                 </style>
                 <div class="row g-4" style="width:100%; margin:0;">
