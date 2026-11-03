@@ -51,98 +51,8 @@
                         </div>
                     </div>
                 </div>
-
+    
                 <!-- CARD: Expense Types & Per-Visit Cost Limits by Job Position -->
-                <style>
-                    .o_expense_type_table th.o_list_button,
-                    .o_expense_type_table td.o_list_button {
-                        display: table-cell !important;
-                        width: 24px !important;
-                        max-width: 24px !important;
-                        min-width: 24px !important;
-                        padding: 0 2px !important;
-                        vertical-align: middle !important;
-                        text-align: center !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                        pointer-events: auto !important;
-                    }
-                    /* Fix continuous header border line with zero gap */
-                    .o_expense_type_table thead th.o_list_button {
-                        border-bottom: 1px solid #dee2e6 !important;
-                        border-top: none !important;
-                        border-left: none !important;
-                        border-right: none !important;
-                    }
-                    .o_expense_type_table tbody td.o_list_button {
-                        border-bottom: 1px solid #e9ecef !important;
-                    }
-                    .o_expense_type_table td.o_list_record_remove {
-                        vertical-align: middle !important;
-                        padding: 0 4px !important;
-                        width: 24px !important;
-                    }
-                    .o_expense_type_table td.o_list_button button {
-                        display: inline-flex !important;
-                        align-items: center !important;
-                        justify-content: center !important;
-                        vertical-align: middle !important;
-                        color: #0b3d91 !important;
-                        font-size: 13px !important;
-                        cursor: pointer !important;
-                        background: transparent !important;
-                        border: none !important;
-                        padding: 0 !important;
-                        margin: 0 !important;
-                        line-height: 1 !important;
-                        opacity: 1 !important;
-                        transition: color 0.15s ease, transform 0.15s ease;
-                    }
-                    .o_expense_type_table td.o_list_button button:hover {
-                        color: #041e42 !important;
-                    }
-                    /* Remove underlines only on text/number inputs - NEVER touch toggle checkboxes */
-                    .o_expense_type_table .o_selected_row input:not([type="checkbox"]),
-                    .o_expense_type_table .o_selected_row .o_input:not(.form-check-input),
-                    .o_expense_type_table td[name="name"] input,
-                    .o_expense_type_table td[name="budget_limit"] input,
-                    .o_expense_type_table td[name="km_rate"] input {
-                        border: none !important;
-                        border-bottom: none !important;
-                        box-shadow: none !important;
-                        outline: none !important;
-                    }
-                    /* Ensure boolean toggle switches are 100% visible and styled */
-                    .o_expense_type_table input[type="checkbox"],
-                    .o_expense_type_table .form-check-input {
-                        display: inline-block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                    }
-                    /* Remove purple line on active/selected row - keep clean normal border */
-                    .o_expense_type_table tr.o_selected_row,
-                    .o_expense_type_table tr.o_selected_row > td,
-                    .o_expense_type_table tr.o_data_row.o_selected_row {
-                        border-bottom: 1px solid #e2e8f0 !important;
-                        box-shadow: none !important;
-                        --ListRenderer-selected-color: transparent !important;
-                    }
-                    .o_expense_type_table tr.o_selected_row {
-                        background-color: #f8fafc !important;
-                    }
-                    /* Fix Limit Per Visit and Rate numeric field UI and alignment */
-                    .o_expense_type_table td[name="budget_limit"] input,
-                    .o_expense_type_table td[name="km_rate"] input,
-                    .o_expense_type_table .o_field_float input,
-                    .o_expense_type_table .o_list_number input {
-                        text-align: right !important;
-                        padding: 2px 4px !important;
-                        width: 100% !important;
-                        border: none !important;
-                        border-bottom: none !important;
-                        box-shadow: none !important;
-                    }
-                </style>
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
@@ -230,7 +140,7 @@
                 <div class="mb-3">
                     <field name="limit_rule_ids">
                         <list editable="bottom" decoration-muted="not active">
-                            <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Select one or more job positions..." string="Job Positions (Multi-Select)" class="fw-semibold"/>
+                            <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
                             <field name="budget_limit" string="Budget Limit / Visit (₹)"/>
                             <field name="active" string="Active" widget="boolean_toggle"/>
                         </list>
