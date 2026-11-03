@@ -1,7 +1,7 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { onMounted, onPatched } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 
 patch(ListRenderer.prototype, {
     computeOptionalActiveFields() {
@@ -162,5 +162,44 @@ patch(ListRenderer.prototype, {
         };
         onMounted(checkEmptyState);
         onPatched(checkEmptyState);
+
+        const parentRecord = this.props?.list?.model?.root;
+        if (parentRecord && parentRecord.resModel === 'sale.order') {
+            const handleSectionDirectDelete = async (ev) => {
+                const btn = ev.target.closest("tr.o_is_line_section td.o_list_section_options button, tr.o_is_line_section .o_list_section_options");
+                if (!btn) return;
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+
+                const openMenu = document.querySelector(".dropdown-menu.show");
+                if (openMenu) openMenu.classList.remove("show");
+
+                const row = btn.closest("tr.o_is_line_section");
+                const dataId = row?.getAttribute("data-id");
+                if (dataId && this.props?.list?.records) {
+                    const rec = this.props.list.records.find((r) => r.id === dataId);
+                    if (rec) {
+                        if (this.props.list.delete) {
+                            await this.props.list.delete(rec);
+                        } else if (this.props.list.removeRecord) {
+                            this.props.list.removeRecord(rec);
+                        }
+                    }
+                }
+            };
+            onMounted(() => {
+                const el = this.rootRef?.el || (this.el ? this.el : null);
+                if (el) {
+                    el.addEventListener("click", handleSectionDirectDelete, true);
+                }
+            });
+            onWillUnmount(() => {
+                const el = this.rootRef?.el || (this.el ? this.el : null);
+                if (el) {
+                    el.removeEventListener("click", handleSectionDirectDelete, true);
+                }
+            });
+        }
     },
 });
