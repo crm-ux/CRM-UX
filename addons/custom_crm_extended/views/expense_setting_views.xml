@@ -101,6 +101,40 @@
                     .o_expense_type_table td.o_list_button button:hover {
                         color: #041e42 !important;
                     }
+                    /* Remove all input underlines, box-shadows, and purple borders */
+                    .o_expense_type_table .o_selected_row input,
+                    .o_expense_type_table .o_selected_row .o_input,
+                    .o_expense_type_table input.o_input,
+                    .o_expense_type_table .o_data_row input {
+                        border: none !important;
+                        border-bottom: none !important;
+                        box-shadow: none !important;
+                        outline: none !important;
+                        background: transparent !important;
+                    }
+                    /* Remove purple line on active/selected row - keep clean normal border */
+                    .o_expense_type_table tr.o_selected_row,
+                    .o_expense_type_table tr.o_selected_row > td,
+                    .o_expense_type_table tr.o_data_row.o_selected_row {
+                        border-bottom: 1px solid #e2e8f0 !important;
+                        box-shadow: none !important;
+                        --ListRenderer-selected-color: transparent !important;
+                    }
+                    .o_expense_type_table tr.o_selected_row {
+                        background-color: #f8fafc !important;
+                    }
+                    /* Fix Limit Per Visit and Rate numeric field UI and alignment */
+                    .o_expense_type_table td[name="budget_limit"] input,
+                    .o_expense_type_table td[name="km_rate"] input,
+                    .o_expense_type_table .o_field_float input,
+                    .o_expense_type_table .o_list_number input {
+                        text-align: right !important;
+                        padding: 2px 4px !important;
+                        width: 100% !important;
+                        border: none !important;
+                        border-bottom: none !important;
+                        box-shadow: none !important;
+                    }
                 </style>
                 <div class="row g-4" style="width:100%; margin:0;">
                     <div class="col-12 ps-0 pe-0">
