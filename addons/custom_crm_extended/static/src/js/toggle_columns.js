@@ -35,37 +35,19 @@ patch(ListRenderer.prototype, {
     async onDeleteRecord(record) {
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order' && record.data?.display_type === 'line_section') {
-            // When deleting a section header, only delete this 1 single record — NEVER delete products below it!
-            // If the record is unsaved / in draft (!record.resId), remove from client list to avoid "Invalid ids list: false"
-            if (!record.resId) {
-                if (this.props?.list?.removeRecord) {
-                    this.props.list.removeRecord(record);
-                    return;
-                }
-                if (record.remove) {
-                    record.remove();
-                    return;
-                }
+            // When deleting a section header, only delete this 1 single section — NEVER delete products below it!
+            if (this.props?.list?.delete) {
+                return this.props.list.delete(record);
             }
-            try {
-                if (record.resId) {
-                    await record.delete();
-                } else if (this.props?.list?.removeRecord) {
-                    this.props.list.removeRecord(record);
-                }
-            } catch (err) {
-                if (this.props?.list?.removeRecord) {
-                    this.props.list.removeRecord(record);
-                }
+            if (this.props?.list?.removeRecord) {
+                return this.props.list.removeRecord(record);
             }
             return;
         }
-        // If normal unsaved line, safely remove from list without calling orm.unlink(false)
-        if (!record.resId && this.props?.list?.removeRecord) {
-            this.props.list.removeRecord(record);
-            return;
+        if (this.props?.list?.delete) {
+            return this.props.list.delete(record);
         }
-        return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : (record.resId ? record.delete() : null);
+        return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : null;
     },
 
     setup() {
@@ -180,28 +162,5 @@ patch(ListRenderer.prototype, {
         };
         onMounted(checkEmptyState);
         onPatched(checkEmptyState);
-
-        const parentRecord = this.props?.list?.model?.root;
-        if (parentRecord && parentRecord.resModel === 'sale.order') {
-            // Intercept click on the section options button to directly delete this single section row
-            const handleSectionClick = async (ev) => {
-                const btn = ev.target.closest("tr.o_is_line_section td.o_list_section_options button, tr.o_is_line_section .o_list_section_options");
-                if (!btn) return;
-                ev.preventDefault();
-                ev.stopPropagation();
-                ev.stopImmediatePropagation();
-
-                const row = btn.closest("tr.o_is_line_section");
-                const dataId = row?.getAttribute("data-id");
-                if (dataId) {
-                    const rec = this.props.list.records.find((r) => r.id === dataId);
-                    if (rec) {
-                        await rec.delete();
-                    }
-                }
-            };
-            this.handleSectionClick = handleSectionClick;
-            document.addEventListener("click", this.handleSectionClick, true);
-        }
     },
 });
