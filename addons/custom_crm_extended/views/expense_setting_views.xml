@@ -162,6 +162,54 @@
         </field>
     </record>
 
+    <!-- POPUP MODAL: Position-Wise Budget Limits Form -->
+    <record id="view_service_ticket_expense_type_limit_form" model="ir.ui.view">
+        <field name="name">service.ticket.expense.type.limit.form</field>
+        <field name="model">service.ticket.expense.type</field>
+        <field name="arch" type="xml">
+            <form string="Position-Wise Budget Limits">
+                <!-- Info Header Banner in Custom Blue -->
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3" style="background: #f0f9ff; border: 1px solid #bae6fd;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; background: #0b3d91; color: #ffffff;">
+                            <i class="fa fa-cog fa-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-0 fw-bold" style="color: #0b3d91;">
+                                <field name="name" readonly="1" class="d-inline"/>
+                            </h4>
+                            <span class="text-muted small">
+                                Global Default Limit: <strong class="text-dark">₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> / visit
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-table for Position Rules -->
+                <div class="mb-3">
+                    <field name="limit_rule_ids">
+                        <list editable="bottom" decoration-muted="not active">
+                            <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Select one or more job positions..." string="Job Positions (Multi-Select)" class="fw-semibold"/>
+                            <field name="budget_limit" string="Budget Limit / Visit (₹)"/>
+                            <field name="active" string="Active" widget="boolean_toggle"/>
+                        </list>
+                    </field>
+                </div>
+
+                <!-- Helpful Tip Footer Note -->
+                <div class="p-2 px-3 rounded bg-light border text-muted small d-flex align-items-center gap-2 mb-2">
+                    <i class="fa fa-lightbulb-o text-warning fs-5"></i>
+                    <span><strong>Note:</strong> Any job position not listed above (or marked Inactive) will automatically use the Global Limit of <strong>₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> per visit.</span>
+                </div>
+
+                <footer>
+                    <button string="Save Rules" class="btn btn-primary fw-bold shadow-sm" special="save" style="background-color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Voucher Line Tree/List View: SUBMISSIONS SUMMARY LIST -->
     <record id="view_service_ticket_voucher_line_tree" model="ir.ui.view">
         <field name="name">service.ticket.voucher.line.tree</field>

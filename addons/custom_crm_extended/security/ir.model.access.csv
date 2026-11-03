@@ -46,3 +46,5 @@ access_crm_task_assign_wizard_attachment,crm.task.assign.wizard.attachment,model
 access_sale_order_duplicate_wizard,sale.order.duplicate.wizard,model_sale_order_duplicate_wizard,base.group_user,1,1,1,1
 access_crm_personal_todo,crm.personal.todo,model_crm_personal_todo,base.group_user,1,1,1,1
 access_crm_personal_todo_attachment,crm.personal.todo.attachment,model_crm_personal_todo_attachment,base.group_user,1,1,1,1
+
+access_service_ticket_expense_limit_rule,service.ticket.expense.limit.rule,model_service_ticket_expense_limit_rule,base.group_user,1,1,1,1

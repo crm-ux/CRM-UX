@@ -756,29 +756,10 @@ class ServiceTicket(models.Model):
         split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
 
         # 1. Determine each user's specific per-visit limit for this expense category
-        # Look for position-specific rule or fallback to exp_type.budget_limit
+        # Checks active custom position rules in limit_rule_ids, falls back to exp_type.budget_limit
         user_limits = {}
         for u in target_users:
-            user_job = u.crm_job_id
-            u_limit = 0.0
-            if user_job:
-                # Look for expense type specifically matching this user's job position with same base name
-                # e.g., "Food (Manager)" or where job_ids contains user_job
-                pos_types = self.env['service.ticket.expense.type'].search([
-                    ('active', '=', True),
-                    ('job_ids', 'in', [user_job.id]),
-                    ('is_km_based', '=', exp_type.is_km_based),
-                ])
-                # Check if matching base category or fallback
-                matched = pos_types.filtered(lambda t: exp_type.name.split('(')[0].strip().lower() in t.name.lower())
-                if matched:
-                    u_limit = matched[0].budget_limit or 0.0
-            
-            # If no specific position limit found, use the selected exp_type limit
-            if u_limit <= 0.0:
-                u_limit = exp_type.budget_limit or 0.0
-
-            user_limits[u.id] = u_limit
+            user_limits[u.id] = exp_type.get_effective_budget_limit(user=u)
 
         # 2. Proportional Split Calculation
         total_budget = sum(user_limits.values())
@@ -1185,17 +1166,69 @@ class ServiceTicketExpenseType(models.Model):
         help='Select one or multiple job positions allowed to claim this expense. Leave empty to allow all positions.'
     )
     active = fields.Boolean(string='Active', default=True)
+    limit_rule_ids = fields.One2many(
+        'service.ticket.expense.limit.rule',
+        'expense_type_id',
+        string='Position Budget Rules'
+    )
 
     def action_open_settings(self):
         self.ensure_one()
+        view_id = self.env.ref('custom_crm_extended.view_service_ticket_expense_type_limit_form', raise_if_not_found=False)
         return {
-            'name': _('Expense Settings: %s') % (self.name or ''),
+            'name': _('Position-Wise Budget Limits: %s') % (self.name or ''),
             'type': 'ir.actions.act_window',
             'res_model': 'service.ticket.expense.type',
             'res_id': self.id,
             'view_mode': 'form',
+            'view_id': view_id.id if view_id else False,
             'target': 'new',
         }
+
+    def get_effective_budget_limit(self, user=None, job_id=None):
+        """Returns the custom limit for the given user's job position if active rule exists, else global budget_limit."""
+        self.ensure_one()
+        user = user or self.env.user
+        user_job_ids = set()
+        if job_id:
+            user_job_ids.add(job_id)
+        if hasattr(user, 'crm_job_id') and user.crm_job_id:
+            user_job_ids.add(user.crm_job_id.id)
+        if hasattr(user, 'employee_id') and user.employee_id and user.employee_id.job_id:
+            user_job_ids.add(user.employee_id.job_id.id)
+        if hasattr(user, 'employee_ids'):
+            for emp in user.employee_ids:
+                if emp.job_id:
+                    user_job_ids.add(emp.job_id.id)
+
+        for rule in self.limit_rule_ids:
+            if rule.active and any(j.id in user_job_ids for j in rule.job_ids):
+                return rule.budget_limit
+        return self.budget_limit
+
+
+class ServiceTicketExpenseLimitRule(models.Model):
+    _name = 'service.ticket.expense.limit.rule'
+    _description = 'Position-Wise Expense Budget Limit Rule'
+    _order = 'id asc'
+
+    expense_type_id = fields.Many2one(
+        'service.ticket.expense.type',
+        string='Expense Type',
+        required=True,
+        ondelete='cascade'
+    )
+    job_ids = fields.Many2many(
+        'hr.job',
+        'expense_rule_job_rel',
+        'rule_id',
+        'job_id',
+        string='Job Positions (Multi-Select)',
+        required=True,
+        help='Select one or multiple job positions for this budget limit rule.'
+    )
+    budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0, required=True)
+    active = fields.Boolean(string='Active', default=True)
 
 class ServiceTicketVoucherLine(models.Model):
     _name = 'service.ticket.voucher.line'
