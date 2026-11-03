@@ -704,7 +704,6 @@
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote">
                         <div class="crm-chart-head">
                             <span class="crm-chart-title">
-                                <i class="fa fa-bar-chart" style="color: #0284c7;"></i>
                                 <span>Monthly Sales &amp; Revenue Growth</span>
                             </span>
                             <!-- Frontend Range Buttons with Step Navigation & Fiscal Year Selector -->
@@ -742,7 +741,7 @@
                                     </div>
                                 </div>
 
-                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal"><i class="fa fa-calendar" style="color: #0284c7;"></i> Custom</button>
+                                <button type="button" class="crm-range-pill" t-att-class="state.salesRangeMonths === 'custom' ? 'active' : ''" t-on-click="openCustomDateModal">Custom</button>
                             </div>
                         </div>
                         <div class="crm-bar-chart" style="position: relative; height: 160px;">
@@ -778,7 +777,6 @@
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewTicket">
                         <div class="crm-chart-head">
                             <span class="crm-chart-title">
-                                <i class="fa fa-wrench" style="color: #0284c7;"></i>
                                 <span>Complaint Types</span>
                             </span>
                             <span class="crm-chart-badge" t-if="totalComplaints > 0"><t t-esc="totalComplaints"/> Total</span>
@@ -843,7 +841,6 @@
                         <t t-set="amcTotalCount" t-value="(state.amcExpired || 0) + (state.amcExpiring30 || 0) + (state.amcExpiring60 || 0) + (state.amcSecure || 0)"/>
                         <div class="crm-chart-head">
                             <span class="crm-chart-title">
-                                <i class="fa fa-file-text-o" style="color: #0284c7;"></i>
                                 <span>AMC Renewals</span>
                             </span>
                             <span class="crm-chart-badge"><t t-esc="amcTotalCount"/> Total</span>
@@ -919,7 +916,7 @@
                             <!-- Bottom Summary Strip: Total Protected Contract Value -->
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0.65rem; border-radius: 6px; background: #f0f9ff; border: 1px solid #bae6fd; font-size: 0.78rem; margin-top: 0.2rem;">
                                 <span style="color: #64748b;">
-                                    <i class="fa fa-shield" style="color: #0284c7; margin-right: 5px;"></i>Total Protected Contract Value:
+                                    Total Protected Contract Value:
                                 </span>
                                 <strong style="color: #0b3d91; font-size: 0.85rem;">
                                     <t t-esc="fmt((state.amcExpiring30Val || 0) + (state.amcExpiring60Val || 0) + (state.amcSecureVal || 0))"/>
@@ -933,7 +930,6 @@
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewProduct">
                         <div class="crm-chart-head">
                             <span class="crm-chart-title">
-                                <i class="fa fa-cubes" style="color: #0284c7;"></i>
                                 <span>Low Stock Alerts</span>
                             </span>
                             <!-- Direct Out of Stock trigger pill (red) when items exist, or grey badge -->
@@ -941,7 +937,6 @@
                                 t-if="state.outOfStockCount > 0"
                                 t-on-click="openOutOfStockFiltered"
                                 title="Click to view all out of stock products">
-                                <i class="fa fa-exclamation-circle" style="margin-right: 3px;"></i>
                                 <t t-esc="state.outOfStockCount"/> Out of Stock ↗
                             </span>
                             <span class="crm-chart-badge" t-else="">
@@ -1012,8 +1007,7 @@
                                 </span>
                                 <a style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;"
                                 t-on-click="openLowStockFiltered">
-                                    <span>View All Low Stock Items</span>
-                                    <i class="fa fa-arrow-right" style="font-size: 0.65rem;"></i>
+                                    <span>View All Low Stock Items →</span>
                                 </a>
                             </div>
                         </div>
@@ -1029,7 +1023,6 @@
                         <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
                             <div>
                                 <span class="crm-chart-title">
-                                    <i class="fa fa-th-large" style="color: #0284c7;"></i>
                                     <span>Customer Classification</span>
                                 </span>
                                 <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Customer vs Product occupancy and Won revenue distribution</div>
@@ -1114,7 +1107,6 @@
                                 <!-- Bottom Summary Strip: Total Won Revenue & Unclassified -->
                                 <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="openUnclassifiedLeads">
                                     <div class="crm-an-footer-content">
-                                        <i class="fa fa-th-large crm-an-footer-icon" style="color: #0284c7;"></i>
                                         <span>Total Won Revenue: <strong style="color: #0a347d;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong> (Across <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong> Classified Leads)</span>
                                     </div>
                                     <span class="crm-an-footer-hint" t-if="state.unclassifiedCount and state.unclassifiedCount > 0" style="color: #0284c7;">
@@ -1141,7 +1133,6 @@
                         <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
                             <div>
                                 <span class="crm-chart-title">
-                                    <i class="fa fa-percent" style="color: #0284c7;"></i>
                                     <span>Quote Pricing &amp; Discount Impact</span>
                                 </span>
                                 <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Breakdown of quotes closed at full price vs negotiated discounts</div>
@@ -1226,7 +1217,6 @@
                                 <!-- Bottom Summary Strip: Total Discount Given -->
                                 <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
                                     <div class="crm-an-footer-content">
-                                        <i class="fa fa-tag crm-an-footer-icon" style="color: #0284c7;"></i>
                                         <span>Total Discount Given: <strong style="color: #0a347d;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
                                     </div>
                                     <span class="crm-an-footer-hint" style="color: #0284c7;">View Deals →</span>
