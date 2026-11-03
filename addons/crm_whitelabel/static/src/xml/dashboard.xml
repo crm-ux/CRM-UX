@@ -464,7 +464,7 @@
                 <!-- ENTITY CARDS GRID (8 Cards Across 2 Rows of 4 Matching Modern Design) -->
                 <section class="crm-cards-grid">
                     <!-- 1. Customer Management -->
-                    <div class="crm-card c-emerald" t-on-click="openContacts">
+                    <!-- <div class="crm-card c-emerald" t-on-click="openContacts">
                         <div>
                             <div class="crm-card-head">
                                 <span class="crm-card-title">Customer Management</span>
@@ -478,10 +478,10 @@
                             </div>
                         </div>
                         <p class="crm-card-desc">View customer records, company details and communication history.</p>
-                    </div>
+                    </div> -->
 
                     <!-- 2. This Month Reminders -->
-                    <div class="crm-card c-indigo">
+                    <!-- <div class="crm-card c-indigo">
                         <div>
                             <div class="crm-card-head">
                                 <span class="crm-card-title">This Month Reminders</span>
@@ -503,7 +503,7 @@
                             </div>
                         </div>
                         <p class="crm-card-desc">Upcoming events, meetings and monthly targets.</p>
-                    </div>
+                    </div> -->
 
                     <!-- 3. Exhibition Database -->
                     <div class="crm-card c-orange" t-on-click="openExhibition">
@@ -523,7 +523,7 @@
                     </div>
 
                     <!-- 4. Lead Priority -->
-                    <div class="crm-card c-emerald">
+                    <!-- <div class="crm-card c-emerald">
                         <div>
                             <div class="crm-card-head">
                                 <span class="crm-card-title">Lead Priority</span>
@@ -548,7 +548,7 @@
                             </div>
                         </div>
                         <p class="crm-card-desc">Leads grouped by priority level.</p>
-                    </div>
+                    </div> -->
 
                     <!-- 5. Equipment Master -->
                     <div class="crm-card c-blue" t-on-click="openEquipment">
@@ -1234,7 +1234,7 @@
                         </button>
                     </div> -->
                 </section>
-                
+
                 <div class="crm-pro-footer">
                     <span>Connect · Manage · Grow</span>
                 </div>
