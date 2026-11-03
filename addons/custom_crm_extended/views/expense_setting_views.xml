@@ -101,16 +101,23 @@
                     .o_expense_type_table td.o_list_button button:hover {
                         color: #041e42 !important;
                     }
-                    /* Remove all input underlines, box-shadows, and purple borders */
-                    .o_expense_type_table .o_selected_row input,
-                    .o_expense_type_table .o_selected_row .o_input,
-                    .o_expense_type_table input.o_input,
-                    .o_expense_type_table .o_data_row input {
+                    /* Remove underlines only on text/number inputs - NEVER touch toggle checkboxes */
+                    .o_expense_type_table .o_selected_row input:not([type="checkbox"]),
+                    .o_expense_type_table .o_selected_row .o_input:not(.form-check-input),
+                    .o_expense_type_table td[name="name"] input,
+                    .o_expense_type_table td[name="budget_limit"] input,
+                    .o_expense_type_table td[name="km_rate"] input {
                         border: none !important;
                         border-bottom: none !important;
                         box-shadow: none !important;
                         outline: none !important;
-                        background: transparent !important;
+                    }
+                    /* Ensure boolean toggle switches are 100% visible and styled */
+                    .o_expense_type_table input[type="checkbox"],
+                    .o_expense_type_table .form-check-input {
+                        display: inline-block !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
                     }
                     /* Remove purple line on active/selected row - keep clean normal border */
                     .o_expense_type_table tr.o_selected_row,
