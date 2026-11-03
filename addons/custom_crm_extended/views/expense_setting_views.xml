@@ -67,6 +67,16 @@
                         opacity: 1 !important;
                         pointer-events: auto !important;
                     }
+                    /* Fix continuous header border line with zero gap */
+                    .o_expense_type_table thead th.o_list_button {
+                        border-bottom: 1px solid #dee2e6 !important;
+                        border-top: none !important;
+                        border-left: none !important;
+                        border-right: none !important;
+                    }
+                    .o_expense_type_table tbody td.o_list_button {
+                        border-bottom: 1px solid #e9ecef !important;
+                    }
                     .o_expense_type_table td.o_list_record_remove {
                         vertical-align: middle !important;
                         padding: 0 4px !important;
@@ -85,13 +95,12 @@
                         padding: 0 !important;
                         margin: 0 !important;
                         line-height: 1 !important;
-                        opacity: 0.65 !important;
-                        transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease;
+                        opacity: 1 !important;
+                        transition: color 0.15s ease, transform 0.15s ease;
                     }
                     .o_expense_type_table td.o_list_button button:hover {
-                        opacity: 1 !important;
-                        color: #0b3d91 !important;
-                        transform: scale(1.15);
+                        color: #0284c7 !important;
+                        transform: scale(1.18);
                     }
                 </style>
                 <div class="row g-4" style="width:100%; margin:0;">
