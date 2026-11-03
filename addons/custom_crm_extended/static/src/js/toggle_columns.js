@@ -36,10 +36,36 @@ patch(ListRenderer.prototype, {
         const parentRecord = this.props?.list?.model?.root;
         if (parentRecord && parentRecord.resModel === 'sale.order' && record.data?.display_type === 'line_section') {
             // When deleting a section header, only delete this 1 single record — NEVER delete products below it!
-            await record.delete();
+            // If the record is unsaved / in draft (!record.resId), remove from client list to avoid "Invalid ids list: false"
+            if (!record.resId) {
+                if (this.props?.list?.removeRecord) {
+                    this.props.list.removeRecord(record);
+                    return;
+                }
+                if (record.remove) {
+                    record.remove();
+                    return;
+                }
+            }
+            try {
+                if (record.resId) {
+                    await record.delete();
+                } else if (this.props?.list?.removeRecord) {
+                    this.props.list.removeRecord(record);
+                }
+            } catch (err) {
+                if (this.props?.list?.removeRecord) {
+                    this.props.list.removeRecord(record);
+                }
+            }
             return;
         }
-        return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : record.delete();
+        // If normal unsaved line, safely remove from list without calling orm.unlink(false)
+        if (!record.resId && this.props?.list?.removeRecord) {
+            this.props.list.removeRecord(record);
+            return;
+        }
+        return super.onDeleteRecord ? super.onDeleteRecord(...arguments) : (record.resId ? record.delete() : null);
     },
 
     setup() {
