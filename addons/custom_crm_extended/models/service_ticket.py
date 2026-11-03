@@ -1174,13 +1174,6 @@ class ServiceTicketExpenseType(models.Model):
 
     def action_open_settings(self):
         self.ensure_one()
-        # If no rules exist yet, pre-create the first rule so the row and Active toggle are immediately visible
-        if not self.limit_rule_ids:
-            self.env['service.ticket.expense.limit.rule'].create({
-                'expense_type_id': self.id,
-                'budget_limit': self.budget_limit or 0.0,
-                'active': True,
-            })
         view_id = self.env.ref('custom_crm_extended.view_service_ticket_expense_type_limit_form', raise_if_not_found=False)
         return {
             'name': _('Position-Wise Budget Limits: %s') % (self.name or ''),

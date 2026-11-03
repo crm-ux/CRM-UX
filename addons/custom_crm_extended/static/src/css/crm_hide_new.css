@@ -2605,3 +2605,67 @@ td.o_list_button {
 .o_expense_limit_modal .o_expense_limit_table_wrap .table-responsive {
     overflow-x: hidden !important;
 }
+
+
+/* ── Modal "Add a line" in custom blue color (replace purple) ── */
+.o_expense_limit_modal .o_field_x2many_list_row_add a,
+.o_expense_limit_modal a.o_field_x2many_list_row_add,
+.o_expense_limit_modal .o_list_button_add,
+.o_expense_limit_modal tr.o_field_x2many_list_row_add td a {
+    color: #0b3d91 !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+}
+
+.o_expense_limit_modal .o_field_x2many_list_row_add a:hover,
+.o_expense_limit_modal .o_list_button_add:hover {
+    color: #041e42 !important;
+    text-decoration: underline !important;
+}
+
+/* ── Modal selected row: Single clean custom blue border line (No double line, No purple) ── */
+.o_expense_limit_modal .o_list_table {
+    --ListRenderer-selected-color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal tr.o_selected_row,
+.o_expense_limit_modal tr.o_data_row.o_selected_row {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #0b3d91 !important;
+    box-shadow: none !important;
+    --ListRenderer-selected-color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal tr.o_selected_row > td,
+.o_expense_limit_modal tr.o_data_row.o_selected_row > td {
+    border-bottom: 1px solid #0b3d91 !important;
+    box-shadow: none !important;
+}
+
+/* Remove internal input borders so ONLY ONE single line is shown under the row */
+.o_expense_limit_modal .o_selected_row input,
+.o_expense_limit_modal .o_selected_row .o_input,
+.o_expense_limit_modal .o_selected_row .o_field_widget input,
+.o_expense_limit_modal .o_selected_row .o_field_many2many_tags,
+.o_expense_limit_modal .o_selected_row td {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.o_expense_limit_modal .o_selected_row input:not([type="checkbox"]),
+.o_expense_limit_modal .o_selected_row .o_input:not(.form-check-input) {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+}
+
+.o_expense_limit_modal .o_selected_row input:focus,
+.o_expense_limit_modal .o_selected_row .o_input:focus {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
