@@ -1247,6 +1247,57 @@ button[name="action_cancel_future_series"] i {
 }
 
 /* Replace Odoo default purple bottom line / border on all form fields with custom dark blue */
+/* AMC Contract Form - Custom Blue line & focus for all fields (PM, Breakdown, Value, Files) */
+.amc_form .o_field_widget:focus-within,
+.amc_form .o_field_widget:focus,
+.o_form_view:has([name="contract_status"]) .o_field_widget:focus-within,
+.o_form_view:has([name="contract_status"]) .o_field_widget:focus,
+.o_form_view:has([name="contract_value"]) .o_field_widget:focus-within,
+.o_form_view:has([name="contract_value"]) .o_field_widget:focus {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+    border-bottom-color: #0b3d91 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.amc_form .o_field_widget input:focus,
+.amc_form .o_field_widget textarea:focus,
+.amc_form .o_field_widget select:focus,
+.amc_form .o_input:focus,
+.amc_form input.o_input:focus,
+.amc_form textarea.o_input:focus,
+.amc_form select.o_input:focus,
+.o_form_view:has([name="contract_status"]) .o_field_widget input:focus,
+.o_form_view:has([name="contract_status"]) .o_field_widget textarea:focus,
+.o_form_view:has([name="contract_status"]) .o_field_widget select:focus,
+.o_form_view:has([name="contract_status"]) .o_input:focus,
+.o_form_view:has([name="contract_status"]) input.o_input:focus,
+.o_form_view:has([name="contract_status"]) textarea.o_input:focus,
+.o_form_view:has([name="contract_status"]) select.o_input:focus,
+.o_form_view:has([name="contract_value"]) .o_field_widget input:focus,
+.o_form_view:has([name="contract_value"]) .o_field_widget textarea:focus,
+.o_form_view:has([name="contract_value"]) .o_field_widget select:focus,
+.o_form_view:has([name="contract_value"]) .o_input:focus,
+.o_form_view:has([name="contract_value"]) input.o_input:focus,
+.o_form_view:has([name="contract_value"]) textarea.o_input:focus {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+    box-shadow: 0 1px 0 #0b3d91 !important;
+    outline: none !important;
+}
+
+/* AMC Form Attachment / File area upload focus */
+.amc_form .o_field_binary_file:focus-within,
+.amc_form .o_select_file_button:focus,
+.amc_form .o_field_binary_file .btn:focus,
+.o_form_view:has([name="contract_status"]) .o_field_binary_file:focus-within,
+.o_form_view:has([name="contract_status"]) .o_select_file_button:focus,
+.o_form_view:has([name="contract_status"]) .o_field_binary_file .btn:focus {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
+    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.2) !important;
+}
 /* Scope blue lines ONLY AND ONLY to Task Management Form (.crm-task-management-form) */
 .crm-task-management-form .o_field_widget input:focus,
 .crm-task-management-form .o_field_widget textarea:focus,
