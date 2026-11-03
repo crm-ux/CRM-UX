@@ -951,22 +951,38 @@
 
                         <div style="display: flex; flex-direction: column; gap: 0.65rem; flex: 1; justify-content: space-between; padding-top: 0.25rem;">
                             
-                            <!-- When Low Stock items exist: Show Top 3 (product name + units) -->
+                            <!-- When Low Stock items exist: Table matching standard enterprise layout -->
                             <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
-                                <div style="display: flex; flex-direction: column; gap: 0.55rem;">
-                                    <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #f0f9ff; border: 1px solid #bae6fd; transition: background 0.2s; cursor: pointer;"
-                                            class="crm-sla-row"
-                                            t-on-click="openLowStockFiltered">
-                                            <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 0.5rem;">
-                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; flex-shrink: 0;"></span>
-                                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
-                                            </div>
-                                            <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 0.35rem; flex-shrink: 0; color: #0b3d91; background: #e0f2fe; border: 1px solid #bae6fd;">
-                                                <t t-esc="item.stock_label"/>
-                                            </span>
-                                        </div>
-                                    </t>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr class="text-muted small border-bottom">
+                                                <th>Product Name</th>
+                                                <th class="text-center">Safety Min</th>
+                                                <th class="text-center">Current</th>
+                                                <th class="text-end">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
+                                                <tr style="cursor: pointer;" t-on-click="openLowStockFiltered">
+                                                    <td class="small fw-semibold text-dark text-truncate" style="max-width: 180px;">
+                                                        <t t-esc="item.display_name"/>
+                                                    </td>
+                                                    <td class="text-center small text-muted">
+                                                        <t t-esc="item.safety_stock"/>
+                                                    </td>
+                                                    <td class="text-center small fw-bold" style="color: #0b3d91;">
+                                                        <t t-esc="item.quantity"/>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-if="item.quantity &lt;= 0 or item.stock_status === 'out_of_stock'" class="badge" style="background: #0b3d91; color: #ffffff;">Critical</span>
+                                                        <span t-else="" class="badge border" style="background: #f0f9ff; color: #0284c7; border-color: #bae6fd !important;">Low Stock</span>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </t>
 
