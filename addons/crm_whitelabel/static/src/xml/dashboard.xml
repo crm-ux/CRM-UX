@@ -1166,7 +1166,7 @@
                 </section>
 
                 <!-- ================================================================= -->
-                <!-- DEMO: 6 ENTERPRISE ANALYTICS CARDS (CLEAN STANDARD DESIGN)        -->
+                <!-- DEMO: 6 ENTERPRISE ANALYTICS CARDS (MONOCHROMATIC BLUE PALETTE)   -->
                 <!-- ================================================================= -->
                 <section class="container-fluid px-0 mt-4 mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -1174,11 +1174,11 @@
                             <h5 class="fw-bold text-dark mb-1">
                                 <i class="fa fa-bar-chart text-primary me-2"></i>Executive Analytics Overview
                             </h5>
-                            <div class="small text-muted">Clean enterprise presentation using standard design standards</div>
+                            <div class="small text-muted">Single-color monochromatic design system with tonal depth</div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <span class="badge bg-light text-dark border px-3 py-2 fw-semibold">
-                                <i class="fa fa-calendar me-1 text-muted"></i>Current Fiscal Year
+                                <i class="fa fa-calendar me-1 text-primary"></i>Current Fiscal Year
                             </span>
                         </div>
                     </div>
@@ -1192,60 +1192,60 @@
                                         <i class="fa fa-line-chart text-primary"></i>
                                         <span class="fw-bold text-dark">Monthly Sales &amp; Revenue Growth</span>
                                     </div>
-                                    <span class="badge bg-light text-secondary border">Last 6 Months</span>
+                                    <span class="badge bg-light text-primary border">Last 6 Months</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3">
                                     <div class="row g-2 mb-3 text-center">
                                         <div class="col-4">
-                                            <div class="p-2 rounded bg-light border">
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-10">
                                                 <div class="small text-muted">Total Revenue</div>
-                                                <div class="fs-6 fw-bold text-dark">₹42.8L</div>
-                                                <small class="text-success fw-semibold"><i class="fa fa-arrow-up me-1"></i>+12.4%</small>
+                                                <div class="fs-6 fw-bold text-primary">₹42.8L</div>
+                                                <small class="text-primary fw-semibold"><i class="fa fa-arrow-up me-1"></i>+12.4%</small>
                                             </div>
                                         </div>
                                         <div class="col-4">
-                                            <div class="p-2 rounded bg-light border">
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-10">
                                                 <div class="small text-muted">Won Deals</div>
                                                 <div class="fs-6 fw-bold text-dark">28 Deals</div>
                                                 <small class="text-muted fw-semibold">Avg 4.6/mo</small>
                                             </div>
                                         </div>
                                         <div class="col-4">
-                                            <div class="p-2 rounded bg-light border">
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-10">
                                                 <div class="small text-muted">Avg Deal Size</div>
                                                 <div class="fs-6 fw-bold text-dark">₹1.53L</div>
-                                                <small class="text-success fw-semibold"><i class="fa fa-check me-1"></i>On Target</small>
+                                                <small class="text-primary fw-semibold"><i class="fa fa-check me-1"></i>On Target</small>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Monthly Performance Bars -->
+                                    <!-- Monthly Performance Bars (Monochromatic Blue Shades) -->
                                     <div class="d-flex flex-column gap-2">
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="small text-muted" style="width: 45px;">Nov</span>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%;"></div>
+                                            <div class="progress flex-grow-1" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 100%; background: #0b3d91;"></div>
                                             </div>
                                             <span class="small fw-bold text-dark text-end" style="width: 55px;">₹8.4L</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="small text-muted" style="width: 45px;">Oct</span>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 85%;"></div>
+                                            <div class="progress flex-grow-1" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 85%; background: #1d4ed8;"></div>
                                             </div>
                                             <span class="small fw-bold text-dark text-end" style="width: 55px;">₹7.1L</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="small text-muted" style="width: 45px;">Sep</span>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 94%;"></div>
+                                            <div class="progress flex-grow-1" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 94%; background: #2563eb;"></div>
                                             </div>
                                             <span class="small fw-bold text-dark text-end" style="width: 55px;">₹7.9L</span>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="small text-muted" style="width: 45px;">Aug</span>
-                                            <div class="progress flex-grow-1" style="height: 8px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 81%;"></div>
+                                            <div class="progress flex-grow-1" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 81%; background: #60a5fa;"></div>
                                             </div>
                                             <span class="small fw-bold text-dark text-end" style="width: 55px;">₹6.8L</span>
                                         </div>
@@ -1262,7 +1262,7 @@
                                         <i class="fa fa-wrench text-primary"></i>
                                         <span class="fw-bold text-dark">Complaint Types &amp; Service Load</span>
                                     </div>
-                                    <span class="badge bg-light text-secondary border">42 Total Active</span>
+                                    <span class="badge bg-light text-primary border">42 Total Active</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex flex-column gap-3 mb-3">
@@ -1271,8 +1271,8 @@
                                                 <span class="small fw-bold text-dark">Breakdown (Urgent)</span>
                                                 <span class="small text-muted"><strong>14</strong> Tickets (33%)</span>
                                             </div>
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 33%;"></div>
+                                            <div class="progress" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 33%; background: #0b3d91;"></div>
                                             </div>
                                         </div>
                                         <div>
@@ -1280,8 +1280,8 @@
                                                 <span class="small fw-bold text-dark">Preventive Maintenance (PM)</span>
                                                 <span class="small text-muted"><strong>18</strong> Tickets (43%)</span>
                                             </div>
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 43%;"></div>
+                                            <div class="progress" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 43%; background: #2563eb;"></div>
                                             </div>
                                         </div>
                                         <div>
@@ -1289,15 +1289,15 @@
                                                 <span class="small fw-bold text-dark">Free Call / Routine</span>
                                                 <span class="small text-muted"><strong>10</strong> Tickets (24%)</span>
                                             </div>
-                                            <div class="progress" style="height: 8px;">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: 24%;"></div>
+                                            <div class="progress" style="height: 8px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 24%; background: #93c5fd;"></div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="p-2 rounded bg-light border d-flex justify-content-between align-items-center">
+                                    <div class="p-2 rounded bg-light border border-primary border-opacity-10 d-flex justify-content-between align-items-center">
                                         <span class="small text-muted"><i class="fa fa-clock-o me-1 text-primary"></i>Resolution SLA Compliance</span>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle fw-semibold">92% Met</span>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold">92% Met</span>
                                     </div>
                                 </div>
                             </div>
@@ -1311,43 +1311,43 @@
                                         <i class="fa fa-file-text-o text-primary"></i>
                                         <span class="fw-bold text-dark">AMC Renewals Pipeline</span>
                                     </div>
-                                    <span class="badge bg-light text-secondary border">64 Active Contracts</span>
+                                    <span class="badge bg-light text-primary border">64 Active Contracts</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3">
                                     <div class="row g-2 text-center mb-3">
                                         <div class="col-3">
-                                            <div class="p-2 rounded bg-light border border-secondary-subtle">
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-10">
                                                 <div class="small text-muted text-truncate">Expired</div>
                                                 <div class="fs-5 fw-bold text-secondary">8</div>
                                                 <small class="text-muted">₹2.4L</small>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="p-2 rounded bg-light border border-danger-subtle">
-                                                <div class="small text-danger text-truncate fw-semibold">&lt; 30 Days</div>
-                                                <div class="fs-5 fw-bold text-danger">12</div>
-                                                <small class="text-danger fw-semibold">₹4.1L</small>
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-25" style="background: #f0f7ff !important;">
+                                                <div class="small text-primary text-truncate fw-semibold">&lt; 30 Days</div>
+                                                <div class="fs-5 fw-bold text-primary">12</div>
+                                                <small class="text-primary fw-semibold">₹4.1L</small>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="p-2 rounded bg-light border border-warning-subtle">
-                                                <div class="small text-warning text-truncate fw-semibold">30–60 Days</div>
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-10">
+                                                <div class="small text-muted text-truncate fw-semibold">30–60 Days</div>
                                                 <div class="fs-5 fw-bold text-dark">16</div>
                                                 <small class="text-muted">₹5.8L</small>
                                             </div>
                                         </div>
                                         <div class="col-3">
-                                            <div class="p-2 rounded bg-light border border-success-subtle">
-                                                <div class="small text-success text-truncate fw-semibold">&gt; 60 Days</div>
-                                                <div class="fs-5 fw-bold text-success">28</div>
-                                                <small class="text-success fw-semibold">₹11.2L</small>
+                                            <div class="p-2 rounded bg-light border border-primary border-opacity-25" style="background: #eff6ff !important;">
+                                                <div class="small text-primary text-truncate fw-semibold">&gt; 60 Days</div>
+                                                <div class="fs-5 fw-bold text-primary">28</div>
+                                                <small class="text-primary fw-semibold">₹11.2L</small>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border small">
-                                        <span class="text-muted"><i class="fa fa-shield me-1 text-success"></i>Annual Protected Contract Value:</span>
-                                        <span class="fw-bold text-dark">₹23.5L</span>
+                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border border-primary border-opacity-10 small">
+                                        <span class="text-muted"><i class="fa fa-shield me-1 text-primary"></i>Annual Protected Contract Value:</span>
+                                        <span class="fw-bold text-primary">₹23.5L</span>
                                     </div>
                                 </div>
                             </div>
@@ -1361,7 +1361,7 @@
                                         <i class="fa fa-cubes text-primary"></i>
                                         <span class="fw-bold text-dark">Inventory &amp; Safety Stock Alerts</span>
                                     </div>
-                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">3 Reorder Alerts</span>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">3 Reorder Alerts</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3">
                                     <div class="table-responsive">
@@ -1378,20 +1378,20 @@
                                                 <tr>
                                                     <td class="small fw-semibold text-dark text-truncate" style="max-width: 170px;">5HP Industrial Induction Motor</td>
                                                     <td class="text-center small text-muted">10</td>
-                                                    <td class="text-center small fw-bold text-danger">2</td>
-                                                    <td class="text-end"><span class="badge bg-danger-subtle text-danger border border-danger-subtle">Critical</span></td>
+                                                    <td class="text-center small fw-bold text-primary">2</td>
+                                                    <td class="text-end"><span class="badge bg-primary text-white">Critical</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="small fw-semibold text-dark text-truncate" style="max-width: 170px;">Pneumatic Control Valve 2-Inch</td>
                                                     <td class="text-center small text-muted">25</td>
-                                                    <td class="text-center small fw-bold text-warning">6</td>
-                                                    <td class="text-end"><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Low Stock</span></td>
+                                                    <td class="text-center small fw-bold text-primary">6</td>
+                                                    <td class="text-end"><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Low Stock</span></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="small fw-semibold text-dark text-truncate" style="max-width: 170px;">Thermal Overload Relay 3P 32A</td>
                                                     <td class="text-center small text-muted">50</td>
-                                                    <td class="text-center small fw-bold text-warning">14</td>
-                                                    <td class="text-end"><span class="badge bg-warning-subtle text-warning border border-warning-subtle">Low Stock</span></td>
+                                                    <td class="text-center small fw-bold text-primary">14</td>
+                                                    <td class="text-end"><span class="badge bg-primary-subtle text-primary border border-primary-subtle">Low Stock</span></td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -1400,7 +1400,7 @@
                             </div>
                         </div>
 
-                        <!-- CARD 5: Customer Classification Matrix (Standard Enterprise Grid) -->
+                        <!-- CARD 5: Customer Classification Matrix (Monochromatic Blue Grid) -->
                         <div class="col-12 col-lg-6">
                             <div class="card border shadow-sm rounded-3 bg-white h-100">
                                 <div class="card-header bg-white border-0 pt-3 px-3 pb-2 d-flex justify-content-between align-items-center">
@@ -1411,68 +1411,68 @@
                                         </div>
                                         <div class="small text-muted">Market penetration &amp; product adoption quadrants</div>
                                     </div>
-                                    <span class="badge bg-light text-secondary border">76 Leads</span>
+                                    <span class="badge bg-light text-primary border">76 Leads</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3">
                                     <div class="row g-2 mb-2">
-                                        <!-- Top Left: Existing Customer - Existing Product -->
+                                        <!-- Top Left: Existing Customer - Existing Product (Deep Navy Accent) -->
                                         <div class="col-6">
-                                            <div class="p-2 rounded bg-light border border-start border-3 border-primary h-100">
+                                            <div class="p-2 rounded bg-light border border-start border-3 h-100" style="border-left-color: #0b3d91 !important; background: #f0f6ff !important;">
                                                 <div class="small text-muted fw-semibold text-truncate">Existing Cust · Existing Prod</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">12 Leads</span>
-                                                    <span class="badge bg-light text-dark border">16%</span>
+                                                    <span class="badge bg-white text-primary border">16%</span>
                                                 </div>
-                                                <small class="text-muted">Won: <strong class="text-success">₹45K</strong></small>
+                                                <small class="text-muted">Won: <strong class="text-primary">₹45K</strong></small>
                                             </div>
                                         </div>
 
-                                        <!-- Top Right: Existing Customer - New Product -->
+                                        <!-- Top Right: Existing Customer - New Product (Royal Blue Accent) -->
                                         <div class="col-6">
-                                            <div class="p-2 rounded bg-light border border-start border-3 border-info h-100">
+                                            <div class="p-2 rounded bg-light border border-start border-3 h-100" style="border-left-color: #1d4ed8 !important; background: #f4f8ff !important;">
                                                 <div class="small text-muted fw-semibold text-truncate">Existing Cust · New Prod</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">8 Leads</span>
-                                                    <span class="badge bg-light text-dark border">11%</span>
+                                                    <span class="badge bg-white text-primary border">11%</span>
                                                 </div>
-                                                <small class="text-muted">Won: <strong class="text-success">₹28K</strong></small>
+                                                <small class="text-muted">Won: <strong class="text-primary">₹28K</strong></small>
                                             </div>
                                         </div>
 
-                                        <!-- Bottom Left: New Customer - Existing Product -->
+                                        <!-- Bottom Left: New Customer - Existing Product (Medium Blue Accent) -->
                                         <div class="col-6">
-                                            <div class="p-2 rounded bg-light border border-start border-3 border-warning h-100">
+                                            <div class="p-2 rounded bg-light border border-start border-3 h-100" style="border-left-color: #3b82f6 !important; background: #f8faff !important;">
                                                 <div class="small text-muted fw-semibold text-truncate">New Cust · Existing Prod</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">24 Leads</span>
-                                                    <span class="badge bg-light text-dark border">32%</span>
+                                                    <span class="badge bg-white text-primary border">32%</span>
                                                 </div>
-                                                <small class="text-muted">Won: <strong class="text-success">₹82K</strong></small>
+                                                <small class="text-muted">Won: <strong class="text-primary">₹82K</strong></small>
                                             </div>
                                         </div>
 
-                                        <!-- Bottom Right: New Customer - New Product -->
+                                        <!-- Bottom Right: New Customer - New Product (Soft Blue Accent) -->
                                         <div class="col-6">
-                                            <div class="p-2 rounded bg-light border border-start border-3 border-success h-100">
+                                            <div class="p-2 rounded bg-light border border-start border-3 h-100" style="border-left-color: #60a5fa !important; background: #fafcff !important;">
                                                 <div class="small text-muted fw-semibold text-truncate">New Cust · New Prod</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">32 Leads</span>
-                                                    <span class="badge bg-light text-dark border">41%</span>
+                                                    <span class="badge bg-white text-primary border">41%</span>
                                                 </div>
-                                                <small class="text-muted">Won: <strong class="text-success">₹1.05L</strong></small>
+                                                <small class="text-muted">Won: <strong class="text-primary">₹1.05L</strong></small>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border small">
-                                        <span class="text-muted"><i class="fa fa-check-circle me-1 text-success"></i>53 Leads Classified</span>
-                                        <span class="text-muted">Total Won: <strong class="text-success">₹2.6L</strong></span>
+                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border border-primary border-opacity-10 small">
+                                        <span class="text-muted"><i class="fa fa-check-circle me-1 text-primary"></i>53 Leads Classified</span>
+                                        <span class="text-muted">Total Won: <strong class="text-primary">₹2.6L</strong></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- CARD 6: Quote Pricing & Discount Analysis (Standard Enterprise) -->
+                        <!-- CARD 6: Quote Pricing & Discount Analysis (Monochromatic Blue Progress) -->
                         <div class="col-12 col-lg-6">
                             <div class="card border shadow-sm rounded-3 bg-white h-100">
                                 <div class="card-header bg-white border-0 pt-3 px-3 pb-2 d-flex justify-content-between align-items-center">
@@ -1483,59 +1483,59 @@
                                         </div>
                                         <div class="small text-muted">Discount distribution across approved quotations</div>
                                     </div>
-                                    <span class="badge bg-light text-secondary border">47 Quotes</span>
+                                    <span class="badge bg-light text-primary border">47 Quotes</span>
                                 </div>
                                 <div class="card-body px-3 pt-1 pb-3 d-flex flex-column justify-content-between">
                                     <div class="d-flex flex-column gap-2 mb-3">
-                                        <!-- Full Price Tier -->
+                                        <!-- Full Price Tier (Deep Navy Blue) -->
                                         <div>
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="small fw-semibold text-dark">Full Price (0% Discount)</span>
-                                                <span class="small text-muted"><strong>35</strong> Quotes (74.5%) · <span class="text-success fw-bold">₹0 Disc</span></span>
+                                                <span class="small text-muted"><strong>35</strong> Quotes (74.5%) · <span class="text-primary fw-bold">₹0 Disc</span></span>
                                             </div>
-                                            <div class="progress" style="height: 6px;">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: 74.5%;"></div>
+                                            <div class="progress" style="height: 6px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 74.5%; background: #0b3d91;"></div>
                                             </div>
                                         </div>
 
-                                        <!-- Small Disc -->
+                                        <!-- Small Disc (Royal Blue) -->
                                         <div>
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="small fw-semibold text-dark">Small Discount (1–5%)</span>
                                                 <span class="small text-muted"><strong>5</strong> Quotes (10.6%) · ₹18.5K Disc</span>
                                             </div>
-                                            <div class="progress" style="height: 6px;">
-                                                <div class="progress-bar bg-info" role="progressbar" style="width: 10.6%;"></div>
+                                            <div class="progress" style="height: 6px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 10.6%; background: #1d4ed8;"></div>
                                             </div>
                                         </div>
 
-                                        <!-- Medium Disc -->
+                                        <!-- Medium Disc (Medium Blue) -->
                                         <div>
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="small fw-semibold text-dark">Medium Discount (5–10%)</span>
                                                 <span class="small text-muted"><strong>4</strong> Quotes (8.5%) · ₹42.0K Disc</span>
                                             </div>
-                                            <div class="progress" style="height: 6px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 8.5%;"></div>
+                                            <div class="progress" style="height: 6px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 8.5%; background: #3b82f6;"></div>
                                             </div>
                                         </div>
 
-                                        <!-- Heavy Disc -->
+                                        <!-- Heavy Disc (Soft Blue) -->
                                         <div>
                                             <div class="d-flex justify-content-between align-items-center mb-1">
                                                 <span class="small fw-semibold text-dark">Heavy Discount (&gt; 10%)</span>
-                                                <span class="small text-muted"><strong>3</strong> Quotes (6.4%) · <span class="text-danger fw-bold">₹87.5K Disc</span></span>
+                                                <span class="small text-muted"><strong>3</strong> Quotes (6.4%) · <span class="text-primary fw-bold">₹87.5K Disc</span></span>
                                             </div>
-                                            <div class="progress" style="height: 6px;">
-                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 6.4%;"></div>
+                                            <div class="progress" style="height: 6px; background: #eff6ff;">
+                                                <div class="progress-bar" role="progressbar" style="width: 6.4%; background: #93c5fd;"></div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Bottom alert summary -->
-                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border small">
-                                        <span class="text-muted"><i class="fa fa-tag me-1 text-danger"></i>Total Discount: <strong class="text-danger">₹1.48L</strong> across 12 quotes</span>
-                                        <span class="badge bg-light text-dark border">Avg 4.8%</span>
+                                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-light border border-primary border-opacity-10 small">
+                                        <span class="text-muted"><i class="fa fa-tag me-1 text-primary"></i>Total Discount: <strong class="text-primary">₹1.48L</strong> across 12 quotes</span>
+                                        <span class="badge bg-light text-primary border">Avg 4.8%</span>
                                     </div>
                                 </div>
                             </div>
