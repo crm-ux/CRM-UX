@@ -1186,6 +1186,17 @@ class ServiceTicketExpenseType(models.Model):
     )
     active = fields.Boolean(string='Active', default=True)
 
+    def action_open_settings(self):
+        self.ensure_one()
+        return {
+            'name': _('Expense Settings: %s') % (self.name or ''),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.expense.type',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
+
 class ServiceTicketVoucherLine(models.Model):
     _name = 'service.ticket.voucher.line'
     _description = 'Service Ticket Voucher Line'

@@ -103,6 +103,7 @@
                                     <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
                                     <field name="km_rate" string="Rate / KM (₹)"/>
                                     <field name="active" string="Active" widget="boolean_toggle"/>
+                                    <button name="action_open_settings" type="object" icon="fa-cog text-secondary" title="Configure Settings" class="btn p-0"/>
                                 </list>
                             </field>
                         </div>
