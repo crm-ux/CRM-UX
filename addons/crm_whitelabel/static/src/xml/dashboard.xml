@@ -1007,7 +1007,7 @@
                             <!-- Card Bottom Action: View filtered list -->
                             <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.4rem; border-top: 1px dashed #e2e8f0; margin-top: 0.15rem;">
                                 <span style="font-size: 0.73rem; color: #64748b; font-weight: 500;">
-                                    <t t-if="state.lowStockItems and state.lowStockItems.length > 0">Showing top 3 items</t>
+                                    <t t-if="state.lowStockItems and state.lowStockItems.length > 0">Showing top 4 items</t>
                                     <t t-else="">Live Inventory</t>
                                 </span>
                                 <a style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-decoration: none; display: flex; align-items: center; gap: 0.3rem; cursor: pointer;"

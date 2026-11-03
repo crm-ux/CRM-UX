@@ -248,7 +248,7 @@ class DashboardStats(models.Model):
 
         # Top 3 low stock records (ordered by lowest percentage ratio: quantity / safety_stock)
         all_low_stock = self.env['crm.product.stock'].sudo().search([('stock_status', '=', 'low_stock')])
-        # Calculate percentage ratio for each, sort lowest ratio first, then pick top 3
+        # Calculate percentage ratio for each, sort lowest ratio first, then pick top 4
         sorted_low = sorted(
             all_low_stock,
             key=lambda r: (
@@ -256,7 +256,7 @@ class DashboardStats(models.Model):
                 r.quantity,
                 r.id
             )
-        )[:3]
+        )[:4]
 
         low_stock_items = []
         for r in sorted_low:
