@@ -1498,7 +1498,7 @@
                                         <!-- Top Left: Existing Customer - Existing Product (Deep Navy Accent) -->
                                         <div class="col-6">
                                             <div class="p-2 rounded border border-start border-3 h-100" style="border-left-color: #0b3d91 !important; background: #f0f9ff !important; border-color: #bae6fd;">
-                                                <div class="small text-muted fw-semibold text-truncate">Existing Cust · Existing Prod</div>
+                                                <div class="small text-muted fw-semibold text-truncate">Existing Customer · Existing Product</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">12 Leads</span>
                                                     <span class="badge border" style="background: #ffffff; color: #0b3d91; border-color: #bae6fd !important;">16%</span>
@@ -1510,7 +1510,7 @@
                                         <!-- Top Right: Existing Customer - New Product (Dark Ocean Accent) -->
                                         <div class="col-6">
                                             <div class="p-2 rounded border border-start border-3 h-100" style="border-left-color: #0369a1 !important; background: #f0f9ff !important; border-color: #bae6fd;">
-                                                <div class="small text-muted fw-semibold text-truncate">Existing Cust · New Prod</div>
+                                                <div class="small text-muted fw-semibold text-truncate">Existing Customer · New Product</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">8 Leads</span>
                                                     <span class="badge border" style="background: #ffffff; color: #0369a1; border-color: #bae6fd !important;">11%</span>
@@ -1522,7 +1522,7 @@
                                         <!-- Bottom Left: New Customer - Existing Product (Azure Blue Accent) -->
                                         <div class="col-6">
                                             <div class="p-2 rounded border border-start border-3 h-100" style="border-left-color: #0284c7 !important; background: #f0f9ff !important; border-color: #bae6fd;">
-                                                <div class="small text-muted fw-semibold text-truncate">New Cust · Existing Prod</div>
+                                                <div class="small text-muted fw-semibold text-truncate">New Customer · Existing Product</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">24 Leads</span>
                                                     <span class="badge border" style="background: #ffffff; color: #0284c7; border-color: #bae6fd !important;">32%</span>
@@ -1534,7 +1534,7 @@
                                         <!-- Bottom Right: New Customer - New Product (Sky Blue Accent) -->
                                         <div class="col-6">
                                             <div class="p-2 rounded border border-start border-3 h-100" style="border-left-color: #38bdf8 !important; background: #f0f9ff !important; border-color: #bae6fd;">
-                                                <div class="small text-muted fw-semibold text-truncate">New Cust · New Prod</div>
+                                                <div class="small text-muted fw-semibold text-truncate">New Customer · New Product</div>
                                                 <div class="d-flex justify-content-between align-items-baseline mt-1">
                                                     <span class="fs-6 fw-bold text-dark">32 Leads</span>
                                                     <span class="badge border" style="background: #ffffff; color: #0284c7; border-color: #bae6fd !important;">41%</span>
