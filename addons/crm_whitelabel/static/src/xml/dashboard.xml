@@ -864,7 +864,7 @@
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
                                     <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpired || 0"/></span>
-                                    <span style="font-size: 0.72rem; font-weight: 700; color: #64748b;">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -880,7 +880,7 @@
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
                                     <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring30 || 0"/></span>
-                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0369a1;">(<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -896,7 +896,7 @@
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
                                     <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring60 || 0"/></span>
-                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0284c7;">(<t t-esc="fmt(state.amcExpiring60Val || 0)"/>)</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring60Val || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -912,7 +912,7 @@
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
                                     <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcSecure || 0"/></span>
-                                    <span style="font-size: 0.72rem; font-weight: 700; color: #0284c7;">(<t t-esc="fmt(state.amcSecureVal || 0)"/>)</span>
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcSecureVal || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -969,10 +969,10 @@
                                                     <td class="small fw-semibold text-dark text-truncate" style="max-width: 180px;">
                                                         <t t-esc="item.display_name"/>
                                                     </td>
-                                                    <td class="text-center small text-muted">
+                                                    <td class="text-center small fw-semibold text-dark">
                                                         <t t-esc="item.safety_stock"/>
                                                     </td>
-                                                    <td class="text-center small fw-bold" style="color: #0b3d91;">
+                                                    <td class="text-center small fw-bold text-dark">
                                                         <t t-esc="item.quantity"/>
                                                     </td>
                                                     <td class="text-end">
@@ -1117,7 +1117,7 @@
                                         <i class="fa fa-th-large crm-an-footer-icon" style="color: #0284c7;"></i>
                                         <span>Total Won Revenue: <strong style="color: #0a347d;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong> (Across <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong> Classified Leads)</span>
                                     </div>
-                                    <span class="crm-an-footer-hint" t-if="state.unclassifiedCount and state.unclassifiedCount > 0" style="color: #dc2626;">
+                                    <span class="crm-an-footer-hint" t-if="state.unclassifiedCount and state.unclassifiedCount > 0" style="color: #0284c7;">
                                         <t t-esc="state.unclassifiedCount"/> Unclassified →
                                     </span>
                                     <span class="crm-an-footer-hint" t-else="" style="color: #0284c7;">

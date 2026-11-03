@@ -618,16 +618,17 @@
     justify-content: space-between;
     margin-top: 0.85rem;
     padding: 0.65rem 0.85rem;
-    background: #fef2f2;
-    border: 1px dashed #fca5a5;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
     border-radius: var(--crm-an-radius-md);
     font-size: clamp(0.8rem, 0.9vw, 0.86rem);
-    color: #991b1b;
+    color: #334155;
     transition: background 0.15s ease;
 }
 
 .crm-an-disc-footer:hover {
-    background: #fee2e2;
+    background: #e0f2fe;
+    border-color: #7dd3fc;
 }
 
 .crm-an-footer-content {
@@ -637,7 +638,7 @@
 }
 
 .crm-an-footer-icon {
-    color: #dc2626;
+    color: #0284c7;
 }
 
 .crm-an-footer-hint {
