@@ -673,7 +673,7 @@ class CrmDashboard extends Component {
                 const p1 = fp;
                 const p2 = p1 + sm;
                 const p3 = p2 + md;
-                const donutStyle = `background: conic-gradient(#16a34a 0% ${p1}%, #eab308 ${p1}% ${p2}%, #f97316 ${p2}% ${p3}%, #dc2626 ${p3}% 100%);`;
+                const donutStyle = `background: conic-gradient(#0a347d 0% ${p1}%, #1d63b8 ${p1}% ${p2}%, #0ea5e9 ${p2}% ${p3}%, #7dd3fc ${p3}% 100%);`;
 
                 Object.assign(this.state, {
                     custClassMatrix: matrixData,
