@@ -2669,3 +2669,82 @@ td.o_list_button {
     box-shadow: none !important;
     outline: none !important;
 }
+
+
+/* ── Direct Field Selectors for Position Budget Limit Sub-table ── */
+div[name="limit_rule_ids"] .o_field_x2many_list_row_add a,
+div[name="limit_rule_ids"] a.o_field_x2many_list_row_add,
+div[name="limit_rule_ids"] .o_list_button_add,
+div[name="limit_rule_ids"] tr.o_field_x2many_list_row_add td a,
+.o_expense_limit_table .o_field_x2many_list_row_add a,
+.o_expense_limit_table a.o_field_x2many_list_row_add,
+.o_expense_limit_table .o_list_button_add {
+    color: #0b3d91 !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+}
+
+div[name="limit_rule_ids"] .o_field_x2many_list_row_add a:hover,
+.o_expense_limit_table .o_field_x2many_list_row_add a:hover {
+    color: #041e42 !important;
+    text-decoration: underline !important;
+}
+
+div[name="limit_rule_ids"] .o_list_table,
+.o_expense_limit_table .o_list_table {
+    --ListRenderer-selected-color: #0b3d91 !important;
+}
+
+div[name="limit_rule_ids"] tr.o_selected_row,
+div[name="limit_rule_ids"] tr.o_data_row.o_selected_row,
+.o_expense_limit_table tr.o_selected_row,
+.o_expense_limit_table tr.o_data_row.o_selected_row {
+    background-color: #f8fafc !important;
+    border-bottom: 1px solid #0b3d91 !important;
+    box-shadow: none !important;
+    --ListRenderer-selected-color: #0b3d91 !important;
+}
+
+div[name="limit_rule_ids"] tr.o_selected_row > td,
+div[name="limit_rule_ids"] tr.o_data_row.o_selected_row > td,
+.o_expense_limit_table tr.o_selected_row > td,
+.o_expense_limit_table tr.o_data_row.o_selected_row > td {
+    border-bottom: 1px solid #0b3d91 !important;
+    box-shadow: none !important;
+}
+
+div[name="limit_rule_ids"] .o_selected_row input,
+div[name="limit_rule_ids"] .o_selected_row .o_input,
+div[name="limit_rule_ids"] .o_selected_row .o_field_widget input,
+div[name="limit_rule_ids"] .o_selected_row .o_field_many2many_tags,
+div[name="limit_rule_ids"] .o_selected_row td,
+.o_expense_limit_table .o_selected_row input,
+.o_expense_limit_table .o_selected_row .o_input,
+.o_expense_limit_table .o_selected_row .o_field_widget input,
+.o_expense_limit_table .o_selected_row .o_field_many2many_tags,
+.o_expense_limit_table .o_selected_row td {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+div[name="limit_rule_ids"] .o_selected_row input:not([type="checkbox"]),
+div[name="limit_rule_ids"] .o_selected_row .o_input:not(.form-check-input),
+.o_expense_limit_table .o_selected_row input:not([type="checkbox"]),
+.o_expense_limit_table .o_selected_row .o_input:not(.form-check-input) {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+}
+
+div[name="limit_rule_ids"] .o_selected_row input:focus,
+div[name="limit_rule_ids"] .o_selected_row .o_input:focus,
+.o_expense_limit_table .o_selected_row input:focus,
+.o_expense_limit_table .o_selected_row .o_input:focus {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
