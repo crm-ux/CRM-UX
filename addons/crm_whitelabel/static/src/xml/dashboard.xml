@@ -955,14 +955,14 @@
                             <t t-if="state.lowStockItems and state.lowStockItems.length > 0">
                                 <div style="display: flex; flex-direction: column; gap: 0.55rem;">
                                     <t t-foreach="state.lowStockItems" t-as="item" t-key="item.id">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #fffbeb; border: 1px solid #fef3c7; transition: background 0.2s; cursor: pointer;"
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; border-radius: 0.5rem; background: #f0f9ff; border: 1px solid #bae6fd; transition: background 0.2s; cursor: pointer;"
                                             class="crm-sla-row"
                                             t-on-click="openLowStockFiltered">
                                             <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; margin-right: 0.5rem;">
-                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0;"></span>
-                                                <span style="font-size: 0.8rem; font-weight: 700; color: #92400e; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
+                                                <span style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; flex-shrink: 0;"></span>
+                                                <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><t t-esc="item.display_name"/></span>
                                             </div>
-                                            <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 0.35rem; flex-shrink: 0; color: #b45309; background: #fde68a;">
+                                            <span style="font-size: 0.75rem; font-weight: 800; padding: 0.15rem 0.55rem; border-radius: 0.35rem; flex-shrink: 0; color: #0b3d91; background: #e0f2fe; border: 1px solid #bae6fd;">
                                                 <t t-esc="item.stock_label"/>
                                             </span>
                                         </div>
