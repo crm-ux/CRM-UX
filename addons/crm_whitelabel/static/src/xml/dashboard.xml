@@ -1010,6 +1010,157 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- 5. Customer Classification Matrix -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                        <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
+                            <div>
+                                <span class="crm-chart-title">
+                                    <i class="fa fa-th-large" style="color: #0284c7;"></i>
+                                    <span>Customer Classification</span>
+                                </span>
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Customer vs Product occupancy and Won revenue distribution</div>
+                            </div>
+                            <div class="crm-an-quad-strip" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">
+                                <span>Total Pipeline: <strong><t t-esc="state.totalPipelineLeads || 0"/> Leads</strong></span>
+                                <span class="crm-an-strip-dot">•</span>
+                                <span>Classified: <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong></span>
+                                <span class="crm-an-strip-dot">•</span>
+                                <span t-if="state.unclassifiedCount and state.unclassifiedCount > 0" 
+                                      class="crm-an-unclass-badge clickable" 
+                                      t-on-click="openUnclassifiedLeads" 
+                                      title="Click to view unclassified leads">
+                                    <t t-esc="state.unclassifiedCount"/> Unclassified
+                                </span>
+                                <span t-else="" class="crm-an-unclass-badge zero">
+                                    0 Unclassified
+                                </span>
+                                <span class="crm-an-strip-dot">•</span>
+                                <span>Won Revenue: <strong style="color: #16a34a;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong></span>
+                            </div>
+                        </div>
+
+                        <!-- 2x2 Rounded Matrix Box -->
+                        <div class="crm-an-quad-box" style="flex: 1;">
+                            <t t-foreach="state.custClassMatrix || []" t-as="item" t-key="item.key">
+                                <div class="crm-an-quad-cell" 
+                                     t-att-class="item.colorClass"
+                                     style="min-height: 110px; padding: 0.85rem;"
+                                     t-on-click="() => this.openQuadrantLeads(item.key, item.name)">
+                                    <div class="crm-an-cell-title" style="font-size: 0.85rem; margin-bottom: 0.4rem;">
+                                        <t t-esc="item.name"/>
+                                    </div>
+                                    <div class="crm-an-cell-stats" style="margin-bottom: 0.25rem;">
+                                        <span class="crm-an-cell-count" style="font-size: 1.25rem;"><t t-esc="item.count"/> Leads</span>
+                                        <span class="crm-an-cell-badge"><t t-esc="item.percent"/>%</span>
+                                    </div>
+                                    <div class="crm-an-cell-value" style="font-size: 0.74rem;">
+                                        Won Value: <strong><t t-esc="fmt(item.wonValue)"/></strong>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- 6. Quote Pricing & Discount Impact -->
+                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                        <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
+                            <div>
+                                <span class="crm-chart-title">
+                                    <i class="fa fa-percent" style="color: #0284c7;"></i>
+                                    <span>Quote Pricing &amp; Discount Impact</span>
+                                </span>
+                                <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Breakdown of quotes closed at full price vs negotiated discounts</div>
+                            </div>
+                            <span class="crm-chart-badge" style="font-size: 0.75rem;">
+                                Total Quotes Analyzed: <strong><t t-esc="state.quoteDiscount ? state.quoteDiscount.totalQuotes : 0"/> Quotes</strong>
+                            </span>
+                        </div>
+
+                        <!-- SPLIT LAYOUT: Donut Chart on Left, Clean Details on Right -->
+                        <div class="crm-an-disc-split" style="flex: 1; display: flex; align-items: center; gap: 1rem;" t-if="state.quoteDiscount">
+                            <!-- LEFT: Donut Chart -->
+                            <div class="crm-an-donut-col" style="flex: 0 0 auto;">
+                                <div class="crm-an-donut-chart-box">
+                                    <div class="crm-an-donut-ring" t-att-style="state.quoteDiscount.donutStyle || ''">
+                                        <div class="crm-an-donut-hole">
+                                            <div class="crm-an-donut-center">
+                                                <span class="crm-an-center-num"><t t-esc="state.quoteDiscount.totalQuotes"/></span>
+                                                <span class="crm-an-center-lbl">Quotes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT: 4 Classification Rows & Footer -->
+                            <div class="crm-an-details-col" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                                <div class="crm-an-disc-list" style="display: flex; flex-direction: column; gap: 0.45rem;">
+                                    <!-- Full Price -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('full_price', 'Full Price')">
+                                        <div class="crm-an-row-left">
+                                            <span class="crm-an-dot crm-dot-green"></span>
+                                            <span class="crm-an-row-name">Full Price (0% Disc)</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.full_price.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #16a34a;">₹0 Disc</strong>)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Small Disc -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('small_disc', '1-5%')">
+                                        <div class="crm-an-row-left">
+                                            <span class="crm-an-dot crm-dot-yellow"></span>
+                                            <span class="crm-an-row-name">Small Disc (1–5%)</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.small_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Med Disc -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('med_disc', '5-10%')">
+                                        <div class="crm-an-row-left">
+                                            <span class="crm-an-dot crm-dot-orange"></span>
+                                            <span class="crm-an-row-name">Med Disc (5–10%)</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.med_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Heavy Disc -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10%')">
+                                        <div class="crm-an-row-left">
+                                            <span class="crm-an-dot crm-dot-red"></span>
+                                            <span class="crm-an-row-name">Heavy Disc (&gt;10%)</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.heavy_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Summary Strip: Total Discount Given -->
+                                <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
+                                    <div class="crm-an-footer-content">
+                                        <i class="fa fa-tag crm-an-footer-icon"></i>
+                                        <span>Total Discount Given: <strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
+                                    </div>
+                                    <span class="crm-an-footer-hint">View Deals →</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- VIEW MORE ANALYTICS ACTION BAR -->
                     <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 0.5rem; margin-bottom: 0.5rem;">
                         <button type="button" t-on-click="openInsightsComingSoon" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid #cbd5e1; color: #1a3d6e; font-size: 0.82rem; font-weight: 700; padding: 0.6rem 1.4rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.06); transition: all 0.2s ease;">

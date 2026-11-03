@@ -147,6 +147,13 @@ class CrmDashboard extends Component {
             totalRegisteredStock: 0,
             customSalesTrend: null,
             realSalesMonths: [],
+            // Customer Classification & Quote Discount Analytics Cards
+            custClassMatrix: [],
+            totalPipelineLeads: 0,
+            classifiedLeadsCount: 0,
+            unclassifiedCount: 0,
+            custClassTotalWon: 0,
+            quoteDiscount: null,
         });
 
         // Check admin status reliably using user service
@@ -597,6 +604,95 @@ class CrmDashboard extends Component {
                 },
                 loading: false
             });
+
+            // Customer Classification & Quote Discount Analytics for Dashboard Cards
+            try {
+                const [custRes, discRes] = await Promise.all([
+                    rpc("/web/dataset/call_kw", {
+                        model: "crm.lead",
+                        method: "get_customer_classification_stats",
+                        args: [activeUserId, activeIsAdmin, this.state.selectedCompanies],
+                        kwargs: {},
+                    }),
+                    rpc("/web/dataset/call_kw", {
+                        model: "crm.lead",
+                        method: "get_quote_discount_analytics",
+                        args: [activeUserId, activeIsAdmin, this.state.selectedCompanies],
+                        kwargs: {},
+                    }),
+                ]);
+
+                const matrixCounts = custRes.matrix_counts || {};
+                const matrixVals = custRes.matrix_values || {};
+                const classifiedTotal = custRes.classified_count || 0;
+
+                const matrixData = [
+                    {
+                        key: 'existing_existing',
+                        name: 'Existing Customer – Existing Product',
+                        count: matrixCounts.existing_existing || 0,
+                        wonValue: matrixVals.existing_existing || 0,
+                        percent: classifiedTotal > 0 ? Math.round(((matrixCounts.existing_existing || 0) / classifiedTotal) * 100) : 0,
+                        colorClass: 'crm-quad-sky',
+                    },
+                    {
+                        key: 'existing_new',
+                        name: 'Existing Customer – New Product',
+                        count: matrixCounts.existing_new || 0,
+                        wonValue: matrixVals.existing_new || 0,
+                        percent: classifiedTotal > 0 ? Math.round(((matrixCounts.existing_new || 0) / classifiedTotal) * 100) : 0,
+                        colorClass: 'crm-quad-indigo',
+                    },
+                    {
+                        key: 'new_existing',
+                        name: 'New Customer – Existing Product',
+                        count: matrixCounts.new_existing || 0,
+                        wonValue: matrixVals.new_existing || 0,
+                        percent: classifiedTotal > 0 ? Math.round(((matrixCounts.new_existing || 0) / classifiedTotal) * 100) : 0,
+                        colorClass: 'crm-quad-emerald',
+                    },
+                    {
+                        key: 'new_new',
+                        name: 'New Customer – New Product',
+                        count: matrixCounts.new_new || 0,
+                        wonValue: matrixVals.new_new || 0,
+                        percent: classifiedTotal > 0 ? Math.round(((matrixCounts.new_new || 0) / classifiedTotal) * 100) : 0,
+                        colorClass: 'crm-quad-orange',
+                    },
+                ];
+
+                const tiers = discRes.tiers || {
+                    full_price: { count: 0, value: 0, discount: 0, pct: 0 },
+                    small_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                    med_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                    heavy_disc: { count: 0, value: 0, discount: 0, pct: 0 },
+                };
+                const fp = tiers.full_price.pct || 0;
+                const sm = tiers.small_disc.pct || 0;
+                const md = tiers.med_disc.pct || 0;
+                const p1 = fp;
+                const p2 = p1 + sm;
+                const p3 = p2 + md;
+                const donutStyle = `background: conic-gradient(#16a34a 0% ${p1}%, #eab308 ${p1}% ${p2}%, #f97316 ${p2}% ${p3}%, #dc2626 ${p3}% 100%);`;
+
+                Object.assign(this.state, {
+                    custClassMatrix: matrixData,
+                    totalPipelineLeads: custRes.total_pipeline || 0,
+                    classifiedLeadsCount: custRes.classified_count || 0,
+                    unclassifiedCount: custRes.unclassified_count || 0,
+                    custClassTotalWon: custRes.total_won_val || 0,
+                    quoteDiscount: {
+                        totalQuotes: discRes.total_quotes || 0,
+                        totalQuoteValue: discRes.total_quote_value || 0,
+                        totalDiscountAmount: discRes.total_discount_amount || 0,
+                        discountedQuotesCount: discRes.discounted_quotes_count || 0,
+                        tiers: tiers,
+                        donutStyle: donutStyle,
+                    },
+                });
+            } catch (cardErr) {
+                console.error("Dashboard Analytics Cards Load Error:", cardErr);
+            }
 
         } catch (e) { console.log("Dashboard error:", e); }
         finally {
@@ -2687,6 +2783,68 @@ class CrmDashboard extends Component {
             views: [[false, "list"], [false, "form"]],
             domain: [["stock_status", "=", "out_of_stock"]],
             target: "current"
+        });
+    }
+
+    openUnclassifiedLeads() {
+        if (!this.state.unclassifiedCount) return;
+        const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Unclassified Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ["x_customer_type", "=", false], ...cd],
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
+        });
+    }
+
+    openQuadrantLeads(quadrantKey, quadrantName) {
+        const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
+        this.go({
+            type: "ir.actions.act_window",
+            name: quadrantName + " Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ["x_customer_type", "=", quadrantKey], ...cd],
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
+        });
+    }
+
+    openDiscountQuotes(tierKey, tierTitle) {
+        const cd = this.state.selectedCompanies.length ? ["|", ["company_id", "=", false], ["company_id", "in", this.state.selectedCompanies]] : [];
+        const tierData = this.state.quoteDiscount?.tiers?.[tierKey];
+        let idDomain = [];
+        if (tierKey === 'all_discounted') {
+            const allDiscIds = [
+                ...(this.state.quoteDiscount?.tiers?.small_disc?.ids || []),
+                ...(this.state.quoteDiscount?.tiers?.med_disc?.ids || []),
+                ...(this.state.quoteDiscount?.tiers?.heavy_disc?.ids || []),
+            ];
+            idDomain = [["id", "in", allDiscIds.length ? allDiscIds : [0]]];
+        } else if (tierData && tierData.ids) {
+            idDomain = [["id", "in", tierData.ids.length ? tierData.ids : [0]]];
+        }
+
+        this.go({
+            type: "ir.actions.act_window",
+            name: (tierTitle || "Quotes") + " Deals",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["state", "!=", "cancel"], ...idDomain, ...cd],
+            context: {
+                allowed_company_ids: this.state.selectedCompanies,
+                search_default_assigned_to_me: 0,
+                search_default_my_leads: 0,
+            }
         });
     }
 
