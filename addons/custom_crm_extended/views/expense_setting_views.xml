@@ -8,7 +8,6 @@
                 <!-- MAIN TITLE: Voucher Management -->
                 <div class="d-flex align-items-center justify-content-between pb-2 mb-4 mt-5" style="border-bottom:2px solid #e2e8f0; width:100%;">
                     <div class="d-flex align-items-center">
-                        <i class="fa fa-money me-2" style="font-size:clamp(1.1rem, 1.5vw, 1.3rem); color:#0284c7;"></i>
                         <h2 style="font-size:clamp(1.15rem, 1.6vw, 1.35rem); font-weight:700; margin:0; color:#0f172a;">
                             Voucher Configuration &amp; Settings
                         </h2>
@@ -35,7 +34,6 @@
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100" style="border-left: 4px solid #10b981 !important;">
                             <div class="d-flex align-items-center mb-1">
-                                <i class="fa fa-building me-2 text-success" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                 <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Department-wise Voucher Approver &amp; Status</strong>
                             </div>
                             <p class="text-muted small mb-3">Assign designated voucher approvers per department. Use the Active toggle to enable/disable approval rights dynamically.</p>
@@ -57,7 +55,6 @@
                     <div class="col-12 ps-0 pe-0">
                         <div class="p-4 border rounded-3 bg-white shadow-sm w-100">
                             <div class="d-flex align-items-center mb-1">
-                                <i class="fa fa-tags me-2 text-info" title="Expense Types" style="font-size:clamp(0.9rem, 1.2vw, 1rem);"></i>
                                 <strong style="font-size:clamp(0.92rem, 1.15vw, 1.05rem); color:#0f172a;">Expense Types &amp; Per-Visit Cost Limits by Job Position</strong>
                             </div>
                             <p class="text-muted small mb-3">Add expense types with their allowed cost limit per visit. Select multiple Job Positions allowed to claim this expense (leave empty to allow all positions).</p>
@@ -82,7 +79,7 @@
                                         <field name="new_expense_type_job_ids" nolabel="1" widget="many2many_tags" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     </div>
                                     <div class="col-auto text-center px-2">
-                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Calculate by KM</label>
+                                        <label for="new_expense_type_is_km" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">KM Based?</label>
                                         <div class="d-flex justify-content-center align-items-center" style="height: 32px;">
                                              <field name="new_expense_type_is_km" nolabel="1" widget="boolean_toggle"/>
                                         </div>
@@ -119,6 +116,7 @@
         <field name="model">service.ticket.expense.type</field>
         <field name="arch" type="xml">
             <form string="Position-Wise Budget Limits" class="o_expense_limit_modal">
+                <field name="is_km_based" invisible="1"/>
                 <!-- Info Header Banner in Custom Blue -->
                 <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3" style="background: #f0f9ff; border: 1px solid #bae6fd;">
                     <div class="d-flex align-items-center gap-3">
@@ -129,8 +127,11 @@
                             <h4 class="mb-0 fw-bold" style="color: #0b3d91;">
                                 <field name="name" readonly="1" class="d-inline"/>
                             </h4>
-                            <span class="text-muted small">
+                            <span class="text-muted small" invisible="is_km_based">
                                 Global Default Limit: <strong class="text-dark">₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> / visit
+                            </span>
+                            <span class="text-muted small" invisible="not is_km_based">
+                                Global Rate / KM: <strong class="text-dark">₹<field name="km_rate" readonly="1" class="d-inline"/></strong> / km
                             </span>
                         </div>
                     </div>
@@ -141,16 +142,21 @@
                     <field name="limit_rule_ids" class="o_expense_limit_table">
                         <list editable="bottom" decoration-muted="not active">
                             <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
-                            <field name="budget_limit" string="Budget Limit / Visit (₹)"/>
+                            <field name="budget_limit" string="Budget Limit / Visit (₹)" column_invisible="parent.is_km_based"/>
+                            <field name="km_rate" string="Rate / KM (₹)" column_invisible="not parent.is_km_based"/>
                             <field name="active" string="Active" widget="boolean_toggle"/>
                         </list>
                     </field>
                 </div>
 
                 <!-- Helpful Tip Footer Note -->
-                <div class="p-2 px-3 rounded bg-light border text-muted small d-flex align-items-center gap-2 mb-2">
+                <div class="p-2 px-3 rounded bg-light border text-muted small d-flex align-items-center gap-2 mb-2" invisible="is_km_based">
                     <i class="fa fa-lightbulb-o text-warning fs-5"></i>
                     <span><strong>Note:</strong> Any job position not listed above (or marked Inactive) will automatically use the Global Limit of <strong>₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> per visit.</span>
+                </div>
+                <div class="p-2 px-3 rounded bg-light border text-muted small d-flex align-items-center gap-2 mb-2" invisible="not is_km_based">
+                    <i class="fa fa-lightbulb-o text-warning fs-5"></i>
+                    <span><strong>Note:</strong> Any job position not listed above (or marked Inactive) will automatically use the Global Rate of <strong>₹<field name="km_rate" readonly="1" class="d-inline"/></strong> per km.</span>
                 </div>
 
                 <footer>

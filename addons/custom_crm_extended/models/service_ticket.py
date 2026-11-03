@@ -786,7 +786,6 @@ class ServiceTicket(models.Model):
                 else:
                     user_splits[u.id] = raw_split
 
-        rate_val = self.new_voucher_rate_per_km or exp_type.km_rate or 0.0
         km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
         split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
 
@@ -794,6 +793,7 @@ class ServiceTicket(models.Model):
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
+            user_rate = self.new_voucher_rate_per_km or exp_type.get_effective_km_rate(user=u) or 0.0
             self.env['service.ticket.voucher.line'].create({
                 'ticket_id': self.id,
                 'expense_date': self.new_voucher_date or fields.Date.context_today(self),
@@ -804,7 +804,7 @@ class ServiceTicket(models.Model):
                 'expense_type_id': exp_type.id,
                 'is_km_based': exp_type.is_km_based,
                 'total_km': split_km if exp_type.is_km_based else 0.0,
-                'rate_per_km': rate_val if exp_type.is_km_based else 0.0,
+                'rate_per_km': user_rate if exp_type.is_km_based else 0.0,
                 'description': self.new_voucher_description or '',
                 'amount': user_splits.get(u.id, 0.0),
                 'bill_file': self.new_voucher_bill_file,
@@ -1206,6 +1206,27 @@ class ServiceTicketExpenseType(models.Model):
                 return rule.budget_limit
         return self.budget_limit
 
+    def get_effective_km_rate(self, user=None, job_id=None):
+        """Returns the custom rate per KM for the given user's job position if active rule exists, else global km_rate."""
+        self.ensure_one()
+        user = user or self.env.user
+        user_job_ids = set()
+        if job_id:
+            user_job_ids.add(job_id)
+        if user.crm_job_id:
+            user_job_ids.add(user.crm_job_id.id)
+        if hasattr(user, 'employee_id') and user.employee_id and user.employee_id.job_id:
+            user_job_ids.add(user.employee_id.job_id.id)
+        if hasattr(user, 'employee_ids'):
+            for emp in user.employee_ids:
+                if emp.job_id:
+                    user_job_ids.add(emp.job_id.id)
+
+        for rule in self.limit_rule_ids:
+            if rule.active and any(j.id in user_job_ids for j in rule.job_ids):
+                return rule.km_rate
+        return self.km_rate
+
 
 class ServiceTicketExpenseLimitRule(models.Model):
     _name = 'service.ticket.expense.limit.rule'
@@ -1218,6 +1239,11 @@ class ServiceTicketExpenseLimitRule(models.Model):
         required=True,
         ondelete='cascade'
     )
+    is_km_based = fields.Boolean(
+        related='expense_type_id.is_km_based',
+        string='Calculate by KM',
+        readonly=True
+    )
     job_ids = fields.Many2many(
         'hr.job',
         'expense_rule_job_rel',
@@ -1227,7 +1253,8 @@ class ServiceTicketExpenseLimitRule(models.Model):
         required=True,
         help='Select one or multiple job positions for this budget limit rule.'
     )
-    budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0, required=True)
+    budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0)
+    km_rate = fields.Float(string='Rate / KM (₹)', default=0.0)
     active = fields.Boolean(string='Active', default=True)
 
 class ServiceTicketVoucherLine(models.Model):

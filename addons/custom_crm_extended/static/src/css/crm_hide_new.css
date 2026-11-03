@@ -2671,34 +2671,73 @@ td.o_list_button {
 }
 
 
-/* ── Direct Field Selectors for Position Budget Limit Sub-table ── */
+/* ── Position-Wise Budget Limits Modal & Sub-Table Styling ── */
+.o_expense_limit_modal .o_expense_limit_header {
+    background: #f0f9ff !important;
+    border: 1px solid #bae6fd !important;
+}
+
+.o_expense_limit_modal .o_expense_limit_icon {
+    width: 42px !important;
+    height: 42px !important;
+    background: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+.o_expense_limit_modal .o_expense_limit_title {
+    color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal .o_expense_limit_save_btn {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal .o_expense_limit_save_btn:hover {
+    background-color: #041e42 !important;
+    border-color: #041e42 !important;
+}
+
+.o_expense_limit_modal .o_expense_limit_table_wrap .o_list_table,
+div[name="limit_rule_ids"] .o_list_table,
+.o_expense_limit_table .o_list_table {
+    table-layout: auto !important;
+    width: 100% !important;
+    --ListRenderer-selected-color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal .table-responsive,
+div[name="limit_rule_ids"] .table-responsive,
+.o_expense_limit_table .table-responsive {
+    overflow-x: hidden !important;
+}
+
+/* Modal "Add a line" text color in custom blue (replace purple) */
 div[name="limit_rule_ids"] .o_field_x2many_list_row_add a,
 div[name="limit_rule_ids"] a.o_field_x2many_list_row_add,
 div[name="limit_rule_ids"] .o_list_button_add,
 div[name="limit_rule_ids"] tr.o_field_x2many_list_row_add td a,
 .o_expense_limit_table .o_field_x2many_list_row_add a,
-.o_expense_limit_table a.o_field_x2many_list_row_add,
-.o_expense_limit_table .o_list_button_add {
+.o_expense_limit_modal .o_field_x2many_list_row_add a {
     color: #0b3d91 !important;
     font-weight: 500 !important;
     text-decoration: none !important;
 }
 
 div[name="limit_rule_ids"] .o_field_x2many_list_row_add a:hover,
-.o_expense_limit_table .o_field_x2many_list_row_add a:hover {
+.o_expense_limit_table .o_field_x2many_list_row_add a:hover,
+.o_expense_limit_modal .o_field_x2many_list_row_add a:hover {
     color: #041e42 !important;
     text-decoration: underline !important;
 }
 
-div[name="limit_rule_ids"] .o_list_table,
-.o_expense_limit_table .o_list_table {
-    --ListRenderer-selected-color: #0b3d91 !important;
-}
-
+/* Modal selected row: Single clean custom blue border line (No double line, No purple) */
 div[name="limit_rule_ids"] tr.o_selected_row,
 div[name="limit_rule_ids"] tr.o_data_row.o_selected_row,
 .o_expense_limit_table tr.o_selected_row,
-.o_expense_limit_table tr.o_data_row.o_selected_row {
+.o_expense_limit_table tr.o_data_row.o_selected_row,
+.o_expense_limit_modal tr.o_selected_row,
+.o_expense_limit_modal tr.o_data_row.o_selected_row {
     background-color: #f8fafc !important;
     border-bottom: 1px solid #0b3d91 !important;
     box-shadow: none !important;
@@ -2708,11 +2747,14 @@ div[name="limit_rule_ids"] tr.o_data_row.o_selected_row,
 div[name="limit_rule_ids"] tr.o_selected_row > td,
 div[name="limit_rule_ids"] tr.o_data_row.o_selected_row > td,
 .o_expense_limit_table tr.o_selected_row > td,
-.o_expense_limit_table tr.o_data_row.o_selected_row > td {
+.o_expense_limit_table tr.o_data_row.o_selected_row > td,
+.o_expense_limit_modal tr.o_selected_row > td,
+.o_expense_limit_modal tr.o_data_row.o_selected_row > td {
     border-bottom: 1px solid #0b3d91 !important;
     box-shadow: none !important;
 }
 
+/* Remove internal input borders so ONLY ONE single line is shown under the row */
 div[name="limit_rule_ids"] .o_selected_row input,
 div[name="limit_rule_ids"] .o_selected_row .o_input,
 div[name="limit_rule_ids"] .o_selected_row .o_field_widget input,
@@ -2722,7 +2764,9 @@ div[name="limit_rule_ids"] .o_selected_row td,
 .o_expense_limit_table .o_selected_row .o_input,
 .o_expense_limit_table .o_selected_row .o_field_widget input,
 .o_expense_limit_table .o_selected_row .o_field_many2many_tags,
-.o_expense_limit_table .o_selected_row td {
+.o_expense_limit_table .o_selected_row td,
+.o_expense_limit_modal .o_selected_row input,
+.o_expense_limit_modal .o_selected_row .o_input {
     border-top: none !important;
     border-left: none !important;
     border-right: none !important;
@@ -2733,7 +2777,9 @@ div[name="limit_rule_ids"] .o_selected_row td,
 div[name="limit_rule_ids"] .o_selected_row input:not([type="checkbox"]),
 div[name="limit_rule_ids"] .o_selected_row .o_input:not(.form-check-input),
 .o_expense_limit_table .o_selected_row input:not([type="checkbox"]),
-.o_expense_limit_table .o_selected_row .o_input:not(.form-check-input) {
+.o_expense_limit_table .o_selected_row .o_input:not(.form-check-input),
+.o_expense_limit_modal .o_selected_row input:not([type="checkbox"]),
+.o_expense_limit_modal .o_selected_row .o_input:not(.form-check-input) {
     border-bottom: none !important;
     box-shadow: none !important;
     outline: none !important;
@@ -2743,7 +2789,9 @@ div[name="limit_rule_ids"] .o_selected_row .o_input:not(.form-check-input),
 div[name="limit_rule_ids"] .o_selected_row input:focus,
 div[name="limit_rule_ids"] .o_selected_row .o_input:focus,
 .o_expense_limit_table .o_selected_row input:focus,
-.o_expense_limit_table .o_selected_row .o_input:focus {
+.o_expense_limit_table .o_selected_row .o_input:focus,
+.o_expense_limit_modal .o_selected_row input:focus,
+.o_expense_limit_modal .o_selected_row .o_input:focus {
     border-bottom: none !important;
     box-shadow: none !important;
     outline: none !important;
