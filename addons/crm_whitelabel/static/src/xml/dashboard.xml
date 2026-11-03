@@ -1684,7 +1684,6 @@
                 <div class="crm-task-dialog crm-custom-date-modal-dialog" t-on-click.stop="">
                     <div class="crm-task-header">
                         <h3 class="crm-task-title" style="display:flex;align-items:center;gap:8px;">
-                            <span>📅</span>
                             <span>Select Custom Date Range</span>
                         </h3>
                         <button class="crm-task-close" t-on-click="closeCustomDateModal">✕</button>
