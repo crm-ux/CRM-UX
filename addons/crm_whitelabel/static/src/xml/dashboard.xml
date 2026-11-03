@@ -1066,8 +1066,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].percent : 0"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].count : 0"/></strong> Leads</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0a347d;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].wonValue : 0)"/></strong>)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].wonValue : 0)"/></strong>)</span>
                                         </div>
                                     </div>
 
@@ -1079,8 +1079,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].percent : 0"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].count : 0"/></strong> Leads</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #1d63b8;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].wonValue : 0)"/></strong>)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].wonValue : 0)"/></strong>)</span>
                                         </div>
                                     </div>
 
@@ -1092,8 +1092,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].percent : 0"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].count : 0"/></strong> Leads</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].wonValue : 0)"/></strong>)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].wonValue : 0)"/></strong>)</span>
                                         </div>
                                     </div>
 
@@ -1105,8 +1105,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].percent : 0"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].count : 0"/></strong> Leads</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].wonValue : 0)"/></strong>)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].wonValue : 0)"/></strong>)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1178,8 +1178,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.full_price.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0a347d;">₹0 Disc</strong>)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.quoteDiscount.tiers.full_price.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;">₹0 Disc</strong>)</span>
                                         </div>
                                     </div>
 
@@ -1191,8 +1191,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.small_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #1d63b8;"><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.quoteDiscount.tiers.small_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
 
@@ -1204,8 +1204,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.med_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.quoteDiscount.tiers.med_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
 
@@ -1217,8 +1217,8 @@
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%</span>
-                                            <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.heavy_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-count" style="color: #64748b;"><strong style="color: #1e293b;"><t t-esc="state.quoteDiscount.tiers.heavy_disc.count"/></strong> Quotes</span>
+                                            <span class="crm-an-row-val" style="color: #64748b;">(<strong style="color: #475569;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
                                 </div>
