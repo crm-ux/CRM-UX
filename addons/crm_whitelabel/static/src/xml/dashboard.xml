@@ -1019,8 +1019,13 @@
                         </div>
                     </div>
 
-                    <!-- 5. Customer Classification Matrix -->
+                    <!-- 5. Customer Classification (Donut Chart Layout Matching Card 6) -->
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                        <t t-set="cP1" t-value="state.custClassMatrix and state.custClassMatrix[0] ? (state.custClassMatrix[0].percent || 0) : 0"/>
+                        <t t-set="cP2" t-value="cP1 + (state.custClassMatrix and state.custClassMatrix[1] ? (state.custClassMatrix[1].percent || 0) : 0)"/>
+                        <t t-set="cP3" t-value="cP2 + (state.custClassMatrix and state.custClassMatrix[2] ? (state.custClassMatrix[2].percent || 0) : 0)"/>
+                        <t t-set="custDonutBg" t-value="(state.classifiedLeadsCount and state.classifiedLeadsCount > 0) ? ('background: conic-gradient(#0b3d91 0% ' + cP1 + '%, #0369a1 ' + cP1 + '% ' + cP2 + '%, #0284c7 ' + cP2 + '% ' + cP3 + '%, #38bdf8 ' + cP3 + '% 100%);') : 'background: #e0f2fe;'"/>
+
                         <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
                             <div>
                                 <span class="crm-chart-title">
@@ -1029,49 +1034,110 @@
                                 </span>
                                 <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Customer vs Product occupancy and Won revenue distribution</div>
                             </div>
-                            <div class="crm-an-quad-strip" style="font-size: 0.75rem; padding: 0.25rem 0.65rem;">
-                                <span>Total Pipeline: <strong><t t-esc="state.totalPipelineLeads || 0"/> Leads</strong></span>
-                                <span class="crm-an-strip-dot">•</span>
-                                <span>Classified: <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong></span>
-                                <span class="crm-an-strip-dot">•</span>
-                                <span t-if="state.unclassifiedCount and state.unclassifiedCount > 0" 
-                                      class="crm-an-unclass-badge clickable" 
-                                      t-on-click="openUnclassifiedLeads" 
-                                      title="Click to view unclassified leads">
-                                    <t t-esc="state.unclassifiedCount"/> Unclassified
-                                </span>
-                                <span t-else="" class="crm-an-unclass-badge zero">
-                                    0 Unclassified
-                                </span>
-                                <span class="crm-an-strip-dot">•</span>
-                                <span>Won Revenue: <strong style="color: #16a34a;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong></span>
-                            </div>
+                            <span class="crm-chart-badge" style="font-size: 0.75rem;">
+                                Total Pipeline: <strong><t t-esc="state.totalPipelineLeads || 0"/> Leads</strong>
+                            </span>
                         </div>
 
-                        <!-- 2x2 Rounded Matrix Box -->
-                        <div class="crm-an-quad-box" style="flex: 1;">
-                            <t t-foreach="state.custClassMatrix || []" t-as="item" t-key="item.key">
-                                <div class="crm-an-quad-cell" 
-                                     t-att-class="item.colorClass"
-                                     style="min-height: 110px; padding: 0.85rem;"
-                                     t-on-click="() => this.openQuadrantLeads(item.key, item.name)">
-                                    <div class="crm-an-cell-title" style="font-size: 0.85rem; margin-bottom: 0.4rem;">
-                                        <t t-esc="item.name"/>
-                                    </div>
-                                    <div class="crm-an-cell-stats" style="margin-bottom: 0.25rem;">
-                                        <span class="crm-an-cell-count" style="font-size: 1.25rem;"><t t-esc="item.count"/> Leads</span>
-                                        <span class="crm-an-cell-badge"><t t-esc="item.percent"/>%</span>
-                                    </div>
-                                    <div class="crm-an-cell-value" style="font-size: 0.74rem;">
-                                        Won Value: <strong><t t-esc="fmt(item.wonValue)"/></strong>
+                        <!-- SPLIT LAYOUT: Donut Chart on Left, Clean 4 Rows on Right -->
+                        <div class="crm-an-disc-split" style="flex: 1; display: flex; align-items: center; gap: 1rem;">
+                            <!-- LEFT: Donut Chart -->
+                            <div class="crm-an-donut-col" style="flex: 0 0 auto;">
+                                <div class="crm-an-donut-chart-box">
+                                    <div class="crm-an-donut-ring" t-att-style="custDonutBg">
+                                        <div class="crm-an-donut-hole">
+                                            <div class="crm-an-donut-center">
+                                                <span class="crm-an-center-num" style="color: #0b3d91;"><t t-esc="state.classifiedLeadsCount || 0"/></span>
+                                                <span class="crm-an-center-lbl">Leads</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </t>
+                            </div>
+
+                            <!-- RIGHT: 4 Quadrant Rows & Footer -->
+                            <div class="crm-an-details-col" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                                <div class="crm-an-disc-list" style="display: flex; flex-direction: column; gap: 0.45rem;">
+                                    <!-- Q1: Existing Cust – Existing Prod -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('existing_existing', 'Existing Customer – Existing Product')">
+                                        <div class="crm-an-row-left">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 8px; flex-shrink: 0;"></span>
+                                            <span class="crm-an-row-name">Existing Cust – Existing Prod</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].percent : 0"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0b3d91;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].wonValue : 0)"/></strong>)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Q2: Existing Cust – New Prod -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('existing_new', 'Existing Customer – New Product')">
+                                        <div class="crm-an-row-left">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 8px; flex-shrink: 0;"></span>
+                                            <span class="crm-an-row-name">Existing Cust – New Prod</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].percent : 0"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0369a1;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].wonValue : 0)"/></strong>)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Q3: New Cust – Existing Prod -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('new_existing', 'New Customer – Existing Product')">
+                                        <div class="crm-an-row-left">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 8px; flex-shrink: 0;"></span>
+                                            <span class="crm-an-row-name">New Cust – Existing Prod</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].percent : 0"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].wonValue : 0)"/></strong>)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Q4: New Cust – New Prod -->
+                                    <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('new_new', 'New Customer – New Product')">
+                                        <div class="crm-an-row-left">
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 8px; flex-shrink: 0;"></span>
+                                            <span class="crm-an-row-name">New Cust – New Prod</span>
+                                        </div>
+                                        <div class="crm-an-row-right">
+                                            <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].percent : 0"/>%</span>
+                                            <span class="crm-an-row-count"><strong><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].count : 0"/></strong> Leads</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].wonValue : 0)"/></strong>)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Summary Strip: Total Won Revenue & Unclassified -->
+                                <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="openUnclassifiedLeads">
+                                    <div class="crm-an-footer-content">
+                                        <i class="fa fa-th-large crm-an-footer-icon" style="color: #0284c7;"></i>
+                                        <span>Total Won Revenue: <strong style="color: #0b3d91;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong> (Across <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong> Classified Leads)</span>
+                                    </div>
+                                    <span class="crm-an-footer-hint" t-if="state.unclassifiedCount and state.unclassifiedCount > 0" style="color: #dc2626;">
+                                        <t t-esc="state.unclassifiedCount"/> Unclassified →
+                                    </span>
+                                    <span class="crm-an-footer-hint" t-else="" style="color: #0284c7;">
+                                        All Classified →
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- 6. Quote Pricing & Discount Impact -->
                     <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                        <t t-set="qFp" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.full_price ? (state.quoteDiscount.tiers.full_price.pct || 0) : 0"/>
+                        <t t-set="qSm" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.small_disc ? (state.quoteDiscount.tiers.small_disc.pct || 0) : 0"/>
+                        <t t-set="qMd" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.med_disc ? (state.quoteDiscount.tiers.med_disc.pct || 0) : 0"/>
+                        <t t-set="qP1" t-value="qFp"/>
+                        <t t-set="qP2" t-value="qP1 + qSm"/>
+                        <t t-set="qP3" t-value="qP2 + qMd"/>
+                        <t t-set="quoteDonutBg" t-value="(state.quoteDiscount and state.quoteDiscount.totalQuotes > 0) ? ('background: conic-gradient(#0b3d91 0% ' + qP1 + '%, #0369a1 ' + qP1 + '% ' + qP2 + '%, #0284c7 ' + qP2 + '% ' + qP3 + '%, #38bdf8 ' + qP3 + '% 100%);') : 'background: #e0f2fe;'"/>
+
                         <div class="crm-chart-head" style="align-items: flex-start; padding-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 0.75rem;">
                             <div>
                                 <span class="crm-chart-title">
@@ -1090,10 +1156,10 @@
                             <!-- LEFT: Donut Chart -->
                             <div class="crm-an-donut-col" style="flex: 0 0 auto;">
                                 <div class="crm-an-donut-chart-box">
-                                    <div class="crm-an-donut-ring" t-att-style="state.quoteDiscount.donutStyle || ''">
+                                    <div class="crm-an-donut-ring" t-att-style="quoteDonutBg">
                                         <div class="crm-an-donut-hole">
                                             <div class="crm-an-donut-center">
-                                                <span class="crm-an-center-num"><t t-esc="state.quoteDiscount.totalQuotes"/></span>
+                                                <span class="crm-an-center-num" style="color: #0b3d91;"><t t-esc="state.quoteDiscount.totalQuotes"/></span>
                                                 <span class="crm-an-center-lbl">Quotes</span>
                                             </div>
                                         </div>
@@ -1107,52 +1173,52 @@
                                     <!-- Full Price -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('full_price', 'Full Price')">
                                         <div class="crm-an-row-left">
-                                            <span class="crm-an-dot crm-dot-green"></span>
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 8px; flex-shrink: 0;"></span>
                                             <span class="crm-an-row-name">Full Price (0% Disc)</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.full_price.pct"/>%</span>
                                             <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.full_price.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #16a34a;">₹0 Disc</strong>)</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0b3d91;">₹0 Disc</strong>)</span>
                                         </div>
                                     </div>
 
                                     <!-- Small Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('small_disc', '1-5%')">
                                         <div class="crm-an-row-left">
-                                            <span class="crm-an-dot crm-dot-yellow"></span>
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 8px; flex-shrink: 0;"></span>
                                             <span class="crm-an-row-name">Small Disc (1–5%)</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.small_disc.pct"/>%</span>
                                             <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.small_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0369a1;"><t t-esc="fmt(state.quoteDiscount.tiers.small_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
 
                                     <!-- Med Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('med_disc', '5-10%')">
                                         <div class="crm-an-row-left">
-                                            <span class="crm-an-dot crm-dot-orange"></span>
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 8px; flex-shrink: 0;"></span>
                                             <span class="crm-an-row-name">Med Disc (5–10%)</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.med_disc.pct"/>%</span>
                                             <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.med_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.quoteDiscount.tiers.med_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
 
                                     <!-- Heavy Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10%')">
                                         <div class="crm-an-row-left">
-                                            <span class="crm-an-dot crm-dot-red"></span>
+                                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 8px; flex-shrink: 0;"></span>
                                             <span class="crm-an-row-name">Heavy Disc (&gt;10%)</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.quoteDiscount.tiers.heavy_disc.pct"/>%</span>
                                             <span class="crm-an-row-count"><strong><t t-esc="state.quoteDiscount.tiers.heavy_disc.count"/></strong> Quotes</span>
-                                            <span class="crm-an-row-val">(<strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
+                                            <span class="crm-an-row-val">(<strong style="color: #0284c7;"><t t-esc="fmt(state.quoteDiscount.tiers.heavy_disc.discount)"/></strong> Disc)</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1160,10 +1226,10 @@
                                 <!-- Bottom Summary Strip: Total Discount Given -->
                                 <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
                                     <div class="crm-an-footer-content">
-                                        <i class="fa fa-tag crm-an-footer-icon"></i>
-                                        <span>Total Discount Given: <strong style="color: #dc2626;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
+                                        <i class="fa fa-tag crm-an-footer-icon" style="color: #0284c7;"></i>
+                                        <span>Total Discount Given: <strong style="color: #0b3d91;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
                                     </div>
-                                    <span class="crm-an-footer-hint">View Deals →</span>
+                                    <span class="crm-an-footer-hint" style="color: #0284c7;">View Deals →</span>
                                 </div>
                             </div>
                         </div>
