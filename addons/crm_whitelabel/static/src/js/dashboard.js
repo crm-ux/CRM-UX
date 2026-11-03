@@ -622,8 +622,8 @@ class CrmDashboard extends Component {
                     }),
                 ]);
 
-                const matrixCounts = custRes.matrix_counts || {};
-                const matrixVals = custRes.matrix_values || {};
+                const matrixCounts = custRes.matrix_counts || custRes.counts || {};
+                const matrixVals = custRes.matrix_values || custRes.won_values || {};
                 const classifiedTotal = custRes.classified_count || 0;
 
                 const matrixData = [

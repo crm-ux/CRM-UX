@@ -509,7 +509,9 @@ class DashboardStats(models.Model):
             'unclassified_count': unclassified_count,
             'total_won_val': total_won_val,
             'counts': quad_counts,
+            'matrix_counts': quad_counts,
             'won_values': quad_won,
+            'matrix_values': quad_won,
             'user_filter_applied': bool(user_filter),
             'allowed_uids': user_filter[0][2] if user_filter else [],
         }
