@@ -1309,6 +1309,7 @@ class ServiceTicketExpenseType(models.Model):
         help='Select one or multiple job positions allowed to claim this expense. Leave empty to allow all positions.'
     )
     active = fields.Boolean(string='Active', default=True)
+    dummy_dash = fields.Char(string='-', default='-', readonly=True)
     limit_rule_ids = fields.One2many(
         'service.ticket.expense.limit.rule',
         'expense_type_id',
@@ -1438,6 +1439,7 @@ class ServiceTicketExpenseLimitRule(models.Model):
     )
     budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0)
     km_rate = fields.Float(string='Rate / KM (₹)', default=0.0)
+    dummy_dash = fields.Char(string='-', default='-', readonly=True)
     active = fields.Boolean(string='Active', default=True)
 
     @api.depends('expense_type_id', 'expense_type_id.job_ids')
