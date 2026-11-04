@@ -1641,6 +1641,12 @@ class HrDepartment(models.Model):
             if dept.id in dept.extra_department_ids.ids:
                 raise ValidationError(_("Department '%s' cannot select itself as an additional or sub-department.") % (dept.name or ''))
 
+    @api.constrains('voucher_manager_id', 'manager_user_id')
+    def _check_voucher_manager_not_head(self):
+        for dept in self:
+            if dept.voucher_manager_id and dept.manager_user_id and dept.voucher_manager_id == dept.manager_user_id:
+                raise ValidationError(_("Department Head '%s' cannot be selected as the Voucher Approver for their own department.") % (dept.manager_user_id.name or ''))
+
     member_user_ids = fields.One2many(
         'res.users',
         'crm_department_id',
