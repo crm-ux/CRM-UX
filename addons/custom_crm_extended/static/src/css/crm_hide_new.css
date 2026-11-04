@@ -2818,16 +2818,16 @@ div[name="draft_voucher_line_ids"] td[name="description"] {
     width: 100% !important;
 }
 
-/* Dynamic Budget Pool & Limit display: dynamic height growing with members, styled sleek form box */
+/* Dynamic Budget Pool & Limit display: dynamic height growing with members, light blue theme matching single & group */
 .o_voucher_quick_add_bar .o_field_widget[name="new_voucher_budget_info_html"],
 .o_voucher_quick_add_bar div[name="new_voucher_budget_info_html"],
 .o_voucher_quick_add_bar .o_budget_pool_field,
 div[name="new_voucher_budget_info_html"],
 .o_budget_pool_field {
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    background-color: #f1f5f9 !important;
-    padding: 6px 10px !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: 6px !important;
+    background-color: #f0f9ff !important;
+    padding: 6px 12px !important;
     min-height: 36px !important;
     height: auto !important;
     width: 100% !important;
@@ -2896,10 +2896,10 @@ div[name="new_voucher_budget_info_html"],
 .o_field_html[name="new_voucher_budget_info_html"],
 .o_budget_pool_field,
 .o_budget_pool_field.o_field_widget {
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    background-color: #f1f5f9 !important;
-    padding: 6px 10px !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: 6px !important;
+    background-color: #f0f9ff !important;
+    padding: 6px 12px !important;
     min-height: 36px !important;
     height: auto !important;
     width: 100% !important;

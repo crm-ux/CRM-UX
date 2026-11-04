@@ -656,6 +656,9 @@ class ServiceTicket(models.Model):
                 rec.new_voucher_budget_info_html = False
                 continue
 
+            pill_badge = "background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:600; border-radius:9999px; padding:2px 10px; white-space:nowrap;"
+            pill_total = "background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:700; border-radius:9999px; padding:2px 10px; white-space:nowrap;"
+
             if exp_type.is_km_based:
                 items_html = []
                 for u in target_users:
@@ -664,11 +667,11 @@ class ServiceTicket(models.Model):
                     rate = exp_type.get_effective_km_rate(user=u)
                     limit = exp_type.get_effective_budget_limit(user=u)
                     limit_str = f" · Max: ₹{limit:,.2f}" if limit > 0 else ""
-                    items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600; white-space:nowrap;'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
+                    items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
 
                 rec.new_voucher_budget_info_html = f"""
-                <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155; row-gap:6px;">
-                    <strong style="color:#0b3d91;">KM Rate &amp; Limits:</strong>
+                <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
+                    <strong style="color:#0369a1;">KM Rate &amp; Limits:</strong>
                     {" ".join(items_html)}
                 </div>
                 """
@@ -683,9 +686,9 @@ class ServiceTicket(models.Model):
                     if limit > 0:
                         has_any_limit = True
                         total_limit += limit
-                        items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600; white-space:nowrap;'>{u.name}{role_str}: ₹{limit:,.2f}</span>")
+                        items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{limit:,.2f}</span>")
                     else:
-                        items_html.append(f"<span class='badge me-1' style='background:#f1f5f9; color:#475569; white-space:nowrap;'>{u.name}{role_str}: No Limit</span>")
+                        items_html.append(f"<span class='badge' style='background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:9999px; padding:2px 10px; white-space:nowrap;'>{u.name}{role_str}: No Limit</span>")
 
                 entered_amount = rec.new_voucher_amount or 0.0
                 is_exceeded = bool(has_any_limit and total_limit > 0 and entered_amount > total_limit)
@@ -705,10 +708,10 @@ class ServiceTicket(models.Model):
 
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155; line-height:1.8; row-gap:6px;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
                         <span class="d-inline-flex align-items-center gap-1" style="white-space:nowrap;">
-                            <strong style="color:#0b3d91;">Group Budget Pool:</strong>
-                            <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px; border-radius:4px; white-space:nowrap;">Total Allowed: ₹{total_limit:,.2f}</span>
+                            <strong style="color:#0369a1;">Group Budget Pool:</strong>
+                            <span class="badge ms-1" style="{pill_total}">Total Allowed: ₹{total_limit:,.2f}</span>
                         </span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         {" ".join(items_html)}
@@ -720,9 +723,9 @@ class ServiceTicket(models.Model):
                     role_name = rec._get_user_role_display(u)
                     role_str = f" ({role_name})" if role_name else ""
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
                         <span style="white-space:nowrap;">Allowed Limit for <strong>{u.name}{role_str}</strong>:</span>
-                        <span class="badge py-1 px-2" style="background:#0b3d91; color:#ffffff; font-size:12px; font-weight:600; border-radius:4px; white-space:nowrap;">₹{total_limit:,.2f} / visit</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f} / visit</span>
                     </div>
                     {warning_box_html}
                     """
