@@ -967,6 +967,15 @@ class ServiceTicket(models.Model):
     def action_move_to_closed(self):
         self.write({'ticket_status': 'closed'})
 
+    def action_rollback_to_new(self):
+        self.write({'ticket_status': 'new'})
+
+    def action_rollback_to_contacted(self):
+        self.write({'ticket_status': 'contacted'})
+
+    def action_rollback_to_ongoing(self):
+        self.write({'ticket_status': 'ongoing'})
+
     def write(self, vals):
         return super(ServiceTicket, self).write(vals)
 

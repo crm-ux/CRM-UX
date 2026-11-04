@@ -1625,6 +1625,21 @@ class HrDepartment(models.Model):
         help='Toggle active status of this department voucher approver.'
     )
 
+    available_voucher_approver_ids = fields.Many2many(
+        'res.users',
+        compute='_compute_available_voucher_approver_ids',
+        string='Available Voucher Approvers'
+    )
+
+    @api.depends('manager_user_id')
+    def _compute_available_voucher_approver_ids(self):
+        all_users = self.env['res.users'].sudo().search([('share', '=', False)])
+        for dept in self:
+            if dept.manager_user_id:
+                dept.available_voucher_approver_ids = all_users.filtered(lambda u: u.id != dept.manager_user_id.id)
+            else:
+                dept.available_voucher_approver_ids = all_users
+
     extra_department_ids = fields.Many2many(
         'hr.department',
         'hr_department_extra_voucher_dept_rel',

@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <form string="Service Ticket" js_class="service_ticket_form">
                 <header>
-                    <!-- Left: One-Way Forward Action Buttons Only -->
+                    <!-- Forward Action Buttons -->
                     <button name="action_move_to_contacted" string="Contacted" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('new', 'open')"/>
                     <button name="action_move_to_ongoing" string="Ongoing" type="object" class="btn btn-secondary"
@@ -18,6 +18,14 @@
                         invisible="ticket_status != 'pending'"/>
                     <button name="action_move_to_closed" string="Close" type="object" class="btn btn-secondary"
                         invisible="ticket_status not in ('ongoing', 'pending')"/>
+
+                    <!-- Rollback Action Buttons (Matching Task Management style) -->
+                    <button name="action_rollback_to_new" string="Back to New" type="object" class="btn btn-secondary" icon="fa-undo"
+                        invisible="ticket_status != 'contacted'"/>
+                    <button name="action_rollback_to_contacted" string="Back to Contacted" type="object" class="btn btn-secondary" icon="fa-undo"
+                        invisible="ticket_status != 'ongoing'"/>
+                    <button name="action_rollback_to_ongoing" string="Reopen Ticket" type="object" class="btn btn-secondary" icon="fa-undo"
+                        invisible="ticket_status != 'closed'"/>
 
                     <!-- Right: Current Active Stage Badge in Green -->
                     <field name="ticket_status" widget="statusbar" class="ticket_statusbar_green"/>
