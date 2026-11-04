@@ -1077,6 +1077,7 @@ class ServiceTicket(models.Model):
                 'message': _('%d expense line(s) submitted in voucher %s.') % (len(draft_lines), batch_name),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
