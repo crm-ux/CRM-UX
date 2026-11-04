@@ -621,12 +621,13 @@ class ServiceTicket(models.Model):
         """Returns the Job Position title dynamically for any user/employee/manager."""
         if not user:
             return ""
-        if user.crm_job_id:
+        if getattr(user, 'crm_job_id', None) and user.crm_job_id:
             return user.crm_job_id.name
         job_ids = self.env['service.ticket.expense.type']._get_user_job_positions(user=user)
         if job_ids:
-            if self.new_voucher_expense_type_id:
-                for rule in self.new_voucher_expense_type_id.limit_rule_ids:
+            exp_type = getattr(self, 'new_voucher_expense_type_id', None)
+            if exp_type:
+                for rule in exp_type.limit_rule_ids:
                     if rule.active:
                         matched = rule.job_ids.filtered(lambda j: j.id in job_ids)
                         if matched:
@@ -1331,8 +1332,8 @@ class ServiceTicketExpenseType(models.Model):
             'target': 'new',
         }
 
+    @api.model
     def _get_user_job_positions(self, user=None, job_id=None):
-        self.ensure_one()
         user = user or self.env.user
         job_ids = set()
         if job_id:
@@ -1361,11 +1362,8 @@ class ServiceTicketExpenseType(models.Model):
                     m_jobs = self.env['hr.job'].sudo().search([('name', '=ilike', emp.job_title.strip())])
                     job_ids.update(m_jobs.ids)
 
-            # 3. Direct assignment on hr.job (user_ids or assigned_employee_ids)
-            assigned_jobs = self.env['hr.job'].sudo().search([
-                '|', ('user_ids', 'in', [user.id]),
-                ('assigned_employee_ids', 'in', [user.id])
-            ])
+            # 3. Direct assignment on hr.job via stored user_ids relation
+            assigned_jobs = self.env['hr.job'].sudo().search([('user_ids', 'in', [user.id])])
             job_ids.update(assigned_jobs.ids)
 
             # 4. Department management manager roles
