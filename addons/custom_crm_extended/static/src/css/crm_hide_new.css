@@ -1252,7 +1252,7 @@ button[name="action_add_voucher_line"]:hover {
     flex-direction: row !important;
     align-items: center !important;
     gap: 4px !important;
-    padding: 3px 8px !important;
+    padding: 2px 10px !important;
     margin: 2px 4px 2px 0 !important;
     background-color: #e0e7ff !important;
     color: #1e3a8a !important;
@@ -1278,9 +1278,9 @@ button[name="action_add_voucher_line"]:hover {
 .o_voucher_quick_add_bar .o_field_many2many_tags {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
-    padding: 3px 8px !important;
+    padding: 2px 10px !important;
     background-color: #ffffff !important;
-    min-height: 38px !important;
+    min-height: 36px !important; height: auto !important; box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
@@ -1298,7 +1298,7 @@ button[name="action_add_voucher_line"]:hover {
     border: none !important;
     box-shadow: none !important;
     height: auto !important;
-    padding: 2px 4px !important;
+    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
     outline: none !important;
     background: transparent !important;
 }
@@ -2424,7 +2424,7 @@ td.o_list_button {
 .o_expense_type_table .o_field_float input,
 .o_expense_type_table .o_list_number input {
     text-align: right !important;
-    padding: 2px 4px !important;
+    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
     width: 100% !important;
     border: none !important;
     border-bottom: none !important;
@@ -2563,7 +2563,7 @@ td.o_list_button {
 .o_expense_type_table .o_field_float input,
 .o_expense_type_table .o_list_number input {
     text-align: right !important;
-    padding: 2px 4px !important;
+    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
     width: 100% !important;
     border: none !important;
     border-bottom: none !important;
