@@ -1174,6 +1174,10 @@ class ServiceTicketExpenseType(models.Model):
 
     def action_open_settings(self):
         self.ensure_one()
+        # Clean up any leftover blank rules with no job positions selected
+        empty_rules = self.limit_rule_ids.filtered(lambda r: not r.job_ids)
+        if empty_rules:
+            empty_rules.unlink()
         view_id = self.env.ref('custom_crm_extended.view_service_ticket_expense_type_limit_form', raise_if_not_found=False)
         return {
             'name': _('Position-Wise Budget Limits: %s') % (self.name or ''),
