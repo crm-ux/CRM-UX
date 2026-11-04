@@ -1631,8 +1631,15 @@ class HrDepartment(models.Model):
         'department_id',
         'extra_dept_id',
         string='Extra Allowed Departments',
+        domain="[('id', '!=', id)]",
         help='Additional departments this manager is authorized to approve vouchers for.'
     )
+
+    @api.constrains('extra_department_ids')
+    def _check_extra_department_ids_no_self(self):
+        for dept in self:
+            if dept.id in dept.extra_department_ids.ids:
+                raise ValidationError(_("Department '%s' cannot select itself as an additional or sub-department.") % (dept.name or ''))
 
     member_user_ids = fields.One2many(
         'res.users',
