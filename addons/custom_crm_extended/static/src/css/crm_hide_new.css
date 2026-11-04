@@ -2797,61 +2797,57 @@ div[name="limit_rule_ids"] .o_selected_row .o_input:focus,
     outline: none !important;
 }
 
-/* Service Ticket: Full width, proper column spacing, and clean alignment for Pending Expenses table */
-.o_voucher_card_list,
-div[name="draft_voucher_line_ids"],
-.o_voucher_card_list .o_list_renderer,
-div[name="draft_voucher_line_ids"] .o_list_renderer,
-.o_voucher_card_list .table-responsive,
-div[name="draft_voucher_line_ids"] .table-responsive,
-.o_voucher_card_list table.o_list_table,
+/* Service Ticket: Pending Expenses table - strictly scoped to div[name="draft_voucher_line_ids"] */
 div[name="draft_voucher_line_ids"] table.o_list_table {
+    table-layout: auto !important;
     width: 100% !important;
     min-width: 100% !important;
-    max-width: 100% !important;
+}
+
+/* Prevent action column header from sticking to end of container while body row is inside table */
+div[name="draft_voucher_line_ids"] th.o_list_actions_header,
+div[name="draft_voucher_line_ids"] th.o_list_controller {
+    position: static !important;
+    width: 40px !important;
+    text-align: center !important;
+}
+
+/* Allow Description column to stretch and fill all available container width */
+div[name="draft_voucher_line_ids"] th[data-name="description"],
+div[name="draft_voucher_line_ids"] td[name="description"] {
+    width: 100% !important;
+    min-width: 200px !important;
 }
 
 /* Ensure Expense Date header never gets truncated to 'Expense ...' */
-.o_voucher_card_list th[data-name="expense_date"],
-.o_voucher_card_list td[name="expense_date"],
 div[name="draft_voucher_line_ids"] th[data-name="expense_date"],
 div[name="draft_voucher_line_ids"] td[name="expense_date"] {
-    min-width: 115px !important;
+    min-width: 125px !important;
+    white-space: nowrap !important;
+}
+div[name="draft_voucher_line_ids"] th[data-name="expense_date"] span {
+    overflow: visible !important;
+    text-overflow: clip !important;
     white-space: nowrap !important;
 }
 
-/* Prevent Amount and Bill headers from colliding */
-.o_voucher_card_list th[data-name="amount"],
-.o_voucher_card_list td[name="amount"],
+/* Clean spacing between Amount and Bill */
 div[name="draft_voucher_line_ids"] th[data-name="amount"],
 div[name="draft_voucher_line_ids"] td[name="amount"] {
     min-width: 110px !important;
     padding-right: 1.5rem !important;
 }
 
-.o_voucher_card_list th[data-name="bill_file"],
-.o_voucher_card_list td[name="bill_file"],
 div[name="draft_voucher_line_ids"] th[data-name="bill_file"],
 div[name="draft_voucher_line_ids"] td[name="bill_file"] {
     min-width: 80px !important;
-    padding-left: 0.75rem !important;
+    padding-left: 1rem !important;
 }
 
-/* Description flex-grow to absorb remaining width */
-.o_voucher_card_list th[data-name="description"],
-.o_voucher_card_list td[name="description"],
-div[name="draft_voucher_line_ids"] th[data-name="description"],
-div[name="draft_voucher_line_ids"] td[name="description"] {
-    width: 30% !important;
-    min-width: 150px !important;
-}
-
-/* Status badge centered */
-.o_voucher_card_list th[data-name="status"],
-.o_voucher_card_list td[name="status"],
 div[name="draft_voucher_line_ids"] th[data-name="status"],
 div[name="draft_voucher_line_ids"] td[name="status"] {
     min-width: 90px !important;
     text-align: center !important;
 }
+
 
