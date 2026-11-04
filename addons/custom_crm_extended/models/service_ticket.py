@@ -690,6 +690,18 @@ class ServiceTicket(models.Model):
                     'sticky': False,
                 }
             }
+        today = fields.Date.context_today(self)
+        if self.new_voucher_date > today:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Invalid Expense Date',
+                    'message': 'Expense Date cannot be in the future.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
         if not self.new_voucher_user_ids:
             return {
                 'type': 'ir.actions.client',
@@ -1370,6 +1382,13 @@ class ServiceTicketVoucherLine(models.Model):
                         _("Expense Type '%(type)s' is restricted to Job Position(s): %(jobs)s. Employee '%(user)s' is not authorized to claim this expense.")
                         % {'type': rec.expense_type_id.name, 'jobs': allowed_names, 'user': u.name}
                     )
+
+    @api.constrains('expense_date')
+    def _check_expense_date_no_future(self):
+        today = fields.Date.context_today(self)
+        for rec in self:
+            if rec.expense_date and rec.expense_date > today:
+                raise ValidationError(_("Expense Date (%s) cannot be in the future.") % rec.expense_date.strftime('%d/%m/%Y'))
 
     @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
     def _compute_user_id(self):

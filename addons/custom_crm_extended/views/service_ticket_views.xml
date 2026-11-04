@@ -133,7 +133,7 @@
                                         <field name="new_voucher_date" 
                                             class="w-100"
                                             placeholder="Select Expense Date..."
-                                            options="{'datepicker': {'warn_future': true}}"/>
+                                            options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
                                     </div>
                                 </div>
 
