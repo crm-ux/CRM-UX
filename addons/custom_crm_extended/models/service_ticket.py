@@ -1244,6 +1244,11 @@ class ServiceTicketExpenseLimitRule(models.Model):
         string='Calculate by KM',
         readonly=True
     )
+    available_job_ids = fields.Many2many(
+        'hr.job',
+        compute='_compute_available_job_ids',
+        string='Available Job Positions'
+    )
     job_ids = fields.Many2many(
         'hr.job',
         'expense_rule_job_rel',
@@ -1256,6 +1261,34 @@ class ServiceTicketExpenseLimitRule(models.Model):
     budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0)
     km_rate = fields.Float(string='Rate / KM (₹)', default=0.0)
     active = fields.Boolean(string='Active', default=True)
+
+    @api.depends('expense_type_id', 'expense_type_id.job_ids')
+    def _compute_available_job_ids(self):
+        all_jobs = self.env['hr.job'].search([])
+        for rec in self:
+            if rec.expense_type_id and rec.expense_type_id.job_ids:
+                rec.available_job_ids = rec.expense_type_id.job_ids
+            else:
+                rec.available_job_ids = all_jobs
+
+    @api.constrains('job_ids', 'expense_type_id')
+    def _check_job_ids_in_allowed(self):
+        for rec in self:
+            if rec.expense_type_id and rec.expense_type_id.job_ids and rec.job_ids:
+                invalid_jobs = rec.job_ids - rec.expense_type_id.job_ids
+                if invalid_jobs:
+                    invalid_names = ", ".join(invalid_jobs.mapped('name'))
+                    allowed_names = ", ".join(rec.expense_type_id.job_ids.mapped('name'))
+                    raise ValidationError(
+                        _("Job Position(s) '%(invalid)s' cannot be configured for Expense Type '%(type)s'.\n\n"
+                          "This expense type is restricted only to Allowed Job Position(s): %(allowed)s.\n"
+                          "Please select only from the allowed positions, or add '%(invalid)s' to 'Allowed Job Positions' in the main table first.")
+                        % {
+                            'invalid': invalid_names,
+                            'type': rec.expense_type_id.name,
+                            'allowed': allowed_names,
+                        }
+                    )
 
 class ServiceTicketVoucherLine(models.Model):
     _name = 'service.ticket.voucher.line'

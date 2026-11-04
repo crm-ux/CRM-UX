@@ -141,7 +141,8 @@
                 <div class="mb-3">
                     <field name="limit_rule_ids" class="o_expense_limit_table">
                         <list editable="bottom" decoration-muted="not active">
-                            <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
+                            <field name="available_job_ids" column_invisible="1"/>
+                            <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('id', 'in', available_job_ids)]" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
                             <field name="budget_limit" string="Limit Per Visit"/>
                             <field name="km_rate" string="Rate / KM (₹)" column_invisible="not parent.is_km_based"/>
                             <field name="active" string="Active" widget="boolean_toggle"/>
