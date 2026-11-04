@@ -156,7 +156,7 @@
                                 <div class="row mb-2" invisible="not new_voucher_budget_info_html">
                                     <div class="col-sm-2 col-md-2"></div>
                                     <div class="col-sm-10 col-md-10">
-                                        <field name="new_voucher_budget_info_html" widget="html" readonly="1" nolabel="1" class="w-100 p-0 border-0 bg-transparent"/>
+                                        <field name="new_voucher_budget_info_html" widget="html" readonly="1" nolabel="1" class="o_budget_pool_field w-100 p-0 border-0 bg-transparent"/>
                                     </div>
                                 </div>
 

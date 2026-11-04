@@ -2854,14 +2854,34 @@ div[name="draft_voucher_line_ids"] td[name="status"] {
 /* Service Ticket: Budget Info Box - stretch 100% full width to fit field box without outer box wrapper */
 div[name="new_voucher_budget_info_html"],
 .o_field_widget[name="new_voucher_budget_info_html"],
-.o_field_html[name="new_voucher_budget_info_html"] {
+.o_field_html[name="new_voucher_budget_info_html"],
+.o_budget_pool_field,
+.o_budget_pool_field.o_field_widget,
+div[name="new_voucher_budget_info_html"] .o_readonly,
+.o_field_widget[name="new_voucher_budget_info_html"] .o_readonly,
+.o_field_html[name="new_voucher_budget_info_html"] .o_readonly,
+.o_budget_pool_field .o_readonly,
+div[name="new_voucher_budget_info_html"] .note-editable,
+.o_field_widget[name="new_voucher_budget_info_html"] .note-editable,
+.o_budget_pool_field .note-editable {
     border: none !important;
     background: transparent !important;
+    background-color: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    min-width: 100% !important;
     max-width: 100% !important;
     box-shadow: none !important;
+    display: block !important;
+}
+
+div[name="new_voucher_budget_info_html"] > div,
+.o_field_html[name="new_voucher_budget_info_html"] > div,
+.o_budget_pool_field > div {
+    width: 100% !important;
+    min-width: 100% !important;
+    display: block !important;
 }
 
 
