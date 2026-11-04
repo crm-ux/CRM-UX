@@ -282,6 +282,7 @@
                                     <field name="description" placeholder="Enter description..."/>
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="amount" sum="Total" class="fw-bold text-end pe-3"/>
+                                    <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1" optional="show"/>
                                     <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}" class="ps-2"/>
                                     <field name="bill_filename" column_invisible="1"/>
                                     <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>

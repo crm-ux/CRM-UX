@@ -883,28 +883,23 @@ class ServiceTicket(models.Model):
                 u_lim = user_limits[u.id]
                 if u_raw > u_lim:
                     exceeded_users.append((u, u_raw, u_lim))
-                    user_splits[u.id] = u_lim
-                else:
-                    user_splits[u.id] = u_raw
+                user_splits[u.id] = u_raw
         else:
             raw_split = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
             for u in target_users:
                 u_lim = user_limits.get(u.id, 0.0)
                 if not exp_type.is_km_based and u_lim > 0 and raw_split > u_lim:
                     exceeded_users.append((u, raw_split, u_lim))
-                    user_splits[u.id] = u_lim
-                else:
-                    user_splits[u.id] = raw_split
+                user_splits[u.id] = raw_split
 
         if exceeded_users and not self.env.context.get('voucher_budget_confirmed'):
             items_str = "".join([f"<li><strong>{u.name}</strong>: Entered share is <strong>₹{raw:,.2f}</strong>, but this voucher can only pass up to allowed budget limit of <strong>₹{lim:,.2f}</strong>.</li>" for u, raw, lim in exceeded_users])
             msg = f"""
             <div class="p-2" style="font-size:13px; color:#1e293b;">
                 <p class="mb-2">The entered bill amount exceeds the allowed budget limit for the following person(s):</p>
-                <ul class="mb-2 ps-3" style="color:#b91c1c;">
+                <ul class="mb-0 ps-3" style="color:#b91c1c;">
                     {items_str}
                 </ul>
-                <p class="mb-0 text-muted">Click <strong>OK</strong> to create draft vouchers capped at their allowed limits, or click <strong>Cancel</strong> to return and keep all your entered data as is.</p>
             </div>
             """
             wiz = self.env['service.ticket.voucher.budget.confirm.wizard'].create({
@@ -946,17 +941,19 @@ class ServiceTicket(models.Model):
                 'status': 'draft',
             })
 
-        self.new_voucher_date = False
-        self.new_voucher_expense_type_id = False
-        self.new_voucher_user_ids = [(5, 0, 0)]
-        self.new_voucher_start_km = 0.0
-        self.new_voucher_end_km = 0.0
-        self.new_voucher_total_km = 0.0
-        self.new_voucher_description = False
-        self.new_voucher_amount = 0.0
-        self.new_voucher_bill_file = False
-        self.new_voucher_bill_filename = False
-        return True
+        self.write({
+            'new_voucher_date': False,
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
+        return False
 
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
@@ -1536,6 +1533,26 @@ class ServiceTicketVoucherLine(models.Model):
     description = fields.Char(string='Description', placeholder='Enter description...')
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
     amount = fields.Monetary(string='Amount', currency_field='currency_id')
+    is_over_budget = fields.Boolean(compute='_compute_budget_status', string='Is Over Budget', store=True)
+    allowed_budget_limit = fields.Float(compute='_compute_budget_status', string='Allowed Limit', store=True)
+    over_budget_badge_html = fields.Html(compute='_compute_budget_status', string='Budget Status', sanitize=False)
+
+    @api.depends('amount', 'expense_type_id', 'user_id', 'is_km_based')
+    def _compute_budget_status(self):
+        for rec in self:
+            if rec.expense_type_id and not rec.is_km_based and rec.user_id:
+                limit = rec.expense_type_id.get_effective_budget_limit(user=rec.user_id)
+                rec.allowed_budget_limit = limit
+                if limit > 0 and rec.amount > limit:
+                    rec.is_over_budget = True
+                    rec.over_budget_badge_html = f'<span class="badge py-1 px-2" style="background:#fee2e2; color:#dc2626; border:1px solid #fca5a5; font-size:11px; font-weight:600; border-radius:4px; white-space:nowrap;" title="Exceeds allowed budget of ₹{limit:,.2f}">Max: ₹{limit:,.2f}</span>'
+                else:
+                    rec.is_over_budget = False
+                    rec.over_budget_badge_html = False
+            else:
+                rec.allowed_budget_limit = 0.0
+                rec.is_over_budget = False
+                rec.over_budget_badge_html = False
 
     @api.onchange('expense_type_id')
     def _onchange_voucher_line_expense_type(self):
@@ -1849,7 +1866,8 @@ class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
-        return self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
+        self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
+        return {'type': 'ir.actions.act_window_close'}
 
 
 class ServiceTicketVoucherRejectWizard(models.TransientModel):
