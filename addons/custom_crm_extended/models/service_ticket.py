@@ -670,9 +670,7 @@ class ServiceTicket(models.Model):
                     role_name = rec._get_user_role_display(u)
                     role_str = f" ({role_name})" if role_name else ""
                     rate = exp_type.get_effective_km_rate(user=u)
-                    limit = exp_type.get_effective_budget_limit(user=u)
-                    limit_str = f" · Max: ₹{limit:,.2f}" if limit > 0 else ""
-                    items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
+                    items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{rate:,.2f}/KM</span>")
 
                 missing_km_html = ""
 
@@ -892,7 +890,7 @@ class ServiceTicket(models.Model):
                     exceeded_users.append((u, raw_split, u_lim))
                 user_splits[u.id] = raw_split
 
-        if exceeded_users and not self.env.context.get('voucher_budget_confirmed'):
+        if not exp_type.is_km_based and exceeded_users and not self.env.context.get('voucher_budget_confirmed'):
             items_str = "".join([f"<li><strong>{u.name}</strong>: Entered share is <strong>₹{raw:,.2f}</strong>, but this voucher can only pass up to allowed budget limit of <strong>₹{lim:,.2f}</strong>.</li>" for u, raw, lim in exceeded_users])
             msg = f"""
             <div class="p-2" style="font-size:13px; color:#1e293b;">
@@ -1069,16 +1067,10 @@ class ServiceTicket(models.Model):
             'submitted_by_user_id': submitter_id,
         })
 
+        self.invalidate_recordset()
         return {
             'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Expenses Submitted'),
-                'message': _('%d expense line(s) submitted in voucher %s.') % (len(draft_lines), batch_name),
-                'type': 'success',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
+            'tag': 'reload',
         }
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
