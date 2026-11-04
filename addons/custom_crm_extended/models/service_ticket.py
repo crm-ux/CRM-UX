@@ -642,8 +642,11 @@ class ServiceTicket(models.Model):
                 return job.name
         return ""
 
+    @api.onchange('new_voucher_amount', 'new_voucher_total_km', 'new_voucher_expense_type_id', 'new_voucher_user_ids')
+    def _onchange_new_voucher_inputs_warning(self):
+        self._compute_new_voucher_budget_info_html()
+
     @api.depends('new_voucher_user_ids', 'new_voucher_expense_type_id', 'new_voucher_amount', 'new_voucher_total_km')
-    @api.onchange('new_voucher_user_ids', 'new_voucher_expense_type_id', 'new_voucher_amount', 'new_voucher_total_km')
     def _compute_new_voucher_budget_info_html(self):
         for rec in self:
             exp_type = rec.new_voucher_expense_type_id
@@ -672,20 +675,12 @@ class ServiceTicket(models.Model):
                     items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
 
                 missing_km_html = ""
-                if not rec.new_voucher_total_km or rec.new_voucher_total_km <= 0:
-                    missing_km_html = f"""
-                    <div class="w-100 pt-1 mt-1 d-flex align-items-center gap-1 flex-wrap" style="font-size:12px; color:#b91c1c; border-top:1px dashed #bae6fd;">
-                        <strong style="color:#b91c1c;">Missing KM:</strong>
-                        <span>Please enter valid Total KM greater than 0 for <strong>{emp_names}</strong>.</span>
-                    </div>
-                    """
 
                 rec.new_voucher_budget_info_html = f"""
                 <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
                     <span style="white-space:nowrap;">Allowed Rate for <strong>KM Expense</strong>:</span>
                     {" ".join(items_html)}
                 </div>
-                {missing_km_html}
                 """
             else:
                 total_limit = 0.0
@@ -717,13 +712,6 @@ class ServiceTicket(models.Model):
                         <span class="badge py-1 px-2" style="background:#e11d48; color:#ffffff; font-size:11px; font-weight:600; border-radius:4px; white-space:nowrap;">Budget Limit Exceeded</span>
                     </div>
                     """
-                elif entered_amount <= 0:
-                    warning_box_html = f"""
-                    <div class="w-100 pt-1 mt-1 d-flex align-items-center gap-1 flex-wrap" style="font-size:12px; color:#b91c1c; border-top:1px dashed #bae6fd;">
-                        <strong style="color:#b91c1c;">Missing Amount:</strong>
-                        <span>Please enter a valid expense Amount greater than 0 for <strong>{emp_names}</strong>.</span>
-                    </div>
-                    """
 
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
@@ -751,7 +739,6 @@ class ServiceTicket(models.Model):
                     <div class="py-1" style="font-size:12px; color:#64748b;">
                         <span>No budget limit restriction for this expense type.</span>
                     </div>
-                    {warning_box_html}
                     """
 
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
