@@ -617,6 +617,91 @@ class ServiceTicket(models.Model):
         self._compute_allowed_voucher_expense_type_ids()
         if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id not in self.allowed_voucher_expense_type_ids:
             self.new_voucher_expense_type_id = False
+        self._compute_new_voucher_budget_info_html()
+
+    new_voucher_budget_info_html = fields.Html(
+        compute='_compute_new_voucher_budget_info_html',
+        string='Budget Info Display',
+        sanitize=False,
+    )
+
+    @api.depends('new_voucher_user_ids', 'new_voucher_expense_type_id')
+    @api.onchange('new_voucher_user_ids', 'new_voucher_expense_type_id')
+    def _compute_new_voucher_budget_info_html(self):
+        for rec in self:
+            exp_type = rec.new_voucher_expense_type_id
+            if not exp_type:
+                rec.new_voucher_budget_info_html = False
+                continue
+
+            target_users = rec.new_voucher_user_ids or (rec.engineer_id or self.env.user)
+            if not target_users:
+                rec.new_voucher_budget_info_html = False
+                continue
+
+            if exp_type.is_km_based:
+                items_html = []
+                for u in target_users:
+                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    rate = exp_type.get_effective_km_rate(user=u)
+                    limit = exp_type.get_effective_budget_limit(user=u)
+                    limit_str = f" · Max: ₹{limit:,.2f}" if limit > 0 else ""
+                    items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600;'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
+
+                rec.new_voucher_budget_info_html = f"""
+                <div class="p-2 px-3 rounded-2 border" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <i class="fa fa-car text-primary"></i>
+                        <strong>KM Rate &amp; Limits:</strong>
+                        {" ".join(items_html)}
+                    </div>
+                </div>
+                """
+            else:
+                total_limit = 0.0
+                has_any_limit = False
+                items_html = []
+                for u in target_users:
+                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    limit = exp_type.get_effective_budget_limit(user=u)
+                    if limit > 0:
+                        has_any_limit = True
+                        total_limit += limit
+                        items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600;'>{u.name}{role_str}: ₹{limit:,.2f}</span>")
+                    else:
+                        items_html.append(f"<span class='badge me-1' style='background:#f1f5f9; color:#475569;'>{u.name}{role_str}: No Limit</span>")
+
+                if len(target_users) > 1 and has_any_limit:
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="p-2 px-3 rounded-2 border" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                <i class="fa fa-users text-primary me-1"></i>
+                                <strong>Group Budget Pool:</strong>
+                                {" ".join(items_html)}
+                            </div>
+                            <div class="fw-bold" style="color:#0b3d91;">
+                                Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
+                            </div>
+                        </div>
+                    </div>
+                    """
+                elif has_any_limit:
+                    u = target_users[:1]
+                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
+                        <i class="fa fa-info-circle text-primary"></i>
+                        <span>Allowed Limit for <strong>{u.name}{role_str}</strong>: <strong style="color:#0b3d91;">₹{total_limit:,.2f} / visit</strong></span>
+                    </div>
+                    """
+                else:
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f8fafc; border-color:#e2e8f0 !important; font-size:12px; color:#475569;">
+                        <i class="fa fa-info-circle text-muted"></i>
+                        <span>No budget limit restriction for this expense type.</span>
+                    </div>
+                    """
 
     has_km_lines = fields.Boolean(compute='_compute_has_km_lines', string='Has KM Lines')
 
