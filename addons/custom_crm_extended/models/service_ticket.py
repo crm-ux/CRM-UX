@@ -571,7 +571,7 @@ class ServiceTicket(models.Model):
         'ticket_id',
         'user_id',
         string='Employees / Team',
-        domain="[('share', '=', False)]",
+        domain="[('share', '=', False), ('id', 'not in', new_voucher_user_ids)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
     new_voucher_date = fields.Date(string='Expense Date', default=fields.Date.context_today)
@@ -607,8 +607,13 @@ class ServiceTicket(models.Model):
     @api.onchange('new_voucher_user_ids')
     def _onchange_new_voucher_user_ids_filter_type(self):
         self._compute_allowed_voucher_expense_type_ids()
-        if self.new_voucher_expense_type_id and self.new_voucher_expense_type_id not in self.allowed_voucher_expense_type_ids:
-            self.new_voucher_expense_type_id = False
+        exp_type = self.new_voucher_expense_type_id
+        if exp_type and exp_type.job_ids:
+            for u in self.new_voucher_user_ids:
+                u_jobs = exp_type._get_user_job_positions(user=u)
+                if not any(j.id in u_jobs for j in exp_type.job_ids):
+                    self.new_voucher_expense_type_id = False
+                    break
         self._compute_new_voucher_budget_info_html()
 
     new_voucher_budget_info_html = fields.Html(
@@ -700,14 +705,12 @@ class ServiceTicket(models.Model):
 
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 py-1 w-100" style="font-size:12px; color:#334155;">
-                        <div class="d-flex align-items-center gap-1 flex-wrap">
-                            <strong style="color:#0b3d91;">Group Budget Pool:</strong>
-                            {" ".join(items_html)}
-                        </div>
-                        <div class="fw-bold ms-auto" style="color:#0b3d91; white-space:nowrap;">
-                            Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
-                        </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155;">
+                        <strong style="color:#0b3d91;">Group Budget Pool:</strong>
+                        {" ".join(items_html)}
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        <span class="fw-bold" style="color:#0b3d91;">Total Allowed:</span>
+                        <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px; border-radius:4px;">₹{total_limit:,.2f}</span>
                     </div>
                     {warning_box_html}
                     """
@@ -776,7 +779,6 @@ class ServiceTicket(models.Model):
         else:
             self.new_voucher_is_km = False
             self.new_voucher_total_km = 0.0
-            self.new_voucher_amount = 0.0
         self._compute_new_voucher_budget_info_html()
 
     @api.onchange('new_voucher_total_km', 'new_voucher_expense_type_id')
