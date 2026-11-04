@@ -656,6 +656,8 @@ class ServiceTicket(models.Model):
                 rec.new_voucher_budget_info_html = False
                 continue
 
+            style_reset = """<style>div[name="new_voucher_budget_info_html"],div[name="new_voucher_budget_info_html"] .o_readonly,.o_budget_pool_field,.o_budget_pool_field .o_readonly{border:none!important;border-width:0!important;background:transparent!important;padding:0!important;margin:0!important;height:auto!important;min-height:unset!important;max-height:none!important;overflow:visible!important;box-shadow:none!important;outline:none!important;}</style>"""
+
             if exp_type.is_km_based:
                 items_html = []
                 for u in target_users:
@@ -664,10 +666,10 @@ class ServiceTicket(models.Model):
                     rate = exp_type.get_effective_km_rate(user=u)
                     limit = exp_type.get_effective_budget_limit(user=u)
                     limit_str = f" · Max: ₹{limit:,.2f}" if limit > 0 else ""
-                    items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600;'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
+                    items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600; white-space:nowrap;'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
 
-                rec.new_voucher_budget_info_html = f"""
-                <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155;">
+                rec.new_voucher_budget_info_html = f"""{style_reset}
+                <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155; row-gap:6px;">
                     <strong style="color:#0b3d91;">KM Rate &amp; Limits:</strong>
                     {" ".join(items_html)}
                 </div>
@@ -704,8 +706,8 @@ class ServiceTicket(models.Model):
                     """
 
                 if len(target_users) > 1 and has_any_limit:
-                    rec.new_voucher_budget_info_html = f"""
-                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155; line-height:1.8;">
+                    rec.new_voucher_budget_info_html = f"""{style_reset}
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155; line-height:1.8; row-gap:6px;">
                         <span class="d-inline-flex align-items-center gap-1" style="white-space:nowrap;">
                             <strong style="color:#0b3d91;">Group Budget Pool:</strong>
                             <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px; border-radius:4px; white-space:nowrap;">Total Allowed: ₹{total_limit:,.2f}</span>
@@ -719,7 +721,7 @@ class ServiceTicket(models.Model):
                     u = target_users[:1]
                     role_name = rec._get_user_role_display(u)
                     role_str = f" ({role_name})" if role_name else ""
-                    rec.new_voucher_budget_info_html = f"""
+                    rec.new_voucher_budget_info_html = f"""{style_reset}
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#334155;">
                         <span style="white-space:nowrap;">Allowed Limit for <strong>{u.name}{role_str}</strong>:</span>
                         <span class="badge py-1 px-2" style="background:#0b3d91; color:#ffffff; font-size:12px; font-weight:600; border-radius:4px; white-space:nowrap;">₹{total_limit:,.2f} / visit</span>
@@ -727,7 +729,7 @@ class ServiceTicket(models.Model):
                     {warning_box_html}
                     """
                 else:
-                    rec.new_voucher_budget_info_html = f"""
+                    rec.new_voucher_budget_info_html = f"""{style_reset}
                     <div class="py-1" style="font-size:12px; color:#64748b;">
                         <span>No budget limit restriction for this expense type.</span>
                     </div>

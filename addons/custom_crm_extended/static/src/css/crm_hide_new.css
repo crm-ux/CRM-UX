@@ -1208,8 +1208,8 @@ button[name="action_add_voucher_line"]:hover {
     color: #334155 !important;
 }
 
-.o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]),
-.o_voucher_quick_add_bar .o_field_widget[readonly]:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]) {
+.o_voucher_quick_add_bar .o_field_widget.o_readonly_modifier:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]):not([name="new_voucher_budget_info_html"]):not(.o_budget_pool_field),
+.o_voucher_quick_add_bar .o_field_widget[readonly]:not(:has(input:not([readonly]))):not([name="new_voucher_amount"]):not([name="new_voucher_budget_info_html"]):not(.o_budget_pool_field) {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     padding: 6px 10px !important;
@@ -2818,6 +2818,32 @@ div[name="draft_voucher_line_ids"] td[name="description"] {
     width: 100% !important;
 }
 
+/* Dynamic Budget Pool & Limit display: zero box, zero border, transparent, full auto-wrap */
+.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_budget_info_html"],
+.o_voucher_quick_add_bar div[name="new_voucher_budget_info_html"],
+.o_voucher_quick_add_bar .o_budget_pool_field,
+.o_voucher_quick_add_bar .o_budget_pool_field .o_readonly,
+.o_voucher_quick_add_bar div[name="new_voucher_budget_info_html"] .o_readonly,
+div[name="new_voucher_budget_info_html"],
+div[name="new_voucher_budget_info_html"] .o_readonly,
+.o_budget_pool_field,
+.o_budget_pool_field .o_readonly {
+    border: none !important;
+    border-width: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    cursor: default !important;
+    display: block !important;
+    width: 100% !important;
+}
+
 /* Dynamic content-based sizing: Expense Date sizes to fit text naturally without truncation */
 div[name="draft_voucher_line_ids"] th[data-name="expense_date"],
 div[name="draft_voucher_line_ids"] td[name="expense_date"] {
@@ -2882,6 +2908,10 @@ div[name="new_voucher_budget_info_html"] .note-editable,
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: none !important;
+    overflow: visible !important;
     box-shadow: none !important;
     outline: none !important;
     display: block !important;
