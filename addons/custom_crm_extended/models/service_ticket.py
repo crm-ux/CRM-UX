@@ -625,6 +625,30 @@ class ServiceTicket(models.Model):
         sanitize=False,
     )
 
+    def _get_user_role_display(self, user):
+        if not user:
+            return ""
+        if user.crm_job_id:
+            return user.crm_job_id.name
+        emp = self.env['hr.employee'].sudo().search([
+            '|', ('user_id', '=', user.id), ('work_email', '=', user.email or '')
+        ], limit=1)
+        if emp and emp.job_id:
+            return emp.job_id.name
+        if emp and emp.job_title:
+            return emp.job_title
+        assigned_job = self.env['hr.job'].sudo().search([('assigned_employee_ids', 'in', [user.id])], limit=1)
+        if assigned_job:
+            return assigned_job.name
+        managed_dept = self.env['hr.department'].sudo().search([('manager_user_id', '=', user.id)], limit=1)
+        if managed_dept:
+            mgr_job = self.env['hr.job'].sudo().search([('department_id', '=', managed_dept.id), ('is_manager_role', '=', True)], limit=1)
+            if mgr_job:
+                return mgr_job.name
+            if managed_dept.manager_id and managed_dept.manager_id.job_id:
+                return managed_dept.manager_id.job_id.name
+        return ""
+
     @api.depends('new_voucher_user_ids', 'new_voucher_expense_type_id')
     @api.onchange('new_voucher_user_ids', 'new_voucher_expense_type_id')
     def _compute_new_voucher_budget_info_html(self):
@@ -642,19 +666,17 @@ class ServiceTicket(models.Model):
             if exp_type.is_km_based:
                 items_html = []
                 for u in target_users:
-                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    role_name = rec._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
                     rate = exp_type.get_effective_km_rate(user=u)
                     limit = exp_type.get_effective_budget_limit(user=u)
                     limit_str = f" · Max: ₹{limit:,.2f}" if limit > 0 else ""
                     items_html.append(f"<span class='badge me-1' style='background:#e0f2fe; color:#0369a1; font-weight:600;'>{u.name}{role_str}: ₹{rate:,.2f}/KM{limit_str}</span>")
 
                 rec.new_voucher_budget_info_html = f"""
-                <div class="p-2 px-3 rounded-2 border" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <i class="fa fa-car text-primary"></i>
-                        <strong>KM Rate &amp; Limits:</strong>
-                        {" ".join(items_html)}
-                    </div>
+                <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2 flex-wrap" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; box-sizing:border-box;">
+                    <strong>KM Rate &amp; Limits:</strong>
+                    {" ".join(items_html)}
                 </div>
                 """
             else:
@@ -662,7 +684,8 @@ class ServiceTicket(models.Model):
                 has_any_limit = False
                 items_html = []
                 for u in target_users:
-                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    role_name = rec._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
                     limit = exp_type.get_effective_budget_limit(user=u)
                     if limit > 0:
                         has_any_limit = True
@@ -673,32 +696,28 @@ class ServiceTicket(models.Model):
 
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="p-2 px-3 rounded-2 border" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-flex align-items-center gap-1 flex-wrap">
-                                <i class="fa fa-users text-primary me-1"></i>
-                                <strong>Group Budget Pool:</strong>
-                                {" ".join(items_html)}
-                            </div>
-                            <div class="fw-bold" style="color:#0b3d91;">
-                                Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
-                            </div>
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; box-sizing:border-box;">
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <strong>Group Budget Pool:</strong>
+                            {" ".join(items_html)}
+                        </div>
+                        <div class="fw-bold" style="color:#0b3d91;">
+                            Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
                         </div>
                     </div>
                     """
                 elif has_any_limit:
                     u = target_users[:1]
-                    role_str = f" ({u.crm_job_id.name})" if u.crm_job_id else ""
+                    role_name = rec._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e;">
-                        <i class="fa fa-info-circle text-primary"></i>
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; box-sizing:border-box;">
                         <span>Allowed Limit for <strong>{u.name}{role_str}</strong>: <strong style="color:#0b3d91;">₹{total_limit:,.2f} / visit</strong></span>
                     </div>
                     """
                 else:
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f8fafc; border-color:#e2e8f0 !important; font-size:12px; color:#475569;">
-                        <i class="fa fa-info-circle text-muted"></i>
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f8fafc; border-color:#e2e8f0 !important; font-size:12px; color:#475569; width:100% !important; box-sizing:border-box;">
                         <span>No budget limit restriction for this expense type.</span>
                     </div>
                     """
@@ -1305,22 +1324,40 @@ class ServiceTicketExpenseType(models.Model):
             'target': 'new',
         }
 
+    def _get_user_job_positions(self, user=None, job_id=None):
+        self.ensure_one()
+        user = user or self.env.user
+        job_ids = set()
+        if job_id:
+            job_ids.add(job_id)
+        if user:
+            if getattr(user, 'crm_job_id', None):
+                job_ids.add(user.crm_job_id.id)
+            emps = self.env['hr.employee'].sudo().search([
+                '|', ('user_id', '=', user.id), ('work_email', '=', user.email or '')
+            ])
+            for emp in emps:
+                if emp.job_id:
+                    job_ids.add(emp.job_id.id)
+                if emp.job_title:
+                    m_job = self.env['hr.job'].sudo().search([('name', '=ilike', emp.job_title.strip())], limit=1)
+                    if m_job:
+                        job_ids.add(m_job.id)
+            assigned_jobs = self.env['hr.job'].sudo().search([('assigned_employee_ids', 'in', [user.id])])
+            job_ids.update(assigned_jobs.ids)
+            managed_depts = self.env['hr.department'].sudo().search([('manager_user_id', '=', user.id)])
+            for dept in managed_depts:
+                mgr_job = self.env['hr.job'].sudo().search([('department_id', '=', dept.id), ('is_manager_role', '=', True)], limit=1)
+                if mgr_job:
+                    job_ids.add(mgr_job.id)
+                if dept.manager_id and dept.manager_id.job_id:
+                    job_ids.add(dept.manager_id.job_id.id)
+        return job_ids
+
     def get_effective_budget_limit(self, user=None, job_id=None):
         """Returns the custom limit for the given user's job position if active rule exists, else global budget_limit."""
         self.ensure_one()
-        user = user or self.env.user
-        user_job_ids = set()
-        if job_id:
-            user_job_ids.add(job_id)
-        if hasattr(user, 'crm_job_id') and user.crm_job_id:
-            user_job_ids.add(user.crm_job_id.id)
-        if hasattr(user, 'employee_id') and user.employee_id and user.employee_id.job_id:
-            user_job_ids.add(user.employee_id.job_id.id)
-        if hasattr(user, 'employee_ids'):
-            for emp in user.employee_ids:
-                if emp.job_id:
-                    user_job_ids.add(emp.job_id.id)
-
+        user_job_ids = self._get_user_job_positions(user=user, job_id=job_id)
         for rule in self.limit_rule_ids:
             if rule.active and any(j.id in user_job_ids for j in rule.job_ids):
                 return rule.budget_limit
@@ -1329,19 +1366,7 @@ class ServiceTicketExpenseType(models.Model):
     def get_effective_km_rate(self, user=None, job_id=None):
         """Returns the custom rate per KM for the given user's job position if active rule exists, else global km_rate."""
         self.ensure_one()
-        user = user or self.env.user
-        user_job_ids = set()
-        if job_id:
-            user_job_ids.add(job_id)
-        if user.crm_job_id:
-            user_job_ids.add(user.crm_job_id.id)
-        if hasattr(user, 'employee_id') and user.employee_id and user.employee_id.job_id:
-            user_job_ids.add(user.employee_id.job_id.id)
-        if hasattr(user, 'employee_ids'):
-            for emp in user.employee_ids:
-                if emp.job_id:
-                    user_job_ids.add(emp.job_id.id)
-
+        user_job_ids = self._get_user_job_positions(user=user, job_id=job_id)
         for rule in self.limit_rule_ids:
             if rule.active and any(j.id in user_job_ids for j in rule.job_ids):
                 return rule.km_rate
