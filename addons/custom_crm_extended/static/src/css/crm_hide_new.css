@@ -2797,32 +2797,31 @@ div[name="limit_rule_ids"] .o_selected_row .o_input:focus,
     outline: none !important;
 }
 
-/* Service Ticket: Pending Expenses table - strictly scoped to div[name="draft_voucher_line_ids"] */
+/* Service Ticket: Pending Expenses table - 100% dynamic fluid sizing (no hardcoded px) */
 div[name="draft_voucher_line_ids"] table.o_list_table {
     table-layout: auto !important;
     width: 100% !important;
     min-width: 100% !important;
 }
 
-/* Prevent action column header from sticking to end of container while body row is inside table */
+/* Prevent action column header from separating from body row */
 div[name="draft_voucher_line_ids"] th.o_list_actions_header,
 div[name="draft_voucher_line_ids"] th.o_list_controller {
     position: static !important;
-    width: 40px !important;
+    width: auto !important;
     text-align: center !important;
 }
 
-/* Allow Description column to stretch and fill all available container width */
+/* Dynamic fluid stretch: Description column absorbs 100% of remaining screen width */
 div[name="draft_voucher_line_ids"] th[data-name="description"],
 div[name="draft_voucher_line_ids"] td[name="description"] {
     width: 100% !important;
-    min-width: 200px !important;
 }
 
-/* Ensure Expense Date header never gets truncated to 'Expense ...' */
+/* Dynamic content-based sizing: Expense Date sizes to fit text naturally without truncation */
 div[name="draft_voucher_line_ids"] th[data-name="expense_date"],
 div[name="draft_voucher_line_ids"] td[name="expense_date"] {
-    min-width: 125px !important;
+    width: auto !important;
     white-space: nowrap !important;
 }
 div[name="draft_voucher_line_ids"] th[data-name="expense_date"] span {
@@ -2831,23 +2830,25 @@ div[name="draft_voucher_line_ids"] th[data-name="expense_date"] span {
     white-space: nowrap !important;
 }
 
-/* Clean spacing between Amount and Bill */
+/* Dynamic rem-based column spacing between Amount and Bill */
 div[name="draft_voucher_line_ids"] th[data-name="amount"],
 div[name="draft_voucher_line_ids"] td[name="amount"] {
-    min-width: 110px !important;
+    width: auto !important;
+    white-space: nowrap !important;
     padding-right: 1.5rem !important;
 }
 
 div[name="draft_voucher_line_ids"] th[data-name="bill_file"],
 div[name="draft_voucher_line_ids"] td[name="bill_file"] {
-    min-width: 80px !important;
+    width: auto !important;
     padding-left: 1rem !important;
 }
 
 div[name="draft_voucher_line_ids"] th[data-name="status"],
 div[name="draft_voucher_line_ids"] td[name="status"] {
-    min-width: 90px !important;
+    width: auto !important;
     text-align: center !important;
+    white-space: nowrap !important;
 }
 
 
