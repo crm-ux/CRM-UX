@@ -463,6 +463,24 @@
         <field name="target">new</field>
     </record>
 
+    <!-- Confirm Over Budget Voucher Warning Wizard Form -->
+    <record id="view_service_ticket_voucher_budget_confirm_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.budget.confirm.wizard.form</field>
+        <field name="model">service.ticket.voucher.budget.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Budget Limit Notice">
+                <field name="ticket_id" invisible="1"/>
+                <div class="p-2">
+                    <field name="message_html" widget="html" readonly="1" nolabel="1"/>
+                </div>
+                <footer>
+                    <button string="OK" type="object" name="action_confirm" class="btn btn-primary"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Reject Voucher Remark Wizard Popup Form -->
     <record id="view_service_ticket_voucher_reject_wizard_form" model="ir.ui.view">
         <field name="name">service.ticket.voucher.reject.wizard.form</field>

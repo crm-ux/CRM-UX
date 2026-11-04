@@ -701,18 +701,6 @@ class ServiceTicket(models.Model):
                 is_exceeded = bool(has_any_limit and total_limit > 0 and entered_amount > total_limit)
                 diff = entered_amount - total_limit if is_exceeded else 0.0
 
-                warning_box_html = ""
-                if is_exceeded:
-                    warning_box_html = f"""
-                    <div class="p-2 px-3 mt-1 rounded border d-flex align-items-center justify-content-between flex-wrap gap-2 w-100" style="background:#fff1f2; border-color:#fecdd3 !important; color:#9f1239; font-size:12px; box-sizing:border-box;">
-                        <div>
-                            <strong style="color:#b91c1c;">Warning:</strong>
-                            <span>Entered amount <strong>₹{entered_amount:,.2f}</strong> exceeds allowed limit <strong>₹{total_limit:,.2f}</strong> by <strong style="color:#b91c1c;">₹{diff:,.2f}</strong> for <strong>{emp_names}</strong>.</span>
-                        </div>
-                        <span class="badge py-1 px-2" style="background:#e11d48; color:#ffffff; font-size:11px; font-weight:600; border-radius:4px; white-space:nowrap;">Budget Limit Exceeded</span>
-                    </div>
-                    """
-
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
@@ -721,7 +709,6 @@ class ServiceTicket(models.Model):
                         <span class="text-muted fw-bold mx-1">|</span>
                         {" ".join(items_html)}
                     </div>
-                    {warning_box_html}
                     """
                 elif has_any_limit:
                     u = target_users[:1]
@@ -732,7 +719,6 @@ class ServiceTicket(models.Model):
                         <span style="white-space:nowrap;">Allowed Limit for <strong>{u.name}{role_str}</strong>:</span>
                         <span class="badge" style="{pill_total}">₹{total_limit:,.2f} / visit</span>
                     </div>
-                    {warning_box_html}
                     """
                 else:
                     rec.new_voucher_budget_info_html = f"""
@@ -889,25 +875,50 @@ class ServiceTicket(models.Model):
         has_positive_limits = total_budget > 0 and all(user_limits[u.id] > 0 for u in target_users)
 
         user_splits = {}
+        exceeded_users = []
         if not exp_type.is_km_based and has_positive_limits:
-            # Total bill is distributed according to each person's limit ratio: (user_limit / total_budget)
-            # Capped at each individual's maximum allowed limit
             for u in target_users:
                 u_ratio = user_limits[u.id] / total_budget
-                u_share = round(self.new_voucher_amount * u_ratio, 2)
-                # Cap strictly to individual limit
-                if u_share > user_limits[u.id]:
-                    u_share = user_limits[u.id]
-                user_splits[u.id] = u_share
+                u_raw = round(self.new_voucher_amount * u_ratio, 2)
+                u_lim = user_limits[u.id]
+                if u_raw > u_lim:
+                    exceeded_users.append((u, u_raw, u_lim))
+                    user_splits[u.id] = u_lim
+                else:
+                    user_splits[u.id] = u_raw
         else:
-            # Equal division fallback (capped if limit defined)
             raw_split = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
             for u in target_users:
-                u_limit = user_limits.get(u.id, 0.0)
-                if not exp_type.is_km_based and u_limit > 0 and raw_split > u_limit:
-                    user_splits[u.id] = u_limit
+                u_lim = user_limits.get(u.id, 0.0)
+                if not exp_type.is_km_based and u_lim > 0 and raw_split > u_lim:
+                    exceeded_users.append((u, raw_split, u_lim))
+                    user_splits[u.id] = u_lim
                 else:
                     user_splits[u.id] = raw_split
+
+        if exceeded_users and not self.env.context.get('voucher_budget_confirmed'):
+            items_str = "".join([f"<li><strong>{u.name}</strong>: Entered share is <strong>₹{raw:,.2f}</strong>, but this voucher can only pass up to allowed budget limit of <strong>₹{lim:,.2f}</strong>.</li>" for u, raw, lim in exceeded_users])
+            msg = f"""
+            <div class="p-2" style="font-size:13px; color:#1e293b;">
+                <p class="mb-2">The entered bill amount exceeds the allowed budget limit for the following person(s):</p>
+                <ul class="mb-2 ps-3" style="color:#b91c1c;">
+                    {items_str}
+                </ul>
+                <p class="mb-0 text-muted">Click <strong>OK</strong> to create draft vouchers capped at their allowed limits, or click <strong>Cancel</strong> to return and keep all your entered data as is.</p>
+            </div>
+            """
+            wiz = self.env['service.ticket.voucher.budget.confirm.wizard'].create({
+                'ticket_id': self.id,
+                'message_html': msg,
+            })
+            return {
+                'name': _('Budget Limit Notice'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'service.ticket.voucher.budget.confirm.wizard',
+                'res_id': wiz.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
 
         km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
         split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
@@ -1827,6 +1838,18 @@ class ServiceTicketVoucherLine(models.Model):
             'view_id': view.id if view else False,
             'target': 'new',
         }
+
+
+class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
+    _name = 'service.ticket.voucher.budget.confirm.wizard'
+    _description = 'Confirm Over Budget Voucher Warning'
+
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True)
+    message_html = fields.Html(string='Message', readonly=True, sanitize=False)
+
+    def action_confirm(self):
+        self.ensure_one()
+        return self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
 
 
 class ServiceTicketVoucherRejectWizard(models.TransientModel):
