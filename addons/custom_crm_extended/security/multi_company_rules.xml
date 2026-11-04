@@ -153,5 +153,25 @@
             <field name="global" eval="True"/>
             <field name="domain_force">[('todo_id.user_id', '=', user.id)]</field>
         </record>
+
+        <!-- Voucher Batch Access: Admin/Global Manager (All), Dept Approver (Dept + Sub-depts), Employee (Own) -->
+        <record id="rule_service_ticket_voucher_batch_access" model="ir.rule">
+            <field name="name">Voucher Submissions: Role and Department Filter</field>
+            <field name="model_id" ref="model_service_ticket_voucher_batch"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                user._get_voucher_batch_domain()
+            </field>
+        </record>
+
+        <!-- Voucher Line Access: Admin/Global Manager (All), Dept Approver (Dept + Sub-depts), Employee (Own) -->
+        <record id="rule_service_ticket_voucher_line_access" model="ir.rule">
+            <field name="name">Voucher Lines: Role and Department Filter</field>
+            <field name="model_id" ref="model_service_ticket_voucher_line"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">
+                user._get_voucher_line_domain()
+            </field>
+        </record>
     </data>
 </odoo>

@@ -265,6 +265,101 @@ class ResUsers(models.Model):
             })
         return res
 
+    def _get_voucher_batch_domain(self):
+        """Record rule domain for Voucher Management (service.ticket.voucher.batch).
+        - Admin & Global Expense Managers: See ALL vouchers.
+        - Department Approvers: See vouchers of employees in their active department & assigned sub-departments.
+        - Regular Employees: See only their own submitted or involved vouchers.
+        """
+        self.ensure_one()
+        if self._is_admin() or self.has_group('base.group_system'):
+            return [(1, '=', 1)]
+
+        company = self.company_id or self.env.company
+        if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+            return [(1, '=', 1)]
+
+        # Check if user is an active Department Voucher Approver
+        managed_depts = self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', self.id),
+            ('extra_department_ids.voucher_manager_id', '=', self.id),
+        ])
+        
+        all_dept_ids = set()
+        for d in managed_depts:
+            if d.voucher_manager_id.id == self.id:
+                all_dept_ids.add(d.id)
+                all_dept_ids.update(d.extra_department_ids.ids)
+            for extra in d.extra_department_ids:
+                if extra.voucher_manager_id.id == self.id:
+                    all_dept_ids.add(d.id)
+
+        if all_dept_ids:
+            dept_users = self.env['res.users'].sudo().search([
+                '|',
+                ('crm_department_id', 'in', list(all_dept_ids)),
+                ('employee_id.department_id', 'in', list(all_dept_ids))
+            ])
+            allowed_uids = list(set(dept_users.ids + [self.id]))
+            return ['|', '|',
+                ('user_id', 'in', allowed_uids),
+                ('submitted_by_user_id', 'in', allowed_uids),
+                ('line_ids.user_id', 'in', allowed_uids)
+            ]
+
+        return ['|', '|',
+            ('user_id', '=', self.id),
+            ('submitted_by_user_id', '=', self.id),
+            ('line_ids.user_id', '=', self.id)
+        ]
+
+    def _get_voucher_line_domain(self):
+        """Record rule domain for Voucher Lines (service.ticket.voucher.line)."""
+        self.ensure_one()
+        if self._is_admin() or self.has_group('base.group_system'):
+            return [(1, '=', 1)]
+
+        company = self.company_id or self.env.company
+        if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+            return [(1, '=', 1)]
+
+        managed_depts = self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', self.id),
+            ('extra_department_ids.voucher_manager_id', '=', self.id),
+        ])
+
+        all_dept_ids = set()
+        for d in managed_depts:
+            if d.voucher_manager_id.id == self.id:
+                all_dept_ids.add(d.id)
+                all_dept_ids.update(d.extra_department_ids.ids)
+            for extra in d.extra_department_ids:
+                if extra.voucher_manager_id.id == self.id:
+                    all_dept_ids.add(d.id)
+
+        if all_dept_ids:
+            dept_users = self.env['res.users'].sudo().search([
+                '|',
+                ('crm_department_id', 'in', list(all_dept_ids)),
+                ('employee_id.department_id', 'in', list(all_dept_ids))
+            ])
+            allowed_uids = list(set(dept_users.ids + [self.id]))
+            return ['|', '|', '|',
+                ('department_id', 'in', list(all_dept_ids)),
+                ('user_id', 'in', allowed_uids),
+                ('submitted_by_user_id', 'in', allowed_uids),
+                ('user_id', '=', self.id)
+            ]
+
+        return ['|',
+            ('user_id', '=', self.id),
+            ('submitted_by_user_id', '=', self.id)
+        ]
+
     def _get_all_subordinates(self):
         """Recursively retrieves all subordinate user IDs down the entire management chain."""
         subordinates = self.env['res.users']

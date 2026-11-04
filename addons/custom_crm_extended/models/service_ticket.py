@@ -1014,8 +1014,16 @@ class ServiceTicket(models.Model):
         if not draft_lines:
             return True
 
-        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-        approver_uid = mgr.id if mgr else 2
+        emp_dept = primary_emp.crm_department_id or (primary_emp.employee_id and primary_emp.employee_id.department_id) if primary_emp else False
+        dept_approver = False
+        if emp_dept and emp_dept.voucher_approval_active and emp_dept.voucher_manager_id:
+            dept_approver = emp_dept.voucher_manager_id
+
+        if not dept_approver:
+            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+            approver_uid = mgr.id if mgr else 2
+        else:
+            approver_uid = dept_approver.id
         submit_date = fields.Date.context_today(self)
         ticket_name = self.ticket_id or self.name or 'TCK'
 
