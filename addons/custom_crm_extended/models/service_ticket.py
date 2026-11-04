@@ -671,7 +671,7 @@ class ServiceTicket(models.Model):
 
                 rec.new_voucher_budget_info_html = f"""
                 <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
-                    <strong style="color:#0369a1;">KM Rate &amp; Limits:</strong>
+                    <span style="white-space:nowrap;">Allowed Rate for <strong>KM Expense</strong>:</span>
                     {" ".join(items_html)}
                 </div>
                 """
@@ -709,10 +709,8 @@ class ServiceTicket(models.Model):
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
-                        <span class="d-inline-flex align-items-center gap-1" style="white-space:nowrap;">
-                            <strong style="color:#0369a1;">Group Budget Pool:</strong>
-                            <span class="badge ms-1" style="{pill_total}">Total Allowed: ₹{total_limit:,.2f}</span>
-                        </span>
+                        <span style="white-space:nowrap;">Allowed Limit for <strong>Group Budget Pool</strong>:</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f} / visit</span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         {" ".join(items_html)}
                     </div>
