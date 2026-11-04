@@ -700,34 +700,30 @@ class ServiceTicket(models.Model):
 
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
-                    <div style="width:100% !important; min-width:100% !important; display:block !important; box-sizing:border-box;">
-                        <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; min-width:100% !important; box-sizing:border-box;">
-                            <div class="d-flex align-items-center gap-1 flex-wrap">
-                                <strong>Group Budget Pool:</strong>
-                                {" ".join(items_html)}
-                            </div>
-                            <div class="fw-bold ms-auto" style="color:#0b3d91; white-space:nowrap;">
-                                Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
-                            </div>
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; box-sizing:border-box;">
+                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <strong>Group Budget Pool:</strong>
+                            {" ".join(items_html)}
                         </div>
-                        {warning_box_html}
+                        <div class="fw-bold ms-auto" style="color:#0b3d91; white-space:nowrap;">
+                            Total Allowed: <span class="badge py-1 px-2" style="background:#0b3d91; color:#fff; font-size:12px;">₹{total_limit:,.2f}</span>
+                        </div>
                     </div>
+                    {warning_box_html}
                     """
                 elif has_any_limit:
                     u = target_users[:1]
                     role_name = rec._get_user_role_display(u)
                     role_str = f" ({role_name})" if role_name else ""
                     rec.new_voucher_budget_info_html = f"""
-                    <div style="width:100% !important; min-width:100% !important; display:block !important; box-sizing:border-box;">
-                        <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; min-width:100% !important; box-sizing:border-box;">
-                            <span>Allowed Limit for <strong>{u.name}{role_str}</strong>: <strong style="color:#0b3d91;">₹{total_limit:,.2f} / visit</strong></span>
-                        </div>
-                        {warning_box_html}
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f0f9ff; border-color:#bae6fd !important; font-size:12px; color:#0c4a6e; width:100% !important; box-sizing:border-box;">
+                        <span>Allowed Limit for <strong>{u.name}{role_str}</strong>: <strong style="color:#0b3d91;">₹{total_limit:,.2f} / visit</strong></span>
                     </div>
+                    {warning_box_html}
                     """
                 else:
                     rec.new_voucher_budget_info_html = f"""
-                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f8fafc; border-color:#e2e8f0 !important; font-size:12px; color:#475569; width:100% !important; min-width:100% !important; box-sizing:border-box;">
+                    <div class="w-100 p-2 px-3 rounded-2 border d-flex align-items-center gap-2" style="background:#f8fafc; border-color:#e2e8f0 !important; font-size:12px; color:#475569; width:100% !important; box-sizing:border-box;">
                         <span>No budget limit restriction for this expense type.</span>
                     </div>
                     """
