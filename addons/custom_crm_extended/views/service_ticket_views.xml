@@ -262,7 +262,7 @@
 
                             <!-- Table for Pending Expenses Only -->
                             <field name="draft_voucher_line_ids" class="o_voucher_card_list w-100" invisible="not has_draft_vouchers">
-                                <list editable="bottom" create="0" delete="1">
+                                <list editable="bottom" create="0" delete="1" class="w-100">
                                     <field name="expense_date" string="Expense Date"/>
                                     <field name="user_id" string="Employee" readonly="1"/>
                                     <field name="allowed_expense_type_ids" column_invisible="1"/>
