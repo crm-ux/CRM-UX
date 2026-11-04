@@ -1309,7 +1309,51 @@ class ServiceTicketExpenseType(models.Model):
         help='Select one or multiple job positions allowed to claim this expense. Leave empty to allow all positions.'
     )
     active = fields.Boolean(string='Active', default=True)
-    dummy_dash = fields.Char(string='-', default='-', readonly=True)
+    budget_limit_display = fields.Char(
+        string='Limit Per Visit (₹)',
+        compute='_compute_budget_limit_display',
+        inverse='_inverse_budget_limit_display',
+    )
+    km_rate_display = fields.Char(
+        string='Rate / KM (₹)',
+        compute='_compute_km_rate_display',
+        inverse='_inverse_km_rate_display',
+    )
+
+    @api.depends('budget_limit', 'is_km_based')
+    def _compute_budget_limit_display(self):
+        for rec in self:
+            if rec.is_km_based:
+                rec.budget_limit_display = '-'
+            else:
+                rec.budget_limit_display = f"{rec.budget_limit:,.2f}" if rec.budget_limit else "0.00"
+
+    def _inverse_budget_limit_display(self):
+        for rec in self:
+            if not rec.is_km_based and rec.budget_limit_display and rec.budget_limit_display.strip() != '-':
+                clean = rec.budget_limit_display.replace(',', '').replace('₹', '').strip()
+                try:
+                    rec.budget_limit = float(clean)
+                except ValueError:
+                    pass
+
+    @api.depends('km_rate', 'is_km_based')
+    def _compute_km_rate_display(self):
+        for rec in self:
+            if not rec.is_km_based:
+                rec.km_rate_display = '-'
+            else:
+                rec.km_rate_display = f"{rec.km_rate:,.2f}" if rec.km_rate else "0.00"
+
+    def _inverse_km_rate_display(self):
+        for rec in self:
+            if rec.is_km_based and rec.km_rate_display and rec.km_rate_display.strip() != '-':
+                clean = rec.km_rate_display.replace(',', '').replace('₹', '').strip()
+                try:
+                    rec.km_rate = float(clean)
+                except ValueError:
+                    pass
+
     limit_rule_ids = fields.One2many(
         'service.ticket.expense.limit.rule',
         'expense_type_id',

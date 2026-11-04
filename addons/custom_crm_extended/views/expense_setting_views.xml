@@ -97,12 +97,10 @@
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" string="Expense Type" class="fw-semibold"/>
-                                    <field name="budget_limit" string="Limit Per Visit (₹)" invisible="is_km_based"/>
-                                    <field name="dummy_dash" string="Limit Per Visit (₹)" invisible="not is_km_based" class="text-center text-muted fw-bold" readonly="1"/>
+                                    <field name="budget_limit_display" string="Limit Per Visit (₹)" readonly="is_km_based"/>
                                     <field name="job_ids" widget="many2many_tags" string="Allowed Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
-                                    <field name="km_rate" string="Rate / KM (₹)" invisible="not is_km_based"/>
-                                    <field name="dummy_dash" string="Rate / KM (₹)" invisible="is_km_based" class="text-center text-muted fw-bold" readonly="1"/>
+                                    <field name="km_rate_display" string="Rate / KM (₹)" readonly="not is_km_based"/>
                                     <field name="active" string="Active" widget="boolean_toggle"/>
                                     <button name="action_open_settings" type="object" icon="fa-cog" title="Configure Settings" class="btn p-0"/>
                                 </list>
