@@ -574,7 +574,7 @@ class ServiceTicket(models.Model):
         domain="[('share', '=', False)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
-    new_voucher_date = fields.Date(string='Expense Date', store=False)
+    new_voucher_date = fields.Date(string='Expense Date', default=fields.Date.context_today)
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     allowed_voucher_expense_type_ids = fields.Many2many(
         'service.ticket.expense.type',
