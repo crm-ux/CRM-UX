@@ -602,7 +602,7 @@ class ServiceTicket(models.Model):
                             break
                     if user_ok:
                         allowed_ids.append(t.id)
-            rec.allowed_voucher_expense_type_ids = [(6, 0, allowed_ids)]
+            rec.allowed_voucher_expense_type_ids = all_types.browse(allowed_ids)
 
     @api.onchange('new_voucher_user_ids')
     def _onchange_new_voucher_user_ids_filter_type(self):
@@ -1334,15 +1334,21 @@ class ServiceTicketExpenseType(models.Model):
         job_ids = set()
         if job_id:
             job_ids.add(job_id)
-        if user:
-            # 1. Direct crm_job_id on user
-            if getattr(user, 'crm_job_id', None) and user.crm_job_id:
-                job_ids.add(user.crm_job_id.id)
+        if not user:
+            return job_ids
 
+        # 1. Direct crm_job_id on user
+        if getattr(user, 'crm_job_id', None) and user.crm_job_id:
+            job_ids.add(user.crm_job_id.id)
+
+        # Extract genuine integer ID to avoid passing NewId to SQL domain queries
+        real_uid = user._origin.id if getattr(user, '_origin', None) and user._origin.id else (user.id if isinstance(user.id, int) else False)
+
+        if real_uid:
             # 2. Linked employee records via user_id, work_email, or name
             emps = self.env['hr.employee'].sudo().search([
                 '|', '|',
-                ('user_id', '=', user.id),
+                ('user_id', '=', real_uid),
                 ('work_email', '=', user.email or ''),
                 ('name', '=ilike', user.name or '')
             ])
@@ -1359,13 +1365,13 @@ class ServiceTicketExpenseType(models.Model):
                     job_ids.update(m_jobs.ids)
 
             # 3. Direct assignment on hr.job via stored user_ids relation
-            assigned_jobs = self.env['hr.job'].sudo().search([('user_ids', 'in', [user.id])])
+            assigned_jobs = self.env['hr.job'].sudo().search([('user_ids', 'in', [real_uid])])
             job_ids.update(assigned_jobs.ids)
 
             # 4. Department management manager roles
             managed_depts = self.env['hr.department'].sudo().search([
-                '|', ('manager_user_id', '=', user.id),
-                ('manager_id.user_id', '=', user.id)
+                '|', ('manager_user_id', '=', real_uid),
+                ('manager_id.user_id', '=', real_uid)
             ])
             for dept in managed_depts:
                 mgr_jobs = self.env['hr.job'].sudo().search([
@@ -1484,7 +1490,7 @@ class ServiceTicketVoucherLine(models.Model):
             allowed = all_types.filtered(
                 lambda t: not t.job_ids or any(j.id in t._get_user_job_positions(user=u) for j in t.job_ids)
             )
-            rec.allowed_expense_type_ids = [(6, 0, allowed.ids)]
+            rec.allowed_expense_type_ids = allowed
 
     @api.constrains('expense_type_id', 'user_id')
     def _check_expense_type_job_permission(self):
