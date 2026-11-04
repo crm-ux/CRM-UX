@@ -968,9 +968,19 @@ class ServiceTicket(models.Model):
         self.write({'ticket_status': 'closed'})
 
     def action_rollback_to_new(self):
+        for rec in self:
+            if rec.submitted_voucher_line_ids:
+                raise UserError(_("Cannot rollback to New because voucher(s) have already been submitted for approval."))
+            if rec.draft_voucher_line_ids:
+                raise UserError(_("Cannot rollback to New because %d draft expense line(s) exist. Please delete or clear them in the Voucher tab before rolling back.") % len(rec.draft_voucher_line_ids))
         self.write({'ticket_status': 'new'})
 
     def action_rollback_to_contacted(self):
+        for rec in self:
+            if rec.submitted_voucher_line_ids:
+                raise UserError(_("Cannot rollback to Contacted because voucher(s) have already been submitted for approval."))
+            if rec.draft_voucher_line_ids:
+                raise UserError(_("Cannot rollback to Contacted because %d draft expense line(s) exist. Please delete or clear them in the Voucher tab before rolling back.") % len(rec.draft_voucher_line_ids))
         self.write({'ticket_status': 'contacted'})
 
     def action_rollback_to_ongoing(self):

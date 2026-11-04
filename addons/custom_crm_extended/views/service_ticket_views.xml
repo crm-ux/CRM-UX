@@ -100,7 +100,7 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="Voucher" name="voucher_tab">
+                        <page string="Voucher" name="voucher_tab" invisible="ticket_status in ('new', 'contacted') and not voucher_line_ids">
                             <!-- Quick-Add Header -->
                             <div class="d-flex align-items-center mb-2">
                                 <strong class="text-dark small">Quick Add Expense</strong>
@@ -254,6 +254,7 @@
                                             string="Submit for Approval"
                                             type="object"
                                             icon="fa-paper-plane"
+                                            confirm="Are you sure you want to submit these expenses for approval? Once submitted, you cannot rollback, edit, or delete these expenses."
                                             class="btn btn-primary btn-sm fw-bold px-3 py-1 shadow-sm o_btn_submit_vouchers"
                                             style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important;"/>
                                 </div>
