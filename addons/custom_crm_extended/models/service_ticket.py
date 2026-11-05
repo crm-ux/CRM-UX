@@ -2014,14 +2014,12 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_preview_bill(self):
         self.ensure_one()
-        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form', raise_if_not_found=False)
+        if not self.bill_file:
+            return False
+        filename = self.bill_filename or 'Receipt.pdf'
         return {
-            'name': _('Bill Preview - %s') % (self.bill_filename or self.expense_type_id.name or 'Receipt'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.voucher.line',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'view_id': view.id if view else False,
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content?model=service.ticket.voucher.line&id={self.id}&field=bill_file&filename={filename}&download=false',
             'target': 'new',
         }
 
