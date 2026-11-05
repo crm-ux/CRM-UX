@@ -58,7 +58,7 @@ patch(ListController.prototype, {
             this.props?.resModel === "service.ticket.voucher.line"
         ) {
             const handleVoucherListBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest("button[name='action_preview_bill']");
+                const previewBtn = ev.target.closest("button[name='action_preview_bill'], .o_voucher_bill_preview_btn");
                 if (!previewBtn) return;
 
                 ev.preventDefault();
@@ -288,7 +288,7 @@ export class ServiceTicketFormController extends FormController {
 
             // Handle Eye Preview button on Voucher lines (Custom preview dialog instead of opening a new browser tab)
             const handleVoucherBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest("button[name='action_preview_bill']");
+                const previewBtn = ev.target.closest("button[name='action_preview_bill'], .o_voucher_bill_preview_btn");
                 if (!previewBtn) return;
 
                 ev.preventDefault();
@@ -297,9 +297,9 @@ export class ServiceTicketFormController extends FormController {
                 const row = previewBtn.closest("tr, .o_data_row");
                 if (!row) return;
 
-                let filename = "bill.png";
+                let filename = previewBtn.dataset?.filename || "bill.png";
                 let fileData = null;
-                let recId = null;
+                let recId = previewBtn.dataset?.lineId ? parseInt(previewBtn.dataset.lineId) : null;
 
                 // 1. Check if user just selected a new file on this row (unsaved in memory)
                 const cachedRowFile = voucherFileCache.get(row);

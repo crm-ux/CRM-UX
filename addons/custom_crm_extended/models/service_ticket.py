@@ -508,7 +508,7 @@ class ServiceTicket(models.Model):
                     
                     if line.bill_file:
                         fn = line.bill_filename or 'Bill'
-                        bill_link = f'<a href="/web/content/service.ticket.voucher.line/{line.id}/bill_file/{fn}?download=true" target="_blank" class="btn btn-sm p-0" style="color: #0b3d91 !important; font-weight: 600;" title="View / Download Bill"><i class="fa fa-paperclip me-1"></i>View Bill</a>'
+                        bill_link = f'<button type="button" class="btn btn-sm p-0 o_voucher_bill_preview_btn text-truncate" data-line-id="{line.id}" data-filename="{fn}" style="color: #0b3d91 !important; font-weight: 600; text-decoration: underline; max-width: 160px; display: inline-block; vertical-align: middle; border: none; background: transparent; cursor: pointer;" title="Preview {fn}"><i class="fa fa-paperclip me-1"></i>{fn}</button>'
                     else:
                         bill_link = '<span class="text-muted">-</span>'
 
