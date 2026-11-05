@@ -1778,7 +1778,7 @@ class ServiceTicketVoucherLine(models.Model):
                 'expense_manager_id': self.env.user.id,
                 'reject_reason': False,
             })
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return False
 
     def action_approve_all(self):
         self._check_voucher_approval_access()
@@ -1799,7 +1799,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('All lines in this voucher have been approved.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1821,7 +1820,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('All lines in this voucher have been rejected.'),
                 'type': 'danger',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1842,7 +1840,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher marked as Paid.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1862,7 +1859,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher lines reset to Submitted for re-evaluation.'),
                 'type': 'info',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1873,7 +1869,7 @@ class ServiceTicketVoucherLine(models.Model):
                 'status': 'submitted',
                 'reject_reason': False,
             })
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return False
 
     def action_reject(self):
         line = self[:1]
@@ -1977,7 +1973,6 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 ),
                 'type': 'danger',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2285,7 +2280,6 @@ class ServiceTicketVoucherBatch(models.Model):
                 'message': _('All vouchers in this submission have been rejected.'),
                 'type': 'danger',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
