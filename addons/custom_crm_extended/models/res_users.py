@@ -32,7 +32,7 @@ class ResUsers(models.Model):
             if dept:
                 # 1. Own department ONLY if voucher approval is active (Active = ON)
                 if dept.voucher_approval_active:
-                    mgr = dept.manager_user_id or dept.voucher_manager_id
+                    mgr = dept.voucher_manager_id or dept.manager_user_id
                     if mgr and mgr.active and mgr.id != user.id:
                         approver = mgr
 
@@ -43,14 +43,15 @@ class ResUsers(models.Model):
                         ('extra_department_ids', 'in', [dept.id]),
                     ], limit=1)
                     if managing_dept:
-                        m_mgr = managing_dept.manager_user_id or managing_dept.voucher_manager_id
+                        m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
                         if m_mgr and m_mgr.active and m_mgr.id != user.id:
                             approver = m_mgr
 
             user.crm_expense_manager_id = approver or fallback
+    is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
-    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
+    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments', compute='_compute_department_scope', store=True, readonly=False)
     crm_voucher_department_ids = fields.Many2many(
         'hr.department',
         'res_users_voucher_dept_rel',
@@ -770,17 +771,12 @@ class ResUsers(models.Model):
                 else:
                     export_grp.sudo().write({'user_ids': [(3, user.id)]})
 
-    @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids')
+    @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids', 'crm_job_id.is_manager_role')
     def _compute_department_scope(self):
         for user in self:
             depts = self.env['hr.department']
-            if user.crm_department_id:
-                depts |= user.crm_department_id
-            if user.crm_job_id:
-                if user.crm_job_id.department_id:
-                    depts |= user.crm_job_id.department_id
-                if user.crm_job_id.sub_department_ids:
-                    depts |= user.crm_job_id.sub_department_ids
+            if user.crm_job_id and user.crm_job_id.is_manager_role and user.crm_job_id.sub_department_ids:
+                depts |= user.crm_job_id.sub_department_ids.filtered(lambda d: d.id != user.crm_department_id.id)
             user.crm_department_ids = depts
 
     @api.depends('name', 'employee_ids')
