@@ -1024,20 +1024,19 @@ class ServiceTicket(models.Model):
             global_mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
             return global_mgr or admin_user
 
-        # ── TIER 1: Department Voucher Manager ──
+        # ── TIER 1: Department Manager ──
         emp_dept = emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False
         if emp_dept:
             dept_with_mgr = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
-                ('voucher_manager_id', '!=', False),
-                ('voucher_manager_id.active', '=', True),
-                ('voucher_manager_id', '!=', emp.id),
                 '|',
                 ('id', '=', emp_dept.id),
                 ('extra_department_ids', 'in', [emp_dept.id]),
             ], limit=1)
-            if dept_with_mgr and dept_with_mgr.voucher_manager_id:
-                return dept_with_mgr.voucher_manager_id
+            if dept_with_mgr:
+                dept_mgr = dept_with_mgr.manager_user_id or dept_with_mgr.voucher_manager_id
+                if dept_mgr and dept_mgr.active and dept_mgr.id != emp.id:
+                    return dept_mgr
 
         # Also check member-synced department approver
         if emp.crm_expense_manager_id and emp.crm_expense_manager_id.active and emp.crm_expense_manager_id.id != emp.id:

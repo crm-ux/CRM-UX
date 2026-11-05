@@ -8,7 +8,37 @@ class ResUsers(models.Model):
     crm_department_id = fields.Many2one('hr.department', string='Department')
     crm_job_id = fields.Many2one('hr.job', string='Job Position / Role')
     crm_manager_id = fields.Many2one('res.users', string='Reports To (Manager)', domain="[('share', '=', False)]")
-    crm_expense_manager_id = fields.Many2one('res.users', string='Expense / Voucher Approver', domain="[('share', '=', False)]")
+    crm_expense_manager_id = fields.Many2one(
+        'res.users',
+        string='Expense / Voucher Approver',
+        domain="[('share', '=', False)]",
+        compute='_compute_crm_expense_manager_id',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('crm_department_id', 'crm_department_id.manager_user_id', 'crm_department_id.voucher_manager_id', 'crm_department_id.voucher_approval_active', 'company_id.crm_authorized_expense_manager_ids')
+    def _compute_crm_expense_manager_id(self):
+        company = self.env.company
+        global_mgr = company.crm_authorized_expense_manager_ids[:1]
+        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.search([('id', '=', 2)], limit=1)
+        fallback = global_mgr or admin_user
+        for user in self:
+            if user.id in (1, 2) or user.share:
+                user.crm_expense_manager_id = False
+                continue
+            dept = user.crm_department_id or (user.employee_id and user.employee_id.department_id) or False
+            dept_with_mgr = self.env['hr.department'].sudo().search([
+                ('voucher_approval_active', '=', True),
+                '|',
+                ('id', '=', dept.id if dept else False),
+                ('extra_department_ids', 'in', [dept.id] if dept else []),
+            ], limit=1) if dept else False
+            dept_mgr = (dept_with_mgr.manager_user_id or dept_with_mgr.voucher_manager_id) if dept_with_mgr else False
+            if dept_mgr and user.id != dept_mgr.id:
+                user.crm_expense_manager_id = dept_mgr
+            else:
+                user.crm_expense_manager_id = fallback
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
@@ -1785,28 +1815,37 @@ class HrDepartment(models.Model):
         return res
 
     def _sync_voucher_approver_to_members(self):
-        """Syncs department voucher approver to all member employees' crm_expense_manager_id.
-        If no department approver or inactive, falls back to Global Voucher Manager."""
+        """Syncs department manager to all member employees' crm_expense_manager_id.
+        If employee is not the department head, their approver is the Department Head (manager_user_id)
+        or voucher_manager_id. If no department manager or for the manager themselves, falls back to Global Voucher Manager."""
         company = self.env.company
         global_mgr = company.crm_authorized_expense_manager_ids[:1]
+        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
+        fallback_mgr = global_mgr or admin_user
         for dept in self:
-            approver = dept.voucher_manager_id if (dept.voucher_manager_id and dept.voucher_approval_active) else global_mgr
+            dept_mgr = dept.manager_user_id if (dept.manager_user_id and dept.voucher_approval_active) else (dept.voucher_manager_id if dept.voucher_approval_active else False)
+            all_dept_ids = dept.ids + dept.extra_department_ids.ids
             users = self.env['res.users'].sudo().search([
-                ('crm_department_id', '=', dept.id),
+                ('crm_department_id', 'in', all_dept_ids),
                 ('id', 'not in', [1, 2]),
                 ('share', '=', False),
             ])
             for u in users:
-                mgr_for_u = False if (approver and u.id == approver.id) else approver
+                if dept_mgr and u.id != dept_mgr.id:
+                    mgr_for_u = dept_mgr
+                else:
+                    mgr_for_u = fallback_mgr
                 if u.crm_expense_manager_id != mgr_for_u:
                     u.with_context(skip_sync=True).sudo().write({
                         'crm_expense_manager_id': mgr_for_u.id if mgr_for_u else False
                     })
-            if dept.voucher_manager_id:
-                mgr_user = dept.voucher_manager_id.sudo()
+            if dept_mgr:
+                mgr_user = dept_mgr.sudo()
                 managed_depts = self.env['hr.department'].sudo().search([
-                    ('voucher_manager_id', '=', mgr_user.id),
                     ('voucher_approval_active', '=', True),
+                    '|',
+                    ('manager_user_id', '=', mgr_user.id),
+                    ('voucher_manager_id', '=', mgr_user.id),
                 ]) | dept.extra_department_ids
                 if set(mgr_user.crm_voucher_department_ids.ids) != set(managed_depts.ids):
                     mgr_user.with_context(skip_sync=True).sudo().write({
