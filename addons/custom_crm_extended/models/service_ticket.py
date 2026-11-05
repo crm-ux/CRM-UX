@@ -1677,25 +1677,15 @@ class ServiceTicketVoucherLine(models.Model):
             url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=false"
             download_url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=true"
 
-            download_bar = f'''
-            <div class="d-flex justify-content-end align-items-center mb-2 px-1">
-                <a href="{download_url}" class="btn btn-sm btn-outline-primary" target="_blank" download>
-                    <i class="fa fa-download me-1"></i> Download / Save
-                </a>
-            </div>
-            '''
-
             if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
                 rec.bill_preview_html = f'''
-                {download_bar}
-                <div class="d-flex align-items-center justify-content-center" style="height: 68vh; overflow: auto; background: #f8fafc; border-radius: 6px;">
-                    <img src="{url}" class="img-fluid rounded shadow-sm" style="max-height: 65vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>
+                <div class="d-flex align-items-center justify-content-center" style="height: 72vh; overflow: auto; background: #f8fafc; border-radius: 6px;">
+                    <img src="{url}" class="img-fluid rounded shadow-sm" style="max-height: 70vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>
                 </div>
                 '''
             elif ext == 'pdf':
                 rec.bill_preview_html = f'''
-                {download_bar}
-                <div style="height: 68vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <div style="height: 72vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
                     <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none;" title="Bill PDF"></iframe>
                 </div>
                 '''
@@ -1706,8 +1696,7 @@ class ServiceTicketVoucherLine(models.Model):
                 ptype = preview.get('type')
                 if ptype == 'docx_content':
                     rec.bill_preview_html = f'''
-                    {download_bar}
-                    <div class="card p-4 shadow-sm" style="max-height: 68vh; overflow-y: auto; background: #fff;">
+                    <div class="card p-4 shadow-sm" style="max-height: 72vh; overflow-y: auto; background: #fff;">
                         {preview.get('html', '')}
                     </div>
                     '''
@@ -1724,8 +1713,7 @@ class ServiceTicketVoucherLine(models.Model):
                             ])
                             rows_html = f'<table class="table table-bordered table-sm mb-0"><thead><tr>{header_cells}</tr></thead><tbody>{body_rows}</tbody></table>'
                     rec.bill_preview_html = f'''
-                    {download_bar}
-                    <div style="max-height: 68vh; overflow: auto; background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <div style="max-height: 72vh; overflow: auto; background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
                         {rows_html or "No data in spreadsheet."}
                     </div>
                     '''
@@ -1733,15 +1721,13 @@ class ServiceTicketVoucherLine(models.Model):
                     files = preview.get('files', [])
                     list_items = "".join([f'<li class="py-1">{"📁" if f.get("is_dir") else "📄"} {f.get("name")} ({f.get("size")} KB)</li>' for f in files])
                     rec.bill_preview_html = f'''
-                    {download_bar}
-                    <div style="max-height: 68vh; overflow-y: auto; background: #fff; padding: 16px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <div style="max-height: 72vh; overflow-y: auto; background: #fff; padding: 16px; border: 1px solid #e2e8f0; border-radius: 6px;">
                         <h6 class="fw-bold mb-3">Archive Files:</h6>
                         <ul class="list-unstyled mb-0">{list_items}</ul>
                     </div>
                     '''
                 else:
                     rec.bill_preview_html = f'''
-                    {download_bar}
                     <div class="text-center p-4">
                         <p class="text-muted">Preview not directly available for this format.</p>
                         <a href="{download_url}" class="btn btn-primary" download>Download File</a>
@@ -1749,8 +1735,7 @@ class ServiceTicketVoucherLine(models.Model):
                     '''
             else:
                 rec.bill_preview_html = f'''
-                {download_bar}
-                <div style="height: 68vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <div style="height: 72vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
                     <iframe src="{url}" style="width: 100%; height: 100%; border: none;" title="Bill Preview"></iframe>
                 </div>
                 '''
