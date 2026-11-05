@@ -1094,10 +1094,7 @@ class ServiceTicket(models.Model):
         })
 
         self.invalidate_recordset()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        return False
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
     @api.depends('ticket_status')
