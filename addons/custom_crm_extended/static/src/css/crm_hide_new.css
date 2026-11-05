@@ -2960,7 +2960,7 @@ p.o_view_nocontent_smiling_face {
     font-weight: 700 !important;
 }
 
-/* ── Force show & style action buttons in Voucher tables ── */
+/* ── Force show & style action buttons in Voucher tables (Compact & vertically centered) ── */
 div[name="line_ids"] td.o_list_button,
 div[name="line_ids"] th.o_list_button,
 .o_voucher_card_list td.o_list_button,
@@ -2974,19 +2974,21 @@ div[name="line_ids"] th.o_list_button,
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    padding: 4px 6px !important;
+    padding: 2px 4px !important;
+    vertical-align: middle !important;
     text-align: center !important;
 }
 
 div[name="line_ids"] td.o_list_button .d-flex,
 .o_voucher_card_list td.o_list_button .d-flex,
 .o_service_ticket_voucher_batch_form td.o_list_button .d-flex {
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 6px !important;
+    gap: 4px !important;
     visibility: visible !important;
     opacity: 1 !important;
+    vertical-align: middle !important;
 }
 
 div[name="line_ids"] td.o_list_button button,
@@ -2998,14 +3000,17 @@ div[name="line_ids"] td.o_list_button button,
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
+    width: 22px !important;
+    height: 22px !important;
+    min-width: 22px !important;
+    max-height: 22px !important;
     padding: 0 !important;
     margin: 0 !important;
     border-radius: 4px !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
     cursor: pointer !important;
+    vertical-align: middle !important;
 }
 
 div[name="line_ids"] td.o_list_button button i,
@@ -3014,7 +3019,8 @@ div[name="line_ids"] td.o_list_button button i,
     display: inline-block !important;
     visibility: visible !important;
     opacity: 1 !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
 }
 
 div[name="line_ids"] td.o_list_button button[name="action_approve"],

@@ -201,9 +201,9 @@
                        decoration-info="status == 'paid'" 
                        decoration-danger="status == 'rejected'"/>
                 <field name="can_approve" column_invisible="1"/>
-                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid') or not can_approve"/>
-                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status == 'rejected' or not can_approve"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status == 'submitted' or not can_approve"/>
+                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="not can_approve"/>
+                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="not can_approve"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="not can_approve"/>
             </list>
         </field>
     </record>
@@ -279,9 +279,9 @@
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <field name="can_approve" column_invisible="1"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid') or not can_approve"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected' or not can_approve"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted' or not can_approve"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve"/>
                         </list>
                     </field>
                 </sheet>
@@ -394,9 +394,9 @@
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <field name="can_approve" column_invisible="1"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid') or not can_approve"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status == 'rejected' or not can_approve"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted' or not can_approve"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve"/>
                         </list>
                     </field>
                 </sheet>
