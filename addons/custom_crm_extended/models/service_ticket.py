@@ -436,15 +436,19 @@ class ServiceTicket(models.Model):
                 st = batch.status or 'submitted'
                 badge_bg = '#fef3c7'
                 badge_color = '#d97706'
-                if st == 'approved':
+                badge_border = '#fde68a'
+                if st in ('approved', 'partially_approved'):
                     badge_bg = '#d1fae5'
                     badge_color = '#059669'
-                elif st == 'paid':
+                    badge_border = '#86efac'
+                elif st in ('paid', 'partially_paid'):
                     badge_bg = '#e0f2fe'
                     badge_color = '#0284c7'
+                    badge_border = '#bae6fd'
                 elif st == 'rejected':
                     badge_bg = '#fee2e2'
                     badge_color = '#dc2626'
+                    badge_border = '#fca5a5'
                 st_label = dict(batch._fields['status'].selection).get(st, st.replace('_', ' ').title())
 
                 vch_name = batch.name or 'New'
@@ -471,7 +475,7 @@ class ServiceTicket(models.Model):
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_emps}</span>
                     </div>
                     <div>
-                        <span class="badge py-1 px-2 fw-bold" style="background-color: {badge_bg}; color: {badge_color}; font-size: 12px; border-radius: 4px;">{st_label}</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: {badge_bg}; color: {badge_color}; border: 1px solid {badge_border}; font-size: 12px; border-radius: 4px;">{st_label}</span>
                     </div>
                 </div>
                 """
@@ -499,20 +503,24 @@ class ServiceTicket(models.Model):
                     l_st = line.status or 'submitted'
                     l_badge_bg = '#fef3c7'
                     l_badge_color = '#d97706'
-                    if l_st == 'approved':
+                    l_badge_border = '#fde68a'
+                    if l_st in ('approved', 'partially_approved'):
                         l_badge_bg = '#d1fae5'
                         l_badge_color = '#059669'
-                    elif l_st == 'paid':
+                        l_badge_border = '#86efac'
+                    elif l_st in ('paid', 'partially_paid'):
                         l_badge_bg = '#e0f2fe'
                         l_badge_color = '#0284c7'
+                        l_badge_border = '#bae6fd'
                     elif l_st == 'rejected':
                         l_badge_bg = '#fee2e2'
                         l_badge_color = '#dc2626'
+                        l_badge_border = '#fca5a5'
                     l_st_label = dict(line._fields['status'].selection).get(l_st, l_st.replace('_', ' ').title())
-                    l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color};">{l_st_label}</span>'
+                    l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color}; border: 1px solid {l_badge_border}; border-radius: 4px;">{l_st_label}</span>'
 
                     l_reason = line.reject_reason or ''
-                    l_reason_td = f'<span style="color: #dc2626; font-size: 12px; font-weight: 500;">{l_reason}</span>' if (l_st == 'rejected' and l_reason) else '<span class="text-muted">-</span>'
+                    l_reason_td = f'<span style="color: #334155; font-size: 12px; font-weight: 500;">{l_reason}</span>' if (l_st == 'rejected' and l_reason) else '<span class="text-muted">-</span>'
 
                     row = f"""
                     <tr style="border-bottom: 1px solid #f1f5f9;">
