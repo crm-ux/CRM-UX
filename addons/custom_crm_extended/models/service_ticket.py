@@ -1013,6 +1013,37 @@ class ServiceTicket(models.Model):
         """Do not split batches by expense date; vouchers are grouped by submission date."""
         pass
 
+    def _get_voucher_approver_for_employee(self, emp):
+        """Resolves the department voucher manager for an employee.
+        If employee has a department voucher manager assigned and active, returns that manager.
+        Only falls back to Global Expense Manager / Administrator if no department voucher manager is assigned.
+        """
+        if not emp:
+            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+            return mgr or self.env.ref('base.user_admin', raise_if_not_found=False)
+
+        # 1. Check direct department of employee
+        emp_dept = emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False
+        if emp_dept:
+            dept_with_mgr = self.env['hr.department'].sudo().search([
+                ('voucher_approval_active', '=', True),
+                ('voucher_manager_id', '!=', False),
+                ('voucher_manager_id', '!=', emp.id),
+                '|',
+                ('id', '=', emp_dept.id),
+                ('extra_department_ids', 'in', [emp_dept.id]),
+            ], limit=1)
+            if dept_with_mgr and dept_with_mgr.voucher_manager_id:
+                return dept_with_mgr.voucher_manager_id
+
+        # 2. Check employee's assigned crm_expense_manager_id
+        if emp.crm_expense_manager_id and emp.crm_expense_manager_id.id != emp.id:
+            return emp.crm_expense_manager_id
+
+        # 3. Fallback: Global Expense Manager or Administrator
+        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
+        return mgr or self.env.ref('base.user_admin', raise_if_not_found=False)
+
     def action_submit_all_vouchers(self):
         """Submit all draft voucher lines into a single batch based on submission date."""
         self.ensure_one()
@@ -1022,16 +1053,9 @@ class ServiceTicket(models.Model):
         if not draft_lines:
             return True
 
-        emp_dept = primary_emp.crm_department_id or (primary_emp.employee_id and primary_emp.employee_id.department_id) if primary_emp else False
-        dept_approver = False
-        if emp_dept and emp_dept.voucher_approval_active and emp_dept.voucher_manager_id:
-            dept_approver = emp_dept.voucher_manager_id
-
-        if not dept_approver:
-            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-            approver_uid = mgr.id if mgr else 2
-        else:
-            approver_uid = dept_approver.id
+        primary_emp = draft_lines[0].user_id if draft_lines else False
+        dept_approver = self._get_voucher_approver_for_employee(primary_emp)
+        approver_uid = dept_approver.id if dept_approver else 2
         submit_date = fields.Date.context_today(self)
         ticket_name = self.ticket_id or self.name or 'TCK'
 
@@ -1047,7 +1071,6 @@ class ServiceTicket(models.Model):
                         all_names.append(n_clean)
 
         combined_emp_names = ", ".join(all_names)
-        primary_emp = draft_lines[0].user_id
         submitter_user = self.env.user if self.env.user and self.env.user.id != 1 else (primary_emp or self.engineer_id)
         submitter_name = submitter_user.name if submitter_user else ''
         other_names_list = [n for n in all_names if n != submitter_name]
@@ -1070,7 +1093,7 @@ class ServiceTicket(models.Model):
             'ticket_id': self.id,
             'name': batch_name,
             'submission_date': submit_date,
-            'user_id': primary_emp.id,
+            'user_id': primary_emp.id if primary_emp else False,
             'submitted_by_user_id': submitter_id,
             'expense_manager_id': approver_uid,
             'other_employee_names': other_team_names,
@@ -1081,6 +1104,7 @@ class ServiceTicket(models.Model):
             'status': 'submitted',
             'batch_id': batch_rec.id,
             'submitted_by_user_id': submitter_id,
+            'expense_manager_id': approver_uid,
         })
 
         self.invalidate_recordset()
@@ -1711,8 +1735,8 @@ class ServiceTicketVoucherLine(models.Model):
         """Submit this single draft voucher line."""
         for rec in self:
             if rec.status == 'draft':
-                mgr = rec.ticket_id.company_id.crm_authorized_expense_manager_ids[:1] if rec.ticket_id.company_id else False
-                approver_uid = mgr.id if mgr else 2
+                dept_approver = rec.ticket_id._get_voucher_approver_for_employee(rec.user_id) if rec.ticket_id else self.env['service.ticket']._get_voucher_approver_for_employee(rec.user_id)
+                approver_uid = dept_approver.id if dept_approver else 2
                 today_str = fields.Date.today().strftime('%d/%m/%Y')
                 batch_name = f"VCH/{rec.ticket_id.ticket_id or rec.ticket_id.name}/{today_str}"
                 batch_rec = self.env['service.ticket.voucher.batch'].create({
@@ -1727,6 +1751,7 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.write({
                     'status': 'submitted',
                     'batch_id': batch_rec.id,
+                    'expense_manager_id': approver_uid,
                 })
         return True
 
@@ -1743,7 +1768,22 @@ class ServiceTicketVoucherLine(models.Model):
             'target': 'current',
         }
 
-    expense_manager_id = fields.Many2one('res.users', string='Approved By')
+    expense_manager_id = fields.Many2one(
+        'res.users',
+        string='Approver',
+        compute='_compute_expense_manager_id',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('batch_id.expense_manager_id', 'user_id')
+    def _compute_expense_manager_id(self):
+        for rec in self:
+            if rec.batch_id and rec.batch_id.expense_manager_id:
+                rec.expense_manager_id = rec.batch_id.expense_manager_id
+            elif rec.user_id:
+                approver = self.env['service.ticket']._get_voucher_approver_for_employee(rec.user_id)
+                rec.expense_manager_id = approver.id if approver else False
     reject_reason = fields.Char(string='Rejection Reason')
 
     def _check_voucher_approval_access(self):
@@ -2054,6 +2094,11 @@ class ServiceTicketVoucherBatch(models.Model):
                     count = self.search_count([]) + 1
                     seq_val = f"VCH-{year}-{count:05d}"
                 vals['name'] = seq_val
+            if vals.get('user_id'):
+                emp = self.env['res.users'].browse(vals['user_id'])
+                approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+                if approver:
+                    vals['expense_manager_id'] = approver.id
         return super(ServiceTicketVoucherBatch, self).create(vals_list)
     submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
     expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
