@@ -1973,6 +1973,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 ),
                 'type': 'danger',
                 'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
             }
         }
 
