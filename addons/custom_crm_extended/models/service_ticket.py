@@ -1748,6 +1748,28 @@ class ServiceTicketVoucherLine(models.Model):
 
 
 
+    can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
+
+    @api.depends_context('uid')
+    def _compute_can_approve(self):
+        user = self.env.user
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
+        managed_depts = self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', user.id),
+            ('extra_department_ids.voucher_manager_id', '=', user.id),
+        ])
+        for rec in self:
+            if is_admin_or_global:
+                rec.can_approve = True
+            elif managed_depts:
+                # Manager cannot approve their own expense
+                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
+                rec.can_approve = not is_own
+            else:
+                rec.can_approve = False
+
     def action_approve(self):
         self._check_voucher_approval_access()
         for rec in self:
@@ -2084,6 +2106,26 @@ class ServiceTicketVoucherBatch(models.Model):
 
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
+    can_approve = fields.Boolean(compute='_compute_batch_can_approve', string='Can Approve')
+
+    @api.depends_context('uid')
+    def _compute_batch_can_approve(self):
+        user = self.env.user
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
+        managed_depts = self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', user.id),
+            ('extra_department_ids.voucher_manager_id', '=', user.id),
+        ])
+        for rec in self:
+            if is_admin_or_global:
+                rec.can_approve = True
+            elif managed_depts:
+                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
+                rec.can_approve = not is_own
+            else:
+                rec.can_approve = False
     total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
     status = fields.Selection([
         ('submitted', 'Submitted'),
@@ -2150,6 +2192,28 @@ class ServiceTicketVoucherBatch(models.Model):
         return True
 
 
+
+    can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
+
+    @api.depends_context('uid')
+    def _compute_can_approve(self):
+        user = self.env.user
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
+        managed_depts = self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', user.id),
+            ('extra_department_ids.voucher_manager_id', '=', user.id),
+        ])
+        for rec in self:
+            if is_admin_or_global:
+                rec.can_approve = True
+            elif managed_depts:
+                # Manager cannot approve their own expense
+                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
+                rec.can_approve = not is_own
+            else:
+                rec.can_approve = False
 
     def action_approve(self):
         self._check_voucher_approval_access()
