@@ -277,6 +277,18 @@ class ServiceTicket(models.Model):
             ct = self.env['service.ticket.complaint.type'].search([('name', '=ilike', 'Breakdown')], limit=1)
             if ct:
                 res['complaint_type_id'] = ct.id
+        res.update({
+            'new_voucher_date': fields.Date.today(),
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_expense_type_id': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
         return res
 
     @api.model_create_multi
@@ -800,16 +812,7 @@ class ServiceTicket(models.Model):
     def action_add_voucher_line(self):
         self.ensure_one()
         if not self.new_voucher_date:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Missing Expense Date',
-                    'message': 'Please select an Expense Date.',
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
+            self.new_voucher_date = fields.Date.context_today(self)
         today = fields.Date.context_today(self)
         if self.new_voucher_date > today:
             return {
@@ -948,7 +951,7 @@ class ServiceTicket(models.Model):
             })
 
         self.write({
-            'new_voucher_date': False,
+            'new_voucher_date': fields.Date.context_today(self),
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -965,7 +968,7 @@ class ServiceTicket(models.Model):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
         self.ensure_one()
         self.write({
-            'new_voucher_date': False,
+            'new_voucher_date': fields.Date.context_today(self),
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -1306,7 +1309,35 @@ class ServiceTicket(models.Model):
         if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_ticket_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Service Tickets."))
-        return super(ServiceTicket, self).write(vals)
+
+        cid = vals.get('complaint_type_id')
+        if cid:
+            ct = self.env['service.ticket.complaint.type'].browse(cid)
+            name_lower = (ct.name or '').strip().lower()
+            if 'breakdown' in name_lower:
+                vals['complaint_type'] = 'breakdown'
+            elif 'pm' in name_lower:
+                vals['complaint_type'] = 'pm'
+            elif 'free' in name_lower:
+                vals['complaint_type'] = 'free_call'
+        elif vals.get('complaint_type') and not cid:
+            code = vals.get('complaint_type')
+            ct = self.env['service.ticket.complaint.type'].search([
+                ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+            ], limit=1)
+            if ct:
+                vals['complaint_type_id'] = ct.id
+
+        res = super(ServiceTicket, self).write(vals)
+
+        # If user filled in Quick Add Expense and clicked "Save" on the main ticket (instead of "Add Expense"):
+        # Auto-create the draft voucher line so it is saved in draft and the Quick Add inputs stay clean!
+        if not self.env.context.get('skip_auto_add_voucher'):
+            for rec in self:
+                if rec.new_voucher_amount and rec.new_voucher_amount > 0 and rec.new_voucher_expense_type_id:
+                    rec.with_context(skip_auto_add_voucher=True).action_add_voucher_line()
+
+        return res
 
     def unlink(self):
         for rec in self:
@@ -1831,11 +1862,9 @@ class ServiceTicketVoucherLine(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|', '|', '|',
+            '|',
             ('voucher_manager_id', '=', user.id),
             ('manager_user_id', '=', user.id),
-            ('extra_department_ids.voucher_manager_id', '=', user.id),
-            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
@@ -2207,11 +2236,9 @@ class ServiceTicketVoucherBatch(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|', '|', '|',
+            '|',
             ('voucher_manager_id', '=', user.id),
             ('manager_user_id', '=', user.id),
-            ('extra_department_ids.voucher_manager_id', '=', user.id),
-            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
@@ -2309,11 +2336,9 @@ class ServiceTicketVoucherBatch(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|', '|', '|',
+            '|',
             ('voucher_manager_id', '=', user.id),
             ('manager_user_id', '=', user.id),
-            ('extra_department_ids.voucher_manager_id', '=', user.id),
-            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
