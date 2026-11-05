@@ -1808,11 +1808,14 @@ class ServiceTicketVoucherLine(models.Model):
             dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
             if not dept:
                 raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
-            is_direct_mgr = (dept.voucher_manager_id.id == user.id and dept.voucher_approval_active)
+            eff_approver = dept.voucher_manager_id or dept.manager_user_id
+            is_direct_mgr = (eff_approver and eff_approver.id == user.id and dept.voucher_approval_active)
             is_extra_mgr = bool(self.env['hr.department'].sudo().search([
-                ('voucher_manager_id', '=', user.id),
                 ('voucher_approval_active', '=', True),
                 ('extra_department_ids', 'in', [dept.id]),
+                '|',
+                ('voucher_manager_id', '=', user.id),
+                ('manager_user_id', '=', user.id),
             ], limit=1))
             if not (is_direct_mgr or is_extra_mgr):
                 raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
@@ -1828,9 +1831,11 @@ class ServiceTicketVoucherLine(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|',
+            '|', '|', '|',
             ('voucher_manager_id', '=', user.id),
+            ('manager_user_id', '=', user.id),
             ('extra_department_ids.voucher_manager_id', '=', user.id),
+            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
@@ -2202,9 +2207,11 @@ class ServiceTicketVoucherBatch(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|',
+            '|', '|', '|',
             ('voucher_manager_id', '=', user.id),
+            ('manager_user_id', '=', user.id),
             ('extra_department_ids.voucher_manager_id', '=', user.id),
+            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
@@ -2270,11 +2277,14 @@ class ServiceTicketVoucherBatch(models.Model):
             dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
             if not dept:
                 raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
-            is_direct_mgr = (dept.voucher_manager_id.id == user.id and dept.voucher_approval_active)
+            eff_approver = dept.voucher_manager_id or dept.manager_user_id
+            is_direct_mgr = (eff_approver and eff_approver.id == user.id and dept.voucher_approval_active)
             is_extra_mgr = bool(self.env['hr.department'].sudo().search([
-                ('voucher_manager_id', '=', user.id),
                 ('voucher_approval_active', '=', True),
                 ('extra_department_ids', 'in', [dept.id]),
+                '|',
+                ('voucher_manager_id', '=', user.id),
+                ('manager_user_id', '=', user.id),
             ], limit=1))
             if not (is_direct_mgr or is_extra_mgr):
                 raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
@@ -2290,9 +2300,11 @@ class ServiceTicketVoucherBatch(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
-            '|',
+            '|', '|', '|',
             ('voucher_manager_id', '=', user.id),
+            ('manager_user_id', '=', user.id),
             ('extra_department_ids.voucher_manager_id', '=', user.id),
+            ('extra_department_ids.manager_user_id', '=', user.id),
         ])
         for rec in self:
             if is_admin_or_global:
