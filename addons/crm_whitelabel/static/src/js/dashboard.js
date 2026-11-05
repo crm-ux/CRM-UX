@@ -1678,16 +1678,15 @@ class CrmDashboard extends Component {
                 this.state.notifications = activeMessages.map(m => {
                     const decodeHtml = (str) => {
                         if (!str) return '';
-                        const txt = document.createElement("textarea");
-                        txt.innerHTML = str;
-                        let decoded = txt.value;
-                        if (decoded.includes("&lt;") || decoded.includes("&gt;")) {
-                            txt.innerHTML = decoded;
-                            decoded = txt.value;
+                        let text = String(str);
+                        for (let i = 0; i < 3; i++) {
+                            if (!text.includes('&')) break;
+                            const txt = document.createElement("textarea");
+                            txt.innerHTML = text;
+                            text = txt.value;
                         }
-                        const div = document.createElement("div");
-                        div.innerHTML = decoded;
-                        return (div.innerText || div.textContent || "").replace(/\s+/g, ' ').trim();
+                        text = text.replace(/<[^>]+>/g, ' ');
+                        return text.replace(/\s+/g, ' ').trim();
                     };
 
                     let senderName = '';

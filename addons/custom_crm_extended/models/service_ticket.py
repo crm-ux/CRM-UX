@@ -1201,7 +1201,17 @@ class ServiceTicket(models.Model):
                 pass
 
         self.invalidate_recordset()
-        return False
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Vouchers Submitted'),
+                'message': _('Vouchers submitted for approval successfully.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
     stage_visible = fields.Char(compute='_compute_stage_visible', store=False)
     @api.depends('ticket_status')
@@ -2307,7 +2317,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
     employee_name = fields.Char(related='voucher_line_id.user_id.name', string='Employee', readonly=True)
     expense_type_name = fields.Char(related='voucher_line_id.expense_type_id.name', string='Expense Type', readonly=True)
     amount = fields.Monetary(related='voucher_line_id.amount', string='Amount', currency_field='currency_id', readonly=True)
-    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id.id)
     reject_reason = fields.Text(string='Rejection Remark / Reason', required=True)
 
     def action_confirm_reject(self):
@@ -2325,6 +2335,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 'status': 'rejected',
                 'expense_manager_id': self.env.user.id,
             })
+            batch.invalidate_recordset()
             batch._compute_status()
             submitter = batch.submitted_by_user_id or batch.user_id
             if submitter and submitter.partner_id:
@@ -2342,7 +2353,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                         submitter.partner_id,
                         'crm_notification',
                         {
-                            'title': 'Voucher Rejected',
+                            'title': f'Voucher Rejected: {batch.name}',
                             'message': f"Voucher {batch.name} was rejected: {reason}",
                             'model': 'service.ticket.voucher.batch',
                             'res_id': batch.id,
@@ -2358,28 +2369,20 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 'expense_manager_id': self.env.user.id,
             })
             if line.batch_id:
+                line.batch_id.invalidate_recordset()
                 line.batch_id._compute_status()
 
-        if batch:
-            if self.env.context.get('active_model') == 'service.ticket' and batch.ticket_id:
-                return {
-                    'type': 'ir.actions.act_window',
-                    'res_model': 'service.ticket',
-                    'res_id': batch.ticket_id.id,
-                    'view_mode': 'form',
-                    'views': [[False, 'form']],
-                    'target': 'current',
-                }
-            return {
-                'type': 'ir.actions.act_window',
-                'res_model': 'service.ticket.voucher.batch',
-                'res_id': batch.id,
-                'view_mode': 'form',
-                'views': [[False, 'form']],
-                'target': 'current',
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Rejected'),
+                'message': _('Voucher rejected successfully.'),
+                'type': 'danger',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
-
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        }
 
 
 class ServiceTicketVoucherDescWizard(models.TransientModel):
@@ -2697,7 +2700,17 @@ class ServiceTicketVoucherBatch(models.Model):
                 except Exception:
                     pass
         self.invalidate_recordset()
-        return False
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Voucher Approved'),
+                'message': _('All voucher expenses approved successfully.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
 
     def action_reject_all(self):
         self._check_voucher_approval_access()
