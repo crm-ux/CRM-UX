@@ -2234,7 +2234,16 @@ class ServiceTicketVoucherBatch(models.Model):
         mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
         return mgr.id if mgr else 2
 
-    expense_manager_id = fields.Many2one('res.users', string='Approver', default=_default_expense_manager_id)
+    expense_manager_id = fields.Many2one('res.users', string='Approver', compute='_compute_expense_manager_id', store=True, readonly=False, default=_default_expense_manager_id)
+
+    @api.depends('user_id', 'line_ids.user_id')
+    def _compute_expense_manager_id(self):
+        for rec in self:
+            if not rec.expense_manager_id:
+                emp = rec.user_id or (rec.line_ids[:1].user_id if rec.line_ids else False)
+                if emp:
+                    approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+                    rec.expense_manager_id = approver or emp.crm_expense_manager_id
 
     @api.depends('line_ids.amount')
     def _compute_total_amount(self):

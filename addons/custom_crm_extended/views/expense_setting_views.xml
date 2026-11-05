@@ -192,7 +192,7 @@
                 <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}" optional="show"/>
                 <field name="bill_filename" column_invisible="1"/>
                 <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
-                <field name="expense_manager_id" string="Approver" optional="hide"/>
+                <field name="expense_manager_id" string="Approver" widget="many2one_avatar_user" optional="show"/>
                 <field name="reject_reason" string="Reject Reason" optional="hide"/>
                 <field name="status" widget="badge" 
                        decoration-muted="status == 'draft'" 
@@ -302,6 +302,7 @@
                 <field name="submitted_by_user_id" string="Submitted By" widget="many2one_avatar_user" options="{'no_open': True}"/>
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_amount" sum="Total Amount" class="fw-bold text-end"/>
+                <field name="expense_manager_id" string="Approver" widget="many2one_avatar_user" optional="show"/>
                 <field name="status" widget="badge" 
                        decoration-muted="status == 'draft'" 
                        decoration-warning="status == 'submitted'" 
