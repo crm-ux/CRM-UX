@@ -1721,6 +1721,12 @@ class ServiceTicketVoucherLine(models.Model):
 
     def _check_voucher_approval_access(self):
         user = self.env.user
+        for line in self:
+            # Self-approval restriction: Cannot approve own vouchers unless Admin
+            if (line.user_id.id == user.id or (line.submitted_by_user_id and line.submitted_by_user_id.id == user.id)):
+                if not (user._is_admin() or user.has_group('base.group_system')):
+                    raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+
         if user._is_admin() or user.has_group('base.group_system'):
             return True
         company = self.env.company
@@ -2118,6 +2124,12 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def _check_voucher_approval_access(self):
         user = self.env.user
+        for line in self:
+            # Self-approval restriction: Cannot approve own vouchers unless Admin
+            if (line.user_id.id == user.id or (line.submitted_by_user_id and line.submitted_by_user_id.id == user.id)):
+                if not (user._is_admin() or user.has_group('base.group_system')):
+                    raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+
         if user._is_admin() or user.has_group('base.group_system'):
             return True
         company = self.env.company
