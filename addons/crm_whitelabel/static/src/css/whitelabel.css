@@ -1786,11 +1786,17 @@ input[type="checkbox"]:indeterminate {
     pointer-events: none !important;
 }
 
-/* ── Global Custom Blue Smiling Face Empty State (Overriding Odoo default purple) ── */
+
+/* ── Global Custom Blue Smiling Face Empty State (CRM Brand Blue #0b3d91) ── */
 .o_view_nocontent_smiling_face::before,
 .o_nocontent_help .o_view_nocontent_smiling_face::before,
 p.o_view_nocontent_smiling_face::before {
-    background: transparent url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='55' r='40' fill='%230b3d91'/%3E%3Cpath d='M43 42C43 39.7909 44.7909 38 47 38H67L77 48V84C77 86.2091 75.2091 88 73 88H47C44.7909 88 43 86.2091 43 84V42Z' fill='white' stroke='%23CBD5E1' stroke-width='1.5'/%3E%3Cpath d='M67 38V48H77' stroke='%23CBD5E1' stroke-width='1.5' stroke-linejoin='round' fill='%23F8FAFC'/%3E%3Ccircle cx='53' cy='57' r='2.2' fill='%2364748B'/%3E%3Ccircle cx='67' cy='57' r='2.2' fill='%2364748B'/%3E%3Cpath d='M55 64C57 67.5 63 67.5 65 64' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='49' y1='72' x2='65' y2='72' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='77' x2='68' y2='77' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='82' x2='59' y2='82' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='41' y1='31' x2='43.5' y2='33.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='36' y1='37' x2='39' y2='37' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='39' y1='43' x2='37' y2='45' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center !important;
+    content: "" !important;
+    display: block !important;
+    width: 120px !important;
+    height: 120px !important;
+    margin: 0 auto 16px auto !important;
+    background: transparent url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='52' fill='%23eff6ff'/%3E%3Cellipse cx='60' cy='98' rx='28' ry='5' fill='%23bfdbfe' opacity='0.6'/%3E%3Cpath d='M42 26 H68 L84 42 V84 C84 87.3 81.3 90 78 90 H42 C38.7 90 36 87.3 36 84 V32 C36 28.7 38.7 26 42 26 Z' fill='%23ffffff' stroke='%230b3d91' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M68 26 V42 H84' fill='%23dbeafe' stroke='%230b3d91' stroke-width='2.5' stroke-linejoin='round'/%3E%3Ccircle cx='51' cy='55' r='2.8' fill='%230b3d91'/%3E%3Ccircle cx='65' cy='55' r='2.8' fill='%230b3d91'/%3E%3Cpath d='M53 63 C55 67 61 67 63 63' stroke='%230b3d91' stroke-width='2.2' stroke-linecap='round'/%3E%3Cline x1='46' y1='73' x2='74' y2='73' stroke='%2393c5fd' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='46' y1='79' x2='68' y2='79' stroke='%2393c5fd' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M30 38 L34 38 M32 36 L32 40' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M90 32 L94 32 M92 30 L92 34' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center !important;
     background-size: contain !important;
 }
 
