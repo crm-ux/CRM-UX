@@ -1622,9 +1622,28 @@ class ServiceTicketVoucherLine(models.Model):
         ('submitted', 'Submitted'),
         ('partially_approved', 'Partially Approved'),
         ('approved', 'Approved'),
+        ('partially_paid', 'Partially Paid'),
         ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
+
+    voucher_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('partially_approved', 'Partially Approved'),
+        ('approved', 'Approved'),
+        ('partially_paid', 'Partially Paid'),
+        ('paid', 'Paid'),
+        ('rejected', 'Rejected'),
+    ], string='Voucher Status', compute='_compute_voucher_status')
+
+    @api.depends('batch_id.status', 'status')
+    def _compute_voucher_status(self):
+        for rec in self:
+            if rec.batch_id:
+                rec.voucher_status = rec.batch_id.status
+            else:
+                rec.voucher_status = rec.status
 
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
     voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
@@ -1778,7 +1797,9 @@ class ServiceTicketVoucherLine(models.Model):
                 'expense_manager_id': self.env.user.id,
                 'reject_reason': False,
             })
-        return False
+            if rec.batch_id:
+                rec.batch_id._compute_status()
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_approve_all(self):
         self._check_voucher_approval_access()
@@ -1791,6 +1812,7 @@ class ServiceTicketVoucherLine(models.Model):
             })
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
+                rec.batch_id._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1799,6 +1821,7 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('All lines in this voucher have been approved.'),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1812,6 +1835,7 @@ class ServiceTicketVoucherLine(models.Model):
             })
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
+                rec.batch_id._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1820,18 +1844,20 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('All lines in this voucher have been rejected.'),
                 'type': 'danger',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
     def action_mark_paid(self):
         for rec in self:
             target = rec.batch_id.line_ids if rec.batch_id else rec
-            # Mark approved lines as paid
-            to_pay = target.filtered(lambda l: l.status in ('approved', 'partially_approved'))
+            to_pay = target.filtered(lambda l: l.status != 'rejected')
             if to_pay:
                 to_pay.sudo().write({'status': 'paid'})
             elif target:
                 target.sudo().write({'status': 'paid'})
+            if rec.batch_id:
+                rec.batch_id._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1840,6 +1866,7 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher marked as Paid.'),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1851,6 +1878,8 @@ class ServiceTicketVoucherLine(models.Model):
                 'status': 'submitted',
                 'reject_reason': False,
             })
+            if rec.batch_id:
+                rec.batch_id._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1859,6 +1888,7 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher lines reset to Submitted for re-evaluation.'),
                 'type': 'info',
                 'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -1869,7 +1899,9 @@ class ServiceTicketVoucherLine(models.Model):
                 'status': 'submitted',
                 'reject_reason': False,
             })
-        return False
+            if rec.batch_id:
+                rec.batch_id._compute_status()
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_reject(self):
         line = self[:1]
