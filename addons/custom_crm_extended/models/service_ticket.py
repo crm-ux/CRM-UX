@@ -1014,20 +1014,23 @@ class ServiceTicket(models.Model):
         pass
 
     def _get_voucher_approver_for_employee(self, emp):
-        """Resolves the department voucher manager for an employee.
-        If employee has a department voucher manager assigned and active, returns that manager.
-        Only falls back to Global Expense Manager / Administrator if no department voucher manager is assigned.
+        """Resolves the approver in strict 3-tier waterfall:
+        Tier 1: Department Voucher Manager (if assigned and active).
+        Tier 2: Global Expense Manager (if assigned and active).
+        Tier 3: System Administrator (direct fallback).
         """
+        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         if not emp:
-            mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-            return mgr or self.env.ref('base.user_admin', raise_if_not_found=False)
+            global_mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
+            return global_mgr or admin_user
 
-        # 1. Check direct department of employee
+        # ── TIER 1: Department Voucher Manager ──
         emp_dept = emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False
         if emp_dept:
             dept_with_mgr = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
                 ('voucher_manager_id', '!=', False),
+                ('voucher_manager_id.active', '=', True),
                 ('voucher_manager_id', '!=', emp.id),
                 '|',
                 ('id', '=', emp_dept.id),
@@ -1036,13 +1039,17 @@ class ServiceTicket(models.Model):
             if dept_with_mgr and dept_with_mgr.voucher_manager_id:
                 return dept_with_mgr.voucher_manager_id
 
-        # 2. Check employee's assigned crm_expense_manager_id
-        if emp.crm_expense_manager_id and emp.crm_expense_manager_id.id != emp.id:
+        # Also check member-synced department approver
+        if emp.crm_expense_manager_id and emp.crm_expense_manager_id.active and emp.crm_expense_manager_id.id != emp.id:
             return emp.crm_expense_manager_id
 
-        # 3. Fallback: Global Expense Manager or Administrator
-        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-        return mgr or self.env.ref('base.user_admin', raise_if_not_found=False)
+        # ── TIER 2: Global Expense Manager ──
+        global_mgrs = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id != emp.id)
+        if global_mgrs:
+            return global_mgrs[:1]
+
+        # ── TIER 3: Administrator Direct Fallback ──
+        return admin_user
 
     def action_submit_all_vouchers(self):
         """Submit all draft voucher lines into a single batch based on submission date."""
