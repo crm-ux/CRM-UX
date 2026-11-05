@@ -214,12 +214,11 @@
         <field name="arch" type="xml">
             <form string="Expense Voucher Detail">
                 <header>
-                    <field name="can_approve" invisible="1"/>
-                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid') or not can_approve"/>
-                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid') or not can_approve"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted' or not can_approve"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved') or not can_approve"/>
-                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
+                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('approved', 'paid')"/>
+                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="voucher_status == 'submitted'"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved')"/>
+                    <field name="voucher_status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
                     <div class="oe_title mb-3">
@@ -323,12 +322,11 @@
         <field name="arch" type="xml">
             <form string="Voucher Submission Detail" class="o_service_ticket_voucher_batch_form">
                 <header>
-                    <field name="can_approve" invisible="1"/>
-                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid') or not can_approve"/>
-                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid') or not can_approve"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted' or not can_approve"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved') or not can_approve"/>
-                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,paid,rejected"/>
+                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('approved', 'paid')"/>
+                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('rejected', 'paid')"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status == 'submitted'"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>

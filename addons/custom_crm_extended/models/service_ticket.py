@@ -1992,6 +1992,8 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
             'reject_reason': self.reject_reason,
             'expense_manager_id': self.env.user.id,
         })
+        if line.batch_id:
+            line.batch_id._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -2005,7 +2007,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 ),
                 'type': 'danger',
                 'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2182,17 +2184,13 @@ class ServiceTicketVoucherBatch(models.Model):
                 rec.status = 'submitted'
             elif all(s == 'paid' for s in statuses):
                 rec.status = 'paid'
-            elif any(s == 'paid' for s in statuses) and any(s in ('rejected', 'approved', 'submitted', 'partially_approved') for s in statuses):
+            elif any(s == 'paid' for s in statuses):
                 rec.status = 'partially_paid'
             elif all(s == 'approved' for s in statuses):
                 rec.status = 'approved'
-            elif all(s in ('approved', 'rejected') for s in statuses) and any(s == 'approved' for s in statuses):
-                rec.status = 'partially_approved'
             elif all(s == 'rejected' for s in statuses):
                 rec.status = 'rejected'
-            elif any(s in ('approved', 'paid') for s in statuses) and any(s in ('rejected', 'submitted') for s in statuses):
-                rec.status = 'partially_approved'
-            elif any(s == 'rejected' for s in statuses) and any(s == 'submitted' for s in statuses):
+            elif any(s in ('approved', 'rejected') for s in statuses):
                 rec.status = 'partially_approved'
             else:
                 rec.status = 'submitted'
@@ -2318,11 +2316,12 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def action_mark_paid(self):
         for rec in self:
-            to_pay = rec.line_ids.filtered(lambda l: l.status in ('approved', 'partially_approved'))
+            to_pay = rec.line_ids.filtered(lambda l: l.status != 'rejected')
             if to_pay:
                 to_pay.sudo().write({'status': 'paid'})
             elif rec.line_ids:
                 rec.line_ids.sudo().write({'status': 'paid'})
+            rec._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
