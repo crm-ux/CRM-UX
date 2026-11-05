@@ -200,10 +200,9 @@
                        decoration-success="status in ('approved', 'partially_approved')" 
                        decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
-                <field name="can_approve" column_invisible="1"/>
-                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="not can_approve"/>
-                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="not can_approve"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="not can_approve"/>
+                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve"/>
+                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset"/>
             </list>
         </field>
     </record>
@@ -256,7 +255,7 @@
                     </group>
 
                     <separator string="Expenses"/>
-                    <field name="ticket_voucher_line_ids">
+                    <field name="ticket_voucher_line_ids" class="o_voucher_card_list">
                         <list create="0" edit="0" delete="0">
                             <field name="expense_date" string="Expense Date"/>
                             <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
@@ -278,10 +277,9 @@
                                    decoration-info="status in ('paid', 'partially_paid')" 
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
-                            <field name="can_approve" column_invisible="1"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line"/>
                         </list>
                     </field>
                 </sheet>
@@ -311,10 +309,9 @@
                        decoration-success="status in ('approved', 'partially_approved')" 
                        decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
-                <field name="can_approve" column_invisible="1"/>
-                <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid') or not can_approve"/>
-                <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status == 'rejected' or not can_approve"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status == 'submitted' or not can_approve"/>
+                <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid')"/>
+                <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status == 'rejected'"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status == 'submitted'"/>
             </list>
         </field>
     </record>
@@ -393,10 +390,9 @@
                                    decoration-info="status in ('paid', 'partially_paid')" 
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
-                            <field name="can_approve" column_invisible="1"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line"/>
                         </list>
                     </field>
                 </sheet>
