@@ -1187,6 +1187,18 @@ class ServiceTicket(models.Model):
                 default['ticket_id'] = f"{orig_id}-1"
         if 'name' not in default:
             default['name'] = default['ticket_id']
+        default.update({
+            'new_voucher_date': fields.Date.today(),
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_expense_type_id': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_total_km': 0.0,
+            'new_voucher_start_km': 0.0,
+            'new_voucher_end_km': 0.0,
+            'new_voucher_bill_file': False,
+            'new_voucher_bill_filename': False,
+        })
         return super(ServiceTicket, self).copy(default)
 
 
