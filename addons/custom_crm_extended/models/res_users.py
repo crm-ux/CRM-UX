@@ -13,11 +13,9 @@ class ResUsers(models.Model):
         string='Expense / Voucher Approver',
         domain="[('share', '=', False)]",
         compute='_compute_crm_expense_manager_id',
-        store=True,
-        readonly=False,
+        store=False,
     )
 
-    @api.depends('crm_department_id', 'crm_department_id.manager_user_id', 'crm_department_id.voucher_manager_id', 'crm_department_id.voucher_approval_active', 'company_id.crm_authorized_expense_manager_ids')
     def _compute_crm_expense_manager_id(self):
         company = self.env.company
         global_mgr = company.crm_authorized_expense_manager_ids[:1]
@@ -27,18 +25,33 @@ class ResUsers(models.Model):
             if user.id in (1, 2) or user.share:
                 user.crm_expense_manager_id = False
                 continue
+
             dept = user.crm_department_id or (user.employee_id and user.employee_id.department_id) or False
-            dept_with_mgr = self.env['hr.department'].sudo().search([
-                ('voucher_approval_active', '=', True),
-                '|',
-                ('id', '=', dept.id if dept else False),
-                ('extra_department_ids', 'in', [dept.id] if dept else []),
-            ], limit=1) if dept else False
-            dept_mgr = (dept_with_mgr.voucher_manager_id or dept_with_mgr.manager_user_id) if dept_with_mgr else False
-            if dept_mgr and user.id != dept_mgr.id:
-                user.crm_expense_manager_id = dept_mgr
-            else:
-                user.crm_expense_manager_id = fallback
+            approver = False
+
+            if dept:
+                # 1. Designated voucher manager on own department
+                if dept.voucher_manager_id and dept.voucher_manager_id.active and dept.voucher_manager_id.id != user.id:
+                    approver = dept.voucher_manager_id
+                # 2. Department head on own department
+                elif dept.manager_user_id and dept.manager_user_id.active and dept.manager_user_id.id != user.id:
+                    approver = dept.manager_user_id
+                else:
+                    # 3. Managing department that has this department in extra_department_ids
+                    managing_dept = self.env['hr.department'].sudo().search([
+                        ('voucher_approval_active', '=', True),
+                        ('extra_department_ids', 'in', [dept.id]),
+                    ], limit=1)
+                    if managing_dept:
+                        m_approver = managing_dept.voucher_manager_id or managing_dept.manager_user_id
+                        if m_approver and m_approver.active and m_approver.id != user.id:
+                            approver = m_approver
+
+            # 4. Direct reporting manager from user profile
+            if not approver and user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
+                approver = user.crm_manager_id
+
+            user.crm_expense_manager_id = approver or fallback
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
