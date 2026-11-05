@@ -311,7 +311,29 @@ class ServiceTicket(models.Model):
                 ], limit=1)
                 if ct:
                     vals['complaint_type_id'] = ct.id
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        for rec in records:
+            if rec.engineer_id and rec.engineer_id.id != self.env.user.id and rec.engineer_id.partner_id:
+                p_name = rec.partner_id.name if rec.partner_id else '-'
+                s_name = rec.site_name or '-'
+                v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
+                c_desc = rec.complaint_description or 'No complaint description.'
+                tck_title = f"{rec.ticket_id or 'Ticket'}: {rec.complaint_type_id.name if rec.complaint_type_id else 'Service Call'}"
+                body_msg = (
+                    f"<b>Service Ticket Assigned</b><br/>"
+                    f"Ticket <b>{tck_title}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                    f"Customer: <b>{p_name}</b> (Site: <b>{s_name}</b>)<br/>"
+                    f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
+                    f"Problem: {c_desc}"
+                )
+                rec.message_post(
+                    body=body_msg,
+                    subject=f"Ticket Assigned: {tck_title}",
+                    partner_ids=[rec.engineer_id.partner_id.id],
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                )
+        return records
 
     def write(self, vals):
         cid = vals.get('complaint_type_id')
@@ -331,7 +353,34 @@ class ServiceTicket(models.Model):
             ], limit=1)
             if ct:
                 vals['complaint_type_id'] = ct.id
-        return super().write(vals)
+
+        old_engineers = {rec.id: rec.engineer_id.id for rec in self} if vals.get('engineer_id') else {}
+        res = super().write(vals)
+
+        if vals.get('engineer_id'):
+            for rec in self:
+                if rec.engineer_id and rec.engineer_id.id != old_engineers.get(rec.id) and rec.engineer_id.id != self.env.user.id:
+                    if rec.engineer_id.partner_id:
+                        p_name = rec.partner_id.name if rec.partner_id else '-'
+                        s_name = rec.site_name or '-'
+                        v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
+                        c_desc = rec.complaint_description or 'No complaint description.'
+                        tck_title = f"{rec.ticket_id or 'Ticket'}: {rec.complaint_type_id.name if rec.complaint_type_id else 'Service Call'}"
+                        body_msg = (
+                            f"<b>Service Ticket Assigned</b><br/>"
+                            f"Ticket <b>{tck_title}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                            f"Customer: <b>{p_name}</b> (Site: <b>{s_name}</b>)<br/>"
+                            f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
+                            f"Problem: {c_desc}"
+                        )
+                        rec.message_post(
+                            body=body_msg,
+                            subject=f"Ticket Assigned: {tck_title}",
+                            partner_ids=[rec.engineer_id.partner_id.id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+        return res
 
     # Assignment & Schedule
     engineer_id = fields.Many2one('res.users', string='Assigned Engineer', tracking=True)
@@ -1092,6 +1141,25 @@ class ServiceTicket(models.Model):
             'submitted_by_user_id': submitter_id,
             'expense_manager_id': approver_uid,
         })
+
+        # Post notification to designated approver
+        if dept_approver and dept_approver.partner_id:
+            batch_tot = sum(draft_lines.mapped('amount'))
+            exp_names = ", ".join(filter(None, set(draft_lines.mapped('expense_type_id.name'))))
+            tck_name = self.ticket_id or self.name or 'Service Ticket'
+            body_msg = (
+                f"<b>New Voucher Approval Request</b><br/>"
+                f"Voucher <b>{batch_name}</b> submitted by <b>{submitter_name}</b> for approval.<br/>"
+                f"Amount: <b>₹ {batch_tot:,.2f}</b><br/>"
+                f"Ticket: <b>{tck_name}</b> | Expenses: <b>{exp_names}</b>"
+            )
+            batch_rec.message_post(
+                body=body_msg,
+                subject=f"Voucher Approval: {batch_name}",
+                partner_ids=[dept_approver.partner_id.id],
+                message_type='notification',
+                subtype_xmlid='mail.mt_comment',
+            )
 
         self.invalidate_recordset()
         return False
@@ -1954,6 +2022,17 @@ class ServiceTicketVoucherLine(models.Model):
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
                 rec.batch_id._compute_status()
+                submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
+                if submitter and submitter.partner_id:
+                    rec.batch_id.message_post(
+                        body=f"<b>Voucher Approved</b><br/>"
+                             f"Your voucher <b>{rec.batch_id.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
+                             f"Approved Amount: <b>₹ {rec.batch_id.total_amount:,.2f}</b>",
+                        subject=f"Voucher Approved: {rec.batch_id.name}",
+                        partner_ids=[submitter.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -1977,6 +2056,17 @@ class ServiceTicketVoucherLine(models.Model):
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
                 rec.batch_id._compute_status()
+                submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
+                if submitter and submitter.partner_id:
+                    rec.batch_id.message_post(
+                        body=f"<b>Voucher Approved</b><br/>"
+                             f"Your voucher <b>{rec.batch_id.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
+                             f"Approved Amount: <b>₹ {rec.batch_id.total_amount:,.2f}</b>",
+                        subject=f"Voucher Approved: {rec.batch_id.name}",
+                        partner_ids=[submitter.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -2165,6 +2255,7 @@ class ServiceTicketVoucherDescWizard(models.TransientModel):
 
 class ServiceTicketVoucherBatch(models.Model):
     _name = 'service.ticket.voucher.batch'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Service Ticket Voucher Submission'
     _order = 'id desc'
 

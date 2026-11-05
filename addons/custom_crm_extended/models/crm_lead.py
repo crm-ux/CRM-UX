@@ -675,6 +675,54 @@ class CrmLead(models.Model):
             'context': dict(self.env.context, default_step=1),
         }
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records:
+            assigned_user = rec.x_assign_to_id or rec.user_id
+            if assigned_user and assigned_user.id != self.env.user.id and assigned_user.partner_id:
+                contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
+                phone_str = rec.phone or rec.mobile or '-'
+                body_msg = (
+                    f"<b>Lead Assigned</b><br/>"
+                    f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                    f"Contact: <b>{contact}</b> ({phone_str})<br/>"
+                    f"Details: {rec.description or 'No additional details provided.'}"
+                )
+                rec.message_post(
+                    body=body_msg,
+                    subject=f"Lead Assigned: {rec.name}",
+                    partner_ids=[assigned_user.partner_id.id],
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                )
+        return records
+
+    def write(self, vals):
+        old_assigned = {rec.id: (rec.x_assign_to_id.id or rec.user_id.id) for rec in self} if ('user_id' in vals or 'x_assign_to_id' in vals) else {}
+        res = super().write(vals)
+        if 'user_id' in vals or 'x_assign_to_id' in vals:
+            for rec in self:
+                assigned_user = rec.x_assign_to_id or rec.user_id
+                if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
+                    if assigned_user.partner_id:
+                        contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
+                        phone_str = rec.phone or rec.mobile or '-'
+                        body_msg = (
+                            f"<b>Lead Assigned</b><br/>"
+                            f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                            f"Contact: <b>{contact}</b> ({phone_str})<br/>"
+                            f"Details: {rec.description or 'No additional details provided.'}"
+                        )
+                        rec.message_post(
+                            body=body_msg,
+                            subject=f"Lead Assigned: {rec.name}",
+                            partner_ids=[assigned_user.partner_id.id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+        return res
+
 class ResPartnerRestrict(models.Model):
     _inherit = 'res.partner'
 

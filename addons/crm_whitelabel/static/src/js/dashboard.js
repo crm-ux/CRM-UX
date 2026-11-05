@@ -1715,6 +1715,40 @@ class CrmDashboard extends Component {
                         }
                     }
 
+                    let icon = 'fa fa-tasks';
+                    let modalTitle = m.subject || 'Task Details';
+                    let topLabel = 'Task Title';
+                    let leftLabel = 'Assigned By';
+                    let rightLabel = 'Assigned Date';
+                    let bottomLabel = 'Work Instructions';
+                    let actionBtnLabel = 'Open Task';
+
+                    if (m.model === 'service.ticket.voucher.batch') {
+                        icon = 'fa fa-file-text-o';
+                        modalTitle = m.subject || 'Voucher Approval Request';
+                        topLabel = 'VOUCHER ID';
+                        leftLabel = 'SUBMITTED BY';
+                        rightLabel = 'AMOUNT & DATE';
+                        bottomLabel = 'EXPENSE DETAILS';
+                        actionBtnLabel = 'View Voucher';
+                    } else if (m.model === 'service.ticket') {
+                        icon = 'fa fa-wrench';
+                        modalTitle = m.subject || 'Service Ticket Assigned';
+                        topLabel = 'TICKET TITLE & COMPLAINT';
+                        leftLabel = 'CUSTOMER & SITE';
+                        rightLabel = 'PRIORITY & SCHEDULE';
+                        bottomLabel = 'PROBLEM DESCRIPTION';
+                        actionBtnLabel = 'Open Ticket';
+                    } else if (m.model === 'crm.lead') {
+                        icon = 'fa fa-briefcase';
+                        modalTitle = m.subject || 'Lead Assigned';
+                        topLabel = 'LEAD TITLE';
+                        leftLabel = 'ASSIGNED BY';
+                        rightLabel = 'CONTACT & DATE';
+                        bottomLabel = 'INQUIRY DETAILS';
+                        actionBtnLabel = 'Open Lead';
+                    }
+
                     return {
                         id: m.id,
                         res_id: m.res_id,
@@ -1724,7 +1758,14 @@ class CrmDashboard extends Component {
                         task_note: taskInstructions,
                         attachment_name: attachedFileName,
                         attachment_ids: m.attachment_ids || [],
-                        date: localFormattedDate
+                        date: localFormattedDate,
+                        icon: icon,
+                        modalTitle: modalTitle,
+                        topLabel: topLabel,
+                        leftLabel: leftLabel,
+                        rightLabel: rightLabel,
+                        bottomLabel: bottomLabel,
+                        actionBtnLabel: actionBtnLabel
                     };
                 });
             } catch (e) {
@@ -1809,10 +1850,20 @@ class CrmDashboard extends Component {
 
     openLead(notif) {
         this.state.notifOpen = false;
-        if (notif.model === 'crm.lead') {
-            this.actionService.doAction({ type: 'ir.actions.act_window', res_model: 'crm.lead', res_id: notif.res_id, view_mode: 'form', views: [[false, 'form']], target: 'current' });
-        } else {
-            this.openTaskDetailModal(notif);
+        this.openTaskDetailModal(notif);
+    }
+
+    openRecord(notif) {
+        this.closeTaskDetailModal();
+        if (notif && notif.model && notif.res_id) {
+            this.actionService.doAction({
+                type: 'ir.actions.act_window',
+                res_model: notif.model,
+                res_id: notif.res_id,
+                view_mode: 'form',
+                views: [[false, 'form']],
+                target: 'current'
+            });
         }
     }
 

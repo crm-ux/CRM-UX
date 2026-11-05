@@ -187,6 +187,22 @@ class CrmTaskManagement(models.Model):
             # Assigned employee CANNOT change deadline or task instructions
             record.can_edit_manager_fields = False
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super(CrmTaskManagement, self).create(vals_list)
+        for rec in records:
+            if rec.assigned_to_id and rec.assigned_to_id.id != self.env.user.id and rec.assigned_to_id.partner_id:
+                rec.message_post(
+                    body=f"<b>New Task Assigned</b><br/>"
+                         f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                         f"Instructions: {rec.instructions or 'No additional instructions.'}",
+                    subject=f"New Task: {rec.name}",
+                    partner_ids=[rec.assigned_to_id.partner_id.id],
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                )
+        return records
+
     def write(self, vals):
         manager_fields = {'name', 'assigned_to_id', 'date_deadline', 'instructions', 'attachment_file', 'attachment_name', 'attachment_ids', 'task_attachment_ids', 'related_model'}
         if any(f in vals for f in manager_fields):
@@ -209,11 +225,37 @@ class CrmTaskManagement(models.Model):
                             "Cannot reschedule task to %s. Target deadline cannot be earlier than the task assignment date (%s)."
                         ) % (new_deadline.strftime('%d/%m/%Y'), assigned_date.strftime('%d/%m/%Y')))
 
+        old_assignees = {rec.id: rec.assigned_to_id.id for rec in self} if vals.get('assigned_to_id') else {}
         res = super(CrmTaskManagement, self).write(vals)
 
-        # Handle Sequential Task Unlock and Recurrence on completion
+        # Notify new assignee if task is re-assigned
+        if vals.get('assigned_to_id'):
+            for rec in self:
+                if rec.assigned_to_id and rec.assigned_to_id.id != old_assignees.get(rec.id) and rec.assigned_to_id.id != self.env.user.id:
+                    if rec.assigned_to_id.partner_id:
+                        rec.message_post(
+                            body=f"<b>New Task Assigned</b><br/>"
+                                 f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                                 f"Instructions: {rec.instructions or 'No additional instructions.'}",
+                            subject=f"New Task: {rec.name}",
+                            partner_ids=[rec.assigned_to_id.partner_id.id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+
+        # Handle Sequential Task Unlock, Recurrence, and notify assigner on completion
         if 'state' in vals and vals['state'] == 'done':
             for rec in self:
+                if rec.assigned_by_id and rec.assigned_by_id.id != self.env.user.id and rec.assigned_by_id.partner_id:
+                    rec.message_post(
+                        body=f"<b>Task Completed</b><br/>"
+                             f"Task <b>{rec.name}</b> has been completed by <b>{self.env.user.name}</b>.<br/>"
+                             f"Notes: {rec.completion_notes or 'Completed successfully.'}",
+                        subject=f"Task Completed: {rec.name}",
+                        partner_ids=[rec.assigned_by_id.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
                 # 1. Unlock next pending task for this assignee if any was queued
                 next_task = self.search([
                     ('assigned_to_id', '=', rec.assigned_to_id.id),
