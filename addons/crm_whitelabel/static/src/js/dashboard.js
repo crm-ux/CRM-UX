@@ -1676,41 +1676,37 @@ class CrmDashboard extends Component {
                 localStorage.setItem('crm_read_notifs', JSON.stringify(newReadIds));
                 this.state.notifCount = 0;
                 this.state.notifications = activeMessages.map(m => {
+                    const decodeHtml = (str) => {
+                        if (!str) return '';
+                        const txt = document.createElement("textarea");
+                        txt.innerHTML = str;
+                        let decoded = txt.value;
+                        if (decoded.includes("&lt;") || decoded.includes("&gt;")) {
+                            txt.innerHTML = decoded;
+                            decoded = txt.value;
+                        }
+                        const div = document.createElement("div");
+                        div.innerHTML = decoded;
+                        return (div.innerText || div.textContent || "").replace(/\s+/g, ' ').trim();
+                    };
+
                     let senderName = '';
                     if (m.author_id && m.author_id[1]) {
                         senderName = m.author_id[1].replace(/\s*\(.*?\)\s*/g, '').trim();
                     }
 
-                    let taskTitle = '';
-                    const taskMatch = m.body ? m.body.match(/<b>New Task:\s*([^<]+)<\/b>/i) : null;
-                    if (taskMatch && taskMatch[1]) {
-                        taskTitle = taskMatch[1].trim();
-                    } else if (m.subject && m.subject.trim()) {
-                        taskTitle = m.subject.trim();
-                    } else if (m.record_name && m.record_name.trim()) {
-                        taskTitle = m.record_name.trim();
+                    let rawCleanBody = decodeHtml(m.body);
+
+                    let taskTitle = m.record_name ? m.record_name.trim() : (m.subject ? m.subject.trim() : '');
+                    if (!taskTitle) {
+                        const mTitle = rawCleanBody.match(/(?:New Task|Ticket Assigned|Lead Assigned|Voucher Approval|Voucher Approved|Voucher Rejected):\s*([^\n.]+)/i);
+                        if (mTitle && mTitle[1]) taskTitle = mTitle[1].trim();
                     }
 
-                    let rawBody = m.body ? m.body.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
-                    const docMatch = rawBody.match(/activity:\s*Document:\s*["“']?([^"”'(\n]+)/i);
-                    if (docMatch && docMatch[1]) {
-                        taskTitle = docMatch[1].trim();
-                    } else {
-                        const leadMatch = rawBody.match(/assigned to the Lead\s+(.*)/i);
-                        if (leadMatch && leadMatch[1]) {
-                            taskTitle = leadMatch[1].trim().replace(/\.$/, '');
-                        }
-                    }
-
-                    let taskInstructions = '';
-                    if (taskMatch) {
-                        taskInstructions = rawBody.replace(/^New Task:\s*[^.]*?(?=\s+|$)/i, '').replace(/📎 Attached:.*$/i, '').trim();
-                    } else if (rawBody) {
-                        taskInstructions = rawBody.replace(/📎 Attached:.*$/i, '').trim();
-                    }
+                    let taskInstructions = rawCleanBody;
 
                     let attachedFileName = '';
-                    const attMatch = m.body ? m.body.match(/📎 Attached:\s*([^<]+)/i) : null;
+                    const attMatch = (m.body || '').match(/📎 Attached:\s*([^<]+)/i);
                     if (attMatch && attMatch[1]) {
                         attachedFileName = attMatch[1].trim();
                     }
@@ -1737,36 +1733,98 @@ class CrmDashboard extends Component {
 
                     let icon = 'fa fa-tasks';
                     let modalTitle = m.subject || 'Task Details';
-                    let topLabel = 'Task Title';
-                    let leftLabel = 'Assigned By';
-                    let rightLabel = 'Assigned Date';
-                    let bottomLabel = 'Work Instructions';
+                    let topLabel = 'TASK TITLE';
+                    let leftLabel = 'ASSIGNED BY';
+                    let rightLabel = 'ASSIGNED DATE';
+                    let bottomLabel = 'WORK INSTRUCTIONS';
                     let actionBtnLabel = 'Open Task';
 
                     if (m.model === 'service.ticket.voucher.batch') {
                         icon = 'fa fa-file-text-o';
-                        modalTitle = m.subject || 'Voucher Approval Request';
-                        topLabel = 'VOUCHER ID';
-                        leftLabel = 'SUBMITTED BY';
-                        rightLabel = 'AMOUNT & DATE';
-                        bottomLabel = 'EXPENSE DETAILS';
                         actionBtnLabel = 'View Voucher';
+                        topLabel = 'VOUCHER ID';
+
+                        // Extract clean Voucher ID (e.g. VCH/TCK-0011/...)
+                        const vchMatch = (m.record_name || m.subject || rawCleanBody).match(/(VCH\/[^\s,]+)/i);
+                        if (vchMatch && vchMatch[1]) {
+                            taskTitle = vchMatch[1].trim();
+                        } else {
+                            taskTitle = taskTitle.replace(/^(Voucher Approval|Voucher Approved|Voucher Rejected):\s*/i, '').trim();
+                        }
+
+                        const isRejected = (m.subject || rawCleanBody).toLowerCase().includes('rejected');
+                        const isApproved = (m.subject || rawCleanBody).toLowerCase().includes('approved');
+
+                        if (isRejected) {
+                            icon = 'fa fa-times-circle text-danger';
+                            modalTitle = 'Voucher Rejected';
+                            leftLabel = 'REVIEWED BY';
+                            rightLabel = 'STATUS & DATE';
+                            bottomLabel = 'REJECTION REASON';
+
+                            // Extract the actual rejection reason cleanly
+                            const reasonMatch = rawCleanBody.match(/Reason:\s*(.*)$/i);
+                            if (reasonMatch && reasonMatch[1]) {
+                                taskInstructions = reasonMatch[1].trim();
+                            } else {
+                                taskInstructions = rawCleanBody;
+                            }
+                        } else if (isApproved) {
+                            icon = 'fa fa-check-circle text-success';
+                            modalTitle = 'Voucher Approved';
+                            leftLabel = 'APPROVED BY';
+                            rightLabel = 'STATUS & DATE';
+                            bottomLabel = 'APPROVAL REMARKS';
+
+                            const amtMatch = rawCleanBody.match(/Approved Amount:\s*(₹?\s*[\d,.]+)/i);
+                            taskInstructions = amtMatch ? `All expenses approved (${amtMatch[1].trim()}).` : 'All expenses approved for payment.';
+                        } else {
+                            modalTitle = 'Voucher Approval Request';
+                            leftLabel = 'SUBMITTED BY';
+                            rightLabel = 'AMOUNT & DATE';
+                            bottomLabel = 'EXPENSE DETAILS';
+
+                            // Clean instructions for approval request
+                            const subMatch = rawCleanBody.match(/Ticket:\s*(.*)$/i);
+                            if (subMatch && subMatch[1]) {
+                                taskInstructions = `Ticket: ${subMatch[1].trim()}`;
+                            }
+                        }
                     } else if (m.model === 'service.ticket') {
                         icon = 'fa fa-wrench';
-                        modalTitle = m.subject || 'Service Ticket Assigned';
+                        modalTitle = 'Service Ticket Assigned';
                         topLabel = 'TICKET TITLE & COMPLAINT';
                         leftLabel = 'CUSTOMER & SITE';
                         rightLabel = 'PRIORITY & SCHEDULE';
                         bottomLabel = 'PROBLEM DESCRIPTION';
                         actionBtnLabel = 'Open Ticket';
+
+                        taskTitle = taskTitle.replace(/^Ticket Assigned:\s*/i, '').trim();
+                        const probMatch = rawCleanBody.match(/Problem:\s*(.*)$/i);
+                        if (probMatch && probMatch[1]) {
+                            taskInstructions = probMatch[1].trim();
+                        }
                     } else if (m.model === 'crm.lead') {
                         icon = 'fa fa-briefcase';
-                        modalTitle = m.subject || 'Lead Assigned';
+                        modalTitle = 'Lead Assigned';
                         topLabel = 'LEAD TITLE';
                         leftLabel = 'ASSIGNED BY';
                         rightLabel = 'CONTACT & DATE';
                         bottomLabel = 'INQUIRY DETAILS';
                         actionBtnLabel = 'Open Lead';
+
+                        taskTitle = taskTitle.replace(/^Lead Assigned:\s*/i, '').trim();
+                        const detMatch = rawCleanBody.match(/Details:\s*(.*)$/i);
+                        if (detMatch && detMatch[1]) {
+                            taskInstructions = detMatch[1].trim();
+                        }
+                    } else {
+                        // Task
+                        taskTitle = taskTitle.replace(/^New Task:\s*/i, '').trim();
+                        const instMatch = rawCleanBody.match(/Instructions:\s*(.*)$/i);
+                        if (instMatch && instMatch[1]) {
+                            taskInstructions = instMatch[1].trim();
+                        }
                     }
 
                     return {

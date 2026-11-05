@@ -2292,7 +2292,26 @@ class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
     def action_confirm(self):
         self.ensure_one()
         self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
-        return {'type': 'ir.actions.act_window_close'}
+        if batch:
+            if self.env.context.get('active_model') == 'service.ticket' and batch.ticket_id:
+                return {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'service.ticket',
+                    'res_id': batch.ticket_id.id,
+                    'view_mode': 'form',
+                    'views': [[False, 'form']],
+                    'target': 'current',
+                }
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'service.ticket.voucher.batch',
+                'res_id': batch.id,
+                'view_mode': 'form',
+                'views': [[False, 'form']],
+                'target': 'current',
+            }
+
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
 
 class ServiceTicketVoucherRejectWizard(models.TransientModel):
@@ -2360,7 +2379,26 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
             if line.batch_id:
                 line.batch_id._compute_status()
 
-        return {'type': 'ir.actions.act_window_close'}
+        if batch:
+            if self.env.context.get('active_model') == 'service.ticket' and batch.ticket_id:
+                return {
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'service.ticket',
+                    'res_id': batch.ticket_id.id,
+                    'view_mode': 'form',
+                    'views': [[False, 'form']],
+                    'target': 'current',
+                }
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'service.ticket.voucher.batch',
+                'res_id': batch.id,
+                'view_mode': 'form',
+                'views': [[False, 'form']],
+                'target': 'current',
+            }
+
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
 
 class ServiceTicketVoucherDescWizard(models.TransientModel):
