@@ -192,7 +192,27 @@ class CrmDashboard extends Component {
 
             this.notifPollTimer = setInterval(() => {
                 this.loadNotifCount();
-            }, 30000);
+            }, 3000);
+
+            if (this.env && this.env.services && this.env.services.bus_service) {
+                try {
+                    this.env.services.bus_service.subscribe('crm_notification', (payload) => {
+                        this.loadNotifCount();
+                        if (this.notificationService) {
+                            this.notificationService.add(payload.message || "New notification received", {
+                                title: payload.title || "CRM Notification",
+                                type: "info",
+                                sticky: false,
+                            });
+                        }
+                    });
+                    this.env.services.bus_service.subscribe('mail.record/insert', () => {
+                        this.loadNotifCount();
+                    });
+                } catch (busErr) {
+                    console.warn("Bus service subscribe warning:", busErr);
+                }
+            }
 
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.crm-dropdown-container')) {

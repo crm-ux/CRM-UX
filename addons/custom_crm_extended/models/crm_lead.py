@@ -696,6 +696,19 @@ class CrmLead(models.Model):
                     message_type='notification',
                     subtype_xmlid='mail.mt_comment',
                 )
+                try:
+                    self.env['bus.bus']._sendone(
+                        assigned_user.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'Lead Assigned',
+                            'message': f"Lead {rec.name} has been assigned to you.",
+                            'model': 'crm.lead',
+                            'res_id': rec.id,
+                        }
+                    )
+                except Exception:
+                    pass
         return records
 
     def write(self, vals):
@@ -721,6 +734,19 @@ class CrmLead(models.Model):
                             message_type='notification',
                             subtype_xmlid='mail.mt_comment',
                         )
+                        try:
+                            self.env['bus.bus']._sendone(
+                                assigned_user.partner_id,
+                                'crm_notification',
+                                {
+                                    'title': 'Lead Assigned',
+                                    'message': f"Lead {rec.name} has been assigned to you.",
+                                    'model': 'crm.lead',
+                                    'res_id': rec.id,
+                                }
+                            )
+                        except Exception:
+                            pass
         return res
 
 class ResPartnerRestrict(models.Model):

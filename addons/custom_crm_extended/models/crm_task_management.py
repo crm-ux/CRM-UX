@@ -201,6 +201,19 @@ class CrmTaskManagement(models.Model):
                     message_type='notification',
                     subtype_xmlid='mail.mt_comment',
                 )
+                try:
+                    self.env['bus.bus']._sendone(
+                        rec.assigned_to_id.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'New Task Assigned',
+                            'message': f"Task {rec.name} assigned to you.",
+                            'model': 'crm.task.management',
+                            'res_id': rec.id,
+                        }
+                    )
+                except Exception:
+                    pass
         return records
 
     def write(self, vals):
@@ -242,6 +255,19 @@ class CrmTaskManagement(models.Model):
                             message_type='notification',
                             subtype_xmlid='mail.mt_comment',
                         )
+                        try:
+                            self.env['bus.bus']._sendone(
+                                rec.assigned_to_id.partner_id,
+                                'crm_notification',
+                                {
+                                    'title': 'New Task Assigned',
+                                    'message': f"Task {rec.name} assigned to you.",
+                                    'model': 'crm.task.management',
+                                    'res_id': rec.id,
+                                }
+                            )
+                        except Exception:
+                            pass
 
         # Handle Sequential Task Unlock, Recurrence, and notify assigner on completion
         if 'state' in vals and vals['state'] == 'done':

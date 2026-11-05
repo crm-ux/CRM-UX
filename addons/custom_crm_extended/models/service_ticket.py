@@ -333,6 +333,19 @@ class ServiceTicket(models.Model):
                     message_type='notification',
                     subtype_xmlid='mail.mt_comment',
                 )
+                try:
+                    self.env['bus.bus']._sendone(
+                        rec.engineer_id.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'Service Ticket Assigned',
+                            'message': f"Ticket {tck_title} assigned to you.",
+                            'model': 'service.ticket',
+                            'res_id': rec.id,
+                        }
+                    )
+                except Exception:
+                    pass
         return records
 
     def write(self, vals):
@@ -380,6 +393,19 @@ class ServiceTicket(models.Model):
                             message_type='notification',
                             subtype_xmlid='mail.mt_comment',
                         )
+                        try:
+                            self.env['bus.bus']._sendone(
+                                rec.engineer_id.partner_id,
+                                'crm_notification',
+                                {
+                                    'title': 'Service Ticket Assigned',
+                                    'message': f"Ticket {tck_title} assigned to you.",
+                                    'model': 'service.ticket',
+                                    'res_id': rec.id,
+                                }
+                            )
+                        except Exception:
+                            pass
         return res
 
     # Assignment & Schedule
@@ -1160,6 +1186,19 @@ class ServiceTicket(models.Model):
                 message_type='notification',
                 subtype_xmlid='mail.mt_comment',
             )
+            try:
+                self.env['bus.bus']._sendone(
+                    dept_approver.partner_id,
+                    'crm_notification',
+                    {
+                        'title': 'Voucher Approval Request',
+                        'message': f"Voucher {batch_name} submitted by {submitter_name} (₹ {batch_tot:,.2f}).",
+                        'model': 'service.ticket.voucher.batch',
+                        'res_id': batch_rec.id,
+                    }
+                )
+            except Exception:
+                pass
 
         self.invalidate_recordset()
         return False
@@ -2025,14 +2064,39 @@ class ServiceTicketVoucherLine(models.Model):
                 submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
                 if submitter and submitter.partner_id:
                     rec.batch_id.message_post(
-                        body=f"<b>Voucher Approved</b><br/>"
-                             f"Your voucher <b>{rec.batch_id.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
-                             f"Approved Amount: <b>₹ {rec.batch_id.total_amount:,.2f}</b>",
-                        subject=f"Voucher Approved: {rec.batch_id.name}",
+                        body=f"<b>Voucher Rejected</b><br/>"
+                             f"Your voucher <b>{rec.batch_id.name}</b> has been rejected by <b>{self.env.user.name}</b>.",
+                        subject=f"Voucher Rejected: {rec.batch_id.name}",
                         partner_ids=[submitter.partner_id.id],
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
                     )
+                    try:
+                        self.env['bus.bus']._sendone(
+                            submitter.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'Voucher Rejected',
+                                'message': f"Your voucher {rec.batch_id.name} was rejected by {self.env.user.name}.",
+                                'model': 'service.ticket.voucher.batch',
+                                'res_id': rec.batch_id.id,
+                            }
+                        )
+                    except Exception:
+                        pass
+                    try:
+                        self.env['bus.bus']._sendone(
+                            submitter.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'Voucher Approved',
+                                'message': f"Your voucher {rec.batch_id.name} was approved (₹ {rec.batch_id.total_amount:,.2f}).",
+                                'model': 'service.ticket.voucher.batch',
+                                'res_id': rec.batch_id.id,
+                            }
+                        )
+                    except Exception:
+                        pass
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -2059,14 +2123,39 @@ class ServiceTicketVoucherLine(models.Model):
                 submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
                 if submitter and submitter.partner_id:
                     rec.batch_id.message_post(
-                        body=f"<b>Voucher Approved</b><br/>"
-                             f"Your voucher <b>{rec.batch_id.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
-                             f"Approved Amount: <b>₹ {rec.batch_id.total_amount:,.2f}</b>",
-                        subject=f"Voucher Approved: {rec.batch_id.name}",
+                        body=f"<b>Voucher Rejected</b><br/>"
+                             f"Your voucher <b>{rec.batch_id.name}</b> has been rejected by <b>{self.env.user.name}</b>.",
+                        subject=f"Voucher Rejected: {rec.batch_id.name}",
                         partner_ids=[submitter.partner_id.id],
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
                     )
+                    try:
+                        self.env['bus.bus']._sendone(
+                            submitter.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'Voucher Rejected',
+                                'message': f"Your voucher {rec.batch_id.name} was rejected by {self.env.user.name}.",
+                                'model': 'service.ticket.voucher.batch',
+                                'res_id': rec.batch_id.id,
+                            }
+                        )
+                    except Exception:
+                        pass
+                    try:
+                        self.env['bus.bus']._sendone(
+                            submitter.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'Voucher Approved',
+                                'message': f"Your voucher {rec.batch_id.name} was approved (₹ {rec.batch_id.total_amount:,.2f}).",
+                                'model': 'service.ticket.voucher.batch',
+                                'res_id': rec.batch_id.id,
+                            }
+                        )
+                    except Exception:
+                        pass
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -2210,39 +2299,68 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
     _name = 'service.ticket.voucher.reject.wizard'
     _description = 'Reject Voucher Remark Wizard'
 
-    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', required=True)
+    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', required=False)
+    batch_id = fields.Many2one('service.ticket.voucher.batch', string='Voucher Submission')
+    batch_name = fields.Char(related='batch_id.name', string='Voucher ID', readonly=True)
+    batch_employee_names = fields.Char(related='batch_id.all_employee_names', string='Employees', readonly=True)
+    batch_total_amount = fields.Monetary(related='batch_id.total_amount', string='Total Amount', currency_field='currency_id', readonly=True)
     employee_name = fields.Char(related='voucher_line_id.user_id.name', string='Employee', readonly=True)
     expense_type_name = fields.Char(related='voucher_line_id.expense_type_id.name', string='Expense Type', readonly=True)
     amount = fields.Monetary(related='voucher_line_id.amount', string='Amount', currency_field='currency_id', readonly=True)
-    currency_id = fields.Many2one(related='voucher_line_id.currency_id', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
     reject_reason = fields.Text(string='Rejection Remark / Reason', required=True)
 
     def action_confirm_reject(self):
         self.ensure_one()
-        line = self.voucher_line_id
-        line.sudo().write({
-            'status': 'rejected',
-            'reject_reason': self.reject_reason,
-            'expense_manager_id': self.env.user.id,
-        })
-        if line.batch_id:
-            line.batch_id._compute_status()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Voucher Rejected'),
-                'message': _('Voucher for %s (%s) of ₹%0.2f has been rejected. Reason: %s') % (
-                    line.user_id.name or 'Employee',
-                    line.expense_type_id.name or 'Expense',
-                    line.amount or 0.0,
-                    self.reject_reason
-                ),
-                'type': 'danger',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
-        }
+        reason = self.reject_reason or 'No reason specified'
+        batch = self.batch_id or (self.voucher_line_id.batch_id if self.voucher_line_id else False)
+
+        if batch:
+            batch.line_ids.sudo().write({
+                'status': 'rejected',
+                'reject_reason': reason,
+                'expense_manager_id': self.env.user.id,
+            })
+            batch.sudo().write({
+                'status': 'rejected',
+                'expense_manager_id': self.env.user.id,
+            })
+            batch._compute_status()
+            submitter = batch.submitted_by_user_id or batch.user_id
+            if submitter and submitter.partner_id:
+                batch.message_post(
+                    body=f"<b>Voucher Rejected</b><br/>"
+                         f"Your voucher <b>{batch.name}</b> has been rejected by <b>{self.env.user.name}</b>.<br/>"
+                         f"Reason: <i>{reason}</i>",
+                    subject=f"Voucher Rejected: {batch.name}",
+                    partner_ids=[submitter.partner_id.id],
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                )
+                try:
+                    self.env['bus.bus']._sendone(
+                        submitter.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'Voucher Rejected',
+                            'message': f"Voucher {batch.name} was rejected: {reason}",
+                            'model': 'service.ticket.voucher.batch',
+                            'res_id': batch.id,
+                        }
+                    )
+                except Exception:
+                    pass
+        elif self.voucher_line_id:
+            line = self.voucher_line_id
+            line.sudo().write({
+                'status': 'rejected',
+                'reject_reason': reason,
+                'expense_manager_id': self.env.user.id,
+            })
+            if line.batch_id:
+                line.batch_id._compute_status()
+
+        return {'type': 'ir.actions.act_window_close'}
 
 
 class ServiceTicketVoucherDescWizard(models.TransientModel):
@@ -2534,35 +2652,51 @@ class ServiceTicketVoucherBatch(models.Model):
                 'reject_reason': False,
             })
             rec.sudo().write({'expense_manager_id': self.env.user.id})
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Vouchers Approved'),
-                'message': _('All vouchers in this submission have been approved.'),
-                'type': 'success',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
-        }
+            rec._compute_status()
+            submitter = rec.submitted_by_user_id or rec.user_id
+            if submitter and submitter.partner_id:
+                rec.message_post(
+                    body=f"<b>Voucher Approved</b><br/>"
+                         f"Your voucher <b>{rec.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
+                         f"Approved Amount: <b>₹ {rec.total_amount:,.2f}</b>",
+                    subject=f"Voucher Approved: {rec.name}",
+                    partner_ids=[submitter.partner_id.id],
+                    message_type='notification',
+                    subtype_xmlid='mail.mt_comment',
+                )
+                try:
+                    self.env['bus.bus']._sendone(
+                        submitter.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'Voucher Approved',
+                            'message': f"Your voucher {rec.name} was approved (₹ {rec.total_amount:,.2f}).",
+                            'model': 'service.ticket.voucher.batch',
+                            'res_id': rec.id,
+                        }
+                    )
+                except Exception:
+                    pass
+        self.invalidate_recordset()
+        return False
 
     def action_reject_all(self):
         self._check_voucher_approval_access()
-        for rec in self:
-            rec.line_ids.sudo().write({
-                'status': 'rejected',
-                'expense_manager_id': self.env.user.id,
-            })
-            rec.sudo().write({'expense_manager_id': self.env.user.id})
+        self.ensure_one()
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reject_wizard_form', raise_if_not_found=False)
+        line = self.line_ids[:1]
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Vouchers Rejected'),
-                'message': _('All vouchers in this submission have been rejected.'),
-                'type': 'danger',
-                'sticky': False,
-            }
+            'name': _('Reject Voucher Submission'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.reject.wizard',
+            'view_mode': 'form',
+            'view_id': view.id if view else False,
+            'target': 'new',
+            'context': {
+                'default_voucher_line_id': line.id if line else False,
+                'default_batch_id': self.id,
+                'default_reject_reason': '',
+            },
         }
 
     def action_mark_paid(self):

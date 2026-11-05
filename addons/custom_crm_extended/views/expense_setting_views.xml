@@ -493,10 +493,19 @@
             <form string="Reject Voucher Submission">
                 <group>
                     <field name="voucher_line_id" invisible="1"/>
+                    <field name="batch_id" invisible="1"/>
                     <field name="currency_id" invisible="1"/>
-                    <field name="employee_name" string="Employee" readonly="1"/>
-                    <field name="expense_type_name" string="Expense Type" readonly="1"/>
-                    <field name="amount" string="Amount" readonly="1"/>
+
+                    <!-- Shown when rejecting entire submission batch -->
+                    <field name="batch_name" string="Voucher ID" readonly="1" invisible="not batch_id"/>
+                    <field name="batch_employee_names" string="Employee(s)" readonly="1" invisible="not batch_id"/>
+                    <field name="batch_total_amount" string="Total Amount" readonly="1" invisible="not batch_id"/>
+
+                    <!-- Shown when rejecting a single voucher line -->
+                    <field name="employee_name" string="Employee" readonly="1" invisible="batch_id"/>
+                    <field name="expense_type_name" string="Expense Type" readonly="1" invisible="batch_id"/>
+                    <field name="amount" string="Amount" readonly="1" invisible="batch_id"/>
+
                     <field name="reject_reason" string="Reason / Remark" placeholder="Enter reason or remark for rejection..." required="1"/>
                 </group>
                 <footer>
