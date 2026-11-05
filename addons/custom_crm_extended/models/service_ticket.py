@@ -2131,6 +2131,7 @@ class ServiceTicketVoucherBatch(models.Model):
         ('submitted', 'Submitted'),
         ('partially_approved', 'Partially Approved'),
         ('approved', 'Approved'),
+        ('partially_paid', 'Partially Paid'),
         ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True)
@@ -2153,8 +2154,12 @@ class ServiceTicketVoucherBatch(models.Model):
                 rec.status = 'submitted'
             elif all(s == 'paid' for s in statuses):
                 rec.status = 'paid'
+            elif any(s == 'paid' for s in statuses) and any(s in ('rejected', 'approved', 'submitted', 'partially_approved') for s in statuses):
+                rec.status = 'partially_paid'
             elif all(s == 'approved' for s in statuses):
                 rec.status = 'approved'
+            elif all(s in ('approved', 'rejected') for s in statuses) and any(s == 'approved' for s in statuses):
+                rec.status = 'partially_approved'
             elif all(s == 'rejected' for s in statuses):
                 rec.status = 'rejected'
             elif any(s in ('approved', 'paid') for s in statuses) and any(s in ('rejected', 'submitted') for s in statuses):

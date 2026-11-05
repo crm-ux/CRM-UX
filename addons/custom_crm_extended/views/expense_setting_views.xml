@@ -196,9 +196,9 @@
                 <field name="reject_reason" string="Reject Reason" optional="hide"/>
                 <field name="status" widget="badge" 
                        decoration-muted="status == 'draft'" 
-                       decoration-warning="status in ('submitted', 'partially_approved')" 
-                       decoration-success="status == 'approved'" 
-                       decoration-info="status == 'paid'" 
+                       decoration-warning="status == 'submitted'" 
+                       decoration-success="status in ('approved', 'partially_approved')" 
+                       decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
                 <field name="can_approve" column_invisible="1"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="not can_approve"/>
@@ -273,9 +273,9 @@
                             <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                             <field name="status" widget="badge" 
                                    decoration-muted="status == 'draft'" 
-                                   decoration-warning="status in ('submitted', 'partially_approved')" 
-                                   decoration-success="status == 'approved'" 
-                                   decoration-info="status == 'paid'" 
+                                   decoration-warning="status == 'submitted'" 
+                                   decoration-success="status in ('approved', 'partially_approved')" 
+                                   decoration-info="status in ('paid', 'partially_paid')" 
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <field name="can_approve" column_invisible="1"/>
@@ -307,9 +307,9 @@
                 <field name="total_amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="status" widget="badge" 
                        decoration-muted="status == 'draft'" 
-                       decoration-warning="status in ('submitted', 'partially_approved')" 
-                       decoration-success="status == 'approved'" 
-                       decoration-info="status == 'paid'" 
+                       decoration-warning="status == 'submitted'" 
+                       decoration-success="status in ('approved', 'partially_approved')" 
+                       decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
                 <field name="can_approve" column_invisible="1"/>
                 <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('approved', 'paid') or not can_approve"/>
@@ -388,9 +388,9 @@
                             <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                             <field name="status" widget="badge" 
                                    decoration-muted="status == 'draft'" 
-                                   decoration-warning="status in ('submitted', 'partially_approved')" 
-                                   decoration-success="status == 'approved'" 
-                                   decoration-info="status == 'paid'" 
+                                   decoration-warning="status == 'submitted'" 
+                                   decoration-success="status in ('approved', 'partially_approved')" 
+                                   decoration-info="status in ('paid', 'partially_paid')" 
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <field name="can_approve" column_invisible="1"/>
