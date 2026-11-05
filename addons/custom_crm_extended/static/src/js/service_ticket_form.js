@@ -117,11 +117,6 @@ patch(ListController.prototype, {
                 const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
 
                 this.dialogService = this.dialogService || this.env.services.dialog;
-                // Open in new tab with download/save options
-                if (recId) {
-                    window.open(`/web/content?model=service.ticket.voucher.line&id=${recId}&field=bill_file&filename=${encodeURIComponent(filename)}&download=false`, "_blank");
-                    return;
-                }
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename || _t("Bill Preview"),
                     fileUrl: fileUrl,
@@ -393,11 +388,6 @@ export class ServiceTicketFormController extends FormController {
                 const hasUnsavedNewFile = cachedRowFile || (fileData && !isSizeString && fileData.length > 100);
                 const fileUrl = (!hasUnsavedNewFile && recId) ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
 
-                // Open in new tab with download/save options
-                if (recId) {
-                    window.open(`/web/content?model=service.ticket.voucher.line&id=${recId}&field=bill_file&filename=${encodeURIComponent(filename)}&download=false`, "_blank");
-                    return;
-                }
                 this.dialogService.add(UniversalAttachmentPreviewDialog, {
                     title: filename || _t("Bill Preview"),
                     fileUrl: fileUrl,

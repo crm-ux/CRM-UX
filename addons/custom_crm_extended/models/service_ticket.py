@@ -1664,6 +1664,96 @@ class ServiceTicketVoucherLine(models.Model):
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
+    bill_preview_html = fields.Html(compute='_compute_bill_preview_html', string='Bill Preview HTML', sanitize=False)
+
+    @api.depends('bill_file', 'bill_filename')
+    def _compute_bill_preview_html(self):
+        for rec in self:
+            if not rec.bill_file:
+                rec.bill_preview_html = '<div class="text-center p-4 text-muted">No attachment uploaded.</div>'
+                continue
+            fname = (rec.bill_filename or '').lower()
+            ext = fname.split('.')[-1] if '.' in fname else ''
+            url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=false"
+            download_url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=true"
+
+            download_bar = f'''
+            <div class="d-flex justify-content-end align-items-center mb-2 px-1">
+                <a href="{download_url}" class="btn btn-sm btn-outline-primary" target="_blank" download>
+                    <i class="fa fa-download me-1"></i> Download / Save
+                </a>
+            </div>
+            '''
+
+            if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
+                rec.bill_preview_html = f'''
+                {download_bar}
+                <div class="d-flex align-items-center justify-content-center" style="height: 68vh; overflow: auto; background: #f8fafc; border-radius: 6px;">
+                    <img src="{url}" class="img-fluid rounded shadow-sm" style="max-height: 65vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>
+                </div>
+                '''
+            elif ext == 'pdf':
+                rec.bill_preview_html = f'''
+                {download_bar}
+                <div style="height: 68vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none;" title="Bill PDF"></iframe>
+                </div>
+                '''
+            elif ext in ('docx', 'doc', 'xlsx', 'xls', 'csv', 'zip', 'rar'):
+                preview = self.env['equipment.master'].action_get_invoice_preview_content(
+                    res_id=False, raw_b64=rec.bill_file, filename=rec.bill_filename
+                )
+                ptype = preview.get('type')
+                if ptype == 'docx_content':
+                    rec.bill_preview_html = f'''
+                    {download_bar}
+                    <div class="card p-4 shadow-sm" style="max-height: 68vh; overflow-y: auto; background: #fff;">
+                        {preview.get('html', '')}
+                    </div>
+                    '''
+                elif ptype == 'excel_content':
+                    sheets = preview.get('sheets', [])
+                    rows_html = ""
+                    if sheets:
+                        rows = sheets[0].get('rows', [])
+                        if rows:
+                            header_cells = "".join([f'<th class="px-2 py-1 bg-light border">{c}</th>' for c in rows[0]])
+                            body_rows = "".join([
+                                "<tr>" + "".join([f'<td class="px-2 py-1 border">{cell}</td>' for cell in r]) + "</tr>"
+                                for r in rows[1:]
+                            ])
+                            rows_html = f'<table class="table table-bordered table-sm mb-0"><thead><tr>{header_cells}</tr></thead><tbody>{body_rows}</tbody></table>'
+                    rec.bill_preview_html = f'''
+                    {download_bar}
+                    <div style="max-height: 68vh; overflow: auto; background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        {rows_html or "No data in spreadsheet."}
+                    </div>
+                    '''
+                elif ptype == 'zip_content':
+                    files = preview.get('files', [])
+                    list_items = "".join([f'<li class="py-1">{"📁" if f.get("is_dir") else "📄"} {f.get("name")} ({f.get("size")} KB)</li>' for f in files])
+                    rec.bill_preview_html = f'''
+                    {download_bar}
+                    <div style="max-height: 68vh; overflow-y: auto; background: #fff; padding: 16px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <h6 class="fw-bold mb-3">Archive Files:</h6>
+                        <ul class="list-unstyled mb-0">{list_items}</ul>
+                    </div>
+                    '''
+                else:
+                    rec.bill_preview_html = f'''
+                    {download_bar}
+                    <div class="text-center p-4">
+                        <p class="text-muted">Preview not directly available for this format.</p>
+                        <a href="{download_url}" class="btn btn-primary" download>Download File</a>
+                    </div>
+                    '''
+            else:
+                rec.bill_preview_html = f'''
+                {download_bar}
+                <div style="height: 68vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <iframe src="{url}" style="width: 100%; height: 100%; border: none;" title="Bill Preview"></iframe>
+                </div>
+                '''
     status = fields.Selection([
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),
@@ -2016,10 +2106,14 @@ class ServiceTicketVoucherLine(models.Model):
         self.ensure_one()
         if not self.bill_file:
             return False
-        filename = self.bill_filename or 'Receipt.pdf'
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form', raise_if_not_found=False)
         return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content?model=service.ticket.voucher.line&id={self.id}&field=bill_file&filename={filename}&download=false',
+            'name': _('Bill Preview - %s') % (self.bill_filename or self.expense_type_id.name or 'Receipt'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.line',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'view_id': view.id if view else False,
             'target': 'new',
         }
 
