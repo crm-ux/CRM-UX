@@ -1765,13 +1765,15 @@ input[type="checkbox"]:indeterminate {
 }
 
 
-/* ── Completely remove Email & SMS action column in Lead and Quotation List Views ── */
-.o_list_renderer th.o_list_button,
-.o_list_renderer td.o_list_button,
-.o_list_table th.o_list_button,
-.o_list_table td.o_list_button,
-th.o_list_button,
-td.o_list_button {
+/* ── Remove Email & SMS action column ONLY in Lead and Quotation List Views ── */
+.o_crm_lead_list_view th.o_list_button,
+.o_crm_lead_list_view td.o_list_button,
+.o_sale_order_list_view th.o_list_button,
+.o_sale_order_list_view td.o_list_button,
+.o_view_controller[data-model="crm.lead"] th.o_list_button,
+.o_view_controller[data-model="crm.lead"] td.o_list_button,
+.o_view_controller[data-model="sale.order"] th.o_list_button,
+.o_view_controller[data-model="sale.order"] td.o_list_button {
     display: none !important;
     width: 0 !important;
     max-width: 0 !important;
@@ -1782,4 +1784,19 @@ td.o_list_button {
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
+}
+
+/* ── Global Custom Blue Smiling Face Empty State (Overriding Odoo default purple) ── */
+.o_view_nocontent_smiling_face::before,
+.o_nocontent_help .o_view_nocontent_smiling_face::before,
+p.o_view_nocontent_smiling_face::before {
+    background: transparent url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='55' r='40' fill='%230b3d91'/%3E%3Cpath d='M43 42C43 39.7909 44.7909 38 47 38H67L77 48V84C77 86.2091 75.2091 88 73 88H47C44.7909 88 43 86.2091 43 84V42Z' fill='white' stroke='%23CBD5E1' stroke-width='1.5'/%3E%3Cpath d='M67 38V48H77' stroke='%23CBD5E1' stroke-width='1.5' stroke-linejoin='round' fill='%23F8FAFC'/%3E%3Ccircle cx='53' cy='57' r='2.2' fill='%2364748B'/%3E%3Ccircle cx='67' cy='57' r='2.2' fill='%2364748B'/%3E%3Cpath d='M55 64C57 67.5 63 67.5 65 64' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='49' y1='72' x2='65' y2='72' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='77' x2='68' y2='77' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='82' x2='59' y2='82' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='41' y1='31' x2='43.5' y2='33.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='36' y1='37' x2='39' y2='37' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='39' y1='43' x2='37' y2='45' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center !important;
+    background-size: contain !important;
+}
+
+.o_view_nocontent_smiling_face,
+.o_nocontent_help .o_view_nocontent_smiling_face,
+p.o_view_nocontent_smiling_face {
+    color: #0b3d91 !important;
+    font-weight: 700 !important;
 }

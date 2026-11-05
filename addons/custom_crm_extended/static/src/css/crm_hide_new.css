@@ -2797,8 +2797,11 @@ div[name="limit_rule_ids"] .o_selected_row .o_input:focus,
     outline: none !important;
 }
 
-/* Service Ticket: Pending Expenses table - 100% dynamic fluid sizing (no hardcoded px) */
-div[name="draft_voucher_line_ids"] table.o_list_table {
+/* Service Ticket & Voucher Batch Expense tables - 100% dynamic fluid sizing across full container */
+div[name="draft_voucher_line_ids"] table.o_list_table,
+div[name="line_ids"] table.o_list_table,
+.o_voucher_card_list table.o_list_table,
+.o_service_ticket_voucher_batch_form table.o_list_table {
     table-layout: auto !important;
     width: 100% !important;
     min-width: 100% !important;
@@ -2806,7 +2809,11 @@ div[name="draft_voucher_line_ids"] table.o_list_table {
 
 /* Prevent action column header from separating from body row */
 div[name="draft_voucher_line_ids"] th.o_list_actions_header,
-div[name="draft_voucher_line_ids"] th.o_list_controller {
+div[name="draft_voucher_line_ids"] th.o_list_controller,
+div[name="line_ids"] th.o_list_actions_header,
+div[name="line_ids"] th.o_list_controller,
+.o_voucher_card_list th.o_list_actions_header,
+.o_voucher_card_list th.o_list_controller {
     position: static !important;
     width: auto !important;
     text-align: center !important;
@@ -2814,52 +2821,27 @@ div[name="draft_voucher_line_ids"] th.o_list_controller {
 
 /* Dynamic fluid stretch: Description column absorbs 100% of remaining screen width */
 div[name="draft_voucher_line_ids"] th[data-name="description"],
-div[name="draft_voucher_line_ids"] td[name="description"] {
+div[name="draft_voucher_line_ids"] td[name="description"],
+div[name="line_ids"] th[data-name="description"],
+div[name="line_ids"] td[name="description"],
+.o_voucher_card_list th[data-name="description"],
+.o_voucher_card_list td[name="description"] {
     width: 100% !important;
 }
 
-/* Dynamic Budget Pool & Limit display: dynamic height growing with members, light blue theme matching single & group */
-.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_budget_info_html"],
-.o_voucher_quick_add_bar div[name="new_voucher_budget_info_html"],
-.o_voucher_quick_add_bar .o_budget_pool_field,
-div[name="new_voucher_budget_info_html"],
-.o_budget_pool_field {
-    border: 1px solid #bae6fd !important;
-    border-radius: 6px !important;
-    background-color: #f0f9ff !important;
-    padding: 6px 12px !important;
-    min-height: 36px !important;
-    height: auto !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    overflow: visible !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-.o_voucher_quick_add_bar .o_field_widget[name="new_voucher_budget_info_html"] .o_readonly,
-.o_voucher_quick_add_bar div[name="new_voucher_budget_info_html"] .o_readonly,
-.o_voucher_quick_add_bar .o_budget_pool_field .o_readonly,
-div[name="new_voucher_budget_info_html"] .o_readonly,
-.o_budget_pool_field .o_readonly {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    height: auto !important;
-    min-height: unset !important;
-    width: 100% !important;
-    overflow: visible !important;
-    display: block !important;
-}
-
-/* Dynamic content-based sizing: Expense Date sizes to fit text naturally without truncation */
-div[name="draft_voucher_line_ids"] th[data-name="expense_date"],
-div[name="draft_voucher_line_ids"] td[name="expense_date"] {
-    width: auto !important;
+/* Dynamic content-based sizing: All headers and cells fit naturally without truncation */
+div[name="draft_voucher_line_ids"] th,
+div[name="draft_voucher_line_ids"] td,
+div[name="line_ids"] th,
+div[name="line_ids"] td,
+.o_voucher_card_list th,
+.o_voucher_card_list td {
     white-space: nowrap !important;
 }
-div[name="draft_voucher_line_ids"] th[data-name="expense_date"] span {
+
+div[name="draft_voucher_line_ids"] th span,
+div[name="line_ids"] th span,
+.o_voucher_card_list th span {
     overflow: visible !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
@@ -2867,20 +2849,32 @@ div[name="draft_voucher_line_ids"] th[data-name="expense_date"] span {
 
 /* Dynamic rem-based column spacing between Amount and Bill */
 div[name="draft_voucher_line_ids"] th[data-name="amount"],
-div[name="draft_voucher_line_ids"] td[name="amount"] {
+div[name="draft_voucher_line_ids"] td[name="amount"],
+div[name="line_ids"] th[data-name="amount"],
+div[name="line_ids"] td[name="amount"],
+.o_voucher_card_list th[data-name="amount"],
+.o_voucher_card_list td[name="amount"] {
     width: auto !important;
     white-space: nowrap !important;
     padding-right: 1.5rem !important;
 }
 
 div[name="draft_voucher_line_ids"] th[data-name="bill_file"],
-div[name="draft_voucher_line_ids"] td[name="bill_file"] {
+div[name="draft_voucher_line_ids"] td[name="bill_file"],
+div[name="line_ids"] th[data-name="bill_file"],
+div[name="line_ids"] td[name="bill_file"],
+.o_voucher_card_list th[data-name="bill_file"],
+.o_voucher_card_list td[name="bill_file"] {
     width: auto !important;
     padding-left: 1rem !important;
 }
 
 div[name="draft_voucher_line_ids"] th[data-name="status"],
-div[name="draft_voucher_line_ids"] td[name="status"] {
+div[name="draft_voucher_line_ids"] td[name="status"],
+div[name="line_ids"] th[data-name="status"],
+div[name="line_ids"] td[name="status"],
+.o_voucher_card_list th[data-name="status"],
+.o_voucher_card_list td[name="status"] {
     width: auto !important;
     text-align: center !important;
     white-space: nowrap !important;
@@ -2949,6 +2943,21 @@ div[name="new_voucher_budget_info_html"] > div,
     height: auto !important;
     overflow: visible !important;
     display: block !important;
+}
+
+/* ── Global Custom Blue Smiling Face Empty State (Overriding Odoo default purple) ── */
+.o_view_nocontent_smiling_face::before,
+.o_nocontent_help .o_view_nocontent_smiling_face::before,
+p.o_view_nocontent_smiling_face::before {
+    background: transparent url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='55' r='40' fill='%230b3d91'/%3E%3Cpath d='M43 42C43 39.7909 44.7909 38 47 38H67L77 48V84C77 86.2091 75.2091 88 73 88H47C44.7909 88 43 86.2091 43 84V42Z' fill='white' stroke='%23CBD5E1' stroke-width='1.5'/%3E%3Cpath d='M67 38V48H77' stroke='%23CBD5E1' stroke-width='1.5' stroke-linejoin='round' fill='%23F8FAFC'/%3E%3Ccircle cx='53' cy='57' r='2.2' fill='%2364748B'/%3E%3Ccircle cx='67' cy='57' r='2.2' fill='%2364748B'/%3E%3Cpath d='M55 64C57 67.5 63 67.5 65 64' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round'/%3E%3Cline x1='49' y1='72' x2='65' y2='72' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='77' x2='68' y2='77' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='49' y1='82' x2='59' y2='82' stroke='%23E2E8F0' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='41' y1='31' x2='43.5' y2='33.5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='36' y1='37' x2='39' y2='37' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='39' y1='43' x2='37' y2='45' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center !important;
+    background-size: contain !important;
+}
+
+.o_view_nocontent_smiling_face,
+.o_nocontent_help .o_view_nocontent_smiling_face,
+p.o_view_nocontent_smiling_face {
+    color: #0b3d91 !important;
+    font-weight: 700 !important;
 }
 
 
