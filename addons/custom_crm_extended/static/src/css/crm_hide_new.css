@@ -2960,5 +2960,86 @@ p.o_view_nocontent_smiling_face {
     font-weight: 700 !important;
 }
 
+/* ── Force show & style action buttons in Voucher tables ── */
+div[name="line_ids"] td.o_list_button,
+div[name="line_ids"] th.o_list_button,
+.o_voucher_card_list td.o_list_button,
+.o_voucher_card_list th.o_list_button,
+.o_service_ticket_voucher_batch_form td.o_list_button,
+.o_service_ticket_voucher_batch_form th.o_list_button {
+    display: table-cell !important;
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    padding: 4px 6px !important;
+    text-align: center !important;
+}
+
+div[name="line_ids"] td.o_list_button .d-flex,
+.o_voucher_card_list td.o_list_button .d-flex,
+.o_service_ticket_voucher_batch_form td.o_list_button .d-flex {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+div[name="line_ids"] td.o_list_button button,
+.o_voucher_card_list td.o_list_button button,
+.o_service_ticket_voucher_batch_form td.o_list_button button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    cursor: pointer !important;
+}
+
+div[name="line_ids"] td.o_list_button button i,
+.o_voucher_card_list td.o_list_button button i,
+.o_service_ticket_voucher_batch_form td.o_list_button button i {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 13px !important;
+}
+
+div[name="line_ids"] td.o_list_button button[name="action_approve"],
+.o_voucher_card_list td.o_list_button button[name="action_approve"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_approve"] {
+    background-color: #dcfce7 !important;
+    color: #16a34a !important;
+    border: 1px solid #86efac !important;
+}
+
+div[name="line_ids"] td.o_list_button button[name="action_reject"],
+.o_voucher_card_list td.o_list_button button[name="action_reject"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_reject"] {
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fca5a5 !important;
+}
+
+div[name="line_ids"] td.o_list_button button[name="action_reset_line"],
+.o_voucher_card_list td.o_list_button button[name="action_reset_line"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_reset_line"] {
+    background-color: #e0f2fe !important;
+    color: #0284c7 !important;
+    border: 1px solid #bae6fd !important;
+}
+
 
 
