@@ -34,7 +34,7 @@ class ResUsers(models.Model):
                 ('id', '=', dept.id if dept else False),
                 ('extra_department_ids', 'in', [dept.id] if dept else []),
             ], limit=1) if dept else False
-            dept_mgr = (dept_with_mgr.manager_user_id or dept_with_mgr.voucher_manager_id) if dept_with_mgr else False
+            dept_mgr = (dept_with_mgr.voucher_manager_id or dept_with_mgr.manager_user_id) if dept_with_mgr else False
             if dept_mgr and user.id != dept_mgr.id:
                 user.crm_expense_manager_id = dept_mgr
             else:
@@ -1764,10 +1764,7 @@ class HrDepartment(models.Model):
     def _compute_available_voucher_approver_ids(self):
         all_users = self.env['res.users'].sudo().search([('share', '=', False)])
         for dept in self:
-            if dept.manager_user_id:
-                dept.available_voucher_approver_ids = all_users.filtered(lambda u: u.id != dept.manager_user_id.id)
-            else:
-                dept.available_voucher_approver_ids = all_users
+            dept.available_voucher_approver_ids = all_users
 
     extra_department_ids = fields.Many2many(
         'hr.department',
@@ -1785,11 +1782,6 @@ class HrDepartment(models.Model):
             if dept.id in dept.extra_department_ids.ids:
                 raise ValidationError(_("Department '%s' cannot select itself as an additional or sub-department.") % (dept.name or ''))
 
-    @api.constrains('voucher_manager_id', 'manager_user_id')
-    def _check_voucher_manager_not_head(self):
-        for dept in self:
-            if dept.voucher_manager_id and dept.manager_user_id and dept.voucher_manager_id == dept.manager_user_id:
-                raise ValidationError(_("Department Head '%s' cannot be selected as the Voucher Approver for their own department.") % (dept.manager_user_id.name or ''))
 
     member_user_ids = fields.One2many(
         'res.users',
@@ -1823,7 +1815,7 @@ class HrDepartment(models.Model):
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         fallback_mgr = global_mgr or admin_user
         for dept in self:
-            dept_mgr = dept.manager_user_id if (dept.manager_user_id and dept.voucher_approval_active) else (dept.voucher_manager_id if dept.voucher_approval_active else False)
+            dept_mgr = (dept.voucher_manager_id or dept.manager_user_id) if dept.voucher_approval_active else False
             all_dept_ids = dept.ids + dept.extra_department_ids.ids
             users = self.env['res.users'].sudo().search([
                 ('crm_department_id', 'in', all_dept_ids),
