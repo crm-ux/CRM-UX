@@ -2961,11 +2961,8 @@ p.o_view_nocontent_smiling_face {
 }
 
 /* ── Force show & style action buttons in Voucher tables (Compact & vertically centered) ── */
-div[name="line_ids"] td.o_list_button,
 div[name="line_ids"] th.o_list_button,
-.o_voucher_card_list td.o_list_button,
 .o_voucher_card_list th.o_list_button,
-.o_service_ticket_voucher_batch_form td.o_list_button,
 .o_service_ticket_voucher_batch_form th.o_list_button {
     display: table-cell !important;
     width: 100px !important;
@@ -2977,6 +2974,24 @@ div[name="line_ids"] th.o_list_button,
     padding: 2px 4px !important;
     vertical-align: middle !important;
     text-align: center !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+div[name="line_ids"] td.o_list_button,
+.o_voucher_card_list td.o_list_button,
+.o_service_ticket_voucher_batch_form td.o_list_button {
+    display: table-cell !important;
+    width: 100px !important;
+    min-width: 100px !important;
+    max-width: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    padding: 2px 4px !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    border-top: 1px solid #dee2e6 !important;
+    border-bottom: 1px solid #dee2e6 !important;
 }
 
 div[name="line_ids"] td.o_list_button .d-flex,
