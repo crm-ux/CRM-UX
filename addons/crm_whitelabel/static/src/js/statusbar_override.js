@@ -3,6 +3,19 @@ import { patch } from "@web/core/utils/patch";
 import { StatusBarField } from "@web/views/fields/statusbar/statusbar_field";
 
 patch(StatusBarField.prototype, {
+    getAllItems() {
+        const items = super.getAllItems();
+        const fieldName = this.props.name;
+        if (fieldName === 'status' || fieldName === 'voucher_status') {
+            const currentVal = this.props.record && this.props.record.data ? this.props.record.data[fieldName] : null;
+            if (currentVal === 'partially_paid') {
+                return items.filter(it => it.value !== 'paid');
+            } else {
+                return items.filter(it => it.value !== 'partially_paid');
+            }
+        }
+        return items;
+    },
     selectItem(item) {
         if (!item.isSelected) {
             return super.selectItem(item);
