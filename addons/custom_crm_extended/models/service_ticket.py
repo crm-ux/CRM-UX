@@ -278,7 +278,7 @@ class ServiceTicket(models.Model):
             if ct:
                 res['complaint_type_id'] = ct.id
         res.update({
-            'new_voucher_date': fields.Date.today(),
+            'new_voucher_date': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_expense_type_id': False,
             'new_voucher_amount': 0.0,
@@ -594,7 +594,7 @@ class ServiceTicket(models.Model):
         domain="[('share', '=', False), ('id', 'not in', new_voucher_user_ids)]",
         help="Select one or multiple employees to divide the total expense cost."   
     )
-    new_voucher_date = fields.Date(string='Expense Date', default=fields.Date.context_today)
+    new_voucher_date = fields.Date(string='Expense Date')
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     allowed_voucher_expense_type_ids = fields.Many2many(
         'service.ticket.expense.type',
@@ -811,40 +811,18 @@ class ServiceTicket(models.Model):
 
     def action_add_voucher_line(self):
         self.ensure_one()
-        if not self.new_voucher_date:
-            self.new_voucher_date = fields.Date.context_today(self)
+        if not self.new_voucher_user_ids or not self.new_voucher_expense_type_id or not self.new_voucher_amount or self.new_voucher_amount <= 0:
+            return False
+
+        exp_date = self.new_voucher_date or fields.Date.context_today(self)
         today = fields.Date.context_today(self)
-        if self.new_voucher_date > today:
+        if exp_date > today:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Invalid Expense Date',
                     'message': 'Expense Date cannot be in the future.',
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
-        if not self.new_voucher_user_ids:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Missing Employee',
-                    'message': 'Please select at least one Employee before adding an expense.',
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
-        if not self.new_voucher_amount or self.new_voucher_amount <= 0:
-            return False
-        if not self.new_voucher_expense_type_id:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Missing Expense Type',
-                    'message': 'Please select an Expense Type.',
                     'type': 'warning',
                     'sticky': False,
                 }
@@ -932,9 +910,9 @@ class ServiceTicket(models.Model):
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
             user_rate = self.new_voucher_rate_per_km or exp_type.get_effective_km_rate(user=u) or 0.0
-            self.env['service.ticket.voucher.line'].create({
+            self.env['service.ticket.voucher.line'].sudo().create({
                 'ticket_id': self.id,
-                'expense_date': self.new_voucher_date or fields.Date.context_today(self),
+                'expense_date': exp_date,
                 'user_id': u.id,
                 'submitted_by_user_id': login_user.id,
                 'other_employee_names': other_names or '',
@@ -950,8 +928,8 @@ class ServiceTicket(models.Model):
                 'status': 'draft',
             })
 
-        self.write({
-            'new_voucher_date': fields.Date.context_today(self),
+        self.sudo().write({
+            'new_voucher_date': False,
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -967,8 +945,8 @@ class ServiceTicket(models.Model):
     def action_clear_voucher_fields(self):
         """ Clears all Quick Add Expense inputs instantly without reloading the entire ticket """
         self.ensure_one()
-        self.write({
-            'new_voucher_date': fields.Date.context_today(self),
+        self.sudo().write({
+            'new_voucher_date': False,
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -1341,14 +1319,6 @@ class ServiceTicket(models.Model):
                 vals['complaint_type_id'] = ct.id
 
         res = super(ServiceTicket, self).write(vals)
-
-        # If user filled in Quick Add Expense and clicked "Save" on the main ticket (instead of "Add Expense"):
-        # Auto-create the draft voucher line so it is saved in draft and the Quick Add inputs stay clean!
-        if not self.env.context.get('skip_auto_add_voucher'):
-            for rec in self:
-                if rec.new_voucher_amount and rec.new_voucher_amount > 0 and rec.new_voucher_expense_type_id:
-                    rec.with_context(skip_auto_add_voucher=True).action_add_voucher_line()
-
         return res
 
     def unlink(self):
