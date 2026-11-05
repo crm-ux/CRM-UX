@@ -30,26 +30,22 @@ class ResUsers(models.Model):
             approver = False
 
             if dept:
-                # 1. Designated voucher manager on own department
-                if dept.voucher_manager_id and dept.voucher_manager_id.active and dept.voucher_manager_id.id != user.id:
-                    approver = dept.voucher_manager_id
-                # 2. Department head on own department
-                elif dept.manager_user_id and dept.manager_user_id.active and dept.manager_user_id.id != user.id:
-                    approver = dept.manager_user_id
-                else:
-                    # 3. Managing department that has this department in extra_department_ids
+                # 1. Own department ONLY if voucher approval is active (Active = ON)
+                if dept.voucher_approval_active:
+                    mgr = dept.manager_user_id or dept.voucher_manager_id
+                    if mgr and mgr.active and mgr.id != user.id:
+                        approver = mgr
+
+                # 2. Managing department covering this department under sub-departments (Active = ON)
+                if not approver:
                     managing_dept = self.env['hr.department'].sudo().search([
                         ('voucher_approval_active', '=', True),
                         ('extra_department_ids', 'in', [dept.id]),
                     ], limit=1)
                     if managing_dept:
-                        m_approver = managing_dept.voucher_manager_id or managing_dept.manager_user_id
-                        if m_approver and m_approver.active and m_approver.id != user.id:
-                            approver = m_approver
-
-            # 4. Direct reporting manager from user profile
-            if not approver and user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
-                approver = user.crm_manager_id
+                        m_mgr = managing_dept.manager_user_id or managing_dept.voucher_manager_id
+                        if m_mgr and m_mgr.active and m_mgr.id != user.id:
+                            approver = m_mgr
 
             user.crm_expense_manager_id = approver or fallback
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
