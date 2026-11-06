@@ -3244,35 +3244,45 @@ div[name="new_voucher_bill_attachment_ids"] .caption small,
     display: none !important;
 }
 
-/* 6. Clean subtle delete cross (replaces giant purple block) */
+/* 6. Permanently visible delete cross (always visible on desktop and mobile touch devices) */
+div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_delete,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] .fa-times,
 div[name="new_voucher_bill_attachment_ids"] i.fa-times,
+.crm_compact_attachments .o_attachment .o_attachment_delete,
+.crm_compact_attachments .o_attachment .o_attachment_delete_cross,
 .crm_compact_attachments .o_attachment_delete,
 .crm_compact_attachments .o_attachment_delete_cross,
 .crm_compact_attachments .fa-times {
-    background: transparent !important;
-    background-color: transparent !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-flex !important;
+    background-color: rgba(239, 68, 68, 0.12) !important;
     border: none !important;
     box-shadow: none !important;
-    color: #94a3b8 !important;
-    font-size: 12px !important;
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
+    color: #ef4444 !important;
+    font-size: 11px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    border-radius: 50% !important;
     padding: 0 !important;
     margin-left: 6px !important;
-    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     flex-shrink: 0 !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
 }
 
+div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete:hover,
 div[name="new_voucher_bill_attachment_ids"] .fa-times:hover,
+.crm_compact_attachments .o_attachment_delete:hover,
 .crm_compact_attachments .fa-times:hover {
-    color: #ef4444 !important;
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
 }
 
 /* 7. Upload checkmark */
