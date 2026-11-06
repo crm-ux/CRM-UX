@@ -3269,10 +3269,14 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment a,
     display: inline-block !important;
 }
 
-/* 5. Hide ALL secondary subtitles, extensions, and "PDF" text tags */
+/* 5. Hide ALL secondary subtitles, extensions, and file type text tags (PDF, JPG, PNG, etc.) */
 div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
 div[name="new_voucher_bill_attachment_ids"] .caption small,
 div[name="new_voucher_bill_attachment_ids"] .caption span,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment small,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment .text-muted,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment [class*="type"],
+div[name="new_voucher_bill_attachment_ids"] .o_attachment [class*="extension"],
 div[name="new_voucher_bill_attachment_ids"] small,
 div[name="new_voucher_bill_attachment_ids"] .text-muted,
 div[name="new_voucher_bill_attachment_ids"] [class*="type"],
@@ -3280,6 +3284,10 @@ div[name="new_voucher_bill_attachment_ids"] [class*="extension"],
 .crm_compact_attachments .caption > *:not(a),
 .crm_compact_attachments .caption small,
 .crm_compact_attachments .caption span,
+.crm_compact_attachments .o_attachment small,
+.crm_compact_attachments .o_attachment .text-muted,
+.crm_compact_attachments .o_attachment [class*="type"],
+.crm_compact_attachments .o_attachment [class*="extension"],
 .crm_compact_attachments small,
 .crm_compact_attachments .text-muted,
 .crm_compact_attachments [class*="type"],

@@ -3,8 +3,50 @@
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { FileInput } from "@web/core/file_input/file_input";
+import { patch } from "@web/core/utils/patch";
 
 export const CUSTOM_USER_ERROR_MESSAGE = "We apologize for the inconvenience. The system is temporarily unable to process this request.";
+
+// Client-side file size validation & graceful 413 handling
+patch(FileInput.prototype, {
+    async onFileInputChange(ev) {
+        const files = Array.from(ev.target?.files || []);
+        const MAX_SIZE = 25 * 1024 * 1024; // 25 MB default limit
+        const oversized = files.filter((f) => f.size > MAX_SIZE);
+        if (oversized.length > 0) {
+            ev.target.value = "";
+            const names = oversized.map((f) => f.name).join(", ");
+            this.env.services.notification?.add(
+                _t(`The file(s) "${names}" exceed the maximum allowed upload size of 25 MB. Please select a smaller file.`),
+                {
+                    title: _t("File Too Large"),
+                    type: "warning",
+                    sticky: false,
+                }
+            );
+            return;
+        }
+
+        try {
+            return await super.onFileInputChange(...arguments);
+        } catch (err) {
+            const errStr = ((err?.message || "") + " " + JSON.stringify(err || "")).toLowerCase();
+            if (errStr.includes("large") || errStr.includes("413")) {
+                this.env.services.notification?.add(
+                    _t("The selected file is too large to upload. Please select a smaller file (under 25 MB)."),
+                    {
+                        title: _t("File Too Large"),
+                        type: "warning",
+                        sticky: false,
+                    }
+                );
+                return;
+            }
+            throw err;
+        }
+    },
+});
 
 const errorHandlerRegistry = registry.category("error_handlers");
 
@@ -108,6 +150,29 @@ export function customCleanErrorHandler(env, error, originalError) {
     if (isConnectionLost) {
         window._isServerReconnecting = true;
         window.location.replace(window.location.href);
+        return true;
+    }
+
+    // 2.8 Content Too Large / 413 File Upload Error:
+    // Show a clean friendly warning notification instead of technical error dialog
+    const isContentTooLarge =
+        fullErrLower.includes("content too large") ||
+        fullErrLower.includes("entity too large") ||
+        fullErrLower.includes("413") ||
+        err?.status === 413 ||
+        err?.code === 413;
+
+    if (isContentTooLarge) {
+        if (env.services?.notification) {
+            env.services.notification.add(
+                _t("The selected file is too large to upload. Please select a smaller file (under 25 MB)."),
+                {
+                    title: _t("File Too Large"),
+                    type: "warning",
+                    sticky: false,
+                }
+            );
+        }
         return true;
     }
 

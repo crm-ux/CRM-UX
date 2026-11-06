@@ -561,31 +561,57 @@ patch(BooleanField.prototype, {
     },
 });
 
-// Dynamic cleanup for compact attachment pills: hide secondary "PDF" text and ensure natural inline cross placement
+// Dynamic cleanup for compact attachment pills: hide secondary extension tags (JPG, PDF, PNG, etc.)
 if (typeof window !== "undefined") {
+    const EXT_REGEX = /^(PDF|JPG|JPEG|PNG|DOC|DOCX|XLS|XLSX|CSV|ZIP|RAR|TXT|TIFF|BMP|WEBP|GIF|MP4|AVI)$/i;
+
     function cleanAttachmentChips() {
         const containers = document.querySelectorAll("div[name='new_voucher_bill_attachment_ids'], .crm_compact_attachments");
         containers.forEach((container) => {
             const chips = container.querySelectorAll(".o_attachment");
             chips.forEach((chip) => {
-                // Remove any element or node with "PDF"
-                chip.querySelectorAll("small, span, div, b, em").forEach((el) => {
-                    if (el.tagName !== "A" && !el.classList.contains("fa") && el.textContent.trim().toUpperCase() === "PDF") {
-                        el.style.display = "none";
+                // 1. Remove any element inside chip matching file extension
+                chip.querySelectorAll("small, span, div, b, em, strong").forEach((el) => {
+                    if (el.tagName !== "A" && !el.classList.contains("fa") && !el.closest(".o_image_box") && !el.closest(".o_attachment_delete")) {
+                        const txt = (el.textContent || "").trim();
+                        if (EXT_REGEX.test(txt)) {
+                            el.style.display = "none";
+                        }
                     }
                 });
+
+                // 2. Also check inside <a> link if extension tag was nested inside
+                const link = chip.querySelector("a");
+                if (link) {
+                    link.querySelectorAll("small, span, div, b").forEach((child) => {
+                        const txt = (child.textContent || "").trim();
+                        if (EXT_REGEX.test(txt)) {
+                            child.style.display = "none";
+                        }
+                    });
+                    link.childNodes.forEach((node) => {
+                        if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
+                            node.nodeValue = "";
+                        }
+                    });
+                }
+
+                // 3. Clean direct text nodes in chip
                 chip.childNodes.forEach((node) => {
-                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.trim().toUpperCase() === "PDF") {
+                    if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
                         node.nodeValue = "";
                     }
                 });
+
+                // 4. Clean inside caption
                 const caption = chip.querySelector(".caption");
                 if (caption) {
                     caption.childNodes.forEach((node) => {
-                        if (node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.trim().toUpperCase() === "PDF") {
+                        if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
                             node.nodeValue = "";
                         } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "A") {
-                            if (node.textContent && node.textContent.trim().toUpperCase() === "PDF") {
+                            const txt = (node.textContent || "").trim();
+                            if (EXT_REGEX.test(txt)) {
                                 node.style.display = "none";
                             }
                         }
