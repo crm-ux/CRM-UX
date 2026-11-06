@@ -203,28 +203,6 @@ class CrmTaskAssignWizard(models.TransientModel):
             self.env.context.get('default_activity_record_id')
         )
 
-        # Smart Stage Detection: If origin is crm.lead, check if it's in Quote stages (stages 6-10)
-        # or has a linked sale.order quotation
-        if origin_model == 'crm.lead' and origin_id:
-            try:
-                lead = self.env['crm.lead'].sudo().browse(int(origin_id))
-                if lead.exists():
-                    stage_seq = lead.x_stage_sequence or (lead.stage_id.sequence if lead.stage_id else 0)
-                    # Check if this lead has a linked quotation / sale.order
-                    latest_quote = lead.order_ids.filtered(lambda q: q.state != 'cancel')[:1] if hasattr(lead, 'order_ids') else False
-                    if not latest_quote and hasattr(lead, 'sale_order_ids'):
-                        latest_quote = lead.sale_order_ids.filtered(lambda q: q.state != 'cancel')[:1]
-                    if not latest_quote and lead.sale_order_id:
-                        latest_quote = lead.sale_order_id
-
-                    # If in quote stage (sequence > 5 or >= 50) or quote exists, switch to Quotation!
-                    if (stage_seq > 5 or stage_seq >= 50 or latest_quote):
-                        origin_model = 'sale.order'
-                        if latest_quote:
-                            origin_id = latest_quote.id
-            except Exception:
-                pass
-
         valid_models = {
             'crm.lead': 'lead_id',
             'sale.order': 'order_id',
@@ -234,6 +212,31 @@ class CrmTaskAssignWizard(models.TransientModel):
             'amc.contract': 'amc_id',
         }
 
+        # Check explicit default fields like default_ticket_id
+        for m, f in valid_models.items():
+            if self.env.context.get(f'default_{f}'):
+                origin_model = m
+                origin_id = self.env.context.get(f'default_{f}')
+                break
+
+        # Smart Stage Detection: If origin is crm.lead, check if it's in Quote stages
+        if origin_model == 'crm.lead' and origin_id:
+            try:
+                lead = self.env['crm.lead'].sudo().browse(int(origin_id))
+                if lead.exists():
+                    stage_seq = lead.x_stage_sequence or (lead.stage_id.sequence if lead.stage_id else 0)
+                    latest_quote = lead.order_ids.filtered(lambda q: q.state != 'cancel')[:1] if hasattr(lead, 'order_ids') else False
+                    if not latest_quote and hasattr(lead, 'sale_order_ids'):
+                        latest_quote = lead.sale_order_ids.filtered(lambda q: q.state != 'cancel')[:1]
+                    if not latest_quote and lead.sale_order_id:
+                        latest_quote = lead.sale_order_id
+                    if (stage_seq > 5 or stage_seq >= 50 or latest_quote):
+                        origin_model = 'sale.order'
+                        if latest_quote:
+                            origin_id = latest_quote.id
+            except Exception:
+                pass
+
         if origin_model in valid_models:
             res['related_model'] = origin_model
             field_name = valid_models[origin_model]
@@ -242,6 +245,51 @@ class CrmTaskAssignWizard(models.TransientModel):
                     res[field_name] = int(origin_id)
                 except (ValueError, TypeError):
                     pass
+
+        # Compute initial accessible employees based on prefilled record
+        target_rec = False
+        perm_field = 'perm_lead_quote'
+        if res.get('related_model') == 'crm.lead' and res.get('lead_id'):
+            target_rec = self.env['crm.lead'].sudo().browse(res['lead_id'])
+            perm_field = 'perm_lead_quote'
+        elif res.get('related_model') == 'sale.order' and res.get('order_id'):
+            target_rec = self.env['sale.order'].sudo().browse(res['order_id'])
+            perm_field = 'perm_lead_quote'
+        elif res.get('related_model') == 'res.partner' and res.get('partner_id'):
+            target_rec = self.env['res.partner'].sudo().browse(res['partner_id'])
+            perm_field = 'perm_customer'
+        elif res.get('related_model') == 'equipment.master' and res.get('equipment_id'):
+            target_rec = self.env['equipment.master'].sudo().browse(res['equipment_id'])
+            perm_field = 'perm_equipment'
+        elif res.get('related_model') == 'service.ticket' and res.get('ticket_id'):
+            target_rec = self.env['service.ticket'].sudo().browse(res['ticket_id'])
+            perm_field = 'perm_service_ticket'
+        elif res.get('related_model') == 'amc.contract' and res.get('amc_id'):
+            target_rec = self.env['amc.contract'].sudo().browse(res['amc_id'])
+            perm_field = 'perm_amc'
+
+        all_users = self.env['res.users'].sudo().search([('active', '=', True), ('share', '=', False)])
+        if target_rec and target_rec.exists():
+            valid_uids = []
+            for u in all_users:
+                if u._is_admin() or u.has_group('base.group_system'):
+                    valid_uids.append(u.id)
+                    continue
+                try:
+                    user_domain = u._get_hierarchy_domain(perm_field)
+                    if user_domain and [(1, '=', 1)] == user_domain:
+                        valid_uids.append(u.id)
+                    elif user_domain and [(0, '=', 1)] == user_domain:
+                        continue
+                    else:
+                        match = target_rec.sudo().search([('id', '=', target_rec.id)] + user_domain)
+                        if match:
+                            valid_uids.append(u.id)
+                except Exception:
+                    pass
+            res['allowed_user_ids'] = [(6, 0, valid_uids)]
+        else:
+            res['allowed_user_ids'] = [(6, 0, all_users.ids)]
 
         return res
 
