@@ -1555,7 +1555,45 @@ class ServiceTicketExpenseType(models.Model):
                 suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
                 rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
 
+    @api.model
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        try:
+            self.env.cr.execute("""
+                UPDATE service_ticket_expense_type
+                SET calculation_type = 'km'
+                WHERE is_km_based = TRUE AND (calculation_type IS NULL OR calculation_type != 'km');
+                UPDATE service_ticket_expense_type
+                SET calculation_type = 'daily'
+                WHERE is_km_based = FALSE AND calculation_type = 'km';
+            """)
+        except Exception:
+            pass
+        res = super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
+        for row in res:
+            if row.get('is_km_based'):
+                if 'calculation_type' in row:
+                    row['calculation_type'] = 'km'
+                if 'budget_limit_display' in row:
+                    row['budget_limit_display'] = '-'
+            else:
+                if 'km_rate_display' in row:
+                    row['km_rate_display'] = '-'
+                if row.get('calculation_type') == 'km':
+                    row['calculation_type'] = 'daily'
+        return res
+
     def read(self, fields=None, load='_classic_read'):
+        try:
+            self.env.cr.execute("""
+                UPDATE service_ticket_expense_type
+                SET calculation_type = 'km'
+                WHERE is_km_based = TRUE AND (calculation_type IS NULL OR calculation_type != 'km');
+                UPDATE service_ticket_expense_type
+                SET calculation_type = 'daily'
+                WHERE is_km_based = FALSE AND calculation_type = 'km';
+            """)
+        except Exception:
+            pass
         res = super().read(fields=fields, load=load)
         for row in res:
             if row.get('is_km_based'):
