@@ -527,6 +527,20 @@ registry.category("views").add("service_ticket_wizard_form", serviceTicketFormVi
 
 // Instant in-place row update when KM toggle is clicked in expense types table
 if (typeof window !== "undefined") {
+    function safeSetCellText(cell, newText, prevKey) {
+        if (!cell) return;
+        const target = cell.querySelector(".o_field_widget, span") || cell;
+        const current = target.textContent.trim();
+        if (prevKey && current !== "-") {
+            cell.dataset[prevKey] = current;
+        }
+        if (target.firstChild && target.firstChild.nodeType === Node.TEXT_NODE) {
+            target.firstChild.nodeValue = newText;
+        } else {
+            target.innerText = newText;
+        }
+    }
+
     document.addEventListener("click", function(ev) {
         const toggleCell = ev.target.closest(".o_expense_type_table td[name='is_km_based'], .o_expense_type_table div[name='is_km_based']");
         if (!toggleCell) return;
@@ -543,41 +557,20 @@ if (typeof window !== "undefined") {
             const rateCell = row.querySelector("td[name='km_rate_display']");
 
             if (isKm) {
-                if (limitCell) {
-                    const txt = limitCell.textContent.trim();
-                    if (txt !== "-") limitCell.dataset.prevLimit = txt;
-                    limitCell.textContent = "-";
-                }
-                if (typeCell) {
-                    const txt = typeCell.textContent.trim();
-                    if (txt !== "-") typeCell.dataset.prevType = txt;
-                    typeCell.textContent = "-";
-                }
-                if (rateCell) {
-                    const txt = rateCell.textContent.trim();
-                    if (txt === "-") {
-                        rateCell.textContent = rateCell.dataset.prevRate || "0.00";
-                    }
+                safeSetCellText(limitCell, "-", "prevLimit");
+                safeSetCellText(typeCell, "-", "prevType");
+                if (rateCell && rateCell.textContent.trim() === "-") {
+                    safeSetCellText(rateCell, rateCell.dataset.prevRate || "0.00");
                 }
             } else {
-                if (rateCell) {
-                    const txt = rateCell.textContent.trim();
-                    if (txt !== "-") rateCell.dataset.prevRate = txt;
-                    rateCell.textContent = "-";
+                safeSetCellText(rateCell, "-", "prevRate");
+                if (limitCell && limitCell.textContent.trim() === "-") {
+                    safeSetCellText(limitCell, limitCell.dataset.prevLimit || "0.00");
                 }
-                if (limitCell) {
-                    const txt = limitCell.textContent.trim();
-                    if (txt === "-") {
-                        limitCell.textContent = limitCell.dataset.prevLimit || "0.00";
-                    }
-                }
-                if (typeCell) {
-                    const txt = typeCell.textContent.trim();
-                    if (txt === "-") {
-                        typeCell.textContent = typeCell.dataset.prevType || "Per Day";
-                    }
+                if (typeCell && typeCell.textContent.trim() === "-") {
+                    safeSetCellText(typeCell, typeCell.dataset.prevType || "Per Day");
                 }
             }
-        }, 50);
+        }, 150);
     }, true);
 }
