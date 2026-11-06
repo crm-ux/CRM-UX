@@ -560,3 +560,40 @@ patch(BooleanField.prototype, {
         }
     },
 });
+
+// Dynamic cleanup for compact attachment pills: hide secondary "PDF" text and ensure natural inline cross placement
+if (typeof window !== "undefined") {
+    function cleanAttachmentChips() {
+        const containers = document.querySelectorAll("div[name='new_voucher_bill_attachment_ids'], .crm_compact_attachments");
+        containers.forEach((container) => {
+            const chips = container.querySelectorAll(".o_attachment");
+            chips.forEach((chip) => {
+                // Hide any element or text with "PDF"
+                const caption = chip.querySelector(".caption");
+                if (caption) {
+                    caption.childNodes.forEach((node) => {
+                        if (node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.trim().toUpperCase() === "PDF") {
+                            node.nodeValue = "";
+                        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "A") {
+                            if (node.textContent && node.textContent.trim().toUpperCase() === "PDF") {
+                                node.style.display = "none";
+                            }
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    const observer = new MutationObserver(() => {
+        cleanAttachmentChips();
+    });
+
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    }
+}

@@ -3157,7 +3157,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachments,
     padding: 0 !important;
 }
 
-/* 2. ONLY the outer attachment container is the chip */
+/* 2. DYNAMIC WIDTH CHIP: fits filename naturally, no static/fixed box */
 div[name="new_voucher_bill_attachment_ids"] .o_attachments > .o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
 .crm_compact_attachments .o_attachments > .o_attachment,
@@ -3166,19 +3166,21 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment,
     flex-direction: row !important;
     align-items: center !important;
     width: auto !important;
-    max-width: 270px !important;
+    min-width: auto !important;
+    max-width: none !important;
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
-    padding: 0 28px 0 8px !important;
+    padding: 2px 10px 2px 8px !important;
     margin: 0 !important;
     background-color: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-    position: relative !important;
-    overflow: hidden !important;
+    position: static !important;
+    overflow: visible !important;
     flex-shrink: 0 !important;
+    gap: 0 !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
@@ -3223,7 +3225,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
     justify-content: center !important;
 }
 
-/* 4. Caption: single line, strictly filename only */
+/* 4. Caption: dynamic width, single line strictly for filename */
 div[name="new_voucher_bill_attachment_ids"] .caption,
 .crm_compact_attachments .caption {
     display: inline-flex !important;
@@ -3232,8 +3234,10 @@ div[name="new_voucher_bill_attachment_ids"] .caption,
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
-    max-width: 170px !important;
-    overflow: hidden !important;
+    width: auto !important;
+    max-width: none !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .caption a,
@@ -3244,8 +3248,7 @@ div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
     font-weight: 500 !important;
     color: #0f172a !important;
     white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    overflow: visible !important;
     text-decoration: none !important;
     line-height: 1.2 !important;
     display: inline-block !important;
@@ -3253,11 +3256,15 @@ div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
 
 /* 5. Hide ALL secondary text, subtitles, "PDF" labels completely */
 div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
+div[name="new_voucher_bill_attachment_ids"] .caption small,
+div[name="new_voucher_bill_attachment_ids"] .caption span,
 div[name="new_voucher_bill_attachment_ids"] small,
 div[name="new_voucher_bill_attachment_ids"] .text-muted,
 div[name="new_voucher_bill_attachment_ids"] [class*="type"],
 div[name="new_voucher_bill_attachment_ids"] [class*="extension"],
 .crm_compact_attachments .caption > *:not(a),
+.crm_compact_attachments .caption small,
+.crm_compact_attachments .caption span,
 .crm_compact_attachments small,
 .crm_compact_attachments .text-muted,
 .crm_compact_attachments [class*="type"],
@@ -3275,7 +3282,7 @@ div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
     display: none !important;
 }
 
-/* 7. Permanently visible delete cross: anchored on the right of the chip */
+/* 7. DYNAMIC DELETE CROSS: flows naturally immediately AFTER the filename finishes (NO absolute/static overlap) */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
@@ -3285,15 +3292,21 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
 .crm_compact_attachments .o_attachment_delete_cross,
 .crm_compact_attachments button:has(.fa-times),
 .crm_compact_attachments .fa-times {
-    position: absolute !important;
-    right: 5px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin-left: 8px !important;
+    margin-right: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
     opacity: 1 !important;
     visibility: visible !important;
     display: inline-flex !important;
     pointer-events: auto !important;
-    z-index: 10 !important;
+    z-index: 5 !important;
     background-color: rgba(239, 68, 68, 0.15) !important;
     border: none !important;
     box-shadow: none !important;
@@ -3302,12 +3315,13 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
     width: 18px !important;
     height: 18px !important;
     min-width: 18px !important;
+    max-width: 18px !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    margin: 0 !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
+    flex-shrink: 0 !important;
     transition: background-color 0.15s ease, color 0.15s ease !important;
 }
 
