@@ -3168,21 +3168,19 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment_card,
     flex-direction: row !important;
     align-items: center !important;
     width: auto !important;
-    max-width: 260px !important;
+    max-width: 270px !important;
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
-    padding: 2px 8px !important;
+    padding: 2px 28px 2px 8px !important; /* space on right for cross */
     margin: 0 !important;
     background-color: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     flex-shrink: 0 !important;
     position: relative !important;
-    top: auto !important;
-    left: auto !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
@@ -3218,7 +3216,7 @@ div[name="new_voucher_bill_attachment_ids"] .caption,
     margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
-    max-width: 150px !important;
+    max-width: 170px !important;
     overflow: hidden !important;
 }
 
@@ -3258,23 +3256,25 @@ div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
     display: none !important;
 }
 
-/* 7. Permanently visible delete cross: sits at the right end in place of the tick mark */
-div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_delete,
-div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_delete_cross,
+/* 7. Permanently visible delete cross: anchored on the right of the chip */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
 div[name="new_voucher_bill_attachment_ids"] .fa-times,
 div[name="new_voucher_bill_attachment_ids"] i.fa-times,
-.crm_compact_attachments .o_attachment .o_attachment_delete,
-.crm_compact_attachments .o_attachment .o_attachment_delete_cross,
 .crm_compact_attachments .o_attachment_delete,
 .crm_compact_attachments .o_attachment_delete_cross,
 .crm_compact_attachments button:has(.fa-times),
 .crm_compact_attachments .fa-times {
+    position: absolute !important;
+    right: 5px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
     opacity: 1 !important;
     visibility: visible !important;
     display: inline-flex !important;
+    pointer-events: auto !important;
+    z-index: 5 !important;
     background-color: rgba(239, 68, 68, 0.12) !important;
     border: none !important;
     box-shadow: none !important;
@@ -3285,27 +3285,11 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
     min-width: 18px !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    margin-left: auto !important;
-    margin-right: 0 !important;
+    margin: 0 !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    flex-shrink: 0 !important;
     transition: background-color 0.15s ease, color 0.15s ease !important;
-}
-
-/* Force visible even when NOT hovered (crucial for mobile touch devices) */
-div[name="new_voucher_bill_attachment_ids"] .o_attachment:not(:hover) .o_attachment_delete,
-div[name="new_voucher_bill_attachment_ids"] .o_attachment:not(:hover) .o_attachment_delete_cross,
-div[name="new_voucher_bill_attachment_ids"] .o_attachment:not(:hover) .fa-times,
-div[name="new_voucher_bill_attachment_ids"] .o_attachment:not(:hover) button,
-.crm_compact_attachments .o_attachment:not(:hover) .o_attachment_delete,
-.crm_compact_attachments .o_attachment:not(:hover) .o_attachment_delete_cross,
-.crm_compact_attachments .o_attachment:not(:hover) .fa-times,
-.crm_compact_attachments .o_attachment:not(:hover) button {
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: inline-flex !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete:hover,
