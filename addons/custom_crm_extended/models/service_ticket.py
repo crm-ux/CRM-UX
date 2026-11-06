@@ -1554,16 +1554,6 @@ class ServiceTicketExpenseType(models.Model):
                     vals['calculation_type'] = 'daily'
         return super().write(vals)
 
-    def action_toggle_km(self):
-        for rec in self:
-            rec.is_km_based = not rec.is_km_based
-            if rec.is_km_based:
-                rec.calculation_type = 'km'
-            else:
-                if rec.calculation_type == 'km' or not rec.calculation_type:
-                    rec.calculation_type = 'daily'
-        return False
-
     def init(self):
         super().init()
         self.env.cr.execute("""

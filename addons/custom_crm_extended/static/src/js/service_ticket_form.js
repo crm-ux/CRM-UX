@@ -524,3 +524,60 @@ export const serviceTicketFormView = {
 
 registry.category("views").add("service_ticket_form", serviceTicketFormView);
 registry.category("views").add("service_ticket_wizard_form", serviceTicketFormView);
+
+// Instant in-place row update when KM toggle is clicked in expense types table
+if (typeof window !== "undefined") {
+    document.addEventListener("click", function(ev) {
+        const toggleCell = ev.target.closest(".o_expense_type_table td[name='is_km_based'], .o_expense_type_table div[name='is_km_based']");
+        if (!toggleCell) return;
+
+        const row = toggleCell.closest("tr");
+        if (!row) return;
+
+        setTimeout(() => {
+            const input = toggleCell.querySelector("input[type='checkbox']") || toggleCell.querySelector(".form-check-input");
+            const isKm = input ? input.checked : false;
+
+            const limitCell = row.querySelector("td[name='budget_limit_display']");
+            const typeCell = row.querySelector("td[name='calculation_type']");
+            const rateCell = row.querySelector("td[name='km_rate_display']");
+
+            if (isKm) {
+                if (limitCell) {
+                    const txt = limitCell.textContent.trim();
+                    if (txt !== "-") limitCell.dataset.prevLimit = txt;
+                    limitCell.textContent = "-";
+                }
+                if (typeCell) {
+                    const txt = typeCell.textContent.trim();
+                    if (txt !== "-") typeCell.dataset.prevType = txt;
+                    typeCell.textContent = "-";
+                }
+                if (rateCell) {
+                    const txt = rateCell.textContent.trim();
+                    if (txt === "-") {
+                        rateCell.textContent = rateCell.dataset.prevRate || "0.00";
+                    }
+                }
+            } else {
+                if (rateCell) {
+                    const txt = rateCell.textContent.trim();
+                    if (txt !== "-") rateCell.dataset.prevRate = txt;
+                    rateCell.textContent = "-";
+                }
+                if (limitCell) {
+                    const txt = limitCell.textContent.trim();
+                    if (txt === "-") {
+                        limitCell.textContent = limitCell.dataset.prevLimit || "0.00";
+                    }
+                }
+                if (typeCell) {
+                    const txt = typeCell.textContent.trim();
+                    if (txt === "-") {
+                        typeCell.textContent = typeCell.dataset.prevType || "Per Day";
+                    }
+                }
+            }
+        }, 50);
+    }, true);
+}
