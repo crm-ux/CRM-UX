@@ -125,7 +125,30 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 2: Expense Date / Date Range -->
+                                <!-- Row 2: Expense Type -->
+                                <div class="row mb-2 align-items-center">
+                                    <div class="col-sm-2 col-md-2">
+                                        <span class="fw-semibold text-secondary">Expense Type:</span>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="allowed_voucher_expense_type_ids" invisible="1"/>
+                                        <field name="new_voucher_expense_type_id" 
+                                            widget="selection" 
+                                            domain="[('id', 'in', allowed_voucher_expense_type_ids)]" 
+                                            class="w-100" 
+                                            placeholder="Select Expense Type..."/>
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Budget Pool Info Banner (Drawing 2) -->
+                                <div class="row mb-2" invisible="not new_voucher_budget_info_html">
+                                    <div class="col-sm-2 col-md-2"></div>
+                                    <div class="col-sm-10 col-md-10">
+                                        <field name="new_voucher_budget_info_html" widget="html" readonly="1" nolabel="1" class="o_budget_pool_field w-100 p-0 border-0 bg-transparent"/>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Expense Date / Date Range -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
                                         <field name="new_voucher_is_daily" invisible="1"/>
@@ -151,29 +174,6 @@
                                         <span class="badge bg-light text-primary border px-2 py-1" invisible="not new_voucher_days or new_voucher_days &lt;= 1">
                                             <field name="new_voucher_days" readonly="1"/> Days
                                         </span>
-                                    </div>
-                                </div>
-
-                                <!-- Row 3: Expense Type -->
-                                <div class="row mb-2 align-items-center">
-                                    <div class="col-sm-2 col-md-2">
-                                        <span class="fw-semibold text-secondary">Expense Type:</span>
-                                    </div>
-                                    <div class="col-sm-10 col-md-10">
-                                        <field name="allowed_voucher_expense_type_ids" invisible="1"/>
-                                        <field name="new_voucher_expense_type_id" 
-                                            widget="selection" 
-                                            domain="[('id', 'in', allowed_voucher_expense_type_ids)]" 
-                                            class="w-100"
-                                            placeholder="Select Expense Type..."/>
-                                    </div>
-                                </div>
-
-                                <!-- Dynamic Budget Pool Info Banner (Drawing 2) -->
-                                <div class="row mb-2" invisible="not new_voucher_budget_info_html">
-                                    <div class="col-sm-2 col-md-2"></div>
-                                    <div class="col-sm-10 col-md-10">
-                                        <field name="new_voucher_budget_info_html" widget="html" readonly="1" nolabel="1" class="o_budget_pool_field w-100 p-0 border-0 bg-transparent"/>
                                     </div>
                                 </div>
 
