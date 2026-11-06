@@ -913,8 +913,26 @@ class ServiceTicket(models.Model):
 
     def action_add_voucher_line(self):
         self.ensure_one()
-        if not self.new_voucher_user_ids or not self.new_voucher_expense_type_id or not self.new_voucher_amount or self.new_voucher_amount <= 0:
-            return False
+        missing_fields = []
+        if not self.new_voucher_user_ids:
+            missing_fields.append("Employee(s)")
+        if not self.new_voucher_expense_type_id:
+            missing_fields.append("Expense Type")
+        if not self.new_voucher_amount or self.new_voucher_amount <= 0:
+            missing_fields.append("Amount")
+
+        if missing_fields:
+            fields_str = ", ".join(missing_fields)
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Required Fields',
+                    'message': f"Please fill in the required field(s): {fields_str}.",
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         exp_date = self.new_voucher_date or fields.Date.context_today(self)
         today = fields.Date.context_today(self)
