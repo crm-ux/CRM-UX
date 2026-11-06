@@ -568,7 +568,17 @@ if (typeof window !== "undefined") {
         containers.forEach((container) => {
             const chips = container.querySelectorAll(".o_attachment");
             chips.forEach((chip) => {
-                // Hide any element or text with "PDF"
+                // Remove any element or node with "PDF"
+                chip.querySelectorAll("small, span, div, b, em").forEach((el) => {
+                    if (el.tagName !== "A" && !el.classList.contains("fa") && el.textContent.trim().toUpperCase() === "PDF") {
+                        el.style.display = "none";
+                    }
+                });
+                chip.childNodes.forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.trim().toUpperCase() === "PDF") {
+                        node.nodeValue = "";
+                    }
+                });
                 const caption = chip.querySelector(".caption");
                 if (caption) {
                     caption.childNodes.forEach((node) => {

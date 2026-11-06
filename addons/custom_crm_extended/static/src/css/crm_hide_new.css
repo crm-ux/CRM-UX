@@ -3133,7 +3133,7 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 }
 
 /* ══════════════════════════════════════════════════════════════
-   OPTION 1: COMPACT HORIZONTAL CHIPS FOR ATTACH BILL(S)
+   COMPACT DYNAMIC ATTACHMENT CHIPS (CRM Blue Brand Theme)
    ══════════════════════════════════════════════════════════════ */
 
 /* 1. Flex container & parent wrappers - allow horizontal wrapping, no clipping */
@@ -3150,14 +3150,14 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachments,
     gap: 8px !important;
     width: 100% !important;
     height: auto !important;
-    min-height: 34px !important;
+    min-height: 36px !important;
     max-height: none !important;
     overflow: visible !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* 2. DYNAMIC WIDTH CHIP: fits filename naturally, no static/fixed box */
+/* 2. DYNAMIC WIDTH PILL: Size adapts dynamically to filename, clean CRM Blue theme */
 div[name="new_voucher_bill_attachment_ids"] .o_attachments > .o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
 .crm_compact_attachments .o_attachments > .o_attachment,
@@ -3168,25 +3168,26 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment,
     width: auto !important;
     min-width: auto !important;
     max-width: none !important;
-    height: 32px !important;
-    min-height: 32px !important;
-    max-height: 32px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
     padding: 2px 10px 2px 8px !important;
     margin: 0 !important;
-    background-color: #f1f5f9 !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 6px !important;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    background-color: #f0f7ff !important;
+    border: 1px solid #bfdbfe !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 2px rgba(11, 61, 145, 0.06) !important;
     position: static !important;
     overflow: visible !important;
     flex-shrink: 0 !important;
     gap: 0 !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
 .crm_compact_attachments .o_attachment:hover {
-    background-color: #e2e8f0 !important;
-    border-color: #94a3b8 !important;
+    background-color: #e0f2fe !important;
+    border-color: #93c5fd !important;
 }
 
 /* 2b. Wipe out inner ghost / double boxes */
@@ -3207,25 +3208,37 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_existing_attachment
     border-radius: 0 !important;
 }
 
-/* 3. Thumbnail / icon */
+/* 3. Document Icon: Fully visible, NEVER cut off at top or bottom */
 div[name="new_voucher_bill_attachment_ids"] .o_image_box,
-div[name="new_voucher_bill_attachment_ids"] .o_image,
-div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
-.crm_compact_attachments .o_image_box,
-.crm_compact_attachments .o_image {
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 16px !important;
-    max-width: 16px !important;
-    margin-right: 6px !important;
-    object-fit: contain !important;
-    flex-shrink: 0 !important;
+.crm_compact_attachments .o_image_box {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    width: 20px !important;
+    height: 24px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    margin-right: 6px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
 }
 
-/* 4. Caption: dynamic width, single line strictly for filename */
+div[name="new_voucher_bill_attachment_ids"] .o_image,
+div[name="new_voucher_bill_attachment_ids"] .o_image_box img,
+div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
+.crm_compact_attachments .o_image,
+.crm_compact_attachments .o_image_box img,
+.crm_compact_attachments .o_image_box span {
+    max-height: 22px !important;
+    max-width: 18px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    vertical-align: middle !important;
+}
+
+/* 4. Caption & Filename: Dynamic width, CRM Navy Blue, crisp text */
 div[name="new_voucher_bill_attachment_ids"] .caption,
 .crm_compact_attachments .caption {
     display: inline-flex !important;
@@ -3242,11 +3255,13 @@ div[name="new_voucher_bill_attachment_ids"] .caption,
 
 div[name="new_voucher_bill_attachment_ids"] .caption a,
 div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment a,
 .crm_compact_attachments .caption a,
-.crm_compact_attachments a.o_attachment_name {
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    color: #0f172a !important;
+.crm_compact_attachments a.o_attachment_name,
+.crm_compact_attachments .o_attachment a {
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    color: #0b3d91 !important;
     white-space: nowrap !important;
     overflow: visible !important;
     text-decoration: none !important;
@@ -3254,7 +3269,7 @@ div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
     display: inline-block !important;
 }
 
-/* 5. Hide ALL secondary text, subtitles, "PDF" labels completely */
+/* 5. Hide ALL secondary subtitles, extensions, and "PDF" text tags */
 div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
 div[name="new_voucher_bill_attachment_ids"] .caption small,
 div[name="new_voucher_bill_attachment_ids"] .caption span,
@@ -3282,7 +3297,7 @@ div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
     display: none !important;
 }
 
-/* 7. DYNAMIC DELETE CROSS: flows naturally immediately AFTER the filename finishes (NO absolute/static overlap) */
+/* 7. ELEGANT DELETE CROSS: Smooth circular icon naturally immediately after the filename */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
@@ -3307,10 +3322,10 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
     display: inline-flex !important;
     pointer-events: auto !important;
     z-index: 5 !important;
-    background-color: rgba(239, 68, 68, 0.15) !important;
+    background-color: #e2e8f0 !important;
     border: none !important;
     box-shadow: none !important;
-    color: #ef4444 !important;
+    color: #64748b !important;
     font-size: 11px !important;
     width: 18px !important;
     height: 18px !important;
@@ -3327,10 +3342,12 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete:hover,
 div[name="new_voucher_bill_attachment_ids"] .fa-times:hover,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover .o_attachment_delete:hover,
 .crm_compact_attachments .o_attachment_delete:hover,
-.crm_compact_attachments .fa-times:hover {
-    background-color: #ef4444 !important;
-    color: #ffffff !important;
+.crm_compact_attachments .fa-times:hover,
+.crm_compact_attachments .o_attachment:hover .o_attachment_delete:hover {
+    background-color: #fee2e2 !important;
+    color: #ef4444 !important;
 }
 
 /* 8. Sleek compact upload button inline with chips */
@@ -3338,15 +3355,15 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach,
 div[name="new_voucher_bill_attachment_ids"] button.o_attach,
 .crm_compact_attachments .o_attach,
 .crm_compact_attachments button.o_attach {
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 4px 12px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 4px 14px !important;
     font-size: 12px !important;
     font-weight: 600 !important;
     color: #0b3d91 !important;
     background-color: #eff6ff !important;
     border: 1px dashed #0b3d91 !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
