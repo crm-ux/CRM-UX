@@ -565,86 +565,72 @@ patch(BooleanField.prototype, {
 if (typeof window !== "undefined") {
     const EXT_REGEX = /^(PDF|JPG|JPEG|PNG|DOC|DOCX|XLS|XLSX|CSV|ZIP|RAR|TXT|TIFF|BMP|WEBP|GIF|MP4|AVI)$/i;
     const TRAILING_EXT_REGEX = /\s+(PDF|JPG|JPEG|PNG|DOC|DOCX|XLS|XLSX|CSV|ZIP|RAR|TXT|TIFF|BMP|WEBP|GIF|MP4|AVI)\b/gi;
+    let isCleaning = false;
 
     function cleanAttachmentChips() {
-        const containers = document.querySelectorAll("div[name='new_voucher_bill_attachment_ids'], .crm_compact_attachments");
-        containers.forEach((container) => {
-            const chips = container.querySelectorAll(".o_attachment");
-            chips.forEach((chip) => {
-                // 1. Remove any element inside chip matching file extension
-                chip.querySelectorAll("small, span, div, b, em, strong").forEach((el) => {
-                    if (el.tagName !== "A" && !el.classList.contains("fa") && !el.closest(".o_image_box") && !el.closest(".o_attachment_delete")) {
-                        const txt = (el.textContent || "").trim();
-                        if (EXT_REGEX.test(txt)) {
-                            el.style.display = "none";
-                            el.remove();
-                        }
-                    }
-                });
-
-                // 2. Also check inside <a> link if extension tag was nested inside or in text
-                const link = chip.querySelector("a");
-                if (link) {
-                    link.querySelectorAll("small, span, div, b").forEach((child) => {
-                        const txt = (child.textContent || "").trim();
-                        if (EXT_REGEX.test(txt)) {
-                            child.style.display = "none";
-                            child.remove();
-                        }
-                    });
-                    Array.from(link.childNodes).forEach((node) => {
-                        if (node.nodeType === Node.TEXT_NODE) {
-                            if (EXT_REGEX.test((node.nodeValue || "").trim())) {
-                                node.nodeValue = "";
-                            } else {
-                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
-                            }
-                        }
-                    });
-                }
-
-                // 3. Clean direct text nodes in chip & caption
-                Array.from(chip.childNodes).forEach((node) => {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        if (EXT_REGEX.test((node.nodeValue || "").trim())) {
-                            node.nodeValue = "";
-                        } else {
-                            node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
-                        }
-                    }
-                });
-
-                const caption = chip.querySelector(".caption");
-                if (caption) {
-                    Array.from(caption.childNodes).forEach((node) => {
-                        if (node.nodeType === Node.TEXT_NODE) {
-                            if (EXT_REGEX.test((node.nodeValue || "").trim())) {
-                                node.nodeValue = "";
-                            } else {
-                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
-                            }
-                        } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "A") {
-                            const txt = (node.textContent || "").trim();
+        if (isCleaning) return;
+        isCleaning = true;
+        try {
+            const containers = document.querySelectorAll("div[name='new_voucher_bill_attachment_ids'], .crm_compact_attachments");
+            containers.forEach((container) => {
+                const chips = container.querySelectorAll(".o_attachment");
+                chips.forEach((chip) => {
+                    // 1. Remove separate extension badge tags
+                    chip.querySelectorAll("small, span, div, b, em, strong").forEach((el) => {
+                        if (el.tagName !== "A" && !el.classList.contains("fa") && !el.closest(".o_image_box") && !el.closest(".o_attachment_delete")) {
+                            const txt = (el.textContent || "").trim();
                             if (EXT_REGEX.test(txt)) {
-                                node.style.display = "none";
-                                node.remove();
+                                el.remove();
                             }
                         }
                     });
-                }
+
+                    // 2. Clean <a> link text
+                    const link = chip.querySelector("a");
+                    if (link) {
+                        Array.from(link.childNodes).forEach((node) => {
+                            if (node.nodeType === Node.TEXT_NODE && TRAILING_EXT_REGEX.test(node.nodeValue)) {
+                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
+                            }
+                        });
+                    }
+
+                    // 3. Clean direct text in caption
+                    const caption = chip.querySelector(".caption");
+                    if (caption) {
+                        Array.from(caption.childNodes).forEach((node) => {
+                            if (node.nodeType === Node.TEXT_NODE && TRAILING_EXT_REGEX.test(node.nodeValue)) {
+                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
+                            }
+                        });
+                    }
+                });
             });
-        });
+        } finally {
+            isCleaning = false;
+        }
     }
 
-    const observer = new MutationObserver(() => {
-        cleanAttachmentChips();
+    const observer = new MutationObserver((mutations) => {
+        if (isCleaning) return;
+        // Only trigger if an attachment element was actually added or changed
+        let shouldClean = false;
+        for (const m of mutations) {
+            if (m.target && (m.target.closest?.(".crm_compact_attachments") || m.target.closest?.("div[name='new_voucher_bill_attachment_ids']"))) {
+                shouldClean = true;
+                break;
+            }
+        }
+        if (shouldClean) {
+            cleanAttachmentChips();
+        }
     });
 
     if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+        observer.observe(document.body, { childList: true, subtree: true });
     } else {
         document.addEventListener("DOMContentLoaded", () => {
-            observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+            observer.observe(document.body, { childList: true, subtree: true });
         });
     }
 }
