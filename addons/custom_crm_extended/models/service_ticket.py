@@ -1534,16 +1534,19 @@ class ServiceTicketExpenseType(models.Model):
         for rec in self:
             if rec.is_km_based:
                 rec.calculation_type = 'km'
-                rec.budget_limit = 0.0
                 rec.budget_limit_display = '-'
+                # Preserve existing km_rate value so re-enabling KM restores it
                 rec.km_rate_display = f"{rec.km_rate:,.2f}" if rec.km_rate else "0.00"
             else:
                 if rec.calculation_type == 'km' or not rec.calculation_type:
                     rec.calculation_type = 'daily'
-                rec.km_rate = 0.0
                 rec.km_rate_display = '-'
-                suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
-                rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}" if rec.budget_limit else "0.00"
+                # Preserve existing budget_limit value so disabling KM restores it
+                if rec.budget_limit:
+                    suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
+                    rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
+                else:
+                    rec.budget_limit_display = "0.00"
 
     @api.onchange('calculation_type')
     def _onchange_calculation_type(self):
@@ -1571,22 +1574,20 @@ class ServiceTicketExpenseType(models.Model):
         if 'is_km_based' in vals:
             if vals['is_km_based']:
                 vals['calculation_type'] = 'km'
-                vals['budget_limit'] = 0.0
             else:
                 if vals.get('calculation_type') == 'km' or not vals.get('calculation_type'):
                     vals['calculation_type'] = 'daily'
-                vals['km_rate'] = 0.0
         return super().write(vals)
 
     def init(self):
         super().init()
-        # Immediate database sync for all existing rows
+        # Immediate database sync for all existing rows - preserves amounts
         self.env.cr.execute("""
             UPDATE service_ticket_expense_type
-            SET calculation_type = 'km', budget_limit = 0.0
+            SET calculation_type = 'km'
             WHERE is_km_based = TRUE AND (calculation_type IS NULL OR calculation_type != 'km');
             UPDATE service_ticket_expense_type
-            SET calculation_type = 'daily', km_rate = 0.0
+            SET calculation_type = 'daily'
             WHERE is_km_based = FALSE AND calculation_type = 'km';
         """)
     budget_cycle = fields.Selection([
@@ -1628,14 +1629,12 @@ class ServiceTicketExpenseType(models.Model):
         for rec in self:
             if not rec.is_km_based and rec.budget_limit_display:
                 val = rec.budget_limit_display.strip()
-                if val == '-':
-                    rec.budget_limit = 0.0
-                else:
+                if val != '-':
                     clean = val.replace(',', '').replace('₹', '').replace('/ Day', '').replace('/ Visit', '').replace('/Day', '').replace('/Visit', '').strip()
                     try:
                         rec.budget_limit = float(clean)
                     except ValueError:
-                        rec.budget_limit = 0.0
+                        pass
 
     @api.depends('km_rate', 'is_km_based')
     def _compute_km_rate_display(self):
@@ -1649,14 +1648,12 @@ class ServiceTicketExpenseType(models.Model):
         for rec in self:
             if rec.is_km_based and rec.km_rate_display:
                 val = rec.km_rate_display.strip()
-                if val == '-':
-                    rec.km_rate = 0.0
-                else:
+                if val != '-':
                     clean = val.replace(',', '').replace('₹', '').strip()
                     try:
                         rec.km_rate = float(clean)
                     except ValueError:
-                        rec.km_rate = 0.0
+                        pass
 
     limit_rule_ids = fields.One2many(
         'service.ticket.expense.limit.rule',
