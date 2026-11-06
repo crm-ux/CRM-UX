@@ -670,6 +670,30 @@ class ServiceTicket(models.Model):
         help="Select one or multiple employees to divide the total expense cost."   
     )
     new_voucher_date = fields.Date(string='Expense Date')
+    new_voucher_date_to = fields.Date(string='To Date')
+    new_voucher_is_daily = fields.Boolean(compute='_compute_new_voucher_is_daily', string='Is Daily')
+    new_voucher_days = fields.Integer(compute='_compute_new_voucher_days', string='Days Count')
+
+    @api.depends('new_voucher_expense_type_id')
+    def _compute_new_voucher_is_daily(self):
+        for rec in self:
+            rec.new_voucher_is_daily = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily' and not rec.new_voucher_expense_type_id.is_km_based)
+
+    @api.depends('new_voucher_date', 'new_voucher_date_to', 'new_voucher_is_daily')
+    def _compute_new_voucher_days(self):
+        for rec in self:
+            if rec.new_voucher_is_daily and rec.new_voucher_date and rec.new_voucher_date_to and rec.new_voucher_date_to >= rec.new_voucher_date:
+                rec.new_voucher_days = (rec.new_voucher_date_to - rec.new_voucher_date).days + 1
+            else:
+                rec.new_voucher_days = 1
+
+    new_voucher_bill_attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'service_ticket_new_voucher_attachment_rel',
+        'ticket_id',
+        'attachment_id',
+        string='Bills & Receipts',
+    )
     new_voucher_expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type')
     allowed_voucher_expense_type_ids = fields.Many2many(
         'service.ticket.expense.type',
@@ -779,14 +803,17 @@ class ServiceTicket(models.Model):
                 total_limit = 0.0
                 has_any_limit = False
                 items_html = []
+                days = rec.new_voucher_days if exp_type.calculation_type == 'daily' else 1
+                days_label = f" ({days} Days)" if (exp_type.calculation_type == 'daily' and days > 1) else ""
                 for u in target_users:
                     role_name = rec._get_user_role_display(u)
                     role_str = f" ({role_name})" if role_name else ""
-                    limit = exp_type.get_effective_budget_limit(user=u)
+                    base_limit = exp_type.get_effective_budget_limit(user=u)
+                    limit = base_limit * days
                     if limit > 0:
                         has_any_limit = True
                         total_limit += limit
-                        items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{limit:,.2f}</span>")
+                        items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{limit:,.2f}{days_label}</span>")
                     else:
                         items_html.append(f"<span class='badge' style='background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:9999px; padding:2px 10px; white-space:nowrap;'>{u.name}{role_str}: No Limit</span>")
 
@@ -926,11 +953,12 @@ class ServiceTicket(models.Model):
 
         split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
 
-        # 1. Determine each user's specific per-visit limit for this expense category
-        # Checks active custom position rules in limit_rule_ids, falls back to exp_type.budget_limit
+        # 1. Determine each user's specific limit for this expense category
+        # If calculation_type is 'daily', multiply by days count
+        days = self.new_voucher_days if exp_type.calculation_type == 'daily' else 1
         user_limits = {}
         for u in target_users:
-            user_limits[u.id] = exp_type.get_effective_budget_limit(user=u)
+            user_limits[u.id] = exp_type.get_effective_budget_limit(user=u) * days
 
         # 2. Proportional Split Calculation
         total_budget = sum(user_limits.values())
@@ -988,6 +1016,7 @@ class ServiceTicket(models.Model):
             self.env['service.ticket.voucher.line'].sudo().create({
                 'ticket_id': self.id,
                 'expense_date': exp_date,
+                'expense_date_to': self.new_voucher_date_to if (exp_type.calculation_type == 'daily') else False,
                 'user_id': u.id,
                 'submitted_by_user_id': login_user.id,
                 'other_employee_names': other_names or '',
@@ -1000,11 +1029,13 @@ class ServiceTicket(models.Model):
                 'amount': user_splits.get(u.id, 0.0),
                 'bill_file': self.new_voucher_bill_file,
                 'bill_filename': self.new_voucher_bill_filename,
+                'bill_attachment_ids': [(6, 0, self.new_voucher_bill_attachment_ids.ids)] if self.new_voucher_bill_attachment_ids else False,
                 'status': 'draft',
             })
 
         self.sudo().write({
             'new_voucher_date': False,
+            'new_voucher_date_to': False,
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -1014,6 +1045,7 @@ class ServiceTicket(models.Model):
             'new_voucher_amount': 0.0,
             'new_voucher_bill_file': False,
             'new_voucher_bill_filename': False,
+            'new_voucher_bill_attachment_ids': [(5, 0, 0)],
         })
         return False
 
@@ -1022,6 +1054,7 @@ class ServiceTicket(models.Model):
         self.ensure_one()
         self.sudo().write({
             'new_voucher_date': False,
+            'new_voucher_date_to': False,
             'new_voucher_expense_type_id': False,
             'new_voucher_user_ids': [(5, 0, 0)],
             'new_voucher_start_km': 0.0,
@@ -1031,6 +1064,7 @@ class ServiceTicket(models.Model):
             'new_voucher_amount': 0.0,
             'new_voucher_bill_file': False,
             'new_voucher_bill_filename': False,
+            'new_voucher_bill_attachment_ids': [(5, 0, 0)],
         })
         return True
 
@@ -1480,7 +1514,11 @@ class ServiceTicketExpenseType(models.Model):
     sequence = fields.Integer(string='Sequence', default=10)
     is_km_based = fields.Boolean(string='Calculate by KM', default=False)
     km_rate = fields.Float(string='Rate per KM (₹)', default=0.0)
-    budget_limit = fields.Float(string='Limit Per Visit (₹)', default=0.0)
+    budget_limit = fields.Float(string='Limit Amount (₹)', default=0.0)
+    calculation_type = fields.Selection([
+        ('daily', 'Per Day'),
+        ('fixed', 'Fixed (Per Visit)'),
+    ], string='Calculation Type', default='daily', required=True)
     budget_cycle = fields.Selection([
         ('per_ticket', 'Per Visit / Ticket'),
         ('monthly', 'Monthly'),
@@ -1505,18 +1543,21 @@ class ServiceTicketExpenseType(models.Model):
         inverse='_inverse_km_rate_display',
     )
 
-    @api.depends('budget_limit', 'is_km_based')
+    @api.depends('budget_limit', 'is_km_based', 'calculation_type')
     def _compute_budget_limit_display(self):
         for rec in self:
             if rec.is_km_based:
                 rec.budget_limit_display = '-'
+            elif rec.budget_limit:
+                suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
+                rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
             else:
-                rec.budget_limit_display = f"{rec.budget_limit:,.2f}" if rec.budget_limit else "0.00"
+                rec.budget_limit_display = "0.00"
 
     def _inverse_budget_limit_display(self):
         for rec in self:
             if not rec.is_km_based and rec.budget_limit_display and rec.budget_limit_display.strip() != '-':
-                clean = rec.budget_limit_display.replace(',', '').replace('₹', '').strip()
+                clean = rec.budget_limit_display.replace(',', '').replace('₹', '').replace('/ Day', '').replace('/ Visit', '').replace('/Day', '').replace('/Visit', '').strip()
                 try:
                     rec.budget_limit = float(clean)
                 except ValueError:
@@ -1755,17 +1796,30 @@ class ServiceTicketVoucherLine(models.Model):
     total_km = fields.Float(string='Total KM')
     rate_per_km = fields.Float(string='Rate/KM (₹)')
     description = fields.Char(string='Description', placeholder='Enter description...')
+    expense_date_to = fields.Date(string='To Date')
+    days_count = fields.Integer(string='Days', compute='_compute_days_count', store=True)
+
+    @api.depends('expense_date', 'expense_date_to', 'expense_type_id.calculation_type')
+    def _compute_days_count(self):
+        for rec in self:
+            if rec.expense_type_id and rec.expense_type_id.calculation_type == 'daily' and rec.expense_date and rec.expense_date_to and rec.expense_date_to >= rec.expense_date:
+                rec.days_count = (rec.expense_date_to - rec.expense_date).days + 1
+            else:
+                rec.days_count = 1
+
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
     amount = fields.Monetary(string='Amount', currency_field='currency_id')
     is_over_budget = fields.Boolean(compute='_compute_budget_status', string='Is Over Budget', store=True)
     allowed_budget_limit = fields.Float(compute='_compute_budget_status', string='Allowed Limit', store=True)
     over_budget_badge_html = fields.Html(compute='_compute_budget_status', string='Budget Status', sanitize=False)
 
-    @api.depends('amount', 'expense_type_id', 'user_id', 'is_km_based')
+    @api.depends('amount', 'expense_type_id', 'user_id', 'is_km_based', 'days_count')
     def _compute_budget_status(self):
         for rec in self:
             if rec.expense_type_id and not rec.is_km_based and rec.user_id:
-                limit = rec.expense_type_id.get_effective_budget_limit(user=rec.user_id)
+                base_limit = rec.expense_type_id.get_effective_budget_limit(user=rec.user_id)
+                days = rec.days_count or 1 if rec.expense_type_id.calculation_type == 'daily' else 1
+                limit = base_limit * days
                 rec.allowed_budget_limit = limit
                 if limit > 0 and rec.amount > limit:
                     rec.is_over_budget = True
@@ -1793,82 +1847,132 @@ class ServiceTicketVoucherLine(models.Model):
             self.amount = self.total_km * self.rate_per_km
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
+    bill_attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'service_ticket_voucher_line_attachment_rel',
+        'line_id',
+        'attachment_id',
+        string='Bills & Receipts',
+    )
+    bill_count = fields.Integer(compute='_compute_bill_count', string='Bills')
+
+    @api.depends('bill_file', 'bill_attachment_ids')
+    def _compute_bill_count(self):
+        for rec in self:
+            cnt = len(rec.bill_attachment_ids)
+            if not cnt and rec.bill_file:
+                cnt = 1
+            rec.bill_count = cnt
+
     bill_preview = fields.Binary(related='bill_file', string='Bill Preview', readonly=True)
     bill_preview_html = fields.Html(compute='_compute_bill_preview_html', string='Bill Preview HTML', sanitize=False)
 
-    @api.depends('bill_file', 'bill_filename')
+    @api.depends('bill_file', 'bill_filename', 'bill_attachment_ids')
     def _compute_bill_preview_html(self):
         for rec in self:
-            if not rec.bill_file:
+            items = []
+            if rec.bill_attachment_ids:
+                for att in rec.bill_attachment_ids:
+                    fname = (att.name or 'receipt').lower()
+                    ext = fname.split('.')[-1] if '.' in fname else ''
+                    items.append({
+                        'name': att.name or 'Receipt',
+                        'ext': ext,
+                        'url': f"/web/content/{att.id}?download=false",
+                        'download_url': f"/web/content/{att.id}?download=true",
+                    })
+            elif rec.bill_file:
+                fname = (rec.bill_filename or 'receipt').lower()
+                ext = fname.split('.')[-1] if '.' in fname else ''
+                items.append({
+                    'name': rec.bill_filename or 'Receipt',
+                    'ext': ext,
+                    'url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=false",
+                    'download_url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=true",
+                })
+
+            if not items:
                 rec.bill_preview_html = '<div class="text-center p-4 text-muted">No attachment uploaded.</div>'
                 continue
-            fname = (rec.bill_filename or '').lower()
-            ext = fname.split('.')[-1] if '.' in fname else ''
-            url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=false"
-            download_url = f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=true"
 
-            if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
-                rec.bill_preview_html = f'''
-                <div class="d-flex align-items-center justify-content-center" style="height: 72vh; overflow: auto; background: #f8fafc; border-radius: 6px;">
-                    <img src="{url}" class="img-fluid rounded shadow-sm" style="max-height: 70vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>
-                </div>
-                '''
-            elif ext == 'pdf':
-                rec.bill_preview_html = f'''
-                <div style="height: 72vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none;" title="Bill PDF"></iframe>
-                </div>
-                '''
-            elif ext in ('docx', 'doc', 'xlsx', 'xls', 'csv', 'zip', 'rar'):
-                preview = self.env['equipment.master'].action_get_invoice_preview_content(
-                    res_id=False, raw_b64=rec.bill_file, filename=rec.bill_filename
-                )
-                ptype = preview.get('type')
-                if ptype == 'docx_content':
-                    rec.bill_preview_html = f'''
-                    <div class="card p-4 shadow-sm" style="max-height: 72vh; overflow-y: auto; background: #fff;">
-                        {preview.get('html', '')}
-                    </div>
-                    '''
-                elif ptype == 'excel_content':
-                    sheets = preview.get('sheets', [])
-                    rows_html = ""
-                    if sheets:
-                        rows = sheets[0].get('rows', [])
-                        if rows:
-                            header_cells = "".join([f'<th class="px-2 py-1 bg-light border">{c}</th>' for c in rows[0]])
-                            body_rows = "".join([
-                                "<tr>" + "".join([f'<td class="px-2 py-1 border">{cell}</td>' for cell in r]) + "</tr>"
-                                for r in rows[1:]
-                            ])
-                            rows_html = f'<table class="table table-bordered table-sm mb-0"><thead><tr>{header_cells}</tr></thead><tbody>{body_rows}</tbody></table>'
-                    rec.bill_preview_html = f'''
-                    <div style="max-height: 72vh; overflow: auto; background: #fff; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                        {rows_html or "No data in spreadsheet."}
-                    </div>
-                    '''
-                elif ptype == 'zip_content':
-                    files = preview.get('files', [])
-                    list_items = "".join([f'<li class="py-1">{"📁" if f.get("is_dir") else "📄"} {f.get("name")} ({f.get("size")} KB)</li>' for f in files])
-                    rec.bill_preview_html = f'''
-                    <div style="max-height: 72vh; overflow-y: auto; background: #fff; padding: 16px; border: 1px solid #e2e8f0; border-radius: 6px;">
-                        <h6 class="fw-bold mb-3">Archive Files:</h6>
-                        <ul class="list-unstyled mb-0">{list_items}</ul>
-                    </div>
-                    '''
+            total_bills = len(items)
+            slides_html = []
+            for idx, itm in enumerate(items):
+                display_style = "display: block;" if idx == 0 else "display: none;"
+                if itm['ext'] in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
+                    content = f'<img src="{itm["url"]}" class="img-fluid rounded shadow-sm" style="max-height: 60vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>'
+                elif itm['ext'] == 'pdf':
+                    content = f'<iframe src="{itm["url"]}#toolbar=1" style="width: 100%; height: 60vh; border: none;" title="Bill PDF"></iframe>'
                 else:
-                    rec.bill_preview_html = f'''
-                    <div class="text-center p-4">
-                        <p class="text-muted">Preview not directly available for this format.</p>
-                        <a href="{download_url}" class="btn btn-primary" download>Download File</a>
+                    content = f'<div class="text-center p-4"><p class="text-muted">File: {itm["name"]}</p><a href="{itm["download_url"]}" class="btn btn-primary" download>Download File</a></div>'
+
+                slides_html.append(f'''
+                    <div id="bill_slide_{rec.id}_{idx}" class="bill-slide-{rec.id}" style="{display_style} text-align: center; width: 100%;">
+                        {content}
                     </div>
-                    '''
-            else:
-                rec.bill_preview_html = f'''
-                <div style="height: 72vh; width: 100%; overflow: hidden; border-radius: 6px; border: 1px solid #e2e8f0;">
-                    <iframe src="{url}" style="width: 100%; height: 100%; border: none;" title="Bill Preview"></iframe>
-                </div>
+                ''')
+
+            # Show navigation arrows ONLY if multiple bills exist
+            nav_buttons = ""
+            if total_bills > 1:
+                nav_buttons = f'''
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1 shadow-sm" onclick="prevBill_{rec.id}()">&#8592; Prev</button>
+                        <span class="badge bg-light text-dark border px-2 py-1" id="bill_counter_{rec.id}">1 of {total_bills}</span>
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1 shadow-sm" onclick="nextBill_{rec.id}()">Next &#8594;</button>
+                    </div>
                 '''
+
+            first_name = items[0]['name']
+            all_names_js = str([it['name'] for it in items]).replace("'", '"')
+
+            rec.bill_preview_html = f'''
+            <div class="bill-preview-wrapper p-2" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <!-- Heading with file name and dynamic arrows -->
+                <div class="d-flex align-items-center justify-content-between p-2 mb-2 bg-white rounded border shadow-sm">
+                    <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 65%;">
+                        <i class="fa fa-file-text-o text-primary fs-5"></i>
+                        <span class="fw-bold text-dark fs-6 text-truncate" id="bill_heading_{rec.id}">{first_name}</span>
+                    </div>
+                    {nav_buttons}
+                </div>
+
+                <!-- Slide Content -->
+                <div class="d-flex align-items-center justify-content-center p-2" style="min-height: 62vh; max-height: 63vh; overflow: auto; background: #ffffff; border-radius: 6px;">
+                    {"".join(slides_html)}
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                (function() {{
+                    var total = {total_bills};
+                    if (total &lt;= 1) return;
+                    var curIdx = 0;
+                    var names = {all_names_js};
+
+                    function updateSlide(idx) {{
+                        for (var i = 0; i &lt; total; i++) {{
+                            var el = document.getElementById("bill_slide_{rec.id}_" + i);
+                            if (el) el.style.display = (i === idx) ? "block" : "none";
+                        }}
+                        var headEl = document.getElementById("bill_heading_{rec.id}");
+                        if (headEl) headEl.innerText = names[idx];
+                        var countEl = document.getElementById("bill_counter_{rec.id}");
+                        if (countEl) countEl.innerText = (idx + 1) + " of " + total;
+                    }}
+
+                    window.prevBill_{rec.id} = function() {{
+                        curIdx = (curIdx - 1 + total) % total;
+                        updateSlide(curIdx);
+                    }};
+
+                    window.nextBill_{rec.id} = function() {{
+                        curIdx = (curIdx + 1) % total;
+                        updateSlide(curIdx);
+                    }};
+                }})();
+            </script>
+            '''
     status = fields.Selection([
         ('draft', 'Draft'),
         ('submitted', 'Submitted'),

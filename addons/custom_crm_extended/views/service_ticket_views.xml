@@ -125,16 +125,32 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 2: Expense Date -->
+                                <!-- Row 2: Expense Date / Date Range -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
-                                        <span class="fw-semibold text-secondary">Expense Date:</span>
+                                        <field name="new_voucher_is_daily" invisible="1"/>
+                                        <span class="fw-semibold text-secondary" invisible="new_voucher_is_daily">Expense Date:</span>
+                                        <span class="fw-semibold text-secondary" invisible="not new_voucher_is_daily">Visit Period:</span>
                                     </div>
-                                    <div class="col-sm-10 col-md-10">
+                                    <div class="col-sm-10 col-md-10" invisible="new_voucher_is_daily">
                                         <field name="new_voucher_date" 
                                             class="w-100"
                                             placeholder="Select Expense Date..."
                                             options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                    </div>
+                                    <div class="col-sm-10 col-md-10 d-flex gap-2 align-items-center" invisible="not new_voucher_is_daily">
+                                        <field name="new_voucher_date" 
+                                            class="w-50"
+                                            placeholder="From Date..."
+                                            options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                        <span class="text-muted fw-bold">to</span>
+                                        <field name="new_voucher_date_to" 
+                                            class="w-50"
+                                            placeholder="To Date..."
+                                            options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                        <span class="badge bg-light text-primary border px-2 py-1" invisible="not new_voucher_days or new_voucher_days &lt;= 1">
+                                            <field name="new_voucher_days" readonly="1"/> Days
+                                        </span>
                                     </div>
                                 </div>
 
@@ -208,16 +224,17 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 7: Attach Bill -->
+                                <!-- Row 7: Attach Bills (Multiple Support) -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
-                                        <span class="fw-semibold text-secondary">Attach Bill:</span>
+                                        <span class="fw-semibold text-secondary">Attach Bill(s):</span>
                                     </div>
                                     <div class="col-sm-10 col-md-10">
-                                        <field name="new_voucher_bill_file" 
-                                            filename="new_voucher_bill_filename" 
-                                            widget="binary"
-                                            options="{'no_download': True}"/>
+                                        <field name="new_voucher_bill_attachment_ids" 
+                                            widget="many2many_binary"
+                                            class="w-100"
+                                            placeholder="Select one or multiple bills..."/>
+                                        <field name="new_voucher_bill_file" invisible="1"/>
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
                                 </div>
@@ -272,7 +289,9 @@
                             <!-- Table for Pending Expenses Only -->
                             <field name="draft_voucher_line_ids" class="o_voucher_card_list w-100" invisible="not has_draft_vouchers">
                                 <list editable="bottom" create="0" delete="1" class="w-100">
-                                    <field name="expense_date" string="Expense Date"/>
+                                    <field name="expense_date" string="From Date"/>
+                                    <field name="expense_date_to" string="To Date" optional="show"/>
+                                    <field name="days_count" string="Days" optional="show"/>
                                     <field name="user_id" string="Employee" readonly="1"/>
                                     <field name="allowed_expense_type_ids" column_invisible="1"/>
                                     <field name="expense_type_id" widget="selection" domain="[('id', 'in', allowed_expense_type_ids)]" class="fw-semibold"/>
@@ -283,9 +302,8 @@
                                     <field name="currency_id" column_invisible="1"/>
                                     <field name="amount" sum="Total" class="fw-bold text-end pe-3"/>
                                     <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1" optional="show"/>
-                                    <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}" class="ps-2"/>
-                                    <field name="bill_filename" column_invisible="1"/>
-                                    <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
+                                    <field name="bill_attachment_ids" widget="many2many_tags" string="Bills" optional="show"/>
+                                    <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill(s)" class="btn p-0"/>
                                     <field name="status" widget="badge" decoration-info="status == 'draft'"/>
                                 </list>
                             </field>

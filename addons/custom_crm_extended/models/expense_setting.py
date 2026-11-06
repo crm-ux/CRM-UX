@@ -27,7 +27,11 @@ class ExpenseSetting(models.Model):
     new_expense_type_name = fields.Char(string="New Expense Type")
     new_expense_type_is_km = fields.Boolean(string="Calculate by KM", default=False)
     new_expense_type_km_rate = fields.Float(string="Rate per KM (₹)", default=0.0)
-    new_expense_type_budget_limit = fields.Float(string="Limit Per Visit (₹)", default=0.0)
+    new_expense_type_budget_limit = fields.Float(string="Limit Amount (₹)", default=0.0)
+    new_expense_type_calculation_type = fields.Selection([
+        ('daily', 'Per Day'),
+        ('fixed', 'Fixed (Per Visit)'),
+    ], string="Calculation Type", default='daily')
     new_expense_type_job_ids = fields.Many2many(
         'hr.job',
         'expense_setting_new_type_job_rel',
@@ -161,6 +165,7 @@ class ExpenseSetting(models.Model):
                     'is_km_based': bool(self.new_expense_type_is_km),
                     'km_rate': self.new_expense_type_km_rate or 0.0,
                     'budget_limit': self.new_expense_type_budget_limit or 0.0,
+                    'calculation_type': self.new_expense_type_calculation_type or 'daily',
                     'budget_cycle': 'per_ticket',
                     'job_ids': [(6, 0, self.new_expense_type_job_ids.ids)] if self.new_expense_type_job_ids else False,
                     'active': True,

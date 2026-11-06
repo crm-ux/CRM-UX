@@ -69,8 +69,12 @@
                                         <field name="new_expense_type_name" nolabel="1" placeholder="e.g. Travel, Food, Hotel, Conveyance..."/>
                                     </div>
                                     <div class="col" style="flex: 1.5 1 0; min-width: 85px;">
-                                        <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block">Limit Per Visit (₹)</label>
+                                        <label for="new_expense_type_budget_limit" class="form-label small fw-bold text-dark mb-1 d-block">Limit (₹)</label>
                                         <field name="new_expense_type_budget_limit" nolabel="1" placeholder="0.00"/>
+                                    </div>
+                                    <div class="col" style="flex: 1.8 1 0; min-width: 105px;" invisible="new_expense_type_is_km">
+                                        <label for="new_expense_type_calculation_type" class="form-label small fw-bold text-dark mb-1 d-block">Calculation Type</label>
+                                        <field name="new_expense_type_calculation_type" nolabel="1"/>
                                     </div>
                                     <div class="col" style="flex: 1.5 1 0; min-width: 85px;" invisible="not new_expense_type_is_km">
                                         <label for="new_expense_type_km_rate" class="form-label small fw-bold text-dark mb-1 d-block text-nowrap">Rate per KM (₹)</label>
@@ -97,7 +101,8 @@
                                 <list editable="bottom" create="0">
                                     <field name="sequence" widget="handle"/>
                                     <field name="name" string="Expense Type" class="fw-semibold"/>
-                                    <field name="budget_limit_display" string="Limit Per Visit (₹)" readonly="is_km_based"/>
+                                    <field name="budget_limit_display" string="Limit (₹)" readonly="is_km_based"/>
+                                    <field name="calculation_type" string="Calculation Type" readonly="is_km_based"/>
                                     <field name="job_ids" widget="many2many_tags" string="Allowed Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
                                     <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
                                     <field name="km_rate_display" string="Rate / KM (₹)" readonly="not is_km_based"/>
@@ -256,7 +261,9 @@
                     <separator string="Expenses"/>
                     <field name="ticket_voucher_line_ids" class="o_voucher_card_list">
                         <list create="0" edit="0" delete="0">
-                            <field name="expense_date" string="Expense Date"/>
+                            <field name="expense_date" string="From Date"/>
+                            <field name="expense_date_to" string="To Date" optional="show"/>
+                            <field name="days_count" string="Days" optional="show"/>
                             <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
                             <field name="expense_type_id" string="Expense Type" options="{'no_open': True}"/>
                             <field name="is_km_based" column_invisible="1"/>
@@ -369,7 +376,9 @@
                     <separator string="Expense Details"/>
                     <field name="line_ids" class="o_voucher_card_list">
                         <list create="0" edit="0" delete="0">
-                            <field name="expense_date" string="Expense Date"/>
+                            <field name="expense_date" string="From Date"/>
+                            <field name="expense_date_to" string="To Date" optional="show"/>
+                            <field name="days_count" string="Days" optional="show"/>
                             <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
                             <field name="expense_type_id" string="Expense Type" options="{'no_open': True}"/>
                             <field name="is_km_based" column_invisible="1"/>
