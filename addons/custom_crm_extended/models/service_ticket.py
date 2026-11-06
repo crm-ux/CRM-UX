@@ -916,6 +916,10 @@ class ServiceTicket(models.Model):
         missing_fields = []
         if not self.new_voucher_user_ids:
             missing_fields.append("Employee(s)")
+        if not self.new_voucher_date:
+            missing_fields.append("Expense Date")
+        if self.new_voucher_is_daily and not self.new_voucher_date_to:
+            missing_fields.append("To Date")
         if not self.new_voucher_expense_type_id:
             missing_fields.append("Expense Type")
         if not self.new_voucher_amount or self.new_voucher_amount <= 0:
@@ -934,9 +938,9 @@ class ServiceTicket(models.Model):
                 }
             }
 
-        exp_date = self.new_voucher_date or fields.Date.context_today(self)
+        exp_date = self.new_voucher_date
         today = fields.Date.context_today(self)
-        if exp_date > today:
+        if exp_date and exp_date > today:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -947,6 +951,30 @@ class ServiceTicket(models.Model):
                     'sticky': False,
                 }
             }
+
+        if self.new_voucher_is_daily and self.new_voucher_date_to:
+            if self.new_voucher_date_to > today:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Invalid To Date',
+                        'message': 'To Date cannot be in the future.',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+            if self.new_voucher_date_to < exp_date:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Invalid Date Range',
+                        'message': 'To Date cannot be earlier than From Date.',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
 
         target_users = self.new_voucher_user_ids
         user_count = len(target_users)
