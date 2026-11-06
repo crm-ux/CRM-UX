@@ -85,17 +85,15 @@ class CrmTaskAssignWizard(models.TransientModel):
                         valid_uids.append(u.id)
                         continue
                     try:
-                        # Check if record is inside user's accessible domain
-                        domain = u._get_hierarchy_domain(perm_field)
-                        if domain and [(1, '=', 1)] == domain:
+                        user_field = 'engineer_id' if perm_field == 'perm_service_ticket' else 'user_id'
+                        perm_domain = u._get_hierarchy_domain(perm_field, user_field)
+                        if perm_domain and [(1, '=', 1)] == perm_domain:
                             valid_uids.append(u.id)
-                        elif domain and [(0, '=', 1)] == domain:
+                        elif perm_domain and [(0, '=', 1)] == perm_domain:
                             continue
                         else:
-                            # Test if user has read permission on this record
-                            if rec.with_user(u).check_access_rights('read', raise_exception=False):
-                                if rec.sudo().search([('id', '=', rec.id)] + domain):
-                                    valid_uids.append(u.id)
+                            if rec.sudo().search([('id', '=', rec.id)] + perm_domain):
+                                valid_uids.append(u.id)
                     except Exception:
                         pass
                 wiz.allowed_user_ids = all_users.filtered(lambda u: u.id in valid_uids)
@@ -276,13 +274,13 @@ class CrmTaskAssignWizard(models.TransientModel):
                     valid_uids.append(u.id)
                     continue
                 try:
-                    user_domain = u._get_hierarchy_domain(perm_field)
-                    if user_domain and [(1, '=', 1)] == user_domain:
+                    perm_domain = u._get_hierarchy_domain(perm_field, 'engineer_id' if perm_field == 'perm_service_ticket' else 'user_id')
+                    if perm_domain and [(1, '=', 1)] == perm_domain:
                         valid_uids.append(u.id)
-                    elif user_domain and [(0, '=', 1)] == user_domain:
+                    elif perm_domain and [(0, '=', 1)] == perm_domain:
                         continue
                     else:
-                        match = target_rec.sudo().search([('id', '=', target_rec.id)] + user_domain)
+                        match = target_rec.sudo().search([('id', '=', target_rec.id)] + perm_domain)
                         if match:
                             valid_uids.append(u.id)
                 except Exception:
