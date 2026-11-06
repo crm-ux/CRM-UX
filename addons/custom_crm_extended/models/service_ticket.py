@@ -1518,7 +1518,24 @@ class ServiceTicketExpenseType(models.Model):
     calculation_type = fields.Selection([
         ('daily', 'Per Day'),
         ('fixed', 'Fixed (Per Visit)'),
-    ], string='Calculation Type', default='daily', required=True)
+        ('km', '-'),
+    ], string='Calculation Type', default='daily', compute='_compute_calculation_type', store=True, readonly=False)
+
+    @api.depends('is_km_based')
+    def _compute_calculation_type(self):
+        for rec in self:
+            if rec.is_km_based:
+                rec.calculation_type = 'km'
+            elif not rec.calculation_type or rec.calculation_type == 'km':
+                rec.calculation_type = 'daily'
+
+    @api.onchange('is_km_based')
+    def _onchange_is_km_based(self):
+        if self.is_km_based:
+            self.calculation_type = 'km'
+            self.budget_limit = 0.0
+        elif self.calculation_type == 'km':
+            self.calculation_type = 'daily'
     budget_cycle = fields.Selection([
         ('per_ticket', 'Per Visit / Ticket'),
         ('monthly', 'Monthly'),

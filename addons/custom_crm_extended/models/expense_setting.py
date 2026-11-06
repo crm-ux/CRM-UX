@@ -165,7 +165,7 @@ class ExpenseSetting(models.Model):
                     'is_km_based': bool(self.new_expense_type_is_km),
                     'km_rate': self.new_expense_type_km_rate or 0.0,
                     'budget_limit': self.new_expense_type_budget_limit or 0.0,
-                    'calculation_type': self.new_expense_type_calculation_type or 'daily',
+                    'calculation_type': 'km' if self.new_expense_type_is_km else (self.new_expense_type_calculation_type or 'daily'),
                     'budget_cycle': 'per_ticket',
                     'job_ids': [(6, 0, self.new_expense_type_job_ids.ids)] if self.new_expense_type_job_ids else False,
                     'active': True,
