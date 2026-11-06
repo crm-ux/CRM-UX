@@ -3133,17 +3133,14 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 }
 
 /* ══════════════════════════════════════════════════════════════
-   GLOBAL COMPACT DYNAMIC ATTACHMENT CHIPS (.o_field_many2many_binary)
+   COMPACT DYNAMIC ATTACHMENT CHIPS (Service Ticket Bills Only)
    ══════════════════════════════════════════════════════════════ */
 
 /* 1. Flex container & parent wrappers - allow horizontal wrapping, no clipping */
-.o_field_many2many_binary,
 div[name="new_voucher_bill_attachment_ids"],
 .crm_compact_attachments,
-.o_field_many2many_binary .oe_fileupload,
 div[name="new_voucher_bill_attachment_ids"] .oe_fileupload,
 .crm_compact_attachments .oe_fileupload,
-.o_field_many2many_binary .o_attachments,
 div[name="new_voucher_bill_attachment_ids"] .o_attachments,
 .crm_compact_attachments .o_attachments {
     display: flex !important;
@@ -3160,9 +3157,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachments,
     padding: 0 !important;
 }
 
-/* 2. DYNAMIC WIDTH PILL: Size adapts dynamically to filename globally across all many2many_binary */
-.o_field_many2many_binary .o_attachments > .o_attachment,
-.o_field_many2many_binary .o_attachment,
+/* 2. DYNAMIC WIDTH PILL: Size adapts dynamically to filename - Service Ticket Only */
 div[name="new_voucher_bill_attachment_ids"] .o_attachments > .o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
 .crm_compact_attachments .o_attachments > .o_attachment,
@@ -3189,17 +3184,13 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment,
     transition: background-color 0.15s ease, border-color 0.15s ease !important;
 }
 
-.o_field_many2many_binary .o_attachment:hover,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
 .crm_compact_attachments .o_attachment:hover {
     background-color: #e0f2fe !important;
     border-color: #93c5fd !important;
 }
 
-/* 2b. Wipe out inner ghost / double boxes globally */
-.o_field_many2many_binary .o_attachment div,
-.o_field_many2many_binary .o_attachment .o_attachment_card,
-.o_field_many2many_binary .o_attachment .o_existing_attachment,
+/* 2b. Wipe out inner ghost / double boxes */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment div,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_card,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_existing_attachment,
@@ -3218,7 +3209,6 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_existing_attachment
 }
 
 /* 3. Document Icon: Fully visible, NEVER cut off at top or bottom */
-.o_field_many2many_binary .o_image_box,
 div[name="new_voucher_bill_attachment_ids"] .o_image_box,
 .crm_compact_attachments .o_image_box {
     display: inline-flex !important;
@@ -3234,9 +3224,6 @@ div[name="new_voucher_bill_attachment_ids"] .o_image_box,
     flex-shrink: 0 !important;
 }
 
-.o_field_many2many_binary .o_image,
-.o_field_many2many_binary .o_image_box img,
-.o_field_many2many_binary .o_image_box span,
 div[name="new_voucher_bill_attachment_ids"] .o_image,
 div[name="new_voucher_bill_attachment_ids"] .o_image_box img,
 div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
@@ -3252,7 +3239,6 @@ div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
 }
 
 /* 4. Caption & Filename: Dynamic width, CRM Navy Blue, crisp text */
-.o_field_many2many_binary .caption,
 div[name="new_voucher_bill_attachment_ids"] .caption,
 .crm_compact_attachments .caption {
     display: inline-flex !important;
@@ -3267,9 +3253,6 @@ div[name="new_voucher_bill_attachment_ids"] .caption,
     flex-shrink: 0 !important;
 }
 
-.o_field_many2many_binary .caption a,
-.o_field_many2many_binary a.o_attachment_name,
-.o_field_many2many_binary .o_attachment a,
 div[name="new_voucher_bill_attachment_ids"] .caption a,
 div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment a,
@@ -3286,14 +3269,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment a,
     display: inline-block !important;
 }
 
-/* 5. Hide ALL secondary subtitles, extensions, and "PDF" text tags globally */
-.o_field_many2many_binary .caption > *:not(a),
-.o_field_many2many_binary .caption small,
-.o_field_many2many_binary .caption span,
-.o_field_many2many_binary small,
-.o_field_many2many_binary .text-muted,
-.o_field_many2many_binary [class*="type"],
-.o_field_many2many_binary [class*="extension"],
+/* 5. Hide ALL secondary subtitles, extensions, and "PDF" text tags */
 div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
 div[name="new_voucher_bill_attachment_ids"] .caption small,
 div[name="new_voucher_bill_attachment_ids"] .caption span,
@@ -3312,9 +3288,6 @@ div[name="new_voucher_bill_attachment_ids"] [class*="extension"],
 }
 
 /* 6. Hide the green checkmark completely */
-.o_field_many2many_binary .fa-check,
-.o_field_many2many_binary .text-success,
-.o_field_many2many_binary [class*="fa-check"],
 div[name="new_voucher_bill_attachment_ids"] .fa-check,
 div[name="new_voucher_bill_attachment_ids"] .text-success,
 div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
@@ -3325,11 +3298,6 @@ div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
 }
 
 /* 7. SIMPLE DELETE CROSS: Simple cross icon, natural inline flow, NO hover background */
-.o_field_many2many_binary .o_attachment_delete,
-.o_field_many2many_binary .o_attachment_delete_cross,
-.o_field_many2many_binary button:has(.fa-times),
-.o_field_many2many_binary .fa-times,
-.o_field_many2many_binary i.fa-times,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
 div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
@@ -3372,10 +3340,6 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
 }
 
 /* Keep cross icon simple on hover: NO hover background color */
-.o_field_many2many_binary .o_attachment_delete:hover,
-.o_field_many2many_binary .fa-times:hover,
-.o_field_many2many_binary .o_attachment:hover .o_attachment_delete,
-.o_field_many2many_binary .o_attachment:hover .o_attachment_delete:hover,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete:hover,
 div[name="new_voucher_bill_attachment_ids"] .fa-times:hover,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover .o_attachment_delete,
@@ -3392,8 +3356,6 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover .o_attachment_de
 }
 
 /* 8. Sleek compact upload button inline with chips */
-.o_field_many2many_binary .o_attach,
-.o_field_many2many_binary button.o_attach,
 div[name="new_voucher_bill_attachment_ids"] .o_attach,
 div[name="new_voucher_bill_attachment_ids"] button.o_attach,
 .crm_compact_attachments .o_attach,
@@ -3417,7 +3379,6 @@ div[name="new_voucher_bill_attachment_ids"] button.o_attach,
     flex-shrink: 0 !important;
 }
 
-.o_field_many2many_binary .o_attach:hover,
 div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
 .crm_compact_attachments .o_attach:hover {
     background-color: #dbeafe !important;
