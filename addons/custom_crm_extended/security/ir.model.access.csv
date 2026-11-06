@@ -49,3 +49,4 @@ access_crm_personal_todo,crm.personal.todo,model_crm_personal_todo,base.group_us
 access_crm_personal_todo_attachment,crm.personal.todo.attachment,model_crm_personal_todo_attachment,base.group_user,1,1,1,1
 
 access_service_ticket_expense_limit_rule,service.ticket.expense.limit.rule,model_service_ticket_expense_limit_rule,base.group_user,1,1,1,1
+access_crm_notification,crm.notification,model_crm_notification,base.group_user,1,1,1,1
