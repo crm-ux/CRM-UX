@@ -104,7 +104,9 @@
                                     <field name="budget_limit_display" string="Limit (₹)" readonly="is_km_based"/>
                                     <field name="calculation_type" string="Calculation Type" readonly="is_km_based"/>
                                     <field name="job_ids" widget="many2many_tags" string="Allowed Job Positions" options="{'no_create': True}" placeholder="All Positions (Global)"/>
-                                    <field name="is_km_based" string="KM Based?" widget="boolean_toggle"/>
+                                    <field name="is_km_based" column_invisible="1"/>
+                                    <button name="action_toggle_km" type="object" string="KM Based?" icon="fa-toggle-on text-primary fs-4" invisible="not is_km_based" title="KM Based: Click to Switch to Daily/Fixed" class="btn p-0 border-0 bg-transparent shadow-none"/>
+                                    <button name="action_toggle_km" type="object" string="KM Based?" icon="fa-toggle-off text-muted fs-4" invisible="is_km_based" title="Non-KM: Click to Switch to KM Based" class="btn p-0 border-0 bg-transparent shadow-none"/>
                                     <field name="km_rate_display" string="Rate / KM (₹)" readonly="not is_km_based"/>
                                     <field name="active" string="Active" widget="boolean_toggle"/>
                                     <button name="action_open_settings" type="object" icon="fa-cog" title="Configure Settings" class="btn p-0"/>
