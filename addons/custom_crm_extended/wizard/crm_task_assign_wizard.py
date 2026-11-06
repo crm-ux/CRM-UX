@@ -7,7 +7,7 @@ class CrmTaskAssignWizard(models.TransientModel):
     _name = 'crm.task.assign.wizard'
     _description = 'Assign Work Wizard'
 
-    assigned_to_id = fields.Many2one('res.users', string='Assign To', required=True)
+    assigned_to_id = fields.Many2one('res.users', string='Assign To')
     name = fields.Char(string='Task Title', required=True)
     date_deadline = fields.Date(string='Deadline')
     instructions = fields.Text(string='Work Details / Instructions')
@@ -307,6 +307,8 @@ class CrmTaskAssignWizard(models.TransientModel):
 
     def action_assign_work(self):
         self.ensure_one()
+        if not self.assigned_to_id:
+            raise UserError(_("Please select an employee in 'Assign To' before creating the task."))
 
         # Validation: If Recurring is checked, Deadline cannot be empty
         if self.is_recurring and not self.date_deadline:
