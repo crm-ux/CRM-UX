@@ -673,6 +673,7 @@ class ServiceTicket(models.Model):
     new_voucher_date_to = fields.Date(string='To Date')
     new_voucher_is_daily = fields.Boolean(compute='_compute_new_voucher_is_daily', string='Is Daily')
     new_voucher_days = fields.Integer(compute='_compute_new_voucher_days', string='Days Count')
+    new_voucher_days_display_html = fields.Html(compute='_compute_new_voucher_days', string='Days Badge HTML')
 
     @api.depends('new_voucher_expense_type_id')
     def _compute_new_voucher_is_daily(self):
@@ -683,9 +684,16 @@ class ServiceTicket(models.Model):
     def _compute_new_voucher_days(self):
         for rec in self:
             if rec.new_voucher_is_daily and rec.new_voucher_date and rec.new_voucher_date_to and rec.new_voucher_date_to >= rec.new_voucher_date:
-                rec.new_voucher_days = (rec.new_voucher_date_to - rec.new_voucher_date).days + 1
+                days = (rec.new_voucher_date_to - rec.new_voucher_date).days + 1
             else:
-                rec.new_voucher_days = 1
+                days = 1
+            rec.new_voucher_days = days
+            if rec.new_voucher_is_daily and days > 1:
+                rec.new_voucher_days_display_html = f"""
+                <span class="badge border" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd !important; font-size:11px; font-weight:600; padding:3px 8px; border-radius:9999px; white-space:nowrap; display:inline-block;">{days} Days</span>
+                """
+            else:
+                rec.new_voucher_days_display_html = False
 
     new_voucher_bill_attachment_ids = fields.Many2many(
         'ir.attachment',

@@ -171,11 +171,8 @@
                                             class="flex-grow-1"
                                             placeholder="To Date..."
                                             options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
-                                        <span class="badge border px-2 py-1 text-nowrap flex-shrink-0" 
-                                              style="background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd !important; font-size: 12px; font-weight: 600;"
-                                              invisible="not new_voucher_days or new_voucher_days &lt;= 1">
-                                            <field name="new_voucher_days" readonly="1" class="d-inline"/> Days
-                                        </span>
+                                        <field name="new_voucher_days" invisible="1"/>
+                                        <field name="new_voucher_days_display_html" widget="html" readonly="1" nolabel="1" class="p-0 border-0 bg-transparent flex-shrink-0" invisible="not new_voucher_days_display_html"/>
                                     </div>
                                 </div>
 
