@@ -564,6 +564,7 @@ patch(BooleanField.prototype, {
 // Dynamic cleanup for compact attachment pills: hide secondary extension tags (JPG, PDF, PNG, etc.)
 if (typeof window !== "undefined") {
     const EXT_REGEX = /^(PDF|JPG|JPEG|PNG|DOC|DOCX|XLS|XLSX|CSV|ZIP|RAR|TXT|TIFF|BMP|WEBP|GIF|MP4|AVI)$/i;
+    const TRAILING_EXT_REGEX = /\s+(PDF|JPG|JPEG|PNG|DOC|DOCX|XLS|XLSX|CSV|ZIP|RAR|TXT|TIFF|BMP|WEBP|GIF|MP4|AVI)\b/gi;
 
     function cleanAttachmentChips() {
         const containers = document.querySelectorAll("div[name='new_voucher_bill_attachment_ids'], .crm_compact_attachments");
@@ -576,43 +577,57 @@ if (typeof window !== "undefined") {
                         const txt = (el.textContent || "").trim();
                         if (EXT_REGEX.test(txt)) {
                             el.style.display = "none";
+                            el.remove();
                         }
                     }
                 });
 
-                // 2. Also check inside <a> link if extension tag was nested inside
+                // 2. Also check inside <a> link if extension tag was nested inside or in text
                 const link = chip.querySelector("a");
                 if (link) {
                     link.querySelectorAll("small, span, div, b").forEach((child) => {
                         const txt = (child.textContent || "").trim();
                         if (EXT_REGEX.test(txt)) {
                             child.style.display = "none";
+                            child.remove();
                         }
                     });
-                    link.childNodes.forEach((node) => {
-                        if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
-                            node.nodeValue = "";
+                    Array.from(link.childNodes).forEach((node) => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            if (EXT_REGEX.test((node.nodeValue || "").trim())) {
+                                node.nodeValue = "";
+                            } else {
+                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
+                            }
                         }
                     });
                 }
 
-                // 3. Clean direct text nodes in chip
-                chip.childNodes.forEach((node) => {
-                    if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
-                        node.nodeValue = "";
+                // 3. Clean direct text nodes in chip & caption
+                Array.from(chip.childNodes).forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        if (EXT_REGEX.test((node.nodeValue || "").trim())) {
+                            node.nodeValue = "";
+                        } else {
+                            node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
+                        }
                     }
                 });
 
-                // 4. Clean inside caption
                 const caption = chip.querySelector(".caption");
                 if (caption) {
-                    caption.childNodes.forEach((node) => {
-                        if (node.nodeType === Node.TEXT_NODE && EXT_REGEX.test((node.nodeValue || "").trim())) {
-                            node.nodeValue = "";
+                    Array.from(caption.childNodes).forEach((node) => {
+                        if (node.nodeType === Node.TEXT_NODE) {
+                            if (EXT_REGEX.test((node.nodeValue || "").trim())) {
+                                node.nodeValue = "";
+                            } else {
+                                node.nodeValue = node.nodeValue.replace(TRAILING_EXT_REGEX, "");
+                            }
                         } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "A") {
                             const txt = (node.textContent || "").trim();
                             if (EXT_REGEX.test(txt)) {
                                 node.style.display = "none";
+                                node.remove();
                             }
                         }
                     });
@@ -626,10 +641,10 @@ if (typeof window !== "undefined") {
     });
 
     if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
     } else {
         document.addEventListener("DOMContentLoaded", () => {
-            observer.observe(document.body, { childList: true, subtree: true });
+            observer.observe(document.body, { childList: true, subtree: true, characterData: true });
         });
     }
 }
