@@ -8,6 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { BooleanField } from "@web/views/fields/boolean/boolean_field";
 import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
@@ -524,3 +525,21 @@ export const serviceTicketFormView = {
 
 registry.category("views").add("service_ticket_form", serviceTicketFormView);
 registry.category("views").add("service_ticket_wizard_form", serviceTicketFormView);
+
+// Instant reload of expense type row when is_km_based boolean toggle is clicked
+patch(BooleanField.prototype, {
+    async onChange(value) {
+        await super.onChange(...arguments);
+        if (this.props.name === "is_km_based" && this.props.record) {
+            try {
+                if (typeof this.props.record.load === "function") {
+                    await this.props.record.load();
+                } else if (this.props.record.model && typeof this.props.record.model.root?.load === "function") {
+                    await this.props.record.model.root.load();
+                }
+            } catch (err) {
+                console.warn("Could not reload record after is_km_based toggle:", err);
+            }
+        }
+    },
+});
