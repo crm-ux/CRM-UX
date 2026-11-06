@@ -3135,100 +3135,120 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 /* ══════════════════════════════════════════════════════════════
    OPTION 1: COMPACT HORIZONTAL CHIPS FOR ATTACH BILL(S)
    ══════════════════════════════════════════════════════════════ */
+
+/* 1. Flex container & parent wrappers - allow horizontal wrapping, no clipping */
 div[name="new_voucher_bill_attachment_ids"],
-.crm_compact_attachments {
+.crm_compact_attachments,
+div[name="new_voucher_bill_attachment_ids"] .oe_fileupload,
+.crm_compact_attachments .oe_fileupload,
+div[name="new_voucher_bill_attachment_ids"] .o_attachments,
+.crm_compact_attachments .o_attachments {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: wrap !important;
     align-items: center !important;
     gap: 8px !important;
     width: 100% !important;
+    height: auto !important;
+    min-height: 34px !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* Each attachment rendered as an inline chip (horizontal, ~32px height) */
+/* 2. ONLY individual file chips (.o_attachment) */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_existing_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_card,
-div[name="new_voucher_bill_attachment_ids"] > div:not(.o_attach):not(button),
 .crm_compact_attachments .o_attachment,
 .crm_compact_attachments .o_existing_attachment,
-.crm_compact_attachments > div:not(.o_attach):not(button) {
+.crm_compact_attachments .o_attachment_card {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
     width: auto !important;
-    max-width: 250px !important;
+    max-width: 260px !important;
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
-    padding: 2px 8px 2px 8px !important;
+    padding: 2px 8px !important;
     margin: 0 !important;
-    background-color: #f8fafc !important;
+    background-color: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
     overflow: hidden !important;
     flex-shrink: 0 !important;
-    transition: all 0.15s ease !important;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
 .crm_compact_attachments .o_attachment:hover {
-    background-color: #f1f5f9 !important;
+    background-color: #e2e8f0 !important;
     border-color: #94a3b8 !important;
 }
 
-/* Thumbnail icon inside chip */
+/* 3. Thumbnail / icon */
 div[name="new_voucher_bill_attachment_ids"] .o_image_box,
 div[name="new_voucher_bill_attachment_ids"] .o_image,
-div[name="new_voucher_bill_attachment_ids"] img,
+div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
 .crm_compact_attachments .o_image_box,
-.crm_compact_attachments .o_image,
-.crm_compact_attachments img {
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
-    max-width: 18px !important;
+.crm_compact_attachments .o_image {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
     margin-right: 6px !important;
     object-fit: contain !important;
     flex-shrink: 0 !important;
-    display: inline-block !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-/* File name link / caption */
+/* 4. Caption container & file link: single line, no vertical stacking */
 div[name="new_voucher_bill_attachment_ids"] .caption,
-div[name="new_voucher_bill_attachment_ids"] a,
-div[name="new_voucher_bill_attachment_ids"] span,
-.crm_compact_attachments .caption,
-.crm_compact_attachments a,
-.crm_compact_attachments span {
+.crm_compact_attachments .caption {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    max-width: 150px !important;
+    overflow: hidden !important;
+}
+
+div[name="new_voucher_bill_attachment_ids"] .caption a,
+div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
+.crm_compact_attachments .caption a,
+.crm_compact_attachments a.o_attachment_name {
     font-size: 12px !important;
     font-weight: 500 !important;
     color: #0f172a !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    line-height: 1.2 !important;
     text-decoration: none !important;
-    max-width: 150px !important;
+    line-height: 1.2 !important;
 }
 
-/* Remove bulky subtitle like "PDF" or file sizes to keep chips slim */
+/* 5. Hide large secondary subtitle ("PDF", sizes) to keep height strictly 32px */
 div[name="new_voucher_bill_attachment_ids"] small,
-div[name="new_voucher_bill_attachment_ids"] .text-muted:not(a),
+div[name="new_voucher_bill_attachment_ids"] .caption small,
 .crm_compact_attachments small,
-.crm_compact_attachments .text-muted:not(a) {
+.crm_compact_attachments .caption small {
     display: none !important;
 }
 
-/* Remove giant purple block delete button & replace with neat red 'x' */
+/* 6. Clean subtle delete cross (replaces giant purple block) */
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
-div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
 div[name="new_voucher_bill_attachment_ids"] .fa-times,
 div[name="new_voucher_bill_attachment_ids"] i.fa-times,
-div[name="new_voucher_bill_attachment_ids"] [title="Delete"],
-div[name="new_voucher_bill_attachment_ids"] [aria-label="Delete"],
 .crm_compact_attachments .o_attachment_delete,
 .crm_compact_attachments .o_attachment_delete_cross,
 .crm_compact_attachments .fa-times {
@@ -3238,9 +3258,9 @@ div[name="new_voucher_bill_attachment_ids"] [aria-label="Delete"],
     box-shadow: none !important;
     color: #94a3b8 !important;
     font-size: 12px !important;
-    width: 18px !important;
-    height: 18px !important;
-    min-width: 18px !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
     padding: 0 !important;
     margin-left: 6px !important;
     display: inline-flex !important;
@@ -3251,12 +3271,11 @@ div[name="new_voucher_bill_attachment_ids"] [aria-label="Delete"],
 }
 
 div[name="new_voucher_bill_attachment_ids"] .fa-times:hover,
-div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times):hover,
 .crm_compact_attachments .fa-times:hover {
     color: #ef4444 !important;
 }
 
-/* Green checkmark indicator */
+/* 7. Upload checkmark */
 div[name="new_voucher_bill_attachment_ids"] .fa-check,
 .crm_compact_attachments .fa-check {
     color: #10b981 !important;
@@ -3265,10 +3284,9 @@ div[name="new_voucher_bill_attachment_ids"] .fa-check,
     flex-shrink: 0 !important;
 }
 
-/* Clean compact "📎 Bills & Receipts" button */
+/* 8. Sleek compact upload button inline with chips */
 div[name="new_voucher_bill_attachment_ids"] .o_attach,
 div[name="new_voucher_bill_attachment_ids"] button.o_attach,
-div[name="new_voucher_bill_attachment_ids"] .o_select_file_button,
 .crm_compact_attachments .o_attach,
 .crm_compact_attachments button.o_attach {
     height: 32px !important;
@@ -3287,12 +3305,12 @@ div[name="new_voucher_bill_attachment_ids"] .o_select_file_button,
     cursor: pointer !important;
     transition: all 0.15s ease !important;
     white-space: nowrap !important;
+    flex-shrink: 0 !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
 .crm_compact_attachments .o_attach:hover {
     background-color: #dbeafe !important;
-    border-color: #0b3d91 !important;
     color: #0b3d91 !important;
 }
 
