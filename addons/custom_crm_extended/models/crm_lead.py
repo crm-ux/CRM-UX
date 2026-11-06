@@ -709,19 +709,6 @@ class CrmLead(models.Model):
                     )
                 except Exception:
                     pass
-                try:
-                    self.env['crm.notification'].create_notification(
-                        user=assigned_user,
-                        title=f'Lead Assigned: {rec.name}',
-                        summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {rec.partner_name or rec.contact_name or '-'}, Details: {rec.description or 'No details'}",
-                        category='lead',
-                        sender=self.env.user,
-                        res_model='crm.lead',
-                        res_id=rec.id,
-                        record_ref_name=rec.name,
-                    )
-                except Exception:
-                    pass
         return records
 
     def write(self, vals):
@@ -757,19 +744,6 @@ class CrmLead(models.Model):
                                     'model': 'crm.lead',
                                     'res_id': rec.id,
                                 }
-                            )
-                        except Exception:
-                            pass
-                        try:
-                            self.env['crm.notification'].create_notification(
-                                user=assigned_user,
-                                title=f'Lead Assigned: {rec.name}',
-                                summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
-                                category='lead',
-                                sender=self.env.user,
-                                res_model='crm.lead',
-                                res_id=rec.id,
-                                record_ref_name=rec.name,
                             )
                         except Exception:
                             pass

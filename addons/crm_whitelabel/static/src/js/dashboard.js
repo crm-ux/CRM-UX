@@ -1913,12 +1913,6 @@ class CrmDashboard extends Component {
         }
     }
 
-    openNotificationMaster(ev) {
-        if (ev) ev.stopPropagation();
-        this.state.notifOpen = false;
-        this.actionService.doAction("custom_crm_extended.action_crm_notification");
-    }
-
     openTaskManagement(ev) {
         if (ev) ev.stopPropagation();
         this.state.notifOpen = false;

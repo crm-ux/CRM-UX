@@ -173,12 +173,5 @@
                 user._get_voucher_line_domain()
             </field>
         </record>
-        <!-- Strict 100% User Privacy Record Rule for Notification Master: Only the recipient user can see their own notifications -->
-        <record id="rule_crm_notification_strict_privacy" model="ir.rule">
-            <field name="name">Notification Master: Strict 100% Privacy (Recipient Only)</field>
-            <field name="model_id" ref="model_crm_notification"/>
-            <field name="global" eval="True"/>
-            <field name="domain_force">[('user_id', '=', user.id)]</field>
-        </record>
     </data>
 </odoo>

@@ -214,19 +214,6 @@ class CrmTaskManagement(models.Model):
                     )
                 except Exception:
                     pass
-                try:
-                    self.env['crm.notification'].create_notification(
-                        user=rec.assigned_to_id,
-                        title=f'New Task: {rec.name}',
-                        summary=f"Task assigned by {self.env.user.name}. Instructions: {rec.instructions or 'No additional instructions.'}",
-                        category='task',
-                        sender=self.env.user,
-                        res_model='crm.task.management',
-                        res_id=rec.id,
-                        record_ref_name=rec.name,
-                    )
-                except Exception:
-                    pass
         return records
 
     def write(self, vals):
@@ -281,46 +268,20 @@ class CrmTaskManagement(models.Model):
                             )
                         except Exception:
                             pass
-                        try:
-                            self.env['crm.notification'].create_notification(
-                                user=rec.assigned_to_id,
-                                title=f'New Task: {rec.name}',
-                                summary=f"Task assigned by {self.env.user.name}. Instructions: {rec.instructions or 'No additional instructions.'}",
-                                category='task',
-                                sender=self.env.user,
-                                res_model='crm.task.management',
-                                res_id=rec.id,
-                                record_ref_name=rec.name,
-                            )
-                        except Exception:
-                            pass
 
         # Handle Sequential Task Unlock, Recurrence, and notify assigner on completion
         if 'state' in vals and vals['state'] == 'done':
             for rec in self:
                 if rec.assigned_by_id and rec.assigned_by_id.id != self.env.user.id and rec.assigned_by_id.partner_id:
-                        rec.message_post(
-                            body=f"<b>Task Completed</b><br/>"
-                                 f"Task <b>{rec.name}</b> has been completed by <b>{self.env.user.name}</b>.<br/>"
-                                 f"Notes: {rec.completion_notes or 'Completed successfully.'}",
-                            subject=f"Task Completed: {rec.name}",
-                            partner_ids=[rec.assigned_by_id.partner_id.id],
-                            message_type='notification',
-                            subtype_xmlid='mail.mt_comment',
-                        )
-                        try:
-                            self.env['crm.notification'].create_notification(
-                                user=rec.assigned_by_id,
-                                title=f'Task Completed: {rec.name}',
-                                summary=f"Task completed by {self.env.user.name}. Notes: {rec.completion_notes or 'Completed successfully.'}",
-                                category='task',
-                                sender=self.env.user,
-                                res_model='crm.task.management',
-                                res_id=rec.id,
-                                record_ref_name=rec.name,
-                            )
-                        except Exception:
-                            pass
+                    rec.message_post(
+                        body=f"<b>Task Completed</b><br/>"
+                             f"Task <b>{rec.name}</b> has been completed by <b>{self.env.user.name}</b>.<br/>"
+                             f"Notes: {rec.completion_notes or 'Completed successfully.'}",
+                        subject=f"Task Completed: {rec.name}",
+                        partner_ids=[rec.assigned_by_id.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
                 # 1. Unlock next pending task for this assignee if any was queued
                 next_task = self.search([
                     ('assigned_to_id', '=', rec.assigned_to_id.id),

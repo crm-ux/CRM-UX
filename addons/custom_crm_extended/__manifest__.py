@@ -54,7 +54,6 @@
         'views/crm_personal_todo_views.xml',
         'views/sale_order_duplicate_wizard_view.xml',
         'views/mail_activity_schedule_override_view.xml',
-        'views/crm_notification_views.xml',
     ],
     'assets': {
         'web.assets_backend': [

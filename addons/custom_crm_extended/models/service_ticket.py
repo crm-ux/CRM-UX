@@ -1199,19 +1199,6 @@ class ServiceTicket(models.Model):
                 )
             except Exception:
                 pass
-            try:
-                self.env['crm.notification'].create_notification(
-                    user=dept_approver,
-                    title='Voucher Approval Request',
-                    summary=f"Voucher {batch_name} submitted by {submitter_name} (₹ {batch_tot:,.2f}).",
-                    category='voucher',
-                    sender=self.env.user,
-                    res_model='service.ticket.voucher.batch',
-                    res_id=batch_rec.id,
-                    record_ref_name=batch_name,
-                )
-            except Exception:
-                pass
 
         self.invalidate_recordset()
         return {
@@ -2374,19 +2361,6 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                     )
                 except Exception:
                     pass
-                try:
-                    self.env['crm.notification'].create_notification(
-                        user=submitter,
-                        title=f'Voucher Rejected: {batch.name}',
-                        summary=f"Voucher {batch.name} was rejected by {self.env.user.name}. Reason: {reason}",
-                        category='voucher',
-                        sender=self.env.user,
-                        res_model='service.ticket.voucher.batch',
-                        res_id=batch.id,
-                        record_ref_name=batch.name,
-                    )
-                except Exception:
-                    pass
         elif self.voucher_line_id:
             line = self.voucher_line_id
             line.sudo().write({
@@ -2722,19 +2696,6 @@ class ServiceTicketVoucherBatch(models.Model):
                             'model': 'service.ticket.voucher.batch',
                             'res_id': rec.id,
                         }
-                    )
-                except Exception:
-                    pass
-                try:
-                    self.env['crm.notification'].create_notification(
-                        user=submitter,
-                        title='Voucher Approved',
-                        summary=f"Your voucher {rec.name} was approved by {self.env.user.name}. Approved Amount: ₹ {rec.total_amount:,.2f}",
-                        category='voucher',
-                        sender=self.env.user,
-                        res_model='service.ticket.voucher.batch',
-                        res_id=rec.id,
-                        record_ref_name=rec.name,
                     )
                 except Exception:
                     pass

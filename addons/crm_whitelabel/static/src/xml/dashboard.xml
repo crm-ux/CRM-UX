@@ -217,14 +217,12 @@
                                     </li>
                                 </t>
                             </ul>
-                            <!-- View All Notifications footer button: opens Notification Master -->
+                            <!-- View More footer button: redirects to Task Management -->
                             <div style="padding: 0.55rem 0.9rem; border-top: 1px solid #e2e8f0; background: #f8fafc; text-align: center;">
                                 <button type="button" 
-                                        t-on-click="openNotificationMaster"
-                                        style="background: transparent; border: none; color: #0b3d91; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;"
-                                        title="View all notifications in Notification Master">
-                                    <i class="fa fa-bell-o" style="font-size: 0.85rem;"></i>
-                                    <span>View All Notifications</span>
+                                        t-on-click="openTaskManagement"
+                                        style="background: transparent; border: none; color: #0b3d91; font-weight: 700; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                                    <span>View More</span>
                                     <i class="fa fa-arrow-right" style="font-size: 0.72rem;"></i>
                                 </button>
                             </div>
