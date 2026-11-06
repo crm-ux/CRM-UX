@@ -151,6 +151,20 @@ class CrmTaskAssignWizard(models.TransientModel):
                 except Exception:
                     wiz.allowed_amc_ids = self.env['amc.contract'].browse([])
 
+            # ALWAYS ensure the currently linked record is included so Odoo never clears it!
+            if wiz.lead_id and wiz.lead_id not in wiz.allowed_lead_ids:
+                wiz.allowed_lead_ids = wiz.allowed_lead_ids | wiz.lead_id
+            if wiz.order_id and wiz.order_id not in wiz.allowed_order_ids:
+                wiz.allowed_order_ids = wiz.allowed_order_ids | wiz.order_id
+            if wiz.partner_id and wiz.partner_id not in wiz.allowed_partner_ids:
+                wiz.allowed_partner_ids = wiz.allowed_partner_ids | wiz.partner_id
+            if wiz.equipment_id and wiz.equipment_id not in wiz.allowed_equipment_ids:
+                wiz.allowed_equipment_ids = wiz.allowed_equipment_ids | wiz.equipment_id
+            if wiz.ticket_id and wiz.ticket_id not in wiz.allowed_ticket_ids:
+                wiz.allowed_ticket_ids = wiz.allowed_ticket_ids | wiz.ticket_id
+            if wiz.amc_id and wiz.amc_id not in wiz.allowed_amc_ids:
+                wiz.allowed_amc_ids = wiz.allowed_amc_ids | wiz.amc_id
+
     # Recurrence (Optional)
     is_recurring = fields.Boolean(string='Recurring Task', default=False)
     recurrence_period = fields.Selection([
@@ -163,6 +177,9 @@ class CrmTaskAssignWizard(models.TransientModel):
 
     @api.onchange('assigned_to_id')
     def _onchange_assigned_to_id_filter_records(self):
+        # Do NOT wipe pre-filled origin record when user selects assignee!
+        if self.env.context.get('default_res_id') or self.env.context.get('active_id') or self.env.context.get('default_ticket_id'):
+            return
         self._compute_accessible_records()
         # If currently picked record is not accessible by the new assignee, clear it!
         if self.lead_id and self.lead_id not in self.allowed_lead_ids:
