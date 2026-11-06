@@ -3157,13 +3157,11 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachments,
     padding: 0 !important;
 }
 
-/* 2. ONLY individual file chips (.o_attachment) */
+/* 2. ONLY the outer attachment container is the chip */
+div[name="new_voucher_bill_attachment_ids"] .o_attachments > .o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
-div[name="new_voucher_bill_attachment_ids"] .o_existing_attachment,
-div[name="new_voucher_bill_attachment_ids"] .o_attachment_card,
-.crm_compact_attachments .o_attachment,
-.crm_compact_attachments .o_existing_attachment,
-.crm_compact_attachments .o_attachment_card {
+.crm_compact_attachments .o_attachments > .o_attachment,
+.crm_compact_attachments .o_attachment {
     display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -3172,21 +3170,39 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment_card,
     height: 32px !important;
     min-height: 32px !important;
     max-height: 32px !important;
-    padding: 2px 28px 2px 8px !important; /* space on right for cross */
+    padding: 0 28px 0 8px !important;
     margin: 0 !important;
     background-color: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 6px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-    overflow: visible !important;
-    flex-shrink: 0 !important;
     position: relative !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
 }
 
 div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
 .crm_compact_attachments .o_attachment:hover {
     background-color: #e2e8f0 !important;
     border-color: #94a3b8 !important;
+}
+
+/* 2b. Wipe out inner ghost / double boxes */
+div[name="new_voucher_bill_attachment_ids"] .o_attachment div,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_attachment_card,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment .o_existing_attachment,
+.crm_compact_attachments .o_attachment div,
+.crm_compact_attachments .o_attachment .o_attachment_card,
+.crm_compact_attachments .o_attachment .o_existing_attachment {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    border-radius: 0 !important;
 }
 
 /* 3. Thumbnail / icon */
@@ -3207,7 +3223,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_image_box span,
     justify-content: center !important;
 }
 
-/* 4. Caption container & file link: single line, no vertical stacking */
+/* 4. Caption: single line, strictly filename only */
 div[name="new_voucher_bill_attachment_ids"] .caption,
 .crm_compact_attachments .caption {
     display: inline-flex !important;
@@ -3232,21 +3248,24 @@ div[name="new_voucher_bill_attachment_ids"] a.o_attachment_name,
     text-overflow: ellipsis !important;
     text-decoration: none !important;
     line-height: 1.2 !important;
+    display: inline-block !important;
 }
 
-/* 5. Hide large secondary subtitle ("PDF", sizes) to keep height strictly 32px */
+/* 5. Hide ALL secondary text, subtitles, "PDF" labels completely */
+div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
 div[name="new_voucher_bill_attachment_ids"] small,
-div[name="new_voucher_bill_attachment_ids"] .caption small,
-div[name="new_voucher_bill_attachment_ids"] .text-muted:not(a),
-div[name="new_voucher_bill_attachment_ids"] .caption .text-muted,
+div[name="new_voucher_bill_attachment_ids"] .text-muted,
+div[name="new_voucher_bill_attachment_ids"] [class*="type"],
+div[name="new_voucher_bill_attachment_ids"] [class*="extension"],
+.crm_compact_attachments .caption > *:not(a),
 .crm_compact_attachments small,
-.crm_compact_attachments .caption small,
-.crm_compact_attachments .text-muted:not(a),
-.crm_compact_attachments .caption .text-muted {
+.crm_compact_attachments .text-muted,
+.crm_compact_attachments [class*="type"],
+.crm_compact_attachments [class*="extension"] {
     display: none !important;
 }
 
-/* 6. Replace tick mark with cross mark: hide the green checkmark completely */
+/* 6. Hide the green checkmark completely */
 div[name="new_voucher_bill_attachment_ids"] .fa-check,
 div[name="new_voucher_bill_attachment_ids"] .text-success,
 div[name="new_voucher_bill_attachment_ids"] [class*="fa-check"],
@@ -3274,8 +3293,8 @@ div[name="new_voucher_bill_attachment_ids"] i.fa-times,
     visibility: visible !important;
     display: inline-flex !important;
     pointer-events: auto !important;
-    z-index: 5 !important;
-    background-color: rgba(239, 68, 68, 0.12) !important;
+    z-index: 10 !important;
+    background-color: rgba(239, 68, 68, 0.15) !important;
     border: none !important;
     box-shadow: none !important;
     color: #ef4444 !important;
