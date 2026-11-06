@@ -1016,7 +1016,7 @@
                     </div>
 
                     <!-- 5. Customer Classification (Donut Chart Layout Matching Card 6) -->
-                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                    <!-- <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
                         <t t-set="cP1" t-value="state.custClassMatrix and state.custClassMatrix[0] ? (state.custClassMatrix[0].percent || 0) : 0"/>
                         <t t-set="cP2" t-value="cP1 + (state.custClassMatrix and state.custClassMatrix[1] ? (state.custClassMatrix[1].percent || 0) : 0)"/>
                         <t t-set="cP3" t-value="cP2 + (state.custClassMatrix and state.custClassMatrix[2] ? (state.custClassMatrix[2].percent || 0) : 0)"/>
@@ -1034,9 +1034,7 @@
                             </span>
                         </div>
 
-                        <!-- SPLIT LAYOUT: Donut Chart on Left, Clean 4 Rows on Right -->
                         <div class="crm-an-disc-split" style="flex: 1; display: flex; align-items: center; gap: 1rem;">
-                            <!-- LEFT: Donut Chart -->
                             <div class="crm-an-donut-col" style="flex: 0 0 auto;">
                                 <div class="crm-an-donut-chart-box">
                                     <div class="crm-an-donut-ring" t-att-style="custDonutBg">
@@ -1050,14 +1048,12 @@
                                 </div>
                             </div>
 
-                            <!-- RIGHT: 4 Quadrant Rows & Footer -->
                             <div class="crm-an-details-col" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                                 <div class="crm-an-disc-list" style="display: flex; flex-direction: column; gap: 0.45rem;">
-                                    <!-- Q1: Existing Cust – Existing Prod -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('existing_existing', 'Existing Customer – Existing Product')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #0a347d; margin-right: 8px; flex-shrink: 0;"></span>
-                                            <span class="crm-an-row-name">Existing Cust – Existing Prod</span>
+                                            <span class="crm-an-row-name">Existing Customer – Existing Product</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[0] ? state.custClassMatrix[0].percent : 0"/>%</span>
@@ -1066,11 +1062,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Q2: Existing Cust – New Prod -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('existing_new', 'Existing Customer – New Product')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #1d63b8; margin-right: 8px; flex-shrink: 0;"></span>
-                                            <span class="crm-an-row-name">Existing Cust – New Prod</span>
+                                            <span class="crm-an-row-name">Existing Customer – New Product</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[1] ? state.custClassMatrix[1].percent : 0"/>%</span>
@@ -1079,11 +1074,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Q3: New Cust – Existing Prod -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('new_existing', 'New Customer – Existing Product')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #0ea5e9; margin-right: 8px; flex-shrink: 0;"></span>
-                                            <span class="crm-an-row-name">New Cust – Existing Prod</span>
+                                            <span class="crm-an-row-name">New Customer – Existing Product</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[2] ? state.custClassMatrix[2].percent : 0"/>%</span>
@@ -1092,11 +1086,10 @@
                                         </div>
                                     </div>
 
-                                    <!-- Q4: New Cust – New Prod -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openQuadrantLeads('new_new', 'New Customer – New Product')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #7dd3fc; border: 1px solid #38bdf8; margin-right: 8px; flex-shrink: 0;"></span>
-                                            <span class="crm-an-row-name">New Cust – New Prod</span>
+                                            <span class="crm-an-row-name">New Customer – New Product</span>
                                         </div>
                                         <div class="crm-an-row-right">
                                             <span class="crm-an-row-pct"><t t-esc="state.custClassMatrix and state.custClassMatrix[3] ? state.custClassMatrix[3].percent : 0"/>%</span>
@@ -1106,7 +1099,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Bottom Summary Strip: Total Won Revenue & Unclassified -->
                                 <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="openUnclassifiedLeads">
                                     <div class="crm-an-footer-content">
                                         <span>Total Won Revenue: <strong style="color: #0a347d;"><t t-esc="fmt(state.custClassTotalWon || 0)"/></strong> (Across <strong><t t-esc="state.classifiedLeadsCount || 0"/></strong> Classified Leads)</span>
@@ -1120,10 +1112,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- 6. Quote Pricing & Discount Impact -->
-                    <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
+                    <!-- <div class="crm-chart-card" t-if="state.isAdmin or state.canViewLeadQuote" style="display: flex; flex-direction: column;">
                         <t t-set="qFp" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.full_price ? (state.quoteDiscount.tiers.full_price.pct || 0) : 0"/>
                         <t t-set="qSm" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.small_disc ? (state.quoteDiscount.tiers.small_disc.pct || 0) : 0"/>
                         <t t-set="qMd" t-value="state.quoteDiscount and state.quoteDiscount.tiers and state.quoteDiscount.tiers.med_disc ? (state.quoteDiscount.tiers.med_disc.pct || 0) : 0"/>
@@ -1144,9 +1136,7 @@
                             </span>
                         </div>
 
-                        <!-- SPLIT LAYOUT: Donut Chart on Left, Clean Details on Right -->
                         <div class="crm-an-disc-split" style="flex: 1; display: flex; align-items: center; gap: 1rem;" t-if="state.quoteDiscount">
-                            <!-- LEFT: Donut Chart -->
                             <div class="crm-an-donut-col" style="flex: 0 0 auto;">
                                 <div class="crm-an-donut-chart-box">
                                     <div class="crm-an-donut-ring" t-att-style="quoteDonutBg">
@@ -1160,10 +1150,8 @@
                                 </div>
                             </div>
 
-                            <!-- RIGHT: 4 Classification Rows & Footer -->
                             <div class="crm-an-details-col" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                                 <div class="crm-an-disc-list" style="display: flex; flex-direction: column; gap: 0.45rem;">
-                                    <!-- Full Price -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('full_price', 'Full Price')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #0a347d; margin-right: 8px; flex-shrink: 0;"></span>
@@ -1176,7 +1164,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Small Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('small_disc', '1-5%')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #1d63b8; margin-right: 8px; flex-shrink: 0;"></span>
@@ -1189,7 +1176,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Med Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('med_disc', '5-10%')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #0ea5e9; margin-right: 8px; flex-shrink: 0;"></span>
@@ -1202,7 +1188,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Heavy Disc -->
                                     <div class="crm-an-disc-row clickable" t-on-click="() => this.openDiscountQuotes('heavy_disc', '>10%')">
                                         <div class="crm-an-row-left">
                                             <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #7dd3fc; border: 1px solid #38bdf8; margin-right: 8px; flex-shrink: 0;"></span>
@@ -1216,7 +1201,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Bottom Summary Strip: Total Discount Given -->
                                 <div class="crm-an-disc-footer clickable" style="margin-top: 0.65rem;" t-on-click="() => this.openDiscountQuotes('all_discounted', 'All Discounted')">
                                     <div class="crm-an-footer-content">
                                         <span>Total Discount Given: <strong style="color: #0a347d;"><t t-esc="fmt(state.quoteDiscount.totalDiscountAmount)"/></strong> (Across <strong><t t-esc="state.quoteDiscount.discountedQuotesCount"/></strong> Discounted Quotes)</span>
@@ -1225,7 +1209,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- VIEW MORE ANALYTICS ACTION BAR -->
                     <!-- <div style="grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 0.5rem; margin-bottom: 0.5rem;">

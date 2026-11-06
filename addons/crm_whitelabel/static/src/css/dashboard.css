@@ -1068,16 +1068,16 @@ body:has(.crm-pro-dashboard) .o_loading {
 
 .crm-cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 18vw, 300px), 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.85rem;
 }
 
 .crm-card {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-radius: 0.85rem;
-    padding: clamp(1rem, 1.4vw, 1.4rem);
-    min-height: 180px;
+    padding: clamp(0.75rem, 1vw, 1.25rem);
+    min-height: 165px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1702,19 +1702,14 @@ body:has(.crm-pro-dashboard) .o_loading {
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1100px) {
-    .crm-cards-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 992px) {
     .crm-analytics-section {
         grid-template-columns: 1fr;
     }
 
     .crm-cards-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
     }
 }
 
