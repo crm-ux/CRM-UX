@@ -134,11 +134,16 @@
                             <h4 class="mb-0 fw-bold" style="color: #0b3d91;">
                                 <field name="name" readonly="1" class="d-inline"/>
                             </h4>
-                            <span class="text-muted small" invisible="is_km_based">
-                                Global Default Limit: <strong class="text-dark">₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> / visit
-                            </span>
+                            <div class="d-flex align-items-center gap-3 mt-1" invisible="is_km_based">
+                                <span class="text-muted small">
+                                    Global Limit: <strong class="text-dark">₹<field name="budget_limit" class="d-inline"/></strong>
+                                </span>
+                                <span class="text-muted small">
+                                    Type: <field name="calculation_type" class="d-inline fw-semibold"/>
+                                </span>
+                            </div>
                             <span class="text-muted small" invisible="not is_km_based">
-                                Global Rate / KM: <strong class="text-dark">₹<field name="km_rate" readonly="1" class="d-inline"/></strong> / km
+                                Global Rate / KM: <strong class="text-dark">₹<field name="km_rate" class="d-inline"/></strong> / km
                             </span>
                         </div>
                     </div>
@@ -150,7 +155,7 @@
                         <list editable="bottom" decoration-muted="not active">
                             <field name="available_job_ids" column_invisible="1"/>
                             <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('id', 'in', available_job_ids)]" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
-                            <field name="budget_limit" string="Limit Per Visit" column_invisible="parent.is_km_based"/>
+                            <field name="budget_limit" string="Limit (₹)" column_invisible="parent.is_km_based"/>
                             <field name="km_rate" string="Rate / KM (₹)" column_invisible="not parent.is_km_based"/>
                             <field name="active" string="Active" widget="boolean_toggle"/>
                         </list>
@@ -161,7 +166,7 @@
                 <div class="p-2 px-3 rounded bg-light border text-muted small d-flex align-items-center gap-2 mb-2">
                     <i class="fa fa-lightbulb-o text-warning fs-5"></i>
                     <span>
-                        <strong>Note:</strong> Any job position not listed above (or marked Inactive) will automatically use the Global Limit of <strong>₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> per visit<span invisible="not is_km_based"> and Global Rate of <strong>₹<field name="km_rate" readonly="1" class="d-inline"/></strong> per km</span>.
+                        <strong>Note:</strong> Any job position not listed above (or marked Inactive) will automatically use the Global Limit of <strong>₹<field name="budget_limit" readonly="1" class="d-inline"/></strong> (<field name="calculation_type" readonly="1" class="d-inline"/>)<span invisible="not is_km_based"> and Global Rate of <strong>₹<field name="km_rate" readonly="1" class="d-inline"/></strong> per km</span>.
                     </span>
                 </div>
 
