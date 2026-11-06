@@ -100,6 +100,9 @@ if (ActivityListPopover && ActivityListPopover.prototype) {
 
             if (resModel && modelFieldMap[resModel] && resId) {
                 context[modelFieldMap[resModel]] = Number(resId);
+                if (resModel === "service.ticket") context["default_ticket_id"] = Number(resId);
+                if (resModel === "crm.lead") context["default_lead_id"] = Number(resId);
+                if (resModel === "sale.order") context["default_order_id"] = Number(resId);
             }
 
             const actionService = this.env?.services?.action;

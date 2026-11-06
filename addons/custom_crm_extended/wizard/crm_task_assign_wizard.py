@@ -244,6 +244,15 @@ class CrmTaskAssignWizard(models.TransientModel):
                 except (ValueError, TypeError):
                     pass
 
+        # Also populate allowed_xxx_ids so the preselected record is valid in the domain filter
+        all_users = self.env['res.users'].sudo().search([('active', '=', True), ('share', '=', False)])
+        res['allowed_lead_ids'] = [(6, 0, self.env['crm.lead'].sudo().search([]).ids)]
+        res['allowed_order_ids'] = [(6, 0, self.env['sale.order'].sudo().search([]).ids)]
+        res['allowed_partner_ids'] = [(6, 0, self.env['res.partner'].sudo().search([]).ids)]
+        res['allowed_equipment_ids'] = [(6, 0, self.env['equipment.master'].sudo().search([]).ids)]
+        res['allowed_ticket_ids'] = [(6, 0, self.env['service.ticket'].sudo().search([]).ids)]
+        res['allowed_amc_ids'] = [(6, 0, self.env['amc.contract'].sudo().search([]).ids)]
+
         # Compute initial accessible employees based on prefilled record
         target_rec = False
         perm_field = 'perm_lead_quote'
