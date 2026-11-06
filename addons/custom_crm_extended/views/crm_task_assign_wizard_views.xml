@@ -7,13 +7,21 @@
             <form string="Assign Work" class="crm-assign-work-wizard-form">
                 <sheet>
                     <!-- Section 1: Member Assignment -->
+                    <field name="allowed_user_ids" invisible="1"/>
+                    <field name="allowed_lead_ids" invisible="1"/>
+                    <field name="allowed_order_ids" invisible="1"/>
+                    <field name="allowed_partner_ids" invisible="1"/>
+                    <field name="allowed_equipment_ids" invisible="1"/>
+                    <field name="allowed_ticket_ids" invisible="1"/>
+                    <field name="allowed_amc_ids" invisible="1"/>
+
                     <div class="crm-wizard-group">
                         <label for="assigned_to_id" string="Assign To" class="crm-wizard-label"/>
                         <field name="assigned_to_id" 
                                string="Assign To" 
                                nolabel="1"
                                required="1"
-                               domain="[('id', '!=', uid)]"
+                               domain="[('id', 'in', allowed_user_ids), ('id', '!=', uid)]"
                                context="{'show_rich_user_name': True}"
                                options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True, 'no_open': True}" 
                                placeholder="Select team member..."/>
@@ -48,12 +56,12 @@
                     <!-- Dynamic Linked Record Pickers -->
                     <div class="crm-wizard-group" invisible="not related_model">
                         <span class="o_form_label crm-wizard-label">Select Record</span>
-                        <field name="lead_id" invisible="related_model != 'crm.lead'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
-                        <field name="order_id" invisible="related_model != 'sale.order'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
-                        <field name="partner_id" invisible="related_model != 'res.partner'" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Customer..."/>
-                        <field name="equipment_id" invisible="related_model != 'equipment.master'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Equipment..."/>
-                        <field name="ticket_id" invisible="related_model != 'service.ticket'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Ticket..."/>
-                        <field name="amc_id" invisible="related_model != 'amc.contract'" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select AMC Contract..."/>
+                        <field name="lead_id" invisible="related_model != 'crm.lead'" domain="[('id', 'in', allowed_lead_ids)]" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Lead..."/>
+                        <field name="order_id" invisible="related_model != 'sale.order'" domain="[('id', 'in', allowed_order_ids)]" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Quotation..."/>
+                        <field name="partner_id" invisible="related_model != 'res.partner'" domain="[('id', 'in', allowed_partner_ids)]" nolabel="1" options="{'no_create': True}" placeholder="Search &amp; select Customer..."/>
+                        <field name="equipment_id" invisible="related_model != 'equipment.master'" domain="[('id', 'in', allowed_equipment_ids)]" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Equipment..."/>
+                        <field name="ticket_id" invisible="related_model != 'service.ticket'" domain="[('id', 'in', allowed_ticket_ids)]" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select Ticket..."/>
+                        <field name="amc_id" invisible="related_model != 'amc.contract'" domain="[('id', 'in', allowed_amc_ids)]" nolabel="1" context="{'task_mgmt_rich_display': True}" options="{'no_create': True}" placeholder="Search &amp; select AMC Contract..."/>
                     </div>
 
                     <!-- Recurring Options -->

@@ -40,6 +40,119 @@ class CrmTaskAssignWizard(models.TransientModel):
     ticket_id = fields.Many2one('service.ticket', string='Linked Service Ticket')
     amc_id = fields.Many2one('amc.contract', string='Linked AMC Contract')
 
+    # Dynamic Allowed Domains for Security Isolation
+    allowed_user_ids = fields.Many2many('res.users', compute='_compute_accessible_records', string='Allowed Assignees')
+    allowed_lead_ids = fields.Many2many('crm.lead', compute='_compute_accessible_records', string='Allowed Leads')
+    allowed_order_ids = fields.Many2many('sale.order', compute='_compute_accessible_records', string='Allowed Orders')
+    allowed_partner_ids = fields.Many2many('res.partner', compute='_compute_accessible_records', string='Allowed Partners')
+    allowed_equipment_ids = fields.Many2many('equipment.master', compute='_compute_accessible_records', string='Allowed Equipment')
+    allowed_ticket_ids = fields.Many2many('service.ticket', compute='_compute_accessible_records', string='Allowed Tickets')
+    allowed_amc_ids = fields.Many2many('amc.contract', compute='_compute_accessible_records', string='Allowed AMC')
+
+    @api.depends('assigned_to_id', 'related_model', 'lead_id', 'order_id', 'partner_id', 'equipment_id', 'ticket_id', 'amc_id')
+    def _compute_accessible_records(self):
+        for wiz in self:
+            all_users = self.env['res.users'].sudo().search([('active', '=', True), ('share', '=', False)])
+
+            # -------------------------------------------------------------
+            # Case 2: Record is pre-filled/selected -> Filter Employees who have access
+            # -------------------------------------------------------------
+            rec = False
+            perm_field = 'perm_lead_quote'
+            if wiz.related_model == 'crm.lead' and wiz.lead_id:
+                rec = wiz.lead_id
+                perm_field = 'perm_lead_quote'
+            elif wiz.related_model == 'sale.order' and wiz.order_id:
+                rec = wiz.order_id
+                perm_field = 'perm_lead_quote'
+            elif wiz.related_model == 'res.partner' and wiz.partner_id:
+                rec = wiz.partner_id
+                perm_field = 'perm_customer'
+            elif wiz.related_model == 'equipment.master' and wiz.equipment_id:
+                rec = wiz.equipment_id
+                perm_field = 'perm_equipment'
+            elif wiz.related_model == 'service.ticket' and wiz.ticket_id:
+                rec = wiz.ticket_id
+                perm_field = 'perm_service_ticket'
+            elif wiz.related_model == 'amc.contract' and wiz.amc_id:
+                rec = wiz.amc_id
+                perm_field = 'perm_amc'
+
+            if rec:
+                valid_uids = []
+                for u in all_users:
+                    if u._is_admin() or u.has_group('base.group_system'):
+                        valid_uids.append(u.id)
+                        continue
+                    try:
+                        # Check if record is inside user's accessible domain
+                        domain = u._get_hierarchy_domain(perm_field)
+                        if domain and [(1, '=', 1)] == domain:
+                            valid_uids.append(u.id)
+                        elif domain and [(0, '=', 1)] == domain:
+                            continue
+                        else:
+                            # Test if user has read permission on this record
+                            if rec.with_user(u).check_access_rights('read', raise_exception=False):
+                                if rec.sudo().search([('id', '=', rec.id)] + domain):
+                                    valid_uids.append(u.id)
+                    except Exception:
+                        pass
+                wiz.allowed_user_ids = all_users.filtered(lambda u: u.id in valid_uids)
+            else:
+                wiz.allowed_user_ids = all_users
+
+            # -------------------------------------------------------------
+            # Case 1: Employee is selected -> Filter Records they can access
+            # -------------------------------------------------------------
+            target_user = wiz.assigned_to_id or self.env.user
+            if target_user._is_admin() or target_user.has_group('base.group_system'):
+                wiz.allowed_lead_ids = self.env['crm.lead'].sudo().search([])
+                wiz.allowed_order_ids = self.env['sale.order'].sudo().search([])
+                wiz.allowed_partner_ids = self.env['res.partner'].sudo().search([])
+                wiz.allowed_equipment_ids = self.env['equipment.master'].sudo().search([])
+                wiz.allowed_ticket_ids = self.env['service.ticket'].sudo().search([])
+                wiz.allowed_amc_ids = self.env['amc.contract'].sudo().search([])
+            else:
+                try:
+                    lead_domain = target_user._get_hierarchy_domain('perm_lead_quote', 'user_id')
+                    wiz.allowed_lead_ids = self.env['crm.lead'].sudo().search(lead_domain)
+                except Exception:
+                    wiz.allowed_lead_ids = self.env['crm.lead'].browse([])
+
+                try:
+                    order_domain = target_user._get_hierarchy_domain('perm_lead_quote', 'user_id')
+                    wiz.allowed_order_ids = self.env['sale.order'].sudo().search(order_domain)
+                except Exception:
+                    wiz.allowed_order_ids = self.env['sale.order'].browse([])
+
+                try:
+                    cust_uids = target_user._get_accessible_user_ids('perm_customer')
+                    if cust_uids:
+                        wiz.allowed_partner_ids = self.env['res.partner'].sudo().search(['|', ('user_id', 'in', cust_uids), ('create_uid', 'in', cust_uids)])
+                    else:
+                        wiz.allowed_partner_ids = self.env['res.partner'].sudo().search([])
+                except Exception:
+                    wiz.allowed_partner_ids = self.env['res.partner'].browse([])
+
+                try:
+                    eq_domain = target_user._get_hierarchy_domain('perm_equipment', False)
+                    wiz.allowed_equipment_ids = self.env['equipment.master'].sudo().search(eq_domain)
+                except Exception:
+                    wiz.allowed_equipment_ids = self.env['equipment.master'].browse([])
+
+                try:
+                    ticket_domain = target_user._get_hierarchy_domain('perm_service_ticket', 'engineer_id')
+                    wiz.allowed_ticket_ids = self.env['service.ticket'].sudo().search(ticket_domain)
+                except Exception:
+                    wiz.allowed_ticket_ids = self.env['service.ticket'].browse([])
+
+                try:
+                    amc_domain = target_user._get_hierarchy_domain('perm_amc', False)
+                    wiz.allowed_amc_ids = self.env['amc.contract'].sudo().search(amc_domain)
+                except Exception:
+                    wiz.allowed_amc_ids = self.env['amc.contract'].browse([])
+
     # Recurrence (Optional)
     is_recurring = fields.Boolean(string='Recurring Task', default=False)
     recurrence_period = fields.Selection([
@@ -49,6 +162,23 @@ class CrmTaskAssignWizard(models.TransientModel):
         ('yearly', 'Yearly'),
     ], string='Repeat Every', default='monthly')
     recurrence_end_date = fields.Date(string='Repeat Until')
+
+    @api.onchange('assigned_to_id')
+    def _onchange_assigned_to_id_filter_records(self):
+        self._compute_accessible_records()
+        # If currently picked record is not accessible by the new assignee, clear it!
+        if self.lead_id and self.lead_id not in self.allowed_lead_ids:
+            self.lead_id = False
+        if self.order_id and self.order_id not in self.allowed_order_ids:
+            self.order_id = False
+        if self.partner_id and self.partner_id not in self.allowed_partner_ids:
+            self.partner_id = False
+        if self.equipment_id and self.equipment_id not in self.allowed_equipment_ids:
+            self.equipment_id = False
+        if self.ticket_id and self.ticket_id not in self.allowed_ticket_ids:
+            self.ticket_id = False
+        if self.amc_id and self.amc_id not in self.allowed_amc_ids:
+            self.amc_id = False
 
     @api.model
     def default_get(self, fields_list):
