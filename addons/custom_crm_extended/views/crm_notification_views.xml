@@ -78,8 +78,7 @@
         <field name="model">crm.notification</field>
         <field name="arch" type="xml">
             <search string="Search Notifications">
-                <field name="name" string="Title / Subject"/>
-                <field name="summary" string="Details"/>
+                <field name="name" string="Title"/>
                 <field name="record_ref_name" string="Target Record"/>
                 <field name="sender_id" string="Sent By"/>
                 
@@ -97,7 +96,7 @@
                     <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                     <filter string="Category" name="group_category" context="{'group_by': 'category'}"/>
                     <filter string="Sent By" name="group_sender" context="{'group_by': 'sender_id'}"/>
-                    <filter string="Date" name="group_date" context="{'group_by': 'date:day'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
                 </group>
             </search>
         </field>
