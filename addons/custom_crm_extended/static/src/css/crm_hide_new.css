@@ -3132,6 +3132,171 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   OPTION 1: COMPACT HORIZONTAL CHIPS FOR ATTACH BILL(S)
+   ══════════════════════════════════════════════════════════════ */
+div[name="new_voucher_bill_attachment_ids"],
+.crm_compact_attachments {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+/* Each attachment rendered as an inline chip (horizontal, ~32px height) */
+div[name="new_voucher_bill_attachment_ids"] .o_attachment,
+div[name="new_voucher_bill_attachment_ids"] .o_existing_attachment,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment_card,
+div[name="new_voucher_bill_attachment_ids"] > div:not(.o_attach):not(button),
+.crm_compact_attachments .o_attachment,
+.crm_compact_attachments .o_existing_attachment,
+.crm_compact_attachments > div:not(.o_attach):not(button) {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: auto !important;
+    max-width: 250px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    padding: 2px 8px 2px 8px !important;
+    margin: 0 !important;
+    background-color: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+    transition: all 0.15s ease !important;
+}
+
+div[name="new_voucher_bill_attachment_ids"] .o_attachment:hover,
+.crm_compact_attachments .o_attachment:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Thumbnail icon inside chip */
+div[name="new_voucher_bill_attachment_ids"] .o_image_box,
+div[name="new_voucher_bill_attachment_ids"] .o_image,
+div[name="new_voucher_bill_attachment_ids"] img,
+.crm_compact_attachments .o_image_box,
+.crm_compact_attachments .o_image,
+.crm_compact_attachments img {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    margin-right: 6px !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+}
+
+/* File name link / caption */
+div[name="new_voucher_bill_attachment_ids"] .caption,
+div[name="new_voucher_bill_attachment_ids"] a,
+div[name="new_voucher_bill_attachment_ids"] span,
+.crm_compact_attachments .caption,
+.crm_compact_attachments a,
+.crm_compact_attachments span {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #0f172a !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.2 !important;
+    text-decoration: none !important;
+    max-width: 150px !important;
+}
+
+/* Remove bulky subtitle like "PDF" or file sizes to keep chips slim */
+div[name="new_voucher_bill_attachment_ids"] small,
+div[name="new_voucher_bill_attachment_ids"] .text-muted:not(a),
+.crm_compact_attachments small,
+.crm_compact_attachments .text-muted:not(a) {
+    display: none !important;
+}
+
+/* Remove giant purple block delete button & replace with neat red 'x' */
+div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete,
+div[name="new_voucher_bill_attachment_ids"] .o_attachment_delete_cross,
+div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times),
+div[name="new_voucher_bill_attachment_ids"] .fa-times,
+div[name="new_voucher_bill_attachment_ids"] i.fa-times,
+div[name="new_voucher_bill_attachment_ids"] [title="Delete"],
+div[name="new_voucher_bill_attachment_ids"] [aria-label="Delete"],
+.crm_compact_attachments .o_attachment_delete,
+.crm_compact_attachments .o_attachment_delete_cross,
+.crm_compact_attachments .fa-times {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #94a3b8 !important;
+    font-size: 12px !important;
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    padding: 0 !important;
+    margin-left: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+}
+
+div[name="new_voucher_bill_attachment_ids"] .fa-times:hover,
+div[name="new_voucher_bill_attachment_ids"] button:has(.fa-times):hover,
+.crm_compact_attachments .fa-times:hover {
+    color: #ef4444 !important;
+}
+
+/* Green checkmark indicator */
+div[name="new_voucher_bill_attachment_ids"] .fa-check,
+.crm_compact_attachments .fa-check {
+    color: #10b981 !important;
+    font-size: 11px !important;
+    margin-left: 4px !important;
+    flex-shrink: 0 !important;
+}
+
+/* Clean compact "📎 Bills & Receipts" button */
+div[name="new_voucher_bill_attachment_ids"] .o_attach,
+div[name="new_voucher_bill_attachment_ids"] button.o_attach,
+div[name="new_voucher_bill_attachment_ids"] .o_select_file_button,
+.crm_compact_attachments .o_attach,
+.crm_compact_attachments button.o_attach {
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #0b3d91 !important;
+    background-color: #eff6ff !important;
+    border: 1px dashed #0b3d91 !important;
+    border-radius: 6px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    white-space: nowrap !important;
+}
+
+div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
+.crm_compact_attachments .o_attach:hover {
+    background-color: #dbeafe !important;
+    border-color: #0b3d91 !important;
+    color: #0b3d91 !important;
+}
+
+
 
 
 

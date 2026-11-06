@@ -224,7 +224,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Row 7: Attach Bills (Multiple Support) -->
+                                <!-- Row 7: Attach Bills (Multiple Support - Compact Horizontal Chips) -->
                                 <div class="row mb-2 align-items-center">
                                     <div class="col-sm-2 col-md-2">
                                         <span class="fw-semibold text-secondary">Attach Bill(s):</span>
@@ -232,8 +232,8 @@
                                     <div class="col-sm-10 col-md-10">
                                         <field name="new_voucher_bill_attachment_ids" 
                                             widget="many2many_binary"
-                                            class="w-100"
-                                            placeholder="Select one or multiple bills..."/>
+                                            class="crm_compact_attachments w-100"
+                                            string="Bills &amp; Receipts"/>
                                         <field name="new_voucher_bill_file" invisible="1"/>
                                         <field name="new_voucher_bill_filename" invisible="1"/>
                                     </div>
