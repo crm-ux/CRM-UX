@@ -1515,28 +1515,11 @@ class ServiceTicketExpenseType(models.Model):
     is_km_based = fields.Boolean(string='Calculate by KM', default=False)
     km_rate = fields.Float(string='Rate per KM (₹)', default=0.0)
     budget_limit = fields.Float(string='Limit Amount (₹)', default=0.0)
-    base_calculation_type = fields.Selection([
-        ('daily', 'Per Day'),
-        ('fixed', 'Fixed (Per Visit)'),
-    ], string='Base Calculation Type', default='daily')
     calculation_type = fields.Selection([
         ('daily', 'Per Day'),
         ('fixed', 'Fixed (Per Visit)'),
         ('km', '-'),
-    ], string='Calculation Type', default='daily', compute='_compute_calculation_type', inverse='_inverse_calculation_type', store=False)
-
-    @api.depends('is_km_based', 'base_calculation_type')
-    def _compute_calculation_type(self):
-        for rec in self:
-            if rec.is_km_based:
-                rec.calculation_type = 'km'
-            else:
-                rec.calculation_type = rec.base_calculation_type or 'daily'
-
-    def _inverse_calculation_type(self):
-        for rec in self:
-            if not rec.is_km_based and rec.calculation_type in ('daily', 'fixed'):
-                rec.base_calculation_type = rec.calculation_type
+    ], string='Calculation Type', default='daily')
 
     @api.onchange('is_km_based')
     def _onchange_is_km_based(self):
@@ -1546,11 +1529,11 @@ class ServiceTicketExpenseType(models.Model):
                 rec.budget_limit_display = '-'
                 rec.km_rate_display = f"{rec.km_rate:,.2f}" if rec.km_rate else "0.00"
             else:
-                calc = rec.base_calculation_type or (rec.calculation_type if rec.calculation_type != 'km' else 'daily')
-                rec.calculation_type = calc
+                if rec.calculation_type == 'km' or not rec.calculation_type:
+                    rec.calculation_type = 'daily'
                 rec.km_rate_display = '-'
                 if rec.budget_limit:
-                    suffix = " / Day" if calc == 'daily' else " / Visit"
+                    suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
                     rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
                 else:
                     rec.budget_limit_display = "0.00"
@@ -1558,76 +1541,17 @@ class ServiceTicketExpenseType(models.Model):
     @api.onchange('calculation_type')
     def _onchange_calculation_type(self):
         for rec in self:
-            if not rec.is_km_based and rec.calculation_type in ('daily', 'fixed'):
-                rec.base_calculation_type = rec.calculation_type
-                if rec.budget_limit:
-                    suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
-                    rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
-
-    def web_read(self, specification):
-        res = super().web_read(specification)
-        for row in res:
-            if row.get('is_km_based'):
-                if 'calculation_type' in row:
-                    row['calculation_type'] = 'km'
-                if 'budget_limit_display' in row:
-                    row['budget_limit_display'] = '-'
-            else:
-                if 'km_rate_display' in row:
-                    row['km_rate_display'] = '-'
-                if row.get('calculation_type') == 'km':
-                    row['calculation_type'] = 'daily'
-                if row.get('budget_limit_display') == '-':
-                    lim = row.get('budget_limit', 0.0)
-                    calc = row.get('calculation_type', 'daily')
-                    suffix = " / Day" if calc == 'daily' else " / Visit"
-                    row['budget_limit_display'] = f"{lim:,.2f}{suffix}" if lim else "0.00"
-        return res
-
-    @api.model
-    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
-        res = super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
-        for row in res:
-            if row.get('is_km_based'):
-                if 'calculation_type' in row:
-                    row['calculation_type'] = 'km'
-                if 'budget_limit_display' in row:
-                    row['budget_limit_display'] = '-'
-            else:
-                if 'km_rate_display' in row:
-                    row['km_rate_display'] = '-'
-                if row.get('calculation_type') == 'km':
-                    row['calculation_type'] = 'daily'
-                if row.get('budget_limit_display') == '-':
-                    lim = row.get('budget_limit', 0.0)
-                    calc = row.get('calculation_type', 'daily')
-                    suffix = " / Day" if calc == 'daily' else " / Visit"
-                    row['budget_limit_display'] = f"{lim:,.2f}{suffix}" if lim else "0.00"
-        return res
-
-    def read(self, fields=None, load='_classic_read'):
-        res = super().read(fields=fields, load=load)
-        for row in res:
-            if row.get('is_km_based'):
-                if 'calculation_type' in row:
-                    row['calculation_type'] = 'km'
-                if 'budget_limit_display' in row:
-                    row['budget_limit_display'] = '-'
-            else:
-                if 'km_rate_display' in row:
-                    row['km_rate_display'] = '-'
-                if row.get('calculation_type') == 'km':
-                    row['calculation_type'] = 'daily'
-                if row.get('budget_limit_display') == '-':
-                    lim = row.get('budget_limit', 0.0)
-                    calc = row.get('calculation_type', 'daily')
-                    suffix = " / Day" if calc == 'daily' else " / Visit"
-                    row['budget_limit_display'] = f"{lim:,.2f}{suffix}" if lim else "0.00"
-        return res
+            if not rec.is_km_based and rec.budget_limit:
+                suffix = " / Day" if rec.calculation_type == 'daily' else " / Visit"
+                rec.budget_limit_display = f"{rec.budget_limit:,.2f}{suffix}"
 
     def write(self, vals):
-        if 'calculation_type' in vals and vals['calculation_type'] in ('daily', 'fixed'):
-            vals['base_calculation_type'] = vals['calculation_type']
+        if 'is_km_based' in vals:
+            if vals['is_km_based']:
+                vals['calculation_type'] = 'km'
+            else:
+                if vals.get('calculation_type') == 'km' or not vals.get('calculation_type'):
+                    vals['calculation_type'] = 'daily'
         return super().write(vals)
 
     def init(self):
