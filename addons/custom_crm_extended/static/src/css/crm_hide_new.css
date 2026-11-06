@@ -3116,13 +3116,20 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     color: #ffffff !important;
 }
 
-/* ── KM Based Toggle in Expense Types Table - CRM Blue ── */
-.o_expense_type_table div[name="is_km_based"] .form-check-input:checked,
+/* ── KM Based Toggle in Expense Types Table - Custom CRM Blue (matches Active toggle) ── */
 .o_expense_type_table td[name="is_km_based"] .form-check-input:checked,
-.o_expense_type_table div[name="is_km_based"] input:checked,
-.o_expense_type_table [data-name="is_km_based"] .form-check-input:checked {
+.o_expense_type_table div[name="is_km_based"] .form-check-input:checked,
+.o_expense_type_table [data-name="is_km_based"] .form-check-input:checked,
+.o_expense_type_table td:nth-child(6) .form-check-input:checked {
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
+    box-shadow: none !important;
+}
+
+.o_expense_type_table td[name="is_km_based"] .form-check-input:focus,
+.o_expense_type_table div[name="is_km_based"] .form-check-input:focus {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.25) !important;
 }
 
 

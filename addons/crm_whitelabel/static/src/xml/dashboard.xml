@@ -785,10 +785,10 @@
                         </div>
 
                         <!-- Clean Horizontal Progress Bars (Option B: Shows 0 when empty) -->
-                        <div style="display: flex; flex-direction: column; justify-content: space-around; height: calc(100% - 40px); gap: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.25rem;">
+                        <div style="display: flex; flex-direction: column; justify-content: space-around; height: calc(100% - 40px); gap: 0.65rem; padding-top: 0.4rem; padding-bottom: 0.25rem;">
                             
                             <!-- Channel 1: Breakdown -->
-                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
                                 t-on-click="() => this.openComplaintList('breakdown', 'Breakdown')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 6px;"></span>
@@ -804,15 +804,15 @@
                             </div>
 
                             <!-- Channel 2: PM -->
-                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
                                 t-on-click="() => this.openComplaintList('preventive', 'PM')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
-                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 6px;"></span>
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 6px;"></span>
                                     <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">PM</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
-                                    <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                    <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #0369a1; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
                                     <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
@@ -820,18 +820,34 @@
                             </div>
 
                             <!-- Channel 3: Free Call -->
-                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
                                 t-on-click="() => this.openComplaintList('free_call', 'Free Call')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
-                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 6px;"></span>
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 6px;"></span>
                                     <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Free Call</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
-                                    <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                    <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
                                     <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
+                                </div>
+                            </div>
+
+                            <!-- Channel 4: Installation -->
+                            <div class="crm-sla-row" style="cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: background 0.2s ease;" 
+                                t-on-click="() => this.openComplaintList('installation', 'Installation')">
+                                <div style="display: flex; align-items: center; min-width: 95px;">
+                                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 6px;"></span>
+                                    <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Installation</span>
+                                </div>
+                                <!-- Static Horizontal Progress Bar Track -->
+                                <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
+                                    <div t-att-style="'width: ' + complaintInstallationPct + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
+                                </div>
+                                <div style="min-width: 40px; text-align: right;">
+                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintInstallation || 0"/></span>
                                 </div>
                             </div>
 

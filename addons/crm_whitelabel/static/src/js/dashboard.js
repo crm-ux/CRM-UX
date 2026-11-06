@@ -130,6 +130,7 @@ class CrmDashboard extends Component {
             complaintBreakdown: 0,
             complaintPm: 0,
             complaintFreeCall: 0,
+            complaintInstallation: 0,
             amcExpired: 0,
             amcExpiredVal: 0,
             amcExpiring30: 0,
@@ -598,6 +599,7 @@ class CrmDashboard extends Component {
                 complaintBreakdown: s.complaint_counts?.breakdown ?? 0,
                 complaintPm: s.complaint_counts?.pm ?? 0,
                 complaintFreeCall: s.complaint_counts?.free_call ?? 0,
+                complaintInstallation: s.complaint_counts?.installation ?? 0,
                 amcExpired: s.amc_renewals?.expired ?? this.state.amcExpired,
                 amcExpiredVal: s.amc_renewals?.expired_val ?? this.state.amcExpiredVal,
                 amcExpiring30: s.amc_renewals?.expiring_30 ?? this.state.amcExpiring30,
@@ -1985,7 +1987,10 @@ class CrmDashboard extends Component {
     }
 
     get totalComplaints() {
-        return (this.state.complaintBreakdown || 0) + (this.state.complaintPm || 0) + (this.state.complaintFreeCall || 0);
+        return (this.state.complaintBreakdown || 0) + 
+               (this.state.complaintPm || 0) + 
+               (this.state.complaintFreeCall || 0) + 
+               (this.state.complaintInstallation || 0);
     }
 
     get complaintBreakdownPct() {
@@ -2004,6 +2009,12 @@ class CrmDashboard extends Component {
         const total = this.totalComplaints;
         if (!total) return 0;
         return Math.round(((this.state.complaintFreeCall || 0) / total) * 100);
+    }
+
+    get complaintInstallationPct() {
+        const total = this.totalComplaints;
+        if (!total) return 0;
+        return Math.round(((this.state.complaintInstallation || 0) / total) * 100);
     }
 
 
@@ -2817,13 +2828,15 @@ class CrmDashboard extends Component {
             breakdown: [["complaint_type", "=", "breakdown"]],
             pm: [["complaint_type", "=", "pm"]],
             preventive: [["complaint_type", "=", "pm"]],
-            free_call: [["complaint_type", "=", "free_call"]]
+            free_call: [["complaint_type", "=", "free_call"]],
+            installation: ["|", ["complaint_type", "=", "installation"], ["complaint_type_id.name", "=ilike", "Installation"]],
         };
         const titleMap = {
             breakdown: "Breakdown",
             pm: "PM",
             preventive: "PM",
-            free_call: "Free Call"
+            free_call: "Free Call",
+            installation: "Installation",
         };
         const domain = domainMap[type] || [];
         const cleanTitle = titleMap[type] || title;

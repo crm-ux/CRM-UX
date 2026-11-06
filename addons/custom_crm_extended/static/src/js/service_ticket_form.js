@@ -8,6 +8,7 @@ import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { BooleanField } from "@web/views/fields/boolean/boolean_field";
 import { setupUniversalAttachmentHandling, UniversalAttachmentPreviewDialog } from "./universal_attachment_preview";
 
 const TICKET_MODEL = "service.ticket";
@@ -525,52 +526,37 @@ export const serviceTicketFormView = {
 registry.category("views").add("service_ticket_form", serviceTicketFormView);
 registry.category("views").add("service_ticket_wizard_form", serviceTicketFormView);
 
-// Instant in-place row update when KM toggle is clicked in expense types table
-if (typeof window !== "undefined") {
-    function safeSetCellText(cell, newText, prevKey) {
-        if (!cell) return;
-        const target = cell.querySelector(".o_field_widget, span") || cell;
-        const current = target.textContent.trim();
-        if (prevKey && current !== "-") {
-            cell.dataset[prevKey] = current;
-        }
-        if (target.firstChild && target.firstChild.nodeType === Node.TEXT_NODE) {
-            target.firstChild.nodeValue = newText;
-        } else {
-            target.innerText = newText;
-        }
-    }
-
-    document.addEventListener("click", function(ev) {
-        const toggleCell = ev.target.closest(".o_expense_type_table td[name='is_km_based'], .o_expense_type_table div[name='is_km_based']");
-        if (!toggleCell) return;
-
-        const row = toggleCell.closest("tr");
-        if (!row) return;
-
-        setTimeout(() => {
-            const input = toggleCell.querySelector("input[type='checkbox']") || toggleCell.querySelector(".form-check-input");
-            const isKm = input ? input.checked : false;
-
-            const limitCell = row.querySelector("td[name='budget_limit_display']");
-            const typeCell = row.querySelector("td[name='calculation_type']");
-            const rateCell = row.querySelector("td[name='km_rate_display']");
-
-            if (isKm) {
-                safeSetCellText(limitCell, "-", "prevLimit");
-                safeSetCellText(typeCell, "-", "prevType");
-                if (rateCell && rateCell.textContent.trim() === "-") {
-                    safeSetCellText(rateCell, rateCell.dataset.prevRate || "0.00");
+// Clean Owl reactivity for KM Based toggle: updates row values instantly in-place without page reload or DOM errors
+patch(BooleanField.prototype, {
+    async onChange(value) {
+        await super.onChange(...arguments);
+        if (this.props.name === "is_km_based" && this.props.record) {
+            const rec = this.props.record;
+            if (rec.resModel === "service.ticket.expense.type") {
+                const isKm = Boolean(value);
+                const updates = {};
+                if (isKm) {
+                    updates.calculation_type = "km";
+                    updates.budget_limit_display = "-";
+                    updates.km_rate_display = (rec.data.km_rate && rec.data.km_rate > 0) ? Number(rec.data.km_rate).toFixed(2) : "0.00";
+                } else {
+                    const calc = (rec.data.calculation_type && rec.data.calculation_type !== "km") ? rec.data.calculation_type : "daily";
+                    updates.calculation_type = calc;
+                    updates.km_rate_display = "-";
+                    const suffix = calc === "daily" ? " / Day" : " / Visit";
+                    updates.budget_limit_display = (rec.data.budget_limit && rec.data.budget_limit > 0)
+                        ? `${rec.data.budget_limit.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`
+                        : "0.00";
                 }
-            } else {
-                safeSetCellText(rateCell, "-", "prevRate");
-                if (limitCell && limitCell.textContent.trim() === "-") {
-                    safeSetCellText(limitCell, limitCell.dataset.prevLimit || "0.00");
-                }
-                if (typeCell && typeCell.textContent.trim() === "-") {
-                    safeSetCellText(typeCell, typeCell.dataset.prevType || "Per Day");
+                try {
+                    await rec.update(updates);
+                    if (typeof rec.save === "function") {
+                        await rec.save();
+                    }
+                } catch (e) {
+                    console.warn("is_km_based reactive update error:", e);
                 }
             }
-        }, 150);
-    }, true);
-}
+        }
+    },
+});
