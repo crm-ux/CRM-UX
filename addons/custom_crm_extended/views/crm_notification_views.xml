@@ -79,25 +79,10 @@
         <field name="arch" type="xml">
             <search string="Search Notifications">
                 <field name="name" string="Title"/>
-                <field name="record_ref_name" string="Target Record"/>
                 <field name="sender_id" string="Sent By"/>
-                
                 <separator/>
                 <filter string="Unread" name="filter_unread" domain="[('state', '=', 'unread')]"/>
                 <filter string="Read" name="filter_read" domain="[('state', '=', 'read')]"/>
-                
-                <separator/>
-                <filter string="Expense Vouchers" name="filter_voucher" domain="[('category', '=', 'voucher')]"/>
-                <filter string="Service Tickets" name="filter_ticket" domain="[('category', '=', 'ticket')]"/>
-                <filter string="CRM Leads" name="filter_lead" domain="[('category', '=', 'lead')]"/>
-                <filter string="Tasks" name="filter_task" domain="[('category', '=', 'task')]"/>
-
-                <group expand="0" string="Group By">
-                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
-                    <filter string="Category" name="group_category" context="{'group_by': 'category'}"/>
-                    <filter string="Sent By" name="group_sender" context="{'group_by': 'sender_id'}"/>
-                    <filter string="Date" name="group_date" context="{'group_by': 'date'}"/>
-                </group>
             </search>
         </field>
     </record>
