@@ -125,26 +125,28 @@
             <form string="Position-Wise Budget Limits" class="o_expense_limit_modal">
                 <field name="is_km_based" invisible="1"/>
                 <!-- Info Header Banner in Custom Blue -->
-                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3" style="background: #f0f9ff; border: 1px solid #bae6fd;">
+                <div class="d-flex align-items-center justify-content-between p-3 mb-3 rounded-3" style="background: #f0f7ff; border: 1px solid #bfdbfe;">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; background: #0b3d91; color: #ffffff;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 44px; height: 44px; background: #0b3d91; color: #ffffff;">
                             <i class="fa fa-cog fa-lg"></i>
                         </div>
                         <div>
-                            <h4 class="mb-0 fw-bold" style="color: #0b3d91;">
+                            <h4 class="mb-1 fw-bold" style="color: #0b3d91;">
                                 <field name="name" readonly="1" class="d-inline"/>
                             </h4>
                             <div class="d-flex align-items-center gap-3 mt-1" invisible="is_km_based">
-                                <span class="text-muted small">
-                                    Global Limit: <strong class="text-dark">₹<field name="budget_limit" class="d-inline"/></strong>
+                                <span class="small" style="color: #4b5563;">
+                                    Global Limit: <strong style="color: #0b3d91; font-size: 1.05rem;">₹<field name="budget_limit" readonly="1" class="d-inline"/></strong>
                                 </span>
-                                <span class="text-muted small">
-                                    Type: <field name="calculation_type" class="d-inline fw-semibold"/>
+                                <span class="badge py-1 px-2 fw-semibold" style="background-color: #e0f2fe; color: #0b3d91; border: 1px solid #bae6fd; font-size: 0.82rem;">
+                                    Type: <field name="calculation_type" readonly="1" class="d-inline"/>
                                 </span>
                             </div>
-                            <span class="text-muted small" invisible="not is_km_based">
-                                Global Rate / KM: <strong class="text-dark">₹<field name="km_rate" class="d-inline"/></strong> / km
-                            </span>
+                            <div class="d-flex align-items-center gap-2 mt-1" invisible="not is_km_based">
+                                <span class="small" style="color: #4b5563;">
+                                    Global Rate / KM: <strong style="color: #0b3d91; font-size: 1.05rem;">₹<field name="km_rate" readonly="1" class="d-inline"/></strong> / km
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -156,6 +158,7 @@
                             <field name="available_job_ids" column_invisible="1"/>
                             <field name="job_ids" widget="many2many_tags" options="{'no_create': True}" domain="[('id', 'in', available_job_ids)]" placeholder="Select one or more job positions..." string="Job Positions" class="fw-semibold"/>
                             <field name="budget_limit" string="Limit (₹)" column_invisible="parent.is_km_based"/>
+                            <field name="calculation_type" string="Budget Type" column_invisible="parent.is_km_based" readonly="1"/>
                             <field name="km_rate" string="Rate / KM (₹)" column_invisible="not parent.is_km_based"/>
                             <field name="active" string="Active" widget="boolean_toggle"/>
                         </list>

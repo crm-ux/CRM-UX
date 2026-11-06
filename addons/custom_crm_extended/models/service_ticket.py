@@ -1708,6 +1708,11 @@ class ServiceTicketExpenseLimitRule(models.Model):
         help='Select one or multiple job positions for this budget limit rule.'
     )
     budget_limit = fields.Float(string='Budget Limit / Visit (₹)', default=0.0)
+    calculation_type = fields.Selection(
+        related='expense_type_id.calculation_type',
+        string='Budget Type',
+        readonly=True,
+    )
     km_rate = fields.Float(string='Rate / KM (₹)', default=0.0)
     dummy_dash = fields.Char(string='-', default='-', readonly=True)
     active = fields.Boolean(string='Active', default=True)

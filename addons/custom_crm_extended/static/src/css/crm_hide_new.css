@@ -3095,5 +3095,27 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     border: 1px solid #bae6fd !important;
 }
 
+/* ── Position-Wise Budget Limits Modal - CRM Blue Theme Overrides ── */
+.o_expense_limit_modal .form-control:focus,
+.o_expense_limit_modal input:focus,
+.o_expense_limit_modal select:focus,
+.o_expense_limit_modal .o_input:focus,
+.o_expense_limit_modal .o_field_widget:focus-within {
+    border-color: #0b3d91 !important;
+    outline-color: #0b3d91 !important;
+    box-shadow: 0 0 0 0.2rem rgba(11, 61, 145, 0.2) !important;
+}
+
+.o_expense_limit_modal .o_selected_row td,
+.o_expense_limit_modal .table tr:focus-within td {
+    border-color: #0b3d91 !important;
+}
+
+.o_expense_limit_modal ::selection {
+    background-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+
 
 
