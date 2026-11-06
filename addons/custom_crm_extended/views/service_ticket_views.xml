@@ -163,16 +163,15 @@
                                     </div>
                                     <div class="col-sm-10 col-md-10 d-flex gap-2 align-items-center" invisible="not new_voucher_is_daily">
                                         <field name="new_voucher_date" 
-                                            class="flex-grow-1"
+                                            class="w-50"
                                             placeholder="From Date..."
                                             options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
-                                        <span class="text-muted fw-bold px-1">to</span>
+                                        <span class="text-muted fw-bold px-2">to</span>
                                         <field name="new_voucher_date_to" 
-                                            class="flex-grow-1"
+                                            class="w-50"
                                             placeholder="To Date..."
                                             options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
                                         <field name="new_voucher_days" invisible="1"/>
-                                        <field name="new_voucher_days_display_html" widget="html" readonly="1" nolabel="1" class="p-0 border-0 bg-transparent flex-shrink-0" invisible="not new_voucher_days_display_html"/>
                                     </div>
                                 </div>
 

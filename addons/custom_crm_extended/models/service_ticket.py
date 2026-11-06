@@ -829,11 +829,12 @@ class ServiceTicket(models.Model):
                 is_exceeded = bool(has_any_limit and total_limit > 0 and entered_amount > total_limit)
                 diff = entered_amount - total_limit if is_exceeded else 0.0
 
+                unit_label = f" / {days} Days" if (exp_type.calculation_type == 'daily' and days > 1) else " / visit"
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
                         <span style="white-space:nowrap;">Allowed Limit for <strong>Group Budget Pool</strong>:</span>
-                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f} / visit</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f}{unit_label}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         {" ".join(items_html)}
                     </div>
@@ -845,7 +846,7 @@ class ServiceTicket(models.Model):
                     rec.new_voucher_budget_info_html = f"""
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
                         <span style="white-space:nowrap;">Allowed Limit for <strong>{u.name}{role_str}</strong>:</span>
-                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f} / visit</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f}{unit_label}</span>
                     </div>
                     """
                 else:
@@ -904,8 +905,10 @@ class ServiceTicket(models.Model):
             self.new_voucher_total_km = 0.0
         self._compute_new_voucher_budget_info_html()
 
-    @api.onchange('new_voucher_total_km', 'new_voucher_expense_type_id')
-    def _onchange_new_voucher_km_calc(self):
+    @api.onchange('new_voucher_date', 'new_voucher_date_to', 'new_voucher_expense_type_id', 'new_voucher_user_ids')
+    def _onchange_voucher_dates_update_pool(self):
+        self._compute_new_voucher_days()
+        self._compute_new_voucher_budget_info_html()
         is_km = self.new_voucher_is_km or (self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based)
         if is_km:
             rate = self.new_voucher_expense_type_id.km_rate if self.new_voucher_expense_type_id else 0.0
