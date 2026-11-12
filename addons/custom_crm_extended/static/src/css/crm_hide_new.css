@@ -3465,9 +3465,16 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     margin: 0 !important;
     box-shadow: none !important;
     outline: none !important;
-    overflow: hidden !important;
     display: flex !important;
     align-items: center !important;
+}
+
+/* Force dropdown menu to open downwards */
+.crm_voucher_tags_single_border .dropdown-menu {
+    top: 100% !important;
+    bottom: auto !important;
+    margin-top: 2px !important;
+    transform: none !important;
 }
 
 .crm_voucher_tags_single_border:focus-within,
