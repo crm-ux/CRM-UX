@@ -154,7 +154,7 @@ tr.o_is_line_section .dropdown-menu {
     box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
-/* Inner box (.o_field_tags) stretches 100% till outer box with ZERO OUTLINE */
+/* Inner box (.o_field_tags) stretches 100% till outer box with ZERO OUTLINE and transparent sides */
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
 .o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags,
@@ -166,6 +166,8 @@ tr.o_is_line_section .dropdown-menu {
     margin: 0 !important;
     padding: 0 10px !important;
     border: none !important;
+    border-left: transparent !important;
+    border-right: transparent !important;
     border-width: 0 !important;
     outline: none !important;
     box-shadow: none !important;
@@ -179,6 +181,8 @@ tr.o_is_line_section .dropdown-menu {
 .o_voucher_quick_add_bar .o_field_many2many_tags:focus-within .o_field_tags,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within .o_field_tags {
     border: none !important;
+    border-left: transparent !important;
+    border-right: transparent !important;
     outline: none !important;
     box-shadow: none !important;
 }
