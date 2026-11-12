@@ -181,6 +181,27 @@ tr.o_is_line_section .dropdown-menu {
     box-shadow: none !important;
 }
 
+/* Stripping focus outline specifically on inner input and focus state */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input:focus,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input.focus,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean input:focus,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean input.focus,
+.o_voucher_quick_add_bar .o_field_many2many_tags input:focus,
+.o_voucher_quick_add_bar .o_field_many2many_tags input.focus,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o-autocomplete--input:focus,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o-autocomplete--input:focus,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags:focus-within,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags:focus-within {
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 /* Inner box (.o_field_tags) stretches 100% till outer box edge-to-edge */
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
 .o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
@@ -1337,10 +1358,10 @@ button[name="action_add_voucher_line"]:hover {
 }
 
 /* Focused / active dropdown in quick add: Brand Blue instead of Odoo Purple */
-.o_voucher_quick_add_bar .o_field_widget input:focus,
-.o_voucher_quick_add_bar .o_field_widget select:focus,
-.o_voucher_quick_add_bar .o_field_widget .o_input:focus,
-.o_voucher_quick_add_bar .o_field_widget textarea:focus,
+.o_voucher_quick_add_bar .o_field_widget:not(.o_field_many2many_tags) input:focus,
+.o_voucher_quick_add_bar .o_field_widget:not(.o_field_many2many_tags) select:focus,
+.o_voucher_quick_add_bar .o_field_widget:not(.o_field_many2many_tags) .o_input:focus,
+.o_voucher_quick_add_bar .o_field_widget:not(.o_field_many2many_tags) textarea:focus,
 .o_voucher_quick_add_bar .o_field_many2many_tags:focus-within,
 .o_voucher_quick_add_bar .o_field_widget.o_required_modifier input,
 .o_voucher_quick_add_bar .o_field_widget.o_required_modifier {
