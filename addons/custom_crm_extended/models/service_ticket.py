@@ -2262,34 +2262,93 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_approve(self):
         self._check_voucher_approval_access()
+        # If over budget and not confirmed, prompt manager with wizard showing max allowed budget
+        if not self.env.context.get('budget_approved_confirmed'):
+            over_budget_lines = []
+            for rec in self:
+                max_amt = rec.max_budget_amount or 0.0
+                if max_amt > 0 and (rec.amount or 0.0) > max_amt:
+                    over_budget_lines.append(rec)
+            if over_budget_lines:
+                msg = "<div class='p-2'><p class='mb-2'>The following expense exceeds the allowed budget:</p><ul class='mb-3'>"
+                for l in over_budget_lines:
+                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.max_budget_amount:,.2f}</b>.</li>"
+                msg += "</ul><p class='text-muted small mb-0'>Approving will pass only the allowed budget amount (₹ " + f"{sum(l.max_budget_amount for l in over_budget_lines):,.2f}" + ") instead of the full over-budget amount. Do you wish to continue?</p></div>"
+                view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_budget_confirm_wizard_form', raise_if_not_found=False)
+                return {
+                    'name': _('Over Budget Expense Approval Confirmation'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'service.ticket.voucher.budget.confirm.wizard',
+                    'view_mode': 'form',
+                    'view_id': view.id if view else False,
+                    'target': 'new',
+                    'context': {
+                        'default_ticket_id': self[0].ticket_id.id if self[0].ticket_id else False,
+                        'default_message_html': msg,
+                        'voucher_approval_target_ids': self.ids,
+                    },
+                }
+
         for rec in self:
-            rec.sudo().write({
+            vals = {
                 'status': 'approved',
                 'expense_manager_id': self.env.user.id,
                 'reject_reason': False,
-            })
+            }
+            # When passing overbudget expense, pass the allowed budget amount instead of overbudget amount
+            if rec.max_budget_amount and rec.max_budget_amount > 0 and (rec.amount or 0.0) > rec.max_budget_amount:
+                vals['amount'] = rec.max_budget_amount
+            rec.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id._compute_status()
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_approve_all(self):
         self._check_voucher_approval_access()
+        # If over budget and not confirmed, prompt manager with wizard
+        if not self.env.context.get('budget_approved_confirmed'):
+            all_lines = self.batch_id.line_ids if self.batch_id else self
+            over_budget_lines = all_lines.filtered(lambda l: l.max_budget_amount > 0 and (l.amount or 0.0) > l.max_budget_amount)
+            if over_budget_lines:
+                msg = "<div class='p-2'><p class='mb-2'>The following expense(s) exceed the allowed budget:</p><ul class='mb-3'>"
+                for l in over_budget_lines:
+                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.max_budget_amount:,.2f}</b>.</li>"
+                msg += "</ul><p class='text-muted small mb-0'>Approving will pass only the allowed budget amount instead of over-budget amounts. Do you wish to continue?</p></div>"
+                view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_budget_confirm_wizard_form', raise_if_not_found=False)
+                return {
+                    'name': _('Over Budget Expense Approval Confirmation'),
+                    'type': 'ir.actions.act_window',
+                    'res_model': 'service.ticket.voucher.budget.confirm.wizard',
+                    'view_mode': 'form',
+                    'view_id': view.id if view else False,
+                    'target': 'new',
+                    'context': {
+                        'default_ticket_id': self[0].ticket_id.id if self[0].ticket_id else False,
+                        'default_message_html': msg,
+                        'voucher_approval_all_batch_id': self.batch_id.id if self.batch_id else False,
+                    },
+                }
+
         for rec in self:
             target = rec.batch_id.line_ids if rec.batch_id else rec
-            target.sudo().write({
-                'status': 'approved',
-                'expense_manager_id': self.env.user.id,
-                'reject_reason': False,
-            })
+            for t_line in target:
+                vals = {
+                    'status': 'approved',
+                    'expense_manager_id': self.env.user.id,
+                    'reject_reason': False,
+                }
+                if t_line.max_budget_amount and t_line.max_budget_amount > 0 and (t_line.amount or 0.0) > t_line.max_budget_amount:
+                    vals['amount'] = t_line.max_budget_amount
+                t_line.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
                 rec.batch_id._compute_status()
                 submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
                 if submitter and submitter.partner_id:
                     rec.batch_id.message_post(
-                        body=f"<b>Voucher Rejected</b><br/>"
-                             f"Your voucher <b>{rec.batch_id.name}</b> has been rejected by <b>{self.env.user.name}</b>.",
-                        subject=f"Voucher Rejected: {rec.batch_id.name}",
+                        body=f"<b>Voucher Approved</b><br/>"
+                             f"Your voucher <b>{rec.batch_id.name}</b> has been approved by <b>{self.env.user.name}</b>.",
+                        subject=f"Voucher Approved: {rec.batch_id.name}",
                         partner_ids=[submitter.partner_id.id],
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
@@ -2298,6 +2357,26 @@ class ServiceTicketVoucherLine(models.Model):
                         self.env['bus.bus']._sendone(
                             submitter.partner_id,
                             'crm_notification',
+                            {
+                                'title': 'Voucher Approved',
+                                'message': f"Your voucher {rec.batch_id.name} was approved (₹ {rec.batch_id.total_amount:,.2f}).",
+                                'model': 'service.ticket.voucher.batch',
+                                'res_id': rec.batch_id.id,
+                            }
+                        )
+                    except Exception:
+                        pass
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('All Expenses Approved'),
+                'message': _('All lines in this voucher have been approved.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
                             {
                                 'title': 'Voucher Rejected',
                                 'message': f"Your voucher {rec.batch_id.name} was rejected by {self.env.user.name}.",
@@ -2509,12 +2588,25 @@ class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
     _name = 'service.ticket.voucher.budget.confirm.wizard'
     _description = 'Confirm Over Budget Voucher Warning'
 
-    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True)
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=False)
     message_html = fields.Html(string='Message', readonly=True, sanitize=False)
 
     def action_confirm(self):
         self.ensure_one()
-        self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
+        # If confirming approval from manager side
+        target_ids = self.env.context.get('voucher_approval_target_ids')
+        if target_ids:
+            lines = self.env['service.ticket.voucher.line'].browse(target_ids)
+            return lines.with_context(budget_approved_confirmed=True).action_approve()
+
+        batch_id = self.env.context.get('voucher_approval_all_batch_id')
+        if batch_id:
+            batch = self.env['service.ticket.voucher.batch'].browse(batch_id)
+            lines = batch.line_ids
+            return lines.with_context(budget_approved_confirmed=True).action_approve_all()
+
+        if self.ticket_id:
+            self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
         return {'type': 'ir.actions.act_window_close'}
 
 
