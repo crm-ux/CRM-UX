@@ -3496,6 +3496,11 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     flex-wrap: wrap !important;
 }
 
+.crm_voucher_tags_single_border input,
+.crm_voucher_tags_single_border .o-autocomplete--input {
+    padding-left: 6px !important;
+}
+
 
 
 
