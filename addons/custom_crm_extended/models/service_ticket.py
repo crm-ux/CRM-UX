@@ -769,9 +769,9 @@ class ServiceTicket(models.Model):
                 return job.name
         return ""
 
-    @api.onchange('new_voucher_amount', 'new_voucher_total_km', 'new_voucher_expense_type_id', 'new_voucher_user_ids')
+    # Removed auto-recomputing on every focus/blur to prevent unwanted page re-renders/freezes
     def _onchange_new_voucher_inputs_warning(self):
-        self._compute_new_voucher_budget_info_html()
+        pass
 
     @api.depends('new_voucher_user_ids', 'new_voucher_expense_type_id', 'new_voucher_amount', 'new_voucher_total_km')
     def _compute_new_voucher_budget_info_html(self):
