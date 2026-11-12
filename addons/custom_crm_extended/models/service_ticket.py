@@ -2003,9 +2003,9 @@ class ServiceTicketVoucherLine(models.Model):
             for idx, itm in enumerate(items):
                 display_style = "display: block;" if idx == 0 else "display: none;"
                 if itm['ext'] in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
-                    content = f'<img src="{itm["url"]}" class="img-fluid rounded shadow-sm" style="max-height: 60vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>'
+                    content = f'<img src="{itm["url"]}" class="img-fluid rounded" style="max-height: 76vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>'
                 elif itm['ext'] == 'pdf':
-                    content = f'<iframe src="{itm["url"]}#toolbar=1" style="width: 100%; height: 60vh; border: none;" title="Bill PDF"></iframe>'
+                    content = f'<iframe src="{itm["url"]}#toolbar=1" style="width: 100%; height: 78vh; border: none;" title="Bill PDF"></iframe>'
                 else:
                     content = f'<div class="text-center p-4"><p class="text-muted">File: {itm["name"]}</p><a href="{itm["download_url"]}" class="btn btn-primary" download>Download File</a></div>'
 
@@ -2030,18 +2030,11 @@ class ServiceTicketVoucherLine(models.Model):
             all_names_js = str([it['name'] for it in items]).replace("'", '"')
 
             rec.bill_preview_html = f'''
-            <div class="bill-preview-wrapper p-2" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <!-- Heading with file name and dynamic arrows -->
-                <div class="d-flex align-items-center justify-content-between p-2 mb-2 bg-white rounded border shadow-sm">
-                    <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 65%;">
-                        <i class="fa fa-file-text-o text-primary fs-5"></i>
-                        <span class="fw-bold text-dark fs-6 text-truncate" id="bill_heading_{rec.id}">{first_name}</span>
-                    </div>
-                    {nav_buttons}
-                </div>
+            <div class="bill-preview-wrapper p-0 m-0" style="background: transparent; border: none; width: 100%;">
+                {"<div class='d-flex align-items-center justify-content-end p-2 mb-2 bg-white rounded border shadow-sm'>" + nav_buttons + "</div>" if nav_buttons else ""}
 
-                <!-- Slide Content -->
-                <div class="d-flex align-items-center justify-content-center p-2" style="min-height: 62vh; max-height: 63vh; overflow: auto; background: #ffffff; border-radius: 6px;">
+                <!-- Slide Content flush to top with no extra strip or blank gaps -->
+                <div class="d-flex align-items-center justify-content-center p-0 m-0" style="width: 100%; height: 78vh; overflow: hidden; background: #ffffff;">
                     {"".join(slides_html)}
                 </div>
             </div>
@@ -2543,8 +2536,34 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
     def action_confirm_reject(self):
         self.ensure_one()
         reason = self.reject_reason or 'No reason specified'
-        batch = self.batch_id or (self.voucher_line_id.batch_id if self.voucher_line_id else False)
 
+        # If launched for a specific line, reject ONLY that specific line
+        if self.voucher_line_id:
+            line = self.voucher_line_id
+            line.sudo().write({
+                'status': 'rejected',
+                'reject_reason': reason,
+                'expense_manager_id': self.env.user.id,
+            })
+            batch = line.batch_id
+            if batch:
+                batch.invalidate_recordset()
+                batch._compute_status()
+                submitter = batch.submitted_by_user_id or batch.user_id
+                if submitter and submitter.partner_id:
+                    emp_name = line.user_id.name or 'Employee'
+                    batch.message_post(
+                        body=f"<b>Voucher Line Rejected</b><br/>"
+                             f"Expense line for <b>{emp_name}</b> ({line.expense_type_id.name or 'Expense'}: {line.amount}) in <b>{batch.name}</b> has been rejected by <b>{self.env.user.name}</b>.<br/>"
+                             f"Reason: <i>{reason}</i>",
+                        subject=f"Voucher Line Rejected: {batch.name}",
+                        partner_ids=[submitter.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+            return {'type': 'ir.actions.act_window_close'}
+
+        batch = self.batch_id
         if batch:
             batch.line_ids.sudo().write({
                 'status': 'rejected',
