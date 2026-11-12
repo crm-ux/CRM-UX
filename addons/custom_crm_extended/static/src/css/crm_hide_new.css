@@ -1,4 +1,4 @@
-﻿/* ── Dialog wizard step buttons ── */
+/* ── Dialog wizard step buttons ── */
 .o_dialog .o_form_renderer button.step_current {
     background-color: #0b3d91 !important;
     color: #ffffff !important;
@@ -3451,3 +3451,57 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     color: #0b3d91 !important;
 }
 
+
+
+/* ── Service Ticket Voucher: Clean single box & match inner to outer ── */
+.crm_voucher_emp_clean,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.crm_voucher_emp_clean:focus-within,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+/* Inner elements: NO border, 100% height and width to completely fill the outer box */
+.crm_voucher_emp_clean .o_field_tags,
+.crm_voucher_emp_clean .o_field_tags.o_input,
+.crm_voucher_emp_clean .o_field_many2many_selection,
+.crm_voucher_emp_clean .o_input_dropdown,
+.crm_voucher_emp_clean .o-autocomplete,
+.crm_voucher_emp_clean input {
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.crm_voucher_emp_clean .o_field_tags {
+    padding: 2px 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.crm_voucher_emp_clean input {
+    font-size: 13px !important;
+    color: #1e293b !important;
+    padding: 0 !important;
+}

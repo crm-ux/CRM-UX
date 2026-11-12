@@ -120,7 +120,7 @@
                                             widget="many2many_tags"
                                             domain="[('share', '=', False), ('id', 'not in', new_voucher_user_ids)]"
                                             options="{'no_create': True}"
-                                            class="w-100"
+                                            class="w-100 crm_voucher_emp_clean"
                                             placeholder="Select Employee(s)..."/>
                                     </div>
                                 </div>
