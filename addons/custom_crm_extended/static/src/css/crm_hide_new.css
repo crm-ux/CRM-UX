@@ -130,42 +130,52 @@ tr.o_is_line_section .dropdown-menu {
     display: none !important;
 }
 
-/* ── Remove double border / inner dropdown outline on Voucher Employee & Inputs ── */
-.o_voucher_quick_add_bar .o_field_many2many_tags,
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] {
-    border: none !important;
-    padding: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-}
-
-/* Fix inner box to match outer box size exact same to same */
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
-.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags {
-    width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 2px 10px !important;
+/* ── Service Ticket Voucher: Match inner box to outer box size exact same to same ── */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"],
+.o_voucher_quick_add_bar .o_field_many2many_tags {
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
-    box-shadow: none !important;
-    outline: none !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
     display: flex !important;
     align-items: center !important;
+    box-shadow: none !important;
 }
 
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within .o_field_tags,
-.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within .o_field_tags {
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within,
+.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within {
     border-color: #0b3d91 !important;
     box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
+/* Inner box (.o_field_tags) matches outer box 100% same to same */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 2px 10px !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_many2many_selection,
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_input_dropdown,
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o-autocomplete {
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o-autocomplete,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_many2many_selection,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_input_dropdown,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o-autocomplete {
     width: 100% !important;
     height: 100% !important;
     min-height: 100% !important;
@@ -179,7 +189,10 @@ tr.o_is_line_section .dropdown-menu {
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input,
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input.o-autocomplete--input {
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input.o-autocomplete--input,
+.o_voucher_quick_add_bar .o_field_many2many_tags input,
+.o_voucher_quick_add_bar .o_field_many2many_tags input.o-autocomplete--input,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_input {
     width: 100% !important;
     height: 100% !important;
     min-height: 100% !important;
@@ -190,7 +203,19 @@ tr.o_is_line_section .dropdown-menu {
     box-shadow: none !important;
     outline: none !important;
     background: transparent !important;
+    font-size: 13px !important;
+    color: #1e293b !important;
 }
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+}
+
+
 
 .o_field_widget[name="x_gst_included"]+* .tax-totals {
     display: none;
@@ -1333,35 +1358,6 @@ button[name="action_add_voucher_line"]:hover {
     margin-bottom: 0 !important;
     cursor: pointer !important;
     color: #1e3a8a !important;
-}
-
-/* Single clean border on o_field_many2many_tags container without internal boxes */
-.o_voucher_quick_add_bar .o_field_many2many_tags {
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 4px !important;
-    padding: 2px 10px !important;
-    background-color: #ffffff !important;
-    min-height: 36px !important; height: auto !important; box-sizing: border-box !important;
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: wrap !important;
-    box-shadow: none !important;
-}
-
-.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within {
-    border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 1px #0b3d91 !important;
-}
-
-.o_voucher_quick_add_bar .o_field_many2many_tags input,
-.o_voucher_quick_add_bar .o_field_many2many_tags .o_input,
-.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_widget {
-    border: none !important;
-    box-shadow: none !important;
-    height: auto !important;
-    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
-    outline: none !important;
-    background: transparent !important;
 }
 
 /* Fix + Add Expense Button: clear white text, readable high-contrast */
@@ -3469,8 +3465,4 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     background-color: #dbeafe !important;
     color: #0b3d91 !important;
 }
-
-
-
-
 
