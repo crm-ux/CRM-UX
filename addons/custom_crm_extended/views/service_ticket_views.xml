@@ -118,7 +118,7 @@
                                     <div class="col-sm-10 col-md-10">
                                         <field name="new_voucher_user_ids"
                                             widget="many2many_tags"
-                                            domain="[('share', '=', False), ('id', 'not in', new_voucher_user_ids)]"
+                                            domain="[('share', '=', False)]"
                                             options="{'no_create': True}"
                                             class="w-100 crm_voucher_emp_clean"
                                             placeholder="Select Employee(s)..."/>
