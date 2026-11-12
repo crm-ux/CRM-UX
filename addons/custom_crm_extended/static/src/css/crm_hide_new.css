@@ -131,35 +131,37 @@ tr.o_is_line_section .dropdown-menu {
 }
 
 /* ── Remove double border / inner dropdown outline on Voucher Employee & Inputs ── */
-.o_voucher_quick_add_bar .o_field_many2many_tags,
-.o_voucher_quick_add_bar .o_field_widget,
-div[name="new_voucher_user_ids"],
+div[name="new_voucher_user_ids"] .o_tags_input,
+div[name="new_voucher_user_ids"] .o_tags_input.o_input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+div[name="new_voucher_user_ids"] input.o-autocomplete--input,
+div[name="new_voucher_user_ids"] input.o_input,
+div[name="new_voucher_user_ids"] .o-autocomplete--input,
 div[name="new_voucher_user_ids"] .o_input_dropdown,
+div[name="new_voucher_user_ids"] .o-autocomplete,
 div[name="new_voucher_user_ids"] .o_dropdown_button {
     border: none !important;
-    box-shadow: none !important;
     outline: none !important;
+    box-shadow: none !important;
 }
 
-div[name="new_voucher_user_ids"] .o_input_dropdown input,
-div[name="new_voucher_user_ids"] input.o_input {
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-div[name="new_voucher_user_ids"] > .o_field_widget,
-div[name="new_voucher_user_ids"].o_field_widget {
+div[name="new_voucher_user_ids"] {
     border: 1px solid #ced4da !important;
     border-radius: 4px !important;
     box-shadow: none !important;
+    background-color: #ffffff !important;
 }
 
-div[name="new_voucher_user_ids"]:focus-within > .o_field_widget,
-div[name="new_voucher_user_ids"].o_field_widget:focus-within {
+div[name="new_voucher_user_ids"]:focus-within {
     border-color: #0b3d91 !important;
     box-shadow: 0 0 0 1px #0b3d91 !important;
 }
+
 
 .o_field_widget[name="x_gst_included"]+* .tax-totals {
     display: none;
