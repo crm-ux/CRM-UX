@@ -1313,7 +1313,6 @@ class ServiceTicket(models.Model):
                 'message': _('Vouchers submitted for approval successfully.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
