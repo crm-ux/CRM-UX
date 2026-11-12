@@ -2377,39 +2377,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
-                            {
-                                'title': 'Voucher Rejected',
-                                'message': f"Your voucher {rec.batch_id.name} was rejected by {self.env.user.name}.",
-                                'model': 'service.ticket.voucher.batch',
-                                'res_id': rec.batch_id.id,
-                            }
-                        )
-                    except Exception:
-                        pass
-                    try:
-                        self.env['bus.bus']._sendone(
-                            submitter.partner_id,
-                            'crm_notification',
-                            {
-                                'title': 'Voucher Approved',
-                                'message': f"Your voucher {rec.batch_id.name} was approved (₹ {rec.batch_id.total_amount:,.2f}).",
-                                'model': 'service.ticket.voucher.batch',
-                                'res_id': rec.batch_id.id,
-                            }
-                        )
-                    except Exception:
-                        pass
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('All Expenses Approved'),
-                'message': _('All lines in this voucher have been approved.'),
-                'type': 'success',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
-        }
 
     def action_reject_all(self):
         self._check_voucher_approval_access()
