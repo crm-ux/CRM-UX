@@ -901,24 +901,12 @@ class ServiceTicket(models.Model):
         else:
             self.new_voucher_is_km = False
             self.new_voucher_total_km = 0.0
-        self._compute_new_voucher_budget_info_html()
 
-    @api.onchange('new_voucher_date', 'new_voucher_date_to', 'new_voucher_expense_type_id', 'new_voucher_user_ids')
     def _onchange_voucher_dates_update_pool(self):
-        self._compute_new_voucher_days()
-        self._compute_new_voucher_budget_info_html()
-        is_km = self.new_voucher_is_km or (self.new_voucher_expense_type_id and self.new_voucher_expense_type_id.is_km_based)
-        if is_km:
-            rate = self.new_voucher_expense_type_id.km_rate if self.new_voucher_expense_type_id else 0.0
-            if self.new_voucher_total_km > 0 and rate > 0:
-                self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
-            elif self.new_voucher_total_km == 0:
-                self.new_voucher_amount = 0.0
-        self._compute_new_voucher_budget_info_html()
+        pass
 
-    @api.onchange('new_voucher_amount')
     def _onchange_new_voucher_amount_warning(self):
-        self._compute_new_voucher_budget_info_html()
+        pass
 
     def action_add_voucher_line(self):
         self.ensure_one()
