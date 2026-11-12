@@ -2266,14 +2266,15 @@ class ServiceTicketVoucherLine(models.Model):
         if not self.env.context.get('budget_approved_confirmed'):
             over_budget_lines = []
             for rec in self:
-                max_amt = rec.max_budget_amount or 0.0
+                max_amt = rec.allowed_budget_limit or 0.0
                 if max_amt > 0 and (rec.amount or 0.0) > max_amt:
                     over_budget_lines.append(rec)
             if over_budget_lines:
                 msg = "<div class='p-2'><p class='mb-2'>The following expense exceeds the allowed budget:</p><ul class='mb-3'>"
                 for l in over_budget_lines:
-                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.max_budget_amount:,.2f}</b>.</li>"
-                msg += "</ul><p class='text-muted small mb-0'>Approving will pass only the allowed budget amount (₹ " + f"{sum(l.max_budget_amount for l in over_budget_lines):,.2f}" + ") instead of the full over-budget amount. Do you wish to continue?</p></div>"
+                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.allowed_budget_limit:,.2f}</b>.</li>"
+                total_allowed = sum(l.allowed_budget_limit for l in over_budget_lines)
+                msg += f"</ul><p class='text-muted small mb-0'>Approving will pass only the allowed budget amount (₹ {total_allowed:,.2f}) instead of the full over-budget amount. Do you wish to continue?</p></div>"
                 view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_budget_confirm_wizard_form', raise_if_not_found=False)
                 return {
                     'name': _('Over Budget Expense Approval Confirmation'),
@@ -2283,7 +2284,6 @@ class ServiceTicketVoucherLine(models.Model):
                     'view_id': view.id if view else False,
                     'target': 'new',
                     'context': {
-                        'default_ticket_id': self[0].ticket_id.id if self[0].ticket_id else False,
                         'default_message_html': msg,
                         'voucher_approval_target_ids': self.ids,
                     },
@@ -2296,8 +2296,8 @@ class ServiceTicketVoucherLine(models.Model):
                 'reject_reason': False,
             }
             # When passing overbudget expense, pass the allowed budget amount instead of overbudget amount
-            if rec.max_budget_amount and rec.max_budget_amount > 0 and (rec.amount or 0.0) > rec.max_budget_amount:
-                vals['amount'] = rec.max_budget_amount
+            if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
+                vals['amount'] = rec.allowed_budget_limit
             rec.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id._compute_status()
@@ -2308,11 +2308,11 @@ class ServiceTicketVoucherLine(models.Model):
         # If over budget and not confirmed, prompt manager with wizard
         if not self.env.context.get('budget_approved_confirmed'):
             all_lines = self.batch_id.line_ids if self.batch_id else self
-            over_budget_lines = all_lines.filtered(lambda l: l.max_budget_amount > 0 and (l.amount or 0.0) > l.max_budget_amount)
+            over_budget_lines = all_lines.filtered(lambda l: (l.allowed_budget_limit or 0.0) > 0 and (l.amount or 0.0) > l.allowed_budget_limit)
             if over_budget_lines:
                 msg = "<div class='p-2'><p class='mb-2'>The following expense(s) exceed the allowed budget:</p><ul class='mb-3'>"
                 for l in over_budget_lines:
-                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.max_budget_amount:,.2f}</b>.</li>"
+                    msg += f"<li><b>{l.user_id.name or 'Employee'}</b> ({l.expense_type_id.name or 'Expense'}): Entered <b>₹ {l.amount:,.2f}</b>, Allowed Budget Limit is <b>₹ {l.allowed_budget_limit:,.2f}</b>.</li>"
                 msg += "</ul><p class='text-muted small mb-0'>Approving will pass only the allowed budget amount instead of over-budget amounts. Do you wish to continue?</p></div>"
                 view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_budget_confirm_wizard_form', raise_if_not_found=False)
                 return {
@@ -2323,7 +2323,6 @@ class ServiceTicketVoucherLine(models.Model):
                     'view_id': view.id if view else False,
                     'target': 'new',
                     'context': {
-                        'default_ticket_id': self[0].ticket_id.id if self[0].ticket_id else False,
                         'default_message_html': msg,
                         'voucher_approval_all_batch_id': self.batch_id.id if self.batch_id else False,
                     },
@@ -2337,8 +2336,8 @@ class ServiceTicketVoucherLine(models.Model):
                     'expense_manager_id': self.env.user.id,
                     'reject_reason': False,
                 }
-                if t_line.max_budget_amount and t_line.max_budget_amount > 0 and (t_line.amount or 0.0) > t_line.max_budget_amount:
-                    vals['amount'] = t_line.max_budget_amount
+                if t_line.allowed_budget_limit and t_line.allowed_budget_limit > 0 and (t_line.amount or 0.0) > t_line.allowed_budget_limit:
+                    vals['amount'] = t_line.allowed_budget_limit
                 t_line.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
