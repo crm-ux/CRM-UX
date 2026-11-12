@@ -3473,18 +3473,13 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
 /* Force dropdown menu to open downwards */
 .crm_voucher_tags_single_border .dropdown-menu,
 .crm_voucher_tags_single_border .o-autocomplete--dropdown-menu {
-    position: absolute !important;
     top: 100% !important;
     bottom: auto !important;
     left: 0 !important;
+    margin-top: 2px !important;
     z-index: 1055 !important;
     max-height: 250px !important;
     overflow-y: auto !important;
-    display: block;
-}
-
-.crm_voucher_tags_single_border:not(.show):not(:focus-within) .dropdown-menu {
-    display: none;
 }
 
 .crm_voucher_tags_single_border:focus-within,

@@ -119,7 +119,7 @@
                                         <field name="new_voucher_user_ids"
                                             widget="many2many_tags"
                                             domain="[('share', '=', False), ('id', 'not in', new_voucher_user_ids)]"
-                                            options="{'no_create': True, 'open_dropdown': True}"
+                                            options="{'no_create': True}"
                                             class="w-100 crm_voucher_tags_single_border"
                                             placeholder="Select Employee(s)..."/>
                                     </div>
