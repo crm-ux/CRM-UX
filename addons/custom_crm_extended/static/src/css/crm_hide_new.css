@@ -150,21 +150,34 @@ tr.o_is_line_section .dropdown-menu {
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within,
 .o_voucher_quick_add_bar .o_field_many2many_tags:focus-within,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within {
-    border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 1px #0b3d91 !important;
+    border: 2px solid #0b3d91 !important;
+    box-shadow: none !important;
 }
 
-/* Remove borders, outlines, shadows completely from ALL internal children */
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] *,
-.o_voucher_quick_add_bar .o_field_many2many_tags *,
-.o_voucher_quick_add_bar .crm_voucher_emp_clean * {
-    border: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    border-top: none !important;
-    border-bottom: none !important;
-    border-width: 0 !important;
-    outline: none !important;
+/* Make inner box borders completely transparent */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags,
+.o_voucher_quick_add_bar .o_field_tags.o_input,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_many2many_selection,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_input_dropdown,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o-autocomplete,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_many2many_selection,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_input_dropdown,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o-autocomplete,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_many2many_selection,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_input_dropdown,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o-autocomplete,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean input {
+    border: transparent !important;
+    border-color: transparent !important;
+    border-left: transparent !important;
+    border-right: transparent !important;
+    border-top: transparent !important;
+    border-bottom: transparent !important;
+    outline: transparent !important;
+    outline-color: transparent !important;
     box-shadow: none !important;
 }
 
