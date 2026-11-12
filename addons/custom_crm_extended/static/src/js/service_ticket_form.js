@@ -74,27 +74,54 @@ patch(ListController.prototype, {
                 const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
 
                 const recId = record?.resId || null;
-                let filename = record?.data?.bill_filename || "bill.png";
+                let filename = record?.data?.bill_filename || "";
                 let fileData = record?.data?.bill_file || null;
+                let attachmentId = null;
 
-                const isSizeString = typeof fileData === "string" && (
-                    fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
-                );
-                if (recId && (!fileData || isSizeString)) {
+                const attData = record?.data?.bill_attachment_ids;
+                if (attData && attData.records && attData.records.length > 0) {
+                    const firstAtt = attData.records[0].data;
+                    if (firstAtt) {
+                        filename = firstAtt.name || filename;
+                        fileData = firstAtt.datas || fileData;
+                        attachmentId = attData.records[0].resId;
+                    }
+                } else if (attData && Array.isArray(attData.currentIds) && attData.currentIds.length > 0) {
+                    attachmentId = attData.currentIds[0];
+                }
+
+                if (recId && (!fileData || !filename || typeof fileData === "string" && (fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50))) {
                     try {
                         const res = await this.env.services.orm.read(
                             "service.ticket.voucher.line",
                             [recId],
-                            ["bill_file", "bill_filename"],
+                            ["bill_file", "bill_filename", "bill_attachment_ids"],
                             { context: { bin_size: false } }
                         );
                         if (res && res[0]) {
                             fileData = res[0].bill_file || fileData;
                             if (res[0].bill_filename) filename = res[0].bill_filename;
+                            if ((!fileData || !filename) && res[0].bill_attachment_ids && res[0].bill_attachment_ids.length > 0) {
+                                const attRes = await this.env.services.orm.read(
+                                    "ir.attachment",
+                                    [res[0].bill_attachment_ids[0]],
+                                    ["name", "datas", "mimetype"],
+                                    { context: { bin_size: false } }
+                                );
+                                if (attRes && attRes[0]) {
+                                    filename = attRes[0].name || filename;
+                                    fileData = attRes[0].datas || fileData;
+                                    attachmentId = attRes[0].id;
+                                }
+                            }
                         }
                     } catch (readErr) {
                         console.warn("Could not read voucher bill_file:", readErr);
                     }
+                }
+
+                if (!filename) {
+                    filename = "bill.pdf";
                 }
 
                 let previewContent = null;

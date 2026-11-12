@@ -1052,6 +1052,13 @@ class ServiceTicket(models.Model):
         split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
 
         login_user = self.env.user
+        bill_file = self.new_voucher_bill_file
+        bill_filename = self.new_voucher_bill_filename
+        if not bill_file and self.new_voucher_bill_attachment_ids:
+            first_att = self.new_voucher_bill_attachment_ids[0]
+            bill_file = first_att.datas
+            bill_filename = first_att.name
+
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
@@ -1070,8 +1077,8 @@ class ServiceTicket(models.Model):
                 'rate_per_km': user_rate if exp_type.is_km_based else 0.0,
                 'description': self.new_voucher_description or '',
                 'amount': user_splits.get(u.id, 0.0),
-                'bill_file': self.new_voucher_bill_file,
-                'bill_filename': self.new_voucher_bill_filename,
+                'bill_file': bill_file,
+                'bill_filename': bill_filename,
                 'bill_attachment_ids': [(6, 0, self.new_voucher_bill_attachment_ids.ids)] if self.new_voucher_bill_attachment_ids else False,
                 'status': 'draft',
             })
