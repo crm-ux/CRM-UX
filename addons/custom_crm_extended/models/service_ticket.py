@@ -824,7 +824,10 @@ class ServiceTicket(models.Model):
                 is_exceeded = bool(has_any_limit and total_limit > 0 and entered_amount > total_limit)
                 diff = entered_amount - total_limit if is_exceeded else 0.0
 
-                unit_label = f" / {days} Days" if (exp_type.calculation_type == 'daily' and days > 1) else " / visit"
+                if exp_type.calculation_type == 'daily':
+                    unit_label = f" / {days} Days" if days > 1 else " / day"
+                else:
+                    unit_label = " / visit"
                 if len(target_users) > 1 and has_any_limit:
                     rec.new_voucher_budget_info_html = f"""
                     <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
