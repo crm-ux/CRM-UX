@@ -130,43 +130,57 @@ tr.o_is_line_section .dropdown-menu {
     display: none !important;
 }
 
-/* ── Service Ticket Voucher: Match inner box to outer box size exact same to same ── */
+/* ── Service Ticket Voucher: Outer box is the ONLY border ── */
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"],
 .o_voucher_quick_add_bar .o_field_many2many_tags,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    width: 100% !important;
-}
-
-/* Inner box (.o_field_tags) is the single main box matching Expense Type exact same to same */
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
-.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
-.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags {
-    width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    box-sizing: border-box !important;
-    margin: 0 !important;
-    padding: 2px 10px !important;
     border: 1px solid #cbd5e1 !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    box-shadow: none !important;
+}
+
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within,
+.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
+}
+
+/* Inner box (.o_field_tags) stretches 100% till outer box with ZERO OUTLINE */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags,
+.o_voucher_quick_add_bar .o_field_tags.o_input {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 10px !important;
+    border: none !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    box-shadow: none !important;
-    outline: none !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within .o_field_tags,
 .o_voucher_quick_add_bar .o_field_many2many_tags:focus-within .o_field_tags,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within .o_field_tags {
-    border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 1px #0b3d91 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_many2many_selection,
@@ -180,6 +194,7 @@ tr.o_is_line_section .dropdown-menu {
 .o_voucher_quick_add_bar .crm_voucher_emp_clean .o-autocomplete {
     width: 100% !important;
     height: 100% !important;
+    min-height: 100% !important;
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -187,6 +202,8 @@ tr.o_is_line_section .dropdown-menu {
     outline: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input,
