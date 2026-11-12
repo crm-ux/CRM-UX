@@ -154,7 +154,21 @@ tr.o_is_line_section .dropdown-menu {
     box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
-/* Inner box (.o_field_tags) stretches 100% till outer box with ZERO OUTLINE and transparent sides */
+/* Remove borders, outlines, shadows completely from ALL internal children */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] *,
+.o_voucher_quick_add_bar .o_field_many2many_tags *,
+.o_voucher_quick_add_bar .crm_voucher_emp_clean * {
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    border-width: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Inner box (.o_field_tags) stretches 100% till outer box edge-to-edge */
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
 .o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean .o_field_tags,
@@ -165,26 +179,10 @@ tr.o_is_line_section .dropdown-menu {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 10px !important;
-    border: none !important;
-    border-left: transparent !important;
-    border-right: transparent !important;
-    border-width: 0 !important;
-    outline: none !important;
-    box-shadow: none !important;
     background: transparent !important;
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-}
-
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within .o_field_tags,
-.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within .o_field_tags,
-.o_voucher_quick_add_bar .crm_voucher_emp_clean:focus-within .o_field_tags {
-    border: none !important;
-    border-left: transparent !important;
-    border-right: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_many2many_selection,
@@ -202,9 +200,6 @@ tr.o_is_line_section .dropdown-menu {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
     background: transparent !important;
     display: flex !important;
     align-items: center !important;
@@ -221,9 +216,6 @@ tr.o_is_line_section .dropdown-menu {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
     background: transparent !important;
     font-size: 13px !important;
     color: #1e293b !important;
