@@ -2431,7 +2431,7 @@ class ServiceTicketVoucherLine(models.Model):
                         partner_ids=[submitter.partner_id.id],
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
-                    )
+                    ) 
                     try:
                         self.env['bus.bus']._sendone(
                             submitter.partner_id,
