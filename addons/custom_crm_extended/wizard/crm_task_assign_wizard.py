@@ -214,7 +214,7 @@ class CrmTaskAssignWizard(models.TransientModel):
         )
         origin_id = (
             self.env.context.get('default_res_id') or 
-            self.env.context.get('active_id') or 
+                self.env.context.get('active_id') or 
             self.env.context.get('default_activity_record_id')
         )
 
