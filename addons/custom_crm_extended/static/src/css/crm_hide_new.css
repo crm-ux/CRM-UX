@@ -2326,6 +2326,45 @@ div[name="button_box"].oe_button_box *,
     box-shadow: none !important;
 }
 
+/* ==========================================================================
+   VOUCHER MANAGEMENT & LINE PREVIEW CLEANUP:
+   - Hide duplicate inner header & file icon
+   - Remove nested scrollbars in modal body
+   - Ensure custom brand blue color (#0b3d91) on active pills & status
+   ========================================================================== */
+.bill-preview-wrapper .d-flex.align-items-center.justify-content-between.p-2.mb-2,
+.bill-preview-wrapper [id^="bill_heading_"],
+.bill-preview-wrapper i.fa-file-text-o,
+.bill-preview-wrapper .fa-file-text-o,
+.bill-preview-wrapper .fa-file-pdf-o {
+    display: none !important;
+}
+
+/* Eliminate inner double scrollbars in voucher preview dialog */
+.bill-preview-wrapper,
+.bill-preview-wrapper > div {
+    overflow: hidden !important;
+}
+.o_dialog .modal-body:has(.bill-preview-wrapper) {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 0.5rem !important;
+}
+
+/* Custom Blue Color for Voucher Management Status / Pills instead of purple */
+.o_statusbar_status .btn-primary,
+.o_statusbar_status .o_arrow_button.o_arrow_button_current,
+.o_statusbar_status .o_arrow_button.btn-primary {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+.badge-primary,
+.badge.bg-primary {
+    background-color: #0b3d91 !important;
+}
+
+
 .o_cp_searchview:hover .o_searchview_dropdown_toggler,
 .o_cp_searchview:focus-within .o_searchview_dropdown_toggler,
 .o_searchview_dropdown_toggler:hover,
