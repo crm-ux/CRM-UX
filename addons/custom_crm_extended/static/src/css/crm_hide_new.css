@@ -3454,18 +3454,16 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
 .crm_voucher_tags_single_border,
 .crm_voucher_tags_single_border.o_field_many2many_tags,
 .o_voucher_quick_add_bar .crm_voucher_tags_single_border {
-    border: 1px solid #cbd5e1 !important;
+    border: 1px solid #ced4da !important;
     border-radius: 4px !important;
     background-color: #ffffff !important;
     min-height: 36px !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    padding: 6px 10px !important;
+    padding: 0 !important;
     margin: 0 !important;
     box-shadow: none !important;
     outline: none !important;
-    display: flex !important;
-    align-items: center !important;
 }
 
 .crm_voucher_tags_single_border:focus-within,
@@ -3487,27 +3485,15 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     box-shadow: none !important;
     background: transparent !important;
     width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    min-height: 34px !important;
     box-sizing: border-box !important;
-    font-size: 13px !important;
-    color: #1e293b !important;
 }
 
 .crm_voucher_tags_single_border .o_field_tags {
-    padding: 0 !important;
+    padding: 2px 10px !important;
     display: flex !important;
     align-items: center !important;
     flex-wrap: wrap !important;
-    gap: 4px !important;
-}
-
-.crm_voucher_tags_single_border input,
-.crm_voucher_tags_single_border .o-autocomplete--input,
-.crm_voucher_tags_single_border input.o_input {
-    padding: 0 !important;
-    margin: 0 !important;
-    height: 100% !important;
 }
 
 
