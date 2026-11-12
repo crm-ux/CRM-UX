@@ -131,17 +131,36 @@ tr.o_is_line_section .dropdown-menu {
 }
 
 /* ── Remove double border / inner dropdown outline on Voucher Employee & Inputs ── */
-.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags {
+.o_voucher_quick_add_bar .o_field_many2many_tags,
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Fix inner box to match outer box size exact same to same */
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_tags,
+.o_voucher_quick_add_bar .o_field_many2many_tags .o_field_tags {
     width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 2px 10px !important;
-    border: none !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
     box-shadow: none !important;
     outline: none !important;
-    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.o_voucher_quick_add_bar div[name="new_voucher_user_ids"]:focus-within .o_field_tags,
+.o_voucher_quick_add_bar .o_field_many2many_tags:focus-within .o_field_tags {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 1px #0b3d91 !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] .o_field_many2many_selection,
@@ -153,6 +172,10 @@ tr.o_is_line_section .dropdown-menu {
     box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input,
