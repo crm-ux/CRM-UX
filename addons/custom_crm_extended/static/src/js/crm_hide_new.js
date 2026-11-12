@@ -1,6 +1,7 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { KanbanController } from "@web/views/kanban/kanban_controller";
+import { FormController } from "@web/views/form/form_controller";
 import { ActionMenus } from "@web/search/action_menus/action_menus";
 
 patch(KanbanController.prototype, {
@@ -33,4 +34,10 @@ patch(ActionMenus.prototype, {
     },
 });
 
-
+// Globally disable auto-save on blur / focus change across all form views
+patch(FormController.prototype, {
+    async onBlur() {
+        // Do not auto-save on blur / focus change; user saves manually
+        return;
+    },
+});
