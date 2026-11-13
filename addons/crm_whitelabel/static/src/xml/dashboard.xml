@@ -44,6 +44,12 @@
                             <span>Service Tickets</span>
                         </a>
                     </li>
+                    <li class="crm-nav-item">
+                        <a class="crm-nav-link" t-on-click="openMyVouchers">
+                            <i class="fa fa-credit-card"></i>
+                            <span>My Vouchers</span>
+                        </a>
+                    </li>
                     <li class="crm-nav-item" t-if="state.isAdmin or state.canManageExpenseSettings">
                         <a class="crm-nav-link" t-on-click="openVoucherManagement">
                             <i class="fa fa-money"></i>

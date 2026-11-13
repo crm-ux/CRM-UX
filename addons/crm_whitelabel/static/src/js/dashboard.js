@@ -265,6 +265,9 @@ class CrmDashboard extends Component {
     openTermsConditions() {
         this.go("custom_crm_extended.action_sale_terms_template");
     }
+    openMyVouchers(ev) {
+        this.go("custom_crm_extended.action_my_vouchers");
+    }
     openVoucherManagement(ev) {
         this.go("custom_crm_extended.action_service_ticket_voucher_line");
     }

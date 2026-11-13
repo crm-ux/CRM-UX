@@ -1861,7 +1861,7 @@ class ServiceTicketVoucherLine(models.Model):
     _order = 'id desc'
 
     active = fields.Boolean(string='Active', default=True)
-    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=True)
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', ondelete='cascade', required=False)
     expense_date = fields.Date(string='Date', default=fields.Date.context_today, required=True, index=True)
     user_id = fields.Many2one('res.users', string='Employee', required=False, default=lambda self: self.env.user)
     department_id = fields.Many2one('hr.department', string='Department')
@@ -1903,11 +1903,11 @@ class ServiceTicketVoucherLine(models.Model):
             if rec.expense_date and rec.expense_date > today:
                 raise ValidationError(_("Expense Date (%s) cannot be in the future.") % rec.expense_date.strftime('%d/%m/%Y'))
 
-    @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid')
+    @api.depends('ticket_id.engineer_id', 'ticket_id.create_uid', 'batch_id.user_id')
     def _compute_user_id(self):
         for rec in self:
             if not rec.user_id:
-                rec.user_id = rec.ticket_id.engineer_id or rec.ticket_id.create_uid or self.env.user
+                rec.user_id = (rec.ticket_id.engineer_id or rec.ticket_id.create_uid) if rec.ticket_id else (rec.batch_id.user_id if rec.batch_id and rec.batch_id.user_id else self.env.user)
     total_km = fields.Float(string='Total KM')
     rate_per_km = fields.Float(string='Rate/KM (₹)')
     description = fields.Char(string='Description', placeholder='Enter description...')
@@ -1922,7 +1922,13 @@ class ServiceTicketVoucherLine(models.Model):
             else:
                 rec.days_count = 1
 
-    currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', compute='_compute_currency_id', store=True, readonly=False)
+
+    @api.depends('ticket_id.currency_id', 'batch_id.currency_id')
+    def _compute_currency_id(self):
+        for rec in self:
+            rec.currency_id = rec.ticket_id.currency_id if rec.ticket_id else (rec.batch_id.currency_id if rec.batch_id and rec.batch_id.currency_id else self.env.company.currency_id)
+
     amount = fields.Monetary(string='Submitted Amount', currency_field='currency_id')
     approved_amount = fields.Monetary(string='Approved Amount', currency_field='currency_id', compute='_compute_approved_amount')
 
@@ -2159,7 +2165,12 @@ class ServiceTicketVoucherLine(models.Model):
         compute='_compute_ticket_voucher_line_ids',
         string='Voucher Expenses',
     )
-    voucher_employee_names = fields.Char(related='ticket_id.voucher_employee_names', string='Employees', readonly=True)
+    voucher_employee_names = fields.Char(compute='_compute_voucher_employee_names', string='Employees', readonly=True)
+
+    @api.depends('ticket_id.voucher_employee_names', 'batch_id.all_employee_names')
+    def _compute_voucher_employee_names(self):
+        for rec in self:
+            rec.voucher_employee_names = (rec.ticket_id.voucher_employee_names if rec.ticket_id else (rec.batch_id.all_employee_names if rec.batch_id else '')) or ''
 
     @api.depends('batch_id', 'batch_id.line_ids', 'voucher_id', 'ticket_id')
     def _compute_ticket_voucher_line_ids(self):
@@ -2751,12 +2762,20 @@ class ServiceTicketVoucherBatch(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if not vals.get('name') or vals.get('name') == _('New'):
-                seq_val = self.env['ir.sequence'].next_by_code('service.ticket.voucher.seq')
-                if not seq_val:
-                    year = fields.Date.today().year
-                    count = self.search_count([]) + 1
-                    seq_val = f"VCH-{year}-{count:05d}"
-                vals['name'] = seq_val
+                if vals.get('ticket_id'):
+                    seq_val = self.env['ir.sequence'].next_by_code('service.ticket.voucher.seq')
+                    if not seq_val:
+                        year = fields.Date.today().year
+                        count = self.search_count([('ticket_id', '!=', False)]) + 1
+                        seq_val = f"VCH-{year}-{count:05d}"
+                    vals['name'] = seq_val
+                else:
+                    seq_val = self.env['ir.sequence'].next_by_code('general.voucher.seq')
+                    if not seq_val:
+                        year = fields.Date.today().year
+                        count = self.search_count([('ticket_id', '=', False)]) + 1
+                        seq_val = f"GEN-VCH-{year}-{count:05d}"
+                    vals['name'] = seq_val
             if vals.get('user_id'):
                 emp = self.env['res.users'].browse(vals['user_id'])
                 approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
@@ -2766,13 +2785,26 @@ class ServiceTicketVoucherBatch(models.Model):
     submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
     expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
     expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)
-    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=True, ondelete='cascade')
-    user_id = fields.Many2one('res.users', string='Employee', required=True)
+    ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=False, ondelete='cascade')
+    voucher_type = fields.Selection([
+        ('ticket', 'Service Ticket'),
+        ('general', 'General Expense'),
+    ], string='Voucher Type', compute='_compute_voucher_type', store=True)
+
+    @api.depends('ticket_id')
+    def _compute_voucher_type(self):
+        for rec in self:
+            rec.voucher_type = 'ticket' if rec.ticket_id else 'general'
+
+    user_id = fields.Many2one('res.users', string='Employee', required=True, default=lambda self: self.env.user)
     submitted_by_user_id = fields.Many2one(
         'res.users',
         string='Submitted By',
         compute='_compute_submitted_by_user_id',
         store=True,
+        readonly=False,
+        default=lambda self: self.env.user,
+    )
         readonly=False,
     )
 
@@ -2851,7 +2883,13 @@ class ServiceTicketVoucherBatch(models.Model):
             rec.bill_filename = first_line.bill_filename if first_line else False
 
 
-    currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id')
+    currency_id = fields.Many2one('res.currency', string='Currency', compute='_compute_currency_id', store=True, readonly=False)
+
+    @api.depends('ticket_id.currency_id')
+    def _compute_currency_id(self):
+        for rec in self:
+            rec.currency_id = rec.ticket_id.currency_id if rec.ticket_id else self.env.company.currency_id
+
     can_approve = fields.Boolean(compute='_compute_batch_can_approve', string='Can Approve')
 
     @api.depends_context('uid')
@@ -2874,13 +2912,14 @@ class ServiceTicketVoucherBatch(models.Model):
                 rec.can_approve = False
     total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
     status = fields.Selection([
+        ('draft', 'Draft'),
         ('submitted', 'Submitted'),
         ('partially_approved', 'Partially Approved'),
         ('approved', 'Approved'),
         ('partially_paid', 'Partially Paid'),
         ('paid', 'Paid'),
         ('rejected', 'Rejected'),
-    ], string='Status', compute='_compute_status', store=True)
+    ], string='Status', compute='_compute_status', store=True, default='draft')
     def _default_expense_manager_id(self):
         mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
         return mgr.id if mgr else 2
@@ -2905,8 +2944,8 @@ class ServiceTicketVoucherBatch(models.Model):
     def _compute_status(self):
         for rec in self:
             statuses = set(rec.line_ids.mapped('status'))
-            if not statuses:
-                rec.status = 'submitted'
+            if not statuses or 'draft' in statuses:
+                rec.status = 'draft'
             elif all(s == 'paid' for s in statuses):
                 rec.status = 'paid'
             elif any(s == 'paid' for s in statuses):
@@ -2919,6 +2958,37 @@ class ServiceTicketVoucherBatch(models.Model):
                 rec.status = 'partially_approved'
             else:
                 rec.status = 'submitted'
+
+    def action_submit_batch(self):
+        for rec in self:
+            if not rec.line_ids:
+                raise UserError(_("Please add at least one expense line before submitting."))
+            for line in rec.line_ids:
+                if not line.amount or line.amount <= 0:
+                    raise UserError(_("Each expense line must have a submitted amount greater than 0."))
+                if not line.expense_date:
+                    raise UserError(_("Please select an expense date for all lines."))
+                if line.is_km_based and (not line.total_km or line.total_km <= 0):
+                    raise UserError(_("Please enter total KM for KM-based expense '%s'.") % (line.expense_type_id.name or ''))
+                line.write({'status': 'submitted'})
+            rec._compute_status()
+            rec._compute_total_amount()
+            approver = rec.expense_manager_id
+            if approver and approver.partner_id:
+                try:
+                    self.env['bus.bus']._sendone(
+                        approver.partner_id,
+                        'crm_notification',
+                        {
+                            'title': 'New Voucher Submitted',
+                            'message': f"Voucher {rec.name} (₹{rec.total_amount:,.2f}) submitted by {rec.submitted_by_user_id.name or self.env.user.name}.",
+                            'model': 'service.ticket.voucher.batch',
+                            'res_id': rec.id,
+                        }
+                    )
+                except Exception:
+                    pass
+        return True
 
     def _check_voucher_approval_access(self):
         user = self.env.user

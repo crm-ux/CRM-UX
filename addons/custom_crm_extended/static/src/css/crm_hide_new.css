@@ -3616,6 +3616,38 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     text-decoration: none !important;
 }
 
+/* ── Ensure Custom Blue (#0b3d91) across all Voucher screens - No Purple Anywhere ── */
+.o_service_ticket_voucher_batch_form a,
+.o_service_ticket_voucher_batch_form .btn-crm-blue-solid,
+.o_service_ticket_voucher_batch_form .btn-crm-blue-outline,
+.o_voucher_card_list a,
+.text-crm-blue {
+    color: #0b3d91 !important;
+}
+
+.o_service_ticket_voucher_batch_form .btn-crm-blue-solid {
+    background-color: #0b3d91 !important;
+    border-color: #0b3d91 !important;
+    color: #ffffff !important;
+}
+
+.o_service_ticket_voucher_batch_form .btn-crm-blue-outline {
+    border-color: #0b3d91 !important;
+    color: #0b3d91 !important;
+    background-color: transparent !important;
+}
+
+.o_service_ticket_voucher_batch_form .btn-crm-blue-outline:hover {
+    background-color: #eff6ff !important;
+    color: #0b3d91 !important;
+}
+
+/* Sidebar active item styling in custom blue */
+.crm-sidebar .crm-nav-link:hover,
+.crm-sidebar .crm-nav-link.active {
+    color: #0b3d91 !important;
+}
+
 
 
 
