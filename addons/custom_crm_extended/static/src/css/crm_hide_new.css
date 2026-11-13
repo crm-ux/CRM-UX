@@ -2359,7 +2359,17 @@ div[name="button_box"].oe_button_box *,
     border: none !important;
 }
 
-/* Custom Blue Color for Voucher Management Status / Pills instead of purple */
+/* Ensure Notification Message & Details spans full width with clean single-line reading */
+.o_form_view div[name="summary"],
+.o_form_view span[name="summary"],
+.o_field_text[name="summary"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
 .o_statusbar_status .btn-primary,
 .o_statusbar_status .o_arrow_button.o_arrow_button_current,
 .o_statusbar_status .o_arrow_button.btn-primary {

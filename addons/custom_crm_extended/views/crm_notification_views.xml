@@ -64,8 +64,8 @@
                             <field name="res_id" invisible="1"/>
                         </group>
                     </group>
-                    <group string="Message &amp; Details">
-                        <field name="summary" readonly="1" nolabel="1" placeholder="No details provided."/>
+                    <group string="Message &amp; Details" class="w-100">
+                        <field name="summary" readonly="1" nolabel="1" class="w-100" style="white-space: normal; line-height: 1.6; font-size: 14px;" placeholder="No details provided."/>
                     </group>
                 </sheet>
             </form>
