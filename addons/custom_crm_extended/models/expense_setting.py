@@ -148,7 +148,15 @@ class ExpenseSetting(models.Model):
         if user._is_admin() or user.has_group('base.group_system'):
             return True
         company = self.env.company
-        return True
+        authorized_ids = company.sudo().crm_authorized_expense_manager_ids.ids
+        if user.id in authorized_ids:
+            return True
+        return bool(self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', user.id),
+            ('manager_user_id', '=', user.id),
+        ], limit=1))
 
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])
