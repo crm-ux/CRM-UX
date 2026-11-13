@@ -580,6 +580,7 @@ class ServiceTicket(models.Model):
                     l_km_cells = f'<td style="padding: 8px; text-align: right;">{l_km}</td><td style="padding: 8px; text-align: right;">{l_rate}</td>' if has_km else ''
                     l_desc = line.description or ''
                     l_amt = f"₹ {line.amount:,.2f}" if line.amount else "₹ 0.00"
+                    l_approved_amt = f"₹ {line.approved_amount:,.2f}" if line.status in ('approved', 'partially_approved', 'paid') and line.approved_amount else ('-' if line.status == 'rejected' else 'Pending')
                     
                     if line.bill_file:
                         fn = line.bill_filename or 'Bill'
@@ -616,7 +617,8 @@ class ServiceTicket(models.Model):
                         <td style="padding: 8px; font-weight: 600; color: #1e293b;">{l_type}</td>
                         {l_km_cells}
                         <td style="padding: 8px; color: #475569;">{l_desc}</td>
-                        <td style="padding: 8px; text-align: right; font-weight: 700; color: #0f172a;">{l_amt}</td>
+                        <td style="padding: 8px; text-align: right; font-weight: 600; color: #475569;">{l_amt}</td>
+                        <td style="padding: 8px; text-align: right; font-weight: 700; color: #0b3d91;">{l_approved_amt}</td>
                         <td style="padding: 8px; text-align: center;">{bill_link}</td>
                         <td style="padding: 8px; text-align: center;">{l_badge}</td>
                         <td style="padding: 8px;">{l_reason_td}</td>
@@ -624,7 +626,8 @@ class ServiceTicket(models.Model):
                     """
                     rows_html.append(row)
 
-                batch_total = f"₹ {batch.total_amount:,.2f}" if batch.total_amount else "₹ 0.00"
+                batch_total_submitted = f"₹ {sum(l.amount or 0.0 for l in batch.line_ids):,.2f}"
+                batch_total_approved = f"₹ {sum(l.approved_amount or 0.0 for l in batch.line_ids.filtered(lambda x: x.status in ('approved', 'paid'))):,.2f}"
                 col_span = 6 if has_km else 4
 
                 table_html = f"""
@@ -637,7 +640,8 @@ class ServiceTicket(models.Model):
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Expense Type</th>
                                 {km_header}
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Description</th>
-                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Amount</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Submitted Amount</th>
+                                <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right; color: #0b3d91;">Approved Amount</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Bill</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Status</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Reject Reason</th>
@@ -649,7 +653,8 @@ class ServiceTicket(models.Model):
                         <tfoot style="background-color: #f8fafc; border-top: 2px solid #e2e8f0;">
                             <tr>
                                 <td colspan="{col_span}" style="padding: 8px; text-align: right; font-weight: 700; color: #334155;">Subtotal:</td>
-                                <td style="padding: 8px; text-align: right; font-weight: 800; font-size: 14px; color: #0b3d91;">{batch_total}</td>
+                                <td style="padding: 8px; text-align: right; font-weight: 700; font-size: 13px; color: #475569;">{batch_total_submitted}</td>
+                                <td style="padding: 8px; text-align: right; font-weight: 800; font-size: 14px; color: #0b3d91;">{batch_total_approved}</td>
                                 <td colspan="3"></td>
                             </tr>
                         </tfoot>
@@ -1911,7 +1916,8 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.days_count = 1
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
-    amount = fields.Monetary(string='Amount', currency_field='currency_id')
+    amount = fields.Monetary(string='Submitted Amount', currency_field='currency_id')
+    approved_amount = fields.Monetary(string='Approved Amount', currency_field='currency_id')
     is_over_budget = fields.Boolean(compute='_compute_budget_status', string='Is Over Budget', store=True)
     allowed_budget_limit = fields.Float(compute='_compute_budget_status', string='Allowed Limit', store=True)
     over_budget_badge_html = fields.Html(compute='_compute_budget_status', string='Budget Status', sanitize=False)
@@ -2290,14 +2296,15 @@ class ServiceTicketVoucherLine(models.Model):
                 }
 
         for rec in self:
+            approved_val = rec.amount or 0.0
+            if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
+                approved_val = rec.allowed_budget_limit
             vals = {
                 'status': 'approved',
+                'approved_amount': approved_val,
                 'expense_manager_id': self.env.user.id,
                 'reject_reason': False,
             }
-            # When passing overbudget expense, pass the allowed budget amount instead of overbudget amount
-            if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
-                vals['amount'] = rec.allowed_budget_limit
             rec.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id._compute_status()
@@ -2331,13 +2338,15 @@ class ServiceTicketVoucherLine(models.Model):
         for rec in self:
             target = rec.batch_id.line_ids if rec.batch_id else rec
             for t_line in target:
+                appr_val = t_line.amount or 0.0
+                if t_line.allowed_budget_limit and t_line.allowed_budget_limit > 0 and (t_line.amount or 0.0) > t_line.allowed_budget_limit:
+                    appr_val = t_line.allowed_budget_limit
                 vals = {
                     'status': 'approved',
+                    'approved_amount': appr_val,
                     'expense_manager_id': self.env.user.id,
                     'reject_reason': False,
                 }
-                if t_line.allowed_budget_limit and t_line.allowed_budget_limit > 0 and (t_line.amount or 0.0) > t_line.allowed_budget_limit:
-                    vals['amount'] = t_line.allowed_budget_limit
                 t_line.sudo().write(vals)
             if rec.batch_id:
                 rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
