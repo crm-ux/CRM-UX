@@ -364,64 +364,267 @@
                         </h4>
                     </div>
 
-                    <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
-                    <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm"
-                         invisible="not voucher_employee_names"
-                         style="border-left: 4px solid #0b3d91 !important;">
-                        <span class="small fw-bold" style="color: #0b3d91;">
-                            <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
-                        </span>
-                        <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3); font-size: 0.9rem;">
-                            <field name="voucher_employee_names" readonly="1" class="d-inline"/>
-                        </span>
+                    <!-- 1. DRAFT MODE: QUICK ADD EXPENSE (IDENTICAL TO SERVICE TICKET VOUCHER) -->
+                    <div invisible="status != 'draft'">
+                        <div class="d-flex align-items-center mb-2">
+                            <strong class="text-dark small">Quick Add Expense</strong>
+                        </div>
+
+                        <div class="p-3 bg-white rounded border o_voucher_quick_add_bar w-100 mb-3">
+                            <field name="new_voucher_is_km" invisible="1"/>
+                            
+                            <!-- Row 1: Employee(s) -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Employee(s):</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_user_ids"
+                                        widget="many2many_tags"
+                                        domain="[('share', '=', False)]"
+                                        options="{'no_create': True}"
+                                        class="w-100 crm_voucher_emp_clean"
+                                        placeholder="Select Employee(s)..."/>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Expense Type -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Expense Type:</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="allowed_voucher_expense_type_ids" invisible="1"/>
+                                    <field name="new_voucher_expense_type_id" 
+                                        widget="selection" 
+                                        domain="[('id', 'in', allowed_voucher_expense_type_ids)]" 
+                                        class="w-100" 
+                                        placeholder="Select Expense Type..."/>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Budget Pool Info Banner -->
+                            <div class="row mb-2" invisible="not new_voucher_budget_info_html">
+                                <div class="col-sm-2 col-md-2"></div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_budget_info_html" widget="html" readonly="1" nolabel="1" class="o_budget_pool_field w-100 p-0 border-0 bg-transparent"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Expense Date / Date Range -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <field name="new_voucher_is_daily" invisible="1"/>
+                                    <span class="fw-semibold text-secondary" invisible="new_voucher_is_daily">Expense Date:</span>
+                                    <span class="fw-semibold text-secondary" invisible="not new_voucher_is_daily">Visit Period:</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10" invisible="new_voucher_is_daily">
+                                    <field name="new_voucher_date" 
+                                        class="w-100"
+                                        placeholder="Select Expense Date..."
+                                        options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                </div>
+                                <div class="col-sm-10 col-md-10 d-flex gap-2 align-items-center" invisible="not new_voucher_is_daily">
+                                    <field name="new_voucher_date" 
+                                        class="w-50"
+                                        placeholder="From Date..."
+                                        options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                    <span class="text-muted fw-bold px-2">to</span>
+                                    <field name="new_voucher_date_to" 
+                                        class="w-50"
+                                        placeholder="To Date..."
+                                        options="{'datepicker': {'maxDate': 'now', 'warn_future': true}}"/>
+                                    <field name="new_voucher_days" invisible="1"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 4: KM (if KM based) -->
+                            <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Total KM:</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_total_km" class="w-100" placeholder="Enter total kilometers..."/>
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Rate / KM (if KM based) -->
+                            <div class="row mb-2 align-items-center" invisible="not new_voucher_is_km">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Rate / KM (₹):</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_rate_per_km" readonly="1" class="w-100 fw-bold text-dark"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 6: Description -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Description:</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_description" 
+                                        class="w-100" 
+                                        placeholder="Enter description / note..."/>
+                                </div>
+                            </div>
+
+                            <!-- Row 7: Amount -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Amount (₹):</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_amount" 
+                                        widget="float"
+                                        class="w-100"
+                                        readonly="new_voucher_is_km"
+                                        force_save="1"
+                                        placeholder="0.00"/>
+                                </div>
+                            </div>
+
+                            <!-- Row 8: Attach Bills -->
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-sm-2 col-md-2">
+                                    <span class="fw-semibold text-secondary">Attach Bill(s):</span>
+                                </div>
+                                <div class="col-sm-10 col-md-10">
+                                    <field name="new_voucher_bill_attachment_ids" 
+                                        widget="many2many_binary"
+                                        class="crm_compact_attachments w-100"
+                                        string="Bills &amp; Receipts"/>
+                                </div>
+                            </div>
+
+                            <!-- Action Button Row -->
+                            <div class="row mt-3">
+                                <div class="col-sm-2 col-md-2"></div>
+                                <div class="col-sm-10 col-md-10 d-flex gap-2 align-items-center">
+                                    <button name="action_add_voucher_line" 
+                                            string="Add Expense" 
+                                            type="object" 
+                                            class="btn text-white px-4 py-2 fw-bold shadow-sm"
+                                            style="height: 38px !important; min-width: 150px; background-color: #0b3d91 !important; border-color: #0b3d91 !important;"/>
+                                    <button name="action_clear_voucher_fields" 
+                                            string="Clear" 
+                                            type="object" 
+                                            class="btn btn-secondary px-4 py-2 fw-semibold"
+                                            style="height: 38px !important; min-width: 90px;"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PENDING EXPENSES STRIP -->
+                        <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 rounded border bg-white shadow-sm" 
+                             invisible="not has_draft_lines"
+                             style="border-left: 4px solid #0b3d91 !important;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="fw-bold" style="color: #0b3d91; font-size: 14px;">Pending Expenses</span>
+                                <span class="text-muted fw-bold mx-1">|</span>
+                                <span class="fw-bold text-dark" style="font-size: 13px;">Employees:</span>
+                                <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
+                                    <field name="all_employee_names" readonly="1" class="d-inline"/>
+                                </span>
+                                <span class="fw-bold text-dark ms-2" style="font-size: 13px;">Expense Date(s):</span>
+                                <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">
+                                    <field name="voucher_draft_dates" readonly="1" class="d-inline"/>
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button name="action_submit_batch"
+                                        string="Submit for Approval"
+                                        type="object"
+                                        icon="fa-paper-plane"
+                                        confirm="Are you sure you want to submit these expenses for approval? Once submitted, you cannot edit or rollback."
+                                        class="btn btn-primary btn-sm fw-bold px-3 py-1 shadow-sm o_btn_submit_vouchers"
+                                        style="background-color: #0b3d91 !important; border-color: #0b3d91 !important; color: #ffffff !important;"/>
+                            </div>
+                        </div>
+
+                        <!-- DRAFT EXPENSES TABLE -->
+                        <field name="line_ids" class="o_voucher_card_list w-100" invisible="not has_draft_lines">
+                            <list editable="bottom" create="0" delete="1" class="w-100">
+                                <field name="expense_date" string="From Date"/>
+                                <field name="expense_date_to" string="To Date" optional="show"/>
+                                <field name="days_count" string="Days" optional="show"/>
+                                <field name="user_id" string="Employee" readonly="1"/>
+                                <field name="allowed_expense_type_ids" column_invisible="1"/>
+                                <field name="expense_type_id" widget="selection" domain="[('id', 'in', allowed_expense_type_ids)]" class="fw-semibold"/>
+                                <field name="is_km_based" column_invisible="1"/>
+                                <field name="total_km" column_invisible="not parent.has_km_lines"/>
+                                <field name="rate_per_km" column_invisible="not parent.has_km_lines" readonly="1"/>
+                                <field name="description" placeholder="Enter description..."/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="amount" sum="Total" class="fw-bold text-end pe-3"/>
+                                <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1" optional="show"/>
+                                <field name="bill_attachment_ids" widget="many2many_tags" string="Bills" optional="show"/>
+                                <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill(s)" class="btn p-0"/>
+                                <field name="status" widget="badge" decoration-info="status == 'draft'"/>
+                            </list>
+                        </field>
                     </div>
 
-                    <group>
-                        <group string="Submission Overview">
-                            <field name="submission_date" string="Expense Date" readonly="status != 'draft'"/>
-                            <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}" readonly="status != 'draft'"/>
-                            <field name="create_date" string="Submitted Date" readonly="1" invisible="status == 'draft'"/>
-                            <field name="submitted_by_user_id" string="Submitted By" readonly="1" options="{'no_open': True}"/>
-                        </group>
-                        <group string="Approval Status">
-                            <field name="expense_manager_id" readonly="1" string="Approver" options="{'no_open': True}"/>
-                            <field name="reject_reason" readonly="1" invisible="status != 'rejected' or not reject_reason"/>
-                        </group>
-                    </group>
+                    <!-- 2. SUBMITTED VIEW: ONCE SUBMITTED / APPROVED / PAID / REJECTED -->
+                    <div invisible="status == 'draft'">
+                        <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
+                        <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm"
+                             invisible="not voucher_employee_names"
+                             style="border-left: 4px solid #0b3d91 !important;">
+                            <span class="small fw-bold" style="color: #0b3d91;">
+                                <i class="fa fa-users me-1" style="color: #0b3d91;"></i>Employees:
+                            </span>
+                            <span class="badge py-1 px-2 fw-semibold" style="background-color: rgba(11, 61, 145, 0.1); color: #0b3d91; border: 1px solid rgba(11, 61, 145, 0.3); font-size: 0.9rem;">
+                                <field name="voucher_employee_names" readonly="1" class="d-inline"/>
+                            </span>
+                        </div>
 
-                    <!-- Clean Expense Table -->
-                    <separator string="Expense Details"/>
-                    <field name="line_ids" class="o_voucher_card_list">
-                        <list editable="bottom" create="parent.status == 'draft'" edit="parent.status == 'draft'" delete="parent.status == 'draft'">
-                            <field name="expense_date" string="From Date" required="1"/>
-                            <field name="expense_date_to" string="To Date" optional="show"/>
-                            <field name="days_count" string="Days" optional="show" readonly="1"/>
-                            <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
-                            <field name="expense_type_id" string="Expense Type" options="{'no_create': True, 'no_open': True}" required="1"/>
-                            <field name="is_km_based" column_invisible="1"/>
-                            <field name="total_km" string="Total KM" optional="show"/>
-                            <field name="rate_per_km" string="₹/KM" optional="show" readonly="1"/>
-                            <field name="description" string="Description" required="1"/>
-                            <field name="currency_id" column_invisible="1"/>
-                            <field name="amount" string="Submitted Amount" sum="Total Submitted" class="fw-semibold text-end text-dark" readonly="is_km_based"/>
-                            <field name="approved_amount" string="Approved Amount" sum="Total Approved" class="fw-semibold text-end text-dark" readonly="1" column_invisible="parent.status == 'draft'"/>
-                            <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1"/>
-                            <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
-                            <field name="bill_filename" column_invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
-                            <field name="status" widget="badge" 
-                                   column_invisible="parent.status == 'draft'"
-                                   decoration-muted="status == 'draft'" 
-                                   decoration-warning="status == 'submitted'" 
-                                   decoration-success="status in ('approved', 'partially_approved')" 
-                                   decoration-info="status in ('paid', 'partially_paid')" 
-                                   decoration-danger="status == 'rejected'"/>
-                            <field name="reject_reason" string="Reject Reason" optional="show"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="parent.status == 'draft' or status in ('approved', 'paid')"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="parent.status == 'draft' or status in ('rejected', 'paid')"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="parent.status == 'draft' or status == 'submitted'"/>
-                        </list>
-                    </field>
+                        <group>
+                            <group string="Submission Overview">
+                                <field name="submission_date" string="Expense Date" readonly="1"/>
+                                <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}" readonly="1"/>
+                                <field name="create_date" string="Submitted Date" readonly="1"/>
+                                <field name="submitted_by_user_id" string="Submitted By" readonly="1" options="{'no_open': True}"/>
+                            </group>
+                            <group string="Approval Status">
+                                <field name="expense_manager_id" readonly="1" string="Approver" options="{'no_open': True}"/>
+                                <field name="reject_reason" readonly="1" invisible="status != 'rejected' or not reject_reason"/>
+                            </group>
+                        </group>
+
+                        <!-- Clean Submitted Expense Table -->
+                        <separator string="Expense Details"/>
+                        <field name="line_ids" class="o_voucher_card_list">
+                            <list create="0" edit="0" delete="0">
+                                <field name="expense_date" string="From Date"/>
+                                <field name="expense_date_to" string="To Date" optional="show"/>
+                                <field name="days_count" string="Days" optional="show"/>
+                                <field name="user_id" string="Employee" widget="many2one_avatar_user" options="{'no_open': True}"/>
+                                <field name="expense_type_id" string="Expense Type" options="{'no_open': True}"/>
+                                <field name="is_km_based" column_invisible="1"/>
+                                <field name="total_km" string="Total KM" optional="show"/>
+                                <field name="rate_per_km" string="₹/KM" optional="show"/>
+                                <field name="description" string="Description"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="amount" string="Submitted Amount" sum="Total Submitted" class="fw-semibold text-end text-dark"/>
+                                <field name="approved_amount" string="Approved Amount" sum="Total Approved" class="fw-semibold text-end text-dark"/>
+                                <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1"/>
+                                <field name="bill_attachment_ids" widget="many2many_tags" string="Bills" optional="show"/>
+                                <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" class="btn p-0"/>
+                                <field name="status" widget="badge" 
+                                       decoration-muted="status == 'draft'" 
+                                       decoration-warning="status == 'submitted'" 
+                                       decoration-success="status in ('approved', 'partially_approved')" 
+                                       decoration-info="status in ('paid', 'partially_paid')" 
+                                       decoration-danger="status == 'rejected'"/>
+                                <field name="reject_reason" string="Reject Reason" optional="show"/>
+                                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
+                                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status in ('rejected', 'paid')"/>
+                                <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>
+                            </list>
+                        </field>
+                    </div>
                 </sheet>
             </form>
         </field>

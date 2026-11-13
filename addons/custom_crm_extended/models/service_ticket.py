@@ -2856,6 +2856,378 @@ class ServiceTicketVoucherBatch(models.Model):
             rec.all_employee_names = ", ".join(names) if names else (rec.user_id.name or "")
 
     line_ids = fields.One2many('service.ticket.voucher.line', 'batch_id', string='Expense Lines')
+
+    # Quick Add Expense fields for Voucher Batch Form (General Expenses & Service Ticket)
+    new_voucher_user_ids = fields.Many2many(
+        'res.users',
+        'voucher_batch_new_users_rel',
+        'batch_id',
+        'user_id',
+        string='Employee(s)',
+        domain="[('share', '=', False)]",
+        default=lambda self: [self.env.user.id],
+    )
+    new_voucher_expense_type_id = fields.Many2one(
+        'service.ticket.expense.type',
+        string='Expense Type',
+        domain="[('active', '=', True)]",
+    )
+    allowed_voucher_expense_type_ids = fields.Many2many(
+        'service.ticket.expense.type',
+        compute='_compute_batch_allowed_voucher_expense_type_ids',
+        string='Allowed Expense Types',
+    )
+    new_voucher_is_km = fields.Boolean(
+        compute='_compute_batch_new_voucher_is_km',
+        string='Is KM Based',
+    )
+    new_voucher_is_daily = fields.Boolean(
+        compute='_compute_batch_new_voucher_is_daily',
+        string='Is Daily Calculation',
+    )
+    new_voucher_date = fields.Date(
+        string='Expense Date',
+        default=fields.Date.context_today,
+    )
+    new_voucher_date_to = fields.Date(string='To Date')
+    new_voucher_days = fields.Integer(
+        compute='_compute_batch_new_voucher_days',
+        string='Days',
+    )
+    new_voucher_total_km = fields.Float(string='Total KM')
+    new_voucher_rate_per_km = fields.Float(
+        related='new_voucher_expense_type_id.km_rate',
+        string='Rate/KM (₹)',
+        readonly=True,
+    )
+    new_voucher_description = fields.Char(string='Description')
+    new_voucher_amount = fields.Monetary(
+        string='Amount',
+        currency_field='currency_id',
+        default=0.0,
+    )
+    new_voucher_bill_attachment_ids = fields.Many2many(
+        'ir.attachment',
+        'voucher_batch_new_bill_att_rel',
+        'batch_id',
+        'att_id',
+        string='Bills & Receipts',
+    )
+    new_voucher_budget_info_html = fields.Html(
+        compute='_compute_batch_new_voucher_budget_info_html',
+        string='Budget Info Display',
+        sanitize=False,
+    )
+    has_km_lines = fields.Boolean(
+        compute='_compute_batch_has_km_lines',
+        string='Has KM Lines',
+    )
+    voucher_draft_dates = fields.Char(
+        compute='_compute_batch_draft_strip',
+        string='Expense Dates',
+    )
+    has_draft_lines = fields.Boolean(
+        compute='_compute_batch_draft_strip',
+        string='Has Draft Lines',
+    )
+
+    @api.depends('new_voucher_user_ids')
+    def _compute_batch_allowed_voucher_expense_type_ids(self):
+        all_types = self.env['service.ticket.expense.type'].search([('active', '=', True)])
+        for rec in self:
+            users = rec.new_voucher_user_ids or self.env.user
+            allowed = all_types.filtered(
+                lambda t: not t.job_ids or any(
+                    any(j.id in t._get_user_job_positions(user=u) for j in t.job_ids)
+                    for u in users
+                )
+            )
+            rec.allowed_voucher_expense_type_ids = allowed
+
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.is_km_based')
+    def _compute_batch_new_voucher_is_km(self):
+        for rec in self:
+            rec.new_voucher_is_km = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based)
+
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.calculation_type')
+    def _compute_batch_new_voucher_is_daily(self):
+        for rec in self:
+            rec.new_voucher_is_daily = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily')
+
+    @api.depends('new_voucher_date', 'new_voucher_date_to', 'new_voucher_expense_type_id.calculation_type')
+    def _compute_batch_new_voucher_days(self):
+        for rec in self:
+            if rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily' and rec.new_voucher_date and rec.new_voucher_date_to:
+                diff = (rec.new_voucher_date_to - rec.new_voucher_date).days + 1
+                rec.new_voucher_days = max(diff, 1)
+            else:
+                rec.new_voucher_days = 1
+
+    @api.depends('line_ids.is_km_based')
+    def _compute_batch_has_km_lines(self):
+        for rec in self:
+            rec.has_km_lines = any(l.is_km_based for l in rec.line_ids)
+
+    @api.depends('line_ids.status', 'line_ids.expense_date')
+    def _compute_batch_draft_strip(self):
+        for rec in self:
+            drafts = rec.line_ids.filtered(lambda l: l.status == 'draft')
+            rec.has_draft_lines = bool(drafts)
+            dates = [d.strftime('%d/%m/%Y') for d in drafts.mapped('expense_date') if d]
+            unique_dates = list(dict.fromkeys(dates))
+            rec.voucher_draft_dates = ", ".join(unique_dates) if unique_dates else ""
+
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_user_ids', 'new_voucher_date', 'new_voucher_date_to', 'new_voucher_days')
+    def _compute_batch_new_voucher_budget_info_html(self):
+        for rec in self:
+            exp_type = rec.new_voucher_expense_type_id
+            if not exp_type:
+                rec.new_voucher_budget_info_html = False
+                continue
+
+            target_users = rec.new_voucher_user_ids or self.env.user
+            pill_badge = "background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:600; border-radius:9999px; padding:2px 10px; white-space:nowrap;"
+            pill_total = "background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; font-weight:700; border-radius:9999px; padding:2px 10px; white-space:nowrap;"
+
+            if exp_type.is_km_based:
+                items_html = []
+                for u in target_users:
+                    role_name = self.env['service.ticket']._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
+                    rate = exp_type.get_effective_km_rate(user=u)
+                    items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{rate:,.2f}/KM</span>")
+                rec.new_voucher_budget_info_html = f"""
+                <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
+                    <span style="white-space:nowrap;">Allowed Rate for <strong>KM Expense</strong>:</span>
+                    {" ".join(items_html)}
+                </div>
+                """
+            else:
+                total_limit = 0.0
+                has_any_limit = False
+                items_html = []
+                days = rec.new_voucher_days if exp_type.calculation_type == 'daily' else 1
+                days_label = f" ({days} Days)" if (exp_type.calculation_type == 'daily' and days > 1) else ""
+                for u in target_users:
+                    role_name = self.env['service.ticket']._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
+                    base_limit = exp_type.get_effective_budget_limit(user=u)
+                    limit = base_limit * days
+                    if limit > 0:
+                        has_any_limit = True
+                        total_limit += limit
+                        items_html.append(f"<span class='badge' style='{pill_badge}'>{u.name}{role_str}: ₹{limit:,.2f}{days_label}</span>")
+                    else:
+                        items_html.append(f"<span class='badge' style='background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; border-radius:9999px; padding:2px 10px; white-space:nowrap;'>{u.name}{role_str}: No Limit</span>")
+
+                unit_label = f" / {days} Days" if (exp_type.calculation_type == 'daily' and days > 1) else (" / day" if exp_type.calculation_type == 'daily' else " / visit")
+                if len(target_users) > 1 and has_any_limit:
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
+                        <span style="white-space:nowrap;">Allowed Limit for <strong>Group Budget Pool</strong>:</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f}{unit_label}</span>
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        {" ".join(items_html)}
+                    </div>
+                    """
+                elif has_any_limit:
+                    u = target_users[:1]
+                    role_name = self.env['service.ticket']._get_user_role_display(u)
+                    role_str = f" ({role_name})" if role_name else ""
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="d-flex align-items-center gap-2 flex-wrap py-1" style="font-size:12px; color:#0c4a6e; line-height:1.6; row-gap:6px;">
+                        <span style="white-space:nowrap;">Allowed Limit for <strong>{u.name}{role_str}</strong>:</span>
+                        <span class="badge" style="{pill_total}">₹{total_limit:,.2f}{unit_label}</span>
+                    </div>
+                    """
+                else:
+                    rec.new_voucher_budget_info_html = f"""
+                    <div class="py-1" style="font-size:12px; color:#64748b;">
+                        <span>No budget limit restriction for this expense type.</span>
+                    </div>
+                    """
+
+    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km')
+    def _onchange_batch_new_voucher_expense_type(self):
+        if self.new_voucher_expense_type_id:
+            self.new_voucher_is_km = bool(self.new_voucher_expense_type_id.is_km_based)
+            if self.new_voucher_is_km:
+                rate = self.new_voucher_expense_type_id.km_rate or 0.0
+                if self.new_voucher_total_km > 0 and rate > 0:
+                    self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
+            else:
+                self.new_voucher_total_km = 0.0
+        else:
+            self.new_voucher_is_km = False
+            self.new_voucher_total_km = 0.0
+
+    def action_add_voucher_line(self):
+        self.ensure_one()
+        missing_fields = []
+        if not self.new_voucher_user_ids:
+            missing_fields.append("Employee(s)")
+        if not self.new_voucher_date:
+            missing_fields.append("Expense Date")
+        if self.new_voucher_is_daily and not self.new_voucher_date_to:
+            missing_fields.append("To Date")
+        if not self.new_voucher_expense_type_id:
+            missing_fields.append("Expense Type")
+        if not self.new_voucher_amount or self.new_voucher_amount <= 0:
+            missing_fields.append("Amount")
+
+        if missing_fields:
+            fields_str = ", ".join(missing_fields)
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Missing Required Fields',
+                    'message': f"Please fill in the required field(s): {fields_str}.",
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        exp_date = self.new_voucher_date
+        today = fields.Date.context_today(self)
+        if exp_date > today:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Invalid Expense Date',
+                    'message': 'Expense Date cannot be in the future.',
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
+
+        if self.new_voucher_is_daily and self.new_voucher_date_to:
+            if self.new_voucher_date_to > today:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Invalid To Date',
+                        'message': 'To Date cannot be in the future.',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+            if self.new_voucher_date_to < exp_date:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Invalid Date Range',
+                        'message': 'To Date cannot be earlier than From Date.',
+                        'type': 'warning',
+                        'sticky': False,
+                    }
+                }
+
+        target_users = self.new_voucher_user_ids
+        user_count = len(target_users)
+        exp_type = self.new_voucher_expense_type_id
+
+        if exp_type.job_ids:
+            for u in target_users:
+                u_jobs = exp_type._get_user_job_positions(user=u)
+                if not any(j.id in u_jobs for j in exp_type.job_ids):
+                    allowed_names = ", ".join(exp_type.job_ids.mapped('name'))
+                    return {
+                        'type': 'ir.actions.client',
+                        'tag': 'display_notification',
+                        'params': {
+                            'title': 'Job Position Restricted',
+                            'message': f"Expense Type '{exp_type.name}' is only allowed for Job Position(s): {allowed_names}. Employee '{u.name}' is not authorized.",
+                            'type': 'danger',
+                            'sticky': True,
+                        }
+                    }
+
+        split_km = round(self.new_voucher_total_km / user_count, 2) if (user_count > 0 and self.new_voucher_is_km) else self.new_voucher_total_km
+        days = self.new_voucher_days if exp_type.calculation_type == 'daily' else 1
+        user_limits = {}
+        for u in target_users:
+            user_limits[u.id] = exp_type.get_effective_budget_limit(user=u) * days
+
+        total_budget = sum(user_limits.values())
+        has_positive_limits = total_budget > 0 and all(user_limits[u.id] > 0 for u in target_users)
+
+        user_splits = {}
+        exceeded_users = []
+        if not exp_type.is_km_based and has_positive_limits:
+            for u in target_users:
+                u_ratio = user_limits[u.id] / total_budget
+                u_raw = round(self.new_voucher_amount * u_ratio, 2)
+                u_lim = user_limits[u.id]
+                if u_raw > u_lim:
+                    exceeded_users.append((u, u_raw, u_lim))
+                user_splits[u.id] = u_raw
+        else:
+            raw_split = round(self.new_voucher_amount / user_count, 2) if user_count > 0 else self.new_voucher_amount
+            for u in target_users:
+                u_lim = user_limits.get(u.id, 0.0)
+                if not exp_type.is_km_based and u_lim > 0 and raw_split > u_lim:
+                    exceeded_users.append((u, raw_split, u_lim))
+                user_splits[u.id] = raw_split
+
+        km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
+        split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
+        login_user = self.env.user
+
+        for u in target_users:
+            dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
+            other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
+            user_rate = self.new_voucher_rate_per_km or exp_type.get_effective_km_rate(user=u) or 0.0
+            self.env['service.ticket.voucher.line'].sudo().create({
+                'batch_id': self.id,
+                'ticket_id': self.ticket_id.id if self.ticket_id else False,
+                'expense_date': exp_date,
+                'expense_date_to': self.new_voucher_date_to if (exp_type.calculation_type == 'daily') else False,
+                'user_id': u.id,
+                'submitted_by_user_id': login_user.id,
+                'other_employee_names': other_names or '',
+                'department_id': dept.id if dept else False,
+                'expense_type_id': exp_type.id,
+                'is_km_based': exp_type.is_km_based,
+                'total_km': split_km if exp_type.is_km_based else 0.0,
+                'rate_per_km': user_rate if exp_type.is_km_based else 0.0,
+                'description': self.new_voucher_description or '',
+                'amount': user_splits.get(u.id, 0.0),
+                'bill_attachment_ids': [(6, 0, self.new_voucher_bill_attachment_ids.ids)] if self.new_voucher_bill_attachment_ids else False,
+                'status': 'draft',
+            })
+
+        self.sudo().write({
+            'new_voucher_date': False,
+            'new_voucher_date_to': False,
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_total_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_attachment_ids': [(5, 0, 0)],
+        })
+        self._compute_all_employee_names()
+        self._compute_expense_dates()
+        self._compute_total_amount()
+        return False
+
+    def action_clear_voucher_fields(self):
+        self.ensure_one()
+        self.sudo().write({
+            'new_voucher_date': False,
+            'new_voucher_date_to': False,
+            'new_voucher_expense_type_id': False,
+            'new_voucher_user_ids': [(5, 0, 0)],
+            'new_voucher_total_km': 0.0,
+            'new_voucher_description': False,
+            'new_voucher_amount': 0.0,
+            'new_voucher_bill_attachment_ids': [(5, 0, 0)],
+        })
+        return True
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
     description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
     is_km_based = fields.Boolean(string='KM Based', compute='_compute_batch_summary_fields')
