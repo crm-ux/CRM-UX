@@ -64,9 +64,12 @@
                             <field name="res_id" invisible="1"/>
                         </group>
                     </group>
-                    <group string="Message &amp; Details" class="w-100">
-                        <field name="summary" readonly="1" nolabel="1" class="w-100" style="white-space: normal; line-height: 1.6; font-size: 14px;" placeholder="No details provided."/>
-                    </group>
+                    <div class="mt-4">
+                        <div class="o_horizontal_separator text-uppercase fw-bolder small mb-2">Message &amp; Details</div>
+                        <div class="p-3 bg-light rounded border text-dark" style="font-size: 14.5px; line-height: 1.6;">
+                            <field name="summary" readonly="1" nolabel="1"/>
+                        </div>
+                    </div>
                 </sheet>
             </form>
         </field>
