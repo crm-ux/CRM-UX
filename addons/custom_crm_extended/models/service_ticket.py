@@ -1930,14 +1930,13 @@ class ServiceTicketVoucherLine(models.Model):
     def _compute_approved_amount(self):
         for rec in self:
             if rec.status in ('approved', 'partially_approved', 'paid'):
-                if not rec.approved_amount:
+                if not rec.approved_amount or rec.approved_amount == 0.0:
                     if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
                         rec.approved_amount = rec.allowed_budget_limit
                     else:
                         rec.approved_amount = rec.amount or 0.0
             elif rec.status in ('rejected', 'draft', 'submitted'):
-                if rec.status == 'submitted' and not rec.approved_amount:
-                    rec.approved_amount = 0.0
+                rec.approved_amount = 0.0
     is_over_budget = fields.Boolean(compute='_compute_budget_status', string='Is Over Budget', store=True)
     allowed_budget_limit = fields.Float(compute='_compute_budget_status', string='Allowed Limit', store=True)
     over_budget_badge_html = fields.Html(compute='_compute_budget_status', string='Budget Status', sanitize=False)
