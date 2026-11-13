@@ -25,7 +25,7 @@ class ExpenseSetting(models.Model):
 
     # Expense Configuration Fields
     new_expense_type_name = fields.Char(string="New Expense Type")
-    new_expense_type_is_km = fields.Boolean(string="Calculate by KM", default=False)
+    new_expense_type_is_km = fields.Boolean(string="KM Based ?", default=False)
     new_expense_type_km_rate = fields.Float(string="Rate per KM (₹)", default=0.0)
     new_expense_type_budget_limit = fields.Float(string="Limit Amount (₹)", default=0.0)
     new_expense_type_calculation_type = fields.Selection([
