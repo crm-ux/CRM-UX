@@ -2935,14 +2935,35 @@ class ServiceTicketVoucherBatch(models.Model):
     def _compute_batch_allowed_voucher_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([('active', '=', True)])
         for rec in self:
-            users = rec.new_voucher_user_ids or self.env.user
-            allowed = all_types.filtered(
-                lambda t: not t.job_ids or any(
-                    any(j.id in t._get_user_job_positions(user=u) for j in t.job_ids)
-                    for u in users
-                )
-            )
-            rec.allowed_voucher_expense_type_ids = allowed
+            target_users = rec.new_voucher_user_ids or self.env.user
+            allowed_ids = []
+            for t in all_types:
+                if not t.job_ids:
+                    # Global expense type -> allowed for everyone
+                    allowed_ids.append(t.id)
+                else:
+                    # Restricted expense type -> all target users must have an allowed job position
+                    user_ok = True
+                    for u in target_users:
+                        u_jobs = t._get_user_job_positions(user=u)
+                        if not any(j.id in u_jobs for j in t.job_ids):
+                            user_ok = False
+                            break
+                    if user_ok:
+                        allowed_ids.append(t.id)
+            rec.allowed_voucher_expense_type_ids = all_types.browse(allowed_ids)
+
+    @api.onchange('new_voucher_user_ids')
+    def _onchange_batch_new_voucher_user_ids_filter_type(self):
+        self._compute_batch_allowed_voucher_expense_type_ids()
+        exp_type = self.new_voucher_expense_type_id
+        if exp_type and exp_type.job_ids:
+            for u in self.new_voucher_user_ids:
+                u_jobs = exp_type._get_user_job_positions(user=u)
+                if not any(j.id in u_jobs for j in exp_type.job_ids):
+                    self.new_voucher_expense_type_id = False
+                    break
+        self._compute_batch_new_voucher_budget_info_html()
 
     @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.is_km_based')
     def _compute_batch_new_voucher_is_km(self):
