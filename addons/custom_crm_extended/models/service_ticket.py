@@ -2805,8 +2805,6 @@ class ServiceTicketVoucherBatch(models.Model):
         readonly=False,
         default=lambda self: self.env.user,
     )
-        readonly=False,
-    )
 
     @api.depends('create_uid', 'user_id')
     def _compute_submitted_by_user_id(self):
