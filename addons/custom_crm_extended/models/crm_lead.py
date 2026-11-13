@@ -274,25 +274,25 @@ class CrmLead(models.Model):
 
     def action_reset_from_refusal(self):
         """
-        Owner can reset a refused lead back to active.
+        Owner or creator can reset a refused lead back to active, returning it to creator.
         """
         self.ensure_one()
         if self.user_id != self.env.user and \
+           self.create_uid != self.env.user and \
            not self.env.user.has_group('crm.group_crm_manager') and \
            not self.env.user.has_group('base.group_system'):
-            raise UserError(_('Only the lead owner or a manager can reset this lead.'))
-        # Restore original owner
-        original_owner = self.x_original_owner_id or self.user_id
+            raise UserError(_('Only the lead owner, creator, or a manager can reset this lead.'))
+        creator = self.create_uid or self.x_original_owner_id or self.user_id
         self.write({
             'x_is_refused': False,
             'x_assign_to_id': False,
             'x_refused_by_id': False,
             'x_refuse_reason': False,
             'x_refuse_date': False,
-            'user_id': original_owner.id,
+            'user_id': creator.id,
             'x_original_owner_id': False,
         })
-        self.message_post(body=_('Lead reset after refusal. Returned to owner: %s') % original_owner.name)
+        self.message_post(body=_('Lead reset after refusal and returned to creator: %s') % creator.name)
 
     # ------------------------------------------------------------------
     # 7. PRODUCT INTEREST LINES  (One2many to crm.lead.product.line)
