@@ -1924,18 +1924,17 @@ class ServiceTicketVoucherLine(models.Model):
 
     currency_id = fields.Many2one('res.currency', string='Currency', related='ticket_id.currency_id', store=True)
     amount = fields.Monetary(string='Submitted Amount', currency_field='currency_id')
-    approved_amount = fields.Monetary(string='Approved Amount', currency_field='currency_id', compute='_compute_approved_amount', store=True, readonly=False)
+    approved_amount = fields.Monetary(string='Approved Amount', currency_field='currency_id', compute='_compute_approved_amount')
 
     @api.depends('status', 'amount', 'allowed_budget_limit')
     def _compute_approved_amount(self):
         for rec in self:
             if rec.status in ('approved', 'partially_approved', 'paid'):
-                if not rec.approved_amount or rec.approved_amount == 0.0:
-                    if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
-                        rec.approved_amount = rec.allowed_budget_limit
-                    else:
-                        rec.approved_amount = rec.amount or 0.0
-            elif rec.status in ('rejected', 'draft', 'submitted'):
+                if rec.allowed_budget_limit and rec.allowed_budget_limit > 0 and (rec.amount or 0.0) > rec.allowed_budget_limit:
+                    rec.approved_amount = rec.allowed_budget_limit
+                else:
+                    rec.approved_amount = rec.amount or 0.0
+            else:
                 rec.approved_amount = 0.0
     is_over_budget = fields.Boolean(compute='_compute_budget_status', string='Is Over Budget', store=True)
     allowed_budget_limit = fields.Float(compute='_compute_budget_status', string='Allowed Limit', store=True)
