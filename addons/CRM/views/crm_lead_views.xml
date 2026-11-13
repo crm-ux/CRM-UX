@@ -37,7 +37,7 @@
                      role="alert"
                      style="font-size:13px; line-height: 1.5; border-radius: 4px; display: inline-block !important; white-space: nowrap !important;">
                     <i class="fa fa-exclamation-triangle me-1 text-warning"/>
-                    <strong>Assignment Refused</strong>&#160;by&#160;<field name="x_refused_by_id" readonly="1" nolabel="1"/>&#160;on&#160;<field name="x_refuse_date" readonly="1" nolabel="1"/>.&#160;<span>Reason:</span>&#160;<field name="x_refuse_reason" widget="char" readonly="1" nolabel="1"/>
+                    <strong>Assignment Refused</strong>&#160;by&#160;<field name="x_refused_by_id" readonly="1" nolabel="1" options="{'no_open': True}"/>&#160;on&#160;<field name="x_refuse_date" readonly="1" nolabel="1"/>.&#160;<span>Reason:</span>&#160;<field name="x_refuse_reason" widget="char" readonly="1" nolabel="1"/>
                 </div>
             </xpath>
 

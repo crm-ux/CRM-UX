@@ -3593,23 +3593,27 @@ header .alert:has([name="x_refuse_reason"]) i,
     margin-right: 5px !important;
 }
 
-/* User name link: custom blue color (#0b3d91), NOT purple */
+/* User name: plain normal text matching the rest of the message (no link, no blue, normal font) */
 header .alert:has([name="x_refuse_reason"]) a,
 header .alert:has([name="x_refuse_reason"]) a.o_form_uri,
 .alert-warning:has([name="x_refuse_reason"]) a,
 .alert-warning:has([name="x_refuse_reason"]) a.o_form_uri,
 .crm_refusal_alert a {
-    color: #0b3d91 !important;
-    font-weight: 600 !important;
+    color: inherit !important;
+    font-weight: normal !important;
+    font-family: inherit !important;
+    font-size: inherit !important;
     text-decoration: none !important;
-    margin: 0 2px !important;
+    pointer-events: none !important;
+    cursor: default !important;
+    margin: 0 !important;
 }
 
 header .alert:has([name="x_refuse_reason"]) a:hover,
 .alert-warning:has([name="x_refuse_reason"]) a:hover,
 .crm_refusal_alert a:hover {
-    color: #082a66 !important;
-    text-decoration: underline !important;
+    color: inherit !important;
+    text-decoration: none !important;
 }
 
 
