@@ -3561,16 +3561,103 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     color: #0b3d91 !important;
 }
 
-/* ── Refusal alert banner: force single-line inline layout ── */
+/* ── Refusal alert banner: strictly single line & custom blue color (#0b3d91) ── */
+header .alert.alert-warning,
+.crm_refusal_alert,
+.alert:has([name="x_refuse_reason"]),
+.alert-warning:has([name="x_refuse_reason"]) {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    gap: 4px !important;
+    width: auto !important;
+    max-width: 100% !important;
+    vertical-align: middle !important;
+}
+
+header .alert.alert-warning > *,
+.crm_refusal_alert > *,
+.alert:has([name="x_refuse_reason"]) > * {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+}
+
+header .alert.alert-warning .o_field_widget,
+header .alert.alert-warning [name="x_refused_by_id"],
+header .alert.alert-warning [name="x_refuse_date"],
+header .alert.alert-warning [name="x_refuse_reason"],
+.crm_refusal_alert [name="x_refused_by_id"],
+.crm_refusal_alert [name="x_refuse_date"],
+.crm_refusal_alert [name="x_refuse_reason"],
+.alert-warning [name="x_refused_by_id"],
+.alert-warning [name="x_refuse_date"],
+.alert-warning [name="x_refuse_reason"],
 .alert .o_field_widget,
 .alert .o_field_text,
 .alert .o_field_char {
     display: inline-flex !important;
+    align-items: center !important;
     width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
     white-space: nowrap !important;
     margin: 0 !important;
     padding: 0 !important;
-    vertical-align: baseline !important;
+    float: none !important;
+    vertical-align: middle !important;
+}
+
+header .alert.alert-warning .o_many2one,
+header .alert.alert-warning [name="x_refuse_date"] > div,
+header .alert.alert-warning [name="x_refuse_reason"] span,
+.alert-warning .o_many2one,
+.alert-warning [name="x_refuse_date"] > div,
+.alert-warning [name="x_refuse_reason"] span {
+    display: inline-flex !important;
+    align-items: center !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+header .alert.alert-warning [name="x_refuse_reason"] span,
+.alert-warning [name="x_refuse_reason"] span {
+    white-space: nowrap !important;
+    display: inline !important;
+}
+
+/* User name link: custom blue color (#0b3d91), NOT purple */
+header .alert.alert-warning a,
+header .alert.alert-warning a.o_form_uri,
+header .alert.alert-warning [name="x_refused_by_id"] a,
+header .alert.alert-warning [name="x_refused_by_id"] a.o_form_uri,
+.alert-warning [name="x_refused_by_id"] a,
+.alert-warning [name="x_refused_by_id"] a.o_form_uri,
+.alert [name="x_refused_by_id"] a,
+.alert [name="x_refused_by_id"] a.o_form_uri {
+    color: #0b3d91 !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    display: inline !important;
+    width: auto !important;
+}
+
+header .alert.alert-warning a:hover,
+header .alert.alert-warning a.o_form_uri:hover,
+header .alert.alert-warning [name="x_refused_by_id"] a:hover,
+header .alert.alert-warning [name="x_refused_by_id"] a.o_form_uri:hover,
+.alert-warning [name="x_refused_by_id"] a:hover,
+.alert-warning [name="x_refused_by_id"] a.o_form_uri:hover,
+.alert [name="x_refused_by_id"] a:hover,
+.alert [name="x_refused_by_id"] a.o_form_uri:hover {
+    color: #082a66 !important;
+    text-decoration: underline !important;
 }
 
 
