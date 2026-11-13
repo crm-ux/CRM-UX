@@ -89,6 +89,12 @@ export function customCleanErrorHandler(env, error, originalError) {
 
     // 1. Always log complete technical details, traceback, and error object to developer console
     console.error("[Odoo Technical Error - Logged for Developers]:", err);
+    if (err?.data?.message) {
+        console.error(">>> EXACT ERROR MESSAGE:", err.data.message);
+    }
+    if (err?.data?.debug) {
+        console.error(">>> EXACT PYTHON TRACEBACK:\n" + err.data.debug);
+    }
 
     // 2. If it's a known user-intended validation error (e.g. ValidationError / missing fields), allow standard display
     const isUserValidationError =
