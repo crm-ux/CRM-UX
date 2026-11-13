@@ -62,8 +62,8 @@ class CrmLead(models.Model):
         readonly=True,
     )
 
-    @api.depends('write_uid', 'create_uid')
     def _compute_last_modified_by_id(self):
+    @api.depends('write_uid', 'create_uid')
         for rec in self:
             if rec.write_uid and rec.write_uid.id != 1:
                 rec.x_last_modified_by_id = rec.write_uid
