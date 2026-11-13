@@ -81,7 +81,6 @@ patch(ControlPanel.prototype, {
         super.setup(...arguments);
         this.action = useService("action");
         this.orm = useService("orm");
-        this.user = useService("user");
         this.empFilterState = useState({ accessibleEmployees: [] });
 
         onWillStart(async () => {
@@ -144,7 +143,7 @@ patch(ControlPanel.prototype, {
 
     get canShowVoucherConfigButton() {
         // Strictly restricted to System Administrator only - never show to dept managers, managers, global managers, or employees
-        const viewAsUid = sessionStorage.getItem("crm_view_as_user_id");
+        const viewAsUid = sessionStorage.getItem("crm_view_as_uid") || sessionStorage.getItem("crm_view_as_user_id");
         const isAdmin = !viewAsUid && (Boolean(user.isAdmin) || user.userId === 1);
         if (!isAdmin) {
             return false;
