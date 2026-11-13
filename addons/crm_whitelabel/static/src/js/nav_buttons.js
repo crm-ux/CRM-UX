@@ -80,6 +80,7 @@ patch(ControlPanel.prototype, {
         super.setup(...arguments);
         this.action = useService("action");
         this.orm = useService("orm");
+        this.user = useService("user");
         this.empFilterState = useState({ accessibleEmployees: [] });
 
         onWillStart(async () => {
@@ -141,6 +142,11 @@ patch(ControlPanel.prototype, {
     },
 
     get canShowVoucherConfigButton() {
+        // Strictly restricted to System Administrator only
+        const isAdmin = Boolean(this.user?.isAdmin);
+        if (!isAdmin) {
+            return false;
+        }
         const resModel = this.env.searchModel?.resModel || this.action?.currentController?.props?.resModel;
         const viewType = this.env.config?.viewType || this.action?.currentController?.props?.type;
         const isVoucherModel = resModel === "service.ticket.voucher.batch" || resModel === "service.ticket.voucher.line";
