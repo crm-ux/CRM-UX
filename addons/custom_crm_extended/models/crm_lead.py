@@ -728,10 +728,10 @@ class CrmLead(models.Model):
         return records
 
     def write(self, vals):
-        old_assigned = {rec.id: (rec.x_assign_to_id.id or rec.user_id.id) for rec in self} if ('user_id' in vals or 'x_assign_to_id' in vals) else {}
+        old_assigned = {rec.id: (rec.x_assign_to_id.id or rec.user_id.id) for rec in self.sudo()} if ('user_id' in vals or 'x_assign_to_id' in vals) else {}
         res = super().write(vals)
         if 'user_id' in vals or 'x_assign_to_id' in vals:
-            for rec in self:
+            for rec in self.sudo():
                 assigned_user = rec.x_assign_to_id or rec.user_id
                 if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
                     if assigned_user.partner_id:
@@ -743,13 +743,16 @@ class CrmLead(models.Model):
                             f"Contact: <b>{contact}</b> ({phone_str})<br/>"
                             f"Details: {rec.description or 'No additional details provided.'}"
                         )
-                        rec.message_post(
-                            body=body_msg,
-                            subject=f"Lead Assigned: {rec.name}",
-                            partner_ids=[assigned_user.partner_id.id],
-                            message_type='notification',
-                            subtype_xmlid='mail.mt_comment',
-                        )
+                        try:
+                            rec.message_post(
+                                body=body_msg,
+                                subject=f"Lead Assigned: {rec.name}",
+                                partner_ids=[assigned_user.partner_id.id],
+                                message_type='notification',
+                                subtype_xmlid='mail.mt_comment',
+                            )
+                        except Exception:
+                            pass
                         try:
                             self.env['bus.bus']._sendone(
                                 assigned_user.partner_id,

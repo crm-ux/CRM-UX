@@ -3561,6 +3561,19 @@ div[name="new_voucher_bill_attachment_ids"] .o_attach:hover,
     color: #0b3d91 !important;
 }
 
+/* ── Refusal alert banner: force single-line inline layout ── */
+.alert .o_field_widget,
+.alert .o_field_text,
+.alert .o_field_char {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: baseline !important;
+}
+
+
 
 
 

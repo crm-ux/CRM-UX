@@ -31,13 +31,15 @@
                  A.  STATUS BAR – inject "Refused" indicator after stage
             ========================================================= -->
             <xpath expr="//header" position="inside">
-                <!-- Refusal alert banner – only shows when refused -->
+                <!-- Refusal alert banner – only shows when refused (strictly single line) -->
                 <div class="alert alert-warning mb-0 py-1 px-3 d-inline-flex align-items-center gap-1 text-nowrap"
                      invisible="not x_is_refused"
                      role="alert"
-                     style="font-size:13px; line-height: 1.5; border-radius: 4px;">
-                    <i class="fa fa-exclamation-triangle me-1"/>
-                    <strong>Assignment Refused</strong>&#160;by&#160;<field name="x_refused_by_id" readonly="1" nolabel="1" class="d-inline fw-semibold"/>&#160;on&#160;<field name="x_refuse_date" readonly="1" nolabel="1" class="d-inline"/>.<span class="ms-1">Reason:</span>&#160;<field name="x_refuse_reason" readonly="1" nolabel="1" class="d-inline fw-semibold"/>
+                     style="font-size:13px; line-height: 1.5; border-radius: 4px; display: inline-flex !important; flex-wrap: nowrap !important; white-space: nowrap !important;">
+                    <i class="fa fa-exclamation-triangle me-1 text-warning"/>
+                    <span class="d-inline-flex align-items-center gap-1 text-nowrap" style="white-space: nowrap !important; display: inline-flex !important;">
+                        <strong>Assignment Refused</strong>&#160;by&#160;<field name="x_refused_by_id" readonly="1" nolabel="1" class="d-inline fw-semibold" style="display:inline !important;"/>&#160;on&#160;<field name="x_refuse_date" readonly="1" nolabel="1" class="d-inline" style="display:inline !important;"/>.&#160;<span>Reason:</span>&#160;<field name="x_refuse_reason" widget="char" readonly="1" nolabel="1" class="d-inline fw-semibold" style="display:inline !important;"/>
+                    </span>
                 </div>
             </xpath>
 
