@@ -765,6 +765,7 @@
         <field name="arch" type="xml">
             <form string="Budget Limit Notice">
                 <field name="ticket_id" invisible="1"/>
+                <field name="batch_id" invisible="1"/>
                 <div class="p-2">
                     <field name="message_html" widget="html" readonly="1" nolabel="1"/>
                 </div>

@@ -2593,6 +2593,7 @@ class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
     _description = 'Confirm Over Budget Voucher Warning'
 
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=False)
+    batch_id = fields.Many2one('service.ticket.voucher.batch', string='Voucher Submission', required=False)
     message_html = fields.Html(string='Message', readonly=True, sanitize=False)
 
     def action_confirm(self):
@@ -2609,8 +2610,10 @@ class ServiceTicketVoucherBudgetConfirmWizard(models.TransientModel):
             lines = batch.line_ids
             return lines.with_context(budget_approved_confirmed=True).action_approve_all()
 
+        if self.batch_id:
+            return self.batch_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
         if self.ticket_id:
-            self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
+            return self.ticket_id.with_context(voucher_budget_confirmed=True).action_add_voucher_line()
         return {'type': 'ir.actions.act_window_close'}
 
 
@@ -3193,6 +3196,30 @@ class ServiceTicketVoucherBatch(models.Model):
                 if not exp_type.is_km_based and u_lim > 0 and raw_split > u_lim:
                     exceeded_users.append((u, raw_split, u_lim))
                 user_splits[u.id] = raw_split
+
+        if not exp_type.is_km_based and exceeded_users and not self.env.context.get('voucher_budget_confirmed'):
+            items_str = "".join([f"<li><strong>{u.name}</strong>: Entered share is <strong>₹{raw:,.2f}</strong>, but this voucher can only pass up to allowed budget limit of <strong>₹{lim:,.2f}</strong>.</li>" for u, raw, lim in exceeded_users])
+            msg = f"""
+            <div class="p-2" style="font-size:13px; color:#1e293b;">
+                <p class="mb-2">The entered bill amount exceeds the allowed budget limit for the following person(s):</p>
+                <ul class="mb-0 ps-3" style="color:#b91c1c;">
+                    {items_str}
+                </ul>
+            </div>
+            """
+            wiz = self.env['service.ticket.voucher.budget.confirm.wizard'].create({
+                'batch_id': self.id,
+                'ticket_id': self.ticket_id.id if self.ticket_id else False,
+                'message_html': msg,
+            })
+            return {
+                'name': _('Budget Limit Notice'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'service.ticket.voucher.budget.confirm.wizard',
+                'res_id': wiz.id,
+                'view_mode': 'form',
+                'target': 'new',
+            }
 
         km_val = self.new_voucher_total_km if exp_type.is_km_based else 0.0
         split_km = round(km_val / user_count, 2) if (user_count > 0 and exp_type.is_km_based) else km_val
