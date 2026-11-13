@@ -682,7 +682,7 @@ class CrmLead(models.Model):
             assigned_user = rec.x_assign_to_id or rec.user_id
             if assigned_user and assigned_user.id != self.env.user.id and assigned_user.partner_id:
                 contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
-                phone_str = rec.phone or rec.mobile or '-'
+                phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
                 body_msg = (
                     f"<b>Lead Assigned</b><br/>"
                     f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
@@ -736,7 +736,7 @@ class CrmLead(models.Model):
                 if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
                     if assigned_user.partner_id:
                         contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
-                        phone_str = rec.phone or rec.mobile or '-'
+                        phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
                         body_msg = (
                             f"<b>Lead Assigned</b><br/>"
                             f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
