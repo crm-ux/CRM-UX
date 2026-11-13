@@ -689,13 +689,16 @@ class CrmLead(models.Model):
                     f"Contact: <b>{contact}</b> ({phone_str})<br/>"
                     f"Details: {rec.description or 'No additional details provided.'}"
                 )
-                rec.message_post(
-                    body=body_msg,
-                    subject=f"Lead Assigned: {rec.name}",
-                    partner_ids=[assigned_user.partner_id.id],
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_comment',
-                )
+                try:
+                    rec.message_post(
+                        body=body_msg,
+                        subject=f"Lead Assigned: {rec.name}",
+                        partner_ids=[assigned_user.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                except Exception:
+                    pass
                 try:
                     self.env['bus.bus']._sendone(
                         assigned_user.partner_id,
@@ -713,7 +716,7 @@ class CrmLead(models.Model):
                     self.env['crm.notification'].create_notification(
                         user=assigned_user,
                         title=f'Lead Assigned: {rec.name}',
-                        summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {rec.partner_name or rec.contact_name or '-'}, Details: {rec.description or 'No details'}",
+                        summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
                         category='lead',
                         sender=self.env.user,
                         res_model='crm.lead',
