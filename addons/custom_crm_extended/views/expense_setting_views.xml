@@ -325,9 +325,10 @@
                        decoration-success="status in ('approved', 'partially_approved')" 
                        decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
-                <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="status in ('draft', 'approved', 'paid')"/>
-                <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="status in ('draft', 'rejected')"/>
-                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status in ('draft', 'submitted')"/>
+                <field name="can_approve" column_invisible="1"/>
+                <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="not can_approve or status in ('draft', 'approved', 'paid')"/>
+                <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="not can_approve or status in ('draft', 'rejected')"/>
+                <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="not can_approve or status in ('draft', 'submitted')"/>
             </list>
         </field>
     </record>
@@ -339,14 +340,15 @@
         <field name="arch" type="xml">
             <form string="Voucher Submission Detail" class="o_service_ticket_voucher_batch_form">
                 <header>
-                    <button name="action_submit_batch" string="Submit Voucher" type="object" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status != 'draft'"/>
-                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="status in ('draft', 'approved', 'paid')"/>
-                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="status in ('draft', 'rejected', 'paid')"/>
-                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="status in ('draft', 'submitted')"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="status not in ('approved', 'partially_approved')"/>
+                    <button name="action_submit_batch" string="Submit for Approval" type="object" icon="fa-paper-plane" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status != 'draft'" confirm="Are you sure you want to submit these expenses for approval? Once submitted, you cannot edit or rollback."/>
+                    <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'approved', 'paid')"/>
+                    <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'rejected', 'paid')"/>
+                    <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted')"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved')"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
+                    <field name="can_approve" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="active" invisible="1"/>
                     
@@ -619,9 +621,10 @@
                                        decoration-info="status in ('paid', 'partially_paid')" 
                                        decoration-danger="status == 'rejected'"/>
                                 <field name="reject_reason" string="Reject Reason" optional="show"/>
-                                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
-                                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status in ('rejected', 'paid')"/>
-                                <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status == 'submitted'"/>
+                                <field name="can_approve" column_invisible="1"/>
+                                <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve or status in ('approved', 'paid')"/>
+                                <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve or status in ('rejected', 'paid')"/>
+                                <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve or status == 'submitted'"/>
                             </list>
                         </field>
                     </div>
