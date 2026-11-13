@@ -8,6 +8,7 @@ import { rpc } from "@web/core/network/rpc";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
 import { notificationService } from "@web/core/notifications/notification_service";
+import { user } from "@web/core/user";
 
 // Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
 // Centralized In-Page 404 Screen for Missing Records across ALL models
@@ -142,8 +143,9 @@ patch(ControlPanel.prototype, {
     },
 
     get canShowVoucherConfigButton() {
-        // Strictly restricted to System Administrator only
-        const isAdmin = Boolean(this.user?.isAdmin);
+        // Strictly restricted to System Administrator only - never show to dept managers, managers, global managers, or employees
+        const viewAsUid = sessionStorage.getItem("crm_view_as_user_id");
+        const isAdmin = !viewAsUid && (Boolean(user.isAdmin) || user.userId === 1);
         if (!isAdmin) {
             return false;
         }
