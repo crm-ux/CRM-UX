@@ -38,20 +38,19 @@ class ResUsers(models.Model):
                 dept = (user.crm_department_id or (user.employee_id and user.employee_id.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
                 if dept:
                     dept = dept.sudo()
-                    if dept.voucher_approval_active:
-                        mgr = dept.voucher_manager_id or dept.manager_user_id
-                        if mgr and mgr.active and mgr.id != user.id:
+                    if dept.voucher_approval_active and dept.voucher_manager_id:
+                        mgr = dept.voucher_manager_id
+                        if mgr.active and mgr.id != user.id:
                             approver = mgr
 
                     if not approver:
                         managing_dept = self.env['hr.department'].sudo().search([
                             ('voucher_approval_active', '=', True),
+                            ('voucher_manager_id', '!=', False),
                             ('extra_department_ids', 'in', [dept.id]),
                         ], limit=1)
-                        if managing_dept:
-                            m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
-                            if m_mgr and m_mgr.active and m_mgr.id != user.id:
-                                approver = m_mgr
+                        if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != user.id:
+                            approver = managing_dept.voucher_manager_id
 
                     if not approver:
                         v_user = self.env['res.users'].sudo().search([

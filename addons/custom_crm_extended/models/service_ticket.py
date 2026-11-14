@@ -1167,10 +1167,11 @@ class ServiceTicket(models.Model):
 
     def _get_voucher_approver_for_employee(self, emp):
         """Resolves the approver in strict hierarchy:
-        Tier 1: Department Voucher Manager from Active Voucher Configuration (Direct, Sub-departments, or Dept Approver).
-        Tier 2: Direct Reports To (Manager) if assigned and active (e.g. Anurag).
-        Tier 3: Global Expense Manager (if assigned and active).
-        Tier 4: System Administrator (direct fallback).
+        Tier 1: Department Voucher Manager from Active Voucher Configuration (voucher_manager_id).
+        Tier 2: Direct Reports To (Manager) e.g. Anurag (crm_manager_id).
+        Tier 3: User with crm_voucher_department_ids covering this department.
+        Tier 4: Global Expense Manager (company.crm_authorized_expense_manager_ids).
+        Tier 5: System Administrator (last resort).
         """
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         if not emp:
@@ -1180,24 +1181,26 @@ class ServiceTicket(models.Model):
         emp = emp.sudo()
         company = emp.company_id or self.env.company
 
-        # ── TIER 1: Department Manager from Active Voucher Configuration ──
-        emp_dept = (emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False)
+        # ── TIER 1: Department Voucher Manager from Active Voucher Settings ──
+        emp_dept = (emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
         if emp_dept:
             emp_dept = emp_dept.sudo()
-            if emp_dept.voucher_approval_active:
-                mgr = emp_dept.voucher_manager_id or emp_dept.manager_user_id
-                if mgr and mgr.active and mgr.id != emp.id:
+            # Only use voucher_manager_id (the configured voucher approver)
+            if emp_dept.voucher_approval_active and emp_dept.voucher_manager_id:
+                mgr = emp_dept.voucher_manager_id
+                if mgr.active and mgr.id != emp.id:
                     return mgr
 
+            # Check sub-departments in managing department
             managing_dept = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
+                ('voucher_manager_id', '!=', False),
                 ('extra_department_ids', 'in', [emp_dept.id]),
             ], limit=1)
-            if managing_dept:
-                m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
-                if m_mgr and m_mgr.active and m_mgr.id != emp.id:
-                    return m_mgr
+            if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != emp.id:
+                return managing_dept.voucher_manager_id
 
+            # Check manager assigned to this department
             v_user = self.env['res.users'].sudo().search([
                 ('crm_voucher_department_ids', 'in', [emp_dept.id]),
                 ('active', '=', True),
@@ -3279,7 +3282,10 @@ class ServiceTicketVoucherBatch(models.Model):
                 'status': 'draft',
             })
 
-        self.sudo().write({
+        first_emp = target_users[0] if target_users else False
+        approver = self.env['service.ticket']._get_voucher_approver_for_employee(first_emp) if first_emp else False
+
+        update_vals = {
             'new_voucher_date': False,
             'new_voucher_date_to': False,
             'new_voucher_expense_type_id': False,
@@ -3288,7 +3294,13 @@ class ServiceTicketVoucherBatch(models.Model):
             'new_voucher_description': False,
             'new_voucher_amount': 0.0,
             'new_voucher_bill_attachment_ids': [(5, 0, 0)],
-        })
+        }
+        if first_emp:
+            update_vals['user_id'] = first_emp.id
+            if approver:
+                update_vals['expense_manager_id'] = approver.id
+
+        self.sudo().write(update_vals)
         self._compute_all_employee_names()
         self._compute_expense_dates()
         self._compute_total_amount()
@@ -3296,7 +3308,10 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def action_clear_voucher_fields(self):
         self.ensure_one()
-        self.sudo().write({
+        first_emp = target_users[0] if target_users else False
+        approver = self.env['service.ticket']._get_voucher_approver_for_employee(first_emp) if first_emp else False
+
+        update_vals = {
             'new_voucher_date': False,
             'new_voucher_date_to': False,
             'new_voucher_expense_type_id': False,
@@ -3305,7 +3320,13 @@ class ServiceTicketVoucherBatch(models.Model):
             'new_voucher_description': False,
             'new_voucher_amount': 0.0,
             'new_voucher_bill_attachment_ids': [(5, 0, 0)],
-        })
+        }
+        if first_emp:
+            update_vals['user_id'] = first_emp.id
+            if approver:
+                update_vals['expense_manager_id'] = approver.id
+
+        self.sudo().write(update_vals)
         return True
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
     description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
