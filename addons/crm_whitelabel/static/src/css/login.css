@@ -3,7 +3,7 @@ html:has(.card),
 body:has(.card),
 body.o_home_menu_background {
     min-height: 100vh !important;
-    zoom: 0.80 !important;
+    zoom: 0.90 !important;
 }
 
 /* White Login Card */
@@ -12,7 +12,7 @@ body.o_home_menu_background {
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
     background: #FFFFFF !important;
-    zoom: 0.80 !important;
+    zoom: 0.90 !important;
 }
 
 /* Hide Odoo logo image inside card */
@@ -94,10 +94,10 @@ div:has(> a[href*="passkey"]),
 a[href*="passkey"],
 a:has(i.fa-key),
 a:has(.fa-qrcode),
-.card-body form ~ div,
-.card-body form ~ p,
-.card-body form ~ *,
-form ~ .text-center,
+.card-body form~div,
+.card-body form~p,
+.card-body form~*,
+form~.text-center,
 .card-body .text-center:has(em),
 em,
 .card-body em {
