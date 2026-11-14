@@ -1,3 +1,14 @@
+/* ==========================================================================
+   GLOBAL CRM COMPACT ZOOM - APPLIES TO ALL VIEWS, FORMS, TABLES & PAGES
+   ========================================================================== */
+.o_action_manager {
+    zoom: 0.90 !important;
+}
+
+.modal-dialog {
+    zoom: 0.90 !important;
+}
+
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
 .o_web_client>header.o_navbar,
 .o_web_client>nav.o_navbar,
