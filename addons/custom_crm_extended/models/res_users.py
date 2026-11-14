@@ -29,13 +29,15 @@ class ResUsers(models.Model):
 
             approver = False
 
-            # 1. Direct Reports To (Manager) check (e.g. Pratham -> Anurag)
-            if user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
-                approver = user.crm_manager_id.sudo()
+            # Check direct Reports To manager or employee manager
+            emp_rec = user.employee_id or self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+            direct_mgr = user.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
+            if direct_mgr and direct_mgr.active and direct_mgr.id != user.id:
+                approver = direct_mgr.sudo()
 
-            # 2. Check department-wise voucher configuration
+            # Check department voucher configuration
             if not approver:
-                dept = (user.crm_department_id or (user.employee_id and user.employee_id.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
+                dept = (user.crm_department_id or (emp_rec and emp_rec.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
                 if dept:
                     dept = dept.sudo()
                     if dept.voucher_approval_active and dept.voucher_manager_id:
@@ -60,6 +62,12 @@ class ResUsers(models.Model):
                         ], limit=1)
                         if v_user:
                             approver = v_user
+
+            # If user's direct manager is found, check if that manager has department voucher manager active
+            if not approver and user.crm_job_id and user.crm_job_id.department_id:
+                dept = user.crm_job_id.department_id.sudo()
+                if dept.voucher_approval_active and dept.voucher_manager_id and dept.voucher_manager_id.id != user.id:
+                    approver = dept.voucher_manager_id
 
             user.crm_expense_manager_id = approver or fallback
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)

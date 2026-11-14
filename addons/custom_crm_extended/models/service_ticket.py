@@ -2,6 +2,7 @@
 import re
 from lxml import etree
 from odoo import models, fields, api, _
+from odoo.osv import expression
 from odoo.exceptions import ValidationError, UserError
 
 class ServiceTicketComplaintType(models.Model):
@@ -1167,8 +1168,8 @@ class ServiceTicket(models.Model):
 
     def _get_voucher_approver_for_employee(self, emp):
         """Resolves the approver in strict hierarchy:
-        Tier 1: Department Voucher Manager from Active Voucher Configuration (voucher_manager_id).
-        Tier 2: Direct Reports To (Manager) e.g. Anurag (crm_manager_id).
+        Tier 1: Direct Reports To (Manager) e.g. Anurag (crm_manager_id or hr.employee parent_id).
+        Tier 2: Department Voucher Manager from Active Voucher Configuration (voucher_manager_id).
         Tier 3: User with crm_voucher_department_ids covering this department.
         Tier 4: Global Expense Manager (company.crm_authorized_expense_manager_ids).
         Tier 5: System Administrator (last resort).
@@ -1181,8 +1182,14 @@ class ServiceTicket(models.Model):
         emp = emp.sudo()
         company = emp.company_id or self.env.company
 
-        # ── TIER 1: Department Voucher Manager from Active Voucher Settings ──
-        emp_dept = (emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
+        # ── TIER 1: Direct Reports To (Manager) e.g. Anurag ──
+        emp_rec = emp.employee_id or self.env['hr.employee'].sudo().search([('user_id', '=', emp.id)], limit=1)
+        direct_mgr = emp.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
+        if direct_mgr and direct_mgr.active and direct_mgr.id != emp.id:
+            return direct_mgr.sudo()
+
+        # ── TIER 2: Department Voucher Manager from Active Voucher Settings ──
+        emp_dept = (emp.crm_department_id or (emp_rec and emp_rec.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
         if emp_dept:
             emp_dept = emp_dept.sudo()
             # Only use voucher_manager_id (the configured voucher approver)
@@ -1208,10 +1215,6 @@ class ServiceTicket(models.Model):
             ], limit=1)
             if v_user:
                 return v_user
-
-        # ── TIER 2: Direct Reports To (Manager) e.g. Anurag ──
-        if emp.crm_manager_id and emp.crm_manager_id.active and emp.crm_manager_id.id != emp.id:
-            return emp.crm_manager_id.sudo()
 
         # ── TIER 3: Global Expense Manager ──
         global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id != emp.id)
@@ -2147,6 +2150,20 @@ class ServiceTicketVoucherLine(models.Model):
             else:
                 rec.voucher_status = rec.status
 
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Draft voucher lines are private to the employee/creator."""
+        user = self.env.user
+        extra_domain = [
+            '|',
+            ('user_id', '=', user.id),
+            '|',
+            ('submitted_by_user_id', '=', user.id),
+            ('status', '!=', 'draft'),
+        ]
+        domain = expression.AND([domain, extra_domain])
+        return super(ServiceTicketVoucherLine, self)._search(domain, offset=offset, limit=limit, order=order)
+
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
     voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
     name = fields.Char(related='voucher_id', string='Voucher ID', readonly=True)
@@ -2831,9 +2848,26 @@ class ServiceTicketVoucherBatch(models.Model):
         for rec in self:
             rec.is_voucher_owner = bool(
                 rec.user_id.id == user.id or
-                rec.submitted_by_user_id.id == user.id or
-                rec.create_uid.id == user.id
+                rec.submitted_by_user_id.id == user.id
             )
+
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Strict Draft Privacy:
+        Draft vouchers are private to the creator/submitting employee only.
+        Administrators, Global Expense Managers, and Department Approvers can only see
+        vouchers once submitted (status != 'draft'), unless it is their own draft voucher.
+        """
+        user = self.env.user
+        extra_domain = [
+            '|',
+            ('user_id', '=', user.id),
+            '|',
+            ('submitted_by_user_id', '=', user.id),
+            ('status', '!=', 'draft'),
+        ]
+        domain = expression.AND([domain, extra_domain])
+        return super(ServiceTicketVoucherBatch, self)._search(domain, offset=offset, limit=limit, order=order)
     submitted_by_user_id = fields.Many2one(
         'res.users',
         string='Submitted By',
@@ -3308,10 +3342,7 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def action_clear_voucher_fields(self):
         self.ensure_one()
-        first_emp = target_users[0] if target_users else False
-        approver = self.env['service.ticket']._get_voucher_approver_for_employee(first_emp) if first_emp else False
-
-        update_vals = {
+        self.sudo().write({
             'new_voucher_date': False,
             'new_voucher_date_to': False,
             'new_voucher_expense_type_id': False,
@@ -3320,13 +3351,7 @@ class ServiceTicketVoucherBatch(models.Model):
             'new_voucher_description': False,
             'new_voucher_amount': 0.0,
             'new_voucher_bill_attachment_ids': [(5, 0, 0)],
-        }
-        if first_emp:
-            update_vals['user_id'] = first_emp.id
-            if approver:
-                update_vals['expense_manager_id'] = approver.id
-
-        self.sudo().write(update_vals)
+        })
         return True
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
     description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
