@@ -108,6 +108,13 @@ class CrmLeadRefuseWizard(models.TransientModel):
                 'message': _('Lead assignment was refused. Creator (%s) has been notified.') % (creator.name or ''),
                 'type': 'warning',
                 'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+                'next': {
+                    'type': 'ir.actions.act_window',
+                    'name': _('Leads'),
+                    'res_model': 'crm.lead',
+                    'view_mode': 'kanban,list,form',
+                    'views': [[False, 'kanban'], [False, 'list'], [False, 'form']],
+                    'target': 'main',
+                },
             }
         }
