@@ -1166,19 +1166,24 @@ class ServiceTicket(models.Model):
         pass
 
     def _get_voucher_approver_for_employee(self, emp):
-        """Resolves the approver in strict 3-tier waterfall:
-        Tier 1: Department Voucher Manager (if assigned and active).
-        Tier 2: Global Expense Manager (if assigned and active).
-        Tier 3: System Administrator (direct fallback).
+        """Resolves the approver in strict hierarchy:
+        Tier 1: Department Voucher Manager from Active Voucher Configuration (Direct, Sub-departments, or Dept Approver).
+        Tier 2: Direct Reports To (Manager) if assigned and active (e.g. Anurag).
+        Tier 3: Global Expense Manager (if assigned and active).
+        Tier 4: System Administrator (direct fallback).
         """
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         if not emp:
             global_mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
             return global_mgr or admin_user
 
+        emp = emp.sudo()
+        company = emp.company_id or self.env.company
+
         # ── TIER 1: Department Manager from Active Voucher Configuration ──
-        emp_dept = emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False
+        emp_dept = (emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False)
         if emp_dept:
+            emp_dept = emp_dept.sudo()
             if emp_dept.voucher_approval_active:
                 mgr = emp_dept.voucher_manager_id or emp_dept.manager_user_id
                 if mgr and mgr.active and mgr.id != emp.id:
@@ -1193,12 +1198,24 @@ class ServiceTicket(models.Model):
                 if m_mgr and m_mgr.active and m_mgr.id != emp.id:
                     return m_mgr
 
-        # ── TIER 2: Global Expense Manager ──
-        global_mgrs = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id != emp.id)
+            v_user = self.env['res.users'].sudo().search([
+                ('crm_voucher_department_ids', 'in', [emp_dept.id]),
+                ('active', '=', True),
+                ('id', '!=', emp.id),
+            ], limit=1)
+            if v_user:
+                return v_user
+
+        # ── TIER 2: Direct Reports To (Manager) e.g. Anurag ──
+        if emp.crm_manager_id and emp.crm_manager_id.active and emp.crm_manager_id.id != emp.id:
+            return emp.crm_manager_id.sudo()
+
+        # ── TIER 3: Global Expense Manager ──
+        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id != emp.id)
         if global_mgrs:
             return global_mgrs[:1]
 
-        # ── TIER 3: Administrator Direct Fallback ──
+        # ── TIER 4: Administrator Direct Fallback ──
         return admin_user
 
     def action_submit_all_vouchers(self):

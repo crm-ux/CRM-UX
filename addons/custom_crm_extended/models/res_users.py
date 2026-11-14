@@ -18,7 +18,7 @@ class ResUsers(models.Model):
 
     def _compute_crm_expense_manager_id(self):
         company = self.env.company
-        global_mgr = company.crm_authorized_expense_manager_ids[:1]
+        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.search([('id', '=', 2)], limit=1)
         fallback = global_mgr or admin_user
         for user in self:
@@ -26,7 +26,9 @@ class ResUsers(models.Model):
                 user.crm_expense_manager_id = False
                 continue
 
-            dept = user.crm_department_id or (user.employee_id and user.employee_id.department_id) or False
+            dept = (user.crm_department_id or (user.employee_id and user.employee_id.department_id) or False)
+            if dept:
+                dept = dept.sudo()
             approver = False
 
             if dept:
@@ -46,6 +48,21 @@ class ResUsers(models.Model):
                         m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
                         if m_mgr and m_mgr.active and m_mgr.id != user.id:
                             approver = m_mgr
+
+                # 3. Manager holding voucher department assignment covering this department
+                if not approver:
+                    v_user = self.env['res.users'].sudo().search([
+                        ('crm_voucher_department_ids', 'in', [dept.id]),
+                        ('active', '=', True),
+                        ('id', '!=', user.id),
+                    ], limit=1)
+                    if v_user:
+                        approver = v_user
+
+            # 4. Direct Reports To (Manager) check (e.g. Anurag)
+            if not approver and user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
+                mgr_candidate = user.crm_manager_id.sudo()
+                approver = mgr_candidate
 
             user.crm_expense_manager_id = approver or fallback
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
@@ -1818,7 +1835,9 @@ class HrDepartment(models.Model):
             dept_mgr = (dept.voucher_manager_id or dept.manager_user_id) if dept.voucher_approval_active else False
             all_dept_ids = dept.ids + dept.extra_department_ids.ids
             users = self.env['res.users'].sudo().search([
+                '|',
                 ('crm_department_id', 'in', all_dept_ids),
+                ('employee_id.department_id', 'in', all_dept_ids),
                 ('id', 'not in', [1, 2]),
                 ('share', '=', False),
             ])
