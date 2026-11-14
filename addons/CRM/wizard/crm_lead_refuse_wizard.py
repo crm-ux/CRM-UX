@@ -26,7 +26,7 @@ class CrmLeadRefuseWizard(models.TransientModel):
         if not self.refuse_reason or not self.refuse_reason.strip():
             raise UserError(_('Please provide a reason for refusal.'))
 
-        creator = lead.create_uid or lead.user_id
+        creator = lead.create_uid or getattr(lead, 'x_created_by_id', False) or getattr(lead, 'x_original_owner_id', False) or lead.user_id
 
         lead.write({
             'x_is_refused': True,
@@ -34,7 +34,7 @@ class CrmLeadRefuseWizard(models.TransientModel):
             'x_refuse_reason': self.refuse_reason,
             'x_refuse_date': fields.Datetime.now(),
             'user_id': creator.id,
-            'x_assign_to_id': False,
+            'x_assign_to_id': creator.id,
         })
 
         # Post a message visible to the team

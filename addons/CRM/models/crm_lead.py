@@ -251,18 +251,21 @@ class CrmLead(models.Model):
         Owner or creator can reset a refused lead back to active, returning it to creator.
         """
         self.ensure_one()
-        if self.user_id != self.env.user and \
-           self.create_uid != self.env.user and \
+        rec = self.sudo()
+        creator = rec.create_uid or getattr(rec, 'x_created_by_id', False) or getattr(rec, 'x_original_owner_id', False) or rec.user_id
+        if rec.user_id != self.env.user and \
+           rec.create_uid != self.env.user and \
+           creator != self.env.user and \
            not self.env.user.has_group('crm.group_crm_manager') and \
            not self.env.user.has_group('base.group_system'):
             raise UserError(_('Only the lead owner, creator, or a manager can reset this lead.'))
-        creator = self.create_uid or self.user_id
-        self.write({
+        rec.write({
             'x_is_refused': False,
             'x_assign_to_id': False,
             'x_refused_by_id': False,
             'x_refuse_reason': False,
             'x_refuse_date': False,
             'user_id': creator.id,
+            'x_original_owner_id': False,
         })
-        self.message_post(body=_('Lead has been reset after refusal and returned to creator: %s') % creator.name)
+        rec.message_post(body=_('Lead reset after refusal and returned to creator: %s') % (creator.name or '—'))
