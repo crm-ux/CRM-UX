@@ -1180,7 +1180,7 @@ class ServiceTicket(models.Model):
         emp_dept = emp.crm_department_id or (emp.employee_id and emp.employee_id.department_id) or False
         if emp_dept:
             if emp_dept.voucher_approval_active:
-                mgr = emp_dept.manager_user_id or emp_dept.voucher_manager_id
+                mgr = emp_dept.voucher_manager_id or emp_dept.manager_user_id
                 if mgr and mgr.active and mgr.id != emp.id:
                     return mgr
 
@@ -1189,7 +1189,7 @@ class ServiceTicket(models.Model):
                 ('extra_department_ids', 'in', [emp_dept.id]),
             ], limit=1)
             if managing_dept:
-                m_mgr = managing_dept.manager_user_id or managing_dept.voucher_manager_id
+                m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
                 if m_mgr and m_mgr.active and m_mgr.id != emp.id:
                     return m_mgr
 
@@ -2779,11 +2779,11 @@ class ServiceTicketVoucherBatch(models.Model):
                         count = self.search_count([('ticket_id', '=', False)]) + 1
                         seq_val = f"GEN-VCH-{year}-{count:05d}"
                     vals['name'] = seq_val
-            if vals.get('user_id'):
-                emp = self.env['res.users'].browse(vals['user_id'])
-                approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
-                if approver:
-                    vals['expense_manager_id'] = approver.id
+            emp_id = vals.get('user_id') or self.env.user.id
+            emp = self.env['res.users'].browse(emp_id)
+            approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+            if approver:
+                vals['expense_manager_id'] = approver.id
         return super(ServiceTicketVoucherBatch, self).create(vals_list)
     submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
     expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
@@ -3339,19 +3339,29 @@ class ServiceTicketVoucherBatch(models.Model):
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True, default='draft')
     def _default_expense_manager_id(self):
+        emp = self.env.user
+        approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+        if approver:
+            return approver.id
         mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
         return mgr.id if mgr else 2
 
     expense_manager_id = fields.Many2one('res.users', string='Approver', compute='_compute_expense_manager_id', store=True, readonly=False, default=_default_expense_manager_id)
 
+    @api.onchange('user_id')
+    def _onchange_user_id_approver(self):
+        if self.user_id:
+            approver = self.env['service.ticket']._get_voucher_approver_for_employee(self.user_id)
+            if approver:
+                self.expense_manager_id = approver.id
+
     @api.depends('user_id', 'line_ids.user_id')
     def _compute_expense_manager_id(self):
         for rec in self:
-            if not rec.expense_manager_id:
-                emp = rec.user_id or (rec.line_ids[:1].user_id if rec.line_ids else False)
-                if emp:
-                    approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
-                    rec.expense_manager_id = approver or emp.crm_expense_manager_id
+            emp = rec.user_id or (rec.line_ids[:1].user_id if rec.line_ids else False)
+            if emp:
+                approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+                rec.expense_manager_id = approver or emp.crm_expense_manager_id
 
     @api.depends('line_ids.amount')
     def _compute_total_amount(self):
@@ -3391,6 +3401,11 @@ class ServiceTicketVoucherBatch(models.Model):
                 line.write({'status': 'submitted'})
             rec._compute_status()
             rec._compute_total_amount()
+            emp = rec.user_id or (rec.line_ids[:1].user_id if rec.line_ids else False) or self.env.user
+            eff_approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
+            if eff_approver:
+                rec.expense_manager_id = eff_approver.id
+                rec.line_ids.write({'expense_manager_id': eff_approver.id})
             approver = rec.expense_manager_id
             if approver and approver.partner_id:
                 try:
