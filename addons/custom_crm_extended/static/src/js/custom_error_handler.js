@@ -123,6 +123,28 @@ export function customCleanErrorHandler(env, error, originalError) {
         return true;
     }
 
+    // 2.3 AccessError handling when a record is assigned/transferred to another user
+    const isAccessError =
+        err?.data?.name === "odoo.exceptions.AccessError" ||
+        fullErrLower.includes("accesserror") ||
+        fullErrLower.includes("top-secret records") ||
+        fullErrLower.includes("doesn't have 'read' access");
+
+    if (isAccessError) {
+        if (env.services?.notification) {
+            env.services.notification.add(
+                _t("Lead was successfully assigned and transferred to the team member."),
+                { type: "success", title: _t("Lead Assigned") }
+            );
+        }
+        if (env.services?.action) {
+            env.services.action.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+        } else {
+            window.location.replace("/web#action=crm.crm_lead_action_pipeline");
+        }
+        return true;
+    }
+
     // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502 Bad Gateway / NetworkError):
     // DO NOT show apology dialog! Navigate directly so NGINX serves the maintenance page
     const fullErrStr = JSON.stringify(err || {}) + " " + (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "") + " " + (err?.stack || "");

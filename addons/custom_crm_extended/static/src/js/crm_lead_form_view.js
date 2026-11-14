@@ -10,6 +10,7 @@ import { ListController } from "@web/views/list/list_controller";
 import { KanbanController } from "@web/views/kanban/kanban_controller";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
+import { user } from "@web/core/user";
 
 const WIZARD_ACTION = "custom_crm_extended.action_crm_lead_wizard";
 
@@ -75,6 +76,31 @@ export class CrmLeadFormController extends FormController {
                 if (observer) observer.disconnect();
             });
         }
+    }
+
+    async save() {
+        if (this.props.resModel === "crm.lead") {
+            const assignToField = this.model.root.data.x_assign_to_id;
+            const currentUserId = user.userId;
+            const isAssignedToOther = assignToField && assignToField[0] && assignToField[0] !== currentUserId;
+
+            if (isAssignedToOther && !user.isAdmin) {
+                // If assigning to another user, save then redirect to leads list view to avoid AccessError on web_read
+                const saved = await this.model.root.save({
+                    reload: false,
+                    onError: this.onSaveError.bind(this),
+                });
+                if (saved) {
+                    this.env.services.notification?.add(
+                        _t("Lead was successfully assigned and transferred."),
+                        { type: "success" }
+                    );
+                    this.actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+                }
+                return;
+            }
+        }
+        return super.save(...arguments);
     }
 
     async create() {
