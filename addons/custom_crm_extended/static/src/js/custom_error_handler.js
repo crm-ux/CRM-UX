@@ -137,10 +137,10 @@ export function customCleanErrorHandler(env, error, originalError) {
                 { type: "success", title: _t("Lead Assigned") }
             );
         }
-        if (env.services?.action) {
-            env.services.action.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+        if (window.history.length > 1) {
+            window.history.back();
         } else {
-            window.location.replace("/web#action=crm.crm_lead_action_pipeline");
+            window.location.replace("/app/action-435");
         }
         return true;
     }

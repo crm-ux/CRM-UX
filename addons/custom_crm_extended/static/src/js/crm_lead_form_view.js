@@ -85,7 +85,10 @@ export class CrmLeadFormController extends FormController {
             const isAssignedToOther = assignToField && assignToField[0] && assignToField[0] !== currentUserId;
 
             if (isAssignedToOther && !user.isAdmin) {
-                // If assigning to another user, save then redirect to leads list view to avoid AccessError on web_read
+                // Determine the previous controller/view or stage list to restore exactly
+                const breadcrumbs = this.env.config?.breadcrumbs || [];
+                const prev = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2] : null;
+
                 const saved = await this.model.root.save({
                     reload: false,
                     onError: this.onSaveError.bind(this),
@@ -95,7 +98,26 @@ export class CrmLeadFormController extends FormController {
                         _t("Lead was successfully assigned and transferred."),
                         { type: "success" }
                     );
-                    this.actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+                    if (prev && prev.jsId) {
+                        try {
+                            await this.actionService.restore(prev.jsId);
+                            return;
+                        } catch (e) {
+                            // fallback below
+                        }
+                    }
+                    // Restore exact stage-wise list view that user came from
+                    const stageSeq = this.model.root.data.x_stage_sequence || 0;
+                    this.actionService.doAction({
+                        type: "ir.actions.act_window",
+                        name: "Pipeline Leads",
+                        res_model: "crm.lead",
+                        views: [[false, "list"], [false, "form"]],
+                        domain: [["active", "=", true], ["x_stage_sequence", "=", stageSeq]],
+                        context: {
+                            is_quote_stage: stageSeq >= 30,
+                        }
+                    }, { clearBreadcrumbs: true });
                 }
                 return;
             }

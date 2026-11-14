@@ -110,11 +110,15 @@ class CrmLeadRefuseWizard(models.TransientModel):
                 'sticky': False,
                 'next': {
                     'type': 'ir.actions.act_window',
-                    'name': _('Leads'),
+                    'name': _('Pipeline Leads'),
                     'res_model': 'crm.lead',
-                    'view_mode': 'kanban,list,form',
-                    'views': [[False, 'kanban'], [False, 'list'], [False, 'form']],
-                    'target': 'main',
+                    'view_mode': 'list,form',
+                    'views': [[False, 'list'], [False, 'form']],
+                    'domain': [['active', '=', True], ['x_stage_sequence', '=', lead.x_stage_sequence or 0]],
+                    'context': {
+                        'is_quote_stage': (lead.x_stage_sequence or 0) >= 30,
+                    },
+                    'target': 'current',
                 },
             }
         }
