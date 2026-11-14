@@ -18,14 +18,15 @@ class ResUsers(models.Model):
 
     @api.depends('crm_manager_id', 'crm_department_id', 'employee_id.department_id', 'crm_job_id', 'crm_voucher_department_ids')
     def _compute_crm_expense_manager_id(self):
-        """Resolves the Voucher Approver.
-        Administrator (ID 1 or 2) is NEVER a department voucher approver.
-        1. Department-wise Voucher Approver (voucher_manager_id) if active and non-admin.
-        2. Department Head (manager_user_id e.g. Anurag) if active voucher approval is ON.
-        3. Delegated Department Voucher Approver (crm_voucher_department_ids).
-        4. Direct Reports To Manager (crm_manager_id or hr.employee parent_id -> Anurag).
-        5. Global Expense Manager.
-        6. Administrator fallback (only if no manager exists in entire chain).
+        """Resolves the Voucher Approver strictly from Voucher Configuration.
+        1. If user is a Department Head: their voucher goes directly to Global Manager / Admin.
+        2. Regular Employee:
+           - Check Voucher Configuration row for Employee's Department:
+             If Active is ON: designated Voucher Approver (or Department Head on that row).
+           - Check Managing Department where Employee's Department is in 'Additional / Sub-Departments' (Active ON).
+           - Otherwise: Global Authorized Expense Manager.
+           - Otherwise: Administrator.
+        (Direct manager / reports to from user profile is NEVER used for vouchers).
         """
         company = self.env.company
         global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2))[:1]
@@ -39,52 +40,38 @@ class ResUsers(models.Model):
             approver = False
             real_uid = user._origin.id if getattr(user, '_origin', None) and user._origin.id else (user.id if isinstance(user.id, int) else False)
             emp_rec = user.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
-
-            # 1. Check Department-Wise Voucher Configuration
             dept = (user.crm_department_id or (emp_rec and emp_rec.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
+
+            # Check if this user is a Department Head or designated Voucher Approver in Voucher Configuration
+            is_dept_head = False
             if dept:
                 dept = dept.sudo()
-                if dept.voucher_approval_active:
-                    # Specific designated voucher approver (must be non-admin)
-                    if dept.voucher_manager_id and dept.voucher_manager_id.active and dept.voucher_manager_id.id not in (1, 2) and dept.voucher_manager_id.id != user.id:
-                        approver = dept.voucher_manager_id
-                    # Active department head (e.g. Anurag)
-                    elif dept.manager_user_id and dept.manager_user_id.active and dept.manager_user_id.id not in (1, 2) and dept.manager_user_id.id != user.id:
-                        approver = dept.manager_user_id
+                if (dept.manager_user_id and dept.manager_user_id.id == user.id) or (dept.voucher_manager_id and dept.voucher_manager_id.id == user.id):
+                    is_dept_head = True
 
+            # Case A: If user is a Department Head -> reports directly to Global Manager / Admin
+            if is_dept_head:
+                user.crm_expense_manager_id = fallback
+                continue
+
+            # Case B: Regular Employee -> Check Voucher Configuration
+            if dept:
+                # 1. Primary department row with Active = True
+                if dept.voucher_approval_active:
+                    eff_app = dept.voucher_manager_id or dept.manager_user_id
+                    if eff_app and eff_app.active and eff_app.id != user.id:
+                        approver = eff_app
+
+                # 2. Managing department with this dept in Extra / Sub-Departments (Active = True)
                 if not approver:
                     managing_dept = self.env['hr.department'].sudo().search([
                         ('voucher_approval_active', '=', True),
-                        ('voucher_manager_id', '!=', False),
-                        ('voucher_manager_id', 'not in', [1, 2]),
                         ('extra_department_ids', 'in', [dept.id]),
                     ], limit=1)
-                    if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != user.id:
-                        approver = managing_dept.voucher_manager_id
-
-                if not approver:
-                    v_user = self.env['res.users'].sudo().search([
-                        ('crm_voucher_department_ids', 'in', [dept.id]),
-                        ('active', '=', True),
-                        ('id', 'not in', [1, 2, user.id]),
-                    ], limit=1)
-                    if v_user:
-                        approver = v_user
-
-            # 2. Check Direct Reports To Manager (e.g. Anurag)
-            if not approver:
-                direct_mgr = user.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
-                if direct_mgr and direct_mgr.active and direct_mgr.id not in (1, 2) and direct_mgr.id != user.id:
-                    approver = direct_mgr.sudo()
-
-            # 3. Check Job Position department voucher manager / head
-            if not approver and user.crm_job_id and user.crm_job_id.department_id:
-                job_dept = user.crm_job_id.department_id.sudo()
-                if job_dept.voucher_approval_active:
-                    if job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id not in (1, 2) and job_dept.voucher_manager_id.id != user.id:
-                        approver = job_dept.voucher_manager_id
-                    elif job_dept.manager_user_id and job_dept.manager_user_id.active and job_dept.manager_user_id.id not in (1, 2) and job_dept.manager_user_id.id != user.id:
-                        approver = job_dept.manager_user_id
+                    if managing_dept:
+                        eff_app = managing_dept.voucher_manager_id or managing_dept.manager_user_id
+                        if eff_app and eff_app.active and eff_app.id != user.id:
+                            approver = eff_app
 
             user.crm_expense_manager_id = approver or fallback
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)

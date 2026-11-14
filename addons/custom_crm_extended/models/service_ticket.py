@@ -1167,13 +1167,15 @@ class ServiceTicket(models.Model):
         pass
 
     def _get_voucher_approver_for_employee(self, emp):
-        """Resolves the voucher approver.
-        Direct manager and voucher manager are distinct (can be different or the same):
-        Tier 1: Department Voucher Approver from Active Voucher Configuration (voucher_manager_id).
-        Tier 2: User with crm_voucher_department_ids covering this department.
-        Tier 3: Direct Reports To (Manager) e.g. Anurag (crm_manager_id or hr.employee parent_id).
-        Tier 4: Global Expense Manager (company.crm_authorized_expense_manager_ids).
-        Tier 5: System Administrator (last resort).
+        """Resolves the voucher approver strictly from Voucher Configuration.
+        1. If user is a Department Head: goes directly to Global Voucher Manager or Admin.
+        2. Regular Employee:
+           - Check Voucher Configuration row for Employee's Department:
+             If Active is ON: designated Voucher Approver (or Department Head on that row).
+           - Check Managing Department with Employee's Department in 'Additional / Sub-Departments' (Active ON).
+           - Otherwise: Global Authorized Expense Manager.
+           - Otherwise: Administrator fallback.
+        (Direct manager / reports to from user profile is NEVER used for vouchers).
         """
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         if not emp:
@@ -1184,59 +1186,43 @@ class ServiceTicket(models.Model):
         company = emp.company_id or self.env.company
         real_uid = emp._origin.id if getattr(emp, '_origin', None) and emp._origin.id else (emp.id if isinstance(emp.id, int) else False)
         emp_rec = emp.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
-
-        # ── TIER 1: Department Voucher Manager from Active Voucher Settings ──
         emp_dept = (emp.crm_department_id or (emp_rec and emp_rec.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
+
+        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2) and u.id != emp.id)
+        fallback = global_mgrs[:1] or admin_user
+
+        # Check if this user is a Department Head or designated Voucher Approver in Voucher Configuration
+        is_dept_head = False
         if emp_dept:
             emp_dept = emp_dept.sudo()
+            if (emp_dept.manager_user_id and emp_dept.manager_user_id.id == emp.id) or (emp_dept.voucher_manager_id and emp_dept.voucher_manager_id.id == emp.id):
+                is_dept_head = True
+
+        # Department Heads submit vouchers directly to Global Manager / Admin
+        if is_dept_head:
+            return fallback
+
+        # Regular Employees: Look up Voucher Configuration
+        approver = False
+        if emp_dept:
+            # 1. Primary department row with Active = True
             if emp_dept.voucher_approval_active:
-                # Specific designated voucher approver (must be non-admin)
-                if emp_dept.voucher_manager_id and emp_dept.voucher_manager_id.active and emp_dept.voucher_manager_id.id not in (1, 2) and emp_dept.voucher_manager_id.id != emp.id:
-                    return emp_dept.voucher_manager_id
-                # Active department head (e.g. Anurag)
-                if emp_dept.manager_user_id and emp_dept.manager_user_id.active and emp_dept.manager_user_id.id not in (1, 2) and emp_dept.manager_user_id.id != emp.id:
-                    return emp_dept.manager_user_id
+                eff_app = emp_dept.voucher_manager_id or emp_dept.manager_user_id
+                if eff_app and eff_app.active and eff_app.id != emp.id:
+                    approver = eff_app
 
-            # Check sub-departments in managing department
-            managing_dept = self.env['hr.department'].sudo().search([
-                ('voucher_approval_active', '=', True),
-                ('voucher_manager_id', '!=', False),
-                ('voucher_manager_id', 'not in', [1, 2]),
-                ('extra_department_ids', 'in', [emp_dept.id]),
-            ], limit=1)
-            if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != emp.id:
-                return managing_dept.voucher_manager_id
+            # 2. Managing department with this dept in Extra / Sub-Departments (Active = True)
+            if not approver:
+                managing_dept = self.env['hr.department'].sudo().search([
+                    ('voucher_approval_active', '=', True),
+                    ('extra_department_ids', 'in', [emp_dept.id]),
+                ], limit=1)
+                if managing_dept:
+                    eff_app = managing_dept.voucher_manager_id or managing_dept.manager_user_id
+                    if eff_app and eff_app.active and eff_app.id != emp.id:
+                        approver = eff_app
 
-            # Check manager assigned to this department
-            v_user = self.env['res.users'].sudo().search([
-                ('crm_voucher_department_ids', 'in', [emp_dept.id]),
-                ('active', '=', True),
-                ('id', 'not in', [1, 2, emp.id]),
-            ], limit=1)
-            if v_user:
-                return v_user
-
-        # ── TIER 2: Direct Reports To (Manager) e.g. Anurag ──
-        direct_mgr = emp.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
-        if direct_mgr and direct_mgr.active and direct_mgr.id not in (1, 2) and direct_mgr.id != emp.id:
-            return direct_mgr.sudo()
-
-        # ── TIER 3: Check Job Position department voucher manager ──
-        if emp.crm_job_id and emp.crm_job_id.department_id:
-            job_dept = emp.crm_job_id.department_id.sudo()
-            if job_dept.voucher_approval_active:
-                if job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id not in (1, 2) and job_dept.voucher_manager_id.id != emp.id:
-                    return job_dept.voucher_manager_id
-                if job_dept.manager_user_id and job_dept.manager_user_id.active and job_dept.manager_user_id.id not in (1, 2) and job_dept.manager_user_id.id != emp.id:
-                    return job_dept.manager_user_id
-
-        # ── TIER 4: Global Expense Manager ──
-        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2) and u.id != emp.id)
-        if global_mgrs:
-            return global_mgrs[:1]
-
-        # ── TIER 5: Administrator Direct Fallback ──
-        return admin_user
+        return approver or fallback
 
     def action_submit_all_vouchers(self):
         """Submit all draft voucher lines into a single batch based on submission date."""
