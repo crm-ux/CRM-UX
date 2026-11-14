@@ -322,17 +322,34 @@ class ResUsers(models.Model):
 
     def _get_voucher_batch_domain(self):
         """Record rule domain for Voucher Submissions (service.ticket.voucher.batch).
-        - Admin & Global Expense Managers: See ALL vouchers.
-        - Department Approvers: See vouchers of employees in their active department & assigned sub-departments + own.
-        - Regular Employees: See their own vouchers (created by them or where they are an employee).
+        - Draft vouchers: ONLY visible to the employee who created them.
+        - Submitted/Processed vouchers: Visible to Admin, Global Managers, and Department Approvers.
+        - Regular Employees: ONLY see their own vouchers.
         """
         self.ensure_one()
+        own_domain = [
+            '|', '|',
+            ('user_id', '=', self.id),
+            ('submitted_by_user_id', '=', self.id),
+            ('line_ids.user_id', '=', self.id),
+        ]
+
         if self._is_admin() or self.has_group('base.group_system'):
-            return [(1, '=', 1)]
+            # Admin sees their own (including drafts) + all submitted/processed vouchers of others
+            return [
+                '|',
+                ('status', '!=', 'draft'),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
+            ]
 
         company = self.company_id or self.env.company
         if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
-            return [(1, '=', 1)]
+            # Global Managers see their own (including drafts) + all submitted/processed vouchers of others
+            return [
+                '|',
+                ('status', '!=', 'draft'),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
+            ]
 
         # Check if user is an active Department Voucher Approver or Department Head
         managed_depts = self.env['hr.department'].sudo().search([
@@ -347,13 +364,6 @@ class ResUsers(models.Model):
             all_dept_ids.add(d.id)
             all_dept_ids.update(d.extra_department_ids.ids)
 
-        own_domain = [
-            '|', '|',
-            ('user_id', '=', self.id),
-            ('submitted_by_user_id', '=', self.id),
-            ('line_ids.user_id', '=', self.id),
-        ]
-
         direct_report_uids = self.env['res.users'].sudo().search([('crm_manager_id', '=', self.id)]).ids
         subordinate_uids = list(direct_report_uids)
         if all_dept_ids:
@@ -365,29 +375,42 @@ class ResUsers(models.Model):
             subordinate_uids = list(set(subordinate_uids + dept_users.ids))
 
         if subordinate_uids:
+            # Department/direct manager sees their own (including draft) + submitted vouchers of subordinates
             return [
-                '|', '|', '|',
-                ('user_id', '=', self.id),
-                ('submitted_by_user_id', '=', self.id),
-                ('user_id', 'in', subordinate_uids),
-                ('submitted_by_user_id', 'in', subordinate_uids)
+                '|',
+                '&', ('status', '!=', 'draft'), '|', ('user_id', 'in', subordinate_uids), ('submitted_by_user_id', 'in', subordinate_uids),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
             ]
 
         return own_domain
 
     def _get_voucher_line_domain(self):
         """Record rule domain for Voucher Lines (service.ticket.voucher.line).
-        - Admin & Global Expense Managers: See ALL voucher lines.
-        - Department Approvers: See lines of employees in their active department & sub-departments + own lines.
-        - Regular Employees: See their own voucher lines (user_id = self or submitted_by_user_id = self).
+        - Draft voucher lines: ONLY visible to the employee who created them.
+        - Submitted/Processed lines: Visible to Admin, Global Managers, and Department Approvers.
+        - Regular Employees: ONLY see their own voucher lines.
         """
         self.ensure_one()
+        own_domain = [
+            '|',
+            ('user_id', '=', self.id),
+            ('submitted_by_user_id', '=', self.id),
+        ]
+
         if self._is_admin() or self.has_group('base.group_system'):
-            return [(1, '=', 1)]
+            return [
+                '|',
+                ('status', '!=', 'draft'),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
+            ]
 
         company = self.company_id or self.env.company
         if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
-            return [(1, '=', 1)]
+            return [
+                '|',
+                ('status', '!=', 'draft'),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
+            ]
 
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
@@ -401,12 +424,6 @@ class ResUsers(models.Model):
             all_dept_ids.add(d.id)
             all_dept_ids.update(d.extra_department_ids.ids)
 
-        own_domain = [
-            '|',
-            ('user_id', '=', self.id),
-            ('submitted_by_user_id', '=', self.id),
-        ]
-
         direct_report_uids = self.env['res.users'].sudo().search([('crm_manager_id', '=', self.id)]).ids
         subordinate_uids = list(direct_report_uids)
         if all_dept_ids:
@@ -419,11 +436,9 @@ class ResUsers(models.Model):
 
         if subordinate_uids:
             return [
-                '|', '|', '|',
-                ('user_id', '=', self.id),
-                ('submitted_by_user_id', '=', self.id),
-                ('department_id', 'in', list(all_dept_ids)),
-                ('user_id', 'in', subordinate_uids)
+                '|',
+                '&', ('status', '!=', 'draft'), '|', '|', ('department_id', 'in', list(all_dept_ids)), ('user_id', 'in', subordinate_uids), ('submitted_by_user_id', 'in', subordinate_uids),
+                '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
             ]
 
         return own_domain
