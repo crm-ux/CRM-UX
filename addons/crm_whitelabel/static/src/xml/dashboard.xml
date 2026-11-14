@@ -805,7 +805,7 @@
                                     <div t-att-style="'width: ' + complaintBreakdownPct + '%; height: 100%; background: #0b3d91; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
-                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
+                                    <span style="font-size: 1.1rem; font-weight: normal; color: #0f172a;"><t t-esc="state.complaintBreakdown || 0"/></span>
                                 </div>
                             </div>
 
@@ -821,7 +821,7 @@
                                     <div t-att-style="'width: ' + complaintPmPct + '%; height: 100%; background: #0369a1; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
-                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
+                                    <span style="font-size: 1.1rem; font-weight: normal; color: #0f172a;"><t t-esc="state.complaintPm || 0"/></span>
                                 </div>
                             </div>
 
@@ -837,7 +837,7 @@
                                     <div t-att-style="'width: ' + complaintFreeCallPct + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
-                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
+                                    <span style="font-size: 1.1rem; font-weight: normal; color: #0f172a;"><t t-esc="state.complaintFreeCall || 0"/></span>
                                 </div>
                             </div>
 
@@ -853,7 +853,7 @@
                                     <div t-att-style="'width: ' + complaintInstallationPct + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);'"></div>
                                 </div>
                                 <div style="min-width: 40px; text-align: right;">
-                                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a;"><t t-esc="state.complaintInstallation || 0"/></span>
+                                    <span style="font-size: 1.1rem; font-weight: normal; color: #0f172a;"><t t-esc="state.complaintInstallation || 0"/></span>
                                 </div>
                             </div>
 
@@ -884,8 +884,8 @@
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpired || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0b3d91; border-radius: 999px; transition: width 0.7s ease;'"></div>
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
-                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpired || 0"/></span>
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
+                                    <span style="font-size: 0.95rem; font-weight: normal; color: #0f172a;"><t t-esc="state.amcExpired || 0"/></span>
+                                    <span style="font-size: 0.75rem; font-weight: normal; color: #0f172a;">(<t t-esc="fmt(state.amcExpiredVal || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -900,8 +900,8 @@
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring30 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0369a1; border-radius: 999px; transition: width 0.7s ease;'"></div>
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
-                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring30 || 0"/></span>
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
+                                    <span style="font-size: 0.95rem; font-weight: normal; color: #0f172a;"><t t-esc="state.amcExpiring30 || 0"/></span>
+                                    <span style="font-size: 0.75rem; font-weight: normal; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring30Val || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -916,8 +916,8 @@
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring60 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s ease;'"></div>
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
-                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcExpiring60 || 0"/></span>
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring60Val || 0)"/>)</span>
+                                    <span style="font-size: 0.95rem; font-weight: normal; color: #0f172a;"><t t-esc="state.amcExpiring60 || 0"/></span>
+                                    <span style="font-size: 0.75rem; font-weight: normal; color: #0f172a;">(<t t-esc="fmt(state.amcExpiring60Val || 0)"/>)</span>
                                 </div>
                             </div>
 
@@ -932,8 +932,8 @@
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcSecure || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s ease;'"></div>
                                 </div>
                                 <div style="min-width: 100px; text-align: right; display: flex; align-items: baseline; justify-content: flex-end; gap: 0.35rem;">
-                                    <span style="font-size: 0.95rem; font-weight: 800; color: #0f172a;"><t t-esc="state.amcSecure || 0"/></span>
-                                    <span style="font-size: 0.75rem; font-weight: 700; color: #0f172a;">(<t t-esc="fmt(state.amcSecureVal || 0)"/>)</span>
+                                    <span style="font-size: 0.95rem; font-weight: normal; color: #0f172a;"><t t-esc="state.amcSecure || 0"/></span>
+                                    <span style="font-size: 0.75rem; font-weight: normal; color: #0f172a;">(<t t-esc="fmt(state.amcSecureVal || 0)"/>)</span>
                                 </div>
                             </div>
 
