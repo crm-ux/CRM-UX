@@ -1184,7 +1184,7 @@ body:has(.crm-pro-dashboard) .o_loading {
 }
 
 .crm-stat-metric-val {
-    font-size: clamp(1.30rem, 1.55vw, 1.5rem);
+    font-size: clamp(1.30rem, 1.60vw, 1.55rem);
     font-weight: 700;
     color: #1e293b;
     line-height: 1.1;
