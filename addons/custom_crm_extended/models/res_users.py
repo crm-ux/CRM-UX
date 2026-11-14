@@ -16,6 +16,7 @@ class ResUsers(models.Model):
         store=False,
     )
 
+    @api.depends('crm_manager_id', 'crm_department_id', 'employee_id.department_id', 'crm_job_id', 'crm_voucher_department_ids')
     def _compute_crm_expense_manager_id(self):
         company = self.env.company
         global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
@@ -26,43 +27,40 @@ class ResUsers(models.Model):
                 user.crm_expense_manager_id = False
                 continue
 
-            dept = (user.crm_department_id or (user.employee_id and user.employee_id.department_id) or False)
-            if dept:
-                dept = dept.sudo()
             approver = False
 
-            if dept:
-                # 1. Own department ONLY if voucher approval is active (Active = ON)
-                if dept.voucher_approval_active:
-                    mgr = dept.voucher_manager_id or dept.manager_user_id
-                    if mgr and mgr.active and mgr.id != user.id:
-                        approver = mgr
+            # 1. Direct Reports To (Manager) check (e.g. Pratham -> Anurag)
+            if user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
+                approver = user.crm_manager_id.sudo()
 
-                # 2. Managing department covering this department under sub-departments (Active = ON)
-                if not approver:
-                    managing_dept = self.env['hr.department'].sudo().search([
-                        ('voucher_approval_active', '=', True),
-                        ('extra_department_ids', 'in', [dept.id]),
-                    ], limit=1)
-                    if managing_dept:
-                        m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
-                        if m_mgr and m_mgr.active and m_mgr.id != user.id:
-                            approver = m_mgr
+            # 2. Check department-wise voucher configuration
+            if not approver:
+                dept = (user.crm_department_id or (user.employee_id and user.employee_id.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
+                if dept:
+                    dept = dept.sudo()
+                    if dept.voucher_approval_active:
+                        mgr = dept.voucher_manager_id or dept.manager_user_id
+                        if mgr and mgr.active and mgr.id != user.id:
+                            approver = mgr
 
-                # 3. Manager holding voucher department assignment covering this department
-                if not approver:
-                    v_user = self.env['res.users'].sudo().search([
-                        ('crm_voucher_department_ids', 'in', [dept.id]),
-                        ('active', '=', True),
-                        ('id', '!=', user.id),
-                    ], limit=1)
-                    if v_user:
-                        approver = v_user
+                    if not approver:
+                        managing_dept = self.env['hr.department'].sudo().search([
+                            ('voucher_approval_active', '=', True),
+                            ('extra_department_ids', 'in', [dept.id]),
+                        ], limit=1)
+                        if managing_dept:
+                            m_mgr = managing_dept.voucher_manager_id or managing_dept.manager_user_id
+                            if m_mgr and m_mgr.active and m_mgr.id != user.id:
+                                approver = m_mgr
 
-            # 4. Direct Reports To (Manager) check (e.g. Anurag)
-            if not approver and user.crm_manager_id and user.crm_manager_id.active and user.crm_manager_id.id != user.id:
-                mgr_candidate = user.crm_manager_id.sudo()
-                approver = mgr_candidate
+                    if not approver:
+                        v_user = self.env['res.users'].sudo().search([
+                            ('crm_voucher_department_ids', 'in', [dept.id]),
+                            ('active', '=', True),
+                            ('id', '!=', user.id),
+                        ], limit=1)
+                        if v_user:
+                            approver = v_user
 
             user.crm_expense_manager_id = approver or fallback
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
@@ -356,13 +354,17 @@ class ResUsers(models.Model):
             ('line_ids.user_id', '=', self.id),
         ]
 
+        direct_report_uids = self.env['res.users'].sudo().search([('crm_manager_id', '=', self.id)]).ids
+        subordinate_uids = list(direct_report_uids)
         if all_dept_ids:
             dept_users = self.env['res.users'].sudo().search([
                 '|',
                 ('crm_department_id', 'in', list(all_dept_ids)),
                 ('employee_id.department_id', 'in', list(all_dept_ids))
             ])
-            subordinate_uids = dept_users.ids
+            subordinate_uids = list(set(subordinate_uids + dept_users.ids))
+
+        if subordinate_uids:
             return [
                 '|', '|', '|',
                 ('user_id', '=', self.id),
@@ -405,13 +407,17 @@ class ResUsers(models.Model):
             ('submitted_by_user_id', '=', self.id),
         ]
 
+        direct_report_uids = self.env['res.users'].sudo().search([('crm_manager_id', '=', self.id)]).ids
+        subordinate_uids = list(direct_report_uids)
         if all_dept_ids:
             dept_users = self.env['res.users'].sudo().search([
                 '|',
                 ('crm_department_id', 'in', list(all_dept_ids)),
                 ('employee_id.department_id', 'in', list(all_dept_ids))
             ])
-            subordinate_uids = dept_users.ids
+            subordinate_uids = list(set(subordinate_uids + dept_users.ids))
+
+        if subordinate_uids:
             return [
                 '|', '|', '|',
                 ('user_id', '=', self.id),
