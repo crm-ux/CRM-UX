@@ -1,6 +1,7 @@
 /* Background */
 body:has(.card) {
     min-height: 100vh !important;
+    zoom: 0.80 !important;
 }
 
 /* White Login Card */
