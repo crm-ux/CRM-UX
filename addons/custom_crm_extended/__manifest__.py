@@ -74,6 +74,7 @@
             'custom_crm_extended/static/src/js/user_access_labels.js',
             'custom_crm_extended/static/src/js/record_log_action.js',
             'custom_crm_extended/static/src/js/todo_reminder_service.js',
+            'custom_crm_extended/static/src/js/crm_live_toast_service.js',
             'custom_crm_extended/static/src/js/custom_error_handler.js',
             'custom_crm_extended/static/src/js/activity_schedule_override.js',
             'custom_crm_extended/static/src/js/mail_activity_schedule_redirect.js',

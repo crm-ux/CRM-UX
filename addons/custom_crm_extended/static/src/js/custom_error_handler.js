@@ -87,6 +87,19 @@ if (typeof window !== "undefined" && !window._crmNetworkWatcherInstalled) {
 export function customCleanErrorHandler(env, error, originalError) {
     const err = originalError || error;
 
+    const fullErrStr = JSON.stringify(err || {}) + " " + (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "") + " " + (err?.stack || "");
+    const fullErrLower = fullErrStr.toLowerCase();
+
+    // 0. If it's an AccessError caused by lead assignment / transfer, completely silent-suppress
+    if (
+        err?.data?.name === "odoo.exceptions.AccessError" ||
+        fullErrLower.includes("accesserror") ||
+        fullErrLower.includes("top-secret records") ||
+        fullErrLower.includes("doesn't have 'read' access")
+    ) {
+        return true;
+    }
+
     // 1. Always log complete technical details, traceback, and error object to developer console
     console.error("[Odoo Technical Error - Logged for Developers]:", err);
     if (err?.data?.message) {
@@ -131,27 +144,7 @@ export function customCleanErrorHandler(env, error, originalError) {
         fullErrLower.includes("doesn't have 'read' access");
 
     if (isAccessError) {
-        if (env.services?.notification) {
-            env.services.notification.add(
-                _t("Lead was successfully assigned and transferred to the team member."),
-                { type: "success", title: _t("Lead Assigned") }
-            );
-        }
-        const breadcrumbs = env.config?.breadcrumbs || [];
-        if (breadcrumbs.length > 1) {
-            const prev = breadcrumbs[breadcrumbs.length - 2];
-            if (prev && prev.jsId && env.services?.action) {
-                try {
-                    env.services.action.restore(prev.jsId);
-                    return true;
-                } catch (e) {}
-            }
-        }
-        if (window.history.length > 1) {
-            window.history.back();
-        } else {
-            window.location.replace("/app/action-435");
-        }
+        // Suppress technical traceback and error dialog completely
         return true;
     }
 

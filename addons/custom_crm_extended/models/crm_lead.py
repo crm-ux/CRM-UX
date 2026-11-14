@@ -590,10 +590,23 @@ class CrmLead(models.Model):
                         try:
                             self.env['bus.bus']._sendone(
                                 assigned_user.partner_id,
+                                'simple_notification',
+                                {
+                                    'title': 'Lead Assigned',
+                                    'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                                    'type': 'info',
+                                    'sticky': False,
+                                }
+                            )
+                        except Exception:
+                            pass
+                        try:
+                            self.env['bus.bus']._sendone(
+                                assigned_user.partner_id,
                                 'crm_notification',
                                 {
                                     'title': 'Lead Assigned',
-                                    'message': f"Lead {rec.name} has been assigned to you.",
+                                    'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
                                     'model': 'crm.lead',
                                     'res_id': rec.id,
                                 }
