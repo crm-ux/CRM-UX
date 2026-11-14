@@ -150,8 +150,6 @@ export function customCleanErrorHandler(env, error, originalError) {
 
     // 2.5 If server is offline, restarting, or upgrading (Connection Lost / 502 Bad Gateway / NetworkError):
     // DO NOT show apology dialog! Navigate directly so NGINX serves the maintenance page
-    const fullErrStr = JSON.stringify(err || {}) + " " + (err?.message || "") + " " + (err?.data?.message || "") + " " + (err?.name || "") + " " + (err?.stack || "");
-    const fullErrLower = fullErrStr.toLowerCase();
 
     const isConnectionLost = 
         err?.status === 0 || 
