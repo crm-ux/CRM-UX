@@ -2,11 +2,11 @@
    GLOBAL CRM COMPACT ZOOM - APPLIES TO ALL VIEWS, FORMS, TABLES & PAGES
    ========================================================================== */
 .o_action_manager {
-    zoom: 0.90 !important;
+    zoom: 0.80 !important;
 }
 
 .modal-dialog {
-    zoom: 0.90 !important;
+    zoom: 0.80 !important;
 }
 
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
@@ -1309,6 +1309,7 @@ button[name="action_cancel_future_series"] i {
     border-bottom: 1px solid #0b3d91 !important;
     box-shadow: none !important;
 }
+
 /* Scope blue lines ONLY AND ONLY to Task Management Form (.crm-task-management-form) */
 .crm-task-management-form .o_field_widget input:focus,
 .crm-task-management-form .o_field_widget textarea:focus,
@@ -1758,7 +1759,7 @@ input[type="checkbox"]:checked,
 .o_list_record_selector input[type="checkbox"]:checked,
 .o_list_table th.o_list_record_selector input[type="checkbox"]:checked,
 .o_list_table td.o_list_record_selector input[type="checkbox"]:checked,
-.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before {
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
 }

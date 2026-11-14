@@ -17,7 +17,7 @@
                     <group>
                         <!-- Row 1: Customer/company name | Date -->
                         <group>
-                            <field name="partner_id" default_focus="1" string="Customer / Company Name"/>
+                            <field name="partner_id" default_focus="1" string="Customer Name"/>
                         </group>
                         <group>
                             <field name="date"/>
