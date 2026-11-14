@@ -100,6 +100,24 @@ class CrmLeadRefuseWizard(models.TransientModel):
             except Exception:
                 pass
 
+        seq = lead.x_stage_sequence or 0
+        stage_labels = {
+            0: "New Lead",
+            5: "Contacted",
+            7: "Tech. Discussion",
+            10: "Qualified",
+            20: "Opportunity",
+            30: "Quotes",
+            35: "Sent",
+            40: "Negotiation",
+            50: "Order Expected",
+            90: "Won"
+        }
+        stage_name = stage_labels.get(seq, "Pipeline Leads")
+        lead_domain = [('active', '=', True), ('x_stage_sequence', '=', seq)]
+        if seq != 90:
+            lead_domain.append(('x_stage_sequence', '!=', 90))
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -110,13 +128,15 @@ class CrmLeadRefuseWizard(models.TransientModel):
                 'sticky': False,
                 'next': {
                     'type': 'ir.actions.act_window',
-                    'name': _('Pipeline Leads'),
+                    'name': stage_name,
                     'res_model': 'crm.lead',
                     'view_mode': 'list,form',
                     'views': [[False, 'list'], [False, 'form']],
-                    'domain': [['active', '=', True], ['x_stage_sequence', '=', lead.x_stage_sequence or 0]],
+                    'domain': lead_domain,
                     'context': {
-                        'is_quote_stage': (lead.x_stage_sequence or 0) >= 30,
+                        'search_default_assigned_to_me': 0,
+                        'search_default_my_leads': 0,
+                        'is_quote_stage': seq >= 30,
                     },
                     'target': 'current',
                 },
