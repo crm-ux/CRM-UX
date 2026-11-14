@@ -34,7 +34,7 @@ class CrmLeadRefuseWizard(models.TransientModel):
             'x_refuse_reason': self.refuse_reason,
             'x_refuse_date': fields.Datetime.now(),
             'user_id': creator.id,
-            'x_assign_to_id': creator.id,
+            'x_assign_to_id': False,
         })
 
         # Post a message visible to the team
