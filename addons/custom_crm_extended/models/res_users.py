@@ -36,7 +36,8 @@ class ResUsers(models.Model):
                 continue
 
             approver = False
-            emp_rec = user.employee_id or self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+            real_uid = user._origin.id if getattr(user, '_origin', None) and user._origin.id else (user.id if isinstance(user.id, int) else False)
+            emp_rec = user.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
 
             # 1. Check Department-Wise Voucher Configuration (voucher_manager_id)
             dept = (user.crm_department_id or (emp_rec and emp_rec.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)

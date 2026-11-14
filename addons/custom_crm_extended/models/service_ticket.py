@@ -1182,7 +1182,8 @@ class ServiceTicket(models.Model):
 
         emp = emp.sudo()
         company = emp.company_id or self.env.company
-        emp_rec = emp.employee_id or self.env['hr.employee'].sudo().search([('user_id', '=', emp.id)], limit=1)
+        real_uid = emp._origin.id if getattr(emp, '_origin', None) and emp._origin.id else (emp.id if isinstance(emp.id, int) else False)
+        emp_rec = emp.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
 
         # ── TIER 1: Department Voucher Manager from Active Voucher Settings ──
         emp_dept = (emp.crm_department_id or (emp_rec and emp_rec.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
@@ -2158,8 +2159,10 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.voucher_status = rec.status
 
     @api.model
-    def _search(self, domain, offset=0, limit=None, order=None):
+    def _search(self, domain, offset=0, limit=None, order=None, *args, **kwargs):
         """Draft voucher lines are private to the employee/creator."""
+        if self.env.su:
+            return super(ServiceTicketVoucherLine, self)._search(domain, offset=offset, limit=limit, order=order, *args, **kwargs)
         user = self.env.user
         extra_domain = [
             '|',
@@ -2168,8 +2171,8 @@ class ServiceTicketVoucherLine(models.Model):
             ('submitted_by_user_id', '=', user.id),
             ('status', '!=', 'draft'),
         ]
-        domain = expression.AND([domain, extra_domain])
-        return super(ServiceTicketVoucherLine, self)._search(domain, offset=offset, limit=limit, order=order)
+        domain = expression.AND([domain or [], extra_domain])
+        return super(ServiceTicketVoucherLine, self)._search(domain, offset=offset, limit=limit, order=order, *args, **kwargs)
 
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Submission Batch', ondelete='cascade', index=True)
     voucher_id = fields.Char(related='batch_id.name', string='Voucher ID', store=True, readonly=True)
@@ -2859,12 +2862,14 @@ class ServiceTicketVoucherBatch(models.Model):
             )
 
     @api.model
-    def _search(self, domain, offset=0, limit=None, order=None):
+    def _search(self, domain, offset=0, limit=None, order=None, *args, **kwargs):
         """Strict Draft Privacy:
         Draft vouchers are private to the creator/submitting employee only.
         Administrators, Global Expense Managers, and Department Approvers can only see
         vouchers once submitted (status != 'draft'), unless it is their own draft voucher.
         """
+        if self.env.su:
+            return super(ServiceTicketVoucherBatch, self)._search(domain, offset=offset, limit=limit, order=order, *args, **kwargs)
         user = self.env.user
         extra_domain = [
             '|',
@@ -2873,8 +2878,8 @@ class ServiceTicketVoucherBatch(models.Model):
             ('submitted_by_user_id', '=', user.id),
             ('status', '!=', 'draft'),
         ]
-        domain = expression.AND([domain, extra_domain])
-        return super(ServiceTicketVoucherBatch, self)._search(domain, offset=offset, limit=limit, order=order)
+        domain = expression.AND([domain or [], extra_domain])
+        return super(ServiceTicketVoucherBatch, self)._search(domain, offset=offset, limit=limit, order=order, *args, **kwargs)
     submitted_by_user_id = fields.Many2one(
         'res.users',
         string='Submitted By',
