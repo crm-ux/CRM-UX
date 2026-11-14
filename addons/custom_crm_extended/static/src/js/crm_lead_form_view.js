@@ -85,7 +85,7 @@ export class CrmLeadFormController extends FormController {
             const isAssignedToOther = assignToField && assignToField[0] && assignToField[0] !== currentUserId;
 
             if (isAssignedToOther && !user.isAdmin) {
-                // Determine the previous controller/view or stage list to restore exactly
+                // Determine the previous controller/view where the user clicked this lead from
                 const breadcrumbs = this.env.config?.breadcrumbs || [];
                 const prev = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2] : null;
 
@@ -106,39 +106,11 @@ export class CrmLeadFormController extends FormController {
                             // fallback below
                         }
                     }
-                    // Restore exact stage-wise list view with correct name and domain matching dashboard
-                    const stageSeq = this.model.root.data.x_stage_sequence || 0;
-                    const stageLabels = {
-                        0: "New Lead",
-                        5: "Contacted",
-                        7: "Tech. Discussion",
-                        10: "Qualified",
-                        20: "Opportunity",
-                        30: "Quotes",
-                        35: "Sent",
-                        40: "Negotiation",
-                        50: "Order Expected",
-                        90: "Won"
-                    };
-                    const stageName = stageLabels[stageSeq] || "Pipeline Leads";
-                    const isQuote = stageSeq >= 30;
-                    let leadDomain = [["active", "=", true], ["x_stage_sequence", "=", stageSeq]];
-                    if (stageSeq !== 90) {
-                        leadDomain.push(["x_stage_sequence", "!=", 90]);
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        this.actionService.doAction(435, { clearBreadcrumbs: true });
                     }
-
-                    this.actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: stageName,
-                        res_model: "crm.lead",
-                        views: [[false, "list"], [false, "form"]],
-                        domain: leadDomain,
-                        context: {
-                            search_default_assigned_to_me: 0,
-                            search_default_my_leads: 0,
-                            is_quote_stage: isQuote,
-                        }
-                    }, { clearBreadcrumbs: true });
                 }
                 return;
             }

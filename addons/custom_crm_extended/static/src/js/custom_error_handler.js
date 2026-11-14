@@ -137,6 +137,16 @@ export function customCleanErrorHandler(env, error, originalError) {
                 { type: "success", title: _t("Lead Assigned") }
             );
         }
+        const breadcrumbs = env.config?.breadcrumbs || [];
+        if (breadcrumbs.length > 1) {
+            const prev = breadcrumbs[breadcrumbs.length - 2];
+            if (prev && prev.jsId && env.services?.action) {
+                try {
+                    env.services.action.restore(prev.jsId);
+                    return true;
+                } catch (e) {}
+            }
+        }
         if (window.history.length > 1) {
             window.history.back();
         } else {

@@ -51,8 +51,7 @@
                         string="Refuse Assignment"
                         type="object"
                         class="btn-secondary"
-                        invisible="not x_assign_to_id or x_is_refused or x_assign_to_id != uid"
-                        confirm="Are you sure you want to refuse this assignment? Your reason will be sent to the lead owner."/>
+                        invisible="not x_assign_to_id or x_is_refused or x_assign_to_id != uid"/>
 
                 <!-- Reset button: visible to owner when lead is refused -->
                 <button name="action_reset_from_refusal"
