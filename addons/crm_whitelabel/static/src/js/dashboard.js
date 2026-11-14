@@ -272,10 +272,10 @@ class CrmDashboard extends Component {
             name: "My Vouchers",
             res_model: "service.ticket.voucher.batch",
             views: [[false, "list"], [false, "form"]],
-            domain: ["|", ["user_id", "=", uid], ["submitted_by_user_id", "=", uid]],
+            domain: [["user_id", "=", uid]],
             context: {
                 default_user_id: uid,
-                default_submitted_by_user_id: uid,
+                search_default_filter_my_vouchers: 1,
             },
             target: "current",
         });
