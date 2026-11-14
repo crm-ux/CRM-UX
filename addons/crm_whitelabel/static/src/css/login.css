@@ -1,14 +1,18 @@
 /* Background */
-body:has(.card) {
+html:has(.card),
+body:has(.card),
+body.o_home_menu_background {
     min-height: 100vh !important;
     zoom: 0.80 !important;
 }
 
 /* White Login Card */
-.card {
+.card,
+.o_database_list .card {
     border-radius: 16px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
     background: #FFFFFF !important;
+    zoom: 0.80 !important;
 }
 
 /* Hide Odoo logo image inside card */
