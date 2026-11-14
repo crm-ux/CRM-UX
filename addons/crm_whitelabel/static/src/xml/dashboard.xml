@@ -798,7 +798,7 @@
                                 t-on-click="() => this.openComplaintList('breakdown', 'Breakdown')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">Breakdown</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">Breakdown</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
@@ -814,7 +814,7 @@
                                 t-on-click="() => this.openComplaintList('preventive', 'PM')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">PM</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">PM</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
@@ -830,7 +830,7 @@
                                 t-on-click="() => this.openComplaintList('free_call', 'Free Call')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">Free Call</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">Free Call</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
@@ -846,7 +846,7 @@
                                 t-on-click="() => this.openComplaintList('installation', 'Installation')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">Installation</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">Installation</span>
                                 </div>
                                 <!-- Static Horizontal Progress Bar Track -->
                                 <div style="flex: 1; height: 10px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
@@ -878,7 +878,7 @@
                                 t-on-click="() => this.openAmcRenewalList('expired', 'Expired')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0b3d91; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">Expired</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">Expired</span>
                                 </div>
                                 <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpired || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0b3d91; border-radius: 999px; transition: width 0.7s ease;'"></div>
@@ -894,7 +894,7 @@
                                 t-on-click="() => this.openAmcRenewalList('30', '&lt; 30 Days')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0369a1; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">&lt; 30 Days</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">&lt; 30 Days</span>
                                 </div>
                                 <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring30 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0369a1; border-radius: 999px; transition: width 0.7s ease;'"></div>
@@ -910,7 +910,7 @@
                                 t-on-click="() => this.openAmcRenewalList('60', '30–60 Days')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0284c7; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">30–60 Days</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">30–60 Days</span>
                                 </div>
                                 <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcExpiring60 || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #0284c7; border-radius: 999px; transition: width 0.7s ease;'"></div>
@@ -926,7 +926,7 @@
                                 t-on-click="() => this.openAmcRenewalList('secure', '&gt; 60 Days')">
                                 <div style="display: flex; align-items: center; min-width: 95px;">
                                     <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; margin-right: 6px;"></span>
-                                    <span style="font-size: 0.8rem; font-weight: 500; color: #0f172a;">&gt; 60 Days</span>
+                                    <span style="font-size: 0.8rem; font-weight: normal; color: #0f172a;">&gt; 60 Days</span>
                                 </div>
                                 <div style="flex: 1; height: 8px; background: #e0f2fe; border-radius: 999px; overflow: hidden; position: relative;">
                                     <div t-att-style="'width: ' + (amcTotalCount > 0 ? Math.round(((state.amcSecure || 0) / amcTotalCount) * 100) : 0) + '%; height: 100%; background: #38bdf8; border-radius: 999px; transition: width 0.7s ease;'"></div>
