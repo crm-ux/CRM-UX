@@ -523,8 +523,20 @@ class CrmLead(models.Model):
             self.with_context(bypass_stage_lock=True).write({'stage_id': stage.id})
 
     def write(self, vals):
-        # Block moving stage BACKWARD once past Technical Discussion (sequence 7)
-        # Admin (uid=2 or uid=11) can bypass all restrictions
+        # 1. Keep x_assign_to_id and user_id in sync
+        if 'x_assign_to_id' in vals and vals.get('x_assign_to_id'):
+            vals['user_id'] = vals['x_assign_to_id']
+        elif 'user_id' in vals and vals.get('user_id') and 'x_assign_to_id' not in vals:
+            vals['x_assign_to_id'] = vals['user_id']
+        elif 'x_assign_to_id' in vals and not vals.get('x_assign_to_id'):
+            if 'user_id' not in vals:
+                pass  # Keep user_id as creator/current owner
+
+        # 2. Track last modified by
+        if self.env.user and self.env.user.id != 1 and 'x_last_modified_by_id' not in vals:
+            vals['x_last_modified_by_id'] = self.env.user.id
+
+        # 3. Block moving stage BACKWARD once past Technical Discussion (sequence 7)
         is_admin = self.env.user.id in (2, 11) or self.env.user.has_group('base.group_system')
         if 'stage_id' in vals and vals.get('stage_id') and not self.env.context.get('bypass_stage_lock') and not is_admin:
             new_stage = self.env['crm.stage'].browse(vals['stage_id'])
@@ -533,22 +545,74 @@ class CrmLead(models.Model):
                     raise UserError(_(
                         'You cannot move this lead back to an earlier stage once it has passed Technical Discussion.'
                     ))
-            # Block manually setting Negotiation/Won stages - must go through the quote action buttons
             if new_stage.sequence in (40, 90):
                 raise UserError(_(
                     'The "%s" stage can only be reached automatically when a quotation is Sent, '
                     'moved to Negotiation, or marked Won. Please use the quote buttons instead.'
                 ) % new_stage.name)
 
+        old_assigned = {rec.id: (rec.x_assign_to_id.id or rec.user_id.id) for rec in self.sudo()} if ('user_id' in vals or 'x_assign_to_id' in vals) else {}
+
         res = super().write(vals)
 
-        # Auto-move to Technical Discussion when notes are saved (only if still before that stage)
+        # 4. Auto-move to Technical Discussion when notes are saved
         if 'description' in vals and vals.get('description'):
             for rec in self:
                 if rec.stage_id and rec.stage_id.sequence <= 5:
                     tech_stage = rec._get_stage_by_sequence(7)
                     if tech_stage:
                         super(CrmLead, rec).write({'stage_id': tech_stage.id})
+
+        # 5. Notify assigned user if assignment changed
+        if 'user_id' in vals or 'x_assign_to_id' in vals:
+            for rec in self.sudo():
+                assigned_user = rec.x_assign_to_id or rec.user_id
+                if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
+                    if assigned_user.partner_id:
+                        contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
+                        phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
+                        body_msg = (
+                            f"<b>Lead Assigned</b><br/>"
+                            f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                            f"Contact: <b>{contact}</b> ({phone_str})<br/>"
+                            f"Details: {rec.description or 'No additional details provided.'}"
+                        )
+                        try:
+                            rec.message_post(
+                                body=body_msg,
+                                subject=f"Lead Assigned: {rec.name}",
+                                partner_ids=[assigned_user.partner_id.id],
+                                message_type='notification',
+                                subtype_xmlid='mail.mt_comment',
+                            )
+                        except Exception:
+                            pass
+                        try:
+                            self.env['bus.bus']._sendone(
+                                assigned_user.partner_id,
+                                'crm_notification',
+                                {
+                                    'title': 'Lead Assigned',
+                                    'message': f"Lead {rec.name} has been assigned to you.",
+                                    'model': 'crm.lead',
+                                    'res_id': rec.id,
+                                }
+                            )
+                        except Exception:
+                            pass
+                        try:
+                            self.env['crm.notification'].create_notification(
+                                user=assigned_user,
+                                title=f'Lead Assigned: {rec.name}',
+                                summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
+                                category='lead',
+                                sender=self.env.user,
+                                res_model='crm.lead',
+                                res_id=rec.id,
+                                record_ref_name=rec.name,
+                            )
+                        except Exception:
+                            pass
         return res
 
     def action_new_quotation(self):
@@ -650,14 +714,7 @@ class CrmLead(models.Model):
             'target': 'current',
         }
 
-    def write(self, vals):
-        if 'x_assign_to_id' in vals:
-            vals['user_id'] = vals['x_assign_to_id']
-        elif 'user_id' in vals and 'x_assign_to_id' not in vals:
-            vals['x_assign_to_id'] = vals['user_id']
-        if self.env.user and self.env.user.id != 1 and 'x_last_modified_by_id' not in vals:
-            vals['x_last_modified_by_id'] = self.env.user.id
-        return super().write(vals)
+
 
     def get_formview_action(self, access_uid=None):
         if not self:
@@ -728,60 +785,6 @@ class CrmLead(models.Model):
                 except Exception:
                     pass
         return records
-
-    def write(self, vals):
-        old_assigned = {rec.id: (rec.x_assign_to_id.id or rec.user_id.id) for rec in self.sudo()} if ('user_id' in vals or 'x_assign_to_id' in vals) else {}
-        res = super().write(vals)
-        if 'user_id' in vals or 'x_assign_to_id' in vals:
-            for rec in self.sudo():
-                assigned_user = rec.x_assign_to_id or rec.user_id
-                if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
-                    if assigned_user.partner_id:
-                        contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
-                        phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
-                        body_msg = (
-                            f"<b>Lead Assigned</b><br/>"
-                            f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                            f"Contact: <b>{contact}</b> ({phone_str})<br/>"
-                            f"Details: {rec.description or 'No additional details provided.'}"
-                        )
-                        try:
-                            rec.message_post(
-                                body=body_msg,
-                                subject=f"Lead Assigned: {rec.name}",
-                                partner_ids=[assigned_user.partner_id.id],
-                                message_type='notification',
-                                subtype_xmlid='mail.mt_comment',
-                            )
-                        except Exception:
-                            pass
-                        try:
-                            self.env['bus.bus']._sendone(
-                                assigned_user.partner_id,
-                                'crm_notification',
-                                {
-                                    'title': 'Lead Assigned',
-                                    'message': f"Lead {rec.name} has been assigned to you.",
-                                    'model': 'crm.lead',
-                                    'res_id': rec.id,
-                                }
-                            )
-                        except Exception:
-                            pass
-                        try:
-                            self.env['crm.notification'].create_notification(
-                                user=assigned_user,
-                                title=f'Lead Assigned: {rec.name}',
-                                summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
-                                category='lead',
-                                sender=self.env.user,
-                                res_model='crm.lead',
-                                res_id=rec.id,
-                                record_ref_name=rec.name,
-                            )
-                        except Exception:
-                            pass
-        return res
 
 class ResPartnerRestrict(models.Model):
     _inherit = 'res.partner'
