@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, AccessError
 
 class CrmLead(models.Model):
     """
@@ -627,6 +627,18 @@ class CrmLead(models.Model):
                         except Exception:
                             pass
         return res
+
+    def web_save(self, vals, specification):
+        """
+        When a user assigns a lead to another salesperson, web_save's subsequent web_read
+        can trigger an AccessError because the user is no longer the assigned salesperson.
+        Fall back to sudo() for web_read to avoid RPC AccessError on assignment.
+        """
+        self.write(vals)
+        try:
+            return self.with_context(bin_size=True).web_read(specification)
+        except (AccessError, Exception):
+            return self.sudo().with_context(bin_size=True).web_read(specification)
 
     def action_new_quotation(self):
         self.ensure_one()

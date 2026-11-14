@@ -109,7 +109,10 @@ export class CrmLeadFormController extends FormController {
                     if (window.history.length > 1) {
                         window.history.back();
                     } else {
-                        this.actionService.doAction(435, { clearBreadcrumbs: true });
+                        this.actionService.doAction(
+                            { type: "ir.actions.client", tag: "crm_dashboard" },
+                            { clearBreadcrumbs: true }
+                        );
                     }
                 }
                 return;
