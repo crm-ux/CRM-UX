@@ -690,7 +690,7 @@
         </field>
     </record>
 
-    <!-- Window Action: My Vouchers (Shows Employee's Vouchers, "+ New" creates General Voucher) -->
+    <!-- Window Action: My Vouchers (Shows Employee's Personal Vouchers, "+ New" creates General Voucher) -->
     <record id="action_my_vouchers" model="ir.actions.act_window">
         <field name="name">My Vouchers</field>
         <field name="res_model">service.ticket.voucher.batch</field>
@@ -698,6 +698,7 @@
         <field name="view_id" ref="view_my_voucher_batch_tree"/>
         <field name="search_view_id" ref="view_service_ticket_voucher_batch_search"/>
         <field name="views">[[%(view_my_voucher_batch_tree)d, 'list'], [%(view_service_ticket_voucher_batch_form)d, 'form']]</field>
+        <field name="domain">['|', ('user_id', '=', uid), ('submitted_by_user_id', '=', uid)]</field>
         <field name="context">{'default_user_id': uid, 'default_submitted_by_user_id': uid}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

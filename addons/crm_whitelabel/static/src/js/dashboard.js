@@ -266,7 +266,19 @@ class CrmDashboard extends Component {
         this.go("custom_crm_extended.action_sale_terms_template");
     }
     openMyVouchers(ev) {
-        this.go("custom_crm_extended.action_my_vouchers");
+        const uid = this.state.viewAsUserId || user.userId;
+        this.go({
+            type: "ir.actions.act_window",
+            name: "My Vouchers",
+            res_model: "service.ticket.voucher.batch",
+            views: [[false, "list"], [false, "form"]],
+            domain: ["|", ["user_id", "=", uid], ["submitted_by_user_id", "=", uid]],
+            context: {
+                default_user_id: uid,
+                default_submitted_by_user_id: uid,
+            },
+            target: "current",
+        });
     }
     openVoucherManagement(ev) {
         this.go("custom_crm_extended.action_service_ticket_voucher_line");
