@@ -2817,6 +2817,20 @@ class ServiceTicketVoucherBatch(models.Model):
             rec.voucher_type = 'ticket' if rec.ticket_id else 'general'
 
     user_id = fields.Many2one('res.users', string='Employee', required=True, default=lambda self: self.env.user)
+    is_voucher_owner = fields.Boolean(
+        string='Is Voucher Owner',
+        compute='_compute_is_voucher_owner',
+        store=False,
+    )
+
+    def _compute_is_voucher_owner(self):
+        user = self.env.user
+        for rec in self:
+            rec.is_voucher_owner = bool(
+                rec.user_id.id == user.id or
+                rec.submitted_by_user_id.id == user.id or
+                rec.create_uid.id == user.id
+            )
     submitted_by_user_id = fields.Many2one(
         'res.users',
         string='Submitted By',

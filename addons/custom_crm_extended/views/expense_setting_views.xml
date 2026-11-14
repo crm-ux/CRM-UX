@@ -340,7 +340,7 @@
         <field name="arch" type="xml">
             <form string="Voucher Submission Detail" class="o_service_ticket_voucher_batch_form">
                 <header>
-                    <button name="action_submit_batch" string="Submit for Approval" type="object" icon="fa-paper-plane" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status != 'draft'" confirm="Are you sure you want to submit these expenses for approval? Once submitted, you cannot edit or rollback."/>
+                    <button name="action_submit_batch" string="Submit for Approval" type="object" icon="fa-paper-plane" class="btn btn-primary fw-bold px-3 py-1 shadow-sm" invisible="status != 'draft' or not is_voucher_owner" confirm="Are you sure you want to submit these expenses for approval? Once submitted, you cannot edit or rollback."/>
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted')"/>
@@ -349,6 +349,7 @@
                 </header>
                 <sheet>
                     <field name="can_approve" invisible="1"/>
+                    <field name="is_voucher_owner" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="active" invisible="1"/>
                     
@@ -366,8 +367,8 @@
                         </h4>
                     </div>
 
-                    <!-- 1. DRAFT MODE: QUICK ADD EXPENSE (IDENTICAL TO SERVICE TICKET VOUCHER) -->
-                    <div invisible="status != 'draft'">
+                    <!-- 1. DRAFT MODE: QUICK ADD EXPENSE (ONLY VISIBLE TO THE SUBMITTING EMPLOYEE) -->
+                    <div invisible="status != 'draft' or not is_voucher_owner">
                         <div class="d-flex align-items-center mb-2">
                             <strong class="text-dark small">Quick Add Expense</strong>
                         </div>
@@ -568,8 +569,8 @@
                         </field>
                     </div>
 
-                    <!-- 2. SUBMITTED VIEW: ONCE SUBMITTED / APPROVED / PAID / REJECTED -->
-                    <div invisible="status == 'draft'">
+                    <!-- 2. REVIEW & SUBMITTED VIEW: VISIBLE ONCE SUBMITTED OR TO MANAGERS/ADMINS -->
+                    <div invisible="status == 'draft' and is_voucher_owner">
                         <!-- Horizontal Employee Names Strip in Blue (Same design as Service Ticket) -->
                         <div class="d-flex align-items-center gap-2 p-2 px-3 mb-3 rounded border bg-white shadow-sm"
                              invisible="not voucher_employee_names"
