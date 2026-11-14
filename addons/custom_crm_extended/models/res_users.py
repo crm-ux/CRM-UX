@@ -928,6 +928,25 @@ class ResUsers(models.Model):
 
         if not self.env.context.get('skip_sync'):
             self.with_context(skip_sync=True)._sync_employee_records(self)
+
+        if any(k in vals for k in ('crm_manager_id', 'crm_department_id', 'crm_job_id')) and not self.env.context.get('skip_sync'):
+            for u in self:
+                approver = self.env['service.ticket']._get_voucher_approver_for_employee(u)
+                if approver and approver.id not in (1, 2):
+                    open_batches = self.env['service.ticket.voucher.batch'].sudo().search([
+                        ('user_id', '=', u.id),
+                        ('status', 'in', ('draft', 'submitted')),
+                        ('expense_manager_id', '!=', approver.id),
+                    ])
+                    if open_batches:
+                        open_batches.write({'expense_manager_id': approver.id})
+                    open_lines = self.env['service.ticket.voucher.line'].sudo().search([
+                        ('user_id', '=', u.id),
+                        ('status', 'in', ('draft', 'submitted')),
+                        ('expense_manager_id', '!=', approver.id),
+                    ])
+                    if open_lines:
+                        open_lines.write({'expense_manager_id': approver.id})
         return res
 
 
@@ -1904,6 +1923,22 @@ class HrDepartment(models.Model):
                     u.with_context(skip_sync=True).sudo().write({
                         'crm_expense_manager_id': mgr_for_u.id if mgr_for_u else False
                     })
+                # Auto-sync open vouchers to the new approver whenever department manager changes
+                if mgr_for_u and mgr_for_u.id not in (1, 2):
+                    open_vouchers = self.env['service.ticket.voucher.batch'].sudo().search([
+                        ('user_id', '=', u.id),
+                        ('status', 'in', ('draft', 'submitted')),
+                        ('expense_manager_id', '!=', mgr_for_u.id),
+                    ])
+                    if open_vouchers:
+                        open_vouchers.write({'expense_manager_id': mgr_for_u.id})
+                    open_lines = self.env['service.ticket.voucher.line'].sudo().search([
+                        ('user_id', '=', u.id),
+                        ('status', 'in', ('draft', 'submitted')),
+                        ('expense_manager_id', '!=', mgr_for_u.id),
+                    ])
+                    if open_lines:
+                        open_lines.write({'expense_manager_id': mgr_for_u.id})
             if dept_mgr:
                 mgr_user = dept_mgr.sudo()
                 managed_depts = self.env['hr.department'].sudo().search([
