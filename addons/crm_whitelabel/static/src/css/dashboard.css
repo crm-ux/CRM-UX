@@ -2638,3 +2638,39 @@ body:has(.crm-pro-dashboard) .o_loading {
     color: #082d6e !important;
     transform: scale(1.15) !important;
 }
+
+/* ==========================================================================
+   NAVBAR ACTION BUTTONS: Replace text with icons (✖ 💾 ➕ 🏠)
+   ========================================================================== */
+
+/* 1. Save -> 💾 */
+.o_form_button_save::after,
+button.o_form_button_save::after,
+.o_form_status_indicator .o_form_button_save::after {
+    content: "💾" !important;
+    font-size: clamp(0.85rem, 0.95vw, 1rem) !important;
+    margin-left: 0 !important;
+}
+
+/* 2. Cancel -> ✖ */
+.o_form_button_cancel::after,
+button.o_form_button_cancel::after,
+.o_form_status_indicator .o_form_button_cancel::after {
+    content: "✖" !important;
+    font-size: clamp(0.85rem, 0.95vw, 1rem) !important;
+    margin-left: 0 !important;
+}
+
+/* 3. New -> ➕ */
+.o_control_panel .o_control_panel_main_buttons button.btn-primary,
+.o_control_panel .o_control_panel_main_buttons .o_list_button_add,
+.o_control_panel .o_control_panel_main_buttons .o_form_button_create {
+    font-size: 0 !important;
+}
+
+.o_control_panel .o_control_panel_main_buttons button.btn-primary::after,
+.o_control_panel .o_control_panel_main_buttons .o_list_button_add::after,
+.o_control_panel .o_control_panel_main_buttons .o_form_button_create::after {
+    content: "➕" !important;
+    font-size: clamp(0.85rem, 0.95vw, 1rem) !important;
+}
