@@ -644,6 +644,8 @@
                 <field name="user_id"/>
                 <field name="submitted_by_user_id"/>
                 <field name="ticket_id"/>
+                <filter string="My Vouchers" name="filter_my_vouchers" domain="['|', ('user_id', '=', uid), ('submitted_by_user_id', '=', uid)]"/>
+                <separator/>
                 <filter string="General Expenses" name="type_general" domain="[('ticket_id', '=', False)]"/>
                 <filter string="Service Ticket Expenses" name="type_ticket" domain="[('ticket_id', '!=', False)]"/>
                 <separator/>
@@ -699,7 +701,7 @@
         <field name="search_view_id" ref="view_service_ticket_voucher_batch_search"/>
         <field name="views">[[%(view_my_voucher_batch_tree)d, 'list'], [%(view_service_ticket_voucher_batch_form)d, 'form']]</field>
         <field name="domain">['|', ('user_id', '=', uid), ('submitted_by_user_id', '=', uid)]</field>
-        <field name="context">{'default_user_id': uid, 'default_submitted_by_user_id': uid}</field>
+        <field name="context">{'search_default_filter_my_vouchers': 1, 'default_user_id': uid, 'default_submitted_by_user_id': uid}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Submit your first expense voucher
