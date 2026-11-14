@@ -19,15 +19,16 @@ class ResUsers(models.Model):
     @api.depends('crm_manager_id', 'crm_department_id', 'employee_id.department_id', 'crm_job_id', 'crm_voucher_department_ids')
     def _compute_crm_expense_manager_id(self):
         """Resolves the Voucher Approver.
-        Direct manager and voucher manager are different concepts (can be the same or different):
-        1. Department Voucher Approver (configured in Expense Settings on department or extra departments).
-        2. Department Voucher Approver assigned via crm_voucher_department_ids.
-        3. Direct Reports To Manager (crm_manager_id or hr.employee parent_id).
-        4. Global Expense Manager.
-        5. Administrator (last resort fallback).
+        Administrator (ID 1 or 2) is NEVER a department voucher approver.
+        1. Department-wise Voucher Approver (voucher_manager_id) if active and non-admin.
+        2. Department Head (manager_user_id e.g. Anurag) if active voucher approval is ON.
+        3. Delegated Department Voucher Approver (crm_voucher_department_ids).
+        4. Direct Reports To Manager (crm_manager_id or hr.employee parent_id -> Anurag).
+        5. Global Expense Manager.
+        6. Administrator fallback (only if no manager exists in entire chain).
         """
         company = self.env.company
-        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
+        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2))[:1]
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.search([('id', '=', 2)], limit=1)
         fallback = global_mgr or admin_user
         for user in self:
@@ -39,17 +40,23 @@ class ResUsers(models.Model):
             real_uid = user._origin.id if getattr(user, '_origin', None) and user._origin.id else (user.id if isinstance(user.id, int) else False)
             emp_rec = user.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
 
-            # 1. Check Department-Wise Voucher Configuration (voucher_manager_id)
+            # 1. Check Department-Wise Voucher Configuration
             dept = (user.crm_department_id or (emp_rec and emp_rec.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
             if dept:
                 dept = dept.sudo()
-                if dept.voucher_approval_active and dept.voucher_manager_id and dept.voucher_manager_id.active and dept.voucher_manager_id.id != user.id:
-                    approver = dept.voucher_manager_id
+                if dept.voucher_approval_active:
+                    # Specific designated voucher approver (must be non-admin)
+                    if dept.voucher_manager_id and dept.voucher_manager_id.active and dept.voucher_manager_id.id not in (1, 2) and dept.voucher_manager_id.id != user.id:
+                        approver = dept.voucher_manager_id
+                    # Active department head (e.g. Anurag)
+                    elif dept.manager_user_id and dept.manager_user_id.active and dept.manager_user_id.id not in (1, 2) and dept.manager_user_id.id != user.id:
+                        approver = dept.manager_user_id
 
                 if not approver:
                     managing_dept = self.env['hr.department'].sudo().search([
                         ('voucher_approval_active', '=', True),
                         ('voucher_manager_id', '!=', False),
+                        ('voucher_manager_id', 'not in', [1, 2]),
                         ('extra_department_ids', 'in', [dept.id]),
                     ], limit=1)
                     if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != user.id:
@@ -59,22 +66,25 @@ class ResUsers(models.Model):
                     v_user = self.env['res.users'].sudo().search([
                         ('crm_voucher_department_ids', 'in', [dept.id]),
                         ('active', '=', True),
-                        ('id', '!=', user.id),
+                        ('id', 'not in', [1, 2, user.id]),
                     ], limit=1)
                     if v_user:
                         approver = v_user
 
-            # 2. If no specific department voucher approver, check Direct Reports To Manager
+            # 2. Check Direct Reports To Manager (e.g. Anurag)
             if not approver:
                 direct_mgr = user.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
-                if direct_mgr and direct_mgr.active and direct_mgr.id != user.id:
+                if direct_mgr and direct_mgr.active and direct_mgr.id not in (1, 2) and direct_mgr.id != user.id:
                     approver = direct_mgr.sudo()
 
-            # 3. Check if user's job position department has voucher manager
+            # 3. Check Job Position department voucher manager / head
             if not approver and user.crm_job_id and user.crm_job_id.department_id:
                 job_dept = user.crm_job_id.department_id.sudo()
-                if job_dept.voucher_approval_active and job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id != user.id:
-                    approver = job_dept.voucher_manager_id
+                if job_dept.voucher_approval_active:
+                    if job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id not in (1, 2) and job_dept.voucher_manager_id.id != user.id:
+                        approver = job_dept.voucher_manager_id
+                    elif job_dept.manager_user_id and job_dept.manager_user_id.active and job_dept.manager_user_id.id not in (1, 2) and job_dept.manager_user_id.id != user.id:
+                        approver = job_dept.manager_user_id
 
             user.crm_expense_manager_id = approver or fallback
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
@@ -1796,7 +1806,7 @@ class HrDepartment(models.Model):
     voucher_manager_id = fields.Many2one(
         'res.users',
         string='Department Voucher Approver',
-        domain="[('share', '=', False)]",
+        domain="[('share', '=', False), ('id', 'not in', [1, 2])]",
         help='Designated manager who approves vouchers for employees in this department.'
     )
 
@@ -1860,17 +1870,21 @@ class HrDepartment(models.Model):
 
     def _sync_voucher_approver_to_members(self):
         """Syncs voucher approver to member employees.
-        Direct manager and voucher manager are distinct (can be different or same):
-        1. If Department has active voucher_manager_id, that designated manager approves.
-        2. If no department voucher manager, fallback to employee's direct manager (crm_manager_id).
-        3. Never fallback to standard Odoo manager_user_id (Department Head) if voucher_manager_id is unset.
+        Administrator is never a department voucher approver.
+        1. If Department has active voucher_manager_id (non-admin), that manager approves.
+        2. If active but voucher_manager_id is unset or Administrator, auto-default to Department Head (manager_user_id -> Anurag).
+        3. Fallback to employee's direct manager (crm_manager_id -> Anurag).
         """
         company = self.env.company
-        global_mgr = company.crm_authorized_expense_manager_ids[:1]
+        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.id not in (1, 2))[:1]
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         fallback_mgr = global_mgr or admin_user
         for dept in self:
-            dept_mgr = dept.voucher_manager_id if (dept.voucher_approval_active and dept.voucher_manager_id) else False
+            if dept.voucher_approval_active and (not dept.voucher_manager_id or dept.voucher_manager_id.id in (1, 2)):
+                if dept.manager_user_id and dept.manager_user_id.id not in (1, 2):
+                    dept.sudo().with_context(skip_sync=True).write({'voucher_manager_id': dept.manager_user_id.id})
+
+            dept_mgr = dept.voucher_manager_id if (dept.voucher_approval_active and dept.voucher_manager_id and dept.voucher_manager_id.id not in (1, 2)) else (dept.manager_user_id if dept.voucher_approval_active and dept.manager_user_id and dept.manager_user_id.id not in (1, 2) else False)
             all_dept_ids = dept.ids + dept.extra_department_ids.ids
             users = self.env['res.users'].sudo().search([
                 '|',
@@ -1882,7 +1896,7 @@ class HrDepartment(models.Model):
             for u in users:
                 if dept_mgr and u.id != dept_mgr.id:
                     mgr_for_u = dept_mgr
-                elif u.crm_manager_id and u.crm_manager_id.active and u.id != u.crm_manager_id.id:
+                elif u.crm_manager_id and u.crm_manager_id.active and u.crm_manager_id.id not in (1, 2) and u.id != u.crm_manager_id.id:
                     mgr_for_u = u.crm_manager_id
                 else:
                     mgr_for_u = fallback_mgr

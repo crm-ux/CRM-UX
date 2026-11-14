@@ -1189,16 +1189,19 @@ class ServiceTicket(models.Model):
         emp_dept = (emp.crm_department_id or (emp_rec and emp_rec.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
         if emp_dept:
             emp_dept = emp_dept.sudo()
-            # Only use voucher_manager_id (the configured voucher approver)
-            if emp_dept.voucher_approval_active and emp_dept.voucher_manager_id:
-                mgr = emp_dept.voucher_manager_id
-                if mgr.active and mgr.id != emp.id:
-                    return mgr
+            if emp_dept.voucher_approval_active:
+                # Specific designated voucher approver (must be non-admin)
+                if emp_dept.voucher_manager_id and emp_dept.voucher_manager_id.active and emp_dept.voucher_manager_id.id not in (1, 2) and emp_dept.voucher_manager_id.id != emp.id:
+                    return emp_dept.voucher_manager_id
+                # Active department head (e.g. Anurag)
+                if emp_dept.manager_user_id and emp_dept.manager_user_id.active and emp_dept.manager_user_id.id not in (1, 2) and emp_dept.manager_user_id.id != emp.id:
+                    return emp_dept.manager_user_id
 
             # Check sub-departments in managing department
             managing_dept = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
                 ('voucher_manager_id', '!=', False),
+                ('voucher_manager_id', 'not in', [1, 2]),
                 ('extra_department_ids', 'in', [emp_dept.id]),
             ], limit=1)
             if managing_dept and managing_dept.voucher_manager_id.active and managing_dept.voucher_manager_id.id != emp.id:
@@ -1208,24 +1211,27 @@ class ServiceTicket(models.Model):
             v_user = self.env['res.users'].sudo().search([
                 ('crm_voucher_department_ids', 'in', [emp_dept.id]),
                 ('active', '=', True),
-                ('id', '!=', emp.id),
+                ('id', 'not in', [1, 2, emp.id]),
             ], limit=1)
             if v_user:
                 return v_user
 
         # ── TIER 2: Direct Reports To (Manager) e.g. Anurag ──
         direct_mgr = emp.crm_manager_id or (emp_rec.parent_id.user_id if emp_rec and emp_rec.parent_id else False)
-        if direct_mgr and direct_mgr.active and direct_mgr.id != emp.id:
+        if direct_mgr and direct_mgr.active and direct_mgr.id not in (1, 2) and direct_mgr.id != emp.id:
             return direct_mgr.sudo()
 
         # ── TIER 3: Check Job Position department voucher manager ──
         if emp.crm_job_id and emp.crm_job_id.department_id:
             job_dept = emp.crm_job_id.department_id.sudo()
-            if job_dept.voucher_approval_active and job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id != emp.id:
-                return job_dept.voucher_manager_id
+            if job_dept.voucher_approval_active:
+                if job_dept.voucher_manager_id and job_dept.voucher_manager_id.active and job_dept.voucher_manager_id.id not in (1, 2) and job_dept.voucher_manager_id.id != emp.id:
+                    return job_dept.voucher_manager_id
+                if job_dept.manager_user_id and job_dept.manager_user_id.active and job_dept.manager_user_id.id not in (1, 2) and job_dept.manager_user_id.id != emp.id:
+                    return job_dept.manager_user_id
 
         # ── TIER 4: Global Expense Manager ──
-        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id != emp.id)
+        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2) and u.id != emp.id)
         if global_mgrs:
             return global_mgrs[:1]
 
@@ -3430,10 +3436,10 @@ class ServiceTicketVoucherBatch(models.Model):
     def _default_expense_manager_id(self):
         emp = self.env.user
         approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
-        if approver:
+        if approver and approver.id not in (1, 2):
             return approver.id
-        mgr = self.env.company.crm_authorized_expense_manager_ids[:1]
-        return mgr.id if mgr else 2
+        mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.id not in (1, 2))[:1]
+        return mgr.id if mgr else (approver.id if approver else False)
 
     expense_manager_id = fields.Many2one('res.users', string='Approver', compute='_compute_expense_manager_id', store=True, readonly=False, default=_default_expense_manager_id)
 
