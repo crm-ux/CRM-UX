@@ -7,7 +7,9 @@
                 <i class="fa fa-home" style="font-size: 0.95rem !important; color: inherit !important;"></i>
             </button>
             <!-- Configuration button for Voucher Submissions / Expense Management -->
-            <button class="btn btn-secondary ms-1" t-if="canShowVoucherConfigButton" t-on-click="openVoucherConfiguration">Configuration</button>
+            <button class="btn btn-secondary ms-1" t-if="canShowVoucherConfigButton" t-on-click="openVoucherConfiguration" title="Voucher Configuration">
+                <i class="fa fa-shield" style="font-size: 0.95rem !important; color: inherit !important;"></i>
+            </button>
             <!-- 2nd: Standard New button for Task Management Calendar view ONLY -->
             <button class="btn btn-primary ms-1" 
                     t-if="canShowTaskCalendarNewButton" 
