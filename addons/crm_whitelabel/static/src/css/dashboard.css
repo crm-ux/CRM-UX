@@ -333,7 +333,8 @@ body:has(.crm-pro-dashboard) .o_loading {
 /* Series Submenu Icons - Barcode */
 .crm-nav-item:has(span:contains("Series")) .crm-sub-link i::before,
 .crm-submenu-list li .crm-sub-link i.fa-hashtag::before {
-    content: "\f02a" !important; /* FontAwesome Unicode for fa-barcode */
+    content: "\f02a" !important;
+    /* FontAwesome Unicode for fa-barcode */
     font-family: FontAwesome !important;
 }
 
@@ -1183,8 +1184,8 @@ body:has(.crm-pro-dashboard) .o_loading {
 }
 
 .crm-stat-metric-val {
-    font-size: clamp(1.15rem, 1.35vw, 1.3rem);
-    font-weight: 600;
+    font-size: clamp(1.20rem, 1.45vw, 1.4rem);
+    font-weight: 700;
     color: #1e293b;
     line-height: 1.1;
 }
