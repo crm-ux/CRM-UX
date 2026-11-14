@@ -137,13 +137,12 @@ export function customCleanErrorHandler(env, error, originalError) {
     }
 
     // 2.3 AccessError handling when a record is assigned/transferred to another user
-    const isAccessError =
+    if (
         err?.data?.name === "odoo.exceptions.AccessError" ||
         fullErrLower.includes("accesserror") ||
         fullErrLower.includes("top-secret records") ||
-        fullErrLower.includes("doesn't have 'read' access");
-
-    if (isAccessError) {
+        fullErrLower.includes("doesn't have 'read' access")
+    ) {
         // Suppress technical traceback and error dialog completely
         return true;
     }
