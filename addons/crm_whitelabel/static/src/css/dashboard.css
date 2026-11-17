@@ -1493,12 +1493,11 @@ body:has(.crm-pro-dashboard) .o_loading {
 /* Dialogs & Modals */
 .crm-task-overlay {
     position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
+    inset: -100vmax !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 100vw !important;
+    min-height: 100vh !important;
     background: rgba(15, 23, 42, 0.6) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
@@ -1506,7 +1505,7 @@ body:has(.crm-pro-dashboard) .o_loading {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 1rem !important;
+    padding: clamp(1rem, 2vh, 2rem) !important;
 }
 
 .crm-task-dialog {
