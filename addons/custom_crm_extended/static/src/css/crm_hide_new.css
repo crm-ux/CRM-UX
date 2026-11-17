@@ -695,20 +695,36 @@ select[name="perm_amc"] option[value="all"] {
     opacity: 1 !important;
 }
 
-/* Hide background page scrollbars while modal is open */
+/* Completely eliminate browser & page scrollbars while any modal is open */
+html:has(.modal.show),
+html:has(.o_dialog),
 body.modal-open,
+body:has(.modal.show),
+body:has(.o_dialog),
 body.modal-open .o_action_manager,
-body.modal-open .o_content {
+body.modal-open .o_content,
+body.modal-open .o_web_client {
     overflow: hidden !important;
 }
 
-/* Standard Confirmation Dialog - Natural Size & Clean Padding */
+/* Perfect Dead-Center Alignment & Zero Scrollbar for Confirmation Dialogs */
+.modal:has(p.text-prewrap),
+.o_dialog:has(p.text-prewrap) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    overflow-y: hidden !important;
+    overflow-x: hidden !important;
+}
+
 .modal:has(p.text-prewrap) .modal-dialog,
 .o_dialog:has(p.text-prewrap) .modal-dialog {
     max-width: 500px !important;
-    width: auto !important;
-    margin: 15vh auto !important;
+    width: min(500px, 92vw) !important;
+    margin: 0 !important;
     max-height: none !important;
+    transform: none !important;
 }
 
 .modal:has(p.text-prewrap) .modal-content,
