@@ -541,9 +541,17 @@ class ServiceTicket(models.Model):
 
                 vch_name = batch.name or 'New'
                 # Live compute unique expense dates from lines
-                line_dates = [l.expense_date.strftime('%d/%m/%Y') for l in batch.line_ids if l.expense_date]
-                unique_exp_dates = list(dict.fromkeys(line_dates))
-                vch_exp_dates = ", ".join(unique_exp_dates) if unique_exp_dates else ''
+                start_dates = [l.expense_date for l in batch.line_ids if l.expense_date]
+                end_dates = [l.expense_date_to or l.expense_date for l in batch.line_ids if (l.expense_date_to or l.expense_date)]
+                if start_dates and end_dates:
+                    min_d = min(start_dates)
+                    max_d = max(end_dates)
+                    if min_d == max_d:
+                        vch_exp_dates = min_d.strftime('%d/%m/%Y')
+                    else:
+                        vch_exp_dates = f"{min_d.strftime('%d/%m/%Y')} - {max_d.strftime('%d/%m/%Y')}"
+                else:
+                    vch_exp_dates = ''
                 
                 # Submission date when sent to manager
                 sub_dt = batch.create_date or batch.submission_date
@@ -555,6 +563,9 @@ class ServiceTicket(models.Model):
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span class="fw-bold" style="color: #0b3d91; font-size: 13px;">Voucher ID:</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_name}</span>
+                        <span class="text-muted fw-bold mx-1">|</span>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Expense Date:</span>
+                        <span class="badge py-1 px-2 fw-bold" style="background-color: #e8f0fe; color: #0b3d91; border: 1px solid #b8d0f8; font-size: 13px;">{vch_exp_dates}</span>
                         <span class="text-muted fw-bold mx-1">|</span>
                         <span class="fw-bold text-dark" style="font-size: 13px;">Submitted Date:</span>
                         <span class="badge py-1 px-2 fw-bold" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; font-size: 13px;">{vch_sub_date}</span>
@@ -1142,25 +1153,31 @@ class ServiceTicket(models.Model):
     show_voucher_strip = fields.Boolean(compute='_compute_voucher_strip', string='Show Voucher Strip')
     total_voucher_amount = fields.Monetary(compute='_compute_voucher_strip', string='Total Voucher Amount', currency_field='currency_id')
 
-    @api.depends('voucher_line_ids', 'voucher_line_ids.status', 'voucher_line_ids.user_id', 'voucher_line_ids.amount', 'voucher_line_ids.expense_date')
+    @api.depends('voucher_line_ids', 'voucher_line_ids.status', 'voucher_line_ids.user_id', 'voucher_line_ids.amount', 'voucher_line_ids.expense_date', 'voucher_line_ids.expense_date_to')
     def _compute_voucher_strip(self):
         for rec in self:
             names = []
-            dates = []
             has_draft = False
             total_amt = 0.0
-            for line in rec.voucher_line_ids.filtered(lambda l: l.status == 'draft'):
+            draft_lines = rec.voucher_line_ids.filtered(lambda l: l.status == 'draft')
+            for line in draft_lines:
                 has_draft = True
                 total_amt += line.amount or 0.0
                 if line.user_id and line.user_id.name and line.user_id.name not in names:
                     names.append(line.user_id.name)
-                if line.expense_date:
-                    d_str = line.expense_date.strftime('%d/%m/%Y')
-                    if d_str not in dates:
-                        dates.append(d_str)
+            start_dates = [l.expense_date for l in draft_lines if l.expense_date]
+            end_dates = [l.expense_date_to or l.expense_date for l in draft_lines if (l.expense_date_to or l.expense_date)]
+            if start_dates and end_dates:
+                min_d = min(start_dates)
+                max_d = max(end_dates)
+                if min_d == max_d:
+                    rec.voucher_draft_dates = min_d.strftime('%d/%m/%Y')
+                else:
+                    rec.voucher_draft_dates = f"{min_d.strftime('%d/%m/%Y')} - {max_d.strftime('%d/%m/%Y')}"
+            else:
+                rec.voucher_draft_dates = ""
             rec.voucher_employee_names = ", ".join(names) if names else ''
             rec.voucher_employee_count = len(names)
-            rec.voucher_draft_dates = ", ".join(dates) if dates else ''
             rec.has_draft_vouchers = has_draft
             rec.show_voucher_strip = has_draft
             rec.total_voucher_amount = total_amt
@@ -1939,6 +1956,7 @@ class ServiceTicketVoucherLine(models.Model):
     rate_per_km = fields.Float(string='Rate/KM (₹)')
     description = fields.Char(string='Description', placeholder='Enter description...')
     expense_date_to = fields.Date(string='To Date')
+    batch_expense_dates = fields.Char(related='batch_id.expense_dates', string='Expense Date', readonly=True)
     days_count = fields.Integer(string='Days', compute='_compute_days_count', store=True)
 
     @api.depends('expense_date', 'expense_date_to', 'expense_type_id.calculation_type')
@@ -2828,9 +2846,9 @@ class ServiceTicketVoucherBatch(models.Model):
             if approver:
                 vals['expense_manager_id'] = approver.id
         return super(ServiceTicketVoucherBatch, self).create(vals_list)
-    submission_date = fields.Date(string='Expense Date', default=fields.Date.context_today, index=True)
+    submission_date = fields.Date(string='Submission Date', default=fields.Date.context_today, index=True)
     expense_date = fields.Date(related='submission_date', string='Expense Date', readonly=True)
-    expense_dates = fields.Char(string='Expense Dates', compute='_compute_expense_dates', store=True)
+    expense_dates = fields.Char(string='Expense Date', compute='_compute_expense_dates')
     ticket_id = fields.Many2one('service.ticket', string='Service Ticket', required=False, ondelete='cascade')
     voucher_type = fields.Selection([
         ('ticket', 'Service Ticket'),
@@ -2911,12 +2929,20 @@ class ServiceTicketVoucherBatch(models.Model):
     voucher_employee_names = fields.Char(related='all_employee_names', string='Employees', readonly=True)
     ticket_voucher_line_ids = fields.One2many(related='line_ids', string='Voucher Expenses', readonly=True)
 
-    @api.depends('line_ids.expense_date')
+    @api.depends('line_ids.expense_date', 'line_ids.expense_date_to')
     def _compute_expense_dates(self):
         for rec in self:
-            dates = [d.strftime('%d/%m/%Y') for d in rec.line_ids.mapped('expense_date') if d]
-            unique_dates = list(dict.fromkeys(dates))
-            rec.expense_dates = ", ".join(unique_dates) if unique_dates else ""
+            start_dates = [l.expense_date for l in rec.line_ids if l.expense_date]
+            end_dates = [l.expense_date_to or l.expense_date for l in rec.line_ids if (l.expense_date_to or l.expense_date)]
+            if start_dates and end_dates:
+                min_d = min(start_dates)
+                max_d = max(end_dates)
+                if min_d == max_d:
+                    rec.expense_dates = min_d.strftime('%d/%m/%Y')
+                else:
+                    rec.expense_dates = f"{min_d.strftime('%d/%m/%Y')} - {max_d.strftime('%d/%m/%Y')}"
+            else:
+                rec.expense_dates = ""
 
     @api.depends('user_id.name', 'other_employee_names', 'line_ids.user_id.name')
     def _compute_all_employee_names(self):
@@ -3068,14 +3094,22 @@ class ServiceTicketVoucherBatch(models.Model):
         for rec in self:
             rec.has_km_lines = any(l.is_km_based for l in rec.line_ids)
 
-    @api.depends('line_ids.status', 'line_ids.expense_date')
+    @api.depends('line_ids.status', 'line_ids.expense_date', 'line_ids.expense_date_to')
     def _compute_batch_draft_strip(self):
         for rec in self:
             drafts = rec.line_ids.filtered(lambda l: l.status == 'draft')
             rec.has_draft_lines = bool(drafts)
-            dates = [d.strftime('%d/%m/%Y') for d in drafts.mapped('expense_date') if d]
-            unique_dates = list(dict.fromkeys(dates))
-            rec.voucher_draft_dates = ", ".join(unique_dates) if unique_dates else ""
+            start_dates = [l.expense_date for l in drafts if l.expense_date]
+            end_dates = [l.expense_date_to or l.expense_date for l in drafts if (l.expense_date_to or l.expense_date)]
+            if start_dates and end_dates:
+                min_d = min(start_dates)
+                max_d = max(end_dates)
+                if min_d == max_d:
+                    rec.voucher_draft_dates = min_d.strftime('%d/%m/%Y')
+                else:
+                    rec.voucher_draft_dates = f"{min_d.strftime('%d/%m/%Y')} - {max_d.strftime('%d/%m/%Y')}"
+            else:
+                rec.voucher_draft_dates = ""
 
     @api.depends('new_voucher_expense_type_id', 'new_voucher_user_ids', 'new_voucher_date', 'new_voucher_date_to', 'new_voucher_days')
     def _compute_batch_new_voucher_budget_info_html(self):
