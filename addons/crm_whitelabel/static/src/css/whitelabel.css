@@ -10,39 +10,50 @@
     zoom: 0.80 !important;
 }
 
-/* Scope to Modal Wizards and Voucher Configuration Form so dropdown menu attaches directly under the input field dynamically */
+/* ==========================================================================
+   GLOBAL DYNAMIC DROPDOWN PLACEMENT ACROSS ALL FORMS & VIEWS
+   Ensures autocomplete / dropdown attaches directly under the input field dynamically
+   ========================================================================== */
+.o_form_view .o_field_many2one,
+.o_form_view .o_field_many2one_selection,
+.o_form_view .o_field_many2many_tags,
+.o_form_view .o_field_partner_autocomplete,
+.o_form_view .o_input_dropdown,
+.o_form_view .o-autocomplete,
 .modal .o_field_many2one,
 .modal .o_field_many2one_selection,
 .modal .o_field_many2many_tags,
+.modal .o_field_partner_autocomplete,
 .modal .o_input_dropdown,
 .modal .o-autocomplete,
-.o_form_view:has([name="authorized_manager_ids"]) .o_field_many2one,
-.o_form_view:has([name="authorized_manager_ids"]) .o_field_many2many_tags,
-.o_form_view:has([name="authorized_manager_ids"]) .o_input_dropdown,
-.o_form_view:has([name="authorized_manager_ids"]) .o-autocomplete,
-.o_form_view:has([name="authorized_manager_ids"]) [name="authorized_manager_ids"],
-.o_form_view:has([name="authorized_manager_ids"]) [name="new_expense_type_job_ids"],
-.o_form_view:has([name="authorized_manager_ids"]) [name="department_ids"] .o_field_many2one,
-.o_form_view:has([name="authorized_manager_ids"]) [name="department_ids"] .o_field_many2many_tags {
+.o_voucher_quick_add_bar .o_field_many2one,
+.o_voucher_quick_add_bar .o_field_many2many_tags,
+.o_voucher_quick_add_bar .o_input_dropdown,
+.o_voucher_quick_add_bar .o-autocomplete {
     position: relative !important;
 }
 
+.o_form_view .o-autocomplete--dropdown-menu,
+.o_form_view .ui-autocomplete,
+.o_form_view .dropdown-menu:has(.o-autocomplete--dropdown-item),
+.o_form_view .dropdown-menu.o-autocomplete--dropdown-menu,
 .modal .o-autocomplete--dropdown-menu,
 .modal .ui-autocomplete,
 .modal .dropdown-menu:has(.o-autocomplete--dropdown-item),
-.o_form_view:has([name="authorized_manager_ids"]) .o-autocomplete--dropdown-menu,
-.o_form_view:has([name="authorized_manager_ids"]) .ui-autocomplete,
-.o_form_view:has([name="authorized_manager_ids"]) .dropdown-menu:has(.o-autocomplete--dropdown-item) {
+.modal .dropdown-menu.o-autocomplete--dropdown-menu,
+.o_voucher_quick_add_bar .o-autocomplete--dropdown-menu,
+.o_voucher_quick_add_bar .ui-autocomplete,
+.o_voucher_quick_add_bar .dropdown-menu:has(.o-autocomplete--dropdown-item) {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
     right: auto !important;
     bottom: auto !important;
     transform: none !important;
-    margin-top: clamp(2px, 0.4vh, 6px) !important;
+    margin-top: clamp(2px, 0.4vh, 5px) !important;
     width: auto !important;
-    min-width: 200px !important;
-    max-width: 360px !important;
+    min-width: 220px !important;
+    max-width: clamp(280px, 45vw, 450px) !important;
     max-height: clamp(140px, 32vh, 260px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
@@ -50,12 +61,34 @@
     border-radius: clamp(4px, 0.6vw, 8px) !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: 0 clamp(4px, 1vh, 12px) clamp(10px, 2vw, 24px) rgba(0, 0, 0, 0.12) !important;
+    background-color: #ffffff !important;
 }
 
+.o_form_view .o-autocomplete--dropdown-item,
 .modal .o-autocomplete--dropdown-item,
-.o_form_view:has([name="authorized_manager_ids"]) .o-autocomplete--dropdown-item {
+.o_voucher_quick_add_bar .o-autocomplete--dropdown-item {
     padding: clamp(4px, 0.6vh, 8px) clamp(8px, 1vw, 12px) !important;
     font-size: clamp(0.8rem, 0.9vw, 0.88rem) !important;
+}
+
+/* ==========================================================================
+   DATEPICKER / CALENDAR POPUP - COMPACT SIZING & DOWNSIZED SCALE
+   ========================================================================== */
+.o_datetime_picker,
+.o_popover:has(.o_datetime_picker),
+.o_popover.o_datetime_picker {
+    transform: scale(0.85) !important;
+    transform-origin: top left !important;
+}
+
+.o_datetime_picker .o_date_item_cell {
+    padding: 2px !important;
+    font-size: 0.8rem !important;
+}
+
+.o_datetime_picker .o_datetime_picker_header {
+    font-size: 0.85rem !important;
+    padding: 4px 8px !important;
 }
 
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
