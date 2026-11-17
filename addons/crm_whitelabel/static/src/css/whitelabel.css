@@ -2,11 +2,39 @@
    GLOBAL CRM COMPACT ZOOM - APPLIES TO ALL VIEWS, FORMS, TABLES & PAGES
    ========================================================================== */
 .o_action_manager {
-    zoom: 0.80 !important;
+    zoom: 0.90 !important;
 }
 
+/* Modal Wizards: Avoid CSS zoom on modal-dialog as it breaks Popper/Bootstrap 
+   dropdown floating coordinates. Use compact typography, paddings, and inputs instead */
 .modal-dialog {
-    zoom: 0.80 !important;
+    max-width: clamp(620px, 68vw, 880px) !important;
+}
+
+.modal-content {
+    font-size: 0.88rem !important;
+}
+
+.modal-content .form-control,
+.modal-content .form-select,
+.modal-content input,
+.modal-content select,
+.modal-content textarea {
+    font-size: 0.85rem !important;
+    padding: 0.35rem 0.65rem !important;
+    min-height: 32px !important;
+}
+
+.modal-content .btn {
+    font-size: 0.85rem !important;
+    padding: 0.35rem 0.85rem !important;
+}
+
+/* Ensure Autocomplete & Floating Dropdowns match scale and stay 100% aligned */
+.ui-autocomplete,
+.o-autocomplete--dropdown-menu,
+.dropdown-menu {
+    font-size: 0.85rem !important;
 }
 
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
