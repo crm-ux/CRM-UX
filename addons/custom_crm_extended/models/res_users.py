@@ -219,6 +219,26 @@ class ResUsers(models.Model):
         return not u.share and u.active
 
     @api.model
+    def check_can_manage_vouchers(self, user_id=None):
+        """Check if logged-in or view-as user has voucher management rights (Admin, Global Manager, or Active Dept Approver)."""
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            return False
+        if u._is_admin() or u.has_group('base.group_system'):
+            return True
+        all_companies = self.env['res.company'].sudo().search([])
+        authorized_ids = all_companies.mapped('crm_authorized_expense_manager_ids').ids
+        if u.id in authorized_ids:
+            return True
+        return bool(self.env['hr.department'].sudo().search([
+            ('voucher_approval_active', '=', True),
+            '|',
+            ('voucher_manager_id', '=', u.id),
+            ('manager_user_id', '=', u.id),
+        ], limit=1))
+
+    @api.model
     def assign_team_task(self, target_user_id, title, note='', deadline=False, attachment_name='', attachment_data=''):
         """Creates an activity and sends a direct mail notification to the target user."""
         try:
@@ -1883,12 +1903,14 @@ class HrDepartment(models.Model):
             for dept in self:
                 dept._sync_head_to_user()
 
-                # 1. Notify Department Head Assignment (Both Sides: Appointed & Assigner)
+                # 1. Notify Department Head Assignment & Revocation (Both Sides)
                 if 'manager_user_id' in vals:
                     new_head = dept.manager_user_id
                     new_head_id = new_head.id if new_head else False
                     old_head_id = old_heads.get(dept.id)
                     assigner = self.env.user
+
+                    # Newly Appointed Head
                     if new_head_id and new_head_id != old_head_id and new_head_id not in (1, 2):
                         try:
                             # Appointed Person Side
@@ -1902,7 +1924,7 @@ class HrDepartment(models.Model):
                                 res_id=dept.id,
                                 record_ref_name=dept.name,
                             )
-                            # Assigner Side (Who appointed)
+                            # Assigner Side
                             if assigner.id != new_head_id:
                                 self.env['crm.notification'].create_notification(
                                     user=assigner,
@@ -1938,12 +1960,45 @@ class HrDepartment(models.Model):
                             except Exception:
                                 pass
 
-                # 2. Notify Department Voucher Approver Assignment (Both Sides: Appointed & Assigner)
-                if 'voucher_manager_id' in vals or ('voucher_approval_active' in vals and vals.get('voucher_approval_active')):
+                    # Revoked Department Head
+                    if old_head_id and old_head_id != new_head_id and old_head_id not in (1, 2):
+                        old_head = self.env['res.users'].browse(old_head_id)
+                        if old_head.exists():
+                            try:
+                                # Revoked Person Side
+                                self.env['crm.notification'].create_notification(
+                                    user=old_head,
+                                    title='Department Head Role Revoked',
+                                    summary=f"Your role as Department Head of {dept.name} has been revoked by {assigner.name}.",
+                                    category='general',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                                # Assigner Side
+                                if assigner.id != old_head_id:
+                                    self.env['crm.notification'].create_notification(
+                                        user=assigner,
+                                        title='Department Head Revoked',
+                                        summary=f"You have revoked {old_head.name}'s role as Department Head of {dept.name}.",
+                                        category='general',
+                                        sender=assigner,
+                                        res_model='hr.department',
+                                        res_id=dept.id,
+                                        record_ref_name=dept.name,
+                                    )
+                            except Exception:
+                                pass
+
+                # 2. Notify Department Voucher Approver Assignment & Revocation (Both Sides)
+                if 'voucher_manager_id' in vals or 'voucher_approval_active' in vals:
                     new_app = dept.voucher_manager_id
-                    new_app_id = new_app.id if new_app else False
+                    new_app_id = new_app.id if (dept.voucher_approval_active and new_app) else False
                     old_app_id = old_approvers.get(dept.id)
                     assigner = self.env.user
+
+                    # Newly Appointed Voucher Approver
                     if new_app_id and new_app_id != old_app_id and new_app_id not in (1, 2) and dept.voucher_approval_active:
                         try:
                             # Appointed Person Side
@@ -1957,7 +2012,7 @@ class HrDepartment(models.Model):
                                 res_id=dept.id,
                                 record_ref_name=dept.name,
                             )
-                            # Assigner Side (Who appointed)
+                            # Assigner Side
                             if assigner.id != new_app_id:
                                 self.env['crm.notification'].create_notification(
                                     user=assigner,
@@ -1990,6 +2045,37 @@ class HrDepartment(models.Model):
                                     res_id=dept.id,
                                     record_ref_name=dept.name,
                                 )
+                            except Exception:
+                                pass
+
+                    # Revoked Voucher Approver
+                    if old_app_id and old_app_id != new_app_id and old_app_id not in (1, 2):
+                        old_app = self.env['res.users'].browse(old_app_id)
+                        if old_app.exists():
+                            try:
+                                # Revoked Person Side
+                                self.env['crm.notification'].create_notification(
+                                    user=old_app,
+                                    title='Department Voucher Approver Revoked',
+                                    summary=f"Your role as Voucher Approver for {dept.name} has been revoked by {assigner.name}.",
+                                    category='voucher',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                                # Assigner Side
+                                if assigner.id != old_app_id:
+                                    self.env['crm.notification'].create_notification(
+                                        user=assigner,
+                                        title='Voucher Approver Revoked',
+                                        summary=f"You have revoked {old_app.name}'s role as Voucher Approver for {dept.name}.",
+                                        category='voucher',
+                                        sender=assigner,
+                                        res_model='hr.department',
+                                        res_id=dept.id,
+                                        record_ref_name=dept.name,
+                                    )
                             except Exception:
                                 pass
                                 pass

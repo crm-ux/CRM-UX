@@ -78,6 +78,7 @@
             'custom_crm_extended/static/src/js/custom_error_handler.js',
             'custom_crm_extended/static/src/js/activity_schedule_override.js',
             'custom_crm_extended/static/src/js/mail_activity_schedule_redirect.js',
+            'custom_crm_extended/static/src/js/expense_setting_form.js',
         ],
         'web.assets_frontend': [
             'custom_crm_extended/static/src/css/crm_hide_new.css',

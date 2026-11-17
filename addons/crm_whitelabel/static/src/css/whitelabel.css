@@ -69,14 +69,16 @@ nav.o_navbar,
 .o_loading_indicator,
 .o_loading {
     position: fixed !important;
-    inset: 0 !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background: rgba(255, 255, 255, 0.35) !important;
+    inset: -100vmax !important;
+    top: -100vmax !important;
+    left: -100vmax !important;
+    right: -100vmax !important;
+    bottom: -100vmax !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 200vw !important;
+    min-height: 200vh !important;
+    background: rgba(255, 255, 255, 0.45) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
     z-index: 999999 !important;

@@ -398,14 +398,24 @@ class CrmDashboard extends Component {
 
         try {
             const canManageExpense = await rpc("/web/dataset/call_kw", {
-                model: "expense.setting",
-                method: "user_has_expense_settings_access",
+                model: "res.users",
+                method: "check_can_manage_vouchers",
                 args: [],
                 kwargs: { user_id: uid },
             });
             this.state.canManageExpenseSettings = Boolean(canManageExpense);
         } catch (e) {
-            this.state.canManageExpenseSettings = Boolean(this.state.isAdmin);
+            try {
+                const fallback = await rpc("/web/dataset/call_kw", {
+                    model: "expense.setting",
+                    method: "user_has_expense_settings_access",
+                    args: [],
+                    kwargs: { user_id: uid },
+                });
+                this.state.canManageExpenseSettings = Boolean(fallback);
+            } catch (err) {
+                this.state.canManageExpenseSettings = Boolean(this.state.isAdmin);
+            }
         }
     }
 

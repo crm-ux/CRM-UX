@@ -113,6 +113,7 @@ class ExpenseSetting(models.Model):
             old_mgr_ids = set(company.crm_authorized_expense_manager_ids.ids)
             new_mgr_ids = set(rec.authorized_manager_ids.ids)
             added_ids = new_mgr_ids - old_mgr_ids
+            removed_ids = old_mgr_ids - new_mgr_ids
             company.sudo().write({
                 'crm_authorized_expense_manager_ids': [(6, 0, rec.authorized_manager_ids.ids)]
             })
@@ -142,6 +143,37 @@ class ExpenseSetting(models.Model):
                                 user=assigner,
                                 title='Manager Assignment Confirmed',
                                 summary=f"You have successfully appointed {u.name} as a Global Authorized Voucher Manager for {company.name}.",
+                                category='voucher',
+                                sender=assigner,
+                                res_model='expense.setting',
+                                res_id=rec.id,
+                                record_ref_name='Expense Settings',
+                            )
+                    except Exception:
+                        pass
+
+            # Send Notification for Revoked Global Voucher Managers
+            for uid in removed_ids:
+                u = self.env['res.users'].browse(uid)
+                if u.exists() and u.id not in (1, 2):
+                    try:
+                        # 1. Revoked User Side
+                        self.env['crm.notification'].create_notification(
+                            user=u,
+                            title='Global Voucher Manager Revoked',
+                            summary=f"Your role as Global Authorized Voucher Manager for {company.name} has been revoked by {assigner.name}.",
+                            category='voucher',
+                            sender=assigner,
+                            res_model='expense.setting',
+                            res_id=rec.id,
+                            record_ref_name='Expense Settings',
+                        )
+                        # 2. Assigner Side (Who revoked)
+                        if assigner.id != u.id:
+                            self.env['crm.notification'].create_notification(
+                                user=assigner,
+                                title='Manager Role Revoked',
+                                summary=f"You have revoked {u.name}'s role as Global Authorized Voucher Manager for {company.name}.",
                                 category='voucher',
                                 sender=assigner,
                                 res_model='expense.setting',
@@ -195,6 +227,136 @@ class ExpenseSetting(models.Model):
             ("voucher_manager_id", "=", user.id),
             ("manager_user_id", "=", user.id),
         ], limit=1))
+
+    @api.model
+    def check_manager_changes(self, auth_manager_ids=None, departments=None):
+        """Computes differences in Global Authorized Managers and Department Approvers
+
+        returns: {
+            'has_changes': bool,
+            'appointments': list of dicts,
+            'revocations': list of dicts
+        }
+        """
+        company = self.env.company
+        current_global_ids = set(company.crm_authorized_expense_manager_ids.ids)
+        new_global_ids = set(int(x) for x in auth_manager_ids) if auth_manager_ids is not None else current_global_ids
+
+        added_global_ids = new_global_ids - current_global_ids
+        removed_global_ids = current_global_ids - new_global_ids
+
+        appointments = []
+        revocations = []
+
+        # 1. Global Voucher Managers
+        for uid in added_global_ids:
+            u = self.env['res.users'].browse(uid)
+            if u.exists():
+                appointments.append({
+                    'badge': 'Global Manager',
+                    'name': u.name,
+                    'action': f"Appointed as Global Authorized Voucher Manager for {company.name}",
+                })
+
+        for uid in removed_global_ids:
+            u = self.env['res.users'].browse(uid)
+            if u.exists():
+                revocations.append({
+                    'badge': 'Global Manager',
+                    'name': u.name,
+                    'action': f"Revoked as Global Authorized Voucher Manager for {company.name}",
+                })
+
+        # 2. Department Voucher Approvers & Toggle Activity
+        if departments and isinstance(departments, list):
+            for d in departments:
+                dept_id = d.get('id')
+                if not dept_id:
+                    continue
+                dept = self.env['hr.department'].browse(dept_id)
+                if not dept.exists():
+                    continue
+
+                old_active = bool(dept.voucher_approval_active)
+                old_app_id = dept.voucher_manager_id.id if dept.voucher_manager_id else False
+                new_active = bool(d.get('voucher_approval_active'))
+                
+                raw_new_app = d.get('voucher_manager_id')
+                if isinstance(raw_new_app, (list, tuple)) and raw_new_app:
+                    new_app_id = raw_new_app[0]
+                elif raw_new_app:
+                    new_app_id = int(raw_new_app)
+                else:
+                    new_app_id = False
+
+                # Case A: Toggle was ON, now turned OFF (Revoked / Deactivated)
+                if old_active and not new_active:
+                    if old_app_id:
+                        old_u = self.env['res.users'].browse(old_app_id)
+                        revocations.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': old_u.name,
+                            'action': f"Deactivated Voucher Approver for {dept.name} (Approval Toggle OFF)",
+                        })
+                    else:
+                        revocations.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': dept.name,
+                            'action': f"Deactivated Approval for {dept.name} (Approval Toggle OFF)",
+                        })
+
+                # Case B: Toggle was OFF, now turned ON (Appointed / Activated)
+                elif not old_active and new_active:
+                    if new_app_id:
+                        new_u = self.env['res.users'].browse(new_app_id)
+                        appointments.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': new_u.name,
+                            'action': f"Activated as Voucher Approver for {dept.name} (Approval Toggle ON)",
+                        })
+                    else:
+                        appointments.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': dept.name,
+                            'action': f"Activated Approval for {dept.name} (Approval Toggle ON)",
+                        })
+
+                # Case C: Toggle stays ON, but Approver changed
+                elif old_active and new_active and old_app_id != new_app_id:
+                    if old_app_id:
+                        old_u = self.env['res.users'].browse(old_app_id)
+                        revocations.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': old_u.name,
+                            'action': f"Revoked as Voucher Approver for {dept.name}",
+                        })
+                    if new_app_id:
+                        new_u = self.env['res.users'].browse(new_app_id)
+                        appointments.append({
+                            'badge': f"{dept.name} Dept",
+                            'name': new_u.name,
+                            'action': f"Appointed as Voucher Approver for {dept.name}",
+                        })
+
+        return {
+            'has_changes': bool(appointments or revocations),
+            'appointments': appointments,
+            'revocations': revocations,
+        }
+    def action_save_settings(self):
+        """Action for the 'Save Changes' header button in Voucher Configuration."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Configuration Saved'),
+                'message': _('Voucher configuration and manager updates have been applied successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])
         for rec in self:
