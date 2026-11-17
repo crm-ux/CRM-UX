@@ -415,3 +415,24 @@ patch(FormController.prototype, {
         await goBack();
     }
 });
+
+// Auto-dismiss floating popovers/menus when scrolling the page/form
+if (typeof window !== "undefined") {
+    window.addEventListener("scroll", (ev) => {
+        const target = ev.target;
+        if (target && target.closest && (
+            target.closest(".o_select_menu_menu") ||
+            target.closest(".o_field_selection_menu") ||
+            target.closest(".o-autocomplete--dropdown-menu") ||
+            target.closest(".ui-autocomplete") ||
+            target.closest(".dropdown-menu") ||
+            target.closest(".o_datetime_picker")
+        )) {
+            return;
+        }
+        const floatingMenu = document.querySelector(".o_select_menu_menu, .o_field_selection_menu");
+        if (floatingMenu) {
+            document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+        }
+    }, true);
+}

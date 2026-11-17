@@ -113,6 +113,45 @@
     margin: 0 auto !important;
 }
 
+/* ==========================================================================
+   SELECT MENU / SELECTION DROPDOWN POPOVER - DYNAMIC COMPACT SIZING
+   ========================================================================== */
+.o_popover.o_select_menu_menu,
+.popover.o_select_menu_menu,
+.o_select_menu_menu,
+.o_field_selection_menu {
+    width: auto !important;
+    min-width: clamp(10rem, 14vw, 15rem) !important;
+    max-width: clamp(14rem, 24vw, 24rem) !important;
+    max-height: clamp(12rem, 32vh, 22rem) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    border-radius: clamp(4px, 0.6vw, 8px) !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 clamp(4px, 1vh, 12px) clamp(8px, 1.8vw, 20px) rgba(0, 0, 0, 0.12) !important;
+    padding: clamp(0.2rem, 0.5vh, 0.35rem) !important;
+    background-color: #ffffff !important;
+    z-index: 1060 !important;
+}
+
+.o_select_menu_menu .o_select_menu_item,
+.o_field_selection_menu .dropdown-item,
+.o_select_menu_menu .o-dropdown-item {
+    padding: clamp(0.35rem, 0.6vh, 0.5rem) clamp(0.6rem, 1vw, 0.85rem) !important;
+    font-size: clamp(0.78rem, 0.9vw, 0.86rem) !important;
+    border-radius: clamp(3px, 0.4vw, 5px) !important;
+    color: #1e293b !important;
+}
+
+.o_select_menu_menu .o_select_menu_item:hover,
+.o_field_selection_menu .dropdown-item:hover,
+.o_select_menu_menu .o-dropdown-item:hover,
+.o_select_menu_menu .o_select_menu_item.focus,
+.o_field_selection_menu .dropdown-item.focus {
+    background-color: #f1f5f9 !important;
+    color: #0b3d91 !important;
+}
+
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
 .o_web_client>header.o_navbar,
 .o_web_client>nav.o_navbar,
