@@ -683,6 +683,55 @@ select[name="perm_amc"] option[value="all"] {
     padding-bottom: 60px !important;
 }
 
+/* Voucher Manager Confirmation Dialog - Compact, Zero Scrollbar, High Contrast */
+.modal:has(.crm-manager-confirm-box) .modal-dialog,
+.o_dialog:has(.crm-manager-confirm-box) .modal-dialog {
+    max-width: 520px !important;
+    width: min(520px, 92vw) !important;
+    margin: 10vh auto !important;
+    max-height: none !important;
+}
+
+.modal:has(.crm-manager-confirm-box) .modal-content,
+.o_dialog:has(.crm-manager-confirm-box) .modal-content {
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+    max-height: none !important;
+    overflow: hidden !important;
+}
+
+.modal:has(.crm-manager-confirm-box) .modal-header,
+.o_dialog:has(.crm-manager-confirm-box) .modal-header {
+    padding: 14px 20px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+}
+
+.modal:has(.crm-manager-confirm-box) .modal-title,
+.o_dialog:has(.crm-manager-confirm-box) .modal-title {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+}
+
+.modal:has(.crm-manager-confirm-box) .modal-body,
+.o_dialog:has(.crm-manager-confirm-box) .modal-body {
+    padding: 16px 20px !important;
+    padding-bottom: 16px !important;
+    overflow: hidden !important;
+    max-height: none !important;
+    background: #ffffff !important;
+}
+
+.modal:has(.crm-manager-confirm-box) .modal-footer,
+.o_dialog:has(.crm-manager-confirm-box) .modal-footer {
+    padding: 12px 20px !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+    gap: 8px !important;
+}
+
 .o-autocomplete--dropdown-menu,
 .ui-autocomplete {
     max-height: clamp(10rem, 24vh, 12rem) !important;

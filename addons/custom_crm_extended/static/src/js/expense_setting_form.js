@@ -54,39 +54,53 @@ patch(FormController.prototype, {
                 );
 
                 if (diff && diff.has_changes) {
-                    let html = `<div class="crm-manager-confirm-box" style="font-size: 0.92rem; color: #1e293b;">`;
+                    let html = `<div class="crm-manager-confirm-box" style="font-size: 0.88rem; color: #0f172a; margin: 0; padding: 0;">`;
 
                     // Green Block: Appointments & Activations
                     if (diff.appointments && diff.appointments.length > 0) {
                         html += `
-                        <div class="mb-3 p-3 rounded-3" style="background:#f0fdf4; border:1px solid #bbf7d0;">
-                            <div class="fw-bold mb-2 text-success" style="font-size:0.95rem;">
-                                <i class="fa fa-user-plus me-1"></i> Appointments &amp; Activations (${diff.appointments.length})
+                        <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
+                            <div style="font-weight: 700; font-size: 0.88rem; color: #166534; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa fa-user-plus"></i> Appointments &amp; Activations (${diff.appointments.length})
                             </div>
-                            <ul class="mb-0 ps-3" style="line-height: 1.6;">`;
+                            <div style="display: flex; flex-direction: column; gap: 3px;">`;
                         for (const app of diff.appointments) {
-                            html += `<li><strong>${app.badge}:</strong> ${app.name} &mdash; <span class="text-muted">${app.action}</span></li>`;
+                            html += `
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.84rem; padding: 3px 0; border-top: 1px solid #dcfce7;">
+                                    <div style="color: #0f172a; font-weight: 600;">
+                                        <span style="display: inline-block; padding: 2px 7px; font-size: 0.72rem; font-weight: 700; border-radius: 4px; background: #dcfce7; color: #15803d; margin-right: 6px;">${app.badge}</span>
+                                        ${app.name}
+                                    </div>
+                                    <span style="color: #475569; font-size: 0.78rem;">${app.action}</span>
+                                </div>`;
                         }
-                        html += `</ul></div>`;
+                        html += `</div></div>`;
                     }
 
                     // Red Block: Revocations & Deactivations
                     if (diff.revocations && diff.revocations.length > 0) {
                         html += `
-                        <div class="mb-3 p-3 rounded-3" style="background:#fef2f2; border:1px solid #fecaca;">
-                            <div class="fw-bold mb-2 text-danger" style="font-size:0.95rem;">
-                                <i class="fa fa-user-times me-1"></i> Revocations &amp; Deactivations (${diff.revocations.length})
+                        <div style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px;">
+                            <div style="font-weight: 700; font-size: 0.88rem; color: #991b1b; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa fa-user-times"></i> Revocations &amp; Deactivations (${diff.revocations.length})
                             </div>
-                            <ul class="mb-0 ps-3" style="line-height: 1.6;">`;
+                            <div style="display: flex; flex-direction: column; gap: 3px;">`;
                         for (const rev of diff.revocations) {
-                            html += `<li><strong>${rev.badge}:</strong> ${rev.name} &mdash; <span class="text-muted">${rev.action}</span></li>`;
+                            html += `
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.84rem; padding: 3px 0; border-top: 1px solid #fee2e2;">
+                                    <div style="color: #0f172a; font-weight: 600;">
+                                        <span style="display: inline-block; padding: 2px 7px; font-size: 0.72rem; font-weight: 700; border-radius: 4px; background: #fee2e2; color: #b91c1c; margin-right: 6px;">${rev.badge}</span>
+                                        ${rev.name}
+                                    </div>
+                                    <span style="color: #475569; font-size: 0.78rem;">${rev.action}</span>
+                                </div>`;
                         }
-                        html += `</ul></div>`;
+                        html += `</div></div>`;
                     }
 
-                    // User selected prompt
+                    // Prompt text: Dark, high contrast, readable
                     html += `
-                    <div class="pt-2 fw-semibold text-secondary" style="font-size: 0.93rem;">
+                    <div style="color: #0f172a !important; font-weight: 600 !important; font-size: 0.90rem !important; line-height: 1.45 !important; padding-top: 4px;">
                         Please review the manager updates above. Do you want to apply these changes and notify the appointed and revoked users?
                     </div></div>`;
 
