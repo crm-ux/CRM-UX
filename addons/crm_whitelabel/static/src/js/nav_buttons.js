@@ -419,37 +419,40 @@ patch(FormController.prototype, {
 // Auto-dismiss floating popovers/menus when scrolling the page/form
 if (typeof window !== "undefined") {
     const handleScrollClose = (ev) => {
-        const target = ev.target;
-        // Do not close if scrolling inside the dropdown options list itself
-        if (target && target.closest && (
-            target.closest(".o_select_menu_menu") ||
-            target.closest(".o_field_selection_menu") ||
-            target.closest(".o-autocomplete--dropdown-menu") ||
-            target.closest(".ui-autocomplete") ||
-            target.closest(".dropdown-menu") ||
-            target.closest(".o_datetime_picker")
-        )) {
-            return;
-        }
+        try {
+            const el = (ev && ev.target && ev.target instanceof Element) ? ev.target : null;
+            if (el && typeof el.closest === "function") {
+                if (
+                    el.closest(".o_select_menu_menu") ||
+                    el.closest(".o_field_selection_menu") ||
+                    el.closest(".o-autocomplete--dropdown-menu") ||
+                    el.closest(".ui-autocomplete") ||
+                    el.closest(".dropdown-menu") ||
+                    el.closest(".o_datetime_picker")
+                ) {
+                    return;
+                }
+            }
 
-        // Close any open select menu or popover
-        const openTogglers = document.querySelectorAll(
-            '.o_select_menu_toggler[aria-expanded="true"], ' +
-            '.dropdown-toggle[aria-expanded="true"], ' +
-            '[aria-expanded="true"]'
-        );
-        if (openTogglers.length > 0) {
-            openTogglers.forEach(t => {
-                try { t.click(); } catch (e) {}
-            });
-        }
+            // Close any open select menu or popover
+            const openTogglers = document.querySelectorAll(
+                '.o_select_menu_toggler[aria-expanded="true"], ' +
+                '.dropdown-toggle[aria-expanded="true"], ' +
+                '[aria-expanded="true"]'
+            );
+            if (openTogglers.length > 0) {
+                openTogglers.forEach(t => {
+                    try { t.click(); } catch (e) {}
+                });
+            }
 
-        const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
-        if (openPopovers.length > 0) {
-            try {
+            const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
+            if (openPopovers.length > 0) {
                 document.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, view: window }));
                 document.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
-            } catch (e) {}
+            }
+        } catch (err) {
+            // Silently ignore scroll event exceptions
         }
     };
 
