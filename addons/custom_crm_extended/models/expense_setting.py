@@ -103,18 +103,18 @@ class ExpenseSetting(models.Model):
         return super().write(vals)
 
     def _compute_authorized_managers(self):
-        company = self.env.company
+        all_cos = self.env['res.company'].sudo().search([])
         for rec in self:
-            rec.authorized_manager_ids = company.crm_authorized_expense_manager_ids
+            rec.authorized_manager_ids = all_cos.mapped('crm_authorized_expense_manager_ids')
 
     def _inverse_authorized_managers(self):
-        company = self.env.company
+        all_cos = self.env['res.company'].sudo().search([])
         for rec in self:
-            old_mgr_ids = set(company.crm_authorized_expense_manager_ids.ids)
+            old_mgr_ids = set(all_cos.mapped('crm_authorized_expense_manager_ids').ids)
             new_mgr_ids = set(rec.authorized_manager_ids.ids)
             added_ids = new_mgr_ids - old_mgr_ids
             removed_ids = old_mgr_ids - new_mgr_ids
-            company.sudo().write({
+            all_cos.sudo().write({
                 'crm_authorized_expense_manager_ids': [(6, 0, rec.authorized_manager_ids.ids)]
             })
             for d in self.env['hr.department'].sudo().search([]):

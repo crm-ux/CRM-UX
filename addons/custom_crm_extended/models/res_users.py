@@ -18,62 +18,17 @@ class ResUsers(models.Model):
 
     @api.depends('crm_manager_id', 'crm_department_id', 'employee_id.department_id', 'crm_job_id', 'crm_voucher_department_ids')
     def _compute_crm_expense_manager_id(self):
-        """Resolves the Voucher Approver strictly from Voucher Configuration.
-        1. If user is a Department Head: their voucher goes directly to Global Manager / Admin.
-        2. Regular Employee:
-           - Check Voucher Configuration row for Employee's Department:
-             If Active is ON: designated Voucher Approver (or Department Head on that row).
-           - Check Managing Department where Employee's Department is in 'Additional / Sub-Departments' (Active ON).
-           - Otherwise: Global Authorized Expense Manager.
-           - Otherwise: Administrator.
-        (Direct manager / reports to from user profile is NEVER used for vouchers).
-        """
-        company = self.env.company
-        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2))[:1]
-        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.search([('id', '=', 2)], limit=1)
-        fallback = global_mgr or admin_user
+        """Resolves the Voucher Approver strictly from Voucher Configuration."""
         for user in self:
             if user.id in (1, 2) or user.share:
                 user.crm_expense_manager_id = False
                 continue
-
             approver = False
-            real_uid = user._origin.id if getattr(user, '_origin', None) and user._origin.id else (user.id if isinstance(user.id, int) else False)
-            emp_rec = user.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
-            dept = (user.crm_department_id or (emp_rec and emp_rec.department_id) or (user.crm_job_id and user.crm_job_id.department_id) or False)
-
-            # Check if this user is a Department Head or designated Voucher Approver in Voucher Configuration
-            is_dept_head = False
-            if dept:
-                dept = dept.sudo()
-                if (dept.manager_user_id and dept.manager_user_id.id == user.id) or (dept.voucher_manager_id and dept.voucher_manager_id.id == user.id):
-                    is_dept_head = True
-
-            # Case A: If user is a Department Head -> reports directly to Global Manager / Admin
-            if is_dept_head:
-                user.crm_expense_manager_id = fallback
-                continue
-
-            # Case B: Regular Employee -> Check Voucher Configuration
-            if dept:
-                # 1. Primary department row with Active = True
-                if dept.voucher_approval_active:
-                    eff_app = dept.voucher_manager_id or dept.manager_user_id
-                    if eff_app and eff_app.active and eff_app.id != user.id:
-                        approver = eff_app
-
-                # 2. Managing department with this dept in Extra / Sub-Departments (Active = True)
-                if not approver:
-                    managing_dept = self.env['hr.department'].sudo().search([
-                        ('voucher_approval_active', '=', True),
-                        ('extra_department_ids', 'in', [dept.id]),
-                    ], limit=1)
-                    if managing_dept:
-                        eff_app = managing_dept.voucher_manager_id or managing_dept.manager_user_id
-                        if eff_app and eff_app.active and eff_app.id != user.id:
-                            approver = eff_app
-
-            user.crm_expense_manager_id = approver or fallback
+            try:
+                approver = self.env['service.ticket'].sudo()._get_voucher_approver_for_employee(user)
+            except Exception:
+                pass
+            user.crm_expense_manager_id = approver if (approver and approver.id != user.id) else False
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
@@ -154,6 +109,19 @@ class ResUsers(models.Model):
         phone_val = getattr(partner, 'phone', '') or getattr(u, 'phone', '') or (emp and getattr(emp, 'work_phone', '')) or ''
         mobile_val = (emp and getattr(emp, 'mobile_phone', '')) or getattr(partner, 'mobile', '') or getattr(u, 'mobile', '') or ''
 
+        # Dynamically resolve live Voucher Approver directly from Voucher Configuration
+        approver = False
+        try:
+            approver = self.env['service.ticket'].sudo()._get_voucher_approver_for_employee(u)
+        except Exception:
+            pass
+        if not approver:
+            all_cos = self.env['res.company'].sudo().search([])
+            global_mgrs = all_cos.mapped('crm_authorized_expense_manager_ids').filtered(lambda x: x.active and x.id not in (1, 2) and x.id != u.id)
+            approver = global_mgrs[:1] or u.crm_expense_manager_id
+
+        expense_mgr_name = approver.name if (approver and approver.exists()) else ((u.crm_expense_manager_id and u.crm_expense_manager_id.name) or '')
+
         return {
             'id': u.id,
             'name': u.name or getattr(partner, 'name', '') or '',
@@ -165,7 +133,7 @@ class ResUsers(models.Model):
             'job_title': (u.crm_job_id and u.crm_job_id.name) or (emp and emp.job_title) or '',
             'department': (u.crm_department_id and u.crm_department_id.name) or (emp and emp.department_id and emp.department_id.name) or '',
             'manager': (u.crm_manager_id and u.crm_manager_id.name) or (emp and emp.parent_id and emp.parent_id.name) or '',
-            'expense_manager': (u.crm_expense_manager_id and u.crm_expense_manager_id.name) or '',
+            'expense_manager': expense_mgr_name,
         }
 
     @api.model
