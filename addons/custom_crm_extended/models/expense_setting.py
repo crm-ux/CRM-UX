@@ -255,7 +255,7 @@ class ExpenseSetting(models.Model):
                 appointments.append({
                     'badge': 'Global Manager',
                     'name': u.name,
-                    'action': f"Appointed as Global Authorized Voucher Manager for {company.name}",
+                    'action': 'Appointed',
                 })
 
         for uid in removed_global_ids:
@@ -264,7 +264,7 @@ class ExpenseSetting(models.Model):
                 revocations.append({
                     'badge': 'Global Manager',
                     'name': u.name,
-                    'action': f"Revoked as Global Authorized Voucher Manager for {company.name}",
+                    'action': 'Revoked',
                 })
 
         # 2. Department Voucher Approvers & Toggle Activity
@@ -291,35 +291,22 @@ class ExpenseSetting(models.Model):
 
                 # Case A: Toggle was ON, now turned OFF (Revoked / Deactivated)
                 if old_active and not new_active:
-                    if old_app_id:
-                        old_u = self.env['res.users'].browse(old_app_id)
-                        revocations.append({
-                            'badge': f"{dept.name} Dept",
-                            'name': old_u.name,
-                            'action': f"Deactivated Voucher Approver for {dept.name} (Approval Toggle OFF)",
-                        })
-                    else:
-                        revocations.append({
-                            'badge': f"{dept.name} Dept",
-                            'name': dept.name,
-                            'action': f"Deactivated Approval for {dept.name} (Approval Toggle OFF)",
-                        })
+                    name = dept.voucher_manager_id.name if dept.voucher_manager_id else dept.name
+                    revocations.append({
+                        'badge': f"{dept.name} Dept",
+                        'name': name,
+                        'action': 'Deactivated (Toggle OFF)',
+                    })
 
                 # Case B: Toggle was OFF, now turned ON (Appointed / Activated)
                 elif not old_active and new_active:
-                    if new_app_id:
-                        new_u = self.env['res.users'].browse(new_app_id)
-                        appointments.append({
-                            'badge': f"{dept.name} Dept",
-                            'name': new_u.name,
-                            'action': f"Activated as Voucher Approver for {dept.name} (Approval Toggle ON)",
-                        })
-                    else:
-                        appointments.append({
-                            'badge': f"{dept.name} Dept",
-                            'name': dept.name,
-                            'action': f"Activated Approval for {dept.name} (Approval Toggle ON)",
-                        })
+                    new_u = self.env['res.users'].browse(new_app_id) if new_app_id else False
+                    name = new_u.name if new_u else dept.name
+                    appointments.append({
+                        'badge': f"{dept.name} Dept",
+                        'name': name,
+                        'action': 'Activated (Toggle ON)',
+                    })
 
                 # Case C: Toggle stays ON, but Approver changed
                 elif old_active and new_active and old_app_id != new_app_id:
@@ -328,14 +315,14 @@ class ExpenseSetting(models.Model):
                         revocations.append({
                             'badge': f"{dept.name} Dept",
                             'name': old_u.name,
-                            'action': f"Revoked as Voucher Approver for {dept.name}",
+                            'action': 'Revoked',
                         })
                     if new_app_id:
                         new_u = self.env['res.users'].browse(new_app_id)
                         appointments.append({
                             'badge': f"{dept.name} Dept",
                             'name': new_u.name,
-                            'action': f"Appointed as Voucher Approver for {dept.name}",
+                            'action': 'Appointed',
                         })
 
         return {
