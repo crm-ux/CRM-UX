@@ -1442,7 +1442,7 @@
                             </div>
                         </t>
                         <t t-else="">
-                            <!-- Top Profile Info Header (Exact Layout from Image) -->
+                            <!-- Top Profile Info Header -->
                             <div class="crm-profile-top-card" style="display: flex; align-items: center; gap: 1.25rem; background: #ffffff; padding: 1.25rem; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 1.25rem;">
                                 <!-- Big Avatar Box -->
                                 <div class="crm-profile-avatar-box" style="width: 72px; height: 72px; border-radius: 12px; background: #0b3d91; color: #ffffff; font-size: 2.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 6px -1px rgba(11, 61, 145, 0.25);">
@@ -1450,8 +1450,19 @@
                                 </div>
                                 <div style="flex: 1; min-width: 0;">
                                     <h2 style="margin: 0 0 0.35rem 0; font-size: 1.35rem; font-weight: 700; color: #0f172a; word-break: break-word;" t-esc="state.profileData.name || state.userName"/>
+                                    
+                                    <!-- Department & Job Role Badges -->
+                                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 0.5rem;" t-if="state.profileData.department || state.profileData.job_title">
+                                        <span t-if="state.profileData.department" style="background: #e0f2fe; color: #0369a1; font-weight: 600; font-size: 0.78rem; padding: 2px 9px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fa fa-building-o"></i> <t t-esc="state.profileData.department"/>
+                                        </span>
+                                        <span t-if="state.profileData.job_title" style="background: #f1f5f9; color: #475569; font-weight: 600; font-size: 0.78rem; padding: 2px 9px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fa fa-briefcase"></i> <t t-esc="state.profileData.job_title"/>
+                                        </span>
+                                    </div>
+
                                     <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem; color: #475569;">
-                                        <!-- Login ID with Key Icon (Dynamically reflects as user types) -->
+                                        <!-- Login ID with Key Icon -->
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <i class="fa fa-key" style="color: #0b3d91; width: 14px;" title="Login ID"></i>
                                             <span style="font-weight: 600; color: #334155;" t-esc="state.profileData.login || 'No Login ID'"/>
@@ -1475,27 +1486,30 @@
                                 </div>
                             </div>
 
-                            <!-- 3 Tabs Navigation -->
-                            <div class="crm-profile-nav-tabs" style="display: flex; gap: 4px; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                            <!-- Modern Segmented Pill Tabs Navigation -->
+                            <div class="crm-profile-nav-tabs" style="display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 10px; margin-bottom: 1.25rem;">
                                 <button type="button" 
-                                        t-on-click="() => this.setProfileTab('preferences')"
-                                        t-att-style="state.profileActiveTab === 'preferences' ? 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer; white-space: nowrap; font-size: 0.9rem;' : 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 600; color: #64748b; cursor: pointer; white-space: nowrap; font-size: 0.9rem;'">
-                                    Preferences
-                                </button>
-                                <button type="button" 
-                                        t-on-click="() => this.setProfileTab('security')"
-                                        t-att-style="state.profileActiveTab === 'security' ? 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer; white-space: nowrap; font-size: 0.9rem;' : 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 600; color: #64748b; cursor: pointer; white-space: nowrap; font-size: 0.9rem;'">
-                                    Security
+                                        t-on-click="() => this.setProfileTab('contact')"
+                                        t-att-style="(state.profileActiveTab === 'contact' || state.profileActiveTab === 'preferences') ? 'flex: 1; border: none; background: #0b3d91; color: #ffffff; padding: 0.65rem 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; box-shadow: 0 2px 4px rgba(11,61,145,0.25); display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;' : 'flex: 1; border: none; background: transparent; color: #475569; padding: 0.65rem 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;'">
+                                    <i class="fa fa-user"></i>
+                                    <span>Contact Details</span>
                                 </button>
                                 <button type="button" 
                                         t-on-click="() => this.setProfileTab('organization')"
-                                        t-att-style="state.profileActiveTab === 'organization' ? 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 700; color: #0b3d91; border-bottom: 3px solid #0b3d91; margin-bottom: -2px; cursor: pointer; white-space: nowrap; font-size: 0.9rem;' : 'border: none; background: none; padding: 0.65rem 1rem; font-weight: 600; color: #64748b; cursor: pointer; white-space: nowrap; font-size: 0.9rem;'">
-                                    Organization &amp; Hierarchy
+                                        t-att-style="state.profileActiveTab === 'organization' ? 'flex: 1; border: none; background: #0b3d91; color: #ffffff; padding: 0.65rem 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; box-shadow: 0 2px 4px rgba(11,61,145,0.25); display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;' : 'flex: 1; border: none; background: transparent; color: #475569; padding: 0.65rem 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;'">
+                                    <i class="fa fa-sitemap"></i>
+                                    <span>Department &amp; Hierarchy</span>
+                                </button>
+                                <button type="button" 
+                                        t-on-click="() => this.setProfileTab('security')"
+                                        t-att-style="state.profileActiveTab === 'security' ? 'flex: 1; border: none; background: #0b3d91; color: #ffffff; padding: 0.65rem 1rem; font-weight: 700; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; box-shadow: 0 2px 4px rgba(11,61,145,0.25); display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;' : 'flex: 1; border: none; background: transparent; color: #475569; padding: 0.65rem 1rem; font-weight: 600; border-radius: 8px; cursor: pointer; white-space: nowrap; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s ease;'">
+                                    <i class="fa fa-lock"></i>
+                                    <span>Security</span>
                                 </button>
                             </div>
 
-                            <!-- Tab 1: Preferences (Editable) -->
-                            <div t-if="state.profileActiveTab === 'preferences'" style="display: flex; flex-direction: column; gap: 1rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <!-- Tab 1: Contact Details (Editable) -->
+                            <div t-if="state.profileActiveTab === 'contact' || state.profileActiveTab === 'preferences'" style="display: flex; flex-direction: column; gap: 1rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
                                 <div class="row g-3">
                                     <div class="col-12 col-md-6">
                                         <label style="font-size: 0.8rem; font-weight: 700; color: #334155; margin-bottom: 0.35rem; display: block;">Login ID</label>
@@ -1520,7 +1534,53 @@
                                 </div>
                             </div>
 
-                            <!-- Tab 2: Security (Only Change Password - NO 2FA) -->
+                            <!-- Tab 2: Organization & Hierarchy (Read-Only Beautiful Cards) -->
+                            <div t-if="state.profileActiveTab === 'organization'" style="display: flex; flex-direction: column; gap: 1rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <div class="row g-3">
+                                    <!-- Department -->
+                                    <div class="col-12 col-md-6">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+                                                <i class="fa fa-building-o" style="color: #0b3d91; font-size: 0.95rem;"></i>
+                                                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Department</span>
+                                            </div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: #0f172a;" t-esc="state.profileData.department || 'Not Assigned'"/>
+                                        </div>
+                                    </div>
+                                    <!-- Job Position / Role -->
+                                    <div class="col-12 col-md-6">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+                                                <i class="fa fa-briefcase" style="color: #0b3d91; font-size: 0.95rem;"></i>
+                                                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Job Position / Role</span>
+                                            </div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: #0f172a;" t-esc="state.profileData.job_title || 'Not Assigned'"/>
+                                        </div>
+                                    </div>
+                                    <!-- Reporting Manager -->
+                                    <div class="col-12 col-md-6">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+                                                <i class="fa fa-user-circle" style="color: #0b3d91; font-size: 0.95rem;"></i>
+                                                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Reporting Manager</span>
+                                            </div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: #0f172a;" t-esc="state.profileData.manager || 'No Manager'"/>
+                                        </div>
+                                    </div>
+                                    <!-- Expense / Voucher Approver -->
+                                    <div class="col-12 col-md-6">
+                                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.9rem 1rem;">
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.35rem;">
+                                                <i class="fa fa-credit-card" style="color: #0b3d91; font-size: 0.95rem;"></i>
+                                                <span style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Expense / Voucher Approver</span>
+                                            </div>
+                                            <div style="font-size: 1rem; font-weight: 700; color: #0f172a;" t-esc="state.profileData.expense_manager || 'Not Assigned'"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab 3: Security (Only Change Password - NO 2FA) -->
                             <div t-if="state.profileActiveTab === 'security'" style="background: #ffffff; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0;">
                                 <div style="display: flex; align-items: center; justify-content: space-between;">
                                     <div>
@@ -1535,34 +1595,12 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Tab 3: Organization & Hierarchy (Read-Only) -->
-                            <div t-if="state.profileActiveTab === 'organization'" style="display: flex; flex-direction: column; gap: 0.85rem; background: #ffffff; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <div class="row g-3">
-                                    <div class="col-12 col-md-6">
-                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Job Position / Role</label>
-                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.job_title || 'Not assigned'"/>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Department</label>
-                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.department || 'Not assigned'"/>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Reports To (Manager)</label>
-                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.manager || 'No Manager'"/>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Expense / Voucher Approver</label>
-                                        <div style="font-size: 0.92rem; font-weight: 600; color: #0f172a; padding: 0.35rem 0;" t-esc="state.profileData.expense_manager || 'Not assigned'"/>
-                                    </div>
-                                </div>
-                            </div>
                         </t>
                     </div>
 
                     <div class="crm-task-footer" style="display: flex; justify-content: flex-end; gap: 8px; padding: 0.9rem 1.5rem; border-top: 1px solid #e2e8f0; background: #ffffff;">
                         <button class="crm-task-cancel-btn" t-on-click="closeMyProfileModal" t-att-disabled="state.profileSaving">Close</button>
-                        <button t-if="state.profileActiveTab === 'preferences'" class="crm-task-submit-btn" t-on-click="saveMyProfile" t-att-disabled="state.profileSaving" style="background: #0b3d91; color: #ffffff; display: flex; align-items: center; gap: 6px;">
+                        <button t-if="state.profileActiveTab === 'contact' || state.profileActiveTab === 'preferences'" class="crm-task-submit-btn" t-on-click="saveMyProfile" t-att-disabled="state.profileSaving" style="background: #0b3d91; color: #ffffff; display: flex; align-items: center; gap: 6px;">
                             <i t-if="state.profileSaving" class="fa fa-spinner fa-spin"></i>
                             <span><t t-if="state.profileSaving">Saving...</t><t t-else="">Save Changes</t></span>
                         </button>

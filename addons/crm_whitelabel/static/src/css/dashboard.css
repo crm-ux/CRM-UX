@@ -2458,6 +2458,38 @@ body:has(.crm-pro-dashboard) .o_loading {
     }
 }
 
+/* My Profile Modal Tabs & Card Styling */
+.crm-profile-modal-dialog .crm-profile-nav-tabs {
+    display: flex !important;
+    gap: 6px !important;
+    background: #f1f5f9 !important;
+    padding: 5px !important;
+    border-radius: 10px !important;
+    margin-bottom: 1.25rem !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.crm-profile-modal-dialog .crm-profile-nav-tabs button {
+    flex: 1 1 0% !important;
+    border: none !important;
+    outline: none !important;
+    padding: 0.65rem 0.9rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    border-radius: 7px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    transition: all 0.2s ease !important;
+}
+
+.crm-profile-modal-dialog .crm-profile-nav-tabs button:hover {
+    color: #0b3d91 !important;
+    background: rgba(11, 61, 145, 0.08) !important;
+}
+
 /* My Profile Modal - Responsive Tablet & Mobile Styles */
 @media (max-width: 768px) {
     .crm-profile-modal-dialog {

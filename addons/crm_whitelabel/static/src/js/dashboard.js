@@ -84,7 +84,7 @@ class CrmDashboard extends Component {
             accessModalOpen: false, accessModalModule: "",
             // My Profile Modal State
             profileModalOpen: false,
-            profileActiveTab: "preferences",
+            profileActiveTab: "contact",
             profileLoading: false,
             profileSaving: false,
             profileData: {
@@ -1166,7 +1166,7 @@ class CrmDashboard extends Component {
 
     async openMyPreferences() {
         this.state.userDropdownOpen = false;
-        this.state.profileActiveTab = "preferences";
+        this.state.profileActiveTab = "contact";
         this.state.profileLoading = true;
         this.state.profileModalOpen = true;
 
