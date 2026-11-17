@@ -2090,8 +2090,8 @@ class HrDepartment(models.Model):
         2. If active but voucher_manager_id is unset or Administrator, auto-default to Department Head (manager_user_id -> Anurag).
         3. Fallback to employee's direct manager (crm_manager_id -> Anurag).
         """
-        company = self.env.company
-        global_mgr = company.crm_authorized_expense_manager_ids.filtered(lambda u: u.id not in (1, 2))[:1]
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgr = all_companies.mapped('crm_authorized_expense_manager_ids').filtered(lambda u: u.active and u.id not in (1, 2))[:1]
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         fallback_mgr = global_mgr or admin_user
         for dept in self:

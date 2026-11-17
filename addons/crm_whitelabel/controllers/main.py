@@ -80,7 +80,13 @@ class CrmWhitelabelController(http.Controller):
 
             # 4. Expense / Voucher Approver
             expense_manager = ''
-            if getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id:
+            try:
+                approver = request.env['service.ticket'].sudo()._get_voucher_approver_for_employee(user)
+                if approver:
+                    expense_manager = approver.name or ''
+            except Exception:
+                pass
+            if not expense_manager and getattr(user, 'crm_expense_manager_id', None) and user.crm_expense_manager_id:
                 expense_manager = user.crm_expense_manager_id.name or ''
 
             return {
@@ -112,7 +118,7 @@ class CrmWhitelabelController(http.Controller):
                 'job_title': (getattr(u, 'crm_job_id', None) and u.crm_job_id.name) or '',
                 'department': (getattr(u, 'crm_department_id', None) and u.crm_department_id.name) or '',
                 'manager': (getattr(u, 'crm_manager_id', None) and u.crm_manager_id.name) or '',
-                'expense_manager': (getattr(u, 'crm_expense_manager_id', None) and u.crm_expense_manager_id.name) or '',
+                'expense_manager': (request.env['service.ticket'].sudo()._get_voucher_approver_for_employee(u).name if request.env['service.ticket'].sudo()._get_voucher_approver_for_employee(u) else (getattr(u, 'crm_expense_manager_id', None) and u.crm_expense_manager_id.name)) or '',
             }
 
     @http.route('/crm/user/save_profile', type='jsonrpc', auth='user')

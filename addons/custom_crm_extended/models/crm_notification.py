@@ -118,21 +118,8 @@ class CrmNotification(models.Model):
         }
         notif = self.sudo().create(val)
 
-        # Dispatch real-time live notification via bus to target user
+        # Dispatch single real-time live notification via bus to target user
         if target_user and target_user.exists() and target_user.partner_id:
-            try:
-                self.env['bus.bus']._sendone(
-                    target_user.partner_id,
-                    'simple_notification',
-                    {
-                        'title': title or 'CRM Notification',
-                        'message': summary or '',
-                        'type': 'info',
-                        'sticky': False,
-                    }
-                )
-            except Exception:
-                pass
             try:
                 self.env['bus.bus']._sendone(
                     target_user.partner_id,
@@ -140,6 +127,7 @@ class CrmNotification(models.Model):
                     {
                         'title': title or 'CRM Notification',
                         'message': summary or '',
+                        'type': 'info',
                         'category': category,
                         'model': res_model or False,
                         'res_id': res_id or 0,

@@ -199,13 +199,6 @@ class CrmDashboard extends Component {
                 try {
                     this.env.services.bus_service.subscribe('crm_notification', (payload) => {
                         this.loadNotifCount();
-                        if (this.notificationService) {
-                            this.notificationService.add(payload.message || "New notification received", {
-                                title: payload.title || "CRM Notification",
-                                type: "info",
-                                sticky: false,
-                            });
-                        }
                     });
                     this.env.services.bus_service.subscribe('mail.record/insert', () => {
                         this.loadNotifCount();

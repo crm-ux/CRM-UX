@@ -1188,7 +1188,8 @@ class ServiceTicket(models.Model):
         emp_rec = emp.employee_id or (self.env['hr.employee'].sudo().search([('user_id', '=', real_uid)], limit=1) if real_uid else False)
         emp_dept = (emp.crm_department_id or (emp_rec and emp_rec.department_id) or (emp.crm_job_id and emp.crm_job_id.department_id) or False)
 
-        global_mgrs = company.sudo().crm_authorized_expense_manager_ids.filtered(lambda u: u.active and u.id not in (1, 2) and u.id != emp.id)
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgrs = all_companies.mapped('crm_authorized_expense_manager_ids').filtered(lambda u: u.active and u.id not in (1, 2) and u.id != emp.id)
         fallback = global_mgrs[:1] or admin_user
 
         # Check if this user is a Department Head or designated Voucher Approver in Voucher Configuration

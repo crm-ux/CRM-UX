@@ -30,8 +30,8 @@ export const crmLiveToastService = {
             bus_service.subscribe("crm_notification", (payload) => {
                 if (!payload) return;
                 notification.add(payload.message || "", {
-                    title: payload.title || _t("CRM Notice"),
-                    type: payload.type || "warning",
+                    title: payload.title || _t("Notification"),
+                    type: payload.type || "info",
                     sticky: false,
                 });
                 // Real-time live reload: automatically refresh list/kanban view without manual F5

@@ -120,6 +120,15 @@ class ExpenseSetting(models.Model):
             for d in self.env['hr.department'].sudo().search([]):
                 d._sync_voucher_approver_to_members()
 
+            # Direct sync: ensure all member profiles reflect the active Global Manager
+            primary_global_mgr = rec.authorized_manager_ids.filtered(lambda u: u.id not in (1, 2))[:1]
+            if primary_global_mgr:
+                for emp_user in self.env['res.users'].sudo().search([('share', '=', False), ('active', '=', True), ('id', 'not in', [1, 2])]):
+                    dept = emp_user.crm_department_id or (emp_user.employee_id and emp_user.employee_id.department_id)
+                    if not dept or not dept.voucher_approval_active or not dept.voucher_manager_id:
+                        if emp_user.crm_expense_manager_id != primary_global_mgr and emp_user.id != primary_global_mgr.id:
+                            emp_user.with_context(skip_sync=True).sudo().write({'crm_expense_manager_id': primary_global_mgr.id})
+
             # Send Notification to newly appointed Global Voucher Managers & Assigner
             assigner = self.env.user
             for uid in added_ids:
