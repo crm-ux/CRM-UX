@@ -330,19 +330,6 @@ class ExpenseSetting(models.Model):
             'appointments': appointments,
             'revocations': revocations,
         }
-    def action_save_settings(self):
-        """Action for the 'Save Changes' header button in Voucher Configuration."""
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Configuration Saved'),
-                'message': _('Voucher configuration and manager updates have been applied successfully.'),
-                'type': 'success',
-                'sticky': False,
-            }
-        }
 
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])
