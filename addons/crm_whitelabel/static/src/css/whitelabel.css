@@ -1,18 +1,9 @@
 /* ==========================================================================
    GLOBAL CRM COMPACT ZOOM - APPLIES TO ALL VIEWS, FORMS, TABLES & PAGES
+   Apply at the single web client root so all coordinates (modals, dropdowns,
+   autocompletes, popovers) scale together in 100% sync at 80% zoom.
    ========================================================================== */
-.o_action_manager {
-    zoom: 0.80 !important;
-}
-
-.modal-dialog {
-    zoom: 0.80 !important;
-}
-
-/* Fix dropdown/autocomplete position when modal is zoomed 80% */
-.ui-autocomplete,
-.o-autocomplete--dropdown-menu,
-.o_popover {
+.o_web_client {
     zoom: 0.80 !important;
 }
 
