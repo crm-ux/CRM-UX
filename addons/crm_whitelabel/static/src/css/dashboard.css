@@ -46,17 +46,15 @@ body:has(.crm-pro-dashboard) .o_loading {
 /* Dashboard-Only Instant Blur Overlay (Covers the screen at 0ms, hiding 0s) */
 .crm-dashboard-loader-overlay {
     position: fixed !important;
-    inset: 0 !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    background: rgba(248, 250, 252, 0.65) !important;
+    inset: -100vmax !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 200vw !important;
+    min-height: 200vh !important;
+    background: rgba(248, 250, 252, 0.75) !important;
     backdrop-filter: blur(12px) !important;
     -webkit-backdrop-filter: blur(12px) !important;
-    z-index: 999999 !important;
+    z-index: 9999999 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -2270,18 +2268,17 @@ body:has(.crm-pro-dashboard) .o_loading {
 
 .crm-mobile-search-overlay {
     position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
+    inset: -100vmax !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 200vw !important;
+    min-height: 200vh !important;
     background: rgba(15, 23, 42, 0.5) !important;
     backdrop-filter: blur(4px) !important;
     -webkit-backdrop-filter: blur(4px) !important;
-    z-index: 999999 !important;
+    z-index: 9999999 !important;
     display: flex !important;
-    align-items: flex-start !important;
+    align-items: center !important;
     justify-content: center !important;
     padding: 1.5rem 0.75rem !important;
 }
@@ -2750,11 +2747,11 @@ button.o_form_button_cancel::after,
 }
 
 /* 4. Dashboard -> Home Vector Icon (Matching Secondary Button Color) */
-.o_control_panel_breadcrumbs > button.btn-secondary {
+.o_control_panel_breadcrumbs>button.btn-secondary {
     color: #334155 !important;
 }
 
-.o_control_panel_breadcrumbs > button.btn-secondary i.fa-home {
+.o_control_panel_breadcrumbs>button.btn-secondary i.fa-home {
     font-size: 0.95rem !important;
     color: #334155 !important;
 }
