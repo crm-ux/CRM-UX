@@ -54,47 +54,28 @@ patch(FormController.prototype, {
                 );
 
                 if (diff && diff.has_changes) {
-                    let itemsHtml = "";
-
+                    const changes = [];
                     if (diff.appointments && diff.appointments.length > 0) {
                         for (const app of diff.appointments) {
-                            itemsHtml += `
-                            <div style="margin-bottom: 5px; color: #15803d; font-size: 13.5px; display: flex; align-items: baseline; gap: 6px;">
-                                <span style="font-weight: 700;">+</span>
-                                <div>
-                                    <strong style="color: #0f172a;">${app.badge}:</strong> ${app.name} 
-                                    <span style="font-size: 12px; color: #166534; background: #dcfce7; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: 600;">${app.action}</span>
-                                </div>
-                            </div>`;
+                            changes.push(`• ${app.badge}: ${app.name} (${app.action})`);
                         }
                     }
-
                     if (diff.revocations && diff.revocations.length > 0) {
                         for (const rev of diff.revocations) {
-                            itemsHtml += `
-                            <div style="margin-bottom: 5px; color: #b91c1c; font-size: 13.5px; display: flex; align-items: baseline; gap: 6px;">
-                                <span style="font-weight: 700;">&minus;</span>
-                                <div>
-                                    <strong style="color: #0f172a;">${rev.badge}:</strong> ${rev.name} 
-                                    <span style="font-size: 12px; color: #991b1b; background: #fee2e2; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: 600;">${rev.action}</span>
-                                </div>
-                            </div>`;
+                            changes.push(`• ${rev.badge}: ${rev.name} (${rev.action})`);
                         }
                     }
 
-                    const html = `
-                    <div class="crm-manager-confirm-box" style="font-size: 13.5px; color: #0f172a; line-height: 1.5; margin: 0; padding: 0;">
-                        <div style="margin-bottom: 12px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-                            ${itemsHtml}
+                    const bodyContent = markup(`
+                        <div class="crm-confirm-dialog-content" style="font-size: 14px;">
+                            ${changes.length ? `<div class="mb-2" style="white-space: pre-line; line-height: 1.5; color: #1e293b;">${changes.join("\n")}</div>` : ""}
+                            <div style="color: #475569; line-height: 1.45;">Please review the manager updates above. Do you want to apply these changes and notify the appointed and revoked users?</div>
                         </div>
-                        <div style="color: #334155; font-size: 13px; font-weight: 500; line-height: 1.45;">
-                            Please review the manager updates above. Do you want to apply these changes and notify the appointed and revoked users?
-                        </div>
-                    </div>`;
+                    `);
 
                     this.env.services.dialog.add(ConfirmationDialog, {
                         title: _t("Confirm Voucher Manager Changes"),
-                        body: markup(html),
+                        body: bodyContent,
                         confirmLabel: _t("Confirm & Save"),
                         cancelLabel: _t("Cancel"),
                         confirm: async () => {
