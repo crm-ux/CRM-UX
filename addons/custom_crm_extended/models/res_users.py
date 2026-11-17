@@ -331,6 +331,14 @@ class ResUsers(models.Model):
             })
         return res
 
+    @api.model
+    def get_user_voucher_batch_domain(self, user_id=None):
+        uid = int(user_id) if user_id else self.env.user.id
+        u = self.browse(uid).sudo()
+        if not u.exists():
+            u = self.env.user.sudo()
+        return u._get_voucher_batch_domain()
+
     def _get_voucher_batch_domain(self):
         """Record rule domain for Voucher Submissions (service.ticket.voucher.batch).
         - Draft vouchers: ONLY visible to the employee who created them.
@@ -353,8 +361,8 @@ class ResUsers(models.Model):
                 '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
             ]
 
-        company = self.company_id or self.env.company
-        if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+        all_companies = self.env['res.company'].sudo().search([])
+        if self.id in all_companies.mapped('crm_authorized_expense_manager_ids').ids:
             # Global Managers see their own (including drafts) + all submitted/processed vouchers of others
             return [
                 '|',
@@ -415,8 +423,8 @@ class ResUsers(models.Model):
                 '|', ('user_id', '=', self.id), ('submitted_by_user_id', '=', self.id)
             ]
 
-        company = self.company_id or self.env.company
-        if self.id in company.sudo().crm_authorized_expense_manager_ids.ids:
+        all_companies = self.env['res.company'].sudo().search([])
+        if self.id in all_companies.mapped('crm_authorized_expense_manager_ids').ids:
             return [
                 '|',
                 ('status', '!=', 'draft'),

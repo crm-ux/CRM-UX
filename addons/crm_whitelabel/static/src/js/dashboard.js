@@ -280,8 +280,30 @@ class CrmDashboard extends Component {
             target: "current",
         });
     }
-    openVoucherManagement(ev) {
-        this.go("custom_crm_extended.action_service_ticket_voucher_line");
+    async openVoucherManagement(ev) {
+        const uid = this.state.viewAsUserId || user.userId;
+        let actionDomain = false;
+        if (this.state.viewAsUserId) {
+            try {
+                actionDomain = await rpc("/web/dataset/call_kw", {
+                    model: "res.users",
+                    method: "get_user_voucher_batch_domain",
+                    args: [],
+                    kwargs: { user_id: uid },
+                });
+            } catch (e) { }
+        }
+        this.go({
+            type: "ir.actions.act_window",
+            name: "Voucher Submissions",
+            res_model: "service.ticket.voucher.batch",
+            views: [[false, "list"], [false, "form"]],
+            domain: actionDomain || [],
+            context: {
+                view_as_user_id: uid,
+            },
+            target: "current",
+        });
     }
 
     openEquipmentSeries() {
