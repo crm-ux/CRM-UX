@@ -110,11 +110,46 @@ class ExpenseSetting(models.Model):
     def _inverse_authorized_managers(self):
         company = self.env.company
         for rec in self:
+            old_mgr_ids = set(company.crm_authorized_expense_manager_ids.ids)
+            new_mgr_ids = set(rec.authorized_manager_ids.ids)
+            added_ids = new_mgr_ids - old_mgr_ids
             company.sudo().write({
                 'crm_authorized_expense_manager_ids': [(6, 0, rec.authorized_manager_ids.ids)]
             })
             for d in self.env['hr.department'].sudo().search([]):
                 d._sync_voucher_approver_to_members()
+
+            # Send Notification to newly appointed Global Voucher Managers & Assigner
+            assigner = self.env.user
+            for uid in added_ids:
+                u = self.env['res.users'].browse(uid)
+                if u.exists() and u.id not in (1, 2):
+                    try:
+                        # 1. Appointed User Side
+                        self.env['crm.notification'].create_notification(
+                            user=u,
+                            title='Global Voucher Manager Assigned',
+                            summary=f"You have been designated as a Global Authorized Voucher Manager for {company.name} by {assigner.name}. You now have full approval authority over company expense vouchers.",
+                            category='voucher',
+                            sender=assigner,
+                            res_model='expense.setting',
+                            res_id=rec.id,
+                            record_ref_name='Expense Settings',
+                        )
+                        # 2. Assigner Side (Who appointed)
+                        if assigner.id != u.id:
+                            self.env['crm.notification'].create_notification(
+                                user=assigner,
+                                title='Manager Assignment Confirmed',
+                                summary=f"You have successfully appointed {u.name} as a Global Authorized Voucher Manager for {company.name}.",
+                                category='voucher',
+                                sender=assigner,
+                                res_model='expense.setting',
+                                res_id=rec.id,
+                                record_ref_name='Expense Settings',
+                            )
+                    except Exception:
+                        pass
         return
 
     def _unused_dummy(self):

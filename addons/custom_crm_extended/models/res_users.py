@@ -1875,10 +1875,125 @@ class HrDepartment(models.Model):
         return departments
 
     def write(self, vals):
+        old_heads = {d.id: d.manager_user_id.id for d in self} if 'manager_user_id' in vals else {}
+        old_approvers = {d.id: d.voucher_manager_id.id for d in self} if 'voucher_manager_id' in vals else {}
+
         res = super().write(vals)
         if 'manager_user_id' in vals or 'parent_id' in vals or any(k in vals for k in ('voucher_manager_id', 'voucher_approval_active', 'extra_department_ids')):
             for dept in self:
                 dept._sync_head_to_user()
+
+                # 1. Notify Department Head Assignment (Both Sides: Appointed & Assigner)
+                if 'manager_user_id' in vals:
+                    new_head = dept.manager_user_id
+                    new_head_id = new_head.id if new_head else False
+                    old_head_id = old_heads.get(dept.id)
+                    assigner = self.env.user
+                    if new_head_id and new_head_id != old_head_id and new_head_id not in (1, 2):
+                        try:
+                            # Appointed Person Side
+                            self.env['crm.notification'].create_notification(
+                                user=new_head,
+                                title='Department Head Assigned',
+                                summary=f"You have been appointed as the Department Head of {dept.name} by {assigner.name}.",
+                                category='general',
+                                sender=assigner,
+                                res_model='hr.department',
+                                res_id=dept.id,
+                                record_ref_name=dept.name,
+                            )
+                            # Assigner Side (Who appointed)
+                            if assigner.id != new_head_id:
+                                self.env['crm.notification'].create_notification(
+                                    user=assigner,
+                                    title='Department Head Assigned',
+                                    summary=f"You have successfully appointed {new_head.name} as the Department Head of {dept.name}.",
+                                    category='general',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                        except Exception:
+                            pass
+
+                        # Notify Department Members
+                        all_dept_ids = dept.ids + dept.extra_department_ids.ids
+                        members = self.env['res.users'].sudo().search([
+                            '|', ('crm_department_id', 'in', all_dept_ids), ('employee_id.department_id', 'in', all_dept_ids),
+                            ('id', 'not in', [1, 2, new_head_id, assigner.id]), ('share', '=', False), ('active', '=', True)
+                        ])
+                        for m in members:
+                            try:
+                                self.env['crm.notification'].create_notification(
+                                    user=m,
+                                    title='New Department Head',
+                                    summary=f"{new_head.name} has been appointed as the new Department Head of {dept.name} by {assigner.name}.",
+                                    category='general',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                            except Exception:
+                                pass
+
+                # 2. Notify Department Voucher Approver Assignment (Both Sides: Appointed & Assigner)
+                if 'voucher_manager_id' in vals or ('voucher_approval_active' in vals and vals.get('voucher_approval_active')):
+                    new_app = dept.voucher_manager_id
+                    new_app_id = new_app.id if new_app else False
+                    old_app_id = old_approvers.get(dept.id)
+                    assigner = self.env.user
+                    if new_app_id and new_app_id != old_app_id and new_app_id not in (1, 2) and dept.voucher_approval_active:
+                        try:
+                            # Appointed Person Side
+                            self.env['crm.notification'].create_notification(
+                                user=new_app,
+                                title='Department Voucher Approver Assigned',
+                                summary=f"You have been designated as the Voucher Approver for {dept.name} by {assigner.name}. Employee vouchers from this department will now route to you for review and approval.",
+                                category='voucher',
+                                sender=assigner,
+                                res_model='hr.department',
+                                res_id=dept.id,
+                                record_ref_name=dept.name,
+                            )
+                            # Assigner Side (Who appointed)
+                            if assigner.id != new_app_id:
+                                self.env['crm.notification'].create_notification(
+                                    user=assigner,
+                                    title='Voucher Approver Assigned',
+                                    summary=f"You have successfully designated {new_app.name} as the Voucher Approver for {dept.name}.",
+                                    category='voucher',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                        except Exception:
+                            pass
+
+                        # Notify Department Members
+                        all_dept_ids = dept.ids + dept.extra_department_ids.ids
+                        members = self.env['res.users'].sudo().search([
+                            '|', ('crm_department_id', 'in', all_dept_ids), ('employee_id.department_id', 'in', all_dept_ids),
+                            ('id', 'not in', [1, 2, new_app_id, assigner.id]), ('share', '=', False), ('active', '=', True)
+                        ])
+                        for m in members:
+                            try:
+                                self.env['crm.notification'].create_notification(
+                                    user=m,
+                                    title='Voucher Approver Updated',
+                                    summary=f"Expense vouchers for {dept.name} will now route to {new_app.name} for review and approval (assigned by {assigner.name}).",
+                                    category='voucher',
+                                    sender=assigner,
+                                    res_model='hr.department',
+                                    res_id=dept.id,
+                                    record_ref_name=dept.name,
+                                )
+                            except Exception:
+                                pass
+                                pass
+
             dept._sync_voucher_approver_to_members()
         return res
 
