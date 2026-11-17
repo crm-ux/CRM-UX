@@ -100,13 +100,14 @@ class CrmNotification(models.Model):
 
     @api.model
     def create_notification(self, user, title, summary, category='general', sender=None, res_model=None, res_id=None, record_ref_name=None):
-        """Helper to create notification master record for a user."""
+        """Helper to create notification master record for a user and dispatch real-time popups."""
         if not user:
             return False
         sender_user = sender or self.env.user
+        target_user = user if hasattr(user, 'partner_id') else self.env['res.users'].browse(user)
         val = {
             'name': title or 'New Notification',
-            'user_id': user.id if hasattr(user, 'id') else user,
+            'user_id': target_user.id if target_user.exists() else user,
             'sender_id': sender_user.id if hasattr(sender_user, 'id') else sender_user,
             'category': category,
             'summary': summary or '',
@@ -115,5 +116,37 @@ class CrmNotification(models.Model):
             'res_id': res_id or 0,
             'record_ref_name': record_ref_name or False,
         }
-        return self.sudo().create(val)
+        notif = self.sudo().create(val)
+
+        # Dispatch real-time live notification via bus to target user
+        if target_user and target_user.exists() and target_user.partner_id:
+            try:
+                self.env['bus.bus']._sendone(
+                    target_user.partner_id,
+                    'simple_notification',
+                    {
+                        'title': title or 'CRM Notification',
+                        'message': summary or '',
+                        'type': 'info',
+                        'sticky': False,
+                    }
+                )
+            except Exception:
+                pass
+            try:
+                self.env['bus.bus']._sendone(
+                    target_user.partner_id,
+                    'crm_notification',
+                    {
+                        'title': title or 'CRM Notification',
+                        'message': summary or '',
+                        'category': category,
+                        'model': res_model or False,
+                        'res_id': res_id or 0,
+                    }
+                )
+            except Exception:
+                pass
+
+        return notif
 

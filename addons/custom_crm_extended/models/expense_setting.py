@@ -124,7 +124,7 @@ class ExpenseSetting(models.Model):
             assigner = self.env.user
             for uid in added_ids:
                 u = self.env['res.users'].browse(uid)
-                if u.exists() and u.id not in (1, 2):
+                if u.exists() and u.id != 1:
                     try:
                         # 1. Appointed User Side
                         self.env['crm.notification'].create_notification(
@@ -138,7 +138,7 @@ class ExpenseSetting(models.Model):
                             record_ref_name='Expense Settings',
                         )
                         # 2. Assigner Side (Who appointed)
-                        if assigner.id != u.id:
+                        if assigner.id != u.id and assigner.id != 1:
                             self.env['crm.notification'].create_notification(
                                 user=assigner,
                                 title='Manager Assignment Confirmed',
@@ -155,7 +155,7 @@ class ExpenseSetting(models.Model):
             # Send Notification for Revoked Global Voucher Managers
             for uid in removed_ids:
                 u = self.env['res.users'].browse(uid)
-                if u.exists() and u.id not in (1, 2):
+                if u.exists() and u.id != 1:
                     try:
                         # 1. Revoked User Side
                         self.env['crm.notification'].create_notification(
@@ -169,7 +169,7 @@ class ExpenseSetting(models.Model):
                             record_ref_name='Expense Settings',
                         )
                         # 2. Assigner Side (Who revoked)
-                        if assigner.id != u.id:
+                        if assigner.id != u.id and assigner.id != 1:
                             self.env['crm.notification'].create_notification(
                                 user=assigner,
                                 title='Manager Role Revoked',

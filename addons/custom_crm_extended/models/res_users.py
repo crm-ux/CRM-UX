@@ -1911,7 +1911,7 @@ class HrDepartment(models.Model):
                     assigner = self.env.user
 
                     # Newly Appointed Head
-                    if new_head_id and new_head_id != old_head_id and new_head_id not in (1, 2):
+                    if new_head_id and new_head_id != old_head_id and new_head_id != 1:
                         try:
                             # Appointed Person Side
                             self.env['crm.notification'].create_notification(
@@ -1925,7 +1925,7 @@ class HrDepartment(models.Model):
                                 record_ref_name=dept.name,
                             )
                             # Assigner Side
-                            if assigner.id != new_head_id:
+                            if assigner.id != new_head_id and assigner.id != 1:
                                 self.env['crm.notification'].create_notification(
                                     user=assigner,
                                     title='Department Head Assigned',
@@ -1943,7 +1943,7 @@ class HrDepartment(models.Model):
                         all_dept_ids = dept.ids + dept.extra_department_ids.ids
                         members = self.env['res.users'].sudo().search([
                             '|', ('crm_department_id', 'in', all_dept_ids), ('employee_id.department_id', 'in', all_dept_ids),
-                            ('id', 'not in', [1, 2, new_head_id, assigner.id]), ('share', '=', False), ('active', '=', True)
+                            ('id', 'not in', [1, new_head_id, assigner.id]), ('share', '=', False), ('active', '=', True)
                         ])
                         for m in members:
                             try:
@@ -1961,7 +1961,7 @@ class HrDepartment(models.Model):
                                 pass
 
                     # Revoked Department Head
-                    if old_head_id and old_head_id != new_head_id and old_head_id not in (1, 2):
+                    if old_head_id and old_head_id != new_head_id and old_head_id != 1:
                         old_head = self.env['res.users'].browse(old_head_id)
                         if old_head.exists():
                             try:
@@ -1977,7 +1977,7 @@ class HrDepartment(models.Model):
                                     record_ref_name=dept.name,
                                 )
                                 # Assigner Side
-                                if assigner.id != old_head_id:
+                                if assigner.id != old_head_id and assigner.id != 1:
                                     self.env['crm.notification'].create_notification(
                                         user=assigner,
                                         title='Department Head Revoked',
@@ -1999,7 +1999,7 @@ class HrDepartment(models.Model):
                     assigner = self.env.user
 
                     # Newly Appointed Voucher Approver
-                    if new_app_id and new_app_id != old_app_id and new_app_id not in (1, 2) and dept.voucher_approval_active:
+                    if new_app_id and new_app_id != old_app_id and new_app_id != 1 and dept.voucher_approval_active:
                         try:
                             # Appointed Person Side
                             self.env['crm.notification'].create_notification(
@@ -2013,7 +2013,7 @@ class HrDepartment(models.Model):
                                 record_ref_name=dept.name,
                             )
                             # Assigner Side
-                            if assigner.id != new_app_id:
+                            if assigner.id != new_app_id and assigner.id != 1:
                                 self.env['crm.notification'].create_notification(
                                     user=assigner,
                                     title='Voucher Approver Assigned',
@@ -2031,7 +2031,7 @@ class HrDepartment(models.Model):
                         all_dept_ids = dept.ids + dept.extra_department_ids.ids
                         members = self.env['res.users'].sudo().search([
                             '|', ('crm_department_id', 'in', all_dept_ids), ('employee_id.department_id', 'in', all_dept_ids),
-                            ('id', 'not in', [1, 2, new_app_id, assigner.id]), ('share', '=', False), ('active', '=', True)
+                            ('id', 'not in', [1, new_app_id, assigner.id]), ('share', '=', False), ('active', '=', True)
                         ])
                         for m in members:
                             try:
@@ -2049,7 +2049,7 @@ class HrDepartment(models.Model):
                                 pass
 
                     # Revoked Voucher Approver
-                    if old_app_id and old_app_id != new_app_id and old_app_id not in (1, 2):
+                    if old_app_id and old_app_id != new_app_id and old_app_id != 1:
                         old_app = self.env['res.users'].browse(old_app_id)
                         if old_app.exists():
                             try:
@@ -2065,7 +2065,7 @@ class HrDepartment(models.Model):
                                     record_ref_name=dept.name,
                                 )
                                 # Assigner Side
-                                if assigner.id != old_app_id:
+                                if assigner.id != old_app_id and assigner.id != 1:
                                     self.env['crm.notification'].create_notification(
                                         user=assigner,
                                         title='Voucher Approver Revoked',
