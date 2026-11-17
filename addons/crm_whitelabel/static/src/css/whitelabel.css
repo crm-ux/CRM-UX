@@ -1988,3 +1988,11 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     color: #ffffff !important;
     line-height: 1 !important;
 }
+
+/* Form View Label Spacing (Keeps labels like Voucher Approver on a single line) */
+.o_form_view .o_group .o_td_label {
+    min-width: clamp(140px, 14vw, 190px) !important;
+}
+.o_form_view .o_group .o_td_label label {
+    white-space: nowrap !important;
+}

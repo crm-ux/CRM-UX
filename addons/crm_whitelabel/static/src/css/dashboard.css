@@ -2458,14 +2458,28 @@ body:has(.crm-pro-dashboard) .o_loading {
     }
 }
 
-/* My Profile Modal Tabs & Card Styling */
+/* My Profile Modal Tabs & Dialog Styling (Zero Scrollbar) */
+.crm-profile-modal-dialog {
+    width: min(560px, 92vw) !important;
+    max-width: 560px !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+
+.crm-profile-modal-dialog .crm-task-body {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+}
+
 .crm-profile-modal-dialog .crm-profile-nav-tabs {
     display: flex !important;
     gap: 6px !important;
     background: #f1f5f9 !important;
-    padding: 5px !important;
-    border-radius: 10px !important;
-    margin-bottom: 1.25rem !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.85rem !important;
     border: 1px solid #e2e8f0 !important;
 }
 
@@ -2473,15 +2487,15 @@ body:has(.crm-pro-dashboard) .o_loading {
     flex: 1 1 0% !important;
     border: none !important;
     outline: none !important;
-    padding: 0.65rem 0.9rem !important;
-    font-size: 0.88rem !important;
+    padding: 0.55rem 0.85rem !important;
+    font-size: 0.85rem !important;
     font-weight: 600 !important;
-    border-radius: 7px !important;
+    border-radius: 6px !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 7px !important;
+    gap: 6px !important;
     transition: all 0.2s ease !important;
 }
 
@@ -2500,8 +2514,9 @@ body:has(.crm-pro-dashboard) .o_loading {
     }
 
     .crm-profile-modal-dialog .crm-task-body {
-        padding: 1.1rem !important;
-        max-height: 80vh !important;
+        padding: 0.85rem 1rem !important;
+        overflow: hidden !important;
+        max-height: none !important;
     }
 }
 
@@ -2513,16 +2528,17 @@ body:has(.crm-pro-dashboard) .o_loading {
     }
 
     .crm-profile-modal-dialog .crm-task-header {
-        padding: 0.85rem 1.1rem !important;
+        padding: 0.75rem 1rem !important;
     }
 
     .crm-profile-modal-dialog .crm-task-body {
-        padding: 0.85rem !important;
-        max-height: 82vh !important;
+        padding: 0.75rem !important;
+        overflow: hidden !important;
+        max-height: none !important;
     }
 
     .crm-profile-modal-dialog .crm-profile-top-card {
-        padding: 0.9rem !important;
+        padding: 0.75rem !important;
         gap: 0.85rem !important;
         margin-bottom: 1rem !important;
     }

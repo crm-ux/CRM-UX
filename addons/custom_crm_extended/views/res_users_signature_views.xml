@@ -32,7 +32,7 @@
                             <field name="is_manager_role" invisible="1"/>
                             <field name="crm_job_id" string="Job Position / Role" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <field name="crm_manager_id" string="Reports To (Manager)" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="crm_expense_manager_id" string="Expense / Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="crm_expense_manager_id" string="Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
                             <field name="crm_department_id" string="Department" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <field name="crm_department_ids" widget="many2many_tags"
                                    string="Managed Sub-Departments"
