@@ -2310,14 +2310,14 @@ class ServiceTicketVoucherLine(models.Model):
         is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in (1, 2)) or (user.id in global_mgr_ids)
 
         for rec in self:
-            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
             if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
                 raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
 
             if is_admin_or_global:
                 continue
 
-            if rec.expense_manager_id and rec.expense_manager_id.id == user.id:
+            if (rec.expense_manager_id and rec.expense_manager_id.id == user.id) or (rec.batch_id and rec.batch_id.expense_manager_id and rec.batch_id.expense_manager_id.id == user.id):
                 continue
 
             managed_depts = self.env['hr.department'].sudo().search([
@@ -2330,17 +2330,9 @@ class ServiceTicketVoucherLine(models.Model):
             for md in managed_depts:
                 managed_dept_ids.update(md.extra_department_ids.ids)
 
-            voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
-            voucher_dept_ids = set()
-            for u in voucher_users:
-                d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
-                if d:
-                    voucher_dept_ids.add(d.id)
-            for l in rec.line_ids:
-                if l.department_id:
-                    voucher_dept_ids.add(l.department_id.id)
-
-            if not (voucher_dept_ids & managed_dept_ids):
+            u = rec.user_id
+            dept = rec.department_id or (u and u.crm_department_id) or (u and u.employee_id and u.employee_id.department_id) or (u and u.crm_job_id and u.crm_job_id.department_id)
+            if not (dept and dept.id in managed_dept_ids):
                 raise ValidationError(_("Access Denied: You are not authorized to approve this voucher."))
         return True
 
@@ -2349,7 +2341,7 @@ class ServiceTicketVoucherLine(models.Model):
     can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
 
     @api.depends_context('uid')
-    @api.depends('expense_manager_id', 'user_id', 'submitted_by_user_id', 'line_ids.user_id')
+    @api.depends('expense_manager_id', 'batch_id.expense_manager_id', 'user_id', 'submitted_by_user_id')
     def _compute_can_approve(self):
         user = self.env.user
         all_companies = self.env['res.company'].sudo().search([])
@@ -2366,7 +2358,7 @@ class ServiceTicketVoucherLine(models.Model):
             managed_dept_ids.update(md.extra_department_ids.ids)
 
         for rec in self:
-            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
             if is_admin_or_global:
                 if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
                     rec.can_approve = False
@@ -2374,19 +2366,12 @@ class ServiceTicketVoucherLine(models.Model):
                     rec.can_approve = True
             elif is_own:
                 rec.can_approve = False
-            elif rec.expense_manager_id and rec.expense_manager_id.id == user.id:
+            elif (rec.expense_manager_id and rec.expense_manager_id.id == user.id) or (rec.batch_id and rec.batch_id.expense_manager_id and rec.batch_id.expense_manager_id.id == user.id):
                 rec.can_approve = True
             elif managed_dept_ids:
-                voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
-                voucher_dept_ids = set()
-                for u in voucher_users:
-                    d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
-                    if d:
-                        voucher_dept_ids.add(d.id)
-                for l in rec.line_ids:
-                    if l.department_id:
-                        voucher_dept_ids.add(l.department_id.id)
-                rec.can_approve = bool(voucher_dept_ids & managed_dept_ids)
+                u = rec.user_id
+                d = rec.department_id or (u and u.crm_department_id) or (u and u.employee_id and u.employee_id.department_id) or (u and u.crm_job_id and u.crm_job_id.department_id)
+                rec.can_approve = bool(d and d.id in managed_dept_ids)
             else:
                 rec.can_approve = False
 
