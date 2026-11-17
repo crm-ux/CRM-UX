@@ -1,10 +1,31 @@
 /* ==========================================================================
    GLOBAL CRM COMPACT ZOOM - APPLIES TO ALL VIEWS, FORMS, TABLES & PAGES
-   Apply at the single web client root so all coordinates (modals, dropdowns,
-   autocompletes, popovers) scale together in 100% sync at 80% zoom.
    ========================================================================== */
-.o_web_client {
+.o_action_manager {
     zoom: 0.80 !important;
+}
+
+/* Modal Wizard Container: Zoom 80% with fixed relative dropdown placement */
+.modal-dialog {
+    zoom: 0.80 !important;
+}
+
+/* Force autocomplete dropdown menu in wizards/forms to attach directly under the input field */
+.o_input_dropdown {
+    position: relative !important;
+}
+
+.o-autocomplete--dropdown-menu,
+.ui-autocomplete {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: none !important;
+    margin-top: 2px !important;
+    z-index: 1060 !important;
+    min-width: 100% !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
