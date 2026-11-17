@@ -420,7 +420,7 @@ patch(FormController.prototype, {
 if (typeof window !== "undefined") {
     const handleScrollClose = (ev) => {
         try {
-            const el = (ev && ev.target && ev.target instanceof Element) ? ev.target : null;
+            const el = (ev && ev.target instanceof Element) ? ev.target : null;
             if (el && typeof el.closest === "function") {
                 if (
                     el.closest(".o_select_menu_menu") ||
@@ -434,7 +434,7 @@ if (typeof window !== "undefined") {
                 }
             }
 
-            // Close any open select menu or popover
+            // Close open select menus and dropdowns by clicking their active toggler
             const openTogglers = document.querySelectorAll(
                 '.o_select_menu_toggler[aria-expanded="true"], ' +
                 '.dropdown-toggle[aria-expanded="true"], ' +
@@ -444,15 +444,15 @@ if (typeof window !== "undefined") {
                 openTogglers.forEach(t => {
                     try { t.click(); } catch (e) {}
                 });
-            }
-
-            const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
-            if (openPopovers.length > 0) {
-                document.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, view: window }));
-                document.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
+            } else {
+                // If an untracked popover is open, trigger click on body element (never document)
+                const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
+                if (openPopovers.length > 0 && document.body) {
+                    try { document.body.click(); } catch (e) {}
+                }
             }
         } catch (err) {
-            // Silently ignore scroll event exceptions
+            // Silently ignore
         }
     };
 
