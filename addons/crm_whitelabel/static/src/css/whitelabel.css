@@ -10,22 +10,38 @@
     zoom: 0.80 !important;
 }
 
-/* Force autocomplete dropdown menu in wizards/forms to attach directly under the input field */
-.o_input_dropdown {
+/* Scope strictly to Modal Wizards so dropdown menu attaches directly under the input field */
+.modal .o_field_many2one,
+.modal .o_field_many2one_selection,
+.modal .o_input_dropdown {
     position: relative !important;
 }
 
-.o-autocomplete--dropdown-menu,
-.ui-autocomplete {
+.modal .o-autocomplete--dropdown-menu,
+.modal .ui-autocomplete,
+.modal .dropdown-menu:has(.o-autocomplete--dropdown-item) {
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
     right: auto !important;
+    bottom: auto !important;
     transform: none !important;
-    margin-top: 2px !important;
-    z-index: 1060 !important;
+    margin-top: clamp(2px, 0.4vh, 6px) !important;
+    width: 100% !important;
     min-width: 100% !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
+    max-width: 100% !important;
+    max-height: clamp(140px, 32vh, 260px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 1060 !important;
+    border-radius: clamp(4px, 0.6vw, 8px) !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 clamp(4px, 1vh, 12px) clamp(10px, 2vw, 24px) rgba(0, 0, 0, 0.12) !important;
+}
+
+.modal .o-autocomplete--dropdown-item {
+    padding: clamp(4px, 0.6vh, 8px) clamp(8px, 1vw, 12px) !important;
+    font-size: clamp(0.8rem, 0.9vw, 0.88rem) !important;
 }
 
 /* Globally hide Odoo native purple navbar across the entire project (all views) */
