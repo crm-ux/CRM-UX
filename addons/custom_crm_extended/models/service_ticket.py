@@ -1199,7 +1199,8 @@ class ServiceTicket(models.Model):
         """
         admin_user = self.env.ref('base.user_admin', raise_if_not_found=False) or self.env['res.users'].sudo().search([('id', '=', 2)], limit=1)
         if not emp:
-            global_mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.active)[:1]
+            all_companies = self.env['res.company'].sudo().search([])
+            global_mgr = all_companies.mapped('crm_authorized_expense_manager_ids').filtered(lambda u: u.active)[:1]
             return global_mgr or admin_user
 
         emp = emp.sudo()
@@ -2304,32 +2305,43 @@ class ServiceTicketVoucherLine(models.Model):
 
     def _check_voucher_approval_access(self):
         user = self.env.user
-        for line in self:
-            # Self-approval restriction: Cannot approve own vouchers unless Admin
-            if (line.user_id.id == user.id or (line.submitted_by_user_id and line.submitted_by_user_id.id == user.id)):
-                if not (user._is_admin() or user.has_group('base.group_system')):
-                    raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgr_ids = all_companies.mapped('crm_authorized_expense_manager_ids').ids
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in (1, 2)) or (user.id in global_mgr_ids)
 
-        if user._is_admin() or user.has_group('base.group_system'):
-            return True
-        company = self.env.company
-        if user.id in company.sudo().crm_authorized_expense_manager_ids.ids:
-            return True
-        for line in self:
-            dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
-            if not dept:
-                raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
-            eff_approver = dept.voucher_manager_id or dept.manager_user_id
-            is_direct_mgr = (eff_approver and eff_approver.id == user.id and dept.voucher_approval_active)
-            is_extra_mgr = bool(self.env['hr.department'].sudo().search([
+        for rec in self:
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
+            if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
+                raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+
+            if is_admin_or_global:
+                continue
+
+            if rec.expense_manager_id and rec.expense_manager_id.id == user.id:
+                continue
+
+            managed_depts = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
-                ('extra_department_ids', 'in', [dept.id]),
                 '|',
                 ('voucher_manager_id', '=', user.id),
                 ('manager_user_id', '=', user.id),
-            ], limit=1))
-            if not (is_direct_mgr or is_extra_mgr):
-                raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
+            ])
+            managed_dept_ids = set(managed_depts.ids)
+            for md in managed_depts:
+                managed_dept_ids.update(md.extra_department_ids.ids)
+
+            voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
+            voucher_dept_ids = set()
+            for u in voucher_users:
+                d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
+                if d:
+                    voucher_dept_ids.add(d.id)
+            for l in rec.line_ids:
+                if l.department_id:
+                    voucher_dept_ids.add(l.department_id.id)
+
+            if not (voucher_dept_ids & managed_dept_ids):
+                raise ValidationError(_("Access Denied: You are not authorized to approve this voucher."))
         return True
 
 
@@ -2337,22 +2349,44 @@ class ServiceTicketVoucherLine(models.Model):
     can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
 
     @api.depends_context('uid')
+    @api.depends('expense_manager_id', 'user_id', 'submitted_by_user_id', 'line_ids.user_id')
     def _compute_can_approve(self):
         user = self.env.user
-        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgr_ids = all_companies.mapped('crm_authorized_expense_manager_ids').ids
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in (1, 2)) or (user.id in global_mgr_ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
             '|',
             ('voucher_manager_id', '=', user.id),
             ('manager_user_id', '=', user.id),
         ])
+        managed_dept_ids = set(managed_depts.ids)
+        for md in managed_depts:
+            managed_dept_ids.update(md.extra_department_ids.ids)
+
         for rec in self:
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
             if is_admin_or_global:
+                if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
+                    rec.can_approve = False
+                else:
+                    rec.can_approve = True
+            elif is_own:
+                rec.can_approve = False
+            elif rec.expense_manager_id and rec.expense_manager_id.id == user.id:
                 rec.can_approve = True
-            elif managed_depts:
-                # Manager cannot approve their own expense
-                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
-                rec.can_approve = not is_own
+            elif managed_dept_ids:
+                voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
+                voucher_dept_ids = set()
+                for u in voucher_users:
+                    d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
+                    if d:
+                        voucher_dept_ids.add(d.id)
+                for l in rec.line_ids:
+                    if l.department_id:
+                        voucher_dept_ids.add(l.department_id.id)
+                rec.can_approve = bool(voucher_dept_ids & managed_dept_ids)
             else:
                 rec.can_approve = False
 
@@ -3430,26 +3464,6 @@ class ServiceTicketVoucherBatch(models.Model):
         for rec in self:
             rec.currency_id = rec.ticket_id.currency_id if rec.ticket_id else self.env.company.currency_id
 
-    can_approve = fields.Boolean(compute='_compute_batch_can_approve', string='Can Approve')
-
-    @api.depends_context('uid')
-    def _compute_batch_can_approve(self):
-        user = self.env.user
-        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
-        managed_depts = self.env['hr.department'].sudo().search([
-            ('voucher_approval_active', '=', True),
-            '|',
-            ('voucher_manager_id', '=', user.id),
-            ('manager_user_id', '=', user.id),
-        ])
-        for rec in self:
-            if is_admin_or_global:
-                rec.can_approve = True
-            elif managed_depts:
-                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
-                rec.can_approve = not is_own
-            else:
-                rec.can_approve = False
     total_amount = fields.Monetary(compute='_compute_total_amount', string='Total Amount', currency_field='currency_id', store=True)
     status = fields.Selection([
         ('draft', 'Draft'),
@@ -3465,7 +3479,8 @@ class ServiceTicketVoucherBatch(models.Model):
         approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
         if approver and approver.id not in (1, 2):
             return approver.id
-        mgr = self.env.company.crm_authorized_expense_manager_ids.filtered(lambda u: u.id not in (1, 2))[:1]
+        all_companies = self.env['res.company'].sudo().search([])
+        mgr = all_companies.mapped('crm_authorized_expense_manager_ids').filtered(lambda u: u.id not in (1, 2))[:1]
         return mgr.id if mgr else (approver.id if approver else False)
 
     expense_manager_id = fields.Many2one('res.users', string='Approver', compute='_compute_expense_manager_id', store=True, readonly=False, default=_default_expense_manager_id)
@@ -3547,32 +3562,43 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def _check_voucher_approval_access(self):
         user = self.env.user
-        for line in self:
-            # Self-approval restriction: Cannot approve own vouchers unless Admin
-            if (line.user_id.id == user.id or (line.submitted_by_user_id and line.submitted_by_user_id.id == user.id)):
-                if not (user._is_admin() or user.has_group('base.group_system')):
-                    raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgr_ids = all_companies.mapped('crm_authorized_expense_manager_ids').ids
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in (1, 2)) or (user.id in global_mgr_ids)
 
-        if user._is_admin() or user.has_group('base.group_system'):
-            return True
-        company = self.env.company
-        if user.id in company.sudo().crm_authorized_expense_manager_ids.ids:
-            return True
-        for line in self:
-            dept = line.department_id or (line.user_id and line.user_id.crm_department_id)
-            if not dept:
-                raise ValidationError(_("Access Denied: Only System Administrators and Global Expense Managers can approve vouchers without an assigned department."))
-            eff_approver = dept.voucher_manager_id or dept.manager_user_id
-            is_direct_mgr = (eff_approver and eff_approver.id == user.id and dept.voucher_approval_active)
-            is_extra_mgr = bool(self.env['hr.department'].sudo().search([
+        for rec in self:
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
+            if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
+                raise ValidationError(_("Access Denied: You cannot approve your own expense voucher. It must be approved by a Global Expense Manager or Administrator."))
+
+            if is_admin_or_global:
+                continue
+
+            if rec.expense_manager_id and rec.expense_manager_id.id == user.id:
+                continue
+
+            managed_depts = self.env['hr.department'].sudo().search([
                 ('voucher_approval_active', '=', True),
-                ('extra_department_ids', 'in', [dept.id]),
                 '|',
                 ('voucher_manager_id', '=', user.id),
                 ('manager_user_id', '=', user.id),
-            ], limit=1))
-            if not (is_direct_mgr or is_extra_mgr):
-                raise ValidationError(_("Access Denied: You are only authorized to approve vouchers for your assigned department (%s).") % (dept.name or ''))
+            ])
+            managed_dept_ids = set(managed_depts.ids)
+            for md in managed_depts:
+                managed_dept_ids.update(md.extra_department_ids.ids)
+
+            voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
+            voucher_dept_ids = set()
+            for u in voucher_users:
+                d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
+                if d:
+                    voucher_dept_ids.add(d.id)
+            for l in rec.line_ids:
+                if l.department_id:
+                    voucher_dept_ids.add(l.department_id.id)
+
+            if not (voucher_dept_ids & managed_dept_ids):
+                raise ValidationError(_("Access Denied: You are not authorized to approve this voucher."))
         return True
 
 
@@ -3580,22 +3606,44 @@ class ServiceTicketVoucherBatch(models.Model):
     can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
 
     @api.depends_context('uid')
+    @api.depends('expense_manager_id', 'user_id', 'submitted_by_user_id', 'line_ids.user_id')
     def _compute_can_approve(self):
         user = self.env.user
-        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in self.env.company.sudo().crm_authorized_expense_manager_ids.ids)
+        all_companies = self.env['res.company'].sudo().search([])
+        global_mgr_ids = all_companies.mapped('crm_authorized_expense_manager_ids').ids
+        is_admin_or_global = user._is_admin() or user.has_group('base.group_system') or (user.id in (1, 2)) or (user.id in global_mgr_ids)
         managed_depts = self.env['hr.department'].sudo().search([
             ('voucher_approval_active', '=', True),
             '|',
             ('voucher_manager_id', '=', user.id),
             ('manager_user_id', '=', user.id),
         ])
+        managed_dept_ids = set(managed_depts.ids)
+        for md in managed_depts:
+            managed_dept_ids.update(md.extra_department_ids.ids)
+
         for rec in self:
+            is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id) or any(l.user_id.id == user.id for l in rec.line_ids))
             if is_admin_or_global:
+                if is_own and not (user._is_admin() or user.has_group('base.group_system') or user.id in (1, 2)):
+                    rec.can_approve = False
+                else:
+                    rec.can_approve = True
+            elif is_own:
+                rec.can_approve = False
+            elif rec.expense_manager_id and rec.expense_manager_id.id == user.id:
                 rec.can_approve = True
-            elif managed_depts:
-                # Manager cannot approve their own expense
-                is_own = (rec.user_id.id == user.id or (rec.submitted_by_user_id and rec.submitted_by_user_id.id == user.id))
-                rec.can_approve = not is_own
+            elif managed_dept_ids:
+                voucher_users = rec.user_id | rec.line_ids.mapped('user_id')
+                voucher_dept_ids = set()
+                for u in voucher_users:
+                    d = u.crm_department_id or (u.employee_id and u.employee_id.department_id) or (u.crm_job_id and u.crm_job_id.department_id)
+                    if d:
+                        voucher_dept_ids.add(d.id)
+                for l in rec.line_ids:
+                    if l.department_id:
+                        voucher_dept_ids.add(l.department_id.id)
+                rec.can_approve = bool(voucher_dept_ids & managed_dept_ids)
             else:
                 rec.can_approve = False
 
