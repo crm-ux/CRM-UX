@@ -379,7 +379,7 @@ class CrmDashboard extends Component {
                 model: "expense.setting",
                 method: "user_has_expense_settings_access",
                 args: [],
-                kwargs: {},
+                kwargs: { user_id: uid },
             });
             this.state.canManageExpenseSettings = Boolean(canManageExpense);
         } catch (e) {
@@ -1144,6 +1144,7 @@ class CrmDashboard extends Component {
             localStorage.removeItem("crm_view_as_uname");
         } catch (e) { }
         this.showToast("Now viewing dashboard as " + u.name);
+        await this.checkAdminStatus();
         await this.loadStats();
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }
@@ -1160,6 +1161,7 @@ class CrmDashboard extends Component {
             localStorage.removeItem("crm_view_as_uname");
         } catch (e) { }
         this.showToast("Returned to Administrator view");
+        await this.checkAdminStatus();
         await this.loadStats();
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
     }

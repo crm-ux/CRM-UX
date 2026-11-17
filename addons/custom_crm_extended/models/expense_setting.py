@@ -142,22 +142,24 @@ class ExpenseSetting(models.Model):
         return False
 
     @api.model
-    def user_has_expense_settings_access(self):
-        """Helper called by dashboard to check if logged-in user has permission."""
-        user = self.env.user
-        if user._is_admin() or user.has_group('base.group_system'):
+    def user_has_expense_settings_access(self, user_id=None):
+        """Helper called by dashboard to check if logged-in user or preview user has permission."""
+        uid = int(user_id) if user_id else self.env.user.id
+        user = self.env["res.users"].browse(uid).sudo()
+        if not user.exists():
+            user = self.env.user.sudo()
+        if user._is_admin() or user.has_group("base.group_system"):
             return True
-        company = self.env.company
-        authorized_ids = company.sudo().crm_authorized_expense_manager_ids.ids
+        all_companies = self.env["res.company"].sudo().search([])
+        authorized_ids = all_companies.mapped("crm_authorized_expense_manager_ids").ids
         if user.id in authorized_ids:
             return True
-        return bool(self.env['hr.department'].sudo().search([
-            ('voucher_approval_active', '=', True),
-            '|',
-            ('voucher_manager_id', '=', user.id),
-            ('manager_user_id', '=', user.id),
+        return bool(self.env["hr.department"].sudo().search([
+            ("voucher_approval_active", "=", True),
+            "|",
+            ("voucher_manager_id", "=", user.id),
+            ("manager_user_id", "=", user.id),
         ], limit=1))
-
     def _compute_expense_type_ids(self):
         all_types = self.env['service.ticket.expense.type'].search([])
         for rec in self:
