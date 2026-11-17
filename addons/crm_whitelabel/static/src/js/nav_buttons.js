@@ -418,8 +418,9 @@ patch(FormController.prototype, {
 
 // Auto-dismiss floating popovers/menus when scrolling the page/form
 if (typeof window !== "undefined") {
-    window.addEventListener("scroll", (ev) => {
+    const handleScrollClose = (ev) => {
         const target = ev.target;
+        // Do not close if scrolling inside the dropdown options list itself
         if (target && target.closest && (
             target.closest(".o_select_menu_menu") ||
             target.closest(".o_field_selection_menu") ||
@@ -430,9 +431,29 @@ if (typeof window !== "undefined") {
         )) {
             return;
         }
-        const floatingMenu = document.querySelector(".o_select_menu_menu, .o_field_selection_menu");
-        if (floatingMenu) {
-            document.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+
+        // Close any open select menu or popover
+        const openTogglers = document.querySelectorAll(
+            '.o_select_menu_toggler[aria-expanded="true"], ' +
+            '.dropdown-toggle[aria-expanded="true"], ' +
+            '[aria-expanded="true"]'
+        );
+        if (openTogglers.length > 0) {
+            openTogglers.forEach(t => {
+                try { t.click(); } catch (e) {}
+            });
         }
-    }, true);
+
+        const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
+        if (openPopovers.length > 0) {
+            try {
+                document.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, view: window }));
+                document.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window }));
+            } catch (e) {}
+        }
+    };
+
+    window.addEventListener("scroll", handleScrollClose, true);
+    window.addEventListener("wheel", handleScrollClose, { capture: true, passive: true });
+    window.addEventListener("touchmove", handleScrollClose, { capture: true, passive: true });
 }
