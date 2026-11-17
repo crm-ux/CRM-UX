@@ -3,7 +3,6 @@ import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
-import { markup } from "@odoo/owl";
 
 const EXPENSE_SETTING_MODEL = "expense.setting";
 
@@ -66,16 +65,12 @@ patch(FormController.prototype, {
                         }
                     }
 
-                    const bodyContent = markup(`
-                        <div class="crm-confirm-dialog-content" style="font-size: 14px;">
-                            ${changes.length ? `<div class="mb-2" style="white-space: pre-line; line-height: 1.5; color: #1e293b;">${changes.join("\n")}</div>` : ""}
-                            <div style="color: #475569; line-height: 1.45;">Please review the manager updates above. Do you want to apply these changes and notify the appointed and revoked users?</div>
-                        </div>
-                    `);
+                    const promptText = "Please review the manager updates above. Do you want to apply these changes and notify the appointed and revoked users?";
+                    const bodyText = (changes.length ? changes.join("\n") + "\n\n" : "") + promptText;
 
                     this.env.services.dialog.add(ConfirmationDialog, {
                         title: _t("Confirm Voucher Manager Changes"),
-                        body: bodyContent,
+                        body: bodyText,
                         confirmLabel: _t("Confirm & Save"),
                         cancelLabel: _t("Cancel"),
                         confirm: async () => {
