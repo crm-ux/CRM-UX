@@ -1486,13 +1486,11 @@
                                 <button type="button" 
                                         t-on-click="() => this.setProfileTab('contact')"
                                         t-att-style="(state.profileActiveTab === 'contact' || state.profileActiveTab === 'preferences') ? 'flex: 1; border: none; background: #0b3d91; color: #ffffff; padding: 0.55rem 0.85rem; font-weight: 700; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; box-shadow: 0 1px 3px rgba(11,61,145,0.25); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;' : 'flex: 1; border: none; background: transparent; color: #475569; padding: 0.55rem 0.85rem; font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;'">
-                                    <i class="fa fa-user"></i>
                                     <span>Contact Details</span>
                                 </button>
                                 <button type="button" 
                                         t-on-click="() => this.setProfileTab('organization')"
                                         t-att-style="state.profileActiveTab === 'organization' ? 'flex: 1; border: none; background: #0b3d91; color: #ffffff; padding: 0.55rem 0.85rem; font-weight: 700; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; box-shadow: 0 1px 3px rgba(11,61,145,0.25); display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;' : 'flex: 1; border: none; background: transparent; color: #475569; padding: 0.55rem 0.85rem; font-weight: 600; border-radius: 6px; cursor: pointer; white-space: nowrap; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;'">
-                                    <i class="fa fa-sitemap"></i>
                                     <span>Department &amp; Hierarchy</span>
                                 </button>
                             </div>
