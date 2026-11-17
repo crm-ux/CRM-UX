@@ -1864,6 +1864,7 @@ i.text-crm-blue {
 .crm_quick_add_box [name="new_expense_type_name"],
 .crm_quick_add_box [name="new_expense_type_budget_limit"],
 .crm_quick_add_box [name="new_expense_type_km_rate"],
+.crm_quick_add_box [name="new_expense_type_calculation_type"],
 .crm_quick_add_box [name="new_expense_type_job_ids"] {
     width: 100% !important;
     max-width: 100% !important;
@@ -1871,7 +1872,10 @@ i.text-crm-blue {
 
 .crm_quick_add_box [name="new_expense_type_name"] input,
 .crm_quick_add_box [name="new_expense_type_budget_limit"] input,
-.crm_quick_add_box [name="new_expense_type_km_rate"] input {
+.crm_quick_add_box [name="new_expense_type_km_rate"] input,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] select,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_select_menu_toggler,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_input {
     width: 100% !important;
     max-width: 100% !important;
     height: 34px !important;
@@ -1970,11 +1974,22 @@ i.text-crm-blue {
 .crm_quick_add_box [name="new_expense_type_name"] input:focus,
 .crm_quick_add_box [name="new_expense_type_budget_limit"] input:focus,
 .crm_quick_add_box [name="new_expense_type_km_rate"] input:focus,
-.crm_quick_add_box [name="new_expense_type_job_ids"]:focus-within {
+.crm_quick_add_box [name="new_expense_type_job_ids"]:focus-within,
+.crm_quick_add_box [name="new_expense_type_calculation_type"]:focus-within,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] *:focus,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_select_menu_toggler,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] select,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_input {
     border-color: #0b3d91 !important;
     border-bottom: 2px solid #0b3d91 !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_select_menu_toggler:hover,
+.crm_quick_add_box [name="new_expense_type_calculation_type"] .o_select_menu_toggler:focus {
+    border-color: #0b3d91 !important;
+    border-bottom: 2px solid #0b3d91 !important;
 }
 
 /* Table and voucher lines */
