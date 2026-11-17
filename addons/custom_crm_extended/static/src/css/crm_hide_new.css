@@ -239,17 +239,29 @@ tr.o_is_line_section .dropdown-menu {
     align-items: center !important;
 }
 
+.o_voucher_quick_add_bar .o_tag,
+.o_voucher_quick_add_bar .badge,
+.o_voucher_quick_add_bar .o_delete,
+.o_voucher_quick_add_bar .o_badge_delete {
+    position: relative !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input,
 .o_voucher_quick_add_bar div[name="new_voucher_user_ids"] input.o-autocomplete--input,
 .o_voucher_quick_add_bar .o_field_many2many_tags input,
 .o_voucher_quick_add_bar .o_field_many2many_tags input.o-autocomplete--input,
 .o_voucher_quick_add_bar .o_field_many2many_tags .o_input,
 .o_voucher_quick_add_bar .crm_voucher_emp_clean input {
-    width: 100% !important;
-    height: 100% !important;
+    width: auto !important;
+    min-width: 80px !important;
+    flex: 1 1 100px !important;
+    height: 32px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 0 4px !important;
     background: transparent !important;
     font-size: 13px !important;
     color: #1e293b !important;

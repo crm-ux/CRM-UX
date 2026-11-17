@@ -1129,7 +1129,10 @@ class ServiceTicket(models.Model):
             'new_voucher_bill_filename': False,
             'new_voucher_bill_attachment_ids': [(5, 0, 0)],
         })
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
 
     # Group Voucher Submission fields & helpers
     voucher_employee_names = fields.Char(compute='_compute_voucher_strip', string='Employees')
@@ -3357,7 +3360,10 @@ class ServiceTicketVoucherBatch(models.Model):
             'new_voucher_amount': 0.0,
             'new_voucher_bill_attachment_ids': [(5, 0, 0)],
         })
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'reload',
+        }
     expense_type_id = fields.Many2one('service.ticket.expense.type', string='Expense Type', compute='_compute_batch_summary_fields')
     description = fields.Text(string='Description', compute='_compute_batch_summary_fields')
     is_km_based = fields.Boolean(string='KM Based', compute='_compute_batch_summary_fields')
