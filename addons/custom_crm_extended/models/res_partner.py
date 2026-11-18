@@ -93,19 +93,44 @@ class ResPartner(models.Model):
 
     def unlink(self):
         for rec in self:
-            # Check if this contact (or company) is linked to any Lead
-            linked_lead = self.env['crm.lead'].sudo().search([
-                '|',
-                ('partner_id', '=', rec.id),
-                ('partner_id', 'in', rec.child_ids.ids),
-            ], limit=1)
-            if linked_lead:
+            partner_ids = [rec.id] + rec.child_ids.ids
+            associations = []
+
+            # 1. Lead / Opportunity
+            if 'crm.lead' in self.env:
+                lead = self.env['crm.lead'].sudo().search([('partner_id', 'in', partner_ids)], limit=1)
+                if lead:
+                    associations.append(_("• Lead \"%(name)s\"") % {'name': lead.name or lead.display_name})
+
+            # 2. Sales Order / Quotation
+            if 'sale.order' in self.env:
+                so = self.env['sale.order'].sudo().search([('partner_id', 'in', partner_ids)], limit=1)
+                if so:
+                    associations.append(_("• Sales Order \"%(name)s\"") % {'name': so.name or so.display_name})
+
+            # 3. Service Ticket
+            if 'service.ticket' in self.env:
+                ticket_domain = [('partner_id', 'in', partner_ids)] if 'partner_id' in self.env['service.ticket']._fields else []
+                if ticket_domain:
+                    ticket = self.env['service.ticket'].sudo().search(ticket_domain, limit=1)
+                    if ticket:
+                        associations.append(_("• Service Ticket \"%(name)s\"") % {'name': ticket.name or ticket.display_name})
+
+            # 4. Invoice / Bill
+            if 'account.move' in self.env:
+                move = self.env['account.move'].sudo().search([('partner_id', 'in', partner_ids)], limit=1)
+                if move:
+                    associations.append(_("• Invoice / Bill \"%(name)s\"") % {'name': move.name or move.display_name})
+
+            if associations:
+                assoc_text = "\n".join(associations)
                 raise UserError(_(
-                    "You cannot delete '%(contact)s' because it is associated with Lead '%(lead)s'.\n\n"
-                    "Please archive the record instead or remove it from the lead first."
+                    "You cannot delete '%(contact)s' because it is associated with:\n\n"
+                    "%(assoc_text)s\n\n"
+                    "Please archive the record instead, or remove this contact from the above record(s) first."
                 ) % {
                     'contact': rec.name or 'this contact',
-                    'lead': linked_lead.name or 'Active Lead',
+                    'assoc_text': assoc_text,
                 })
 
             user = self.env.user
