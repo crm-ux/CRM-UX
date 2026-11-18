@@ -3771,23 +3771,26 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     color: #0b3d91 !important;
 }
 
-/* Custom Blue Color (#0b3d91) for the Description View button */
+/* Custom Blue Color (#0b3d91) for the Description View button - Matches record text size */
 .o_service_ticket_voucher_line_form button[name="action_view_description"],
 .o_service_ticket_voucher_batch_form button[name="action_view_description"],
 .o_voucher_card_list button[name="action_view_description"] {
     color: #0b3d91 !important;
     font-weight: 600 !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 4px !important;
+    gap: 6px !important;
     text-decoration: none !important;
+    line-height: 1.5 !important;
+    vertical-align: middle !important;
 }
 
 .o_service_ticket_voucher_line_form button[name="action_view_description"] i,
 .o_service_ticket_voucher_batch_form button[name="action_view_description"] i,
 .o_voucher_card_list button[name="action_view_description"] i {
     color: #0b3d91 !important;
+    font-size: 15px !important;
 }
 
 /* Add the Column Header "Description" above the View button - EXACT same size and style as all other column headers */
