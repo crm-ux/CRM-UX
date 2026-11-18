@@ -2469,16 +2469,18 @@ div[name="button_box"].oe_button_box *,
 
 /* Eliminate inner double scrollbars and empty white gap strips in voucher preview dialog */
 .bill-preview-wrapper,
-.bill-preview-wrapper > div {
+.bill-preview-wrapper>div {
     overflow: hidden !important;
     margin: 0 !important;
     padding: 0 !important;
 }
+
 .o_dialog .modal-body:has(.bill-preview-wrapper) {
     overflow: hidden !important;
     padding: 0 !important;
     margin: 0 !important;
 }
+
 .o_dialog .modal-body:has(.bill-preview-wrapper) iframe {
     height: 78vh !important;
     width: 100% !important;
@@ -2497,6 +2499,7 @@ div[name="button_box"].oe_button_box *,
     word-break: normal !important;
     overflow-wrap: break-word !important;
 }
+
 .o_statusbar_status .btn-primary,
 .o_statusbar_status .o_arrow_button.o_arrow_button_current,
 .o_statusbar_status .o_arrow_button.btn-primary {
@@ -2504,6 +2507,7 @@ div[name="button_box"].oe_button_box *,
     border-color: #0b3d91 !important;
     color: #ffffff !important;
 }
+
 .badge-primary,
 .badge.bg-primary {
     background-color: #0b3d91 !important;
@@ -2686,7 +2690,7 @@ td.o_list_button {
 
 /* Remove purple line on active/selected row - keep clean normal border */
 .o_expense_type_table tr.o_selected_row,
-.o_expense_type_table tr.o_selected_row > td,
+.o_expense_type_table tr.o_selected_row>td,
 .o_expense_type_table tr.o_data_row.o_selected_row {
     border-bottom: 1px solid #e2e8f0 !important;
     box-shadow: none !important;
@@ -2703,7 +2707,10 @@ td.o_list_button {
 .o_expense_type_table .o_field_float input,
 .o_expense_type_table .o_list_number input {
     text-align: right !important;
-    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 30px !important;
+    line-height: 30px !important;
     width: 100% !important;
     border: none !important;
     border-bottom: none !important;
@@ -2825,7 +2832,7 @@ td.o_list_button {
 
 /* Remove purple line on active/selected row - keep clean normal border */
 .o_expense_type_table tr.o_selected_row,
-.o_expense_type_table tr.o_selected_row > td,
+.o_expense_type_table tr.o_selected_row>td,
 .o_expense_type_table tr.o_data_row.o_selected_row {
     border-bottom: 1px solid #e2e8f0 !important;
     box-shadow: none !important;
@@ -2842,7 +2849,10 @@ td.o_list_button {
 .o_expense_type_table .o_field_float input,
 .o_expense_type_table .o_list_number input {
     text-align: right !important;
-    padding: 0 !important; margin: 0 !important; height: 30px !important; line-height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 30px !important;
+    line-height: 30px !important;
     width: 100% !important;
     border: none !important;
     border-bottom: none !important;
@@ -2915,8 +2925,8 @@ td.o_list_button {
     --ListRenderer-selected-color: #0b3d91 !important;
 }
 
-.o_expense_limit_modal tr.o_selected_row > td,
-.o_expense_limit_modal tr.o_data_row.o_selected_row > td {
+.o_expense_limit_modal tr.o_selected_row>td,
+.o_expense_limit_modal tr.o_data_row.o_selected_row>td {
     border-bottom: 1px solid #0b3d91 !important;
     box-shadow: none !important;
 }
@@ -3023,12 +3033,12 @@ div[name="limit_rule_ids"] tr.o_data_row.o_selected_row,
     --ListRenderer-selected-color: #0b3d91 !important;
 }
 
-div[name="limit_rule_ids"] tr.o_selected_row > td,
-div[name="limit_rule_ids"] tr.o_data_row.o_selected_row > td,
-.o_expense_limit_table tr.o_selected_row > td,
-.o_expense_limit_table tr.o_data_row.o_selected_row > td,
-.o_expense_limit_modal tr.o_selected_row > td,
-.o_expense_limit_modal tr.o_data_row.o_selected_row > td {
+div[name="limit_rule_ids"] tr.o_selected_row>td,
+div[name="limit_rule_ids"] tr.o_data_row.o_selected_row>td,
+.o_expense_limit_table tr.o_selected_row>td,
+.o_expense_limit_table tr.o_data_row.o_selected_row>td,
+.o_expense_limit_modal tr.o_selected_row>td,
+.o_expense_limit_modal tr.o_data_row.o_selected_row>td {
     border-bottom: 1px solid #0b3d91 !important;
     box-shadow: none !important;
 }
@@ -3124,6 +3134,7 @@ td[name="description"] span,
 td[name="description"] {
     color: #1e293b !important;
 }
+
 .o_voucher_card_list th[data-name="description"],
 .o_voucher_card_list td[name="description"] {
     width: 100% !important;
@@ -3241,12 +3252,12 @@ div[name="new_voucher_budget_info_html"] .note-editable,
     display: block !important;
 }
 
-.o_form_view div[name="new_voucher_budget_info_html"] > div,
-.o_form_view .o_field_html[name="new_voucher_budget_info_html"] > div,
-.o_form_view .o_budget_pool_field > div,
-div[name="new_voucher_budget_info_html"] > div,
-.o_field_html[name="new_voucher_budget_info_html"] > div,
-.o_budget_pool_field > div {
+.o_form_view div[name="new_voucher_budget_info_html"]>div,
+.o_form_view .o_field_html[name="new_voucher_budget_info_html"]>div,
+.o_form_view .o_budget_pool_field>div,
+div[name="new_voucher_budget_info_html"]>div,
+.o_field_html[name="new_voucher_budget_info_html"]>div,
+.o_budget_pool_field>div {
     width: 100% !important;
     min-width: 100% !important;
     height: auto !important;
@@ -3453,9 +3464,9 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachments,
 }
 
 /* 2. DYNAMIC WIDTH PILL: Size adapts dynamically to filename - Service Ticket Only */
-div[name="new_voucher_bill_attachment_ids"] .o_attachments > .o_attachment,
+div[name="new_voucher_bill_attachment_ids"] .o_attachments>.o_attachment,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment,
-.crm_compact_attachments .o_attachments > .o_attachment,
+.crm_compact_attachments .o_attachments>.o_attachment,
 .crm_compact_attachments .o_attachment {
     display: inline-flex !important;
     flex-direction: row !important;
@@ -3565,7 +3576,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment a,
 }
 
 /* 5. Hide ALL secondary subtitles, extensions, and file type text tags (PDF, JPG, PNG, etc.) */
-div[name="new_voucher_bill_attachment_ids"] .caption > *:not(a),
+div[name="new_voucher_bill_attachment_ids"] .caption>*:not(a),
 div[name="new_voucher_bill_attachment_ids"] .caption small,
 div[name="new_voucher_bill_attachment_ids"] .caption span,
 div[name="new_voucher_bill_attachment_ids"] .caption b,
@@ -3575,7 +3586,7 @@ div[name="new_voucher_bill_attachment_ids"] .o_attachment .text-muted,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment [class*="type"],
 div[name="new_voucher_bill_attachment_ids"] .o_attachment [class*="extension"],
 div[name="new_voucher_bill_attachment_ids"] .o_attachment [class*="format"],
-div[name="new_voucher_bill_attachment_ids"] .o_attachment a > *:not(.o_attachment_name),
+div[name="new_voucher_bill_attachment_ids"] .o_attachment a>*:not(.o_attachment_name),
 div[name="new_voucher_bill_attachment_ids"] .o_attachment a small,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment a span,
 div[name="new_voucher_bill_attachment_ids"] .o_attachment a b,
@@ -3584,7 +3595,7 @@ div[name="new_voucher_bill_attachment_ids"] .text-muted,
 div[name="new_voucher_bill_attachment_ids"] [class*="type"],
 div[name="new_voucher_bill_attachment_ids"] [class*="extension"],
 div[name="new_voucher_bill_attachment_ids"] [class*="format"],
-.crm_compact_attachments .caption > *:not(a),
+.crm_compact_attachments .caption>*:not(a),
 .crm_compact_attachments .caption small,
 .crm_compact_attachments .caption span,
 .crm_compact_attachments .caption b,
@@ -3594,7 +3605,7 @@ div[name="new_voucher_bill_attachment_ids"] [class*="format"],
 .crm_compact_attachments .o_attachment [class*="type"],
 .crm_compact_attachments .o_attachment [class*="extension"],
 .crm_compact_attachments .o_attachment [class*="format"],
-.crm_compact_attachments .o_attachment a > *:not(.o_attachment_name),
+.crm_compact_attachments .o_attachment a>*:not(.o_attachment_name),
 .crm_compact_attachments .o_attachment a small,
 .crm_compact_attachments .o_attachment a span,
 .crm_compact_attachments .o_attachment a b,
@@ -3785,7 +3796,7 @@ button[name="action_view_description"] i,
 .o_voucher_card_list button[name="action_view_description"] span,
 .o_voucher_card_list button[name="action_view_description"] i {
     color: #0b3d91 !important;
-    font-size: 15px !important;
+    font-size: 14px !important;
     font-weight: 500 !important;
     text-decoration: none !important;
     line-height: inherit !important;
@@ -3922,4 +3933,3 @@ div[name="ticket_voucher_line_ids"] table.o_list_table,
     min-width: 100% !important;
     table-layout: auto !important;
 }
-
