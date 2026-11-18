@@ -274,8 +274,8 @@
                     </group>
 
                     <separator string="Expenses"/>
-                    <field name="ticket_voucher_line_ids" class="o_voucher_card_list">
-                        <list create="0" edit="0" delete="0">
+                    <field name="ticket_voucher_line_ids" class="o_voucher_card_list" options="{'no_open': True}">
+                        <list create="0" edit="0" delete="0" open_form_view="False">
                             <field name="is_selected_for_recovery" column_invisible="1"/>
                             <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
                             <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
@@ -621,8 +621,8 @@
 
                         <!-- Clean Submitted Expense Table -->
                         <separator string="Expense Details"/>
-                        <field name="line_ids" class="o_voucher_card_list">
-                            <list create="0" edit="0" delete="0">
+                        <field name="line_ids" class="o_voucher_card_list" options="{'no_open': True}">
+                            <list create="0" edit="0" delete="0" open_form_view="False">
                                 <field name="is_selected_for_recovery" column_invisible="1"/>
                                 <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
                                 <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
