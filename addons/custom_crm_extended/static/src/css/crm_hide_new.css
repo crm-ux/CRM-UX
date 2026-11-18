@@ -3777,22 +3777,18 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
 .o_voucher_card_list button[name="action_view_description"] {
     color: #0b3d91 !important;
     font-weight: 500 !important;
-    font-size: 15px !important;
+    font-size: 13.5px !important;
     display: inline-flex !important;
     align-items: center !important;
-    gap: 6px !important;
+    gap: 5px !important;
     text-decoration: none !important;
-    line-height: normal !important;
-    vertical-align: baseline !important;
-    padding: 0 !important;
 }
 
 .o_service_ticket_voucher_line_form button[name="action_view_description"] i,
 .o_service_ticket_voucher_batch_form button[name="action_view_description"] i,
 .o_voucher_card_list button[name="action_view_description"] i {
     color: #0b3d91 !important;
-    font-size: 16px !important;
-    vertical-align: -1px !important;
+    font-size: 14px !important;
 }
 
 /* Add the Column Header "Description" above the View button - EXACT same size and style as all other column headers */
