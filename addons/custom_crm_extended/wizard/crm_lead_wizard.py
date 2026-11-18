@@ -263,6 +263,8 @@ class CrmLeadWizard(models.TransientModel):
                 self.contact_picker_id = child.id
             elif len(matches) > 1:
                 self.has_multiple_contacts = True
+            else:
+                self.contact_picker_id = False
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
@@ -408,22 +410,24 @@ class CrmLeadWizard(models.TransientModel):
                 resolved_partner_id = existing_contact.id
             else:
                 # Create new contact strictly as a child person under the company
-                new_contact = self.env['res.partner'].sudo().create({
+                contact_vals = {
                     'name': contact_clean,
                     'parent_id': self.partner_company_id.id,
                     'is_company': False,
                     'type': 'contact',
                     'function': self.function or False,
                     'email': self.email_from or False,
-                    'phone': formatted_phone or self.phone or False,
-                    'mobile': formatted_mobile or self.x_mobile or False,
+                    'phone': formatted_phone or self.phone or formatted_mobile or self.x_mobile or False,
                     'city': self.city or self.partner_company_id.city or False,
                     'state_id': self.state_id.id if self.state_id else (self.partner_company_id.state_id.id if self.partner_company_id.state_id else False),
                     'zip': self.zip or self.partner_company_id.zip or False,
                     'street': self.partner_company_id.street or False,
                     'street2': self.partner_company_id.street2 or False,
                     'country_id': self.partner_company_id.country_id.id if self.partner_company_id.country_id else False,
-                })
+                }
+                if 'mobile' in self.env['res.partner']._fields:
+                    contact_vals['mobile'] = formatted_mobile or self.x_mobile or False
+                new_contact = self.env['res.partner'].sudo().create(contact_vals)
                 resolved_partner_id = new_contact.id
                 new_contact_created = True
                 created_contact_name = contact_clean
