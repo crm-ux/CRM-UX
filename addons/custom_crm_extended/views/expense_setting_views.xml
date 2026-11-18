@@ -262,7 +262,8 @@
                         </group>
                         <group string="Approval Status">
                             <field name="expense_manager_id" readonly="1" string="Approver" options="{'no_open': True}"/>
-                            <field name="reject_reason" readonly="1" invisible="status != 'rejected' or not reject_reason"/>
+                            <field name="voucher_status" invisible="1"/>
+                            <field name="reject_reason" string="Rejection Reason" readonly="1" invisible="voucher_status != 'rejected' or not reject_reason"/>
                         </group>
                     </group>
 
