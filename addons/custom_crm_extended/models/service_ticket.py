@@ -1716,14 +1716,22 @@ class ServiceTicketExpenseType(models.Model):
 
     def init(self):
         super().init()
-        self.env.cr.execute("""
-            UPDATE service_ticket_expense_type
-            SET calculation_type = 'km'
-            WHERE is_km_based = TRUE AND (calculation_type IS NULL OR calculation_type != 'km');
-            UPDATE service_ticket_expense_type
-            SET calculation_type = 'daily'
-            WHERE is_km_based = FALSE AND calculation_type = 'km';
-        """)
+        km_types = self.search([
+            ('is_km_based', '=', True),
+            '|',
+            ('calculation_type', '=', False),
+            ('calculation_type', '!=', 'km')
+        ])
+        if km_types:
+            km_types.write({'calculation_type': 'km'})
+
+        non_km_types = self.search([
+            ('is_km_based', '=', False),
+            ('calculation_type', '=', 'km')
+        ])
+        if non_km_types:
+            non_km_types.write({'calculation_type': 'daily'})
+
     budget_cycle = fields.Selection([
         ('per_ticket', 'Per Visit / Ticket'),
         ('monthly', 'Monthly'),
