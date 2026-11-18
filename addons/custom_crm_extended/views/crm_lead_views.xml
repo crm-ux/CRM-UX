@@ -67,9 +67,10 @@
         </field>
     </record>
 
-    <!-- Override Contacts / Customers Action: default to Companies filter -->
+    <!-- Override Contacts / Customers Action: strictly Companies only -->
     <record id="base.action_partner_form" model="ir.actions.act_window">
-        <field name="context">{'search_default_type_company': 1, 'default_is_company': True}</field>
+        <field name="domain">[('is_company', '=', True)]</field>
+        <field name="context">{'default_is_company': True}</field>
     </record>
 
     <!-- Override CRM Pipeline Window Action: remove forced personal filter -->
