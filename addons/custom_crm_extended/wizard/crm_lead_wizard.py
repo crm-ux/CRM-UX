@@ -388,6 +388,9 @@ class CrmLeadWizard(models.TransientModel):
         #           2) existing company chosen in Step 1 (partner_company_id)
         #           3) existing customer explicitly chosen (partner_id)
         resolved_partner_id = False
+        new_contact_created = False
+        created_contact_name = ""
+        created_company_name = ""
         if self.contact_picker_id:
             # User selected an existing contact from dropdown
             resolved_partner_id = self.contact_picker_id.id
@@ -422,6 +425,9 @@ class CrmLeadWizard(models.TransientModel):
                     'country_id': self.partner_company_id.country_id.id if self.partner_company_id.country_id else False,
                 })
                 resolved_partner_id = new_contact.id
+                new_contact_created = True
+                created_contact_name = contact_clean
+                created_company_name = self.partner_company_id.name or ""
         elif self.partner_company_id:
             resolved_partner_id = self.partner_company_id.id
 
@@ -466,14 +472,32 @@ class CrmLeadWizard(models.TransientModel):
         except Exception:
             can_read = False
 
-        if can_read:
+        lead_open_action = {
+            "type": "ir.actions.act_window",
+            "res_model": "crm.lead",
+            "res_id": lead.id,
+            "view_mode": "form",
+            "target": "current",
+        } if can_read else {'type': 'ir.actions.act_window_close'}
+
+        if new_contact_created:
             return {
-                "type": "ir.actions.act_window",
-                "res_model": "crm.lead",
-                "res_id": lead.id,
-                "view_mode": "form",
-                "target": "current",
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': '',
+                    'message': _('Contact "%(contact)s" has been added to %(company)s.') % {
+                        'contact': created_contact_name,
+                        'company': created_company_name,
+                    },
+                    'type': 'success',
+                    'sticky': False,
+                    'next': lead_open_action,
+                }
             }
+
+        if can_read:
+            return lead_open_action
         else:
             return {
                 'type': 'ir.actions.client',
