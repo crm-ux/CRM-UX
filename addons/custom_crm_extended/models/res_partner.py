@@ -93,6 +93,21 @@ class ResPartner(models.Model):
 
     def unlink(self):
         for rec in self:
+            # Check if this contact (or company) is linked to any Lead
+            linked_lead = self.env['crm.lead'].sudo().search([
+                '|',
+                ('partner_id', '=', rec.id),
+                ('partner_id', 'in', rec.child_ids.ids),
+            ], limit=1)
+            if linked_lead:
+                raise UserError(_(
+                    "You cannot delete '%(contact)s' because it is associated with Lead '%(lead)s'.\n\n"
+                    "Please archive the record instead or remove it from the lead first."
+                ) % {
+                    'contact': rec.name or 'this contact',
+                    'lead': linked_lead.name or 'Active Lead',
+                })
+
             user = self.env.user
             if not user._is_admin() and not user.has_group('base.group_system'):
                 if not self._user_can('perm_customer_unlink', False):
