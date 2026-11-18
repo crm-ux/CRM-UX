@@ -212,9 +212,12 @@
                        decoration-success="status in ('approved', 'partially_approved')" 
                        decoration-info="status in ('paid', 'partially_paid')" 
                        decoration-danger="status == 'rejected'"/>
+                <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status in ('rejected', 'paid')"/>
                 <button name="action_reset_to_submitted" type="object" icon="fa-undo text-crm-blue" title="Reset" invisible="status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
+                <button name="action_claim_recovery" type="object" icon="fa-exclamation-circle text-warning" title="Claim Excess Recovery" invisible="status not in ('paid', 'partially_paid')"/>
+                <button name="action_record_payback" type="object" icon="fa-money text-success" title="Record Payback" invisible="recovery_status != 'pending'"/>
             </list>
         </field>
     </record>
@@ -230,6 +233,8 @@
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved')"/>
+                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('paid', 'partially_paid')"/>
+                    <button name="action_record_payback" string="Record Payback" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="recovery_status != 'pending'"/>
                     <field name="voucher_status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
@@ -293,9 +298,12 @@
                                    decoration-info="status in ('paid', 'partially_paid')" 
                                    decoration-danger="status == 'rejected'"/>
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
-                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line"/>
-                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line"/>
-                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line"/>
+                            <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
+                            <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
+                            <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status in ('rejected', 'paid')"/>
+                            <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
+                            <button name="action_claim_recovery" type="object" icon="fa-exclamation-circle text-warning" title="Claim Excess Recovery" invisible="status not in ('paid', 'partially_paid')"/>
+                            <button name="action_record_payback" type="object" icon="fa-money text-success" title="Record Payback" invisible="recovery_status != 'pending'"/>
                         </list>
                     </field>
                 </sheet>
@@ -347,6 +355,8 @@
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved')"/>
+                    <button name="action_deduct_pending_recoveries" string="Adjust Pending Recoveries" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not employee_pending_recovery_html or status in ('draft', 'paid', 'rejected')"/>
+                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
@@ -354,6 +364,7 @@
                     <field name="is_voucher_owner" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                     <field name="active" invisible="1"/>
+                    <field name="employee_pending_recovery_html" widget="html" readonly="1" invisible="not employee_pending_recovery_html"/>
                     
                     <div class="oe_title mb-3">
                         <h1>
@@ -624,10 +635,13 @@
                                        decoration-info="status in ('paid', 'partially_paid')" 
                                        decoration-danger="status == 'rejected'"/>
                                 <field name="reject_reason" string="Reject Reason" optional="show"/>
+                                <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                                 <field name="can_approve" column_invisible="1"/>
                                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve or status in ('approved', 'paid')"/>
                                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve or status in ('rejected', 'paid')"/>
                                 <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
+                                <button name="action_claim_recovery" type="object" icon="fa-exclamation-circle text-warning" title="Claim Excess Recovery" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
+                                <button name="action_record_payback" type="object" icon="fa-money text-success" title="Record Payback" invisible="not can_approve or recovery_status != 'pending'"/>
                             </list>
                         </field>
                     </div>
@@ -810,6 +824,54 @@
                 </group>
                 <footer>
                     <button string="Reject Voucher" type="object" name="action_confirm_reject" class="btn btn-danger"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Claim Excess / Recovery Wizard Form -->
+    <record id="view_service_ticket_voucher_recovery_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.recovery.wizard.form</field>
+        <field name="model">service.ticket.voucher.recovery.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Claim Excess / Mistake Recovery">
+                <group>
+                    <field name="voucher_line_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="employee_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="expense_type_name" readonly="1"/>
+                    <field name="paid_amount" readonly="1" widget="monetary"/>
+                    <field name="already_recovered" readonly="1" widget="monetary" invisible="already_recovered == 0"/>
+                    <field name="amount_to_recover" widget="monetary" required="1"/>
+                    <field name="reason" placeholder="Enter reason (e.g. Verified actual bill was ₹1,500, mistakenly paid ₹2,000)..." required="1"/>
+                </group>
+                <footer>
+                    <button string="Confirm Recovery Claim" type="object" name="action_confirm_recovery" class="btn btn-warning"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Record Payback Wizard Form -->
+    <record id="view_service_ticket_voucher_payback_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.payback.wizard.form</field>
+        <field name="model">service.ticket.voucher.payback.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Record Employee Payback">
+                <group>
+                    <field name="voucher_line_id" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="employee_id" readonly="1" options="{'no_open': True}"/>
+                    <field name="pending_balance" readonly="1" widget="monetary"/>
+                    <field name="amount" string="Amount Received" widget="monetary" required="1"/>
+                    <field name="payment_mode" required="1"/>
+                    <field name="reference" placeholder="e.g. UPI UTR No. / Cash Receipt No."/>
+                    <field name="notes" placeholder="Optional notes..."/>
+                </group>
+                <footer>
+                    <button string="Confirm Payback Received" type="object" name="action_confirm_payback" class="btn btn-success"/>
                     <button string="Cancel" class="btn btn-secondary" special="cancel"/>
                 </footer>
             </form>
