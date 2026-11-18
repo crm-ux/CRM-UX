@@ -481,6 +481,7 @@ class CrmLeadWizard(models.TransientModel):
             "res_model": "crm.lead",
             "res_id": lead.id,
             "view_mode": "form",
+            "views": [[False, "form"]],
             "target": "current",
         } if can_read else {'type': 'ir.actions.act_window_close'}
 
