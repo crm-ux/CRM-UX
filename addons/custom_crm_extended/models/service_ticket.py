@@ -3681,6 +3681,7 @@ class ServiceTicketVoucherBatch(models.Model):
         ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', compute='_compute_status', store=True, default='draft')
+    display_status = fields.Selection(related='status', string='Status', readonly=True)
     def _default_expense_manager_id(self):
         emp = self.env.user
         approver = self.env['service.ticket']._get_voucher_approver_for_employee(emp)
