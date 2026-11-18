@@ -279,9 +279,73 @@ document.addEventListener(
     true
 );
 
-// Enforce compact 13px size on voucher line checkbox buttons directly in DOM
+// Enforce compact 13px size on voucher line checkbox buttons directly in DOM (ONLY on Voucher Manager page)
+(function injectVoucherManagerCheckboxStyles() {
+    if (typeof document === "undefined") return;
+    const styleId = "crm_voucher_checkbox_head_style";
+    let style = document.getElementById(styleId);
+    if (!style) {
+        style = document.createElement("style");
+        style.id = styleId;
+        (document.head || document.documentElement).appendChild(style);
+    }
+    style.textContent = `
+        .o_service_ticket_voucher_batch_form .o_list_renderer .o_data_row td button[name='action_toggle_recovery_select'],
+        .o_service_ticket_voucher_batch_form .o_list_renderer .o_data_row td .btn[name='action_toggle_recovery_select'],
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'] {
+            width: 13px !important;
+            height: 13px !important;
+            min-width: 13px !important;
+            max-width: 13px !important;
+            min-height: 13px !important;
+            max-height: 13px !important;
+            box-sizing: border-box !important;
+            border: 1.5px solid #0b3d91 !important;
+            border-radius: 2px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            font-size: 8px !important;
+            line-height: 1 !important;
+            overflow: hidden !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            vertical-align: middle !important;
+            transition: none !important;
+        }
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_checked {
+            background-color: #0b3d91 !important;
+            border: 1.5px solid #0b3d91 !important;
+            color: #ffffff !important;
+        }
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_unchecked {
+            background-color: #ffffff !important;
+            border: 1.5px solid #0b3d91 !important;
+            color: transparent !important;
+        }
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'] i,
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'] .o_button_icon {
+            font-size: 8px !important;
+            width: 8px !important;
+            height: 8px !important;
+            min-width: 8px !important;
+            max-width: 8px !important;
+            line-height: 8px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_unchecked i,
+        .o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_unchecked .o_button_icon {
+            display: none !important;
+            visibility: hidden !important;
+        }
+    `;
+})();
+
 function formatVoucherCheckboxButtons() {
-    const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
+    const batchForm = document.querySelector(".o_service_ticket_voucher_batch_form");
+    if (!batchForm) return;
+    const btns = batchForm.querySelectorAll("button[name='action_toggle_recovery_select']");
     btns.forEach((btn) => {
         btn.style.setProperty("width", "13px", "important");
         btn.style.setProperty("height", "13px", "important");
