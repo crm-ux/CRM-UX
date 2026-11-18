@@ -277,7 +277,8 @@
                             <field name="is_km_based" column_invisible="1"/>
                             <field name="total_km" string="Total KM" optional="show"/>
                             <field name="rate_per_km" string="₹/KM" optional="show"/>
-                            <field name="description" string="Description"/>
+                            <button name="action_view_description" type="object" string="View" icon="fa-file-text-o text-crm-blue" title="View Full Description" class="btn btn-link p-0 text-start text-dark text-truncate"/>
+                            <field name="description" column_invisible="1"/>
                             <field name="currency_id" column_invisible="1"/>
                             <field name="amount" string="Submitted Amount" sum="Total Submitted" class="fw-semibold text-end text-dark"/>
                             <field name="approved_amount" string="Approved Amount" sum="Total Approved" class="fw-semibold text-end text-dark"/>
@@ -609,7 +610,8 @@
                                 <field name="is_km_based" column_invisible="1"/>
                                 <field name="total_km" string="Total KM" optional="show"/>
                                 <field name="rate_per_km" string="₹/KM" optional="show"/>
-                                <field name="description" string="Description"/>
+                                <button name="action_view_description" type="object" string="View" icon="fa-file-text-o text-crm-blue" title="View Full Description" class="btn btn-link p-0 text-start text-dark text-truncate"/>
+                                <field name="description" column_invisible="1"/>
                                 <field name="currency_id" column_invisible="1"/>
                                 <field name="amount" string="Submitted Amount" sum="Total Submitted" class="fw-semibold text-end text-dark"/>
                                 <field name="approved_amount" string="Approved Amount" sum="Total Approved" class="fw-semibold text-end text-dark"/>

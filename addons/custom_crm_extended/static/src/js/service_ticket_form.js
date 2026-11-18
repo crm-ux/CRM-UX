@@ -208,10 +208,6 @@ patch(ListController.prototype, {
             };
 
             document.addEventListener("click", handleVoucherListBillPreview, true);
-            document.addEventListener("click", handleVoucherDescriptionClick, true);
-            document.addEventListener("mouseover", handleVoucherDescriptionHoverBlock, true);
-            document.addEventListener("mouseenter", handleVoucherDescriptionHoverBlock, true);
-            document.addEventListener("pointerenter", handleVoucherDescriptionHoverBlock, true);
         }
     },
     async createRecord() {
