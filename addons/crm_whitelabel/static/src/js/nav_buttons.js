@@ -369,6 +369,7 @@ patch(FormController.prototype, {
                     res_model: "res.partner",
                     views: [[false, "list"], [false, "form"]],
                     domain: [["customer_rank", ">", 0]],
+                    context: { search_default_type_company: 1, default_is_company: true },
                 }, { clearBreadcrumbs: true });
             } else if (this.props.resModel === "exhibition.contact") {
                 this.actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
