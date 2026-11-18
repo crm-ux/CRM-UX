@@ -3761,11 +3761,53 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
 
 /* ── Ensure Custom Blue (#0b3d91) across all Voucher screens - No Purple Anywhere ── */
 .o_service_ticket_voucher_batch_form a,
+.o_service_ticket_voucher_line_form a,
 .o_service_ticket_voucher_batch_form .btn-crm-blue-solid,
+.o_service_ticket_voucher_line_form .btn-crm-blue-solid,
 .o_service_ticket_voucher_batch_form .btn-crm-blue-outline,
+.o_service_ticket_voucher_line_form .btn-crm-blue-outline,
 .o_voucher_card_list a,
 .text-crm-blue {
     color: #0b3d91 !important;
+}
+
+/* Custom Blue Color (#0b3d91) for the Description View button */
+.o_service_ticket_voucher_line_form button[name="action_view_description"],
+.o_service_ticket_voucher_batch_form button[name="action_view_description"],
+.o_voucher_card_list button[name="action_view_description"] {
+    color: #0b3d91 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    text-decoration: none !important;
+}
+
+.o_service_ticket_voucher_line_form button[name="action_view_description"] i,
+.o_service_ticket_voucher_batch_form button[name="action_view_description"] i,
+.o_voucher_card_list button[name="action_view_description"] i {
+    color: #0b3d91 !important;
+}
+
+/* Add the Column Header "Description" above the View button */
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="amount"])::before,
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="amount"])::before,
+.o_voucher_card_list th:has(+ th[data-name="amount"])::before {
+    content: "Description" !important;
+    display: block !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #475569 !important;
+    white-space: nowrap !important;
+}
+
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="amount"]),
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="amount"]),
+.o_voucher_card_list th:has(+ th[data-name="amount"]) {
+    width: 105px !important;
+    min-width: 105px !important;
+    vertical-align: middle !important;
 }
 
 .o_service_ticket_voucher_batch_form .btn-crm-blue-solid {
