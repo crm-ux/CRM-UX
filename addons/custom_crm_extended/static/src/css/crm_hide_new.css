@@ -3790,17 +3790,18 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     color: #0b3d91 !important;
 }
 
-/* Add the Column Header "Description" above the View button - 100% matched to other column headers */
+/* Add the Column Header "Description" above the View button - EXACT same size and style as all other column headers */
 .o_service_ticket_voucher_line_form th:has(+ th[data-name="amount"])::before,
 .o_service_ticket_voucher_batch_form th:has(+ th[data-name="amount"])::before,
 .o_voucher_card_list th:has(+ th[data-name="amount"])::before {
     content: "Description" !important;
     display: inline-block !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
-    font-size: 13px !important;
-    color: #111827 !important;
+    color: #1e293b !important;
     white-space: nowrap !important;
-    line-height: normal !important;
+    line-height: 1.5 !important;
+    vertical-align: middle !important;
 }
 
 .o_service_ticket_voucher_line_form th:has(+ th[data-name="amount"]),
@@ -3809,8 +3810,7 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     width: 95px !important;
     min-width: 95px !important;
     vertical-align: middle !important;
-    padding-top: 0.5rem !important;
-    padding-bottom: 0.5rem !important;
+    padding: 0.5rem 0.5rem !important;
 }
 
 .o_service_ticket_voucher_batch_form .btn-crm-blue-solid {
