@@ -3771,23 +3771,33 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     color: #0b3d91 !important;
 }
 
-/* Custom Blue Color (#0b3d91) for the Description View button - Matches record text size */
+/* Custom Blue Color (#0b3d91) for the Description View button - Matches Bill text size */
+button[name="action_view_description"],
+button[name="action_view_description"] span,
+button[name="action_view_description"] i,
 .o_service_ticket_voucher_line_form button[name="action_view_description"],
+.o_service_ticket_voucher_line_form button[name="action_view_description"] span,
+.o_service_ticket_voucher_line_form button[name="action_view_description"] i,
 .o_service_ticket_voucher_batch_form button[name="action_view_description"],
-.o_voucher_card_list button[name="action_view_description"] {
+.o_service_ticket_voucher_batch_form button[name="action_view_description"] span,
+.o_service_ticket_voucher_batch_form button[name="action_view_description"] i,
+.o_voucher_card_list button[name="action_view_description"],
+.o_voucher_card_list button[name="action_view_description"] span,
+.o_voucher_card_list button[name="action_view_description"] i {
     color: #0b3d91 !important;
-    font-weight: 500 !important;
     font-size: 15px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    line-height: inherit !important;
+}
+
+button[name="action_view_description"] {
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
-    text-decoration: none !important;
 }
 
-.o_service_ticket_voucher_line_form button[name="action_view_description"] i,
-.o_service_ticket_voucher_batch_form button[name="action_view_description"] i,
-.o_voucher_card_list button[name="action_view_description"] i {
-    color: #0b3d91 !important;
+button[name="action_view_description"] i {
     font-size: 16px !important;
 }
 
