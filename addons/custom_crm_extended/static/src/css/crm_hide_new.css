@@ -3984,11 +3984,13 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
 
 /* ── Custom Blue Checkbox for Voucher Lines (Compact Size) ── */
 .crm_custom_blue_checkbox {
-    width: 14px !important;
-    height: 14px !important;
-    min-width: 14px !important;
-    min-height: 14px !important;
-    border-radius: 3px !important;
+    width: 13px !important;
+    height: 13px !important;
+    min-width: 13px !important;
+    max-width: 13px !important;
+    min-height: 13px !important;
+    max-height: 13px !important;
+    border-radius: 2px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -3998,6 +4000,15 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     transition: all 0.15s ease-in-out !important;
 }
 
+td:has(.crm_custom_blue_checkbox),
+th:has(.crm_custom_blue_checkbox) {
+    width: 28px !important;
+    max-width: 28px !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    text-align: center !important;
+}
+
 .crm_custom_blue_checkbox.crm_checkbox_checked {
     background-color: #0b3d91 !important;
     border: 1.5px solid #0b3d91 !important;
@@ -4005,8 +4016,9 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     box-shadow: 0 1px 2px rgba(11, 61, 145, 0.2) !important;
 }
 
+.crm_custom_blue_checkbox.crm_checkbox_checked i.fa,
 .crm_custom_blue_checkbox.crm_checkbox_checked i.fa-check {
-    font-size: 9px !important;
+    font-size: 8px !important;
     color: #ffffff !important;
     line-height: 1 !important;
 }
@@ -4017,8 +4029,9 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     color: transparent !important;
 }
 
+.crm_custom_blue_checkbox.crm_checkbox_unchecked i.fa,
 .crm_custom_blue_checkbox.crm_checkbox_unchecked i.fa-check {
-    font-size: 9px !important;
+    font-size: 8px !important;
     color: transparent !important;
     visibility: hidden !important;
 }
