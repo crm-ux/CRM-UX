@@ -624,8 +624,8 @@
                         <field name="line_ids" class="o_voucher_card_list" options="{'no_open': True}">
                             <list create="0" edit="0" delete="0" open_form_view="False">
                                 <field name="is_selected_for_recovery" column_invisible="1"/>
-                                <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
-                                <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
+                                <button name="action_toggle_recovery_select" type="object" icon="fa-check" title="Selected (Click to deselect)" invisible="not is_selected_for_recovery" class="btn p-0 crm_custom_blue_checkbox crm_checkbox_checked"/>
+                                <button name="action_toggle_recovery_select" type="object" icon="fa-check" title="Click to select" invisible="is_selected_for_recovery" class="btn p-0 crm_custom_blue_checkbox crm_checkbox_unchecked"/>
                                 <field name="expense_date" string="From Date"/>
                                 <field name="expense_date_to" string="To Date" optional="show"/>
                                 <field name="days_count" string="Days" optional="show"/>
