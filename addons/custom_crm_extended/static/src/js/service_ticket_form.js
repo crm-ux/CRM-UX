@@ -208,6 +208,43 @@ patch(ListController.prototype, {
             };
 
             document.addEventListener("click", handleVoucherListBillPreview, true);
+            document.addEventListener("click", (ev) => {
+                const target = ev.target instanceof Element ? ev.target : ev.target?.parentElement;
+                if (!target || !target.closest) return;
+                const cell = target.closest("td[name='description']");
+                if (!cell) return;
+
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+
+                const text = cell.innerText?.trim();
+                if (!text || text === "-" || text === "") return;
+
+                // Show clean lightweight native Bootstrap/Odoo popover or modal
+                const existingModal = document.getElementById("crm_voucher_desc_modal");
+                if (existingModal) existingModal.remove();
+
+                const modalHtml = `
+                    <div class="modal fade show" id="crm_voucher_desc_modal" tabindex="-1" style="display: block; background: rgba(15, 23, 42, 0.45); z-index: 10055;" aria-modal="true" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered" style="max-width: 520px; margin: 1.75rem auto;">
+                            <div class="modal-content shadow-lg border-0" style="border-radius: 12px; overflow: hidden;">
+                                <div class="modal-header py-3 px-4" style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                                    <h5 class="modal-title fs-6 fw-bold" style="color: #0b3d91; margin: 0;">
+                                        <i class="fa fa-file-text-o me-2" style="color: #0b3d91;"></i>Expense Description
+                                    </h5>
+                                    <button type="button" class="btn-close" onclick="document.getElementById('crm_voucher_desc_modal')?.remove();" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body p-4" style="max-height: 60vh; overflow-y: auto; font-size: 14px; line-height: 1.6; color: #1e293b; white-space: pre-wrap; word-break: break-word; background: #ffffff;">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                                <div class="modal-footer py-2 px-4" style="background-color: #f8fafc; border-top: 1px solid #e2e8f0;">
+                                    <button type="button" class="btn btn-sm btn-secondary px-3 py-1 fw-semibold" onclick="document.getElementById('crm_voucher_desc_modal')?.remove();">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML("beforeend", modalHtml);
+            }, true);
         }
     },
     async createRecord() {

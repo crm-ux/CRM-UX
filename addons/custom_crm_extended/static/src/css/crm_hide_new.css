@@ -3101,13 +3101,29 @@ div[name="ticket_voucher_line_ids"] th.o_list_controller,
     text-align: center !important;
 }
 
-/* Dynamic fluid stretch: Description column absorbs 100% of remaining screen width */
+/* Dynamic fluid stretch: Description column absorbs remaining screen width */
 div[name="draft_voucher_line_ids"] th[data-name="description"],
 div[name="draft_voucher_line_ids"] td[name="description"],
 div[name="line_ids"] th[data-name="description"],
 div[name="line_ids"] td[name="description"],
 div[name="ticket_voucher_line_ids"] th[data-name="description"],
 div[name="ticket_voucher_line_ids"] td[name="description"],
+.o_service_ticket_voucher_batch_form th[data-name="description"],
+.o_service_ticket_voucher_batch_form td[name="description"],
+.o_service_ticket_voucher_line_form th[data-name="description"],
+.o_service_ticket_voucher_line_form td[name="description"] {
+    min-width: 150px !important;
+    max-width: 250px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    cursor: pointer !important;
+}
+
+/* Description text inside table cell */
+td[name="description"] span,
+td[name="description"] {
+    color: #1e293b !important;
+}
 .o_voucher_card_list th[data-name="description"],
 .o_voucher_card_list td[name="description"] {
     width: 100% !important;
