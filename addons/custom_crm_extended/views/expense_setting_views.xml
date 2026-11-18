@@ -224,7 +224,7 @@
         <field name="name">service.ticket.voucher.line.form</field>
         <field name="model">service.ticket.voucher.line</field>
         <field name="arch" type="xml">
-            <form string="Expense Voucher Detail">
+            <form string="Expense Voucher Detail" class="o_service_ticket_voucher_batch_form o_service_ticket_voucher_line_form">
                 <header>
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
