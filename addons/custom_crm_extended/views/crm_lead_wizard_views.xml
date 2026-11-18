@@ -68,12 +68,11 @@
                         <div class="alert alert-warning py-1 px-2 mb-2" role="alert" invisible="partner_company_id" style="font-size: 13px;">
                             <strong>Notice:</strong> Please select a Company in Step 1 (Lead Info) before entering contact person details.
                         </div>
-                        <field name="has_multiple_contacts" invisible="1"/>
-                        <group col="1" invisible="not has_multiple_contacts">
-                            <field name="contact_picker_id" string="Select Contact" options="{'no_create': True, 'no_open': True}"/>
+                        <group col="1">
+                            <field name="contact_picker_id" string="Select Contact" domain="[('parent_id', '=', partner_company_id), ('is_company', '=', False)]" options="{'no_create': True, 'no_open': True}" readonly="not partner_company_id"/>
                         </group>
                         <group col="2">
-                            <field name="contact_name" string="Contact Person" placeholder="Full Name" readonly="not partner_company_id"/>
+                            <field name="contact_name" string="Contact Person" placeholder="Full Name (or select existing above)" readonly="not partner_company_id"/>
                             <field name="function" string="Job Title" placeholder="e.g. Purchase Manager" readonly="not partner_company_id"/>
                         </group>
                         <group col="3">
