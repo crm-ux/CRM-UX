@@ -279,6 +279,66 @@ document.addEventListener(
     true
 );
 
+// Enforce compact 13px size on voucher line checkbox buttons directly in DOM
+function formatVoucherCheckboxButtons() {
+    const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
+    btns.forEach((btn) => {
+        btn.style.setProperty("width", "13px", "important");
+        btn.style.setProperty("height", "13px", "important");
+        btn.style.setProperty("min-width", "13px", "important");
+        btn.style.setProperty("max-width", "13px", "important");
+        btn.style.setProperty("min-height", "13px", "important");
+        btn.style.setProperty("max-height", "13px", "important");
+        btn.style.setProperty("border", "1.5px solid #0b3d91", "important");
+        btn.style.setProperty("border-radius", "2px", "important");
+        btn.style.setProperty("padding", "0", "important");
+        btn.style.setProperty("margin", "0", "important");
+        btn.style.setProperty("display", "inline-flex", "important");
+        btn.style.setProperty("align-items", "center", "important");
+        btn.style.setProperty("justify-content", "center", "important");
+        btn.style.setProperty("overflow", "hidden", "important");
+        btn.style.setProperty("box-sizing", "border-box", "important");
+
+        const td = btn.closest("td");
+        if (td) {
+            td.style.setProperty("width", "28px", "important");
+            td.style.setProperty("max-width", "28px", "important");
+            td.style.setProperty("padding-left", "4px", "important");
+            td.style.setProperty("padding-right", "4px", "important");
+            td.style.setProperty("text-align", "center", "important");
+        }
+
+        const isChecked = btn.classList.contains("crm_checkbox_checked");
+        const icon = btn.querySelector("i, .o_button_icon");
+        if (isChecked) {
+            btn.style.setProperty("background-color", "#0b3d91", "important");
+            btn.style.setProperty("color", "#ffffff", "important");
+            if (icon) {
+                icon.style.setProperty("display", "block", "important");
+                icon.style.setProperty("font-size", "8px", "important");
+                icon.style.setProperty("width", "8px", "important");
+                icon.style.setProperty("height", "8px", "important");
+                icon.style.setProperty("line-height", "8px", "important");
+                icon.style.setProperty("color", "#ffffff", "important");
+            }
+        } else {
+            btn.style.setProperty("background-color", "#ffffff", "important");
+            btn.style.setProperty("color", "transparent", "important");
+            if (icon) {
+                icon.style.setProperty("display", "none", "important");
+            }
+        }
+    });
+}
+
+if (typeof MutationObserver !== "undefined") {
+    const observer = new MutationObserver(() => {
+        formatVoucherCheckboxButtons();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+document.addEventListener("DOMContentLoaded", formatVoucherCheckboxButtons);
+
 // 2. Intercept "New" button in Detail Form View
 patch(FormController.prototype, {
     async create() {

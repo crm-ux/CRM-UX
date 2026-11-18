@@ -3982,7 +3982,8 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     cursor: pointer !important;
 }
 
-/* ── Custom Blue Checkbox for Voucher Lines (Compact Size) ── */
+/* ── Custom Blue Checkbox for Voucher Lines (Strict 13px) ── */
+button[name="action_toggle_recovery_select"],
 .crm_custom_blue_checkbox {
     width: 13px !important;
     height: 13px !important;
@@ -3990,6 +3991,7 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     max-width: 13px !important;
     min-height: 13px !important;
     max-height: 13px !important;
+    box-sizing: border-box !important;
     border-radius: 2px !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -3997,18 +3999,29 @@ div[name="ticket_voucher_line_ids"] .o_data_row .btn,
     vertical-align: middle !important;
     margin: 0 !important;
     padding: 0 !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
     transition: all 0.15s ease-in-out !important;
 }
 
-td:has(.crm_custom_blue_checkbox),
-th:has(.crm_custom_blue_checkbox) {
+td:has(button[name="action_toggle_recovery_select"]),
+th:has(button[name="action_toggle_recovery_select"]) {
     width: 28px !important;
     max-width: 28px !important;
     padding-left: 6px !important;
     padding-right: 6px !important;
     text-align: center !important;
+    vertical-align: middle !important;
 }
 
+td:has(button[name="action_toggle_recovery_select"]) .d-flex {
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+button[name="action_toggle_recovery_select"].crm_checkbox_checked,
 .crm_custom_blue_checkbox.crm_checkbox_checked {
     background-color: #0b3d91 !important;
     border: 1.5px solid #0b3d91 !important;
@@ -4016,26 +4029,44 @@ th:has(.crm_custom_blue_checkbox) {
     box-shadow: 0 1px 2px rgba(11, 61, 145, 0.2) !important;
 }
 
-.crm_custom_blue_checkbox.crm_checkbox_checked i.fa,
-.crm_custom_blue_checkbox.crm_checkbox_checked i.fa-check {
+button[name="action_toggle_recovery_select"].crm_checkbox_checked i,
+button[name="action_toggle_recovery_select"].crm_checkbox_checked .o_button_icon,
+.crm_custom_blue_checkbox.crm_checkbox_checked i,
+.crm_custom_blue_checkbox.crm_checkbox_checked .o_button_icon {
     font-size: 8px !important;
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    max-width: 8px !important;
+    line-height: 8px !important;
     color: #ffffff !important;
-    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
 }
 
+button[name="action_toggle_recovery_select"].crm_checkbox_unchecked,
 .crm_custom_blue_checkbox.crm_checkbox_unchecked {
     background-color: #ffffff !important;
     border: 1.5px solid #0b3d91 !important;
     color: transparent !important;
 }
 
-.crm_custom_blue_checkbox.crm_checkbox_unchecked i.fa,
-.crm_custom_blue_checkbox.crm_checkbox_unchecked i.fa-check {
-    font-size: 8px !important;
-    color: transparent !important;
+button[name="action_toggle_recovery_select"].crm_checkbox_unchecked i,
+button[name="action_toggle_recovery_select"].crm_checkbox_unchecked .o_button_icon,
+.crm_custom_blue_checkbox.crm_checkbox_unchecked i,
+.crm_custom_blue_checkbox.crm_checkbox_unchecked .o_button_icon {
+    display: none !important;
     visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    font-size: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
+button[name="action_toggle_recovery_select"].crm_checkbox_unchecked:hover,
 .crm_custom_blue_checkbox.crm_checkbox_unchecked:hover {
     background-color: #e8f0fe !important;
     border-color: #0b3d91 !important;
