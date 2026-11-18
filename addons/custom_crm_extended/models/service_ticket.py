@@ -2438,6 +2438,7 @@ class ServiceTicketVoucherLine(models.Model):
         'voucher_line_id',
         string='Recovery Settlements',
     )
+    is_selected_for_recovery = fields.Boolean(string='Select for Recovery', default=False)
 
     @api.depends('amount_to_recover', 'amount_recovered')
     def _compute_recovery_balance(self):
@@ -2685,6 +2686,13 @@ class ServiceTicketVoucherLine(models.Model):
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
+    def action_toggle_recovery_select(self):
+        self.ensure_one()
+        self.is_selected_for_recovery = not self.is_selected_for_recovery
+        if self.batch_id:
+            self.batch_id.invalidate_recordset(['has_selected_recoverable_lines'])
+        return False
 
     def action_mark_paid(self):
         self._check_voucher_approval_access()
@@ -3698,11 +3706,23 @@ class ServiceTicketVoucherBatch(models.Model):
         compute='_compute_batch_recovery_totals',
         store=True,
     )
+    has_selected_recoverable_lines = fields.Boolean(
+        string='Has Selected Lines for Recovery',
+        compute='_compute_has_selected_recoverable_lines',
+    )
     employee_pending_recovery_html = fields.Html(
         string='Pending Recovery Alert',
         compute='_compute_employee_pending_recovery_html',
         sanitize=False,
     )
+
+    @api.depends('line_ids.is_selected_for_recovery', 'line_ids.status', 'line_ids.recovery_status')
+    def _compute_has_selected_recoverable_lines(self):
+        for rec in self:
+            rec.has_selected_recoverable_lines = any(
+                l.is_selected_for_recovery and l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+                for l in rec.line_ids
+            )
 
     @api.depends('line_ids.amount_to_recover', 'line_ids.amount_recovered', 'line_ids.recovery_balance')
     def _compute_batch_recovery_totals(self):
@@ -4052,21 +4072,30 @@ class ServiceTicketVoucherBatch(models.Model):
     def action_claim_recovery(self):
         self.ensure_one()
         self._check_voucher_approval_access()
-        paid_lines = self.line_ids.filtered(lambda l: l.status in ('paid', 'partially_paid'))
-        if not paid_lines:
-            raise UserError(_("No paid expenses found in this voucher to claim recovery for."))
-        line = paid_lines[:1]
-        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_recovery_wizard_form', raise_if_not_found=False)
+        selected_lines = self.line_ids.filtered(
+            lambda l: l.is_selected_for_recovery and l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+        )
+        if not selected_lines:
+            raise UserError(_("Please select at least one paid expense line to recover using the checkbox."))
+
+        wiz = self.env['service.ticket.voucher.batch.recovery.wizard'].sudo().create({
+            'batch_id': self.id,
+            'line_ids': [(0, 0, {
+                'voucher_line_id': l.id,
+                'paid_amount': l.approved_amount or l.amount or 0.0,
+                'recovery_amount': l.approved_amount or l.amount or 0.0,
+            }) for l in selected_lines],
+        })
+
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_batch_recovery_wizard_form', raise_if_not_found=False)
         return {
-            'name': _('Claim Excess / Mistake Recovery'),
+            'name': _('Claim Recovery'),
             'type': 'ir.actions.act_window',
-            'res_model': 'service.ticket.voucher.recovery.wizard',
+            'res_model': 'service.ticket.voucher.batch.recovery.wizard',
             'view_mode': 'form',
+            'res_id': wiz.id,
             'view_id': view.id if view else False,
             'target': 'new',
-            'context': {
-                'default_voucher_line_id': line.id,
-            },
         }
 
     def action_deduct_pending_recoveries(self):
@@ -4213,11 +4242,26 @@ class ServiceTicketVoucherRecoveryWizard(models.TransientModel):
 
         line.sudo().write({
             'amount_to_recover': self.amount_to_recover,
+            'amount_recovered': self.amount_to_recover,
+            'recovery_status': 'recovered',
             'recovery_reason': self.reason,
+            'is_selected_for_recovery': False,
+        })
+        self.env['service.ticket.voucher.recovery.settlement'].create({
+            'voucher_line_id': line.id,
+            'amount': self.amount_to_recover,
+            'settlement_date': fields.Date.context_today(self),
+            'settlement_type': 'direct_payback',
+            'payment_mode': 'cash',
+            'reference': 'Claimed via Recovery',
+            'notes': self.reason,
+            'settled_by_user_id': self.env.user.id,
+            'linked_batch_id': line.batch_id.id if line.batch_id else False,
         })
         if line.batch_id:
             line.batch_id.invalidate_recordset()
             line.batch_id._compute_batch_recovery_totals()
+            line.batch_id._compute_status()
 
         emp = line.user_id
         batch_name = line.batch_id.name if line.batch_id else "Voucher"
@@ -4377,5 +4421,109 @@ class ServiceTicketVoucherPaybackWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
+
+class ServiceTicketVoucherBatchRecoveryWizard(models.TransientModel):
+    _name = 'service.ticket.voucher.batch.recovery.wizard'
+    _description = 'Claim Recovery for Selected Lines'
+
+    batch_id = fields.Many2one('service.ticket.voucher.batch', string='Voucher', required=True)
+    reason = fields.Text(string='Reason / Remark', required=True, placeholder="Enter reason (applied to all selected lines unless custom reason is entered)...")
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+    line_ids = fields.One2many('service.ticket.voucher.batch.recovery.wizard.line', 'wizard_id', string='Selected Lines')
+    total_recovery_amount = fields.Monetary(
+        string='Total Recovery',
+        currency_field='currency_id',
+        compute='_compute_total_recovery_amount',
+    )
+
+    @api.depends('line_ids.recovery_amount')
+    def _compute_total_recovery_amount(self):
+        for rec in self:
+            rec.total_recovery_amount = sum(l.recovery_amount or 0.0 for l in rec.line_ids)
+
+    def action_confirm_recovery(self):
+        self.ensure_one()
+        if not self.line_ids:
+            raise UserError(_("No lines selected for recovery."))
+
+        for w_line in self.line_ids:
+            if (w_line.recovery_amount or 0.0) <= 0:
+                raise UserError(_("Recovery amount must be greater than zero."))
+            if w_line.recovery_amount > w_line.paid_amount:
+                raise UserError(_("Recovery amount for %s (₹%s) cannot exceed paid amount (₹%s).") % (
+                    w_line.line_summary,
+                    f"{w_line.recovery_amount:,.2f}",
+                    f"{w_line.paid_amount:,.2f}",
+                ))
+
+        for w_line in self.line_ids:
+            v_line = w_line.voucher_line_id
+            eff_reason = (w_line.custom_reason or '').strip() or (self.reason or '').strip() or "Excess recovery claimed"
+            v_line.sudo().write({
+                'amount_to_recover': w_line.recovery_amount,
+                'amount_recovered': w_line.recovery_amount,
+                'recovery_status': 'recovered',
+                'recovery_reason': eff_reason,
+                'is_selected_for_recovery': False,
+            })
+            self.env['service.ticket.voucher.recovery.settlement'].create({
+                'voucher_line_id': v_line.id,
+                'amount': w_line.recovery_amount,
+                'settlement_date': fields.Date.context_today(self),
+                'settlement_type': 'direct_payback',
+                'payment_mode': 'cash',
+                'reference': 'Claimed via Batch Recovery',
+                'notes': eff_reason,
+                'settled_by_user_id': self.env.user.id,
+                'linked_batch_id': self.batch_id.id,
+            })
+
+        self.batch_id.invalidate_recordset()
+        self.batch_id._compute_batch_recovery_totals()
+        self.batch_id._compute_status()
+
+        summary_lines = [
+            f"• {wl.voucher_line_id.user_id.name or 'Employee'} ({wl.voucher_line_id.expense_type_id.name or 'Expense'}): Recovered ₹{wl.recovery_amount:,.2f} — {wl.custom_reason or self.reason}"
+            for wl in self.line_ids
+        ]
+        msg = f"<b>Excess Payment Recovered (₹{self.total_recovery_amount:,.2f})</b><br/>" \
+              f"<b>Reason:</b> {self.reason}<br/>" + "<br/>".join(summary_lines)
+        self.batch_id.message_post(body=msg, subtype_xmlid='mail.mt_note')
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Recovery Recorded'),
+                'message': _('Successfully recovered ₹%s across %d lines.') % (f"{self.total_recovery_amount:,.2f}", len(self.line_ids)),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+
+class ServiceTicketVoucherBatchRecoveryWizardLine(models.TransientModel):
+    _name = 'service.ticket.voucher.batch.recovery.wizard.line'
+    _description = 'Batch Recovery Wizard Line'
+
+    wizard_id = fields.Many2one('service.ticket.voucher.batch.recovery.wizard', string='Wizard', required=True, ondelete='cascade')
+    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Expense Line', required=True)
+    employee_id = fields.Many2one(related='voucher_line_id.user_id', string='Employee', readonly=True)
+    expense_type_id = fields.Many2one(related='voucher_line_id.expense_type_id', string='Expense Type', readonly=True)
+    currency_id = fields.Many2one(related='wizard_id.currency_id')
+    paid_amount = fields.Monetary(string='Paid Amount', currency_field='currency_id', readonly=True)
+    recovery_amount = fields.Monetary(string='Amount', currency_field='currency_id', required=True)
+    custom_reason = fields.Char(string='Custom Reason')
+    line_summary = fields.Char(compute='_compute_line_summary', string='Selected Expense')
+
+    @api.depends('employee_id.name', 'expense_type_id.name', 'paid_amount', 'currency_id')
+    def _compute_line_summary(self):
+        for rec in self:
+            emp = rec.employee_id.name or 'Employee'
+            exp = rec.expense_type_id.name or 'Expense'
+            rec.line_summary = f"{emp} ({exp} - Paid ₹ {rec.paid_amount:,.2f})"
+
 
 

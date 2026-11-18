@@ -34,6 +34,8 @@ access_service_ticket_voucher_reject_wizard,service.ticket.voucher.reject.wizard
 access_service_ticket_voucher_desc_wizard,service.ticket.voucher.desc.wizard,model_service_ticket_voucher_desc_wizard,base.group_user,1,1,1,1
 access_service_ticket_voucher_recovery_settlement,service.ticket.voucher.recovery.settlement,model_service_ticket_voucher_recovery_settlement,base.group_user,1,1,1,1
 access_service_ticket_voucher_recovery_wizard,service.ticket.voucher.recovery.wizard,model_service_ticket_voucher_recovery_wizard,base.group_user,1,1,1,1
+access_service_ticket_voucher_batch_recovery_wizard,service.ticket.voucher.batch.recovery.wizard,model_service_ticket_voucher_batch_recovery_wizard,base.group_user,1,1,1,1
+access_service_ticket_voucher_batch_recovery_wizard_line,service.ticket.voucher.batch.recovery.wizard.line,model_service_ticket_voucher_batch_recovery_wizard_line,base.group_user,1,1,1,1
 access_service_ticket_voucher_payback_wizard,service.ticket.voucher.payback.wizard,model_service_ticket_voucher_payback_wizard,base.group_user,1,1,1,1
 access_amc_contract,amc.contract,model_amc_contract,base.group_user,1,1,1,1
 access_amc_contract_line,amc.contract.line,model_amc_contract_line,base.group_user,1,1,1,1

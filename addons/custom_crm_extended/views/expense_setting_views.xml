@@ -276,6 +276,9 @@
                     <separator string="Expenses"/>
                     <field name="ticket_voucher_line_ids" class="o_voucher_card_list">
                         <list create="0" edit="0" delete="0">
+                            <field name="is_selected_for_recovery" column_invisible="1"/>
+                            <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
+                            <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
                             <field name="expense_date" string="From Date"/>
                             <field name="expense_date_to" string="To Date" optional="show"/>
                             <field name="days_count" string="Days" optional="show"/>
@@ -362,10 +365,11 @@
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved', 'partially_paid')"/>
                     <button name="action_deduct_pending_recoveries" string="Adjust Pending Recoveries" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not employee_pending_recovery_html or status in ('draft', 'paid', 'rejected')"/>
-                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
+                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not has_selected_recoverable_lines"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
+                    <field name="has_selected_recoverable_lines" invisible="1"/>
                     <field name="can_approve" invisible="1"/>
                     <field name="is_voucher_owner" invisible="1"/>
                     <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -619,6 +623,9 @@
                         <separator string="Expense Details"/>
                         <field name="line_ids" class="o_voucher_card_list">
                             <list create="0" edit="0" delete="0">
+                                <field name="is_selected_for_recovery" column_invisible="1"/>
+                                <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
+                                <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
                                 <field name="expense_date" string="From Date"/>
                                 <field name="expense_date_to" string="To Date" optional="show"/>
                                 <field name="days_count" string="Days" optional="show"/>
@@ -859,6 +866,42 @@
                 <footer>
                     <button string="Confirm Recovery Claim" type="object" name="action_confirm_recovery" class="btn btn-warning"/>
                     <button string="Cancel" class="btn btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Claim Recovery for Selected Lines Wizard Form -->
+    <record id="view_service_ticket_voucher_batch_recovery_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.batch.recovery.wizard.form</field>
+        <field name="model">service.ticket.voucher.batch.recovery.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Claim Recovery">
+                <sheet>
+                    <div class="mb-3">
+                        <label for="reason" class="fw-bold mb-1" string="Reason / Remark:"/>
+                        <field name="reason" placeholder="Enter reason (applied to all selected lines unless custom reason is entered)..."/>
+                    </div>
+                    <div class="mb-2">
+                        <label for="line_ids" class="fw-bold mb-1" string="Selected Lines:"/>
+                        <field name="line_ids">
+                            <list create="0" delete="0" editable="bottom">
+                                <field name="line_summary" string="Selected Line" readonly="1" class="fw-semibold text-dark"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="recovery_amount" string="Amount" widget="monetary" class="fw-bold text-end text-success"/>
+                                <field name="custom_reason" string="Custom Reason" placeholder="(optional)"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center gap-2 mt-2 pt-2 border-top">
+                        <span class="fw-bold text-dark fs-6">Total Recovery:</span>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="total_recovery_amount" widget="monetary" options="{'currency_field': 'currency_id'}" class="fs-6 fw-bold text-success"/>
+                    </div>
+                </sheet>
+                <footer>
+                    <button string="Confirm Recovery" type="object" name="action_confirm_recovery" class="btn btn-warning fw-bold px-3 py-1 shadow-sm"/>
+                    <button string="Cancel" class="btn btn-secondary px-3 py-1" special="cancel"/>
                 </footer>
             </form>
         </field>
