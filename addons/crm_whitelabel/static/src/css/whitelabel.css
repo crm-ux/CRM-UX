@@ -95,14 +95,14 @@
 .o_field_x2many_list .o-autocomplete--dropdown-menu,
 .o_field_x2many_list .ui-autocomplete,
 .o_field_x2many_list .dropdown-menu:has(.o-autocomplete--dropdown-item) {
-    min-width: 350px !important;
+    min-width: 100% !important;
     width: max-content !important;
-    max-width: 550px !important;
-    max-height: 280px !important;
+    max-width: 320px !important;
+    max-height: 220px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     z-index: 10050 !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ==========================================================================
