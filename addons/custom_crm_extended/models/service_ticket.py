@@ -581,6 +581,8 @@ class ServiceTicket(models.Model):
 
                 has_km = any(l.is_km_based for l in batch.line_ids)
                 km_header = '<th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Total KM</th><th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Rate/KM (₹)</th>' if has_km else ''
+                is_paid_stage = batch.status in ('paid', 'partially_paid')
+                net_paid_header = '<th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right; color: #0f766e;">Net Paid</th>' if is_paid_stage else ''
 
                 rows_html = []
                 for line in batch.line_ids:
@@ -594,20 +596,22 @@ class ServiceTicket(models.Model):
                     l_amt = f"₹ {line.amount:,.2f}" if line.amount else "₹ 0.00"
                     if line.status in ('approved', 'partially_approved', 'paid'):
                         eff_approved = line.approved_amount if line.approved_amount else line.amount
-                        if line.status in ('paid', 'partially_paid') and line.amount_to_recover > 0:
-                            net_paid = max(0.0, eff_approved - line.amount_to_recover)
-                            rec_tag = "Excess" if line.recovery_status == 'pending' else "Recovered"
-                            l_approved_amt = (
-                                f'<div class="text-end" style="line-height: 1.3;">'
-                                f'<div>₹ {eff_approved:,.2f}</div>'
-                                f'<div style="font-size: 11px; color: #b45309; font-weight: 500;">- ₹ {line.amount_to_recover:,.2f} ({rec_tag})</div>'
-                                f'<div style="font-size: 12px; color: #059669; font-weight: 700; border-top: 1px dashed #cbd5e1; margin-top: 2px; padding-top: 2px;">Net: ₹ {net_paid:,.2f}</div>'
-                                f'</div>'
-                            )
-                        else:
-                            l_approved_amt = f"₹ {eff_approved:,.2f}" if eff_approved else "-"
+                        l_approved_amt = f"₹ {eff_approved:,.2f}" if eff_approved else "-"
                     else:
+                        eff_approved = 0.0
                         l_approved_amt = "-"
+
+                    if is_paid_stage:
+                        if line.status in ('paid', 'partially_paid'):
+                            net_paid = max(0.0, eff_approved - (line.amount_to_recover or 0.0))
+                            if (line.amount_to_recover or 0.0) > 0:
+                                l_net_paid_cell = f'<td style="padding: 8px; text-align: right; font-weight: 700; color: #0f766e;">₹ {net_paid:,.2f}</td>'
+                            else:
+                                l_net_paid_cell = f'<td style="padding: 8px; text-align: right; font-weight: 600; color: #1e293b;">₹ {net_paid:,.2f}</td>'
+                        else:
+                            l_net_paid_cell = '<td style="padding: 8px; text-align: center; color: #94a3b8;">-</td>'
+                    else:
+                        l_net_paid_cell = ''
                     
                     if line.bill_file:
                         fn = line.bill_filename or 'Bill'
@@ -670,6 +674,7 @@ class ServiceTicket(models.Model):
                         <td style="padding: 8px; color: #475569;">{l_desc}</td>
                         <td style="padding: 8px; text-align: right; font-weight: 600; color: #1e293b;">{l_amt}</td>
                         <td style="padding: 8px; text-align: right; font-weight: 600; color: #1e293b;">{l_approved_amt}</td>
+                        {l_net_paid_cell}
                         <td style="padding: 8px; text-align: center;">{bill_link}</td>
                         <td style="padding: 8px; text-align: center;">{l_badge}</td>
                         <td style="padding: 8px;">{l_reason_td}</td>
@@ -681,17 +686,19 @@ class ServiceTicket(models.Model):
                 def _get_eff_approved(l):
                     return (l.approved_amount or l.amount or 0.0) if l.status in ('approved', 'paid') else 0.0
                 total_app = sum(_get_eff_approved(l) for l in batch.line_ids)
-                total_rec = sum(l.amount_to_recover or 0.0 for l in batch.line_ids if l.status in ('paid', 'partially_paid'))
-                if total_rec > 0:
-                    net_total = max(0.0, total_app - total_rec)
-                    batch_total_approved = (
-                        f'<div class="text-end" style="line-height: 1.3;">'
-                        f'<div>₹ {total_app:,.2f}</div>'
-                        f'<div style="font-size: 11px; color: #b45309; font-weight: 600;">Net: ₹ {net_total:,.2f}</div>'
-                        f'</div>'
-                    )
+                batch_total_approved = f"₹ {total_app:,.2f}"
+
+                if is_paid_stage:
+                    def _get_eff_net(l):
+                        if l.status in ('paid', 'partially_paid'):
+                            base = l.approved_amount or l.amount or 0.0
+                            return max(0.0, base - (l.amount_to_recover or 0.0))
+                        return 0.0
+                    total_net = sum(_get_eff_net(l) for l in batch.line_ids)
+                    net_subtotal_cell = f'<td style="padding: 8px; text-align: right; font-weight: 700; font-size: 13px; color: #0f766e;">₹ {total_net:,.2f}</td>'
                 else:
-                    batch_total_approved = f"₹ {total_app:,.2f}"
+                    net_subtotal_cell = ''
+
                 col_span = 6 if has_km else 4
 
                 table_html = f"""
@@ -706,6 +713,7 @@ class ServiceTicket(models.Model):
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Description</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right;">Submitted Amount</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: right; color: #1e293b;">Approved Amount</th>
+                                {net_paid_header}
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Bill</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6; text-align: center;">Status</th>
                                 <th style="padding: 8px; border-bottom: 2px solid #dee2e6;">Reject Reason</th>
@@ -719,6 +727,7 @@ class ServiceTicket(models.Model):
                                 <td colspan="{col_span}" style="padding: 8px; text-align: right; font-weight: 700; color: #334155;">Subtotal:</td>
                                 <td style="padding: 8px; text-align: right; font-weight: 700; font-size: 13px; color: #1e293b;">{batch_total_submitted}</td>
                                 <td style="padding: 8px; text-align: right; font-weight: 700; font-size: 13px; color: #1e293b;">{batch_total_approved}</td>
+                                {net_subtotal_cell}
                                 <td colspan="3"></td>
                             </tr>
                         </tfoot>
