@@ -115,6 +115,7 @@ class CrmLeadWizard(models.TransientModel):
 
     # Validation flags - show red borders
     e1_name = fields.Boolean(default=False)       # step1: name missing
+    e1_company = fields.Boolean(default=False)    # step1: company missing
     e2_contact = fields.Boolean(default=lambda self: self.env.context.get('default_e2_contact', False))    # step2: no contact method
 
     @api.model_create_multi
@@ -234,6 +235,35 @@ class CrmLeadWizard(models.TransientModel):
             self.phone = child_phone or child_mobile
             self.x_mobile = child_mobile or child_phone
 
+    @api.onchange('contact_name')
+    def _onchange_contact_name(self):
+        if self.contact_name and self.partner_company_id:
+            name_clean = self.contact_name.strip()
+            matches = self.env['res.partner'].search([
+                ('parent_id', '=', self.partner_company_id.id),
+                ('is_company', '=', False),
+                ('name', '=ilike', name_clean),
+            ])
+            if not matches:
+                matches = self.env['res.partner'].search([
+                    ('parent_id', '=', self.partner_company_id.id),
+                    ('is_company', '=', False),
+                    ('name', 'ilike', name_clean),
+                ])
+            if len(matches) == 1:
+                child = matches[0]
+                self.contact_name = child.name or name_clean
+                self.function = child.function or self.function or ""
+                self.email_from = child.email or self.email_from or ""
+                child_phone = getattr(child, 'phone', '') or ""
+                child_mobile = getattr(child, 'mobile', '') or ""
+                if child_phone or child_mobile:
+                    self.phone = child_phone or child_mobile
+                    self.x_mobile = child_mobile or child_phone
+                self.contact_picker_id = child.id
+            elif len(matches) > 1:
+                self.has_multiple_contacts = True
+
     @api.onchange("partner_id")
     def _onchange_partner_id(self):
         if self.partner_id:
@@ -270,10 +300,21 @@ class CrmLeadWizard(models.TransientModel):
     def action_next(self):
         # Validate current step
         if self.step == 1:
+            has_error = False
             if not self.name:
                 self.e1_name = True
+                has_error = True
+            else:
+                self.e1_name = False
+
+            if not self.partner_company_id and not self.partner_name:
+                self.e1_company = True
+                has_error = True
+            else:
+                self.e1_company = False
+
+            if has_error:
                 return self._reopen()
-            self.e1_name = False
             self.e2_contact = False
         elif self.step == 2:
             if not self.email_from and not self.phone and not self.x_mobile:
@@ -304,22 +345,26 @@ class CrmLeadWizard(models.TransientModel):
         return self._reopen()
 
     def action_goto_2(self):
-        if self.step > 2:
-            self.step = 2
-            return self._reopen()
-        return self.action_next() if self.step == 1 else self._reopen()
+        if not self.name or (not self.partner_company_id and not self.partner_name):
+            return self.action_next()
+        self.step = 2
+        return self._reopen()
 
     def action_goto_3(self):
-        self.step = 3
-        return self._reopen()
+        if not self.name or (not self.partner_company_id and not self.partner_name):
+            return self.action_next()
         self.step = 3
         return self._reopen()
 
     def action_goto_4(self):
+        if not self.name or (not self.partner_company_id and not self.partner_name):
+            return self.action_next()
         self.step = 4
         return self._reopen()
 
     def action_goto_5(self):
+        if not self.name or (not self.partner_company_id and not self.partner_name):
+            return self.action_next()
         self.step = 5
         return self._reopen()
 
@@ -349,26 +394,32 @@ class CrmLeadWizard(models.TransientModel):
         elif self.partner_id:
             resolved_partner_id = self.partner_id.id
         elif self.partner_company_id and self.contact_name:
+            contact_clean = self.contact_name.strip()
             # Check if contact already exists under this company
             existing_contact = self.env['res.partner'].search([
                 ('parent_id', '=', self.partner_company_id.id),
-                ('name', '=', self.contact_name),
+                ('name', '=ilike', contact_clean),
                 ('is_company', '=', False),
             ], limit=1)
             if existing_contact:
                 resolved_partner_id = existing_contact.id
             else:
-                # Create new contact under the company
+                # Create new contact strictly as a child person under the company
                 new_contact = self.env['res.partner'].sudo().create({
-                    'name': self.contact_name,
+                    'name': contact_clean,
                     'parent_id': self.partner_company_id.id,
                     'is_company': False,
+                    'type': 'contact',
                     'function': self.function or False,
                     'email': self.email_from or False,
-                    'phone': self.phone or False,
-                    'city': self.city or False,
-                    'state_id': self.state_id.id if self.state_id else False,
-                    'zip': self.zip or False,
+                    'phone': formatted_phone or self.phone or False,
+                    'mobile': formatted_mobile or self.x_mobile or False,
+                    'city': self.city or self.partner_company_id.city or False,
+                    'state_id': self.state_id.id if self.state_id else (self.partner_company_id.state_id.id if self.partner_company_id.state_id else False),
+                    'zip': self.zip or self.partner_company_id.zip or False,
+                    'street': self.partner_company_id.street or False,
+                    'street2': self.partner_company_id.street2 or False,
+                    'country_id': self.partner_company_id.country_id.id if self.partner_company_id.country_id else False,
                 })
                 resolved_partner_id = new_contact.id
         elif self.partner_company_id:

@@ -9,6 +9,7 @@
                 <field name="is_admin" invisible="1"/>
                 <sheet>
                     <field name="e1_name" invisible="1"/>
+                    <field name="e1_company" invisible="1"/>
                     <!-- Step indicators -->
                     <div style="padding:8px 0 16px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <button name="action_goto_1" type="object" class="step_current" invisible="step != 1">1. Lead Info</button>
@@ -38,9 +39,9 @@
                         <group col="2">
                             <field name="company_id" string="Our Company" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <!-- Admin: can create new company -->
-                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'quick_create': True, 'no_open': False}" invisible="not is_admin"/>
+                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'quick_create': True, 'no_open': False}" invisible="not is_admin" required="e1_company"/>
                             <!-- Non-admin: no create allowed -->
-                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" invisible="is_admin"/>
+                            <field name="partner_company_id" string="Company Name" placeholder="Select or type company name..." options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" invisible="is_admin" required="e1_company"/>
                         </group>
                         <group col="2">
                             <field name="name" string="Lead Name" placeholder="e.g. 50 MCB Units - ABC Electricals" required="e1_name"/>
@@ -63,24 +64,28 @@
                     <!-- STEP 2: Contact Details -->
                     <div invisible="step != 2">
                         <div style="font-size:14px;font-weight:700;color:#875A7B;border-bottom:2px solid #875A7B;padding-bottom:4px;margin-bottom:16px;">Contact Details</div>
+                        <field name="partner_company_id" invisible="1"/>
+                        <div class="alert alert-warning py-1 px-2 mb-2" role="alert" invisible="partner_company_id" style="font-size: 13px;">
+                            <strong>Notice:</strong> Please select a Company in Step 1 (Lead Info) before entering contact person details.
+                        </div>
                         <field name="has_multiple_contacts" invisible="1"/>
                         <group col="1" invisible="not has_multiple_contacts">
                             <field name="contact_picker_id" string="Select Contact" options="{'no_create': True, 'no_open': True}"/>
                         </group>
                         <group col="2">
-                            <field name="contact_name" string="Contact Person" placeholder="Full Name"/>
-                            <field name="function" string="Job Title" placeholder="e.g. Purchase Manager"/>
+                            <field name="contact_name" string="Contact Person" placeholder="Full Name" readonly="not partner_company_id"/>
+                            <field name="function" string="Job Title" placeholder="e.g. Purchase Manager" readonly="not partner_company_id"/>
                         </group>
                         <group col="3">
-                            <field name="email_from" string="Email" placeholder="email@example.com" required="e2_contact and not phone and not x_mobile"/>
-                            <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not x_mobile"/>
-                            <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX" required="e2_contact and not email_from and not phone"/>
+                            <field name="email_from" string="Email" placeholder="email@example.com" readonly="not partner_company_id" required="e2_contact and not phone and not x_mobile"/>
+                            <field name="phone" string="Phone" placeholder="+91 XXXXX XXXXX" readonly="not partner_company_id" required="e2_contact and not email_from and not x_mobile"/>
+                            <field name="x_mobile" string="Mobile" placeholder="+91 XXXXX XXXXX" readonly="not partner_company_id" required="e2_contact and not email_from and not phone"/>
                         <field name="e2_contact" invisible="1"/>
                         </group>
                         <group col="3">
-                            <field name="city" string="City" placeholder="City"/>
-                            <field name="state_id" string="State" options="{'no_open': True}"/>
-                            <field name="zip" string="ZIP" placeholder="ZIP Code"/>
+                            <field name="city" string="City" placeholder="City" readonly="not partner_company_id"/>
+                            <field name="state_id" string="State" options="{'no_open': True}" readonly="not partner_company_id"/>
+                            <field name="zip" string="ZIP" placeholder="ZIP Code" readonly="not partner_company_id"/>
                         </group>
                     </div>
 
