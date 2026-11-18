@@ -208,30 +208,6 @@ patch(ListController.prototype, {
             };
 
             document.addEventListener("click", handleVoucherListBillPreview, true);
-            const handleDescriptionModalClick = (ev) => {
-                const target = ev.target instanceof Element ? ev.target : ev.target?.parentElement;
-                if (!target || !target.closest) return;
-                const cell = target.closest("td[name='description']");
-                if (!cell) return;
-
-                ev.preventDefault();
-                ev.stopPropagation();
-
-                const row = cell.closest("tr, .o_data_row");
-                const allRows = Array.from(row?.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
-                const rowIndex = row ? allRows.indexOf(row) : -1;
-                const records = this.model?.root?.records || [];
-                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
-
-                const text = record?.data?.description || cell.innerText?.trim();
-
-                this.env.services.dialog.add(ConfirmationDialog, {
-                    title: _t("Expense Description"),
-                    body: (text && text !== "-") ? text : _t("No description provided for this expense line."),
-                    confirmLabel: _t("Close"),
-                });
-            };
-            document.addEventListener("click", handleDescriptionModalClick, true);
         }
     },
     async createRecord() {
