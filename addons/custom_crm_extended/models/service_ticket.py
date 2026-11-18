@@ -2497,61 +2497,21 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_reject_all(self):
         self._check_voucher_approval_access()
-        for rec in self:
-            target = rec.batch_id.line_ids if rec.batch_id else rec
-            target.sudo().write({
-                'status': 'rejected',
-                'expense_manager_id': self.env.user.id,
-            })
-            if rec.batch_id:
-                rec.batch_id.sudo().write({'expense_manager_id': self.env.user.id})
-                rec.batch_id._compute_status()
-                submitter = rec.batch_id.submitted_by_user_id or rec.batch_id.user_id
-                if submitter and submitter.partner_id:
-                    rec.batch_id.message_post(
-                        body=f"<b>Voucher Rejected</b><br/>"
-                             f"Your voucher <b>{rec.batch_id.name}</b> has been rejected by <b>{self.env.user.name}</b>.",
-                        subject=f"Voucher Rejected: {rec.batch_id.name}",
-                        partner_ids=[submitter.partner_id.id],
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_comment',
-                    ) 
-                    try:
-                        self.env['bus.bus']._sendone(
-                            submitter.partner_id,
-                            'crm_notification',
-                            {
-                                'title': 'Voucher Rejected',
-                                'message': f"Your voucher {rec.batch_id.name} was rejected by {self.env.user.name}.",
-                                'model': 'service.ticket.voucher.batch',
-                                'res_id': rec.batch_id.id,
-                            }
-                        )
-                    except Exception:
-                        pass
-                    try:
-                        self.env['bus.bus']._sendone(
-                            submitter.partner_id,
-                            'crm_notification',
-                            {
-                                'title': 'Voucher Approved',
-                                'message': f"Your voucher {rec.batch_id.name} was approved (₹ {rec.batch_id.total_amount:,.2f}).",
-                                'model': 'service.ticket.voucher.batch',
-                                'res_id': rec.batch_id.id,
-                            }
-                        )
-                    except Exception:
-                        pass
+        line = self[:1]
+        batch = line.batch_id if line else False
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reject_wizard_form', raise_if_not_found=False)
         return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('All Expenses Rejected'),
-                'message': _('All lines in this voucher have been rejected.'),
-                'type': 'danger',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
+            'name': _('Reject Voucher Submission'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.reject.wizard',
+            'view_mode': 'form',
+            'view_id': view.id if view else False,
+            'target': 'new',
+            'context': {
+                'default_batch_id': batch.id if batch else False,
+                'default_voucher_line_id': False,
+                'default_reject_reason': '',
+            },
         }
 
     def action_mark_paid(self):
@@ -2623,6 +2583,7 @@ class ServiceTicketVoucherLine(models.Model):
             'target': 'new',
             'context': {
                 'default_voucher_line_id': line.id,
+                'default_batch_id': False,
                 'default_reject_reason': line.reject_reason or '',
             },
         }
@@ -2716,41 +2677,15 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
         self.ensure_one()
         reason = self.reject_reason or 'No reason specified'
 
-        # If launched for a specific line, reject ONLY that specific line
-        if self.voucher_line_id:
-            line = self.voucher_line_id
-            line.sudo().write({
-                'status': 'rejected',
-                'reject_reason': reason,
-                'expense_manager_id': self.env.user.id,
-            })
-            batch = line.batch_id
-            if batch:
-                batch.invalidate_recordset()
-                batch._compute_status()
-                submitter = batch.submitted_by_user_id or batch.user_id
-                if submitter and submitter.partner_id:
-                    emp_name = line.user_id.name or 'Employee'
-                    batch.message_post(
-                        body=f"<b>Voucher Line Rejected</b><br/>"
-                             f"Expense line for <b>{emp_name}</b> ({line.expense_type_id.name or 'Expense'}: {line.amount}) in <b>{batch.name}</b> has been rejected by <b>{self.env.user.name}</b>.<br/>"
-                             f"Reason: <i>{reason}</i>",
-                        subject=f"Voucher Line Rejected: {batch.name}",
-                        partner_ids=[submitter.partner_id.id],
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_comment',
-                    )
-            return {'type': 'ir.actions.act_window_close'}
-
-        batch = self.batch_id
-        if batch:
+        # Case 1: Reject All / Entire Submission Batch
+        if self.batch_id:
+            batch = self.batch_id
             batch.line_ids.sudo().write({
                 'status': 'rejected',
                 'reject_reason': reason,
                 'expense_manager_id': self.env.user.id,
             })
             batch.sudo().write({
-                'status': 'rejected',
                 'expense_manager_id': self.env.user.id,
             })
             batch.invalidate_recordset()
@@ -2792,6 +2727,19 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                     )
                 except Exception:
                     pass
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('All Expenses Rejected'),
+                    'message': _('All lines in this voucher have been rejected.'),
+                    'type': 'danger',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
+            }
+
+        # Case 2: Reject Single Voucher Line
         elif self.voucher_line_id:
             line = self.voucher_line_id
             line.sudo().write({
@@ -2799,21 +2747,35 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                 'reject_reason': reason,
                 'expense_manager_id': self.env.user.id,
             })
-            if line.batch_id:
-                line.batch_id.invalidate_recordset()
-                line.batch_id._compute_status()
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Voucher Rejected'),
-                'message': _('Voucher rejected successfully.'),
-                'type': 'danger',
-                'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            batch = line.batch_id
+            if batch:
+                batch.invalidate_recordset()
+                batch._compute_status()
+                submitter = batch.submitted_by_user_id or batch.user_id
+                if submitter and submitter.partner_id:
+                    emp_name = line.user_id.name or 'Employee'
+                    batch.message_post(
+                        body=f"<b>Voucher Line Rejected</b><br/>"
+                             f"Expense line for <b>{emp_name}</b> ({line.expense_type_id.name or 'Expense'}: {line.amount}) in <b>{batch.name}</b> has been rejected by <b>{self.env.user.name}</b>.<br/>"
+                             f"Reason: <i>{reason}</i>",
+                        subject=f"Voucher Line Rejected: {batch.name}",
+                        partner_ids=[submitter.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Expense Line Rejected'),
+                    'message': _('The expense line has been rejected.'),
+                    'type': 'danger',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
             }
-        }
+
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
 
 class ServiceTicketVoucherDescWizard(models.TransientModel):
@@ -3724,7 +3686,6 @@ class ServiceTicketVoucherBatch(models.Model):
         self._check_voucher_approval_access()
         self.ensure_one()
         view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reject_wizard_form', raise_if_not_found=False)
-        line = self.line_ids[:1]
         return {
             'name': _('Reject Voucher Submission'),
             'type': 'ir.actions.act_window',
@@ -3733,8 +3694,8 @@ class ServiceTicketVoucherBatch(models.Model):
             'view_id': view.id if view else False,
             'target': 'new',
             'context': {
-                'default_voucher_line_id': line.id if line else False,
                 'default_batch_id': self.id,
+                'default_voucher_line_id': False,
                 'default_reject_reason': '',
             },
         }
