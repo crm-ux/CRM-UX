@@ -3373,10 +3373,27 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button i,
 div[name="line_ids"] td.o_list_button button[name="action_approve"],
 div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_approve"],
 .o_voucher_card_list td.o_list_button button[name="action_approve"],
-.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_approve"] {
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_approve"],
+div[name="line_ids"] td.o_list_button button[name="action_pay_line"],
+div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_pay_line"],
+.o_voucher_card_list td.o_list_button button[name="action_pay_line"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_pay_line"],
+div[name="line_ids"] td.o_list_button button[name="action_record_payback"],
+div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_record_payback"],
+.o_voucher_card_list td.o_list_button button[name="action_record_payback"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_record_payback"] {
     background-color: #dcfce7 !important;
     color: #16a34a !important;
     border: 1px solid #86efac !important;
+}
+
+div[name="line_ids"] td.o_list_button button[name="action_claim_recovery"],
+div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_claim_recovery"],
+.o_voucher_card_list td.o_list_button button[name="action_claim_recovery"],
+.o_service_ticket_voucher_batch_form td.o_list_button button[name="action_claim_recovery"] {
+    background-color: #fef3c7 !important;
+    color: #d97706 !important;
+    border: 1px solid #fde68a !important;
 }
 
 div[name="line_ids"] td.o_list_button button[name="action_reject"],
