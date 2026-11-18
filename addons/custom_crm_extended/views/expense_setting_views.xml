@@ -286,9 +286,10 @@
                             <field name="rate_per_km" string="₹/KM" optional="show"/>
                             <button name="action_view_description" type="object" icon="fa-file-text-o text-crm-blue" title="View Description" string="View" class="btn p-0 text-crm-blue fw-semibold"/>
                             <field name="currency_id" column_invisible="1"/>
+                            <field name="voucher_status" column_invisible="1"/>
                             <field name="amount" string="Submitted Amount" sum="Total Submitted" class="fw-semibold text-end text-dark"/>
                             <field name="approved_amount" string="Approved Amount" sum="Total Approved" class="fw-semibold text-end text-dark"/>
-                            <field name="net_paid_amount" string="Net Paid" sum="Total Net Paid" class="fw-bold text-end text-success" column_invisible="voucher_status not in ('paid', 'partially_paid')" optional="show"/>
+                            <field name="net_paid_amount" string="Net Paid" sum="Total Net Paid" class="fw-bold text-end text-success" column_invisible="parent.voucher_status not in ('paid', 'partially_paid')" optional="show"/>
                             <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1"/>
                             <field name="bill_file" filename="bill_filename" widget="binary" string="Bill" options="{'no_download': True}"/>
                             <field name="bill_filename" column_invisible="1"/>
