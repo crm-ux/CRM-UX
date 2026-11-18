@@ -3775,7 +3775,53 @@ header .alert:has([name="x_refuse_reason"]) a:hover,
     color: #0b3d91 !important;
 }
 
+/* ==========================================================================
+   FULL WIDTH FOR VOUCHER BATCH, SERVICE TICKET & EXPENSE FORMS
+   Eliminates empty side gutters and allows all table columns to fit on one screen
+   ========================================================================== */
+.o_service_ticket_voucher_batch_form,
+.o_service_ticket_form,
+.o_expense_setting_form {
+    width: 100% !important;
+    max-width: 100% !important;
+}
 
+.o_service_ticket_voucher_batch_form .o_form_sheet_bg,
+.o_service_ticket_form .o_form_sheet_bg,
+.o_expense_setting_form .o_form_sheet_bg {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+}
 
+.o_service_ticket_voucher_batch_form .o_form_sheet,
+.o_service_ticket_form .o_form_sheet,
+.o_expense_setting_form .o_form_sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: clamp(16px, 1.5vw, 28px) clamp(20px, 2vw, 36px) !important;
+    box-sizing: border-box !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
 
+.o_service_ticket_voucher_batch_form .o_form_statusbar,
+.o_service_ticket_form .o_form_statusbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding-left: clamp(20px, 2vw, 36px) !important;
+    padding-right: clamp(20px, 2vw, 36px) !important;
+    box-sizing: border-box !important;
+}
+
+.o_service_ticket_voucher_batch_form .o_voucher_card_list,
+.o_service_ticket_voucher_batch_form .o_field_x2many_list,
+.o_service_ticket_voucher_batch_form .o_list_renderer {
+    width: 100% !important;
+    max-width: 100% !important;
+}
 

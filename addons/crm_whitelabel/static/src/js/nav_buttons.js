@@ -420,6 +420,11 @@ patch(FormController.prototype, {
 if (typeof window !== "undefined") {
     const handleScrollClose = (ev) => {
         try {
+            // Never dismiss if any modal, dialog or wizard is currently active/open
+            if (document.querySelector(".modal.show, .o_dialog, .o_technical_modal")) {
+                return;
+            }
+
             const el = (ev && ev.target instanceof Element) ? ev.target : null;
             if (el && typeof el.closest === "function") {
                 if (

@@ -162,6 +162,9 @@ patch(ListController.prototype, {
 
                 ev.preventDefault();
                 ev.stopPropagation();
+                ev.stopImmediatePropagation();
+
+                if (document.querySelector(".modal.show, .o_dialog, .o_technical_modal")) return;
 
                 const row = cell.closest("tr, .o_data_row");
                 if (!row) return;
@@ -174,8 +177,13 @@ patch(ListController.prototype, {
                 const descText = record?.data?.description || cell.innerText?.trim() || "";
                 if (!descText) return;
 
-                await this.env.services.action.doAction("custom_crm_extended.action_service_ticket_voucher_desc_wizard", {
-                    additionalContext: {
+                await this.env.services.action.doAction({
+                    name: "Expense Description",
+                    type: "ir.actions.act_window",
+                    res_model: "service.ticket.voucher.desc.wizard",
+                    views: [[false, "form"]],
+                    target: "new",
+                    context: {
                         default_description: descText,
                         default_voucher_line_id: record?.resId || false,
                     },
