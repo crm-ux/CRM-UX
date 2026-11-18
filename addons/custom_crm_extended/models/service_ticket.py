@@ -2658,16 +2658,37 @@ class ServiceTicketVoucherLine(models.Model):
             },
         }
 
-    def action_mark_paid(self):
+    def action_pay_line(self):
+        """Mark this individual expense line as Paid."""
+        self._check_voucher_approval_access()
         for rec in self:
-            target = rec.batch_id.line_ids if rec.batch_id else rec
-            to_pay = target.filtered(lambda l: l.status != 'rejected')
-            if to_pay:
-                to_pay.sudo().write({'status': 'paid'})
-            elif target:
-                target.sudo().write({'status': 'paid'})
+            if rec.status in ('approved', 'partially_approved'):
+                rec.sudo().write({'status': 'paid'})
+                if rec.batch_id:
+                    rec.batch_id._compute_status()
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Line Paid'),
+                'message': _('Expense line marked as Paid.'),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    def action_mark_paid(self):
+        self._check_voucher_approval_access()
+        for rec in self:
             if rec.batch_id:
+                to_pay = rec.batch_id.line_ids.filtered(lambda l: l.status not in ('rejected', 'paid'))
+                if to_pay:
+                    to_pay.sudo().write({'status': 'paid'})
                 rec.batch_id._compute_status()
+            else:
+                if rec.status != 'rejected':
+                    rec.sudo().write({'status': 'paid'})
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -4052,12 +4073,13 @@ class ServiceTicketVoucherBatch(models.Model):
         }
 
     def action_mark_paid(self):
+        self._check_voucher_approval_access()
         for rec in self:
-            to_pay = rec.line_ids.filtered(lambda l: l.status != 'rejected')
+            to_pay = rec.line_ids.filtered(lambda l: l.status not in ('rejected', 'paid'))
             if to_pay:
                 to_pay.sudo().write({'status': 'paid'})
             elif rec.line_ids:
-                rec.line_ids.sudo().write({'status': 'paid'})
+                rec.line_ids.filtered(lambda l: l.status != 'rejected').sudo().write({'status': 'paid'})
             rec._compute_status()
         return {
             'type': 'ir.actions.client',

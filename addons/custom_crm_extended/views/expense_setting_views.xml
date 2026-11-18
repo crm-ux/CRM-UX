@@ -233,7 +233,7 @@
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved')"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved', 'partially_paid')"/>
                     <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('paid', 'partially_paid')"/>
                     <button name="action_record_payback" string="Record Payback" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="recovery_status != 'pending'"/>
                     <field name="voucher_status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
@@ -303,6 +303,7 @@
                             <field name="reject_reason" string="Reject Reason" optional="show"/>
                             <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
+                            <button name="action_pay_line" type="object" icon="fa-credit-card text-success" title="Mark Line as Paid" invisible="status not in ('approved', 'partially_approved')"/>
                             <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="status in ('rejected', 'paid')"/>
                             <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                             <button name="action_claim_recovery" type="object" icon="fa-exclamation-circle text-warning" title="Claim Excess Recovery" invisible="status not in ('paid', 'partially_paid')"/>
@@ -357,7 +358,7 @@
                     <button name="action_approve_all" string="Approve All" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'approved', 'paid')"/>
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
-                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved')"/>
+                    <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved', 'partially_paid')"/>
                     <button name="action_deduct_pending_recoveries" string="Adjust Pending Recoveries" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not employee_pending_recovery_html or status in ('draft', 'paid', 'rejected')"/>
                     <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,submitted,partially_approved,approved,partially_paid,paid,rejected"/>
@@ -643,6 +644,7 @@
                                 <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                                 <field name="can_approve" column_invisible="1"/>
                                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="not can_approve or status in ('approved', 'paid')"/>
+                                <button name="action_pay_line" type="object" icon="fa-credit-card text-success" title="Mark Line as Paid" invisible="not can_approve or status not in ('approved', 'partially_approved')"/>
                                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject Line" invisible="not can_approve or status in ('rejected', 'paid')"/>
                                 <button name="action_reset_line" type="object" icon="fa-undo text-crm-blue" title="Reset Line" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                                 <button name="action_claim_recovery" type="object" icon="fa-exclamation-circle text-warning" title="Claim Excess Recovery" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
