@@ -331,13 +331,21 @@ function formatVoucherCheckboxButtons() {
     });
 }
 
-if (typeof MutationObserver !== "undefined") {
+if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {
     const observer = new MutationObserver(() => {
         formatVoucherCheckboxButtons();
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            if (document.body) {
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+            formatVoucherCheckboxButtons();
+        });
+    }
 }
-document.addEventListener("DOMContentLoaded", formatVoucherCheckboxButtons);
 
 // 2. Intercept "New" button in Detail Form View
 patch(FormController.prototype, {
