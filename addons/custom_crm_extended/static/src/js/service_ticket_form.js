@@ -3,6 +3,7 @@
 import { Component, xml, onMounted, onWillUnmount } from "@odoo/owl";
 import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
+import { ListRenderer } from "@web/views/list/list_renderer";
 import { formView } from "@web/views/form/form_view";
 import { registry } from "@web/core/registry";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
@@ -230,7 +231,53 @@ patch(ListController.prototype, {
         }
         return super.openNewRecord(...arguments);
     },
+    async openRecord(record) {
+        if (
+            this.model?.root?.resModel === "service.ticket.voucher.line" ||
+            record?.resModel === "service.ticket.voucher.line" ||
+            this.props?.resModel === "service.ticket.voucher.line"
+        ) {
+            return;
+        }
+        return super.openRecord(...arguments);
+    },
 });
+
+// Prevent clicking on voucher line table rows from opening the sub-form view
+patch(ListRenderer.prototype, {
+    async onCellClicked(record, column, ev) {
+        if (
+            record?.resModel === "service.ticket.voucher.line" ||
+            this.props.list?.resModel === "service.ticket.voucher.line"
+        ) {
+            if (ev?.target?.closest("button, a, input, select, .btn, .o_field_many2many_tags")) {
+                return super.onCellClicked ? super.onCellClicked(...arguments) : undefined;
+            }
+            return;
+        }
+        return super.onCellClicked(...arguments);
+    },
+});
+
+// Capture-phase listener to block raw cell clicks on voucher line tables from opening form
+document.addEventListener(
+    "click",
+    (ev) => {
+        const row = ev.target.closest(
+            ".o_voucher_card_list tr.o_data_row, div[name='line_ids'] tr.o_data_row, div[name='ticket_voucher_line_ids'] tr.o_data_row"
+        );
+        if (!row) return;
+        // Allow buttons, links, tag chips, and inputs (like View Description, View Bill, Approve/Reject/Pay/Recovery buttons)
+        if (ev.target.closest("button, a, input, select, textarea, .btn, .o_field_many2many_tags")) {
+            return;
+        }
+        // Disallow row clicks on any data cell from opening record / breaking UI
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+    },
+    true
+);
 
 // 2. Intercept "New" button in Detail Form View
 patch(FormController.prototype, {

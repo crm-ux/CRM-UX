@@ -3954,25 +3954,30 @@ div[name="ticket_voucher_line_ids"] table.o_list_table,
 /* ── Disable line row click from opening sub-form on voucher tables ── */
 .o_voucher_card_list .o_data_row,
 div[name="line_ids"] .o_data_row,
-div[name="ticket_voucher_line_ids"] .o_data_row {
+div[name="ticket_voucher_line_ids"] .o_data_row,
+.o_service_ticket_voucher_batch_form .o_data_row,
+.o_voucher_card_list .o_data_row > td,
+div[name="line_ids"] .o_data_row > td,
+div[name="ticket_voucher_line_ids"] .o_data_row > td,
+.o_service_ticket_voucher_batch_form .o_data_row > td {
     cursor: default !important;
-}
-
-.o_voucher_card_list .o_data_row > td:not(.o_list_button):not([name="bill_file"]):not([name="bill_attachment_ids"]):not(:has(button)):not(:has(a)),
-div[name="line_ids"] .o_data_row > td:not(.o_list_button):not([name="bill_file"]):not([name="bill_attachment_ids"]):not(:has(button)):not(:has(a)),
-div[name="ticket_voucher_line_ids"] .o_data_row > td:not(.o_list_button):not([name="bill_file"]):not([name="bill_attachment_ids"]):not(:has(button)):not(:has(a)) {
-    pointer-events: none !important;
 }
 
 .o_voucher_card_list .o_data_row button,
 .o_voucher_card_list .o_data_row a,
 .o_voucher_card_list .o_data_row input,
+.o_voucher_card_list .o_data_row .btn,
 div[name="line_ids"] .o_data_row button,
 div[name="line_ids"] .o_data_row a,
 div[name="line_ids"] .o_data_row input,
+div[name="line_ids"] .o_data_row .btn,
 div[name="ticket_voucher_line_ids"] .o_data_row button,
 div[name="ticket_voucher_line_ids"] .o_data_row a,
-div[name="ticket_voucher_line_ids"] .o_data_row input {
-    pointer-events: auto !important;
+div[name="ticket_voucher_line_ids"] .o_data_row input,
+div[name="ticket_voucher_line_ids"] .o_data_row .btn,
+.o_service_ticket_voucher_batch_form .o_data_row button,
+.o_service_ticket_voucher_batch_form .o_data_row a,
+.o_service_ticket_voucher_batch_form .o_data_row input,
+.o_service_ticket_voucher_batch_form .o_data_row .btn {
     cursor: pointer !important;
 }

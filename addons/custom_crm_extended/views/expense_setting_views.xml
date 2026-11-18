@@ -366,7 +366,7 @@
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved', 'partially_paid')"/>
                     <button name="action_deduct_pending_recoveries" string="Adjust Pending Recoveries" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not employee_pending_recovery_html or status in ('draft', 'paid', 'rejected')"/>
                     <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not has_selected_recoverable_lines"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,submitted,partially_approved,approved,partially_paid,paid,rejected"/>
+                    <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
                     <field name="has_selected_recoverable_lines" invisible="1"/>
