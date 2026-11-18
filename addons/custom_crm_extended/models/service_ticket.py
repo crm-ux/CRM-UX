@@ -2337,7 +2337,6 @@ class ServiceTicketVoucherLine(models.Model):
         return True
 
 
-
     can_approve = fields.Boolean(compute='_compute_can_approve', string='Can Approve')
 
     @api.depends_context('uid')
@@ -2538,7 +2537,12 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_reset_to_submitted(self):
         """Rollback: Reset all lines in the voucher back to Submitted so manager can re-evaluate."""
+        self._check_voucher_approval_access()
         for rec in self:
+            if rec.batch_id and rec.batch_id.status in ('paid', 'partially_paid'):
+                raise UserError(_("Cannot reset a voucher that is already paid or partially paid."))
+            if rec.status in ('paid', 'partially_paid'):
+                raise UserError(_("Cannot reset an expense that is already paid or partially paid."))
             target = rec.batch_id.line_ids if rec.batch_id else rec
             target.sudo().write({
                 'status': 'submitted',
@@ -2560,7 +2564,10 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_reset_line(self):
         """Rollback a single line back to Submitted."""
+        self._check_voucher_approval_access()
         for rec in self:
+            if rec.status in ('paid', 'partially_paid'):
+                raise UserError(_("Cannot reset an expense that is already paid or partially paid."))
             rec.sudo().write({
                 'status': 'submitted',
                 'reject_reason': False,
@@ -3722,11 +3729,15 @@ class ServiceTicketVoucherBatch(models.Model):
 
     def action_reset_to_submitted(self):
         """Rollback: Reset all lines in the voucher back to Submitted so manager can re-evaluate."""
+        self._check_voucher_approval_access()
         for rec in self:
+            if rec.status in ('paid', 'partially_paid'):
+                raise UserError(_("Cannot reset a voucher that is already paid or partially paid."))
             rec.line_ids.sudo().write({
                 'status': 'submitted',
                 'reject_reason': False,
             })
+            rec._compute_status()
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
