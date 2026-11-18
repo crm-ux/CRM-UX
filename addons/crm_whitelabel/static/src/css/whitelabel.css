@@ -72,6 +72,40 @@
 }
 
 /* ==========================================================================
+   EDITABLE TABLE DROPDOWNS (Order Lines & Lead Products) - NO CLIPPING
+   Ensures dropdowns inside editable list tables pop out cleanly and fully visible
+   ========================================================================== */
+.o_form_view .o_field_x2many_list,
+.o_form_view .o_field_x2many_list .o_list_renderer,
+.o_form_view .o_field_widget:has(.o_list_table),
+.o_list_table tr:focus-within,
+.o_list_table td:focus-within,
+.o_list_table td:has(.o-autocomplete) {
+    overflow: visible !important;
+}
+
+.o_list_table .o_field_many2one,
+.o_list_table .o-autocomplete {
+    position: relative !important;
+}
+
+.o_list_table .o-autocomplete--dropdown-menu,
+.o_list_table .ui-autocomplete,
+.o_list_table .dropdown-menu:has(.o-autocomplete--dropdown-item),
+.o_field_x2many_list .o-autocomplete--dropdown-menu,
+.o_field_x2many_list .ui-autocomplete,
+.o_field_x2many_list .dropdown-menu:has(.o-autocomplete--dropdown-item) {
+    min-width: 350px !important;
+    width: max-content !important;
+    max-width: 550px !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 10050 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+}
+
+/* ==========================================================================
    DATEPICKER / CALENDAR POPUP - DYNAMIC COMPACT SIZING & PERFECT ALIGNMENT
    ========================================================================== */
 .o_popover:has(.o_datetime_picker),
