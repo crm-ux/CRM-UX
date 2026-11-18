@@ -2788,6 +2788,10 @@ class ServiceTicketVoucherLine(models.Model):
         self._check_voucher_approval_access()
         if self.status not in ('paid', 'partially_paid'):
             raise UserError(_("Recovery can only be claimed on Paid or Partially Paid expenses."))
+        if self.recovery_status == 'recovered':
+            raise UserError(_("This expense line has already been fully recovered."))
+        if self.recovery_status == 'pending':
+            raise UserError(_("A recovery claim is already pending for this expense line."))
         view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_recovery_wizard_form', raise_if_not_found=False)
         return {
             'name': _('Claim Excess / Mistake Recovery'),
