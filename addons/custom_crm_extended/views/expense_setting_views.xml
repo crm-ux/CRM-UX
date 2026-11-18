@@ -206,12 +206,13 @@
                 <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
                 <field name="expense_manager_id" string="Approver" widget="many2one_avatar_user" optional="show"/>
                 <field name="reject_reason" string="Reject Reason" optional="hide"/>
-                <field name="status" widget="badge" 
-                       decoration-muted="status == 'draft'" 
-                       decoration-warning="status == 'submitted'" 
-                       decoration-success="status in ('approved', 'partially_approved')" 
-                       decoration-info="status in ('paid', 'partially_paid')" 
-                       decoration-danger="status == 'rejected'"/>
+                <field name="display_status" widget="badge" string="Status"
+                       decoration-muted="display_status == 'draft'" 
+                       decoration-warning="display_status in ('submitted', 'paid_recovery')" 
+                       decoration-success="display_status in ('approved', 'partially_approved', 'paid_recovered')" 
+                       decoration-info="display_status in ('paid', 'partially_paid')" 
+                       decoration-danger="display_status == 'rejected'"/>
+                <field name="status" column_invisible="1"/>
                 <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                 <button name="action_approve" type="object" icon="fa-check text-success" title="Approve" invisible="status in ('approved', 'paid')"/>
                 <button name="action_reject" type="object" icon="fa-times text-danger" title="Reject" invisible="status in ('rejected', 'paid')"/>
@@ -329,12 +330,13 @@
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_amount" sum="Total Amount" class="fw-bold text-end"/>
                 <field name="expense_manager_id" string="Approver" widget="many2one_avatar_user" optional="show"/>
-                <field name="status" widget="badge" 
-                       decoration-muted="status == 'draft'" 
-                       decoration-warning="status == 'submitted'" 
-                       decoration-success="status in ('approved', 'partially_approved')" 
-                       decoration-info="status in ('paid', 'partially_paid')" 
-                       decoration-danger="status == 'rejected'"/>
+                <field name="display_status" widget="badge" string="Status"
+                       decoration-muted="display_status == 'draft'" 
+                       decoration-warning="display_status in ('submitted', 'paid_recovery')" 
+                       decoration-success="display_status in ('approved', 'partially_approved', 'paid_recovered')" 
+                       decoration-info="display_status in ('paid', 'partially_paid')" 
+                       decoration-danger="display_status == 'rejected'"/>
+                <field name="status" column_invisible="1"/>
                 <field name="can_approve" column_invisible="1"/>
                 <button name="action_approve_all" type="object" icon="fa-check text-success" title="Approve Voucher" invisible="not can_approve or status in ('draft', 'approved', 'paid')"/>
                 <button name="action_reject_all" type="object" icon="fa-times text-danger" title="Reject Voucher" invisible="not can_approve or status in ('draft', 'rejected')"/>
@@ -698,12 +700,13 @@
                 <field name="currency_id" column_invisible="1"/>
                 <field name="total_amount" sum="Total Submitted" class="fw-bold text-end text-dark"/>
                 <field name="expense_manager_id" string="Approver" widget="many2one_avatar_user" optional="show"/>
-                <field name="status" widget="badge" 
-                       decoration-muted="status == 'draft'" 
-                       decoration-warning="status == 'submitted'" 
-                       decoration-success="status in ('approved', 'partially_approved')" 
-                       decoration-info="status in ('paid', 'partially_paid')" 
-                       decoration-danger="status == 'rejected'"/>
+                <field name="display_status" widget="badge" string="Status"
+                       decoration-muted="display_status == 'draft'" 
+                       decoration-warning="display_status in ('submitted', 'paid_recovery')" 
+                       decoration-success="display_status in ('approved', 'partially_approved', 'paid_recovered')" 
+                       decoration-info="display_status in ('paid', 'partially_paid')" 
+                       decoration-danger="display_status == 'rejected'"/>
+                <field name="status" column_invisible="1"/>
             </list>
         </field>
     </record>

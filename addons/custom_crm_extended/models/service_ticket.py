@@ -593,9 +593,19 @@ class ServiceTicket(models.Model):
                     l_desc = line.description or ''
                     l_amt = f"₹ {line.amount:,.2f}" if line.amount else "₹ 0.00"
                     if line.status in ('approved', 'partially_approved', 'paid'):
-                        # If approved_amount is set use it; otherwise fallback to line.amount (for records approved previously)
                         eff_approved = line.approved_amount if line.approved_amount else line.amount
-                        l_approved_amt = f"₹ {eff_approved:,.2f}" if eff_approved else "-"
+                        if line.status in ('paid', 'partially_paid') and line.amount_to_recover > 0:
+                            net_paid = max(0.0, eff_approved - line.amount_to_recover)
+                            rec_tag = "Excess" if line.recovery_status == 'pending' else "Recovered"
+                            l_approved_amt = (
+                                f'<div class="text-end" style="line-height: 1.3;">'
+                                f'<div>₹ {eff_approved:,.2f}</div>'
+                                f'<div style="font-size: 11px; color: #b45309; font-weight: 500;">- ₹ {line.amount_to_recover:,.2f} ({rec_tag})</div>'
+                                f'<div style="font-size: 12px; color: #059669; font-weight: 700; border-top: 1px dashed #cbd5e1; margin-top: 2px; padding-top: 2px;">Net: ₹ {net_paid:,.2f}</div>'
+                                f'</div>'
+                            )
+                        else:
+                            l_approved_amt = f"₹ {eff_approved:,.2f}" if eff_approved else "-"
                     else:
                         l_approved_amt = "-"
                     
@@ -614,18 +624,42 @@ class ServiceTicket(models.Model):
                         l_badge_color = '#059669'
                         l_badge_border = '#86efac'
                     elif l_st in ('paid', 'partially_paid'):
-                        l_badge_bg = '#e0f2fe'
-                        l_badge_color = '#0284c7'
-                        l_badge_border = '#bae6fd'
+                        if line.recovery_status == 'pending':
+                            l_badge_bg = '#fef3c7'
+                            l_badge_color = '#b45309'
+                            l_badge_border = '#fde68a'
+                        elif line.recovery_status == 'recovered':
+                            l_badge_bg = '#dcfce7'
+                            l_badge_color = '#15803d'
+                            l_badge_border = '#86efac'
+                        else:
+                            l_badge_bg = '#e0f2fe'
+                            l_badge_color = '#0284c7'
+                            l_badge_border = '#bae6fd'
                     elif l_st == 'rejected':
                         l_badge_bg = '#fee2e2'
                         l_badge_color = '#dc2626'
                         l_badge_border = '#fca5a5'
-                    l_st_label = dict(line._fields['status'].selection).get(l_st, l_st.replace('_', ' ').title())
+
+                    if l_st in ('paid', 'partially_paid') and line.recovery_status == 'pending':
+                        l_st_label = 'Paid (Recovery)'
+                    elif l_st in ('paid', 'partially_paid') and line.recovery_status == 'recovered':
+                        l_st_label = 'Paid (Recovered)'
+                    else:
+                        l_st_label = dict(line._fields['status'].selection).get(l_st, l_st.replace('_', ' ').title())
                     l_badge = f'<span class="badge py-1 px-2 fw-semibold" style="background-color: {l_badge_bg}; color: {l_badge_color}; border: 1px solid {l_badge_border}; border-radius: 4px;">{l_st_label}</span>'
 
                     l_reason = line.reject_reason or ''
-                    l_reason_td = f'<span style="color: #334155; font-size: 12px; font-weight: 500;">{l_reason}</span>' if (l_st == 'rejected' and l_reason) else '<span class="text-muted">-</span>'
+                    if l_st == 'rejected' and l_reason:
+                        l_reason_td = f'<span style="color: #334155; font-size: 12px; font-weight: 500;">{l_reason}</span>'
+                    elif l_st in ('paid', 'partially_paid') and line.recovery_status == 'pending':
+                        rec_str = f"Recovery (₹ {line.recovery_balance:,.2f})"
+                        rec_note = f": {line.recovery_reason}" if line.recovery_reason else ""
+                        l_reason_td = f'<span style="color: #b45309; font-size: 12px; font-weight: 600;">{rec_str}{rec_note}</span>'
+                    elif l_st in ('paid', 'partially_paid') and line.recovery_status == 'recovered':
+                        l_reason_td = f'<span style="color: #15803d; font-size: 12px; font-weight: 600;">Recovered (₹ {line.amount_recovered:,.2f})</span>'
+                    else:
+                        l_reason_td = '<span class="text-muted">-</span>'
 
                     row = f"""
                     <tr style="border-bottom: 1px solid #f1f5f9;">
@@ -646,7 +680,18 @@ class ServiceTicket(models.Model):
                 batch_total_submitted = f"₹ {sum(l.amount or 0.0 for l in batch.line_ids):,.2f}"
                 def _get_eff_approved(l):
                     return (l.approved_amount or l.amount or 0.0) if l.status in ('approved', 'paid') else 0.0
-                batch_total_approved = f"₹ {sum(_get_eff_approved(l) for l in batch.line_ids):,.2f}"
+                total_app = sum(_get_eff_approved(l) for l in batch.line_ids)
+                total_rec = sum(l.amount_to_recover or 0.0 for l in batch.line_ids if l.status in ('paid', 'partially_paid'))
+                if total_rec > 0:
+                    net_total = max(0.0, total_app - total_rec)
+                    batch_total_approved = (
+                        f'<div class="text-end" style="line-height: 1.3;">'
+                        f'<div>₹ {total_app:,.2f}</div>'
+                        f'<div style="font-size: 11px; color: #b45309; font-weight: 600;">Net: ₹ {net_total:,.2f}</div>'
+                        f'</div>'
+                    )
+                else:
+                    batch_total_approved = f"₹ {total_app:,.2f}"
                 col_span = 6 if has_km else 4
 
                 table_html = f"""
@@ -2154,6 +2199,48 @@ class ServiceTicketVoucherLine(models.Model):
         ('paid', 'Paid'),
         ('rejected', 'Rejected'),
     ], string='Status', default='draft', required=True)
+
+    display_status = fields.Selection([
+        ('draft', 'Draft'),
+        ('submitted', 'Submitted'),
+        ('partially_approved', 'Partially Approved'),
+        ('approved', 'Approved'),
+        ('partially_paid', 'Partially Paid'),
+        ('paid', 'Paid'),
+        ('paid_recovery', 'Paid (Recovery)'),
+        ('paid_recovered', 'Paid (Recovered)'),
+        ('rejected', 'Rejected'),
+    ], string='Status', compute='_compute_display_status', store=True)
+
+    net_paid_amount = fields.Monetary(
+        string='Net Paid',
+        currency_field='currency_id',
+        compute='_compute_net_paid_amount',
+        store=True,
+    )
+
+    @api.depends('status', 'recovery_status')
+    def _compute_display_status(self):
+        for rec in self:
+            if rec.status in ('paid', 'partially_paid'):
+                if rec.recovery_status == 'pending':
+                    rec.display_status = 'paid_recovery'
+                elif rec.recovery_status == 'recovered':
+                    rec.display_status = 'paid_recovered'
+                else:
+                    rec.display_status = rec.status
+            else:
+                rec.display_status = rec.status
+
+    @api.depends('approved_amount', 'amount', 'status', 'amount_to_recover', 'amount_recovered')
+    def _compute_net_paid_amount(self):
+        for rec in self:
+            if rec.status in ('paid', 'partially_paid'):
+                base = rec.approved_amount if rec.approved_amount else (rec.amount or 0.0)
+                excess = rec.amount_to_recover or 0.0
+                rec.net_paid_amount = max(0.0, base - excess)
+            else:
+                rec.net_paid_amount = 0.0
 
     voucher_status = fields.Selection([
         ('draft', 'Draft'),
