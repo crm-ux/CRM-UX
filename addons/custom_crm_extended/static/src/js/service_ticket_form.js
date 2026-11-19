@@ -273,6 +273,11 @@ patch(ListRenderer.prototype, {
 document.addEventListener(
     "click",
     (ev) => {
+        // Do NOT block clicks inside modal dialogs / wizards (e.g. recovery wizard editable table)
+        if (ev.target.closest(".modal, .o_dialog, .crm_batch_recovery_wizard_modal")) {
+            return;
+        }
+
         const row = ev.target.closest(
             ".o_voucher_card_list tr.o_data_row, div[name='line_ids'] tr.o_data_row, div[name='ticket_voucher_line_ids'] tr.o_data_row"
         );
