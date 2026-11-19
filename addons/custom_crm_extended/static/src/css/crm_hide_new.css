@@ -4164,9 +4164,8 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
 }
 
 /* Custom Blue (#0b3d91) Accents - Zero Purple Anywhere */
-.crm_batch_recovery_wizard_modal input,
-.crm_batch_recovery_wizard_modal textarea,
-.crm_batch_recovery_wizard_modal .o_input,
+.crm_batch_recovery_wizard_modal > sheet > div:first-child textarea,
+.crm_batch_recovery_wizard_modal .mb-4 textarea,
 .crm_single_recovery_wizard_modal input,
 .crm_single_recovery_wizard_modal textarea,
 .crm_single_recovery_wizard_modal .o_input {
@@ -4178,6 +4177,50 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     outline: none !important;
     box-shadow: none !important;
     min-height: 34px !important;
+}
+
+/* Amount to Recover Table Cell & Input Styling - Clear & Perfectly Readable */
+.crm_batch_recovery_wizard_modal table.o_list_table th:has([data-name="recovery_amount"]),
+.crm_batch_recovery_wizard_modal table.o_list_table th[data-name="recovery_amount"],
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] {
+    min-width: 140px !important;
+    width: 140px !important;
+    text-align: right !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] {
+    padding: 4px 8px !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_input {
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    padding: 2px 8px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #0b3d91 !important;
+    background-color: #ffffff !important;
+    border: 1.5px solid #0b3d91 !important;
+    border-radius: 4px !important;
+    text-align: right !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_field_monetary {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_monetary_currency {
+    color: #0b3d91 !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
 }
 
 .crm_batch_recovery_wizard_modal textarea,
