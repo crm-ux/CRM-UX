@@ -1275,9 +1275,10 @@ document.addEventListener("click", function(ev) {
         if (btn) {
             btn.dataset.lineReason = newVal;
             if (newVal) {
-                const disp = newVal.length > 18 ? (newVal.substring(0, 18) + "...") : newVal;
-                btn.innerHTML = `<span style="color:#0b3d91;font-weight:600;font-size:12px;background:#e8f0fe;padding:2px 8px;border-radius:4px;border:1px solid #bfdbfe;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;" title="${newVal}">${disp}</span> <i class="fa fa-pencil text-crm-blue" style="font-size:12px;"></i>`;
+                btn.title = newVal;
+                btn.innerHTML = `<i class="fa fa-pencil text-crm-blue" style="font-size:15px;" title="${newVal}"></i>`;
             } else {
+                btn.title = "Reject Reason";
                 btn.innerHTML = `<i class="fa fa-plus-circle text-crm-blue" style="font-size:16px;"></i>`;
             }
         }
