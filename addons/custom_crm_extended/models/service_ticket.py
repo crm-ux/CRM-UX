@@ -2228,20 +2228,22 @@ class ServiceTicketVoucherLine(models.Model):
                     import io, base64, zipfile
                     import xml.etree.ElementTree as ET
 
-                    # Safe decode raw_bytes
-                    if isinstance(raw_b64, bytes):
-                        raw_bytes = raw_b64 if raw_b64.startswith(b'PK') else (base64.b64decode(raw_b64) if len(raw_b64) > 0 else b'')
-                    elif isinstance(raw_b64, str):
-                        try:
+                    # Safe decode raw bytes without crashing
+                    raw_bytes = b''
+                    try:
+                        if isinstance(raw_b64, bytes):
+                            raw_bytes = raw_b64 if raw_b64.startswith(b'PK') else base64.b64decode(raw_b64)
+                        elif isinstance(raw_b64, str):
                             raw_bytes = base64.b64decode(raw_b64)
+                    except Exception:
+                        try:
+                            raw_bytes = raw_b64 if isinstance(raw_b64, bytes) else raw_b64.encode('utf-8', errors='ignore')
                         except Exception:
-                            raw_bytes = raw_b64.encode('utf-8', errors='ignore')
-                    else:
-                        raw_bytes = b''
+                            raw_bytes = b''
 
                     parsed_rows = []
 
-                    # 1. Try with openpyxl if installed
+                    # 1. Try with openpyxl if available
                     if has_openpyxl and raw_bytes:
                         try:
                             import openpyxl
@@ -2255,40 +2257,41 @@ class ServiceTicketVoucherLine(models.Model):
                         except Exception:
                             parsed_rows = []
 
-                    # 2. Built-in ZIP + XML parser (0 external dependencies, works on all systems)
+                    # 2. Built-in universal ZIP + XML parser (0 dependencies, namespace-agnostic)
                     if not parsed_rows and raw_bytes and raw_bytes.startswith(b'PK'):
                         try:
                             with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
                                 shared_strings = []
                                 if 'xl/sharedStrings.xml' in z.namelist():
                                     sst_tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
-                                    ns_s = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
-                                    for si in sst_tree.findall('.//x:si', ns_s):
-                                        t = si.find('.//x:t', ns_s)
-                                        shared_strings.append(t.text if t is not None and t.text else '')
+                                    for si in sst_tree.iter():
+                                        if si.tag.endswith('}t') or si.tag == 't':
+                                            shared_strings.append(si.text or '')
 
-                                for zname in z.namelist():
-                                    if zname.startswith('xl/worksheets/sheet') and zname.endswith('.xml'):
-                                        sheet_tree = ET.fromstring(z.read(zname))
-                                        ns_x = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
-                                        for r in sheet_tree.findall('.//x:row', ns_x):
+                                sheet_names = [n for n in z.namelist() if n.startswith('xl/worksheets/sheet') and n.endswith('.xml')]
+                                sheet_names.sort()
+                                for sname in sheet_names:
+                                    sheet_tree = ET.fromstring(z.read(sname))
+                                    for row_el in sheet_tree.iter():
+                                        if row_el.tag.endswith('}row') or row_el.tag == 'row':
                                             row_vals = []
-                                            for c in r.findall('.//x:c', ns_x):
-                                                c_type = c.get('t')
-                                                v = c.find('.//x:v', ns_x)
-                                                val_str = ''
-                                                if v is not None and v.text:
-                                                    if c_type == 's' and v.text.isdigit():
-                                                        idx = int(v.text)
-                                                        val_str = shared_strings[idx] if idx < len(shared_strings) else v.text
-                                                    else:
-                                                        val_str = v.text
-                                                row_vals.append(val_str)
-                                            if any(val_str.strip() for val_str in row_vals):
+                                            for cell_el in row_el.iter():
+                                                if cell_el.tag.endswith('}c') or cell_el.tag == 'c':
+                                                    c_type = cell_el.get('t')
+                                                    val_text = ''
+                                                    for child in cell_el:
+                                                        if child.tag.endswith('}v') or child.tag == 'v' or child.tag.endswith('}t') or child.tag == 't':
+                                                            val_text = child.text or ''
+                                                    if c_type == 's' and val_text.isdigit():
+                                                        idx = int(val_text)
+                                                        val_text = shared_strings[idx] if idx < len(shared_strings) else val_text
+                                                    row_vals.append(val_text)
+                                            if any(v.strip() for v in row_vals):
                                                 parsed_rows.append(row_vals)
                                             if len(parsed_rows) >= 200:
                                                 break
-                                        break # read first sheet
+                                    if parsed_rows:
+                                        break
                         except Exception:
                             parsed_rows = []
 
@@ -2300,6 +2303,7 @@ class ServiceTicketVoucherLine(models.Model):
                             table_html += '<tr>'
                             for cell in row:
                                 val = '' if cell is None else str(cell)
+                                val = val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                                 if r_idx == 0:
                                     table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6; padding: 6px 10px;">{val}</th>'
                                 else:
