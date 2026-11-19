@@ -60,7 +60,7 @@ patch(ListController.prototype, {
             this.props?.resModel === "service.ticket.voucher.line"
         ) {
             const handleVoucherListBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn, button[name='action_preview_bill']");
+                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn");
                 if (!previewBtn) return;
 
                 ev.preventDefault();
@@ -79,83 +79,20 @@ patch(ListController.prototype, {
                 }
 
                 if (recId) {
-                    let previewOpened = false;
                     try {
-                        const fetched = await this.env.services.orm.read(
+                        const action = await this.env.services.orm.call(
                             "service.ticket.voucher.line",
-                            [recId],
-                            ["bill_attachment_ids", "bill_file", "bill_filename"],
-                            { context: { bin_size: false } }
+                            "action_preview_bill",
+                            [[recId]]
                         );
-                        if (fetched && fetched.length > 0) {
-                            let attId = null;
-                            let fname = fetched[0].bill_filename || "";
-                            let b64Data = fetched[0].bill_file || null;
-                            if (fetched[0].bill_attachment_ids && fetched[0].bill_attachment_ids.length > 0) {
-                                attId = fetched[0].bill_attachment_ids[0];
-                                const attRead = await this.env.services.orm.read(
-                                    "ir.attachment",
-                                    [attId],
-                                    ["name", "datas", "mimetype"],
-                                    { context: { bin_size: false } }
-                                );
-                                if (attRead && attRead.length > 0) {
-                                    fname = attRead[0].name || fname;
-                                    b64Data = attRead[0].datas || b64Data;
-                                }
+                        if (action) {
+                            if (!action.views) {
+                                action.views = [[action.view_id || false, "form"]];
                             }
-                            if (b64Data || attId) {
-                                fname = fname || "document.pdf";
-                                let previewContent = null;
-                                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                                    fname.toLowerCase().endsWith("." + ext)
-                                );
-                                if (isDocOrZipOrExcel && b64Data) {
-                                    try {
-                                        previewContent = await this.env.services.orm.call(
-                                            "equipment.master",
-                                            "action_get_invoice_preview_content",
-                                            [false, b64Data, fname],
-                                            {}
-                                        );
-                                    } catch (pe) {
-                                        console.error("Preview content fetch failed:", pe);
-                                    }
-                                }
-                                const fileUrl = attId ? `/web/content/${attId}?download=false` : `/web/content?model=service.ticket.voucher.line&id=${recId}&field=bill_file&filename=${encodeURIComponent(fname)}&download=false`;
-                                const dialog = this.env.services.dialog || this.dialogService;
-                                if (dialog) {
-                                    dialog.add(UniversalAttachmentPreviewDialog, {
-                                        title: fname || _t("Document Preview"),
-                                        fileUrl: fileUrl,
-                                        fileData: b64Data,
-                                        filename: fname,
-                                        previewContent: previewContent,
-                                    });
-                                    previewOpened = true;
-                                }
-                            }
+                            return this.env.services.action.doAction(action);
                         }
-                    } catch (e) {
-                        console.warn("Universal preview failed, falling back to server action:", e);
-                    }
-
-                    if (!previewOpened) {
-                        try {
-                            const action = await this.env.services.orm.call(
-                                "service.ticket.voucher.line",
-                                "action_preview_bill",
-                                [[recId]]
-                            );
-                            if (action) {
-                                if (!action.views) {
-                                    action.views = [[action.view_id || false, "form"]];
-                                }
-                                return this.env.services.action.doAction(action);
-                            }
-                        } catch (err) {
-                            console.error("Error executing action_preview_bill:", err);
-                        }
+                    } catch (err) {
+                        console.error("Error executing action_preview_bill:", err);
                     }
                 }
             };
@@ -863,7 +800,7 @@ export class ServiceTicketFormController extends FormController {
 
             // Handle Eye Preview button on Voucher lines / Bill links
             const handleVoucherBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn, button[name='action_preview_bill']");
+                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn");
                 if (!previewBtn) return;
 
                 ev.preventDefault();
@@ -886,83 +823,20 @@ export class ServiceTicketFormController extends FormController {
                 }
 
                 if (recId) {
-                    let previewOpened = false;
                     try {
-                        const fetched = await this.env.services.orm.read(
+                        const action = await this.env.services.orm.call(
                             "service.ticket.voucher.line",
-                            [recId],
-                            ["bill_attachment_ids", "bill_file", "bill_filename"],
-                            { context: { bin_size: false } }
+                            "action_preview_bill",
+                            [[recId]]
                         );
-                        if (fetched && fetched.length > 0) {
-                            let attId = null;
-                            let fname = fetched[0].bill_filename || "";
-                            let b64Data = fetched[0].bill_file || null;
-                            if (fetched[0].bill_attachment_ids && fetched[0].bill_attachment_ids.length > 0) {
-                                attId = fetched[0].bill_attachment_ids[0];
-                                const attRead = await this.env.services.orm.read(
-                                    "ir.attachment",
-                                    [attId],
-                                    ["name", "datas", "mimetype"],
-                                    { context: { bin_size: false } }
-                                );
-                                if (attRead && attRead.length > 0) {
-                                    fname = attRead[0].name || fname;
-                                    b64Data = attRead[0].datas || b64Data;
-                                }
+                        if (action) {
+                            if (!action.views) {
+                                action.views = [[action.view_id || false, "form"]];
                             }
-                            if (b64Data || attId) {
-                                fname = fname || "document.pdf";
-                                let previewContent = null;
-                                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                                    fname.toLowerCase().endsWith("." + ext)
-                                );
-                                if (isDocOrZipOrExcel && b64Data) {
-                                    try {
-                                        previewContent = await this.env.services.orm.call(
-                                            "equipment.master",
-                                            "action_get_invoice_preview_content",
-                                            [false, b64Data, fname],
-                                            {}
-                                        );
-                                    } catch (pe) {
-                                        console.error("Preview content fetch failed:", pe);
-                                    }
-                                }
-                                const fileUrl = attId ? `/web/content/${attId}?download=false` : `/web/content?model=service.ticket.voucher.line&id=${recId}&field=bill_file&filename=${encodeURIComponent(fname)}&download=false`;
-                                const dialog = this.env.services.dialog || this.dialogService;
-                                if (dialog) {
-                                    dialog.add(UniversalAttachmentPreviewDialog, {
-                                        title: fname || _t("Document Preview"),
-                                        fileUrl: fileUrl,
-                                        fileData: b64Data,
-                                        filename: fname,
-                                        previewContent: previewContent,
-                                    });
-                                    previewOpened = true;
-                                }
-                            }
+                            return this.env.services.action.doAction(action);
                         }
-                    } catch (e) {
-                        console.warn("Universal preview failed, falling back to server action:", e);
-                    }
-
-                    if (!previewOpened) {
-                        try {
-                            const action = await this.env.services.orm.call(
-                                "service.ticket.voucher.line",
-                                "action_preview_bill",
-                                [[recId]]
-                            );
-                            if (action) {
-                                if (!action.views) {
-                                    action.views = [[action.view_id || false, "form"]];
-                                }
-                                return this.env.services.action.doAction(action);
-                            }
-                        } catch (err) {
-                            console.error("Error executing action_preview_bill:", err);
-                        }
+                    } catch (err) {
+                        console.error("Error executing action_preview_bill:", err);
                     }
                 }
             };
