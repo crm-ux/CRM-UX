@@ -460,6 +460,71 @@ function isRowEligibleForRecovery(row) {
     return text.includes("paid") && !text.includes("recovered");
 }
 
+function setRowCheckboxVisual(row, isChecked) {
+    if (!row) return;
+    const cellButtons = Array.from(row.querySelectorAll("button[name='action_toggle_recovery_select']"));
+    if (cellButtons.length === 0) return;
+
+    // Use the first button as the visible, single reliable checkbox
+    const mainBtn = cellButtons[0];
+    mainBtn.style.setProperty("display", "inline-flex", "important");
+    mainBtn.style.setProperty("width", "13px", "important");
+    mainBtn.style.setProperty("height", "13px", "important");
+    mainBtn.style.setProperty("min-width", "13px", "important");
+    mainBtn.style.setProperty("max-width", "13px", "important");
+    mainBtn.style.setProperty("min-height", "13px", "important");
+    mainBtn.style.setProperty("max-height", "13px", "important");
+    mainBtn.style.setProperty("border", "1.5px solid #0b3d91", "important");
+    mainBtn.style.setProperty("border-radius", "2px", "important");
+    mainBtn.style.setProperty("padding", "0", "important");
+    mainBtn.style.setProperty("margin", "0 auto", "important");
+    mainBtn.style.setProperty("box-sizing", "border-box", "important");
+    mainBtn.style.setProperty("cursor", "pointer", "important");
+    mainBtn.style.setProperty("vertical-align", "middle", "important");
+    mainBtn.classList.remove("d-none");
+
+    const td = mainBtn.closest("td");
+    if (td) {
+        td.style.setProperty("width", "28px", "important");
+        td.style.setProperty("max-width", "28px", "important");
+        td.style.setProperty("padding-left", "4px", "important");
+        td.style.setProperty("padding-right", "4px", "important");
+        td.style.setProperty("text-align", "center", "important");
+    }
+
+    let icon = mainBtn.querySelector("i, .o_button_icon");
+    if (!icon) {
+        icon = document.createElement("i");
+        icon.className = "fa fa-check o_button_icon";
+        mainBtn.appendChild(icon);
+    }
+    icon.style.setProperty("font-size", "8px", "important");
+    icon.style.setProperty("width", "8px", "important");
+    icon.style.setProperty("height", "8px", "important");
+    icon.style.setProperty("line-height", "8px", "important");
+    icon.style.setProperty("color", "#ffffff", "important");
+
+    if (isChecked) {
+        mainBtn.classList.add("crm_checkbox_checked");
+        mainBtn.classList.remove("crm_checkbox_unchecked");
+        mainBtn.style.setProperty("background-color", "#0b3d91", "important");
+        mainBtn.style.setProperty("color", "#ffffff", "important");
+        icon.style.setProperty("display", "block", "important");
+    } else {
+        mainBtn.classList.remove("crm_checkbox_checked");
+        mainBtn.classList.add("crm_checkbox_unchecked");
+        mainBtn.style.setProperty("background-color", "#ffffff", "important");
+        mainBtn.style.setProperty("color", "transparent", "important");
+        icon.style.setProperty("display", "none", "important");
+    }
+
+    // Hide any duplicate button in the same cell so only 1 button is active
+    for (let i = 1; i < cellButtons.length; i++) {
+        cellButtons[i].style.setProperty("display", "none", "important");
+        cellButtons[i].classList.add("d-none");
+    }
+}
+
 function updateRecoverySelectionState() {
     const table = document.querySelector(".o_service_ticket_voucher_batch_form table.o_list_table, .o_service_ticket_voucher_line_form table.o_list_table, table.o_list_table:has(button[name='action_toggle_recovery_select'])");
     if (!table) return;
@@ -472,8 +537,8 @@ function updateRecoverySelectionState() {
         if (!isRowEligibleForRecovery(row)) return;
         totalEligible++;
 
-        const checkedBtn = row.querySelector("button.crm_checkbox_checked");
-        const isChecked = checkedBtn && !checkedBtn.classList.contains("d-none") && checkedBtn.style.display !== "none";
+        const mainBtn = row.querySelector("button[name='action_toggle_recovery_select']:not([style*='display: none'])") || row.querySelector("button[name='action_toggle_recovery_select']");
+        const isChecked = mainBtn && mainBtn.classList.contains("crm_checkbox_checked");
         if (isChecked) {
             checkedEligible++;
         }
@@ -483,19 +548,28 @@ function updateRecoverySelectionState() {
     const selectAllBtn = table.querySelector("thead .crm_voucher_select_all_btn");
     if (selectAllBtn) {
         const isAllSelected = totalEligible > 0 && checkedEligible === totalEligible;
+        selectAllBtn.style.setProperty("width", "13px", "important");
+        selectAllBtn.style.setProperty("height", "13px", "important");
+        selectAllBtn.style.setProperty("min-width", "13px", "important");
+        selectAllBtn.style.setProperty("max-width", "13px", "important");
+        selectAllBtn.style.setProperty("min-height", "13px", "important");
+        selectAllBtn.style.setProperty("max-height", "13px", "important");
+        selectAllBtn.style.setProperty("border", "1.5px solid #0b3d91", "important");
+        selectAllBtn.style.setProperty("border-radius", "2px", "important");
+        selectAllBtn.style.setProperty("display", "inline-flex", "important");
+
+        const icon = selectAllBtn.querySelector("i");
         if (isAllSelected) {
             selectAllBtn.classList.remove("crm_checkbox_unchecked");
             selectAllBtn.classList.add("crm_checkbox_checked");
             selectAllBtn.style.setProperty("background-color", "#0b3d91", "important");
             selectAllBtn.style.setProperty("color", "#ffffff", "important");
-            const icon = selectAllBtn.querySelector("i");
             if (icon) icon.style.setProperty("display", "block", "important");
         } else {
             selectAllBtn.classList.remove("crm_checkbox_checked");
             selectAllBtn.classList.add("crm_checkbox_unchecked");
             selectAllBtn.style.setProperty("background-color", "#ffffff", "important");
             selectAllBtn.style.setProperty("color", "transparent", "important");
-            const icon = selectAllBtn.querySelector("i");
             if (icon) icon.style.setProperty("display", "none", "important");
         }
     }
@@ -511,64 +585,21 @@ function updateRecoverySelectionState() {
 }
 
 function formatVoucherCheckboxButtons() {
-    const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
-    if (!btns || btns.length === 0) return;
+    const table = document.querySelector(".o_service_ticket_voucher_batch_form table.o_list_table, .o_service_ticket_voucher_line_form table.o_list_table, table.o_list_table:has(button[name='action_toggle_recovery_select'])");
+    if (!table) return;
 
-    // 1. Format row buttons to exactly 13px
-    btns.forEach((btn) => {
-        btn.style.setProperty("width", "13px", "important");
-        btn.style.setProperty("height", "13px", "important");
-        btn.style.setProperty("min-width", "13px", "important");
-        btn.style.setProperty("max-width", "13px", "important");
-        btn.style.setProperty("min-height", "13px", "important");
-        btn.style.setProperty("max-height", "13px", "important");
-        btn.style.setProperty("border", "1.5px solid #0b3d91", "important");
-        btn.style.setProperty("border-radius", "2px", "important");
-        btn.style.setProperty("padding", "0", "important");
-        btn.style.setProperty("margin", "0", "important");
-        btn.style.setProperty("display", "inline-flex", "important");
-        btn.style.setProperty("align-items", "center", "important");
-        btn.style.setProperty("justify-content", "center", "important");
-        btn.style.setProperty("overflow", "hidden", "important");
-        btn.style.setProperty("box-sizing", "border-box", "important");
-
-        const td = btn.closest("td");
-        if (td) {
-            td.style.setProperty("width", "28px", "important");
-            td.style.setProperty("max-width", "28px", "important");
-            td.style.setProperty("padding-left", "4px", "important");
-            td.style.setProperty("padding-right", "4px", "important");
-            td.style.setProperty("text-align", "center", "important");
-        }
-
-        const isChecked = btn.classList.contains("crm_checkbox_checked");
-        const icon = btn.querySelector("i, .o_button_icon");
-        if (isChecked) {
-            btn.style.setProperty("background-color", "#0b3d91", "important");
-            btn.style.setProperty("color", "#ffffff", "important");
-            if (icon) {
-                icon.style.setProperty("display", "block", "important");
-                icon.style.setProperty("font-size", "8px", "important");
-                icon.style.setProperty("width", "8px", "important");
-                icon.style.setProperty("height", "8px", "important");
-                icon.style.setProperty("line-height", "8px", "important");
-                icon.style.setProperty("color", "#ffffff", "important");
-            }
-        } else {
-            btn.style.setProperty("background-color", "#ffffff", "important");
-            btn.style.setProperty("color", "transparent", "important");
-            if (icon) {
-                icon.style.setProperty("display", "none", "important");
-            }
-        }
+    const rows = table.querySelectorAll("tbody tr.o_data_row");
+    rows.forEach((row) => {
+        const checkedBtn = row.querySelector("button.crm_checkbox_checked:not(.d-none)");
+        const isChecked = checkedBtn && checkedBtn.style.display !== "none";
+        setRowCheckboxVisual(row, !!isChecked);
     });
 
-    // 2. Inject the "Select All" checkbox in the column header (<th>) if missing
-    const firstTd = btns[0]?.closest("td");
+    // Inject the "Select All" checkbox in the column header (<th>) if missing
+    const firstTd = table.querySelector("tbody tr.o_data_row td:has(button[name='action_toggle_recovery_select'])") || table.querySelector("tbody tr.o_data_row td.o_list_button");
     if (firstTd) {
         const colIndex = Array.from(firstTd.parentElement.children).indexOf(firstTd);
-        const table = firstTd.closest("table.o_list_table");
-        const headerRow = table?.querySelector("thead tr");
+        const headerRow = table.querySelector("thead tr");
         const th = headerRow && colIndex >= 0 ? headerRow.children[colIndex] : null;
         if (th) {
             th.style.setProperty("width", "28px", "important");
@@ -591,7 +622,6 @@ function formatVoucherCheckboxButtons() {
         }
     }
 
-    // 3. Update sync state
     updateRecoverySelectionState();
 }
 
@@ -604,14 +634,11 @@ document.addEventListener("click", async (ev) => {
     const row = rowBtn.closest("tr.o_data_row");
     if (!row) return;
 
-    // Intercept click: bypass Odoo default button round-trip to eliminate the 1-second blink!
     ev.preventDefault();
     ev.stopPropagation();
 
     // Determine current state
-    const checkedBtn = row.querySelector("button.crm_checkbox_checked");
-    const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
-    const isCurrentlyChecked = checkedBtn && !checkedBtn.classList.contains("d-none") && checkedBtn.style.display !== "none";
+    const isCurrentlyChecked = rowBtn.classList.contains("crm_checkbox_checked") && !rowBtn.classList.contains("crm_checkbox_unchecked");
     const newState = !isCurrentlyChecked;
 
     // Check line eligibility ONLY when user attempts to check (select) an unpaid line.
@@ -628,35 +655,8 @@ document.addEventListener("click", async (ev) => {
         return;
     }
 
-    // Instant visual toggle on this row (0ms)
-
-    if (newState) {
-        if (checkedBtn) {
-            checkedBtn.classList.remove("d-none");
-            checkedBtn.style.setProperty("display", "inline-flex", "important");
-            checkedBtn.style.setProperty("background-color", "#0b3d91", "important");
-            checkedBtn.style.setProperty("color", "#ffffff", "important");
-            const icon = checkedBtn.querySelector("i, .o_button_icon");
-            if (icon) icon.style.setProperty("display", "block", "important");
-        }
-        if (uncheckedBtn) {
-            uncheckedBtn.classList.add("d-none");
-            uncheckedBtn.style.setProperty("display", "none", "important");
-        }
-    } else {
-        if (checkedBtn) {
-            checkedBtn.classList.add("d-none");
-            checkedBtn.style.setProperty("display", "none", "important");
-        }
-        if (uncheckedBtn) {
-            uncheckedBtn.classList.remove("d-none");
-            uncheckedBtn.style.setProperty("display", "inline-flex", "important");
-            uncheckedBtn.style.setProperty("background-color", "#ffffff", "important");
-            uncheckedBtn.style.setProperty("color", "transparent", "important");
-            const icon = uncheckedBtn.querySelector("i, .o_button_icon");
-            if (icon) icon.style.setProperty("display", "none", "important");
-        }
-    }
+    // Instant visual toggle on this row (0ms) - CAN NEVER DISAPPEAR
+    setRowCheckboxVisual(row, newState);
 
     // Immediately update header checkbox (all checked vs not all) and Claim Recovery button
     updateRecoverySelectionState();
@@ -703,41 +703,11 @@ document.addEventListener("click", async (ev) => {
 
     let hasEligibleRows = false;
 
-    // 1. Instant visual update for ALL rows (0ms)
+    // 1. Instant visual update for ALL rows (0ms) - CAN NEVER DISAPPEAR
     rows.forEach((row) => {
         if (!isRowEligibleForRecovery(row)) return;
         hasEligibleRows = true;
-
-        const checkedBtn = row.querySelector("button.crm_checkbox_checked");
-        const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
-
-        if (targetState) {
-            if (checkedBtn) {
-                checkedBtn.classList.remove("d-none");
-                checkedBtn.style.setProperty("display", "inline-flex", "important");
-                checkedBtn.style.setProperty("background-color", "#0b3d91", "important");
-                checkedBtn.style.setProperty("color", "#ffffff", "important");
-                const icon = checkedBtn.querySelector("i, .o_button_icon");
-                if (icon) icon.style.setProperty("display", "block", "important");
-            }
-            if (uncheckedBtn) {
-                uncheckedBtn.classList.add("d-none");
-                uncheckedBtn.style.setProperty("display", "none", "important");
-            }
-        } else {
-            if (checkedBtn) {
-                checkedBtn.classList.add("d-none");
-                checkedBtn.style.setProperty("display", "none", "important");
-            }
-            if (uncheckedBtn) {
-                uncheckedBtn.classList.remove("d-none");
-                uncheckedBtn.style.setProperty("display", "inline-flex", "important");
-                uncheckedBtn.style.setProperty("background-color", "#ffffff", "important");
-                uncheckedBtn.style.setProperty("color", "transparent", "important");
-                const icon = uncheckedBtn.querySelector("i, .o_button_icon");
-                if (icon) icon.style.setProperty("display", "none", "important");
-            }
-        }
+        setRowCheckboxVisual(row, targetState);
     });
 
     if (!hasEligibleRows) {
