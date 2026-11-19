@@ -3182,8 +3182,6 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_preview_bill(self):
         self.ensure_one()
-        if not self.bill_file and not self.bill_attachment_ids:
-            return False
         total_atts = len(self.bill_attachment_ids)
         first_name = (self.bill_attachment_ids and self.bill_attachment_ids[0].name) or self.bill_filename or (self.expense_type_id and self.expense_type_id.name) or 'Receipt'
         if total_atts > 1:
