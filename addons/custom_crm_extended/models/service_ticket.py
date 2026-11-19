@@ -613,8 +613,13 @@ class ServiceTicket(models.Model):
                     else:
                         l_net_paid_cell = ''
                     
-                    if line.bill_file:
-                        fn = line.bill_filename or 'Bill'
+                    if line.bill_file or line.bill_attachment_ids:
+                        if line.bill_attachment_ids:
+                            fn = line.bill_attachment_ids[0].name or 'Bill'
+                            if len(line.bill_attachment_ids) > 1:
+                                fn = f"{fn} (+{len(line.bill_attachment_ids) - 1})"
+                        else:
+                            fn = line.bill_filename or 'Bill'
                         bill_link = f'<button type="button" class="btn btn-sm p-0 o_voucher_bill_preview_btn text-truncate" data-line-id="{line.id}" data-filename="{fn}" style="color: #0b3d91 !important; font-weight: 600; text-decoration: underline; max-width: 160px; display: inline-block; vertical-align: middle; border: none; background: transparent; cursor: pointer;" title="Preview {fn}">{fn}</button>'
                     else:
                         bill_link = '<span class="text-muted">-</span>'

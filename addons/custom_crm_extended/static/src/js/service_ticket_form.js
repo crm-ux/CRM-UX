@@ -60,96 +60,38 @@ patch(ListController.prototype, {
             this.props?.resModel === "service.ticket.voucher.line"
         ) {
             const handleVoucherListBillPreview = async (ev) => {
-                // Allow native Odoo action_preview_bill server wizard to execute
-                return;
+                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn, button[name='action_preview_bill']");
+                if (!previewBtn) return;
 
-                const row = previewBtn.closest("tr, .o_data_row");
-                if (!row) return;
+                ev.preventDefault();
+                ev.stopPropagation();
 
-                const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
-                const rowIndex = allRows.indexOf(row);
-                const records = this.model?.root?.records || [];
-                const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
-
-                const recId = record?.resId || null;
-                let filename = record?.data?.bill_filename || "";
-                let fileData = record?.data?.bill_file || null;
-                let attachmentId = null;
-
-                const attData = record?.data?.bill_attachment_ids;
-                if (attData && attData.records && attData.records.length > 0) {
-                    const firstAtt = attData.records[0].data;
-                    if (firstAtt) {
-                        filename = firstAtt.name || filename;
-                        fileData = firstAtt.datas || fileData;
-                        attachmentId = attData.records[0].resId;
+                let recId = previewBtn.dataset?.lineId ? parseInt(previewBtn.dataset.lineId) : null;
+                if (!recId) {
+                    const row = previewBtn.closest("tr, .o_data_row");
+                    if (row) {
+                        const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                        const rowIndex = allRows.indexOf(row);
+                        const records = this.model?.root?.records || [];
+                        const record = rowIndex >= 0 && rowIndex < records.length ? records[rowIndex] : null;
+                        if (record) recId = record.resId;
                     }
-                } else if (attData && Array.isArray(attData.currentIds) && attData.currentIds.length > 0) {
-                    attachmentId = attData.currentIds[0];
                 }
 
-                if (recId && (!fileData || !filename || typeof fileData === "string" && (fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50))) {
+                if (recId) {
                     try {
-                        const res = await this.env.services.orm.read(
+                        const action = await this.env.services.orm.call(
                             "service.ticket.voucher.line",
-                            [recId],
-                            ["bill_file", "bill_filename", "bill_attachment_ids"],
-                            { context: { bin_size: false } }
+                            "action_preview_bill",
+                            [[recId]]
                         );
-                        if (res && res[0]) {
-                            fileData = res[0].bill_file || fileData;
-                            if (res[0].bill_filename) filename = res[0].bill_filename;
-                            if ((!fileData || !filename) && res[0].bill_attachment_ids && res[0].bill_attachment_ids.length > 0) {
-                                const attRes = await this.env.services.orm.read(
-                                    "ir.attachment",
-                                    [res[0].bill_attachment_ids[0]],
-                                    ["name", "datas", "mimetype"],
-                                    { context: { bin_size: false } }
-                                );
-                                if (attRes && attRes[0]) {
-                                    filename = attRes[0].name || filename;
-                                    fileData = attRes[0].datas || fileData;
-                                    attachmentId = attRes[0].id;
-                                }
-                            }
+                        if (action) {
+                            return this.env.services.action.doAction(action);
                         }
-                    } catch (readErr) {
-                        console.warn("Could not read voucher bill_file:", readErr);
+                    } catch (err) {
+                        console.error("Error executing action_preview_bill:", err);
                     }
                 }
-
-                if (!filename) {
-                    filename = "bill.pdf";
-                }
-
-                let previewContent = null;
-                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                    (filename || "").toLowerCase().endsWith("." + ext)
-                );
-
-                if (isDocOrZipOrExcel && fileData) {
-                    try {
-                        previewContent = await this.env.services.orm.call(
-                            "equipment.master",
-                            "action_get_invoice_preview_content",
-                            [false, fileData, filename],
-                            {}
-                        );
-                    } catch (callErr) {
-                        console.error("Error retrieving voucher bill preview content:", callErr);
-                    }
-                }
-
-                const fileUrl = recId ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
-
-                this.dialogService = this.dialogService || this.env.services.dialog;
-                this.dialogService.add(UniversalAttachmentPreviewDialog, {
-                    title: filename || _t("Bill Preview"),
-                    fileUrl: fileUrl,
-                    fileData: fileData,
-                    filename: filename,
-                    previewContent: previewContent,
-                });
             };
 
             const handleVoucherDescriptionClick = async (ev) => {
@@ -853,112 +795,44 @@ export class ServiceTicketFormController extends FormController {
                 }
             };
 
-            // Handle Eye Preview button on Voucher lines (Custom preview dialog instead of opening a new browser tab)
+            // Handle Eye Preview button on Voucher lines / Bill links
             const handleVoucherBillPreview = async (ev) => {
-                // Allow native Odoo action_preview_bill server wizard to execute
-                return;
+                const previewBtn = ev.target.closest(".o_voucher_bill_preview_btn, button[name='action_preview_bill']");
+                if (!previewBtn) return;
 
-                const row = previewBtn.closest("tr, .o_data_row");
-                if (!row) return;
+                ev.preventDefault();
+                ev.stopPropagation();
 
-                let filename = previewBtn.dataset?.filename || "bill.png";
-                let fileData = null;
                 let recId = previewBtn.dataset?.lineId ? parseInt(previewBtn.dataset.lineId) : null;
-
-                // 1. Check if user just selected a new file on this row (unsaved in memory)
-                const cachedRowFile = voucherFileCache.get(row);
-                if (cachedRowFile) {
-                    fileData = cachedRowFile.data;
-                    filename = cachedRowFile.filename;
-                }
-
-                // 2. Also check if file input in this row has a chosen file
-                if (!fileData) {
-                    const fileInp = row.querySelector("input[type='file']");
-                    if (fileInp && fileInp.files && fileInp.files[0]) {
-                        const localFile = fileInp.files[0];
-                        filename = localFile.name || filename;
-                        fileData = await new Promise((resolve) => {
-                            const r = new FileReader();
-                            r.onload = () => resolve(r.result.split(",")[1]);
-                            r.readAsDataURL(localFile);
-                        });
-                        voucherFileCache.set(row, { data: fileData, filename: filename });
-                    }
-                }
-
-                // 3. Match with voucher_line_ids in root record data
-                const record = this.model?.root;
-                const voucherList = record?.data?.voucher_line_ids;
-                let voucherRecord = null;
-                if (voucherList && voucherList.records) {
-                    const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
-                    const rowIndex = allRows.indexOf(row);
-                    if (rowIndex >= 0 && rowIndex < voucherList.records.length) {
-                        voucherRecord = voucherList.records[rowIndex];
-                    }
-                }
-
-                if (voucherRecord) {
-                    recId = voucherRecord.resId || null;
-                    // If no newly selected local file, take from current record
-                    if (!fileData) {
-                        filename = voucherRecord.data.bill_filename || filename;
-                        fileData = voucherRecord.data.bill_file || null;
-                    }
-                }
-
-                // 4. If fileData is a size string, fetch raw binary from server
-                const isSizeString = typeof fileData === "string" && (
-                    fileData.includes("bytes") || fileData.includes("Kb") || fileData.includes("Mb") || fileData.length < 50
-                );
-                if (recId && (!fileData || isSizeString)) {
-                    try {
-                        const res = await this.env.services.orm.read(
-                            "service.ticket.voucher.line",
-                            [recId],
-                            ["bill_file", "bill_filename"],
-                            { context: { bin_size: false } }
-                        );
-                        if (res && res[0]) {
-                            fileData = res[0].bill_file || fileData;
-                            if (res[0].bill_filename) filename = res[0].bill_filename;
+                if (!recId) {
+                    const row = previewBtn.closest("tr, .o_data_row");
+                    if (row) {
+                        const record = this.model?.root;
+                        const voucherList = record?.data?.voucher_line_ids;
+                        if (voucherList && voucherList.records) {
+                            const allRows = Array.from(row.closest("tbody")?.querySelectorAll("tr.o_data_row") || []);
+                            const rowIndex = allRows.indexOf(row);
+                            if (rowIndex >= 0 && rowIndex < voucherList.records.length) {
+                                recId = voucherList.records[rowIndex].resId;
+                            }
                         }
-                    } catch (readErr) {
-                        console.warn("Could not read voucher bill_file:", readErr);
                     }
                 }
 
-                // For office documents/excel/zip, retrieve formatted preview content from server
-                let previewContent = null;
-                const isDocOrZipOrExcel = ["docx", "doc", "zip", "rar", "7z", "tar", "gz", "xlsx", "xls", "csv"].some((ext) =>
-                    (filename || "").toLowerCase().endsWith("." + ext)
-                );
-
-                if (isDocOrZipOrExcel && fileData) {
+                if (recId) {
                     try {
-                        previewContent = await this.env.services.orm.call(
-                            "equipment.master",
-                            "action_get_invoice_preview_content",
-                            [false, fileData, filename],
-                            {}
+                        const action = await this.env.services.orm.call(
+                            "service.ticket.voucher.line",
+                            "action_preview_bill",
+                            [[recId]]
                         );
-                    } catch (callErr) {
-                        console.error("Error retrieving voucher bill preview content:", callErr);
+                        if (action) {
+                            return this.env.services.action.doAction(action);
+                        }
+                    } catch (err) {
+                        console.error("Error executing action_preview_bill:", err);
                     }
                 }
-
-                // If not yet saved or if user just selected a new file, don't use stale server URL
-                const hasUnsavedNewFile = cachedRowFile || (fileData && !isSizeString && fileData.length > 100);
-                const fileUrl = (!hasUnsavedNewFile && recId) ? `/web/content/service.ticket.voucher.line/${recId}/bill_file/${encodeURIComponent(filename)}?download=false` : null;
-
-                this.dialogService.add(UniversalAttachmentPreviewDialog, {
-                    title: filename || _t("Bill Preview"),
-                    fileUrl: fileUrl,
-                    fileData: fileData,
-                    filename: filename,
-                    previewContent: previewContent,
-                });
             };
 
             document.addEventListener("change", handleVoucherFileInputChange, true);
@@ -1199,7 +1073,7 @@ if (typeof window !== "undefined") {
 }
 
 // Line Reject Reason popup inside Recovery Wizard
-document.addEventListener("click", function(ev) {
+document.addEventListener("click", function (ev) {
     const trigger = ev.target && ev.target.closest ? ev.target.closest("td[name='custom_reason'], [data-name='custom_reason'], .crm_line_reason_cell, button[name='action_open_line_reason_dialog'], .crm_btn_line_reason") : null;
     if (!trigger) return;
 
@@ -1214,7 +1088,7 @@ document.addEventListener("click", function(ev) {
 
     const empName = row.querySelector("td[name='employee_id'], [data-name='employee_id']")?.textContent?.trim() || "Employee";
     const expType = row.querySelector("td[name='expense_type_id'], [data-name='expense_type_id']")?.textContent?.trim() || "Expense";
-    
+
     const reasonCell = row.querySelector("td[name='custom_reason'], [data-name='custom_reason']") || trigger.closest("td");
     const reasonInput = reasonCell ? (reasonCell.querySelector("input, textarea") || reasonCell) : null;
     let currentVal = reasonInput ? (reasonInput.value !== undefined ? reasonInput.value : reasonInput.textContent.trim()) : "";
@@ -1261,7 +1135,7 @@ document.addEventListener("click", function(ev) {
     overlay.querySelector("#crm_line_reason_close_x").addEventListener("click", closeModal);
     overlay.querySelector("#crm_line_reason_cancel").addEventListener("click", closeModal);
 
-    overlay.querySelector("#crm_line_reason_save").addEventListener("click", function() {
+    overlay.querySelector("#crm_line_reason_save").addEventListener("click", function () {
         const newVal = ta.value.trim();
         let targetInp = (reasonInput && reasonInput.tagName === "INPUT") ? reasonInput : (reasonCell ? reasonCell.querySelector("input") : null);
         if (targetInp) {
