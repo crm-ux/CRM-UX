@@ -2889,7 +2889,16 @@ class ServiceTicketVoucherLine(models.Model):
                 lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
             )
         if not selected_lines:
-            raise UserError(_("No recoverable paid expense lines found."))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Recoverable Expenses'),
+                    'message': _('No paid expenses are currently available for recovery on this voucher.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         wiz = self.env['service.ticket.voucher.batch.recovery.wizard'].sudo().create({
             'batch_id': self.batch_id.id if self.batch_id else False,
@@ -4176,7 +4185,16 @@ class ServiceTicketVoucherBatch(models.Model):
                 lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
             )
         if not selected_lines:
-            raise UserError(_("No recoverable paid expense lines found."))
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Recoverable Expenses'),
+                    'message': _('No paid expenses are currently available for recovery on this voucher.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
 
         wiz = self.env['service.ticket.voucher.batch.recovery.wizard'].sudo().create({
             'batch_id': self.id,
