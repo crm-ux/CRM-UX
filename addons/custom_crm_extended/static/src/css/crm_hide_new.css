@@ -4209,33 +4209,55 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     color: #0b3d91 !important;
 }
 
-/* Clean Alignment for Reject Reason Column in Recovery Wizard */
+/* Hide custom_reason field column completely so only button column shows */
 .crm_batch_recovery_wizard_modal th:has([data-name="custom_reason"]),
-.crm_batch_recovery_wizard_modal th[data-name="custom_reason"] {
-    text-align: left !important;
-    padding-left: 12px !important;
-}
-
+.crm_batch_recovery_wizard_modal th[data-name="custom_reason"],
 .crm_batch_recovery_wizard_modal td[name="custom_reason"],
 .crm_batch_recovery_wizard_modal td[data-name="custom_reason"] {
-    text-align: left !important;
-    cursor: pointer !important;
+    display: none !important;
+    width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
 }
 
-.crm_batch_recovery_wizard_modal td[name="custom_reason"] input,
-.crm_batch_recovery_wizard_modal td[data-name="custom_reason"] input {
+/* Clean Alignment for Reject Reason Column in Recovery Wizard */
+.crm_batch_recovery_wizard_modal table.o_list_table th:last-child,
+.crm_batch_recovery_wizard_modal table.o_list_table th.o_list_button {
+    text-align: center !important;
+    white-space: nowrap !important;
+    min-width: 130px !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table th:last-child::before,
+.crm_batch_recovery_wizard_modal table.o_list_table th.o_list_button::before {
+    content: "Reject Reason" !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    color: #1e293b !important;
+    display: inline-block !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td:last-child,
+.crm_batch_recovery_wizard_modal table.o_list_table td:has(.crm_btn_line_reason) {
+    text-align: center !important;
+    vertical-align: middle !important;
+    padding: 8px 12px !important;
+}
+
+.crm_batch_recovery_wizard_modal .crm_btn_line_reason {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
     cursor: pointer !important;
-    background-color: #f8fafc !important;
-    border: 1px dashed #cbd5e1 !important;
+    font-size: 14px !important;
     color: #0b3d91 !important;
-    font-weight: 500 !important;
-    font-size: 12px !important;
-    border-radius: 4px !important;
-    padding: 4px 8px !important;
+    background: transparent !important;
+    border: none !important;
 }
 
-.crm_batch_recovery_wizard_modal td[name="custom_reason"] input:hover,
-.crm_batch_recovery_wizard_modal td[data-name="custom_reason"] input:hover {
-    border-color: #0b3d91 !important;
-    background-color: #eff6ff !important;
+.crm_batch_recovery_wizard_modal .crm_btn_line_reason i {
+    font-size: 16px !important;
+    color: #0b3d91 !important;
 }

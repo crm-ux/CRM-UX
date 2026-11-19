@@ -928,7 +928,8 @@
                                 <field name="submitted_amount" string="Submitted Amount" widget="monetary" readonly="1" class="text-muted"/>
                                 <field name="paid_amount" string="Paid Amount" widget="monetary" readonly="1" class="fw-semibold text-dark"/>
                                 <field name="recovery_amount" string="Amount to Recover" widget="monetary" class="fw-bold text-end text-crm-blue"/>
-                                <field name="custom_reason" string="Reject Reason" class="crm_line_reason_cell" placeholder="+ Add Reason..."/>
+                                <field name="custom_reason" class="d-none"/>
+                                <button name="action_open_line_reason_dialog" type="object" icon="fa-plus-circle text-crm-blue" title="Reject Reason" class="btn p-0 crm_btn_line_reason text-crm-blue"/>
                             </list>
                         </field>
                     </div>
