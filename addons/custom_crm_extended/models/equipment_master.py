@@ -81,7 +81,17 @@ class EquipmentMaster(models.Model):
             return {'type': 'empty'}
 
         try:
-            raw_bytes = base64.b64decode(attachment_b64)
+            if isinstance(attachment_b64, bytes) and (attachment_b64.startswith(b'PK') or attachment_b64.startswith(b'\xd0\xcf\x11\xe0')):
+                raw_bytes = attachment_b64
+            elif isinstance(attachment_b64, bytes):
+                try:
+                    raw_bytes = base64.b64decode(attachment_b64)
+                except Exception:
+                    raw_bytes = attachment_b64
+            elif isinstance(attachment_b64, str):
+                raw_bytes = base64.b64decode(attachment_b64)
+            else:
+                raw_bytes = b''
             ext = fname.lower().split('.')[-1] if '.' in fname else ''
 
             # 1. Parse ZIP archive: return clean list of files with sizes

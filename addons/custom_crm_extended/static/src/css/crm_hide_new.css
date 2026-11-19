@@ -3832,10 +3832,8 @@ button[name="action_view_description"] i {
     font-size: 16px !important;
 }
 
-/* Add the Column Header "Description" above the View button - EXACT same size and style as all other column headers */
-.o_service_ticket_voucher_line_form th.o_list_button:has(+ th[data-name="amount"])::before,
-.o_service_ticket_voucher_batch_form th.o_list_button:has(+ th[data-name="amount"])::before,
-.o_voucher_card_list th.o_list_button:has(+ th[data-name="amount"])::before {
+/* Add the Column Header "Description" above the View button - ONLY when it's an action button column without a field header */
+.o_service_ticket_voucher_batch_form th.o_list_button:has(+ th[data-name="amount"])::before {
     content: "Description" !important;
     display: inline-block !important;
     font-size: 14px !important;
@@ -3846,8 +3844,13 @@ button[name="action_view_description"] i {
     vertical-align: middle !important;
 }
 
+/* Prevent duplicate Description header anywhere */
 th[data-name="description"]::before,
-th[data-name="description"]::after {
+th[data-name="description"]::after,
+.o_voucher_card_list th[data-name="description"]::before,
+.o_voucher_card_list th[data-name="description"]::after,
+th:not(.o_list_button):has(+ th[data-name="amount"])::before,
+th:not(.o_list_button):has(+ th[data-name="amount"])::after {
     display: none !important;
     content: none !important;
 }
@@ -3905,12 +3908,12 @@ button[name="action_view_reject_reason"] i {
 }
 
 /* Add Column Header "Bills" above the Eye Preview Button - Exactly Matching Description & Reject Reason */
-.o_service_ticket_voucher_line_form th:has(+ th[data-name="display_status"])::before,
-.o_service_ticket_voucher_batch_form th:has(+ th[data-name="display_status"])::before,
-.o_voucher_card_list th:has(+ th[data-name="display_status"])::before,
-.o_service_ticket_voucher_line_form th:has(+ th[data-name="status"])::before,
-.o_service_ticket_voucher_batch_form th:has(+ th[data-name="status"])::before,
-.o_voucher_card_list th:has(+ th[data-name="status"])::before {
+.o_service_ticket_voucher_line_form th.o_list_button:has(+ th[data-name="display_status"])::before,
+.o_service_ticket_voucher_batch_form th.o_list_button:has(+ th[data-name="display_status"])::before,
+.o_voucher_card_list th.o_list_button:has(+ th[data-name="display_status"])::before,
+.o_service_ticket_voucher_line_form th.o_list_button:has(+ th[data-name="status"])::before,
+.o_service_ticket_voucher_batch_form th.o_list_button:has(+ th[data-name="status"])::before,
+.o_voucher_card_list th.o_list_button:has(+ th[data-name="status"])::before {
     content: "Bills" !important;
     display: inline-block !important;
     font-size: 14px !important;
@@ -3920,6 +3923,14 @@ button[name="action_view_reject_reason"] i {
     line-height: 1.5 !important;
     vertical-align: middle !important;
     text-align: center !important;
+}
+
+th[data-name="bill_attachment_ids"]::before,
+th[data-name="bill_attachment_ids"]::after,
+th[data-name="bill_count"]::before,
+th[data-name="bill_count"]::after {
+    display: none !important;
+    content: none !important;
 }
 
 .o_service_ticket_voucher_line_form th:has(+ th[data-name="display_status"]),

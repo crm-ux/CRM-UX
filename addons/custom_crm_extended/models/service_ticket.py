@@ -2133,12 +2133,23 @@ class ServiceTicketVoucherLine(models.Model):
                     fname = att.name or 'Receipt'
                     seen_names.add(fname.lower())
                     ext = fname.lower().split('.')[-1] if '.' in fname else ''
-                    b64_val = att.datas or (base64.b64encode(att.raw).decode('ascii') if getattr(att, 'raw', None) else False)
+                    raw_b = getattr(att, 'raw', None)
+                    b64_val = False
+                    if att.datas:
+                        b64_val = att.datas.decode('ascii') if isinstance(att.datas, bytes) else att.datas
+                    elif raw_b:
+                        b64_val = base64.b64encode(raw_b).decode('ascii')
+                    if not raw_b and b64_val:
+                        try:
+                            raw_b = base64.b64decode(b64_val)
+                        except Exception:
+                            raw_b = False
+
                     items.append({
                         'name': fname,
                         'ext': ext,
                         'raw_data': b64_val,
-                        'raw_bytes': getattr(att, 'raw', None),
+                        'raw_bytes': raw_b,
                         'url': f"/web/content/{att.id}?download=false",
                         'download_url': f"/web/content/{att.id}?download=true",
                     })
@@ -2148,11 +2159,17 @@ class ServiceTicketVoucherLine(models.Model):
                 fname = rec.bill_filename or 'Receipt'
                 if fname.lower() not in seen_names:
                     ext = fname.lower().split('.')[-1] if '.' in fname else ''
+                    bf = rec.bill_file
+                    bf_str = bf.decode('ascii') if isinstance(bf, bytes) else bf
+                    try:
+                        bf_bytes = base64.b64decode(bf)
+                    except Exception:
+                        bf_bytes = False
                     items.append({
                         'name': fname,
                         'ext': ext,
-                        'raw_data': rec.bill_file,
-                        'raw_bytes': False,
+                        'raw_data': bf_str,
+                        'raw_bytes': bf_bytes,
                         'url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=false",
                         'download_url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=true",
                     })
@@ -2248,20 +2265,22 @@ class ServiceTicketVoucherLine(models.Model):
                     parsed_rows = []
 
                     # 1. Try equipment.master invoice preview converter first
-                    if raw_b64:
-                        try:
-                            em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(raw_b64=raw_b64, filename=name)
-                            if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
-                                for sh in em_res['sheets']:
-                                    sh_rows = sh.get('rows', [])
-                                    if sh_rows:
-                                        parsed_rows.extend(sh_rows)
-                                        break
-                        except Exception:
-                            parsed_rows = []
+                    try:
+                        em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(
+                            raw_b64=raw_bytes if raw_bytes else raw_b64,
+                            filename=name
+                        )
+                        if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
+                            for sh in em_res['sheets']:
+                                sh_rows = sh.get('rows', [])
+                                if sh_rows:
+                                    parsed_rows.extend(sh_rows)
+                                    break
+                    except Exception:
+                        parsed_rows = []
 
                     # 2. Try with openpyxl if available
-                    if not parsed_rows and has_openpyxl and raw_bytes:
+                    if not parsed_rows and raw_bytes:
                         try:
                             import openpyxl
                             wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
