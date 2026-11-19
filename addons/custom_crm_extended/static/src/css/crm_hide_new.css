@@ -4192,8 +4192,19 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     padding: 4px 8px !important;
 }
 
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input,
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_input {
+/* Ensure Odoo's monetary overlay span never covers the input with white */
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] span.o_input,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] span.position-absolute {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #0b3d91 !important;
+    font-weight: 700 !important;
+    pointer-events: none !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input.o_input,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input {
     height: 30px !important;
     min-height: 30px !important;
     max-height: 30px !important;
@@ -4201,26 +4212,25 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     font-size: 13px !important;
     font-weight: 700 !important;
     color: #0b3d91 !important;
-    background-color: #ffffff !important;
-    border: 1.5px solid #0b3d91 !important;
+    background-color: transparent !important;
+    border: none !important;
     border-radius: 4px !important;
     text-align: right !important;
     width: 100% !important;
     box-sizing: border-box !important;
     outline: none !important;
+    position: relative !important;
+    z-index: 5 !important;
 }
 
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_field_monetary {
-    display: flex !important;
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_field_monetary > div {
+    border: 1.5px solid #0b3d91 !important;
+    border-radius: 4px !important;
+    background-color: #ffffff !important;
+    padding: 2px 6px !important;
+    display: inline-flex !important;
     align-items: center !important;
-    justify-content: flex-end !important;
-    gap: 4px !important;
-}
-
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_monetary_currency {
-    color: #0b3d91 !important;
-    font-weight: 700 !important;
-    font-size: 13px !important;
+    box-sizing: border-box !important;
 }
 
 .crm_batch_recovery_wizard_modal textarea,
