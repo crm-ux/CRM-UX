@@ -373,6 +373,7 @@ patch(ListController.prototype, {
 patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
+        this.actionService = this.env?.services?.action || this.action;
         const resModel = this.props.resModel;
         const currentResId = this.props.resId;
 
@@ -393,11 +394,14 @@ patch(FormController.prototype, {
 
                     if (!restoredIds) {
                         try {
-                            const domain = this.props.domain || [];
-                            const searchRes = await this.model.orm.search(resModel, domain, { limit: 1000 });
-                            if (Array.isArray(searchRes) && searchRes.includes(currentResId)) {
-                                restoredIds = searchRes;
-                                sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
+                            const orm = this.model?.orm || this.env?.services?.orm;
+                            if (orm) {
+                                const domain = this.props.domain || [];
+                                const searchRes = await orm.search(resModel, domain, { limit: 1000 });
+                                if (Array.isArray(searchRes) && searchRes.includes(currentResId)) {
+                                    restoredIds = searchRes;
+                                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
+                                }
                             }
                         } catch (err) {}
                     }
@@ -428,6 +432,7 @@ patch(FormController.prototype, {
                         if (Array.isArray(parsed) && parsed.includes(currentResId)) {
                             resIds = parsed;
                             this.props.resIds = parsed;
+                            if (this.model?.root) this.model.root.resIds = parsed;
                         }
                     }
                 } catch (e) {}
@@ -455,9 +460,11 @@ patch(FormController.prototype, {
     },
 
     async discard() {
+        const actionService = this.actionService || this.action || this.env?.services?.action;
+
         // If inside a modal/dialog/wizard, simply close the dialog without redirecting to Dashboard
         if (this.props.close || this.env.config?.target === "new" || this.env.dialogData) {
-            await this.model.root.discard();
+            if (this.model?.root?.discard) await this.model.root.discard();
             if (typeof this.props.close === "function") {
                 this.props.close();
             } else if (typeof this.env.dialogData?.close === "function") {
@@ -466,79 +473,94 @@ patch(FormController.prototype, {
             return;
         }
 
-        const isDirty = this.model.root.isDirty ? await this.model.root.isDirty() : false;
+        const isDirty = this.model?.root?.isDirty ? await this.model.root.isDirty() : false;
         const goBack = async () => {
-            await this.model.root.discard();
+            if (this.model?.root?.discard) await this.model.root.discard();
             const breadcrumbs = this.env.config?.breadcrumbs || [];
             if (breadcrumbs.length > 1) {
                 const prev = breadcrumbs[breadcrumbs.length - 2];
-                if (prev && prev.jsId) {
-                    this.actionService.restore(prev.jsId);
+                if (prev && prev.jsId && actionService?.restore) {
+                    actionService.restore(prev.jsId);
                     return;
                 }
             }
             // Smart Fallbacks when opened without breadcrumbs stack (e.g. after page refresh)
             const resModel = this.props.resModel;
-            if (resModel === "sale.order") {
-                this.actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
-            } else if (resModel === "crm.lead") {
-                this.actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
-            } else if (resModel === "res.partner") {
-                this.actionService.doAction({
-                    type: "ir.actions.act_window",
-                    name: "Customers",
-                    res_model: "res.partner",
-                    views: [[false, "list"], [false, "form"]],
-                    domain: [["is_company", "=", true]],
-                }, { clearBreadcrumbs: true });
-            } else if (resModel === "exhibition.contact") {
-                this.actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
-            } else if (resModel === "product.template") {
-                this.actionService.doAction({
-                    type: "ir.actions.act_window",
-                    name: "Products",
-                    res_model: "product.template",
-                    views: [[false, "list"], [false, "form"]],
-                }, { clearBreadcrumbs: true });
-            } else if (resModel === "res.users") {
-                this.actionService.doAction({
-                    type: "ir.actions.act_window",
-                    name: "Users",
-                    res_model: "res.users",
-                    views: [[false, "list"], [false, "form"]],
-                    domain: [["share", "=", false]],
-                }, { clearBreadcrumbs: true });
-            } else if (resModel === "hr.job") {
-                this.actionService.doAction({
-                    type: "ir.actions.act_window",
-                    name: "Roles & Groups",
-                    res_model: "hr.job",
-                    views: [[false, "list"], [false, "form"]],
-                    domain: [],
-                    context: { active_test: false },
-                }, { clearBreadcrumbs: true });
-            } else if (resModel === "service.ticket.voucher.batch") {
-                this.actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
-            } else if (resModel === "service.ticket") {
-                this.actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
-            } else if (resModel === "equipment.master") {
-                this.actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
-            } else if (resModel === "amc.contract") {
-                this.actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
-            } else if (resModel === "crm.task.management") {
-                this.actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
-            } else if (resModel) {
-                // Universal Fallback: Navigate to the model's list view, NEVER to the dashboard
-                this.actionService.doAction({
-                    type: "ir.actions.act_window",
-                    res_model: resModel,
-                    views: [[false, "list"], [false, "form"]],
-                    target: "current",
-                }, { clearBreadcrumbs: true });
-            } else {
-                this.actionService.doAction(435, { clearBreadcrumbs: true });
+            if (actionService) {
+                if (resModel === "sale.order") {
+                    actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
+                } else if (resModel === "crm.lead") {
+                    actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+                } else if (resModel === "res.partner") {
+                    actionService.doAction({
+                        type: "ir.actions.act_window",
+                        name: "Customers",
+                        res_model: "res.partner",
+                        views: [[false, "list"], [false, "form"]],
+                        domain: [["is_company", "=", true]],
+                    }, { clearBreadcrumbs: true });
+                } else if (resModel === "exhibition.contact") {
+                    actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
+                } else if (resModel === "product.template") {
+                    actionService.doAction({
+                        type: "ir.actions.act_window",
+                        name: "Products",
+                        res_model: "product.template",
+                        views: [[false, "list"], [false, "form"]],
+                    }, { clearBreadcrumbs: true });
+                } else if (resModel === "res.users") {
+                    actionService.doAction({
+                        type: "ir.actions.act_window",
+                        name: "Users",
+                        res_model: "res.users",
+                        views: [[false, "list"], [false, "form"]],
+                        domain: [["share", "=", false]],
+                    }, { clearBreadcrumbs: true });
+                } else if (resModel === "hr.job") {
+                    actionService.doAction({
+                        type: "ir.actions.act_window",
+                        name: "Roles & Groups",
+                        res_model: "hr.job",
+                        views: [[false, "list"], [false, "form"]],
+                        domain: [],
+                        context: { active_test: false },
+                    }, { clearBreadcrumbs: true });
+                } else if (resModel === "service.ticket.voucher.batch") {
+                    actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
+                } else if (resModel === "service.ticket") {
+                    actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
+                } else if (resModel === "equipment.master") {
+                    actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
+                } else if (resModel === "amc.contract") {
+                    actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
+                } else if (resModel === "crm.task.management") {
+                    actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
+                } else if (resModel) {
+                    actionService.doAction({
+                        type: "ir.actions.act_window",
+                        res_model: resModel,
+                        views: [[false, "list"], [false, "form"]],
+                        target: "current",
+                    }, { clearBreadcrumbs: true });
+                } else {
+                    actionService.doAction(435, { clearBreadcrumbs: true });
+                }
             }
         };
+
+        if (isDirty) {
+            this.dialogService.add(ConfirmationDialog, {
+                title: _t("Cancel changes?"),
+                body: _t("The changes you made will be lost. Do you want to cancel and go back?"),
+                confirmLabel: _t("Cancel"),
+                cancelLabel: _t("Stay Here"),
+                confirm: goBack,
+                cancel: () => { },
+            });
+            return;
+        }
+        await goBack();
+    }
 
         if (isDirty) {
             this.dialogService.add(ConfirmationDialog, {
@@ -603,4 +625,26 @@ if (typeof window !== "undefined") {
     window.addEventListener("scroll", handleScrollClose, true);
     window.addEventListener("wheel", handleScrollClose, { capture: true, passive: true });
     window.addEventListener("touchmove", handleScrollClose, { capture: true, passive: true });
+
+    // Handle Cross (Cancel) button clicks on refreshed Form Views when breadcrumbs are empty
+    document.addEventListener("click", async (ev) => {
+        const cancelBtn = ev.target.closest(".o_form_button_cancel, .o_form_status_indicator_buttons .fa-times");
+        if (!cancelBtn) return;
+        if (cancelBtn.closest(".modal, .o_dialog")) return;
+
+        const controller = odoo.__WOWL_DEBUG__?.root?.env?.services?.action?.currentController;
+        if (controller && (controller.props?.type === "form" || controller.view?.type === "form")) {
+            const breadcrumbs = odoo.__WOWL_DEBUG__?.root?.env?.config?.breadcrumbs || [];
+            if (breadcrumbs.length <= 1) {
+                const isDirty = controller.model?.root?.isDirty ? await controller.model.root.isDirty() : false;
+                if (!isDirty) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    if (typeof controller.discard === "function") {
+                        await controller.discard();
+                    }
+                }
+            }
+        }
+    }, true);
 }
