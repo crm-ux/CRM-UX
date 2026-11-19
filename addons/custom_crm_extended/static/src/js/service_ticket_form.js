@@ -60,11 +60,8 @@ patch(ListController.prototype, {
             this.props?.resModel === "service.ticket.voucher.line"
         ) {
             const handleVoucherListBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest("button[name='action_preview_bill'], .o_voucher_bill_preview_btn");
-                if (!previewBtn) return;
-
-                ev.preventDefault();
-                ev.stopPropagation();
+                // Allow native Odoo action_preview_bill server wizard to execute
+                return;
 
                 const row = previewBtn.closest("tr, .o_data_row");
                 if (!row) return;
@@ -858,11 +855,8 @@ export class ServiceTicketFormController extends FormController {
 
             // Handle Eye Preview button on Voucher lines (Custom preview dialog instead of opening a new browser tab)
             const handleVoucherBillPreview = async (ev) => {
-                const previewBtn = ev.target.closest("button[name='action_preview_bill'], .o_voucher_bill_preview_btn");
-                if (!previewBtn) return;
-
-                ev.preventDefault();
-                ev.stopPropagation();
+                // Allow native Odoo action_preview_bill server wizard to execute
+                return;
 
                 const row = previewBtn.closest("tr, .o_data_row");
                 if (!row) return;
