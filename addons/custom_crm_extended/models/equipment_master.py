@@ -342,33 +342,37 @@ class EquipmentMaster(models.Model):
                             shared_strings = []
                             if 'xl/sharedStrings.xml' in z.namelist():
                                 sst_tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
-                                ns_s = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
-                                for si in sst_tree.findall('.//x:si', ns_s):
-                                    t = si.find('.//x:t', ns_s)
-                                    shared_strings.append(t.text if t is not None and t.text else '')
+                                for si_node in sst_tree.iter():
+                                    if si_node.tag.endswith('}si') or si_node.tag == 'si':
+                                        text_parts = [t.text for t in si_node.iter() if (t.tag.endswith('}t') or t.tag == 't') and t.text]
+                                        shared_strings.append(''.join(text_parts))
 
                             for name in z.namelist():
                                 if name.startswith('xl/worksheets/sheet') and name.endswith('.xml'):
                                     sheet_tree = ET.fromstring(z.read(name))
-                                    ns_x = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
                                     parsed_rows = []
-                                    for r in sheet_tree.findall('.//x:row', ns_x):
-                                        row_vals = []
-                                        for c in r.findall('.//x:c', ns_x):
-                                            c_type = c.get('t')
-                                            v = c.find('.//x:v', ns_x)
-                                            val_str = ''
-                                            if v is not None and v.text:
-                                                if c_type == 's' and v.text.isdigit():
-                                                    idx = int(v.text)
-                                                    val_str = shared_strings[idx] if idx < len(shared_strings) else v.text
-                                                else:
-                                                    val_str = v.text
-                                            row_vals.append(val_str)
-                                        if any(row_vals):
-                                            parsed_rows.append(row_vals)
-                                        if len(parsed_rows) >= 250:
-                                            break
+                                    for r in sheet_tree.iter():
+                                        if r.tag.endswith('}row') or r.tag == 'row':
+                                            row_vals = []
+                                            for c in r.iter():
+                                                if c.tag.endswith('}c') or c.tag == 'c':
+                                                    c_type = c.get('t')
+                                                    val_str = ''
+                                                    for ch in c:
+                                                        if ch.tag.endswith('}v') or ch.tag == 'v':
+                                                            raw_v = ch.text or ''
+                                                            if c_type == 's' and raw_v.isdigit():
+                                                                idx = int(raw_v)
+                                                                val_str = shared_strings[idx] if idx < len(shared_strings) else raw_v
+                                                            else:
+                                                                val_str = raw_v
+                                                        elif ch.tag.endswith('}t') or ch.tag == 't':
+                                                            val_str = ch.text or ''
+                                                    row_vals.append(val_str)
+                                            if any(row_vals):
+                                                parsed_rows.append(row_vals)
+                                            if len(parsed_rows) >= 250:
+                                                break
                                     if parsed_rows:
                                         sheets_data.append({
                                             'name': f'Sheet {len(sheets_data) + 1}',

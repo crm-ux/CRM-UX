@@ -2125,25 +2125,33 @@ class ServiceTicketVoucherLine(models.Model):
         for rec in self:
             items = []
             seen_names = set()
+            rec_clean = rec.sudo().with_context(bin_size=False)
 
-            # 1. Gather all attachments from Many2many (using sudo to ensure full filestore binary access)
-            line_atts = rec.sudo().bill_attachment_ids
+            # 1. Gather all attachments from Many2many (using bin_size=False to ensure full filestore binary access)
+            line_atts = rec_clean.bill_attachment_ids
             if line_atts:
-                for att in line_atts:
+                for att in line_atts.sudo().with_context(bin_size=False):
                     fname = att.name or 'Receipt'
                     seen_names.add(fname.lower())
                     ext = fname.lower().split('.')[-1] if '.' in fname else ''
                     raw_b = getattr(att, 'raw', None)
                     b64_val = False
-                    if att.datas:
-                        b64_val = att.datas.decode('ascii') if isinstance(att.datas, bytes) else att.datas
-                    elif raw_b:
+
+                    # Ensure we have true bytes (bypass bin_size human-readable string like '15.2 Kb')
+                    if raw_b and isinstance(raw_b, bytes) and not (len(raw_b) < 30 and (b'Kb' in raw_b or b'bytes' in raw_b or b'Mb' in raw_b)):
                         b64_val = base64.b64encode(raw_b).decode('ascii')
-                    if not raw_b and b64_val:
-                        try:
-                            raw_b = base64.b64decode(b64_val)
-                        except Exception:
-                            raw_b = False
+                    elif att.datas:
+                        d = att.datas
+                        if isinstance(d, bytes):
+                            d_str = d.decode('ascii', errors='ignore')
+                        else:
+                            d_str = str(d)
+                        if not ('Kb' in d_str or 'bytes' in d_str or 'Mb' in d_str):
+                            b64_val = d_str
+                            try:
+                                raw_b = base64.b64decode(b64_val)
+                            except Exception:
+                                raw_b = b64_val.encode('latin-1', errors='ignore')
 
                     items.append({
                         'name': fname,
@@ -2155,16 +2163,19 @@ class ServiceTicketVoucherLine(models.Model):
                     })
 
             # 2. Also gather Binary bill_file (if present and not duplicated)
-            if rec.bill_file:
-                fname = rec.bill_filename or 'Receipt'
+            if rec_clean.bill_file:
+                fname = rec_clean.bill_filename or 'Receipt'
                 if fname.lower() not in seen_names:
                     ext = fname.lower().split('.')[-1] if '.' in fname else ''
-                    bf = rec.bill_file
-                    bf_str = bf.decode('ascii') if isinstance(bf, bytes) else bf
-                    try:
-                        bf_bytes = base64.b64decode(bf)
-                    except Exception:
-                        bf_bytes = False
+                    bf = rec_clean.bill_file
+                    bf_str = bf.decode('ascii', errors='ignore') if isinstance(bf, bytes) else str(bf)
+                    bf_bytes = False
+                    if not ('Kb' in bf_str or 'bytes' in bf_str or 'Mb' in bf_str):
+                        try:
+                            bf_bytes = base64.b64decode(bf_str)
+                        except Exception:
+                            bf_bytes = False
+
                     items.append({
                         'name': fname,
                         'ext': ext,
@@ -2244,9 +2255,9 @@ class ServiceTicketVoucherLine(models.Model):
                             <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none; display: block;" title="{name}"></iframe>
                         </div>
                     '''
-                elif ext in ('xlsx', 'xls') and (raw_b64 or itm.get('raw_bytes')):
+                elif ext in ('xlsx', 'xls', 'csv'):
                     table_html = False
-                    import io, base64, zipfile
+                    import io, base64, zipfile, csv
                     import xml.etree.ElementTree as ET
 
                     raw_bytes = itm.get('raw_bytes') or b''
@@ -2262,95 +2273,140 @@ class ServiceTicketVoucherLine(models.Model):
                             except Exception:
                                 raw_bytes = b''
 
-                    parsed_rows = []
+                    parsed_sheets = []
 
-                    # 1. Try equipment.master invoice preview converter first
-                    try:
-                        em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(
-                            raw_b64=raw_bytes if raw_bytes else raw_b64,
-                            filename=name
-                        )
-                        if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
-                            for sh in em_res['sheets']:
-                                sh_rows = sh.get('rows', [])
-                                if sh_rows:
-                                    parsed_rows.extend(sh_rows)
-                                    break
-                    except Exception:
-                        parsed_rows = []
+                    # 1. Parse CSV
+                    if ext == 'csv' and raw_bytes:
+                        try:
+                            try:
+                                text_data = raw_bytes.decode('utf-8-sig', errors='replace')
+                            except Exception:
+                                text_data = raw_bytes.decode('latin-1', errors='replace')
+                            csv_reader = csv.reader(io.StringIO(text_data))
+                            csv_rows = [row for row in csv_reader if any(c.strip() for c in row)]
+                            if csv_rows:
+                                parsed_sheets.append({'name': 'CSV Data', 'rows': csv_rows[:250]})
+                        except Exception:
+                            pass
 
-                    # 2. Try with openpyxl if available
-                    if not parsed_rows and raw_bytes:
+                    # 2. Try equipment.master parser
+                    if not parsed_sheets and (raw_bytes or raw_b64):
+                        try:
+                            em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(
+                                raw_b64=base64.b64encode(raw_bytes).decode('ascii') if raw_bytes else raw_b64,
+                                filename=name
+                            )
+                            if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
+                                for sh in em_res['sheets']:
+                                    if sh.get('rows'):
+                                        parsed_sheets.append({'name': sh.get('name', 'Sheet'), 'rows': sh['rows']})
+                        except Exception:
+                            pass
+
+                    # 3. Try openpyxl
+                    if not parsed_sheets and raw_bytes:
                         try:
                             import openpyxl
                             wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
                             for sname in wb.sheetnames:
                                 sheet = wb[sname]
+                                s_rows = []
                                 for row in sheet.iter_rows(values_only=True):
                                     if any(val is not None and str(val).strip() != '' for val in row):
-                                        parsed_rows.append([str(val) if val is not None else '' for val in row])
-                                    if len(parsed_rows) >= 200:
+                                        s_rows.append([str(val) if val is not None else '' for val in row])
+                                    if len(s_rows) >= 250:
                                         break
-                                if parsed_rows:
-                                    break
+                                if s_rows:
+                                    parsed_sheets.append({'name': sname, 'rows': s_rows})
                         except Exception:
-                            parsed_rows = []
+                            pass
 
-                    # 3. Built-in universal ZIP + XML parser (0 dependencies, namespace-agnostic)
-                    if not parsed_rows and raw_bytes and raw_bytes.startswith(b'PK'):
+                    # 4. Built-in universal ZIP + XML parser (0 dependencies, accurate shared strings)
+                    if not parsed_sheets and raw_bytes and raw_bytes.startswith(b'PK'):
                         try:
                             with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
                                 shared_strings = []
                                 if 'xl/sharedStrings.xml' in z.namelist():
                                     sst_tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
-                                    for si in sst_tree.iter():
-                                        if si.tag.endswith('}t') or si.tag == 't':
-                                            shared_strings.append(si.text or '')
+                                    for si_node in sst_tree.iter():
+                                        if si_node.tag.endswith('}si') or si_node.tag == 'si':
+                                            text_parts = [t.text for t in si_node.iter() if (t.tag.endswith('}t') or t.tag == 't') and t.text]
+                                            shared_strings.append(''.join(text_parts))
 
-                                sheet_names = [n for n in z.namelist() if n.startswith('xl/worksheets/sheet') and n.endswith('.xml')]
-                                sheet_names.sort()
-                                for sname in sheet_names:
-                                    sheet_tree = ET.fromstring(z.read(sname))
+                                sheet_files = [n for n in z.namelist() if n.startswith('xl/worksheets/sheet') and n.endswith('.xml')]
+                                sheet_files.sort()
+                                for s_idx, sf in enumerate(sheet_files):
+                                    sheet_tree = ET.fromstring(z.read(sf))
+                                    s_rows = []
                                     for row_el in sheet_tree.iter():
                                         if row_el.tag.endswith('}row') or row_el.tag == 'row':
                                             row_vals = []
-                                            for cell_el in row_el.iter():
-                                                if cell_el.tag.endswith('}c') or cell_el.tag == 'c':
-                                                    c_type = cell_el.get('t')
-                                                    val_text = ''
-                                                    for child in cell_el:
-                                                        if child.tag.endswith('}v') or child.tag == 'v' or child.tag.endswith('}t') or child.tag == 't':
-                                                            val_text = child.text or ''
-                                                    if c_type == 's' and val_text.isdigit():
-                                                        idx = int(val_text)
-                                                        val_text = shared_strings[idx] if idx < len(shared_strings) else val_text
-                                                    row_vals.append(val_text)
+                                            for c_el in row_el.iter():
+                                                if c_el.tag.endswith('}c') or c_el.tag == 'c':
+                                                    c_type = c_el.get('t')
+                                                    val = ''
+                                                    for child in c_el:
+                                                        if child.tag.endswith('}v') or child.tag == 'v':
+                                                            raw_v = child.text or ''
+                                                            if c_type == 's' and raw_v.isdigit():
+                                                                idx = int(raw_v)
+                                                                val = shared_strings[idx] if idx < len(shared_strings) else raw_v
+                                                            else:
+                                                                val = raw_v
+                                                        elif child.tag.endswith('}t') or child.tag == 't':
+                                                            val = child.text or ''
+                                                    row_vals.append(val)
                                             if any(v.strip() for v in row_vals):
-                                                parsed_rows.append(row_vals)
-                                            if len(parsed_rows) >= 200:
+                                                s_rows.append(row_vals)
+                                            if len(s_rows) >= 250:
                                                 break
-                                    if parsed_rows:
-                                        break
+                                    if s_rows:
+                                        parsed_sheets.append({'name': f'Sheet {s_idx + 1}', 'rows': s_rows})
                         except Exception:
-                            parsed_rows = []
+                            pass
 
-                    if parsed_rows:
-                        table_html = '<div class="table-responsive p-0 m-0" style="max-height: 76vh; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff;">'
-                        table_html += '<table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 13px;">'
-                        col_count = max(len(r) for r in parsed_rows[:150]) if parsed_rows else 0
-                        for r_idx, row in enumerate(parsed_rows[:150]):
-                            table_html += '<tr>'
-                            for cell in row:
-                                val = '' if cell is None else str(cell)
-                                val = val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                                if r_idx == 0:
-                                    table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6; padding: 6px 10px;">{val}</th>'
-                                else:
-                                    table_html += f'<td class="text-nowrap" style="padding: 5px 10px;">{val}</td>'
-                            table_html += '</tr>'
-                        if len(parsed_rows) > 150:
-                            table_html += f'<tr><td colspan="{col_count}" class="text-center text-muted fst-italic py-2 bg-light">... Showing first 150 rows of {len(parsed_rows)} (Download file to view full sheet) ...</td></tr>'
-                        table_html += '</table></div>'
+                    # 5. Build full spreadsheet table matching UniversalAttachmentPreviewDialog exactly
+                    if parsed_sheets:
+                        table_html = '<div class="w-100 p-2 p-md-3 d-flex flex-column" style="height: 76vh; box-sizing: border-box; overflow: hidden; background: #ffffff;">'
+                        
+                        # Tabs if multiple sheets
+                        if len(parsed_sheets) > 1:
+                            table_html += '<ul class="nav nav-tabs mb-2 flex-shrink-0" style="border-bottom: 2px solid #dee2e6;">'
+                            for s_i, sheet in enumerate(parsed_sheets):
+                                active_cls = 'active fw-bold' if s_i == 0 else ''
+                                table_html += f'<li class="nav-item"><a class="nav-link py-1 px-3 small {active_cls}" style="cursor: pointer;"><i class="fa fa-table me-1"></i>{sheet["name"]}</a></li>'
+                            table_html += '</ul>'
+
+                        # First sheet content
+                        main_sheet = parsed_sheets[0]
+                        rows = main_sheet['rows']
+                        col_count = max(len(r) for r in rows) if rows else 0
+
+                        table_html += '<div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; max-height: 72vh;">'
+                        table_html += '<table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px;">'
+                        
+                        if rows:
+                            # Thead with # row number and column headers
+                            table_html += '<thead class="table-light sticky-top" style="z-index: 2; position: sticky; top: 0; background: #f8f9fa;"><tr>'
+                            table_html += '<th class="text-center bg-light text-muted" style="width: 45px; border-color: #dee2e6;">#</th>'
+                            for c_idx, col in enumerate(rows[0]):
+                                val_esc = (col or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                                table_html += f'<th class="fw-bold text-nowrap px-3 py-2 bg-light border" style="border-color: #dee2e6;">{val_esc}</th>'
+                            table_html += '</tr></thead>'
+
+                            # Tbody
+                            table_html += '<tbody>'
+                            for r_i, row in enumerate(rows[1:]):
+                                table_html += '<tr>'
+                                table_html += f'<td class="text-center text-muted small bg-light" style="width: 45px;">{r_i + 1}</td>'
+                                for col in row:
+                                    val_esc = (col or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                                    table_html += f'<td class="px-3 py-1 text-nowrap border" style="border-color: #dee2e6;">{val_esc}</td>'
+                                table_html += '</tr>'
+                            if len(rows) >= 250:
+                                table_html += f'<tr><td colspan="{col_count + 1}" class="text-center text-muted py-2 bg-light fst-italic">... Showing first 250 rows (Download file to view full sheet) ...</td></tr>'
+                            table_html += '</tbody>'
+                        table_html += '</table></div></div>'
 
                     if table_html:
                         body_html = table_html
