@@ -2321,9 +2321,17 @@ class ServiceTicketVoucherLine(models.Model):
                         except Exception:
                             pass
 
-                    # 4. Built-in universal ZIP + XML parser (0 dependencies, accurate shared strings)
+                    # 4. Built-in universal ZIP + XML parser (0 dependencies, accurate cell column alignment & shared strings)
                     if not parsed_sheets and raw_bytes and raw_bytes.startswith(b'PK'):
                         try:
+                            import re
+                            def _col_to_index(col_letters):
+                                c_idx = 0
+                                for ch in col_letters.upper():
+                                    if 'A' <= ch <= 'Z':
+                                        c_idx = c_idx * 26 + (ord(ch) - ord('A') + 1)
+                                return c_idx - 1
+
                             with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
                                 shared_strings = []
                                 if 'xl/sharedStrings.xml' in z.namelist():
@@ -2340,9 +2348,15 @@ class ServiceTicketVoucherLine(models.Model):
                                     s_rows = []
                                     for row_el in sheet_tree.iter():
                                         if row_el.tag.endswith('}row') or row_el.tag == 'row':
-                                            row_vals = []
+                                            cell_dict = {}
+                                            max_col = 0
                                             for c_el in row_el.iter():
                                                 if c_el.tag.endswith('}c') or c_el.tag == 'c':
+                                                    cell_ref = c_el.get('r', '')
+                                                    match = re.match(r'([A-Za-z]+)(\d+)', cell_ref)
+                                                    col_pos = _col_to_index(match.group(1)) if match else len(cell_dict)
+                                                    max_col = max(max_col, col_pos + 1)
+
                                                     c_type = c_el.get('t')
                                                     val = ''
                                                     for child in c_el:
@@ -2355,58 +2369,99 @@ class ServiceTicketVoucherLine(models.Model):
                                                                 val = raw_v
                                                         elif child.tag.endswith('}t') or child.tag == 't':
                                                             val = child.text or ''
-                                                    row_vals.append(val)
-                                            if any(v.strip() for v in row_vals):
-                                                s_rows.append(row_vals)
+                                                    cell_dict[col_pos] = val
+
+                                            if cell_dict and any(str(v).strip() for v in cell_dict.values()):
+                                                row_array = [cell_dict.get(c_i, '') for c_i in range(max_col)]
+                                                s_rows.append(row_array)
                                             if len(s_rows) >= 250:
                                                 break
                                     if s_rows:
+                                        # Normalize column counts across all rows
+                                        total_cols = max(len(r) for r in s_rows)
+                                        for r in s_rows:
+                                            if len(r) < total_cols:
+                                                r.extend([''] * (total_cols - len(r)))
                                         parsed_sheets.append({'name': f'Sheet {s_idx + 1}', 'rows': s_rows})
                         except Exception:
                             pass
 
-                    # 5. Build full spreadsheet table matching UniversalAttachmentPreviewDialog exactly
+                    # 5. Build full spreadsheet table matching UniversalAttachmentPreviewDialog exactly (Screenshot 2 layout)
                     if parsed_sheets:
-                        table_html = '<div class="w-100 p-2 p-md-3 d-flex flex-column" style="height: 76vh; box-sizing: border-box; overflow: hidden; background: #ffffff;">'
-                        
-                        # Tabs if multiple sheets
-                        if len(parsed_sheets) > 1:
-                            table_html += '<ul class="nav nav-tabs mb-2 flex-shrink-0" style="border-bottom: 2px solid #dee2e6;">'
-                            for s_i, sheet in enumerate(parsed_sheets):
-                                active_cls = 'active fw-bold' if s_i == 0 else ''
-                                table_html += f'<li class="nav-item"><a class="nav-link py-1 px-3 small {active_cls}" style="cursor: pointer;"><i class="fa fa-table me-1"></i>{sheet["name"]}</a></li>'
-                            table_html += '</ul>'
-
-                        # First sheet content
+                        total_sheets = len(parsed_sheets)
                         main_sheet = parsed_sheets[0]
                         rows = main_sheet['rows']
                         col_count = max(len(r) for r in rows) if rows else 0
 
-                        table_html += '<div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; max-height: 72vh;">'
-                        table_html += '<table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px;">'
-                        
+                        table_html = f'''
+                            <div class="w-100 p-2 p-md-3 d-flex flex-column" style="height: 76vh; box-sizing: border-box; overflow: hidden; background: #ffffff;">
+                                <div class="card shadow-sm border-0 bg-white p-3 my-1 d-flex flex-column flex-grow-1" style="border-radius: 10px; overflow: hidden;">
+                                    <!-- Header Card matching Service Report / Equipment Preview -->
+                                    <div class="border-bottom pb-2 mb-2 d-flex align-items-center justify-content-between flex-shrink-0">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="d-flex align-items-center justify-content-center rounded" style="width: 38px; height: 38px; background: #e6f4ea; color: #137333;">
+                                                <i class="fa fa-file-excel-o fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-dark">{name}</h6>
+                                                <small class="text-muted">{total_sheets} Sheet(s) Available</small>
+                                            </div>
+                                        </div>
+                                        <span class="badge px-3 py-1 fw-semibold" style="background-color: #137333 !important; color: #ffffff !important; border-radius: 6px; font-size: 11px; letter-spacing: 0.5px;">
+                                            EXCEL
+                                        </span>
+                                    </div>
+
+                                    <!-- Tabs for sheets -->
+                                    <ul class="nav nav-tabs mb-2 flex-shrink-0" style="border-bottom: 1.5px solid #dee2e6;">
+                        '''
+
+                        for s_i, sheet in enumerate(parsed_sheets):
+                            active_style = 'color: #137333; font-weight: 700; border-bottom: 2.5px solid #137333; background: #ffffff;' if s_i == 0 else 'color: #6c757d; font-weight: 500;'
+                            table_html += f'''
+                                <li class="nav-item">
+                                    <a class="nav-link py-1 px-3 small border-0" style="{active_style} cursor: default;">
+                                        <i class="fa fa-table me-1"></i>{sheet["name"]}
+                                    </a>
+                                </li>
+                            '''
+
+                        table_html += '''
+                                    </ul>
+
+                                    <!-- Clean Spreadsheet Table Container with Sticky Header & Row Numbers -->
+                                    <div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; max-height: 62vh;">
+                                        <table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px; border-collapse: separate; border-spacing: 0;">
+                        '''
+
                         if rows:
-                            # Thead with # row number and column headers
+                            # Header Row
                             table_html += '<thead class="table-light sticky-top" style="z-index: 2; position: sticky; top: 0; background: #f8f9fa;"><tr>'
-                            table_html += '<th class="text-center bg-light text-muted" style="width: 45px; border-color: #dee2e6;">#</th>'
+                            table_html += '<th class="text-center bg-light text-muted" style="width: 50px; min-width: 50px; border-color: #dee2e6; border-right: 1px solid #dee2e6; font-size: 12px; font-weight: 600;">#</th>'
                             for c_idx, col in enumerate(rows[0]):
                                 val_esc = (col or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                                table_html += f'<th class="fw-bold text-nowrap px-3 py-2 bg-light border" style="border-color: #dee2e6;">{val_esc}</th>'
+                                table_html += f'<th class="fw-semibold text-nowrap px-3 py-2 bg-light border-bottom border-end text-dark" style="border-color: #dee2e6; font-size: 13px; letter-spacing: 0.2px;">{val_esc}</th>'
                             table_html += '</tr></thead>'
 
-                            # Tbody
-                            table_html += '<tbody>'
+                            # Data Rows
+                            table_html += '<tbody style="background: #ffffff;">'
                             for r_i, row in enumerate(rows[1:]):
                                 table_html += '<tr>'
-                                table_html += f'<td class="text-center text-muted small bg-light" style="width: 45px;">{r_i + 1}</td>'
+                                table_html += f'<td class="text-center text-muted small bg-light border-end border-bottom" style="width: 50px; min-width: 50px; border-color: #dee2e6;">{r_i + 1}</td>'
                                 for col in row:
                                     val_esc = (col or '').replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                                    table_html += f'<td class="px-3 py-1 text-nowrap border" style="border-color: #dee2e6;">{val_esc}</td>'
+                                    table_html += f'<td class="px-3 py-2 text-nowrap border-end border-bottom text-dark" style="border-color: #dee2e6; font-size: 13px;">{val_esc}</td>'
                                 table_html += '</tr>'
                             if len(rows) >= 250:
                                 table_html += f'<tr><td colspan="{col_count + 1}" class="text-center text-muted py-2 bg-light fst-italic">... Showing first 250 rows (Download file to view full sheet) ...</td></tr>'
                             table_html += '</tbody>'
-                        table_html += '</table></div></div>'
+
+                        table_html += '''
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        '''
 
                     if table_html:
                         body_html = table_html
