@@ -4096,3 +4096,97 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
 body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) button[name="action_claim_recovery_batch"]:not(td button) {
     display: inline-block !important;
 }
+
+/* ── Compact Batch Recovery Wizard Modal Styling ── */
+.modal:has(.crm_batch_recovery_wizard_modal) .modal-dialog {
+    max-width: 900px !important;
+    width: 92% !important;
+    margin: 1.75rem auto !important;
+}
+
+.crm_batch_recovery_wizard_modal .crm_recovery_common_box {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 10px 14px !important;
+    border-radius: 6px !important;
+}
+
+/* 5 Lines Visible then Vertical Scrollbar + Horizontal Scrollbar */
+.crm_batch_recovery_wizard_modal .crm_recovery_scrollable_table,
+.crm_batch_recovery_wizard_modal .crm_recovery_lines_container .o_field_one2many,
+.crm_batch_recovery_wizard_modal .crm_recovery_lines_container .o_list_renderer {
+    max-height: 230px !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table {
+    min-width: 820px !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Table Header and Cell Spacing / Gaps */
+.crm_batch_recovery_wizard_modal table.o_list_table th {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 9px 14px !important;
+    white-space: nowrap !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+}
+
+.crm_batch_recovery_wizard_modal table.o_list_table td {
+    padding: 8px 14px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 13px !important;
+}
+
+/* Custom Blue (#0b3d91) Accents - Zero Purple Anywhere */
+.crm_batch_recovery_wizard_modal input,
+.crm_batch_recovery_wizard_modal textarea,
+.crm_batch_recovery_wizard_modal .o_input,
+.crm_single_recovery_wizard_modal input,
+.crm_single_recovery_wizard_modal textarea,
+.crm_single_recovery_wizard_modal .o_input {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 5px 8px !important;
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.crm_batch_recovery_wizard_modal input:focus,
+.crm_batch_recovery_wizard_modal textarea:focus,
+.crm_batch_recovery_wizard_modal .o_input:focus,
+.crm_single_recovery_wizard_modal input:focus,
+.crm_single_recovery_wizard_modal textarea:focus,
+.crm_single_recovery_wizard_modal .o_input:focus {
+    border-color: #0b3d91 !important;
+    box-shadow: 0 0 0 2px rgba(11, 61, 145, 0.18) !important;
+    outline: none !important;
+}
+
+/* Eliminate Odoo default purple underline */
+.crm_batch_recovery_wizard_modal .o_field_text,
+.crm_batch_recovery_wizard_modal .o_field_char,
+.crm_single_recovery_wizard_modal .o_field_text,
+.crm_single_recovery_wizard_modal .o_field_char {
+    border-bottom: none !important;
+}
+
+.crm_batch_recovery_wizard_modal .text-crm-blue,
+.crm_batch_recovery_wizard_modal .crm_total_recovery_text {
+    color: #0b3d91 !important;
+}
