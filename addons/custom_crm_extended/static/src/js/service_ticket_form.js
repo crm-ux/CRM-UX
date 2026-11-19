@@ -245,6 +245,16 @@ patch(ListController.prototype, {
 
 // Prevent clicking on voucher line table rows from opening the sub-form view
 patch(ListRenderer.prototype, {
+    setup() {
+        super.setup();
+        window.__odooVoucherEnv = this.env;
+        if (
+            this.props.list?.resModel === "service.ticket.voucher.line" ||
+            this.model?.root?.resModel === "service.ticket.voucher.line"
+        ) {
+            window.__odooVoucherListRenderer = this;
+        }
+    },
     async onCellClicked(record, column, ev) {
         if (
             record?.resModel === "service.ticket.voucher.line" ||
@@ -259,61 +269,60 @@ patch(ListRenderer.prototype, {
     },
 });
 
-// Capture-phase listener to block raw cell clicks on voucher line tables from opening form
+// Capture-phase listener to completely block Odoo from reloading the page when toggling checkboxes
 document.addEventListener(
     "click",
-    (ev) => {
-        const row = ev.target.closest(
-            ".o_voucher_card_list tr.o_data_row, div[name='line_ids'] tr.o_data_row, div[name='ticket_voucher_line_ids'] tr.o_data_row"
-        );
-        if (!row) return;
-        // Allow buttons, links, tag chips, and inputs (like View Description, View Bill, Approve/Reject/Pay/Recovery buttons)
-        if (ev.target.closest("button, a, input, select, textarea, .btn, .o_field_many2many_tags")) {
-            return;
-        }
-        // Disallow row clicks on any data cell from opening record / breaking UI
+    async (ev) => {
+        const btn = ev.target.closest("button[name='action_toggle_recovery_select']");
+        if (!btn) return;
+
+        // 1. Instantly kill the event so Odoo's ViewButton never calls form reload
         ev.preventDefault();
         ev.stopPropagation();
         ev.stopImmediatePropagation();
-    },
-    true
-);
 
-// Smooth toggle of recovery checkbox and header button without full page reload
-document.addEventListener("click", (ev) => {
-    const btn = ev.target.closest("button[name='action_toggle_recovery_select']");
-    if (!btn) return;
+        const row = btn.closest("tr.o_data_row");
+        if (!row) return;
 
-    const row = btn.closest("tr.o_data_row");
-    const statusCell = row?.querySelector("td[name='display_status'], td[name='status']");
-    const statusText = statusCell?.textContent?.trim()?.toLowerCase() || "";
-    const isPaid = statusText.includes("paid");
+        // Check if the expense row is paid / partially paid
+        const statusCell = row.querySelector("td[name='display_status'], td[name='status']");
+        const statusText = statusCell ? statusCell.textContent.trim().toLowerCase() : "";
+        const isPaid = statusText.includes("paid");
 
-    if (!isPaid) {
-        return;
-    }
+        const env = window.__odooVoucherEnv || window.odoo?.env;
 
-    const isChecked = btn.classList.contains("crm_checkbox_checked");
-    if (isChecked) {
-        btn.classList.remove("crm_checkbox_checked");
-        btn.classList.add("crm_checkbox_unchecked");
-        btn.style.setProperty("background-color", "#ffffff", "important");
-        btn.style.setProperty("color", "transparent", "important");
-        const icon = btn.querySelector("i, .o_button_icon");
-        if (icon) icon.style.setProperty("display", "none", "important");
-    } else {
-        btn.classList.remove("crm_checkbox_unchecked");
-        btn.classList.add("crm_checkbox_checked");
-        btn.style.setProperty("background-color", "#0b3d91", "important");
-        btn.style.setProperty("color", "#ffffff", "important");
-        const icon = btn.querySelector("i, .o_button_icon");
-        if (icon) {
-            icon.style.setProperty("display", "block", "important");
-            icon.style.setProperty("color", "#ffffff", "important");
+        if (!isPaid) {
+            if (env?.services?.notification) {
+                env.services.notification.add(
+                    _t("Recovery can only be claimed on Paid or Partially Paid expense lines. This line is not paid."),
+                    { type: "warning" }
+                );
+            }
+            return;
         }
-    }
 
-    setTimeout(() => {
+        // 2. Toggle visual state immediately with zero delay
+        const isChecked = btn.classList.contains("crm_checkbox_checked");
+        if (isChecked) {
+            btn.classList.remove("crm_checkbox_checked");
+            btn.classList.add("crm_checkbox_unchecked");
+            btn.style.setProperty("background-color", "#ffffff", "important");
+            btn.style.setProperty("color", "transparent", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
+            if (icon) icon.style.setProperty("display", "none", "important");
+        } else {
+            btn.classList.remove("crm_checkbox_unchecked");
+            btn.classList.add("crm_checkbox_checked");
+            btn.style.setProperty("background-color", "#0b3d91", "important");
+            btn.style.setProperty("color", "#ffffff", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
+            if (icon) {
+                icon.style.setProperty("display", "block", "important");
+                icon.style.setProperty("color", "#ffffff", "important");
+            }
+        }
+
+        // 3. Dynamically update header Claim Recovery button without page reload
         const anyChecked = document.querySelectorAll(
             ".o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_checked, .o_service_ticket_voucher_line_form button[name='action_toggle_recovery_select'].crm_checkbox_checked"
         ).length > 0;
@@ -329,8 +338,26 @@ document.addEventListener("click", (ev) => {
                 cBtn.style.setProperty("display", "none", "important");
             }
         });
-    }, 50);
-});
+
+        // 4. Silently persist selection to DB in background
+        try {
+            const renderer = window.__odooVoucherListRenderer;
+            const record = renderer?.props?.list?.records?.find((r) => r.id === row.dataset.id);
+            const resId = record?.resId;
+            if (resId && env?.services?.orm) {
+                await env.services.orm.call(
+                    "service.ticket.voucher.line",
+                    "action_toggle_recovery_select",
+                    [[resId]],
+                    {}
+                );
+            }
+        } catch (err) {
+            console.error("Background recovery toggle error:", err);
+        }
+    },
+    true
+);
 
 // Enforce compact 13px size on voucher line checkbox buttons directly in DOM (ONLY on Voucher Manager page)
 (function injectVoucherManagerCheckboxStyles() {
