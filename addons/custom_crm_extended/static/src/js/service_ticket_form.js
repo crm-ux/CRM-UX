@@ -350,18 +350,26 @@ document.addEventListener(
             visibility: hidden !important;
         }
         /* Hide Claim Recovery by default, only show when at least 1 checkbox is checked */
+        .o_statusbar_buttons button[name='action_claim_recovery'],
+        .o_statusbar_buttons button[name='action_claim_recovery_batch'],
+        .o_form_statusbar button[name='action_claim_recovery'],
+        .o_form_statusbar button[name='action_claim_recovery_batch'],
         .o_service_ticket_voucher_batch_form header button[name='action_claim_recovery'],
         .o_service_ticket_voucher_batch_form header button[name='action_claim_recovery_batch'],
         .o_service_ticket_voucher_line_form header button[name='action_claim_recovery'],
-        .o_service_ticket_voucher_line_form header button[name='action_claim_recovery_batch'] {
+        .o_service_ticket_voucher_line_form header button[name='action_claim_recovery_batch'],
+        button[name='action_claim_recovery']:not(td button),
+        button[name='action_claim_recovery_batch']:not(td button) {
             display: none !important;
         }
-        .o_service_ticket_voucher_batch_form:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery'],
-        .o_service_ticket_voucher_batch_form:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery_batch'],
-        .o_service_ticket_voucher_line_form:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery'],
-        .o_service_ticket_voucher_line_form:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery_batch'],
-        .o_form_view:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery'],
-        .o_form_view:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery_batch'] {
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) .o_statusbar_buttons button[name='action_claim_recovery'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) .o_statusbar_buttons button[name='action_claim_recovery_batch'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) .o_form_statusbar button[name='action_claim_recovery'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) .o_form_statusbar button[name='action_claim_recovery_batch'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) header button[name='action_claim_recovery_batch'],
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) button[name='action_claim_recovery']:not(td button),
+        body:has(button[name='action_toggle_recovery_select'].crm_checkbox_checked) button[name='action_claim_recovery_batch']:not(td button) {
             display: inline-block !important;
         }
 
@@ -411,10 +419,14 @@ document.addEventListener(
 })();
 
 function formatVoucherCheckboxButtons() {
-    const btns = document.querySelectorAll(".o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'], .o_service_ticket_voucher_line_form button[name='action_toggle_recovery_select']");
+    const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
     if (!btns || btns.length === 0) return;
     let anyChecked = false;
+    let totalEligiblePaid = 0;
+    let checkedEligiblePaid = 0;
+
     btns.forEach((btn) => {
+        // Enforce 13px size on row buttons
         btn.style.setProperty("width", "13px", "important");
         btn.style.setProperty("height", "13px", "important");
         btn.style.setProperty("min-width", "13px", "important");
@@ -440,12 +452,15 @@ function formatVoucherCheckboxButtons() {
             td.style.setProperty("text-align", "center", "important");
         }
 
-        const isChecked = btn.classList.contains("crm_checkbox_checked");
-        if (isChecked) anyChecked = true;
-        const icon = btn.querySelector("i, .o_button_icon");
+        // Check if this button is currently visible (not hidden by Odoo d-none)
+        const isHidden = btn.classList.contains("d-none") || btn.classList.contains("o_invisible_modifier") || btn.offsetParent === null || td?.classList.contains("d-none");
+        const isChecked = btn.classList.contains("crm_checkbox_checked") && !isHidden;
+
         if (isChecked) {
+            anyChecked = true;
             btn.style.setProperty("background-color", "#0b3d91", "important");
             btn.style.setProperty("color", "#ffffff", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
             if (icon) {
                 icon.style.setProperty("display", "block", "important");
                 icon.style.setProperty("font-size", "8px", "important");
@@ -454,18 +469,31 @@ function formatVoucherCheckboxButtons() {
                 icon.style.setProperty("line-height", "8px", "important");
                 icon.style.setProperty("color", "#ffffff", "important");
             }
-        } else {
+        } else if (!isHidden) {
             btn.style.setProperty("background-color", "#ffffff", "important");
             btn.style.setProperty("color", "transparent", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
             if (icon) {
                 icon.style.setProperty("display", "none", "important");
             }
         }
+
+        // Track paid line check count
+        if (!isHidden) {
+            const row = btn.closest("tr.o_data_row");
+            const statusText = row?.querySelector("td[name='display_status'], td[name='status']")?.textContent?.trim()?.toLowerCase() || "";
+            if (statusText.includes("paid")) {
+                totalEligiblePaid++;
+                if (isChecked) {
+                    checkedEligiblePaid++;
+                }
+            }
+        }
     });
 
-    // Control header Claim Recovery button: only show when at least 1 line is selected
+    // Control header Claim Recovery button: strictly show ONLY when at least 1 line is selected
     const claimBtns = document.querySelectorAll(
-        ".o_service_ticket_voucher_batch_form header button[name='action_claim_recovery'], .o_service_ticket_voucher_batch_form header button[name='action_claim_recovery_batch'], .o_service_ticket_voucher_line_form header button[name='action_claim_recovery'], .o_service_ticket_voucher_line_form header button[name='action_claim_recovery_batch']"
+        ".o_statusbar_buttons button[name='action_claim_recovery'], .o_statusbar_buttons button[name='action_claim_recovery_batch'], .o_form_statusbar button[name='action_claim_recovery'], .o_form_statusbar button[name='action_claim_recovery_batch'], button[name='action_claim_recovery']:not(td button), button[name='action_claim_recovery_batch']:not(td button)"
     );
     claimBtns.forEach((cBtn) => {
         if (anyChecked) {
@@ -501,21 +529,7 @@ function formatVoucherCheckboxButtons() {
                 th.appendChild(selectAllBtn);
             }
 
-            // Calculate if all eligible paid lines are checked
-            let totalPaid = 0;
-            let checkedPaid = 0;
-            btns.forEach((b) => {
-                const row = b.closest("tr.o_data_row");
-                const statusText = row?.querySelector("td[name='display_status'], td[name='status']")?.textContent?.trim()?.toLowerCase() || "";
-                if (statusText.includes("paid")) {
-                    totalPaid++;
-                    if (b.classList.contains("crm_checkbox_checked")) {
-                        checkedPaid++;
-                    }
-                }
-            });
-
-            const isAllSelected = totalPaid > 0 && checkedPaid === totalPaid;
+            const isAllSelected = totalEligiblePaid > 0 && checkedEligiblePaid === totalEligiblePaid;
             if (isAllSelected) {
                 selectAllBtn.classList.remove("crm_checkbox_unchecked");
                 selectAllBtn.classList.add("crm_checkbox_checked");
@@ -535,8 +549,8 @@ function formatVoucherCheckboxButtons() {
     }
 }
 
-// Click listener for the header "Select All" checkbox
-document.addEventListener("click", (ev) => {
+// Click listener for the header "Select All" checkbox (Atomic One-Shot Toggle)
+document.addEventListener("click", async (ev) => {
     const allBtn = ev.target.closest(".crm_voucher_select_all_btn");
     if (!allBtn) return;
     ev.preventDefault();
@@ -548,19 +562,87 @@ document.addEventListener("click", (ev) => {
     const table = allBtn.closest("table.o_list_table");
     if (!table) return;
 
+    // 1. Instant synchronous visual update for ALL rows at once
     const rowBtns = table.querySelectorAll("tbody tr.o_data_row button[name='action_toggle_recovery_select']");
+    let hasUpdatedRows = false;
     rowBtns.forEach((btn) => {
         const row = btn.closest("tr.o_data_row");
         const statusText = row?.querySelector("td[name='display_status'], td[name='status']")?.textContent?.trim()?.toLowerCase() || "";
         if (!statusText.includes("paid")) return;
 
-        const isRowChecked = btn.classList.contains("crm_checkbox_checked");
-        if (isRowChecked !== targetState) {
-            btn.click();
+        hasUpdatedRows = true;
+        if (targetState) {
+            btn.classList.remove("crm_checkbox_unchecked");
+            btn.classList.add("crm_checkbox_checked");
+            btn.style.setProperty("background-color", "#0b3d91", "important");
+            btn.style.setProperty("color", "#ffffff", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
+            if (icon) icon.style.setProperty("display", "block", "important");
+        } else {
+            btn.classList.remove("crm_checkbox_checked");
+            btn.classList.add("crm_checkbox_unchecked");
+            btn.style.setProperty("background-color", "#ffffff", "important");
+            btn.style.setProperty("color", "transparent", "important");
+            const icon = btn.querySelector("i, .o_button_icon");
+            if (icon) icon.style.setProperty("display", "none", "important");
         }
     });
 
-    formatVoucherCheckboxButtons();
+    if (!hasUpdatedRows) return;
+
+    // 2. Update Select All button itself
+    if (targetState) {
+        allBtn.classList.remove("crm_checkbox_unchecked");
+        allBtn.classList.add("crm_checkbox_checked");
+        allBtn.style.setProperty("background-color", "#0b3d91", "important");
+        allBtn.style.setProperty("color", "#ffffff", "important");
+        const allIcon = allBtn.querySelector("i");
+        if (allIcon) allIcon.style.setProperty("display", "block", "important");
+    } else {
+        allBtn.classList.remove("crm_checkbox_checked");
+        allBtn.classList.add("crm_checkbox_unchecked");
+        allBtn.style.setProperty("background-color", "#ffffff", "important");
+        allBtn.style.setProperty("color", "transparent", "important");
+        const allIcon = allBtn.querySelector("i");
+        if (allIcon) allIcon.style.setProperty("display", "none", "important");
+    }
+
+    // 3. Update Claim Recovery header buttons visibility immediately
+    const claimBtns = document.querySelectorAll(
+        ".o_statusbar_buttons button[name='action_claim_recovery'], .o_statusbar_buttons button[name='action_claim_recovery_batch'], .o_form_statusbar button[name='action_claim_recovery'], .o_form_statusbar button[name='action_claim_recovery_batch'], button[name='action_claim_recovery']:not(td button), button[name='action_claim_recovery_batch']:not(td button)"
+    );
+    claimBtns.forEach((cBtn) => {
+        if (targetState) {
+            cBtn.style.setProperty("display", "inline-block", "important");
+        } else {
+            cBtn.style.setProperty("display", "none", "important");
+        }
+    });
+
+    // 4. Update the backend model records in 1 atomic call
+    try {
+        const env = window.__odooVoucherEnv || window.odoo?.env;
+        const renderer = window.__odooVoucherListRenderer;
+        const records = renderer?.props?.list?.records || [];
+        const ids = [];
+        records.forEach((r) => {
+            const s = (r.data?.status || "").toLowerCase();
+            if (s.includes("paid") && (!r.data?.recovery_status || r.data?.recovery_status === "none")) {
+                if (r.resId) ids.push(r.resId);
+                if (r.data) r.data.is_selected_for_recovery = targetState;
+            }
+        });
+
+        if (ids.length > 0 && env?.services?.orm) {
+            await env.services.orm.write(
+                "service.ticket.voucher.line",
+                ids,
+                { is_selected_for_recovery: targetState }
+            );
+        }
+    } catch (err) {
+        console.error("Atomic select-all update error:", err);
+    }
 });
 
 if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {

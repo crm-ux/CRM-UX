@@ -2748,6 +2748,20 @@ class ServiceTicketVoucherLine(models.Model):
 
         return False
 
+    def action_toggle_select_all_recovery(self):
+        self.ensure_one()
+        if self.batch_id:
+            return self.batch_id.action_toggle_select_all_recovery()
+        lines = (self.ticket_voucher_line_ids or self).filtered(
+            lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+        )
+        if not lines:
+            return False
+        all_selected = all(l.is_selected_for_recovery for l in lines)
+        lines.write({'is_selected_for_recovery': not all_selected})
+        self.invalidate_recordset(['has_selected_recoverable_lines'])
+        return not all_selected
+
     def action_mark_paid(self):
         self._check_voucher_approval_access()
         for rec in self:
@@ -4173,6 +4187,17 @@ class ServiceTicketVoucherBatch(models.Model):
             }
         }
 
+    def action_toggle_select_all_recovery(self):
+        self.ensure_one()
+        lines = self.line_ids.filtered(
+            lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+        )
+        if not lines:
+            return False
+        all_selected = all(l.is_selected_for_recovery for l in lines)
+        lines.write({'is_selected_for_recovery': not all_selected})
+        self.invalidate_recordset(['has_selected_recoverable_lines'])
+        return not all_selected
 
     def action_claim_recovery(self):
         self.ensure_one()
