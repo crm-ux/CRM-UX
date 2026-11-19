@@ -2756,10 +2756,20 @@ class ServiceTicketVoucherLine(models.Model):
             lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
         )
         if not lines:
-            return False
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Paid Expenses'),
+                    'message': _('No paid expenses are currently available for recovery on this voucher.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
         all_selected = all(l.is_selected_for_recovery for l in lines)
         lines.write({'is_selected_for_recovery': not all_selected})
         self.invalidate_recordset(['has_selected_recoverable_lines'])
+        self._compute_has_selected_recoverable_lines()
         return not all_selected
 
     def action_mark_paid(self):
@@ -4193,10 +4203,20 @@ class ServiceTicketVoucherBatch(models.Model):
             lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
         )
         if not lines:
-            return False
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('No Paid Expenses'),
+                    'message': _('No paid expenses are currently available for recovery on this voucher.'),
+                    'type': 'warning',
+                    'sticky': False,
+                }
+            }
         all_selected = all(l.is_selected_for_recovery for l in lines)
         lines.write({'is_selected_for_recovery': not all_selected})
         self.invalidate_recordset(['has_selected_recoverable_lines'])
+        self._compute_has_selected_recoverable_lines()
         return not all_selected
 
     def action_claim_recovery(self):

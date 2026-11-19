@@ -430,14 +430,12 @@ function isRowEligibleForRecovery(row) {
 }
 
 function formatVoucherCheckboxButtons() {
+    const table = document.querySelector(".o_service_ticket_voucher_batch_form table.o_list_table, .o_service_ticket_voucher_line_form table.o_list_table, table.o_list_table:has(button[name='action_toggle_recovery_select'])");
     const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
     if (!btns || btns.length === 0) return;
-    let anyChecked = false;
-    let totalEligiblePaid = 0;
-    let checkedEligiblePaid = 0;
 
+    // 1. Format row buttons to exactly 13px
     btns.forEach((btn) => {
-        // Enforce 13px size on row buttons
         btn.style.setProperty("width", "13px", "important");
         btn.style.setProperty("height", "13px", "important");
         btn.style.setProperty("min-width", "13px", "important");
@@ -463,15 +461,11 @@ function formatVoucherCheckboxButtons() {
             td.style.setProperty("text-align", "center", "important");
         }
 
-        // Check if this button is currently visible (not hidden by Odoo d-none)
-        const isHidden = btn.classList.contains("d-none") || btn.classList.contains("o_invisible_modifier") || btn.offsetParent === null || td?.classList.contains("d-none");
-        const isChecked = btn.classList.contains("crm_checkbox_checked") && !isHidden;
-
+        const isChecked = btn.classList.contains("crm_checkbox_checked");
+        const icon = btn.querySelector("i, .o_button_icon");
         if (isChecked) {
-            anyChecked = true;
             btn.style.setProperty("background-color", "#0b3d91", "important");
             btn.style.setProperty("color", "#ffffff", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
             if (icon) {
                 icon.style.setProperty("display", "block", "important");
                 icon.style.setProperty("font-size", "8px", "important");
@@ -480,45 +474,45 @@ function formatVoucherCheckboxButtons() {
                 icon.style.setProperty("line-height", "8px", "important");
                 icon.style.setProperty("color", "#ffffff", "important");
             }
-        } else if (!isHidden) {
+        } else {
             btn.style.setProperty("background-color", "#ffffff", "important");
             btn.style.setProperty("color", "transparent", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
             if (icon) {
                 icon.style.setProperty("display", "none", "important");
             }
         }
+    });
 
-        // Track paid line check count per visible row button
-        if (!isHidden) {
-            const row = btn.closest("tr.o_data_row");
-            if (isRowEligibleForRecovery(row)) {
-                totalEligiblePaid++;
-                if (isChecked) {
-                    checkedEligiblePaid++;
-                }
+    // 2. Count checked vs total eligible paid rows
+    let totalEligiblePaid = 0;
+    let checkedEligiblePaid = 0;
+    const rows = (table || document).querySelectorAll("tbody tr.o_data_row");
+    rows.forEach((row) => {
+        if (isRowEligibleForRecovery(row)) {
+            totalEligiblePaid++;
+            const checkedBtn = row.querySelector("button.crm_checkbox_checked:not(.d-none)");
+            if (checkedBtn && checkedBtn.style.display !== "none") {
+                checkedEligiblePaid++;
             }
         }
     });
 
-    // Control header Claim Recovery button: strictly show ONLY when at least 1 line is selected
+    const anyChecked = checkedEligiblePaid > 0;
+
+    // 3. Header "Claim Recovery" button visibility: show ONLY if at least 1 line is selected
     const claimBtns = document.querySelectorAll(
         ".o_statusbar_buttons button[name='action_claim_recovery'], .o_statusbar_buttons button[name='action_claim_recovery_batch'], .o_form_statusbar button[name='action_claim_recovery'], .o_form_statusbar button[name='action_claim_recovery_batch'], button[name='action_claim_recovery']:not(td button), button[name='action_claim_recovery_batch']:not(td button)"
     );
     claimBtns.forEach((cBtn) => {
-        if (anyChecked) {
-            cBtn.style.setProperty("display", "inline-block", "important");
-        } else {
-            cBtn.style.setProperty("display", "none", "important");
-        }
+        cBtn.style.setProperty("display", anyChecked ? "inline-block" : "none", "important");
     });
 
-    // Inject and synchronize the "Select All" checkbox in the column header (<th>)
+    // 4. Inject and synchronize the "Select All" checkbox in the column header (<th>)
     const firstTd = btns[0]?.closest("td");
     if (firstTd) {
         const colIndex = Array.from(firstTd.parentElement.children).indexOf(firstTd);
-        const table = firstTd.closest("table.o_list_table");
-        const headerRow = table?.querySelector("thead tr");
+        const theTable = firstTd.closest("table.o_list_table");
+        const headerRow = theTable?.querySelector("thead tr");
         const th = headerRow && colIndex >= 0 ? headerRow.children[colIndex] : null;
         if (th) {
             th.style.setProperty("width", "28px", "important");
@@ -533,7 +527,7 @@ function formatVoucherCheckboxButtons() {
                 th.innerHTML = "";
                 selectAllBtn = document.createElement("button");
                 selectAllBtn.type = "button";
-                selectAllBtn.className = "btn p-0 crm_custom_blue_checkbox crm_voucher_select_all_btn crm_checkbox_unchecked";
+                selectAllBtn.className = "btn p-0 crm_custom_blue_checkbox crm_voucher_select_all_btn";
                 selectAllBtn.title = "Select / Deselect All Paid Lines";
                 selectAllBtn.innerHTML = '<i class="fa fa-check"></i>';
                 th.appendChild(selectAllBtn);
@@ -559,7 +553,7 @@ function formatVoucherCheckboxButtons() {
     }
 }
 
-// Click listener for the header "Select All" checkbox (Atomic One-Shot Toggle)
+// Click listener for the header "Select All" checkbox
 document.addEventListener("click", async (ev) => {
     const allBtn = ev.target.closest(".crm_voucher_select_all_btn");
     if (!allBtn) return;
@@ -570,15 +564,14 @@ document.addEventListener("click", async (ev) => {
     const targetState = !isAllChecked;
 
     const table = allBtn.closest("table.o_list_table");
-    if (!table) return;
+    const rows = (table || document).querySelectorAll("tbody tr.o_data_row");
 
-    // 1. Instant synchronous visual update for ALL eligible paid rows at once
-    const rows = table.querySelectorAll("tbody tr.o_data_row");
-    let hasUpdatedRows = false;
+    // 1. Visual update IMMEDIATELY on screen
+    let hasEligibleRows = false;
     rows.forEach((row) => {
         if (!isRowEligibleForRecovery(row)) return;
+        hasEligibleRows = true;
 
-        hasUpdatedRows = true;
         const checkedBtn = row.querySelector("button.crm_checkbox_checked");
         const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
 
@@ -611,9 +604,18 @@ document.addEventListener("click", async (ev) => {
         }
     });
 
-    if (!hasUpdatedRows) return;
+    if (!hasEligibleRows) {
+        const env = window.__odooEnv || window.__odooCurrentFormController?.env;
+        if (env?.services?.notification) {
+            env.services.notification.add(
+                "No paid expenses are currently available for recovery on this voucher.",
+                { title: "No Paid Expenses", type: "warning" }
+            );
+        }
+        return;
+    }
 
-    // 2. Update Select All button itself
+    // Update Select All checkbox itself
     if (targetState) {
         allBtn.classList.remove("crm_checkbox_unchecked");
         allBtn.classList.add("crm_checkbox_checked");
@@ -630,54 +632,34 @@ document.addEventListener("click", async (ev) => {
         if (allIcon) allIcon.style.setProperty("display", "none", "important");
     }
 
-    // 3. Update Claim Recovery header buttons visibility immediately
+    // Update Claim Recovery header button visibility immediately
     const claimBtns = document.querySelectorAll(
         ".o_statusbar_buttons button[name='action_claim_recovery'], .o_statusbar_buttons button[name='action_claim_recovery_batch'], .o_form_statusbar button[name='action_claim_recovery'], .o_form_statusbar button[name='action_claim_recovery_batch'], button[name='action_claim_recovery']:not(td button), button[name='action_claim_recovery_batch']:not(td button)"
     );
     claimBtns.forEach((cBtn) => {
-        if (targetState) {
-            cBtn.style.setProperty("display", "inline-block", "important");
-        } else {
-            cBtn.style.setProperty("display", "none", "important");
-        }
+        cBtn.style.setProperty("display", targetState ? "inline-block" : "none", "important");
     });
 
-    // 4. Update the backend model records in 1 atomic call
+    // 2. Execute the backend action
     try {
-        const env = window.__odooVoucherEnv || window.odoo?.env;
-        const renderer = window.__odooVoucherListRenderer;
-        const records = renderer?.props?.list?.records || [];
-        const ids = [];
-        records.forEach((r) => {
-            const s = (r.data?.status || "").toLowerCase();
-            const rs = (r.data?.recovery_status || "none").toLowerCase();
-            if (s.includes("paid") && rs === "none") {
-                if (r.resId) ids.push(r.resId);
-                if (r.data) r.data.is_selected_for_recovery = targetState;
-            }
-        });
+        const controller = window.__odooCurrentFormController;
+        const env = window.__odooEnv || controller?.env || window.__odooVoucherEnv;
+        const root = controller?.model?.root;
+        const resModel = root?.resModel || (window.location.hash.includes("service.ticket.voucher.batch") ? "service.ticket.voucher.batch" : "service.ticket.voucher.line");
+        const resId = root?.resId || parseInt(new URLSearchParams(window.location.hash.slice(1)).get("id"));
 
-        if (ids.length > 0 && env?.services?.orm) {
-            await env.services.orm.write(
-                "service.ticket.voucher.line",
-                ids,
-                { is_selected_for_recovery: targetState }
+        if (resId && env?.services?.orm) {
+            await env.services.orm.call(
+                resModel,
+                "action_toggle_select_all_recovery",
+                [[resId]]
             );
-        } else {
-            // Fallback: click row buttons sequentially if ORM list not available
-            for (const row of rows) {
-                if (!isRowEligibleForRecovery(row)) continue;
-                const btnToClick = targetState
-                    ? row.querySelector("button.crm_checkbox_unchecked:not(.d-none)")
-                    : row.querySelector("button.crm_checkbox_checked:not(.d-none)");
-                if (btnToClick) {
-                    btnToClick.click();
-                    await new Promise((r) => setTimeout(r, 60));
-                }
+            if (root && typeof root.load === "function") {
+                await root.load();
             }
         }
     } catch (err) {
-        console.error("Atomic select-all update error:", err);
+        console.error("Select-all backend sync error:", err);
     }
 });
 
@@ -697,8 +679,13 @@ if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {
     }
 }
 
-// 2. Intercept "New" button in Detail Form View
+// 2. Intercept "New" button in Detail Form View & capture current active form controller
 patch(FormController.prototype, {
+    setup() {
+        super.setup();
+        window.__odooCurrentFormController = this;
+        window.__odooEnv = this.env;
+    },
     async create() {
         if (
             this.props?.resModel === TICKET_MODEL ||
