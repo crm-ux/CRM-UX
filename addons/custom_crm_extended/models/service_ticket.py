@@ -2972,6 +2972,10 @@ class ServiceTicketVoucherLine(models.Model):
             'res_id': wiz.id,
             'view_id': view.id if view else False,
             'target': 'new',
+            'flags': {'mode': 'edit'},
+            'context': {
+                'form_view_initial_mode': 'edit',
+            },
         }
 
     def action_record_payback(self):
@@ -4298,6 +4302,10 @@ class ServiceTicketVoucherBatch(models.Model):
             'res_id': wiz.id,
             'view_id': view.id if view else False,
             'target': 'new',
+            'flags': {'mode': 'edit'},
+            'context': {
+                'form_view_initial_mode': 'edit',
+            },
         }
 
     def action_deduct_pending_recoveries(self):
@@ -4632,7 +4640,7 @@ class ServiceTicketVoucherBatchRecoveryWizard(models.TransientModel):
     batch_id = fields.Many2one('service.ticket.voucher.batch', string='Voucher', required=False)
     reason = fields.Text(string='Reason / Remark', required=False, placeholder="Enter common reason (applied to all selected lines unless custom line reason is entered)...")
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
-    line_ids = fields.One2many('service.ticket.voucher.batch.recovery.wizard.line', 'wizard_id', string='Selected Lines')
+    line_ids = fields.One2many('service.ticket.voucher.batch.recovery.wizard.line', 'wizard_id', string='Selected Lines', readonly=False)
     total_recovery_amount = fields.Monetary(
         string='Total Recovery',
         currency_field='currency_id',
@@ -4723,7 +4731,7 @@ class ServiceTicketVoucherBatchRecoveryWizardLine(models.TransientModel):
     currency_id = fields.Many2one(related='wizard_id.currency_id')
     submitted_amount = fields.Monetary(related='voucher_line_id.amount', string='Submitted Amount', readonly=True)
     paid_amount = fields.Monetary(string='Paid Amount', currency_field='currency_id', readonly=True)
-    recovery_amount = fields.Monetary(string='Amount', currency_field='currency_id', required=True)
+    recovery_amount = fields.Monetary(string='Amount', currency_field='currency_id', required=True, readonly=False)
     custom_reason = fields.Char(string='Reject Reason')
     custom_reason_display = fields.Char(string='Reject Reason', compute='_compute_custom_reason_display')
     custom_reason_trimmed = fields.Char(string='Reject Reason', compute='_compute_custom_reason_display')

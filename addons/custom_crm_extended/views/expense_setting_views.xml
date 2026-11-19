@@ -920,14 +920,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="line_ids" class="fw-bold mb-2 text-dark fs-6 d-block" string="Selected Lines for Recovery:"/>
-                        <field name="line_ids">
+                        <field name="line_ids" readonly="0">
                             <list create="0" delete="0" editable="bottom">
                                 <field name="employee_id" string="Employee" readonly="1"/>
                                 <field name="expense_type_id" string="Expense Type" readonly="1"/>
                                 <field name="currency_id" column_invisible="1"/>
                                 <field name="submitted_amount" string="Submitted Amount" widget="monetary" readonly="1" class="text-muted"/>
                                 <field name="paid_amount" string="Paid Amount" widget="monetary" readonly="1" class="fw-semibold text-dark"/>
-                                <field name="recovery_amount" string="Amount to Recover" widget="monetary" class="fw-bold text-end text-crm-blue"/>
+                                <field name="recovery_amount" string="Amount to Recover" widget="monetary" readonly="0" class="fw-bold text-end text-crm-blue"/>
                                 <field name="custom_reason" class="d-none"/>
                                 <button name="action_open_line_reason_dialog" type="object" icon="fa-plus-circle text-crm-blue" title="Reject Reason" class="btn p-0 crm_btn_line_reason text-crm-blue"/>
                             </list>
