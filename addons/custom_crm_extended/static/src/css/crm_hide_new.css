@@ -2466,8 +2466,8 @@ div[name="button_box"].oe_button_box *,
 }
 
 .o_dialog .modal-body:has(.bill-preview-wrapper) {
-    overflow-y: auto !important;
-    padding: 12px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
     margin: 0 !important;
 }
 

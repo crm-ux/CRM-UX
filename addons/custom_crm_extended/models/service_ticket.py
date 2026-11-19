@@ -2205,20 +2205,6 @@ class ServiceTicketVoucherLine(models.Model):
                     badge_cls = "bg-secondary"
                     type_label = ext.upper() if ext else "File"
 
-                # Sleek Top Toolbar with Download Action
-                toolbar_html = f'''
-                    <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 bg-light rounded border shadow-sm">
-                        <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 75%;">
-                            <i class="{icon_cls} fs-5"></i>
-                            <span class="fw-bold text-dark text-truncate" title="{name}">{name}</span>
-                            <span class="badge {badge_cls} ms-1">{type_label}</span>
-                        </div>
-                        <a href="{download_url}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm px-3" download>
-                            <i class="fa fa-download"></i> Download File
-                        </a>
-                    </div>
-                '''
-
                 # Render format-specific preview
                 if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'):
                     body_html = f'''
@@ -2228,8 +2214,8 @@ class ServiceTicketVoucherLine(models.Model):
                     '''
                 elif ext == 'pdf':
                     body_html = f'''
-                        <div style="width: 100%; height: 75vh; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; background: #525659;">
-                            <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none;" title="{name}"></iframe>
+                        <div style="width: 100%; height: 78vh; border: none; overflow: hidden; background: #525659;">
+                            <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none; display: block;" title="{name}"></iframe>
                         </div>
                     '''
                 elif ext in ('xlsx', 'xls') and raw_b64:
@@ -2346,7 +2332,6 @@ class ServiceTicketVoucherLine(models.Model):
 
                 slides_html.append(f'''
                     <div id="crm_bill_slide_{rec.id}_{idx}" class="crm-bill-slide-box">
-                        {toolbar_html}
                         {body_html}
                     </div>
                 ''')
@@ -3216,6 +3201,23 @@ class ServiceTicketVoucherLine(models.Model):
             'target': 'new',
             'context': {'dialog_size': 'extra-large'},
         }
+
+    def action_download_bill(self):
+        self.ensure_one()
+        att = self.bill_attachment_ids[:1]
+        if att:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/{att.id}?download=true',
+                'target': 'self',
+            }
+        elif self.bill_file:
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content?model=service.ticket.voucher.line&id={self.id}&field=bill_file&filename={self.bill_filename or "receipt"}&download=true',
+                'target': 'self',
+            }
+        return False
 
 
 
