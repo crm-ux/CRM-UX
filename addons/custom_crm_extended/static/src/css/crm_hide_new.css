@@ -3895,10 +3895,37 @@ button[name="action_view_reject_reason"] i {
     font-size: 16px !important;
 }
 
-/* Center Bills column header and eye preview icon */
-th[data-name="bill_file"],
-td[name="bill_file"],
-th:has(+ th[data-name="display_status"]),
+/* Add Column Header "Bills" above the Eye Preview Button - Exactly Matching Description & Reject Reason */
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="display_status"])::before,
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="display_status"])::before,
+.o_voucher_card_list th:has(+ th[data-name="display_status"])::before,
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="status"])::before,
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="status"])::before,
+.o_voucher_card_list th:has(+ th[data-name="status"])::before {
+    content: "Bills" !important;
+    display: inline-block !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    white-space: nowrap !important;
+    line-height: 1.5 !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+}
+
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="display_status"]),
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="display_status"]),
+.o_voucher_card_list th:has(+ th[data-name="display_status"]),
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="status"]),
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="status"]),
+.o_voucher_card_list th:has(+ th[data-name="status"]) {
+    width: 70px !important;
+    min-width: 70px !important;
+    vertical-align: middle !important;
+    padding: 0.5rem 0.5rem !important;
+    text-align: center !important;
+}
+
 td:has(button[name="action_preview_bill"]) {
     text-align: center !important;
     vertical-align: middle !important;
