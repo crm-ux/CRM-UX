@@ -306,7 +306,7 @@
                                    decoration-danger="display_status == 'rejected'"/>
                             <field name="status" column_invisible="1"/>
                             <field name="recovery_reason" column_invisible="1"/>
-                            <field name="display_reject_reason_trimmed" string="Reject Reason" optional="show"/>
+                            <field name="display_reject_reason_trimmed" column_invisible="1"/>
                             <button name="action_view_reject_reason" type="object" icon="fa-file-text-o text-crm-blue" title="View Reason" string="View" invisible="not recovery_reason and not reject_reason" class="btn p-0 text-crm-blue fw-semibold"/>
                             <field name="reject_reason" column_invisible="1"/>
                             <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
@@ -654,7 +654,7 @@
                                        decoration-danger="display_status == 'rejected'"/>
                                 <field name="status" column_invisible="1"/>
                                 <field name="recovery_reason" column_invisible="1"/>
-                                <field name="display_reject_reason_trimmed" string="Reject Reason" optional="show"/>
+                                <field name="display_reject_reason_trimmed" column_invisible="1"/>
                                 <button name="action_view_reject_reason" type="object" icon="fa-file-text-o text-crm-blue" title="View Reason" string="View" invisible="not recovery_reason and not reject_reason" class="btn p-0 text-crm-blue fw-semibold"/>
                                 <field name="reject_reason" column_invisible="1"/>
                                 <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>

@@ -3852,6 +3852,70 @@ button[name="action_view_description"] i {
     padding: 0.5rem 0.5rem !important;
 }
 
+/* Add the Column Header "Reject Reason" above the View button - Exactly matching Description */
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="recovery_badge_html"])::before,
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="recovery_badge_html"])::before,
+.o_voucher_card_list th:has(+ th[data-name="recovery_badge_html"])::before {
+    content: "Reject Reason" !important;
+    display: inline-block !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    white-space: nowrap !important;
+    line-height: 1.5 !important;
+    vertical-align: middle !important;
+}
+
+.o_service_ticket_voucher_line_form th:has(+ th[data-name="recovery_badge_html"]),
+.o_service_ticket_voucher_batch_form th:has(+ th[data-name="recovery_badge_html"]),
+.o_voucher_card_list th:has(+ th[data-name="recovery_badge_html"]) {
+    width: 105px !important;
+    min-width: 105px !important;
+    vertical-align: middle !important;
+    padding: 0.5rem 0.5rem !important;
+    text-align: center !important;
+}
+
+button[name="action_view_reject_reason"],
+button[name="action_view_reject_reason"] span,
+button[name="action_view_reject_reason"] i {
+    color: #0b3d91 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    text-decoration: none !important;
+}
+
+button[name="action_view_reject_reason"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+button[name="action_view_reject_reason"] i {
+    font-size: 16px !important;
+}
+
+/* Center Bills column header and eye preview icon */
+th[data-name="bill_file"],
+td[name="bill_file"],
+th:has(+ th[data-name="display_status"]),
+td:has(button[name="action_preview_bill"]) {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+button[name="action_preview_bill"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+button[name="action_preview_bill"] i {
+    font-size: 15px !important;
+    color: #0b3d91 !important;
+}
+
 .o_service_ticket_voucher_batch_form .btn-crm-blue-solid {
     background-color: #0b3d91 !important;
     border-color: #0b3d91 !important;
