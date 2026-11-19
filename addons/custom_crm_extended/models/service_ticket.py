@@ -2748,10 +2748,7 @@ class ServiceTicketVoucherLine(models.Model):
             self.batch_id._compute_has_selected_recoverable_lines()
         self.invalidate_recordset(['has_selected_recoverable_lines'])
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        return False
 
     def action_mark_paid(self):
         self._check_voucher_approval_access()

@@ -279,6 +279,59 @@ document.addEventListener(
     true
 );
 
+// Smooth toggle of recovery checkbox and header button without full page reload
+document.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("button[name='action_toggle_recovery_select']");
+    if (!btn) return;
+
+    const row = btn.closest("tr.o_data_row");
+    const statusCell = row?.querySelector("td[name='display_status'], td[name='status']");
+    const statusText = statusCell?.textContent?.trim()?.toLowerCase() || "";
+    const isPaid = statusText.includes("paid");
+
+    if (!isPaid) {
+        return;
+    }
+
+    const isChecked = btn.classList.contains("crm_checkbox_checked");
+    if (isChecked) {
+        btn.classList.remove("crm_checkbox_checked");
+        btn.classList.add("crm_checkbox_unchecked");
+        btn.style.setProperty("background-color", "#ffffff", "important");
+        btn.style.setProperty("color", "transparent", "important");
+        const icon = btn.querySelector("i, .o_button_icon");
+        if (icon) icon.style.setProperty("display", "none", "important");
+    } else {
+        btn.classList.remove("crm_checkbox_unchecked");
+        btn.classList.add("crm_checkbox_checked");
+        btn.style.setProperty("background-color", "#0b3d91", "important");
+        btn.style.setProperty("color", "#ffffff", "important");
+        const icon = btn.querySelector("i, .o_button_icon");
+        if (icon) {
+            icon.style.setProperty("display", "block", "important");
+            icon.style.setProperty("color", "#ffffff", "important");
+        }
+    }
+
+    setTimeout(() => {
+        const anyChecked = document.querySelectorAll(
+            ".o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_checked, .o_service_ticket_voucher_line_form button[name='action_toggle_recovery_select'].crm_checkbox_checked"
+        ).length > 0;
+        const claimBtns = document.querySelectorAll(
+            "header button[name='action_claim_recovery'], header button[name='action_claim_recovery_batch']"
+        );
+        claimBtns.forEach((cBtn) => {
+            if (anyChecked) {
+                cBtn.classList.remove("d-none");
+                cBtn.style.setProperty("display", "inline-block", "important");
+            } else {
+                cBtn.classList.add("d-none");
+                cBtn.style.setProperty("display", "none", "important");
+            }
+        });
+    }, 50);
+});
+
 // Enforce compact 13px size on voucher line checkbox buttons directly in DOM (ONLY on Voucher Manager page)
 (function injectVoucherManagerCheckboxStyles() {
     if (typeof document === "undefined") return;
