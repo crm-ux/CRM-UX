@@ -4725,21 +4725,25 @@ class ServiceTicketVoucherBatchRecoveryWizardLine(models.TransientModel):
     paid_amount = fields.Monetary(string='Paid Amount', currency_field='currency_id', readonly=True)
     recovery_amount = fields.Monetary(string='Amount', currency_field='currency_id', required=True)
     custom_reason = fields.Char(string='Reject Reason')
-    custom_reason_trimmed = fields.Char(string='Reject Reason', compute='_compute_custom_reason_trimmed')
+    custom_reason_display = fields.Char(string='Reject Reason', compute='_compute_custom_reason_display')
+    custom_reason_trimmed = fields.Char(string='Reject Reason', compute='_compute_custom_reason_display')
     line_summary = fields.Char(compute='_compute_line_summary', string='Selected Expense')
 
     def action_open_line_reason_dialog(self):
         return False
 
     @api.depends('custom_reason')
-    def _compute_custom_reason_trimmed(self):
+    def _compute_custom_reason_display(self):
         for rec in self:
             raw = (rec.custom_reason or '').strip()
             if raw:
                 clean = " ".join(raw.split())
-                rec.custom_reason_trimmed = (clean[:22] + '...') if len(clean) > 22 else clean
+                disp = (clean[:25] + '...') if len(clean) > 25 else clean
+                rec.custom_reason_display = disp
+                rec.custom_reason_trimmed = disp
             else:
-                rec.custom_reason_trimmed = ''
+                rec.custom_reason_display = '+ Add Reason'
+                rec.custom_reason_trimmed = '+ Add Reason'
 
     @api.depends('custom_reason')
     def _compute_custom_reason_trimmed(self):

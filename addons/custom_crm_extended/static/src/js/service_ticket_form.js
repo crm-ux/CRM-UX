@@ -1201,21 +1201,27 @@ if (typeof window !== "undefined") {
 
 // Line Reject Reason popup inside Recovery Wizard
 document.addEventListener("click", function(ev) {
-    const btn = ev.target && ev.target.closest ? ev.target.closest("button[name='action_open_line_reason_dialog'], .crm_btn_line_reason") : null;
-    if (!btn) return;
+    const trigger = ev.target && ev.target.closest ? ev.target.closest("td[name='custom_reason'], [data-name='custom_reason'], .crm_line_reason_cell, button[name='action_open_line_reason_dialog'], .crm_btn_line_reason") : null;
+    if (!trigger) return;
+
+    // Only apply inside the recovery wizard modal
+    if (!trigger.closest(".crm_batch_recovery_wizard_modal")) return;
 
     ev.preventDefault();
     ev.stopPropagation();
 
-    const row = btn.closest("tr");
+    const row = trigger.closest("tr");
     if (!row) return;
 
     const empName = row.querySelector("td[name='employee_id'], [data-name='employee_id']")?.textContent?.trim() || "Employee";
     const expType = row.querySelector("td[name='expense_type_id'], [data-name='expense_type_id']")?.textContent?.trim() || "Expense";
     
-    const reasonCell = row.querySelector("td[name='custom_reason'], [data-name='custom_reason']");
+    const reasonCell = row.querySelector("td[name='custom_reason'], [data-name='custom_reason']") || trigger.closest("td");
     const reasonInput = reasonCell ? (reasonCell.querySelector("input, textarea") || reasonCell) : null;
-    const currentVal = reasonInput ? (reasonInput.value !== undefined ? reasonInput.value : reasonInput.textContent.trim()) : "";
+    let currentVal = reasonInput ? (reasonInput.value !== undefined ? reasonInput.value : reasonInput.textContent.trim()) : "";
+    if (currentVal === "+ Add Reason..." || currentVal === "Leave blank to use common reason...") {
+        currentVal = "";
+    }
 
     const existing = document.getElementById("crm_line_reason_modal_overlay");
     if (existing) existing.remove();
@@ -1225,18 +1231,18 @@ document.addEventListener("click", function(ev) {
     overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:99999;display:flex;align-items:center;justify-content:center;";
 
     overlay.innerHTML = `
-        <div style="background:#fff;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.25);width:90%;max-width:480px;overflow:hidden;border:1px solid #cbd5e1;font-family:inherit;">
-            <div style="padding:12px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
-                <strong style="color:#0b3d91;font-size:14px;">Reject Reason: ${empName} (${expType})</strong>
-                <button type="button" id="crm_line_reason_close_x" style="background:none;border:none;font-size:18px;cursor:pointer;color:#64748b;">&times;</button>
+        <div style="background:#fff;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,0.22);width:88%;max-width:380px;overflow:hidden;border:1px solid #cbd5e1;font-family:inherit;">
+            <div style="padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+                <strong style="color:#0b3d91;font-size:13px;font-weight:600;">Reject Reason: ${empName} (${expType})</strong>
+                <button type="button" id="crm_line_reason_close_x" style="background:none;border:none;font-size:16px;cursor:pointer;color:#64748b;line-height:1;padding:0 2px;">&times;</button>
             </div>
-            <div style="padding:16px;">
-                <label style="display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:6px;">Detailed Line Reason / Remark:</label>
-                <textarea id="crm_line_reason_textarea" rows="4" style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:6px;padding:8px 10px;font-size:13px;outline:none;resize:vertical;" placeholder="Enter specific reason for this line...">${currentVal === "Leave blank to use common reason..." ? "" : currentVal}</textarea>
+            <div style="padding:10px 12px;">
+                <label style="display:block;font-size:11.5px;font-weight:600;color:#475569;margin-bottom:4px;">Detailed Line Reason / Remark:</label>
+                <textarea id="crm_line_reason_textarea" rows="3" style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:4px;padding:6px 8px;font-size:12.5px;outline:none;resize:vertical;min-height:60px;" placeholder="Enter specific reason for this line...">${currentVal}</textarea>
             </div>
-            <div style="padding:10px 16px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px;">
-                <button type="button" id="crm_line_reason_cancel" style="padding:6px 14px;border:1px solid #cbd5e1;border-radius:4px;background:#fff;color:#334155;font-weight:500;cursor:pointer;font-size:13px;">Cancel</button>
-                <button type="button" id="crm_line_reason_save" style="padding:6px 16px;border:none;border-radius:4px;background:#0b3d91;color:#fff;font-weight:600;cursor:pointer;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,0.1);">Save Reason</button>
+            <div style="padding:8px 12px;background:#f8fafc;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:6px;">
+                <button type="button" id="crm_line_reason_cancel" style="padding:4px 10px;border:1px solid #cbd5e1;border-radius:4px;background:#fff;color:#334155;font-weight:500;cursor:pointer;font-size:12px;">Cancel</button>
+                <button type="button" id="crm_line_reason_save" style="padding:4px 14px;border:none;border-radius:4px;background:#0b3d91;color:#fff;font-weight:600;cursor:pointer;font-size:12px;box-shadow:0 1px 2px rgba(0,0,0,0.08);">Save Reason</button>
             </div>
         </div>
     `;
@@ -1258,17 +1264,12 @@ document.addEventListener("click", function(ev) {
 
     overlay.querySelector("#crm_line_reason_save").addEventListener("click", function() {
         const newVal = ta.value.trim();
-        if (reasonInput && reasonInput.tagName === "INPUT") {
-            reasonInput.value = newVal;
-            reasonInput.dispatchEvent(new Event("input", { bubbles: true }));
-            reasonInput.dispatchEvent(new Event("change", { bubbles: true }));
-        } else if (reasonCell) {
-            let inp = reasonCell.querySelector("input");
-            if (inp) {
-                inp.value = newVal;
-                inp.dispatchEvent(new Event("input", { bubbles: true }));
-                inp.dispatchEvent(new Event("change", { bubbles: true }));
-            }
+        let targetInp = (reasonInput && reasonInput.tagName === "INPUT") ? reasonInput : (reasonCell ? reasonCell.querySelector("input") : null);
+        if (targetInp) {
+            targetInp.value = newVal;
+            targetInp.title = newVal;
+            targetInp.dispatchEvent(new Event("input", { bubbles: true }));
+            targetInp.dispatchEvent(new Event("change", { bubbles: true }));
         }
         closeModal();
     });

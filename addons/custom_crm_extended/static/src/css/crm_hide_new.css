@@ -4208,3 +4208,34 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
 .crm_batch_recovery_wizard_modal .crm_total_recovery_text {
     color: #0b3d91 !important;
 }
+
+/* Clean Alignment for Reject Reason Column in Recovery Wizard */
+.crm_batch_recovery_wizard_modal th:has([data-name="custom_reason"]),
+.crm_batch_recovery_wizard_modal th[data-name="custom_reason"] {
+    text-align: left !important;
+    padding-left: 12px !important;
+}
+
+.crm_batch_recovery_wizard_modal td[name="custom_reason"],
+.crm_batch_recovery_wizard_modal td[data-name="custom_reason"] {
+    text-align: left !important;
+    cursor: pointer !important;
+}
+
+.crm_batch_recovery_wizard_modal td[name="custom_reason"] input,
+.crm_batch_recovery_wizard_modal td[data-name="custom_reason"] input {
+    cursor: pointer !important;
+    background-color: #f8fafc !important;
+    border: 1px dashed #cbd5e1 !important;
+    color: #0b3d91 !important;
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    border-radius: 4px !important;
+    padding: 4px 8px !important;
+}
+
+.crm_batch_recovery_wizard_modal td[name="custom_reason"] input:hover,
+.crm_batch_recovery_wizard_modal td[data-name="custom_reason"] input:hover {
+    border-color: #0b3d91 !important;
+    background-color: #eff6ff !important;
+}
