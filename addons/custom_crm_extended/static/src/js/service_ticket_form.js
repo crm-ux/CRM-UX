@@ -269,92 +269,22 @@ patch(ListRenderer.prototype, {
     },
 });
 
-// Capture-phase listener to completely block Odoo from reloading the page when toggling checkboxes
+// Capture-phase listener to block raw cell clicks on voucher line tables from opening form
 document.addEventListener(
     "click",
-    async (ev) => {
-        const btn = ev.target.closest("button[name='action_toggle_recovery_select']");
-        if (!btn) return;
-
-        // 1. Instantly kill the event so Odoo's ViewButton never calls form reload
+    (ev) => {
+        const row = ev.target.closest(
+            ".o_voucher_card_list tr.o_data_row, div[name='line_ids'] tr.o_data_row, div[name='ticket_voucher_line_ids'] tr.o_data_row"
+        );
+        if (!row) return;
+        // Allow buttons, links, tag chips, and inputs (like View Description, View Bill, Approve/Reject/Pay/Recovery buttons)
+        if (ev.target.closest("button, a, input, select, textarea, .btn, .o_field_many2many_tags")) {
+            return;
+        }
+        // Disallow row clicks on any data cell from opening record / breaking UI
         ev.preventDefault();
         ev.stopPropagation();
         ev.stopImmediatePropagation();
-
-        const row = btn.closest("tr.o_data_row");
-        if (!row) return;
-
-        // Check if the expense row is paid / partially paid
-        const statusCell = row.querySelector("td[name='display_status'], td[name='status']");
-        const statusText = statusCell ? statusCell.textContent.trim().toLowerCase() : "";
-        const isPaid = statusText.includes("paid");
-
-        const env = window.__odooVoucherEnv || window.odoo?.env;
-
-        if (!isPaid) {
-            if (env?.services?.notification) {
-                env.services.notification.add(
-                    _t("Recovery can only be claimed on Paid or Partially Paid expense lines. This line is not paid."),
-                    { type: "warning" }
-                );
-            }
-            return;
-        }
-
-        // 2. Toggle visual state immediately with zero delay
-        const isChecked = btn.classList.contains("crm_checkbox_checked");
-        if (isChecked) {
-            btn.classList.remove("crm_checkbox_checked");
-            btn.classList.add("crm_checkbox_unchecked");
-            btn.style.setProperty("background-color", "#ffffff", "important");
-            btn.style.setProperty("color", "transparent", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
-            if (icon) icon.style.setProperty("display", "none", "important");
-        } else {
-            btn.classList.remove("crm_checkbox_unchecked");
-            btn.classList.add("crm_checkbox_checked");
-            btn.style.setProperty("background-color", "#0b3d91", "important");
-            btn.style.setProperty("color", "#ffffff", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
-            if (icon) {
-                icon.style.setProperty("display", "block", "important");
-                icon.style.setProperty("color", "#ffffff", "important");
-            }
-        }
-
-        // 3. Dynamically update header Claim Recovery button without page reload
-        const anyChecked = document.querySelectorAll(
-            ".o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'].crm_checkbox_checked, .o_service_ticket_voucher_line_form button[name='action_toggle_recovery_select'].crm_checkbox_checked"
-        ).length > 0;
-        const claimBtns = document.querySelectorAll(
-            "header button[name='action_claim_recovery'], header button[name='action_claim_recovery_batch']"
-        );
-        claimBtns.forEach((cBtn) => {
-            if (anyChecked) {
-                cBtn.classList.remove("d-none");
-                cBtn.style.setProperty("display", "inline-block", "important");
-            } else {
-                cBtn.classList.add("d-none");
-                cBtn.style.setProperty("display", "none", "important");
-            }
-        });
-
-        // 4. Silently persist selection to DB in background
-        try {
-            const renderer = window.__odooVoucherListRenderer;
-            const record = renderer?.props?.list?.records?.find((r) => r.id === row.dataset.id);
-            const resId = record?.resId;
-            if (resId && env?.services?.orm) {
-                await env.services.orm.call(
-                    "service.ticket.voucher.line",
-                    "action_toggle_recovery_select",
-                    [[resId]],
-                    {}
-                );
-            }
-        } catch (err) {
-            console.error("Background recovery toggle error:", err);
-        }
     },
     true
 );

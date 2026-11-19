@@ -2660,7 +2660,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('All lines in this voucher have been approved.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2699,7 +2698,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Expense line marked as Paid.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2769,7 +2767,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher marked as Paid.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2796,7 +2793,6 @@ class ServiceTicketVoucherLine(models.Model):
                 'message': _('Voucher lines reset to Submitted for re-evaluation.'),
                 'type': 'info',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -2812,7 +2808,16 @@ class ServiceTicketVoucherLine(models.Model):
             })
             if rec.batch_id:
                 rec.batch_id._compute_status()
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Line Reset'),
+                'message': _('Expense line reset to Submitted.'),
+                'type': 'info',
+                'sticky': False,
+            }
+        }
 
     def action_reject(self):
         line = self[:1]
@@ -2875,11 +2880,16 @@ class ServiceTicketVoucherLine(models.Model):
         if self.batch_id:
             return self.batch_id.action_claim_recovery()
 
-        selected_lines = (self.ticket_voucher_line_ids or self).filtered(
+        lines = self.ticket_voucher_line_ids or self
+        selected_lines = lines.filtered(
             lambda l: l.is_selected_for_recovery and l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
         )
         if not selected_lines:
-            raise UserError(_("Please select at least one paid expense line to recover using the checkbox."))
+            selected_lines = lines.filtered(
+                lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+            )
+        if not selected_lines:
+            raise UserError(_("No recoverable paid expense lines found."))
 
         wiz = self.env['service.ticket.voucher.batch.recovery.wizard'].sudo().create({
             'batch_id': self.batch_id.id if self.batch_id else False,
@@ -4129,7 +4139,6 @@ class ServiceTicketVoucherBatch(models.Model):
                 'message': _('Voucher marked as Paid.'),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -4152,7 +4161,6 @@ class ServiceTicketVoucherBatch(models.Model):
                 'message': _('Voucher reset to Submitted for re-evaluation.'),
                 'type': 'info',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -4164,7 +4172,11 @@ class ServiceTicketVoucherBatch(models.Model):
             lambda l: l.is_selected_for_recovery and l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
         )
         if not selected_lines:
-            raise UserError(_("Please select at least one paid expense line to recover using the checkbox."))
+            selected_lines = self.line_ids.filtered(
+                lambda l: l.status in ('paid', 'partially_paid') and l.recovery_status == 'none'
+            )
+        if not selected_lines:
+            raise UserError(_("No recoverable paid expense lines found."))
 
         wiz = self.env['service.ticket.voucher.batch.recovery.wizard'].sudo().create({
             'batch_id': self.id,
