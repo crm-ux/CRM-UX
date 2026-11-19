@@ -2126,16 +2126,19 @@ class ServiceTicketVoucherLine(models.Model):
             items = []
             seen_names = set()
 
-            # 1. Gather all attachments from Many2many
-            if rec.bill_attachment_ids:
-                for att in rec.bill_attachment_ids:
+            # 1. Gather all attachments from Many2many (using sudo to ensure full filestore binary access)
+            line_atts = rec.sudo().bill_attachment_ids
+            if line_atts:
+                for att in line_atts:
                     fname = att.name or 'Receipt'
                     seen_names.add(fname.lower())
                     ext = fname.lower().split('.')[-1] if '.' in fname else ''
+                    b64_val = att.datas or (base64.b64encode(att.raw).decode('ascii') if getattr(att, 'raw', None) else False)
                     items.append({
                         'name': fname,
                         'ext': ext,
-                        'raw_data': att.datas,
+                        'raw_data': b64_val,
+                        'raw_bytes': getattr(att, 'raw', None),
                         'url': f"/web/content/{att.id}?download=false",
                         'download_url': f"/web/content/{att.id}?download=true",
                     })
@@ -2149,6 +2152,7 @@ class ServiceTicketVoucherLine(models.Model):
                         'name': fname,
                         'ext': ext,
                         'raw_data': rec.bill_file,
+                        'raw_bytes': False,
                         'url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=false",
                         'download_url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=true",
                     })
@@ -2223,41 +2227,57 @@ class ServiceTicketVoucherLine(models.Model):
                             <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none; display: block;" title="{name}"></iframe>
                         </div>
                     '''
-                elif ext in ('xlsx', 'xls') and raw_b64:
+                elif ext in ('xlsx', 'xls') and (raw_b64 or itm.get('raw_bytes')):
                     table_html = False
                     import io, base64, zipfile
                     import xml.etree.ElementTree as ET
 
-                    # Safe decode raw bytes without crashing
-                    raw_bytes = b''
-                    try:
-                        if isinstance(raw_b64, bytes):
-                            raw_bytes = raw_b64 if raw_b64.startswith(b'PK') else base64.b64decode(raw_b64)
-                        elif isinstance(raw_b64, str):
-                            raw_bytes = base64.b64decode(raw_b64)
-                    except Exception:
+                    raw_bytes = itm.get('raw_bytes') or b''
+                    if not raw_bytes and raw_b64:
                         try:
-                            raw_bytes = raw_b64 if isinstance(raw_b64, bytes) else raw_b64.encode('utf-8', errors='ignore')
+                            if isinstance(raw_b64, bytes):
+                                raw_bytes = raw_b64 if raw_b64.startswith(b'PK') else base64.b64decode(raw_b64)
+                            elif isinstance(raw_b64, str):
+                                raw_bytes = base64.b64decode(raw_b64)
                         except Exception:
-                            raw_bytes = b''
+                            try:
+                                raw_bytes = raw_b64 if isinstance(raw_b64, bytes) else raw_b64.encode('utf-8', errors='ignore')
+                            except Exception:
+                                raw_bytes = b''
 
                     parsed_rows = []
 
-                    # 1. Try with openpyxl if available
-                    if has_openpyxl and raw_bytes:
+                    # 1. Try equipment.master invoice preview converter first
+                    if raw_b64:
+                        try:
+                            em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(raw_b64=raw_b64, filename=name)
+                            if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
+                                for sh in em_res['sheets']:
+                                    sh_rows = sh.get('rows', [])
+                                    if sh_rows:
+                                        parsed_rows.extend(sh_rows)
+                                        break
+                        except Exception:
+                            parsed_rows = []
+
+                    # 2. Try with openpyxl if available
+                    if not parsed_rows and has_openpyxl and raw_bytes:
                         try:
                             import openpyxl
                             wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
-                            sheet = wb.active
-                            for row in sheet.iter_rows(values_only=True):
-                                if any(val is not None and str(val).strip() != '' for val in row):
-                                    parsed_rows.append([str(val) if val is not None else '' for val in row])
-                                if len(parsed_rows) >= 200:
+                            for sname in wb.sheetnames:
+                                sheet = wb[sname]
+                                for row in sheet.iter_rows(values_only=True):
+                                    if any(val is not None and str(val).strip() != '' for val in row):
+                                        parsed_rows.append([str(val) if val is not None else '' for val in row])
+                                    if len(parsed_rows) >= 200:
+                                        break
+                                if parsed_rows:
                                     break
                         except Exception:
                             parsed_rows = []
 
-                    # 2. Built-in universal ZIP + XML parser (0 dependencies, namespace-agnostic)
+                    # 3. Built-in universal ZIP + XML parser (0 dependencies, namespace-agnostic)
                     if not parsed_rows and raw_bytes and raw_bytes.startswith(b'PK'):
                         try:
                             with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
