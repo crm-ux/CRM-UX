@@ -4071,3 +4071,20 @@ button[name="action_toggle_recovery_select"].crm_checkbox_unchecked:hover,
     background-color: #e8f0fe !important;
     border-color: #0b3d91 !important;
 }
+
+/* ── Show Claim Recovery Header Button ONLY when at least 1 line is selected ── */
+.o_service_ticket_voucher_batch_form header button[name="action_claim_recovery"],
+.o_service_ticket_voucher_batch_form header button[name="action_claim_recovery_batch"],
+.o_service_ticket_voucher_line_form header button[name="action_claim_recovery"],
+.o_service_ticket_voucher_line_form header button[name="action_claim_recovery_batch"] {
+    display: none !important;
+}
+
+.o_service_ticket_voucher_batch_form:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery"],
+.o_service_ticket_voucher_batch_form:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery_batch"],
+.o_service_ticket_voucher_line_form:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery"],
+.o_service_ticket_voucher_line_form:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery_batch"],
+.o_form_view:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery"],
+.o_form_view:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked) header button[name="action_claim_recovery_batch"] {
+    display: inline-block !important;
+}
