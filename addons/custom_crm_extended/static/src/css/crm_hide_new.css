@@ -4179,7 +4179,7 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     min-height: 34px !important;
 }
 
-/* Amount to Recover Table Cell - Single Clean Box, Perfectly Aligned */
+/* Amount to Recover Table Cell - Borderless, Clean & Simple */
 .crm_batch_recovery_wizard_modal table.o_list_table th:has([data-name="recovery_amount"]),
 .crm_batch_recovery_wizard_modal table.o_list_table th[data-name="recovery_amount"],
 .crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] {
@@ -4187,18 +4187,26 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     text-align: right !important;
 }
 
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input {
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_input,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_field_monetary,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_field_monetary > div {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
     color: #0b3d91 !important;
     font-weight: 700 !important;
     font-size: 13px !important;
     text-align: right !important;
-    border-color: #0b3d91 !important;
 }
 
-.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input:focus {
-    border-color: #0b3d91 !important;
-    box-shadow: 0 0 0 1.5px #0b3d91 !important;
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] input:focus,
+.crm_batch_recovery_wizard_modal table.o_list_table td[name="recovery_amount"] .o_input:focus {
+    border: none !important;
     outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
 }
 
 .crm_batch_recovery_wizard_modal textarea,
