@@ -4668,7 +4668,7 @@ class ServiceTicketVoucherBatchRecoveryWizard(models.TransientModel):
                     f"{w_line.paid_amount:,.2f}",
                 ))
             if not has_common_reason and not (w_line.custom_reason or '').strip():
-                raise UserError(_("Please provide a Common Reason at the top or a Line Reason for each selected line."))
+                raise UserError(_("Please provide a Common Reason at the top or a Reject Reason for each selected line."))
 
         for w_line in self.line_ids:
             v_line = w_line.voucher_line_id
