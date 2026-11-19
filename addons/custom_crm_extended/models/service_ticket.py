@@ -2095,7 +2095,7 @@ class ServiceTicketVoucherLine(models.Model):
         'attachment_id',
         string='Bills & Receipts',
     )
-    bill_count = fields.Integer(compute='_compute_bill_count', string='Bills')
+    bill_count = fields.Integer(compute='_compute_bill_count', string='Bills', store=True)
 
     @api.depends('bill_file', 'bill_attachment_ids')
     def _compute_bill_count(self):
@@ -3009,7 +3009,7 @@ class ServiceTicketVoucherLine(models.Model):
 
     def action_preview_bill(self):
         self.ensure_one()
-        if not self.bill_file:
+        if not self.bill_file and not self.bill_attachment_ids:
             return False
         view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form', raise_if_not_found=False)
         return {

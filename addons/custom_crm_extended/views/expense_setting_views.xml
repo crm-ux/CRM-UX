@@ -297,7 +297,8 @@
                             <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1"/>
                             <field name="bill_file" column_invisible="1"/>
                             <field name="bill_filename" column_invisible="1"/>
-                            <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="not bill_file" class="btn p-0"/>
+                            <field name="bill_count" column_invisible="1"/>
+                            <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="bill_count == 0" class="btn p-0"/>
                             <field name="display_status" widget="badge" string="Status"
                                    decoration-muted="display_status == 'draft'" 
                                    decoration-warning="display_status in ('submitted', 'paid_recovery')" 
@@ -645,7 +646,8 @@
                                 <field name="net_paid_amount" string="Net Paid" sum="Total Net Paid" class="fw-bold text-end text-success" column_invisible="parent.status not in ('paid', 'partially_paid')" optional="show"/>
                                 <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1"/>
                                 <field name="bill_attachment_ids" column_invisible="1"/>
-                                <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" class="btn p-0"/>
+                                <field name="bill_count" column_invisible="1"/>
+                                <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" invisible="bill_count == 0" class="btn p-0"/>
                                 <field name="display_status" widget="badge" string="Status"
                                        decoration-muted="display_status == 'draft'" 
                                        decoration-warning="display_status in ('submitted', 'paid_recovery')" 
