@@ -305,7 +305,10 @@
                                    decoration-info="display_status in ('paid', 'partially_paid')" 
                                    decoration-danger="display_status == 'rejected'"/>
                             <field name="status" column_invisible="1"/>
-                            <field name="reject_reason" string="Reject Reason" optional="show"/>
+                            <field name="recovery_reason" column_invisible="1"/>
+                            <field name="display_reject_reason_trimmed" string="Reject Reason" optional="show"/>
+                            <button name="action_view_reject_reason" type="object" icon="fa-file-text-o text-crm-blue" title="View Reason" string="View" invisible="not recovery_reason and not reject_reason" class="btn p-0 text-crm-blue fw-semibold"/>
+                            <field name="reject_reason" column_invisible="1"/>
                             <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                             <field name="recovery_status" column_invisible="1"/>
                             <button name="action_approve" type="object" icon="fa-check text-success" title="Approve Line" invisible="status in ('approved', 'paid')"/>
@@ -650,7 +653,10 @@
                                        decoration-info="display_status in ('paid', 'partially_paid')" 
                                        decoration-danger="display_status == 'rejected'"/>
                                 <field name="status" column_invisible="1"/>
-                                <field name="reject_reason" string="Reject Reason" optional="show"/>
+                                <field name="recovery_reason" column_invisible="1"/>
+                                <field name="display_reject_reason_trimmed" string="Reject Reason" optional="show"/>
+                                <button name="action_view_reject_reason" type="object" icon="fa-file-text-o text-crm-blue" title="View Reason" string="View" invisible="not recovery_reason and not reject_reason" class="btn p-0 text-crm-blue fw-semibold"/>
+                                <field name="reject_reason" column_invisible="1"/>
                                 <field name="recovery_badge_html" widget="html" string="Recovery" readonly="1" optional="show"/>
                                 <field name="recovery_status" column_invisible="1"/>
                                 <field name="can_approve" column_invisible="1"/>
@@ -798,6 +804,35 @@
         <field name="target">new</field>
     </record>
 
+    <!-- View Reject / Recovery Reason Wizard Form -->
+    <record id="view_service_ticket_voucher_reason_wizard_form" model="ir.ui.view">
+        <field name="name">service.ticket.voucher.reason.wizard.form</field>
+        <field name="model">service.ticket.voucher.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject / Recovery Reason" class="crm_reason_reader_wizard_modal">
+                <div class="mb-3 p-2 bg-light rounded border d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="text-dark fs-6"><field name="employee_name" readonly="1"/></strong>
+                        <span class="text-muted mx-1">•</span>
+                        <span class="text-secondary fs-6"><field name="expense_type_name" readonly="1"/></span>
+                    </div>
+                    <div invisible="recovery_amount == 0">
+                        <field name="currency_id" invisible="1"/>
+                        <span class="badge bg-warning text-dark px-2 py-1 fw-bold fs-7">
+                            Recovery: <field name="recovery_amount" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                        </span>
+                    </div>
+                </div>
+                <div class="p-3 bg-white rounded border text-break fs-6" style="max-height: 50vh; overflow-y: auto; overflow-x: hidden; line-height: 1.6; word-break: break-word; white-space: pre-wrap;">
+                    <field name="reason" nolabel="1" readonly="1"/>
+                </div>
+                <footer>
+                    <button string="Close" class="btn btn-secondary px-3 py-1" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
     <!-- Confirm Over Budget Voucher Warning Wizard Form -->
     <record id="view_service_ticket_voucher_budget_confirm_wizard_form" model="ir.ui.view">
         <field name="name">service.ticket.voucher.budget.confirm.wizard.form</field>
@@ -894,6 +929,7 @@
                                 <field name="paid_amount" string="Paid Amount" widget="monetary" readonly="1" class="fw-semibold text-dark"/>
                                 <field name="recovery_amount" string="Amount to Recover" widget="monetary" class="fw-bold text-end text-crm-blue"/>
                                 <field name="custom_reason" string="Reject Reason" placeholder="Leave blank to use common reason..."/>
+                                <button name="action_open_line_reason_dialog" type="object" icon="fa-plus-circle text-crm-blue" title="Add / Edit Detailed Reason" class="btn p-0 crm_btn_line_reason"/>
                             </list>
                         </field>
                     </div>

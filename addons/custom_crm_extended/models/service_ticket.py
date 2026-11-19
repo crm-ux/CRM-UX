@@ -2422,6 +2422,17 @@ class ServiceTicketVoucherLine(models.Model):
                 approver = self.env['service.ticket']._get_voucher_approver_for_employee(rec.user_id)
                 rec.expense_manager_id = approver.id if approver else False
     reject_reason = fields.Char(string='Rejection Reason')
+    display_reject_reason_trimmed = fields.Char(string='Reject Reason', compute='_compute_display_reject_reason_trimmed')
+
+    @api.depends('recovery_reason', 'reject_reason')
+    def _compute_display_reject_reason_trimmed(self):
+        for rec in self:
+            raw = (rec.recovery_reason or rec.reject_reason or '').strip()
+            if raw:
+                clean = " ".join(raw.split())
+                rec.display_reject_reason_trimmed = (clean[:25] + '...') if len(clean) > 25 else clean
+            else:
+                rec.display_reject_reason_trimmed = ''
     amount_to_recover = fields.Monetary(
         string='Excess to Recover',
         currency_field='currency_id',
@@ -2876,6 +2887,28 @@ class ServiceTicketVoucherLine(models.Model):
             },
         }
 
+    def action_view_reject_reason(self):
+        self.ensure_one()
+        eff_reason = self.recovery_reason or self.reject_reason or 'No reason provided.'
+        wiz = self.env['service.ticket.voucher.reason.wizard'].create({
+            'voucher_line_id': self.id,
+            'employee_name': self.user_id.name or 'Employee',
+            'expense_type_name': self.expense_type_id.name or 'Expense',
+            'currency_id': self.currency_id.id if self.currency_id else self.env.company.currency_id.id,
+            'recovery_amount': self.amount_recovered or self.amount_to_recover or 0.0,
+            'reason': eff_reason,
+        })
+        view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_reason_wizard_form', raise_if_not_found=False)
+        return {
+            'name': _('Reject / Recovery Reason'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'service.ticket.voucher.reason.wizard',
+            'view_mode': 'form',
+            'res_id': wiz.id,
+            'view_id': view.id if view else False,
+            'target': 'new',
+        }
+
     def action_claim_recovery(self):
         self.ensure_one()
         self._check_voucher_approval_access()
@@ -3142,6 +3175,18 @@ class ServiceTicketVoucherDescWizard(models.TransientModel):
 
     voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Voucher Line', readonly=True)
     description = fields.Text(string='Description', readonly=True)
+
+
+class ServiceTicketVoucherReasonWizard(models.TransientModel):
+    _name = 'service.ticket.voucher.reason.wizard'
+    _description = 'View Rejection / Recovery Reason'
+
+    voucher_line_id = fields.Many2one('service.ticket.voucher.line', string='Expense Line', readonly=True)
+    employee_name = fields.Char(string='Employee', readonly=True)
+    expense_type_name = fields.Char(string='Expense Type', readonly=True)
+    currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
+    recovery_amount = fields.Monetary(string='Recovery Amount', currency_field='currency_id', readonly=True)
+    reason = fields.Text(string='Reason / Remark', readonly=True)
 
 
 class ServiceTicketVoucherBatch(models.Model):
@@ -4679,8 +4724,32 @@ class ServiceTicketVoucherBatchRecoveryWizardLine(models.TransientModel):
     submitted_amount = fields.Monetary(related='voucher_line_id.amount', string='Submitted Amount', readonly=True)
     paid_amount = fields.Monetary(string='Paid Amount', currency_field='currency_id', readonly=True)
     recovery_amount = fields.Monetary(string='Amount', currency_field='currency_id', required=True)
-    custom_reason = fields.Char(string='Custom Reason')
+    custom_reason = fields.Char(string='Reject Reason')
+    custom_reason_trimmed = fields.Char(string='Reject Reason', compute='_compute_custom_reason_trimmed')
     line_summary = fields.Char(compute='_compute_line_summary', string='Selected Expense')
+
+    def action_open_line_reason_dialog(self):
+        return False
+
+    @api.depends('custom_reason')
+    def _compute_custom_reason_trimmed(self):
+        for rec in self:
+            raw = (rec.custom_reason or '').strip()
+            if raw:
+                clean = " ".join(raw.split())
+                rec.custom_reason_trimmed = (clean[:22] + '...') if len(clean) > 22 else clean
+            else:
+                rec.custom_reason_trimmed = ''
+
+    @api.depends('custom_reason')
+    def _compute_custom_reason_trimmed(self):
+        for rec in self:
+            raw = (rec.custom_reason or '').strip()
+            if raw:
+                clean = " ".join(raw.split())
+                rec.custom_reason_trimmed = (clean[:22] + '...') if len(clean) > 22 else clean
+            else:
+                rec.custom_reason_trimmed = ''
 
     @api.depends('employee_id.name', 'expense_type_id.name', 'paid_amount', 'currency_id')
     def _compute_line_summary(self):
