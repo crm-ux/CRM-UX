@@ -418,6 +418,17 @@ document.addEventListener(
     `;
 })();
 
+function getRowStatusText(row) {
+    if (!row) return "";
+    const el = row.querySelector("[data-name='display_status'], [data-name='status'], [name='display_status'], [name='status'], .badge");
+    return ((el ? el.textContent : row.textContent) || "").trim().toLowerCase();
+}
+
+function isRowEligibleForRecovery(row) {
+    const text = getRowStatusText(row);
+    return text.includes("paid") && !text.includes("recovered");
+}
+
 function formatVoucherCheckboxButtons() {
     const btns = document.querySelectorAll("button[name='action_toggle_recovery_select']");
     if (!btns || btns.length === 0) return;
@@ -478,11 +489,10 @@ function formatVoucherCheckboxButtons() {
             }
         }
 
-        // Track paid line check count
+        // Track paid line check count per visible row button
         if (!isHidden) {
             const row = btn.closest("tr.o_data_row");
-            const statusText = row?.querySelector("td[name='display_status'], td[name='status']")?.textContent?.trim()?.toLowerCase() || "";
-            if (statusText.includes("paid")) {
+            if (isRowEligibleForRecovery(row)) {
                 totalEligiblePaid++;
                 if (isChecked) {
                     checkedEligiblePaid++;
@@ -562,29 +572,42 @@ document.addEventListener("click", async (ev) => {
     const table = allBtn.closest("table.o_list_table");
     if (!table) return;
 
-    // 1. Instant synchronous visual update for ALL rows at once
-    const rowBtns = table.querySelectorAll("tbody tr.o_data_row button[name='action_toggle_recovery_select']");
+    // 1. Instant synchronous visual update for ALL eligible paid rows at once
+    const rows = table.querySelectorAll("tbody tr.o_data_row");
     let hasUpdatedRows = false;
-    rowBtns.forEach((btn) => {
-        const row = btn.closest("tr.o_data_row");
-        const statusText = row?.querySelector("td[name='display_status'], td[name='status']")?.textContent?.trim()?.toLowerCase() || "";
-        if (!statusText.includes("paid")) return;
+    rows.forEach((row) => {
+        if (!isRowEligibleForRecovery(row)) return;
 
         hasUpdatedRows = true;
+        const checkedBtn = row.querySelector("button.crm_checkbox_checked");
+        const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
+
         if (targetState) {
-            btn.classList.remove("crm_checkbox_unchecked");
-            btn.classList.add("crm_checkbox_checked");
-            btn.style.setProperty("background-color", "#0b3d91", "important");
-            btn.style.setProperty("color", "#ffffff", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
-            if (icon) icon.style.setProperty("display", "block", "important");
+            if (checkedBtn) {
+                checkedBtn.classList.remove("d-none");
+                checkedBtn.style.setProperty("display", "inline-flex", "important");
+                checkedBtn.style.setProperty("background-color", "#0b3d91", "important");
+                checkedBtn.style.setProperty("color", "#ffffff", "important");
+                const icon = checkedBtn.querySelector("i, .o_button_icon");
+                if (icon) icon.style.setProperty("display", "block", "important");
+            }
+            if (uncheckedBtn) {
+                uncheckedBtn.classList.add("d-none");
+                uncheckedBtn.style.setProperty("display", "none", "important");
+            }
         } else {
-            btn.classList.remove("crm_checkbox_checked");
-            btn.classList.add("crm_checkbox_unchecked");
-            btn.style.setProperty("background-color", "#ffffff", "important");
-            btn.style.setProperty("color", "transparent", "important");
-            const icon = btn.querySelector("i, .o_button_icon");
-            if (icon) icon.style.setProperty("display", "none", "important");
+            if (checkedBtn) {
+                checkedBtn.classList.add("d-none");
+                checkedBtn.style.setProperty("display", "none", "important");
+            }
+            if (uncheckedBtn) {
+                uncheckedBtn.classList.remove("d-none");
+                uncheckedBtn.style.setProperty("display", "inline-flex", "important");
+                uncheckedBtn.style.setProperty("background-color", "#ffffff", "important");
+                uncheckedBtn.style.setProperty("color", "transparent", "important");
+                const icon = uncheckedBtn.querySelector("i, .o_button_icon");
+                if (icon) icon.style.setProperty("display", "none", "important");
+            }
         }
     });
 
@@ -627,7 +650,8 @@ document.addEventListener("click", async (ev) => {
         const ids = [];
         records.forEach((r) => {
             const s = (r.data?.status || "").toLowerCase();
-            if (s.includes("paid") && (!r.data?.recovery_status || r.data?.recovery_status === "none")) {
+            const rs = (r.data?.recovery_status || "none").toLowerCase();
+            if (s.includes("paid") && rs === "none") {
                 if (r.resId) ids.push(r.resId);
                 if (r.data) r.data.is_selected_for_recovery = targetState;
             }
@@ -639,6 +663,18 @@ document.addEventListener("click", async (ev) => {
                 ids,
                 { is_selected_for_recovery: targetState }
             );
+        } else {
+            // Fallback: click row buttons sequentially if ORM list not available
+            for (const row of rows) {
+                if (!isRowEligibleForRecovery(row)) continue;
+                const btnToClick = targetState
+                    ? row.querySelector("button.crm_checkbox_unchecked:not(.d-none)")
+                    : row.querySelector("button.crm_checkbox_checked:not(.d-none)");
+                if (btnToClick) {
+                    btnToClick.click();
+                    await new Promise((r) => setTimeout(r, 60));
+                }
+            }
         }
     } catch (err) {
         console.error("Atomic select-all update error:", err);
