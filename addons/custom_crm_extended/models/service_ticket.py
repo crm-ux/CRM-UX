@@ -2225,32 +2225,89 @@ class ServiceTicketVoucherLine(models.Model):
                     '''
                 elif ext in ('xlsx', 'xls') and raw_b64:
                     table_html = False
-                    if has_openpyxl and ext == 'xlsx':
+                    import io, base64, zipfile
+                    import xml.etree.ElementTree as ET
+
+                    # Safe decode raw_bytes
+                    if isinstance(raw_b64, bytes):
+                        raw_bytes = raw_b64 if raw_b64.startswith(b'PK') else (base64.b64decode(raw_b64) if len(raw_b64) > 0 else b'')
+                    elif isinstance(raw_b64, str):
                         try:
-                            file_bytes = base64.b64decode(raw_b64)
-                            wb = openpyxl.load_workbook(io.BytesIO(file_bytes), data_only=True, read_only=True)
-                            sheet = wb.active
-                            rows = list(sheet.iter_rows(values_only=True))
-                            if rows:
-                                table_html = '<div class="table-responsive" style="max-height: 68vh; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff;">'
-                                table_html += '<table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px;">'
-                                col_count = max(len(r) for r in rows[:100]) if rows else 0
-                                for r_idx, row in enumerate(rows[:100]):
-                                    if not any(row):
-                                        continue
-                                    table_html += '<tr>'
-                                    for cell in row:
-                                        val = '' if cell is None else str(cell)
-                                        if r_idx == 0:
-                                            table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6;">{val}</th>'
-                                        else:
-                                            table_html += f'<td class="text-nowrap">{val}</td>'
-                                    table_html += '</tr>'
-                                if len(rows) > 100:
-                                    table_html += f'<tr><td colspan="{col_count}" class="text-center text-muted fst-italic py-2 bg-light">... Showing first 100 rows of {len(rows)} (Download file to view full sheet) ...</td></tr>'
-                                table_html += '</table></div>'
+                            raw_bytes = base64.b64decode(raw_b64)
                         except Exception:
-                            table_html = False
+                            raw_bytes = raw_b64.encode('utf-8', errors='ignore')
+                    else:
+                        raw_bytes = b''
+
+                    parsed_rows = []
+
+                    # 1. Try with openpyxl if installed
+                    if has_openpyxl and raw_bytes:
+                        try:
+                            import openpyxl
+                            wb = openpyxl.load_workbook(io.BytesIO(raw_bytes), data_only=True, read_only=True)
+                            sheet = wb.active
+                            for row in sheet.iter_rows(values_only=True):
+                                if any(val is not None and str(val).strip() != '' for val in row):
+                                    parsed_rows.append([str(val) if val is not None else '' for val in row])
+                                if len(parsed_rows) >= 200:
+                                    break
+                        except Exception:
+                            parsed_rows = []
+
+                    # 2. Built-in ZIP + XML parser (0 external dependencies, works on all systems)
+                    if not parsed_rows and raw_bytes and raw_bytes.startswith(b'PK'):
+                        try:
+                            with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
+                                shared_strings = []
+                                if 'xl/sharedStrings.xml' in z.namelist():
+                                    sst_tree = ET.fromstring(z.read('xl/sharedStrings.xml'))
+                                    ns_s = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+                                    for si in sst_tree.findall('.//x:si', ns_s):
+                                        t = si.find('.//x:t', ns_s)
+                                        shared_strings.append(t.text if t is not None and t.text else '')
+
+                                for zname in z.namelist():
+                                    if zname.startswith('xl/worksheets/sheet') and zname.endswith('.xml'):
+                                        sheet_tree = ET.fromstring(z.read(zname))
+                                        ns_x = {'x': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+                                        for r in sheet_tree.findall('.//x:row', ns_x):
+                                            row_vals = []
+                                            for c in r.findall('.//x:c', ns_x):
+                                                c_type = c.get('t')
+                                                v = c.find('.//x:v', ns_x)
+                                                val_str = ''
+                                                if v is not None and v.text:
+                                                    if c_type == 's' and v.text.isdigit():
+                                                        idx = int(v.text)
+                                                        val_str = shared_strings[idx] if idx < len(shared_strings) else v.text
+                                                    else:
+                                                        val_str = v.text
+                                                row_vals.append(val_str)
+                                            if any(val_str.strip() for val_str in row_vals):
+                                                parsed_rows.append(row_vals)
+                                            if len(parsed_rows) >= 200:
+                                                break
+                                        break # read first sheet
+                        except Exception:
+                            parsed_rows = []
+
+                    if parsed_rows:
+                        table_html = '<div class="table-responsive p-0 m-0" style="max-height: 76vh; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff;">'
+                        table_html += '<table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 13px;">'
+                        col_count = max(len(r) for r in parsed_rows[:150]) if parsed_rows else 0
+                        for r_idx, row in enumerate(parsed_rows[:150]):
+                            table_html += '<tr>'
+                            for cell in row:
+                                val = '' if cell is None else str(cell)
+                                if r_idx == 0:
+                                    table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6; padding: 6px 10px;">{val}</th>'
+                                else:
+                                    table_html += f'<td class="text-nowrap" style="padding: 5px 10px;">{val}</td>'
+                            table_html += '</tr>'
+                        if len(parsed_rows) > 150:
+                            table_html += f'<tr><td colspan="{col_count}" class="text-center text-muted fst-italic py-2 bg-light">... Showing first 150 rows of {len(parsed_rows)} (Download file to view full sheet) ...</td></tr>'
+                        table_html += '</table></div>'
 
                     if table_html:
                         body_html = table_html
