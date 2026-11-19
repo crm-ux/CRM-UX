@@ -3200,7 +3200,7 @@ class ServiceTicketVoucherLine(models.Model):
             'res_model': 'service.ticket.voucher.line',
             'res_id': self.id,
             'view_mode': 'form',
-            'view_id': view.id if view else False,
+            'views': [(view.id if view else False, 'form')],
             'target': 'new',
             'context': {'dialog_size': 'extra-large'},
         }

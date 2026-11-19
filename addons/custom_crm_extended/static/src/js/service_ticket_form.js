@@ -86,6 +86,9 @@ patch(ListController.prototype, {
                             [[recId]]
                         );
                         if (action) {
+                            if (!action.views) {
+                                action.views = [[action.view_id || false, "form"]];
+                            }
                             return this.env.services.action.doAction(action);
                         }
                     } catch (err) {
@@ -827,6 +830,9 @@ export class ServiceTicketFormController extends FormController {
                             [[recId]]
                         );
                         if (action) {
+                            if (!action.views) {
+                                action.views = [[action.view_id || false, "form"]];
+                            }
                             return this.env.services.action.doAction(action);
                         }
                     } catch (err) {
