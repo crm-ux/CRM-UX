@@ -418,10 +418,41 @@ document.addEventListener(
     `;
 })();
 
+function getStatusColumnIndex(table) {
+    if (!table) return -1;
+    const ths = table.querySelectorAll("thead th");
+    for (let i = 0; i < ths.length; i++) {
+        if (ths[i].textContent.trim().toLowerCase() === "status") {
+            return i;
+        }
+    }
+    return -1;
+}
+
 function getRowStatusText(row) {
     if (!row) return "";
-    const el = row.querySelector("[data-name='display_status'], [data-name='status'], [name='display_status'], [name='status'], .badge");
-    return ((el ? el.textContent : row.textContent) || "").trim().toLowerCase();
+    // 1. Try cell with specific column name display_status / status
+    const el = row.querySelector("td[data-name='display_status'], td[name='display_status'], td[data-name='status'], td[name='status']");
+    if (el) return el.textContent.trim().toLowerCase();
+
+    // 2. Try by column index matching header 'Status'
+    const table = row.closest("table.o_list_table");
+    const colIdx = getStatusColumnIndex(table);
+    if (colIdx >= 0 && row.children[colIdx]) {
+        return row.children[colIdx].textContent.trim().toLowerCase();
+    }
+
+    // 3. Fallback: check record in controller model if available
+    const dataId = row.dataset.id;
+    const controller = window.__odooCurrentFormController;
+    const root = controller?.model?.root;
+    const lineField = root?.data?.line_ids || root?.data?.ticket_voucher_line_ids;
+    if (lineField?.records) {
+        const match = lineField.records.find((r) => r.id === dataId);
+        if (match?.data?.status) return (match.data.status || "").toLowerCase();
+    }
+
+    return "";
 }
 
 function isRowEligibleForRecovery(row) {
@@ -573,10 +604,19 @@ document.addEventListener("click", async (ev) => {
     const row = rowBtn.closest("tr.o_data_row");
     if (!row) return;
 
-    // Check line eligibility: must be Paid/Partially Paid and not recovered
-    if (!isRowEligibleForRecovery(row)) {
-        ev.preventDefault();
-        ev.stopPropagation();
+    // Intercept click: bypass Odoo default button round-trip to eliminate the 1-second blink!
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    // Determine current state
+    const checkedBtn = row.querySelector("button.crm_checkbox_checked");
+    const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
+    const isCurrentlyChecked = checkedBtn && !checkedBtn.classList.contains("d-none") && checkedBtn.style.display !== "none";
+    const newState = !isCurrentlyChecked;
+
+    // Check line eligibility ONLY when user attempts to check (select) an unpaid line.
+    // Deselecting/unchecking is ALWAYS permitted!
+    if (newState && !isRowEligibleForRecovery(row)) {
         const env = window.__odooEnv || window.__odooCurrentFormController?.env;
         if (env?.services?.notification) {
             const statusText = getRowStatusText(row);
@@ -588,15 +628,7 @@ document.addEventListener("click", async (ev) => {
         return;
     }
 
-    // Intercept click: bypass Odoo default button round-trip to eliminate the 1-second blink!
-    ev.preventDefault();
-    ev.stopPropagation();
-
     // Instant visual toggle on this row (0ms)
-    const checkedBtn = row.querySelector("button.crm_checkbox_checked");
-    const uncheckedBtn = row.querySelector("button.crm_checkbox_unchecked");
-    const isCurrentlyChecked = checkedBtn && !checkedBtn.classList.contains("d-none") && checkedBtn.style.display !== "none";
-    const newState = !isCurrentlyChecked;
 
     if (newState) {
         if (checkedBtn) {
