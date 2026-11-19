@@ -2,8 +2,9 @@
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
+import { ListController } from "@web/views/list/list_controller";
 import { useService } from "@web/core/utils/hooks";
-import { useState, onWillStart } from "@odoo/owl";
+import { useState, onWillStart, onMounted } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
@@ -333,7 +334,126 @@ patch(ControlPanel.prototype, {
     }
 });
 
+// ── Maintain List Record IDs in SessionStorage for Pager Persistence Across Refresh ──
+patch(ListController.prototype, {
+    setup() {
+        super.setup(...arguments);
+        const saveListIds = () => {
+            try {
+                const resModel = this.model?.root?.resModel || this.props?.resModel;
+                const records = this.model?.root?.records;
+                if (resModel && records && records.length > 0) {
+                    const ids = records.map((r) => r.resId).filter(Boolean);
+                    if (ids.length > 0) {
+                        sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                    }
+                }
+            } catch (e) {}
+        };
+
+        onMounted(() => {
+            saveListIds();
+        });
+    },
+    async openRecord(record) {
+        try {
+            const resModel = this.model?.root?.resModel || this.props?.resModel;
+            const records = this.model?.root?.records;
+            if (resModel && records && records.length > 0) {
+                const ids = records.map((r) => r.resId).filter(Boolean);
+                if (ids.length > 0) {
+                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                }
+            }
+        } catch (e) {}
+        return super.openRecord ? super.openRecord(...arguments) : undefined;
+    },
+});
+
 patch(FormController.prototype, {
+    setup() {
+        super.setup(...arguments);
+        const resModel = this.props.resModel;
+        const currentResId = this.props.resId;
+
+        // Restore resIds on refresh so pager shows full record count (e.g. 1/16 instead of 1/1)
+        if (resModel && currentResId) {
+            onWillStart(async () => {
+                if (!this.props.resIds || this.props.resIds.length <= 1) {
+                    let restoredIds = null;
+                    try {
+                        const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            if (Array.isArray(parsed) && parsed.includes(currentResId)) {
+                                restoredIds = parsed;
+                            }
+                        }
+                    } catch (e) {}
+
+                    if (!restoredIds) {
+                        try {
+                            const domain = this.props.domain || [];
+                            const searchRes = await this.model.orm.search(resModel, domain, { limit: 1000 });
+                            if (Array.isArray(searchRes) && searchRes.includes(currentResId)) {
+                                restoredIds = searchRes;
+                                sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
+                            }
+                        } catch (err) {}
+                    }
+
+                    if (restoredIds && restoredIds.length > 1) {
+                        this.props.resIds = restoredIds;
+                        if (this.model?.root) {
+                            this.model.root.resIds = restoredIds;
+                        }
+                    }
+                }
+            });
+        }
+    },
+
+    get pagerProps() {
+        const props = super.pagerProps;
+        const resModel = this.props.resModel;
+        const currentResId = this.model?.root?.resId || this.props.resId;
+
+        if (!props || props.total <= 1) {
+            let resIds = this.props.resIds;
+            if (!resIds || resIds.length <= 1) {
+                try {
+                    const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed) && parsed.includes(currentResId)) {
+                            resIds = parsed;
+                            this.props.resIds = parsed;
+                        }
+                    }
+                } catch (e) {}
+            }
+            if (resIds && resIds.length > 1) {
+                const index = resIds.indexOf(currentResId);
+                return {
+                    offset: index !== -1 ? index : 0,
+                    limit: 1,
+                    total: resIds.length,
+                    onUpdate: async (newOffset) => {
+                        const targetId = resIds[newOffset];
+                        if (targetId) {
+                            if (this.model?.root?.switchRecord) {
+                                await this.model.root.switchRecord(targetId);
+                            } else if (this.model?.load) {
+                                await this.model.load({ resId: targetId });
+                            }
+                        }
+                    },
+                };
+            }
+        }
+        return props;
+    },
+
     async discard() {
         // If inside a modal/dialog/wizard, simply close the dialog without redirecting to Dashboard
         if (this.props.close || this.env.config?.target === "new" || this.env.dialogData) {
@@ -357,12 +477,13 @@ patch(FormController.prototype, {
                     return;
                 }
             }
-            // Smart Fallbacks when opened without breadcrumbs stack
-            if (this.props.resModel === "sale.order") {
+            // Smart Fallbacks when opened without breadcrumbs stack (e.g. after page refresh)
+            const resModel = this.props.resModel;
+            if (resModel === "sale.order") {
                 this.actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "crm.lead") {
+            } else if (resModel === "crm.lead") {
                 this.actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "res.partner") {
+            } else if (resModel === "res.partner") {
                 this.actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Customers",
@@ -370,16 +491,16 @@ patch(FormController.prototype, {
                     views: [[false, "list"], [false, "form"]],
                     domain: [["is_company", "=", true]],
                 }, { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "exhibition.contact") {
+            } else if (resModel === "exhibition.contact") {
                 this.actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "product.template") {
+            } else if (resModel === "product.template") {
                 this.actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Products",
                     res_model: "product.template",
                     views: [[false, "list"], [false, "form"]],
                 }, { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "res.users") {
+            } else if (resModel === "res.users") {
                 this.actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Users",
@@ -387,7 +508,7 @@ patch(FormController.prototype, {
                     views: [[false, "list"], [false, "form"]],
                     domain: [["share", "=", false]],
                 }, { clearBreadcrumbs: true });
-            } else if (this.props.resModel === "hr.job") {
+            } else if (resModel === "hr.job") {
                 this.actionService.doAction({
                     type: "ir.actions.act_window",
                     name: "Roles & Groups",
@@ -395,6 +516,24 @@ patch(FormController.prototype, {
                     views: [[false, "list"], [false, "form"]],
                     domain: [],
                     context: { active_test: false },
+                }, { clearBreadcrumbs: true });
+            } else if (resModel === "service.ticket.voucher.batch") {
+                this.actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
+            } else if (resModel === "service.ticket") {
+                this.actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
+            } else if (resModel === "equipment.master") {
+                this.actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
+            } else if (resModel === "amc.contract") {
+                this.actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
+            } else if (resModel === "crm.task.management") {
+                this.actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
+            } else if (resModel) {
+                // Universal Fallback: Navigate to the model's list view, NEVER to the dashboard
+                this.actionService.doAction({
+                    type: "ir.actions.act_window",
+                    res_model: resModel,
+                    views: [[false, "list"], [false, "form"]],
+                    target: "current",
                 }, { clearBreadcrumbs: true });
             } else {
                 this.actionService.doAction(435, { clearBreadcrumbs: true });

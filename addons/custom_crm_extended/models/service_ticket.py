@@ -2289,21 +2289,7 @@ class ServiceTicketVoucherLine(models.Model):
                         except Exception:
                             pass
 
-                    # 2. Try equipment.master parser
-                    if not parsed_sheets and (raw_bytes or raw_b64):
-                        try:
-                            em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(
-                                raw_b64=base64.b64encode(raw_bytes).decode('ascii') if raw_bytes else raw_b64,
-                                filename=name
-                            )
-                            if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
-                                for sh in em_res['sheets']:
-                                    if sh.get('rows'):
-                                        parsed_sheets.append({'name': sh.get('name', 'Sheet'), 'rows': sh['rows']})
-                        except Exception:
-                            pass
-
-                    # 3. Try openpyxl
+                    # 2. Try openpyxl first (preserves exact cell columns and empty cell positions)
                     if not parsed_sheets and raw_bytes:
                         try:
                             import openpyxl
@@ -2321,7 +2307,7 @@ class ServiceTicketVoucherLine(models.Model):
                         except Exception:
                             pass
 
-                    # 4. Built-in universal ZIP + XML parser (0 dependencies, accurate cell column alignment & shared strings)
+                    # 3. Built-in universal ZIP + XML parser (with strict coordinate-based cell positioning)
                     if not parsed_sheets and raw_bytes and raw_bytes.startswith(b'PK'):
                         try:
                             import re
@@ -2377,12 +2363,25 @@ class ServiceTicketVoucherLine(models.Model):
                                             if len(s_rows) >= 250:
                                                 break
                                     if s_rows:
-                                        # Normalize column counts across all rows
                                         total_cols = max(len(r) for r in s_rows)
                                         for r in s_rows:
                                             if len(r) < total_cols:
                                                 r.extend([''] * (total_cols - len(r)))
                                         parsed_sheets.append({'name': f'Sheet {s_idx + 1}', 'rows': s_rows})
+                        except Exception:
+                            pass
+
+                    # 4. Fallback to equipment.master
+                    if not parsed_sheets and (raw_bytes or raw_b64):
+                        try:
+                            em_res = self.env['equipment.master'].sudo().action_get_invoice_preview_content(
+                                raw_b64=base64.b64encode(raw_bytes).decode('ascii') if raw_bytes else raw_b64,
+                                filename=name
+                            )
+                            if em_res and em_res.get('type') == 'excel_content' and em_res.get('sheets'):
+                                for sh in em_res['sheets']:
+                                    if sh.get('rows'):
+                                        parsed_sheets.append({'name': sh.get('name', 'Sheet'), 'rows': sh['rows']})
                         except Exception:
                             pass
 
