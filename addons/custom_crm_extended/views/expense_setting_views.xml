@@ -234,7 +234,7 @@
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved', 'partially_paid')"/>
-                    <button name="action_claim_recovery_batch" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('paid', 'partially_paid') or not has_selected_recoverable_lines"/>
+                    <button name="action_claim_recovery_batch" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('paid', 'partially_paid')"/>
                     <button name="action_record_payback" string="Record Payback" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="recovery_status != 'pending'"/>
                     <field name="voucher_status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
@@ -366,7 +366,7 @@
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('approved', 'partially_approved', 'partially_paid')"/>
                     <button name="action_deduct_pending_recoveries" string="Adjust Pending Recoveries" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or not employee_pending_recovery_html or status in ('draft', 'paid', 'rejected')"/>
-                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('paid', 'partially_paid') or not has_selected_recoverable_lines"/>
+                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not can_approve or status not in ('paid', 'partially_paid')"/>
                     <field name="status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>

@@ -4086,13 +4086,13 @@ button[name="action_claim_recovery_batch"]:not(td button) {
     display: none !important;
 }
 
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_statusbar_buttons button[name="action_claim_recovery"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_statusbar_buttons button[name="action_claim_recovery_batch"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_form_statusbar button[name="action_claim_recovery"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_form_statusbar button[name="action_claim_recovery_batch"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) header button[name="action_claim_recovery"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) header button[name="action_claim_recovery_batch"],
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) button[name="action_claim_recovery"]:not(td button),
-body:has(td:not(.d-none):not([style*="display: none"]) button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) button[name="action_claim_recovery_batch"]:not(td button) {
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_statusbar_buttons button[name="action_claim_recovery"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_statusbar_buttons button[name="action_claim_recovery_batch"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_form_statusbar button[name="action_claim_recovery"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) .o_form_statusbar button[name="action_claim_recovery_batch"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) header button[name="action_claim_recovery"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) header button[name="action_claim_recovery_batch"],
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) button[name="action_claim_recovery"]:not(td button),
+body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.d-none):not([style*="display: none"])) button[name="action_claim_recovery_batch"]:not(td button) {
     display: inline-block !important;
 }
