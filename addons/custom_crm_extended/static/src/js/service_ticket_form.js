@@ -343,9 +343,8 @@ document.addEventListener(
 })();
 
 function formatVoucherCheckboxButtons() {
-    const batchForm = document.querySelector(".o_service_ticket_voucher_batch_form");
-    if (!batchForm) return;
-    const btns = batchForm.querySelectorAll("button[name='action_toggle_recovery_select']");
+    const btns = document.querySelectorAll(".o_service_ticket_voucher_batch_form button[name='action_toggle_recovery_select'], .o_service_ticket_voucher_line_form button[name='action_toggle_recovery_select']");
+    if (!btns || btns.length === 0) return;
     btns.forEach((btn) => {
         btn.style.setProperty("width", "13px", "important");
         btn.style.setProperty("height", "13px", "important");

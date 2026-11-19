@@ -3956,10 +3956,10 @@ div[name="ticket_voucher_line_ids"] table.o_list_table,
 div[name="line_ids"] .o_data_row,
 div[name="ticket_voucher_line_ids"] .o_data_row,
 .o_service_ticket_voucher_batch_form .o_data_row,
-.o_voucher_card_list .o_data_row > td,
-div[name="line_ids"] .o_data_row > td,
-div[name="ticket_voucher_line_ids"] .o_data_row > td,
-.o_service_ticket_voucher_batch_form .o_data_row > td {
+.o_voucher_card_list .o_data_row>td,
+div[name="line_ids"] .o_data_row>td,
+div[name="ticket_voucher_line_ids"] .o_data_row>td,
+.o_service_ticket_voucher_batch_form .o_data_row>td {
     cursor: default !important;
 }
 

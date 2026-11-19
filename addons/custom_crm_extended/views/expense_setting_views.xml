@@ -234,11 +234,12 @@
                     <button name="action_reject_all" string="Reject All" type="object" class="btn btn-danger fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('rejected', 'paid')"/>
                     <button name="action_reset_to_submitted" string="Reset" type="object" class="btn btn-crm-blue-outline fw-bold px-3 py-1 shadow-sm" invisible="voucher_status in ('draft', 'submitted', 'partially_paid', 'paid')"/>
                     <button name="action_mark_paid" string="Mark as Paid" type="object" class="btn btn-crm-blue-solid fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('approved', 'partially_approved', 'partially_paid')"/>
-                    <button name="action_claim_recovery" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="voucher_status not in ('paid', 'partially_paid')"/>
+                    <button name="action_claim_recovery_batch" string="Claim Recovery" type="object" class="btn btn-warning fw-bold px-3 py-1 shadow-sm" invisible="not has_selected_recoverable_lines"/>
                     <button name="action_record_payback" string="Record Payback" type="object" class="btn btn-success fw-bold px-3 py-1 shadow-sm" invisible="recovery_status != 'pending'"/>
                     <field name="voucher_status" widget="statusbar" statusbar_visible="submitted,partially_approved,approved,partially_paid,paid,rejected"/>
                 </header>
                 <sheet>
+                    <field name="has_selected_recoverable_lines" invisible="1"/>
                     <div class="oe_title mb-3">
                         <h1>
                             <field name="voucher_id" readonly="1"/>
@@ -277,8 +278,8 @@
                     <field name="ticket_voucher_line_ids" class="o_voucher_card_list" options="{'no_open': True}">
                         <list create="0" edit="0" delete="0" open_form_view="False">
                             <field name="is_selected_for_recovery" column_invisible="1"/>
-                            <button name="action_toggle_recovery_select" type="object" icon="fa-check-square text-crm-blue" title="Selected for Recovery (Click to uncheck)" invisible="not is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
-                            <button name="action_toggle_recovery_select" type="object" icon="fa-square-o text-muted" title="Click to select for recovery" invisible="is_selected_for_recovery or status not in ('paid', 'partially_paid') or recovery_status != 'none'" class="btn p-0"/>
+                            <button name="action_toggle_recovery_select" type="object" icon="fa-check" title="Selected (Click to deselect)" invisible="not is_selected_for_recovery" class="btn p-0 crm_custom_blue_checkbox crm_checkbox_checked" style="width: 13px !important; height: 13px !important; min-width: 13px !important; max-width: 13px !important; min-height: 13px !important; max-height: 13px !important; border: 1.5px solid #0b3d91 !important; border-radius: 2px !important; background-color: #0b3d91 !important; color: #ffffff !important; font-size: 8px !important; line-height: 1 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important;"/>
+                            <button name="action_toggle_recovery_select" type="object" icon="fa-check" title="Click to select" invisible="is_selected_for_recovery" class="btn p-0 crm_custom_blue_checkbox crm_checkbox_unchecked" style="width: 13px !important; height: 13px !important; min-width: 13px !important; max-width: 13px !important; min-height: 13px !important; max-height: 13px !important; border: 1.5px solid #0b3d91 !important; border-radius: 2px !important; background-color: #ffffff !important; color: transparent !important; font-size: 8px !important; line-height: 1 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important; margin: 0 !important;"/>
                             <field name="expense_date" string="From Date"/>
                             <field name="expense_date_to" string="To Date" optional="show"/>
                             <field name="days_count" string="Days" optional="show"/>
