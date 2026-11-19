@@ -2110,102 +2110,290 @@ class ServiceTicketVoucherLine(models.Model):
 
     @api.depends('bill_file', 'bill_filename', 'bill_attachment_ids')
     def _compute_bill_preview_html(self):
+        import io, base64, csv
+        try:
+            import openpyxl
+            has_openpyxl = True
+        except ImportError:
+            has_openpyxl = False
+
         for rec in self:
             items = []
+            seen_names = set()
+
+            # 1. Gather all attachments from Many2many
             if rec.bill_attachment_ids:
                 for att in rec.bill_attachment_ids:
-                    fname = (att.name or 'receipt').lower()
-                    ext = fname.split('.')[-1] if '.' in fname else ''
+                    fname = att.name or 'Receipt'
+                    seen_names.add(fname.lower())
+                    ext = fname.lower().split('.')[-1] if '.' in fname else ''
                     items.append({
-                        'name': att.name or 'Receipt',
+                        'name': fname,
                         'ext': ext,
+                        'raw_data': att.datas,
                         'url': f"/web/content/{att.id}?download=false",
                         'download_url': f"/web/content/{att.id}?download=true",
                     })
-            elif rec.bill_file:
-                fname = (rec.bill_filename or 'receipt').lower()
-                ext = fname.split('.')[-1] if '.' in fname else ''
-                items.append({
-                    'name': rec.bill_filename or 'Receipt',
-                    'ext': ext,
-                    'url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=false",
-                    'download_url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={rec.bill_filename or 'receipt'}&download=true",
-                })
+
+            # 2. Also gather Binary bill_file (if present and not duplicated)
+            if rec.bill_file:
+                fname = rec.bill_filename or 'Receipt'
+                if fname.lower() not in seen_names:
+                    ext = fname.lower().split('.')[-1] if '.' in fname else ''
+                    items.append({
+                        'name': fname,
+                        'ext': ext,
+                        'raw_data': rec.bill_file,
+                        'url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=false",
+                        'download_url': f"/web/content?model=service.ticket.voucher.line&id={rec.id}&field=bill_file&filename={fname}&download=true",
+                    })
 
             if not items:
-                rec.bill_preview_html = '<div class="text-center p-4 text-muted">No attachment uploaded.</div>'
+                rec.bill_preview_html = '''
+                    <div class="d-flex flex-column align-items-center justify-content-center p-5 text-muted text-center" style="min-height: 250px;">
+                        <i class="fa fa-file-o mb-3" style="font-size: 48px; color: #adb5bd;"></i>
+                        <h6 class="fw-semibold text-secondary mb-1">No Bill Attachments</h6>
+                        <p class="small mb-0">No document or receipt was uploaded for this expense line.</p>
+                    </div>
+                '''
                 continue
 
             total_bills = len(items)
             slides_html = []
+            tab_labels_html = []
+            tab_radios_html = []
+            css_rules = []
+
             for idx, itm in enumerate(items):
-                display_style = "display: block;" if idx == 0 else "display: none;"
-                if itm['ext'] in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'):
-                    content = f'<img src="{itm["url"]}" class="img-fluid rounded" style="max-height: 76vh; max-width: 100%; object-fit: contain; background: #fff;" alt="Bill Image"/>'
-                elif itm['ext'] == 'pdf':
-                    content = f'<iframe src="{itm["url"]}#toolbar=1" style="width: 100%; height: 78vh; border: none;" title="Bill PDF"></iframe>'
+                ext = itm['ext']
+                name = itm['name']
+                url = itm['url']
+                download_url = itm['download_url']
+                raw_b64 = itm.get('raw_data')
+
+                # Identify format & styling
+                if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'):
+                    icon_cls = "fa fa-file-image-o text-primary"
+                    badge_cls = "bg-primary"
+                    type_label = "Image"
+                elif ext == 'pdf':
+                    icon_cls = "fa fa-file-pdf-o text-danger"
+                    badge_cls = "bg-danger"
+                    type_label = "PDF Document"
+                elif ext in ('xlsx', 'xls'):
+                    icon_cls = "fa fa-file-excel-o text-success"
+                    badge_cls = "bg-success"
+                    type_label = "Excel Sheet"
+                elif ext in ('csv', 'tsv'):
+                    icon_cls = "fa fa-table text-info"
+                    badge_cls = "bg-info text-dark"
+                    type_label = "CSV Data"
+                elif ext in ('doc', 'docx'):
+                    icon_cls = "fa fa-file-word-o text-primary"
+                    badge_cls = "bg-primary"
+                    type_label = "Word Document"
+                elif ext in ('txt', 'log'):
+                    icon_cls = "fa fa-file-text-o text-secondary"
+                    badge_cls = "bg-secondary"
+                    type_label = "Text File"
+                elif ext in ('zip', 'rar', '7z'):
+                    icon_cls = "fa fa-file-archive-o text-warning"
+                    badge_cls = "bg-warning text-dark"
+                    type_label = "Archive"
                 else:
-                    content = f'<div class="text-center p-4"><p class="text-muted">File: {itm["name"]}</p><a href="{itm["download_url"]}" class="btn btn-primary" download>Download File</a></div>'
+                    icon_cls = "fa fa-file-o text-secondary"
+                    badge_cls = "bg-secondary"
+                    type_label = ext.upper() if ext else "File"
 
-                slides_html.append(f'''
-                    <div id="bill_slide_{rec.id}_{idx}" class="bill-slide-{rec.id}" style="{display_style} text-align: center; width: 100%;">
-                        {content}
-                    </div>
-                ''')
-
-            # Show navigation arrows ONLY if multiple bills exist
-            nav_buttons = ""
-            if total_bills > 1:
-                nav_buttons = f'''
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1 shadow-sm" onclick="prevBill_{rec.id}()">&#8592; Prev</button>
-                        <span class="badge bg-light text-dark border px-2 py-1" id="bill_counter_{rec.id}">1 of {total_bills}</span>
-                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1 shadow-sm" onclick="nextBill_{rec.id}()">Next &#8594;</button>
+                # Sleek Top Toolbar with Download Action
+                toolbar_html = f'''
+                    <div class="d-flex align-items-center justify-content-between p-2 px-3 mb-2 bg-light rounded border shadow-sm">
+                        <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 75%;">
+                            <i class="{icon_cls} fs-5"></i>
+                            <span class="fw-bold text-dark text-truncate" title="{name}">{name}</span>
+                            <span class="badge {badge_cls} ms-1">{type_label}</span>
+                        </div>
+                        <a href="{download_url}" class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1 shadow-sm px-3" download>
+                            <i class="fa fa-download"></i> Download File
+                        </a>
                     </div>
                 '''
 
-            first_name = items[0]['name']
-            all_names_js = str([it['name'] for it in items]).replace("'", '"')
+                # Render format-specific preview
+                if ext in ('png', 'jpg', 'jpeg', 'webp', 'gif', 'svg', 'bmp'):
+                    body_html = f'''
+                        <div class="text-center p-2 bg-white rounded border" style="max-height: 72vh; overflow: auto;">
+                            <img src="{url}" class="img-fluid rounded" style="max-height: 70vh; max-width: 100%; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" alt="{name}"/>
+                        </div>
+                    '''
+                elif ext == 'pdf':
+                    body_html = f'''
+                        <div style="width: 100%; height: 75vh; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden; background: #525659;">
+                            <iframe src="{url}#toolbar=1" style="width: 100%; height: 100%; border: none;" title="{name}"></iframe>
+                        </div>
+                    '''
+                elif ext in ('xlsx', 'xls') and raw_b64:
+                    table_html = False
+                    if has_openpyxl and ext == 'xlsx':
+                        try:
+                            file_bytes = base64.b64decode(raw_b64)
+                            wb = openpyxl.load_workbook(io.BytesIO(file_bytes), data_only=True, read_only=True)
+                            sheet = wb.active
+                            rows = list(sheet.iter_rows(values_only=True))
+                            if rows:
+                                table_html = '<div class="table-responsive" style="max-height: 68vh; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff;">'
+                                table_html += '<table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px;">'
+                                col_count = max(len(r) for r in rows[:100]) if rows else 0
+                                for r_idx, row in enumerate(rows[:100]):
+                                    if not any(row):
+                                        continue
+                                    table_html += '<tr>'
+                                    for cell in row:
+                                        val = '' if cell is None else str(cell)
+                                        if r_idx == 0:
+                                            table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6;">{val}</th>'
+                                        else:
+                                            table_html += f'<td class="text-nowrap">{val}</td>'
+                                    table_html += '</tr>'
+                                if len(rows) > 100:
+                                    table_html += f'<tr><td colspan="{col_count}" class="text-center text-muted fst-italic py-2 bg-light">... Showing first 100 rows of {len(rows)} (Download file to view full sheet) ...</td></tr>'
+                                table_html += '</table></div>'
+                        except Exception:
+                            table_html = False
+
+                    if table_html:
+                        body_html = table_html
+                    else:
+                        body_html = f'''
+                            <div class="d-flex flex-column align-items-center justify-content-center p-5 bg-white rounded border text-center shadow-sm" style="min-height: 250px;">
+                                <i class="fa fa-file-excel-o text-success mb-3" style="font-size: 56px;"></i>
+                                <h5 class="fw-bold mb-1 text-dark">{name}</h5>
+                                <p class="text-muted small mb-3">Microsoft Excel Spreadsheet</p>
+                                <a href="{download_url}" class="btn btn-success px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2" download>
+                                    <i class="fa fa-download"></i> Download Excel Sheet
+                                </a>
+                            </div>
+                        '''
+                elif ext in ('csv', 'tsv') and raw_b64:
+                    table_html = False
+                    try:
+                        file_bytes = base64.b64decode(raw_b64)
+                        text = file_bytes.decode('utf-8', errors='replace')
+                        delimiter = '\t' if ext == 'tsv' else ','
+                        reader = csv.reader(io.StringIO(text), delimiter=delimiter)
+                        rows = list(reader)
+                        if rows:
+                            table_html = '<div class="table-responsive" style="max-height: 68vh; overflow: auto; border: 1px solid #dee2e6; border-radius: 4px; background: #ffffff;">'
+                            table_html += '<table class="table table-sm table-bordered table-striped table-hover mb-0" style="font-size: 12px;">'
+                            col_count = max(len(r) for r in rows[:100]) if rows else 0
+                            for r_idx, row in enumerate(rows[:100]):
+                                if not any(row):
+                                    continue
+                                table_html += '<tr>'
+                                for cell in row:
+                                    if r_idx == 0:
+                                        table_html += f'<th class="table-light text-nowrap fw-bold" style="position: sticky; top: 0; background: #f1f3f5; z-index: 2; border-bottom: 2px solid #dee2e6;">{cell}</th>'
+                                    else:
+                                        table_html += f'<td class="text-nowrap">{cell}</td>'
+                                table_html += '</tr>'
+                            if len(rows) > 100:
+                                table_html += f'<tr><td colspan="{col_count}" class="text-center text-muted fst-italic py-2 bg-light">... Showing first 100 rows of {len(rows)} ...</td></tr>'
+                            table_html += '</table></div>'
+                    except Exception:
+                        table_html = False
+
+                    if table_html:
+                        body_html = table_html
+                    else:
+                        body_html = f'''
+                            <div class="d-flex flex-column align-items-center justify-content-center p-5 bg-white rounded border text-center shadow-sm" style="min-height: 250px;">
+                                <i class="fa fa-table text-info mb-3" style="font-size: 56px;"></i>
+                                <h5 class="fw-bold mb-1 text-dark">{name}</h5>
+                                <a href="{download_url}" class="btn btn-primary px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2" download>
+                                    <i class="fa fa-download"></i> Download CSV
+                                </a>
+                            </div>
+                        '''
+                elif ext in ('txt', 'log') and raw_b64:
+                    try:
+                        file_bytes = base64.b64decode(raw_b64)
+                        text = file_bytes.decode('utf-8', errors='replace')
+                        body_html = f'<pre style="max-height: 68vh; overflow: auto; background: #f8f9fa; padding: 14px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px; text-align: left; white-space: pre-wrap;">{text[:50000]}</pre>'
+                    except Exception:
+                        body_html = f'<div class="p-4 text-center text-muted"><p>Unable to read text.</p><a href="{download_url}" class="btn btn-primary" download>Download</a></div>'
+                else:
+                    body_html = f'''
+                        <div class="d-flex flex-column align-items-center justify-content-center p-5 bg-white rounded border text-center shadow-sm" style="min-height: 250px;">
+                            <i class="{icon_cls} mb-3" style="font-size: 56px;"></i>
+                            <h5 class="fw-bold mb-1 text-dark">{name}</h5>
+                            <p class="text-muted small mb-3">{type_label} Document</p>
+                            <a href="{download_url}" class="btn btn-primary px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2" download>
+                                <i class="fa fa-download"></i> Download File
+                            </a>
+                        </div>
+                    '''
+
+                # Tab radio & label for pure CSS multi-bill switching
+                checked_attr = "checked" if idx == 0 else ""
+                tab_radios_html.append(f'<input type="radio" name="crm_bill_rad_{rec.id}" id="crm_bill_rad_{rec.id}_{idx}" class="d-none crm-bill-radio-box" {checked_attr}/>')
+
+                short_name = name if len(name) <= 24 else (name[:21] + '...')
+                tab_labels_html.append(f'''
+                    <label for="crm_bill_rad_{rec.id}_{idx}" class="btn btn-sm btn-outline-primary crm-bill-tab-item text-nowrap">
+                        <i class="{icon_cls} me-1"></i>{idx + 1}. {short_name}
+                    </label>
+                ''')
+
+                slides_html.append(f'''
+                    <div id="crm_bill_slide_{rec.id}_{idx}" class="crm-bill-slide-box">
+                        {toolbar_html}
+                        {body_html}
+                    </div>
+                ''')
+
+                css_rules.append(f'''
+                    #crm_bill_rad_{rec.id}_{idx}:checked ~ .crm-bill-slides-container #crm_bill_slide_{rec.id}_{idx} {{
+                        display: block !important;
+                    }}
+                    #crm_bill_rad_{rec.id}_{idx}:checked ~ .crm-bill-tabs-strip label[for="crm_bill_rad_{rec.id}_{idx}"] {{
+                        background-color: #0b3d91 !important;
+                        border-color: #0b3d91 !important;
+                        color: #ffffff !important;
+                    }}
+                ''')
+
+            # Build full preview widget HTML
+            tabs_bar = ""
+            if total_bills > 1:
+                tabs_bar = f'''
+                    <div class="crm-bill-tabs-strip d-flex align-items-center gap-2 p-2 mb-2 bg-white rounded border shadow-sm overflow-auto">
+                        <span class="fw-bold small text-nowrap px-1" style="color: #0b3d91;">
+                            <i class="fa fa-files-o me-1"></i>Attached Bills ({total_bills}):
+                        </span>
+                        {"".join(tab_labels_html)}
+                    </div>
+                '''
 
             rec.bill_preview_html = f'''
-            <div class="bill-preview-wrapper p-0 m-0" style="background: transparent; border: none; width: 100%;">
-                {"<div class='d-flex align-items-center justify-content-end p-2 mb-2 bg-white rounded border shadow-sm'>" + nav_buttons + "</div>" if nav_buttons else ""}
-
-                <!-- Slide Content flush to top with no extra strip or blank gaps -->
-                <div class="d-flex align-items-center justify-content-center p-0 m-0" style="width: 100%; height: 78vh; overflow: hidden; background: #ffffff;">
-                    {"".join(slides_html)}
-                </div>
-            </div>
-
-            <script type="text/javascript">
-                (function() {{
-                    var total = {total_bills};
-                    if (total &lt;= 1) return;
-                    var curIdx = 0;
-                    var names = {all_names_js};
-
-                    function updateSlide(idx) {{
-                        for (var i = 0; i &lt; total; i++) {{
-                            var el = document.getElementById("bill_slide_{rec.id}_" + i);
-                            if (el) el.style.display = (i === idx) ? "block" : "none";
+                <div class="bill-preview-wrapper p-0 m-0" style="width: 100%;">
+                    <style>
+                        .crm-bill-radio-box {{ display: none !important; }}
+                        .crm-bill-slide-box {{ display: none; width: 100%; }}
+                        .crm-bill-slide-box:first-child {{ display: block; }}
+                        .crm-bill-tab-item {{
+                            border-color: #0b3d91 !important;
+                            color: #0b3d91 !important;
+                            font-size: 12px !important;
+                            padding: 4px 10px !important;
                         }}
-                        var headEl = document.getElementById("bill_heading_{rec.id}");
-                        if (headEl) headEl.innerText = names[idx];
-                        var countEl = document.getElementById("bill_counter_{rec.id}");
-                        if (countEl) countEl.innerText = (idx + 1) + " of " + total;
-                    }}
-
-                    window.prevBill_{rec.id} = function() {{
-                        curIdx = (curIdx - 1 + total) % total;
-                        updateSlide(curIdx);
-                    }};
-
-                    window.nextBill_{rec.id} = function() {{
-                        curIdx = (curIdx + 1) % total;
-                        updateSlide(curIdx);
-                    }};
-                }})();
-            </script>
+                        {"".join(css_rules)}
+                    </style>
+                    {"".join(tab_radios_html)}
+                    {tabs_bar}
+                    <div class="crm-bill-slides-container p-0 m-0" style="width: 100%;">
+                        {"".join(slides_html)}
+                    </div>
+                </div>
             '''
     status = fields.Selection([
         ('draft', 'Draft'),
@@ -3011,15 +3199,22 @@ class ServiceTicketVoucherLine(models.Model):
         self.ensure_one()
         if not self.bill_file and not self.bill_attachment_ids:
             return False
+        total_atts = len(self.bill_attachment_ids)
+        first_name = (self.bill_attachment_ids and self.bill_attachment_ids[0].name) or self.bill_filename or (self.expense_type_id and self.expense_type_id.name) or 'Receipt'
+        if total_atts > 1:
+            title = _('Bill Preview - %s (+%d more)') % (first_name, total_atts - 1)
+        else:
+            title = _('Bill Preview - %s') % first_name
         view = self.env.ref('custom_crm_extended.view_service_ticket_voucher_line_preview_form', raise_if_not_found=False)
         return {
-            'name': _('Bill Preview - %s') % (self.bill_filename or self.expense_type_id.name or 'Receipt'),
+            'name': title,
             'type': 'ir.actions.act_window',
             'res_model': 'service.ticket.voucher.line',
             'res_id': self.id,
             'view_mode': 'form',
             'view_id': view.id if view else False,
             'target': 'new',
+            'context': {'dialog_size': 'extra-large'},
         }
 
 
@@ -4118,7 +4313,7 @@ class ServiceTicketVoucherBatch(models.Model):
         }
 
     def action_preview_bill(self):
-        line = self.line_ids.filtered(lambda l: l.bill_file)[:1]
+        line = self.line_ids.filtered(lambda l: l.bill_file or l.bill_attachment_ids)[:1]
         if not line:
             return False
         return line.action_preview_bill()

@@ -2459,33 +2459,36 @@ div[name="button_box"].oe_button_box *,
    - Remove nested scrollbars in modal body
    - Ensure custom brand blue color (#0b3d91) on active pills & status
    ========================================================================== */
-.bill-preview-wrapper .d-flex.align-items-center.justify-content-between.p-2.mb-2,
-.bill-preview-wrapper [id^="bill_heading_"],
-.bill-preview-wrapper i.fa-file-text-o,
-.bill-preview-wrapper .fa-file-text-o,
-.bill-preview-wrapper .fa-file-pdf-o {
-    display: none !important;
-}
-
-/* Eliminate inner double scrollbars and empty white gap strips in voucher preview dialog */
-.bill-preview-wrapper,
-.bill-preview-wrapper>div {
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
+/* Bill Preview Modal Dialog: Wide, responsive layout */
+.o_dialog:has(.bill-preview-wrapper) .modal-dialog {
+    max-width: 90vw !important;
+    width: 90vw !important;
 }
 
 .o_dialog .modal-body:has(.bill-preview-wrapper) {
-    overflow: hidden !important;
-    padding: 0 !important;
+    overflow-y: auto !important;
+    padding: 12px !important;
     margin: 0 !important;
 }
 
-.o_dialog .modal-body:has(.bill-preview-wrapper) iframe {
-    height: 78vh !important;
+.bill-preview-wrapper {
     width: 100% !important;
-    display: block !important;
-    border: none !important;
+}
+
+.bill-preview-wrapper .table-responsive {
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+}
+
+.crm-bill-tab-item {
+    border-color: #0b3d91 !important;
+    color: #0b3d91 !important;
+    font-weight: 500 !important;
+}
+
+.crm-bill-tab-item:hover {
+    background-color: #f0f4f9 !important;
+    color: #0b3d91 !important;
 }
 
 /* Ensure Notification Message & Details spans full width with clean single-line reading */
