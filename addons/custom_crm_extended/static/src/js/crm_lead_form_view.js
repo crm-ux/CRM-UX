@@ -229,7 +229,7 @@ export class CrmLeadListController extends ListController {
                             views: [[false, "form"]],
                             context: {
                                 ...ctx,
-                                from_total_pipeline: isTotalPipe,
+                                from_total_pipeline: true,
                             },
                         });
                     }

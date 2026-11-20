@@ -49,7 +49,7 @@ export class CrmLeadListController extends ListController {
                         const stageVal = ctx.default_stage_filter_val || String(seq);
                         sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
                         sessionStorage.setItem("crm_record_stage_" + quotes[0].id, stageVal);
-                    } catch (e) {}
+                    } catch (e) { }
                     return action.doAction({
                         type: "ir.actions.act_window",
                         name: "Quotation",
@@ -58,7 +58,7 @@ export class CrmLeadListController extends ListController {
                         views: [[false, "form"]],
                         context: {
                             ...ctx,
-                            from_total_pipeline: isTotalPipe,
+                            from_total_pipeline: true,
                         },
                     });
                 }
