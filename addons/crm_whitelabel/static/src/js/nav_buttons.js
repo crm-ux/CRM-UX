@@ -1261,7 +1261,7 @@ if (typeof window !== "undefined") {
 if (typeof window !== "undefined") {
     window.navigateBackFromForm = navigateBackFromForm;
 
-    // Remove text 'New' from DOM inside control panel and render clean icon
+    // Remove text 'New', 'Save', 'Discard' from DOM inside control panel and render clean icons
     const cleanNewButtonsGlobally = () => {
         const btns = document.querySelectorAll(
             ".o_control_panel_main_buttons .o_form_button_create, " +
@@ -1278,6 +1278,42 @@ if (typeof window !== "undefined") {
             });
             if (foundText || !btn.querySelector("i.fa-plus")) {
                 btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+            }
+        });
+
+        // Editable list Save button (Floppy disk icon)
+        const saveBtns = document.querySelectorAll(
+            ".o_control_panel_main_buttons .o_list_button_save, " +
+            ".o_list_button_save"
+        );
+        saveBtns.forEach((btn) => {
+            let foundText = false;
+            Array.from(btn.childNodes).forEach((node) => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                    node.textContent = "";
+                    foundText = true;
+                }
+            });
+            if (foundText || !btn.querySelector("i.fa-floppy-o")) {
+                btn.innerHTML = '<i class="fa fa-floppy-o" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+            }
+        });
+
+        // Editable list Discard button (Times / Cross icon)
+        const discardBtns = document.querySelectorAll(
+            ".o_control_panel_main_buttons .o_list_button_discard, " +
+            ".o_list_button_discard"
+        );
+        discardBtns.forEach((btn) => {
+            let foundText = false;
+            Array.from(btn.childNodes).forEach((node) => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                    node.textContent = "";
+                    foundText = true;
+                }
+            });
+            if (foundText || !btn.querySelector("i.fa-times")) {
+                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
             }
         });
     };

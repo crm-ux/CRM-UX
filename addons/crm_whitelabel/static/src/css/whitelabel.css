@@ -302,10 +302,7 @@ nav.o_navbar,
 /* Save button as a square icon button matching navbar */
 .o_form_button_save,
 button.o_form_button_save,
-.o_form_status_indicator .o_form_button_save,
-.o_list_button_save,
-button.o_list_button_save,
-.o_control_panel .o_control_panel_main_buttons .o_list_button_save {
+.o_form_status_indicator .o_form_button_save {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -331,18 +328,13 @@ button.o_list_button_save,
 
 .o_form_button_save i,
 .o_form_button_save .fa,
-.o_form_button_save svg,
-.o_list_button_save i,
-.o_list_button_save .fa,
-.o_list_button_save svg {
+.o_form_button_save svg {
     display: none !important;
 }
 
 .o_form_button_save::after,
 button.o_form_button_save::after,
-.o_form_status_indicator .o_form_button_save::after,
-.o_list_button_save::after,
-button.o_list_button_save::after {
+.o_form_status_indicator .o_form_button_save::after {
     content: "\f0c7" !important;
     font-family: "FontAwesome" !important;
     font-size: 0.95rem !important;
@@ -353,10 +345,62 @@ button.o_list_button_save::after {
     line-height: 1 !important;
 }
 
+/* Editable list view Save & Discard buttons */
+.o_list_button_save,
+button.o_list_button_save,
+.o_control_panel .o_control_panel_main_buttons .o_list_button_save,
+.o_control_panel_main_buttons .o_list_button_save,
+.o_control_panel_main_buttons button.btn-primary.o_list_button_save {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    padding: 0 !important;
+    border-radius: 0.35rem !important;
+    background: #0b3d91 !important;
+    border: 1px solid #0b3d91 !important;
+    color: #ffffff !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-right: 0.35rem !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    text-indent: 0 !important;
+}
+
+.o_list_button_save i,
+.o_list_button_save .fa {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.95rem !important;
+    color: #ffffff !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.o_list_button_save::before,
+.o_list_button_save::after,
+button.o_list_button_save::before,
+button.o_list_button_save::after {
+    display: none !important;
+    content: none !important;
+}
+
 /* Discard button on editable list views matching Cancel button */
 .o_list_button_discard,
 button.o_list_button_discard,
-.o_control_panel .o_control_panel_main_buttons .o_list_button_discard {
+.o_control_panel .o_control_panel_main_buttons .o_list_button_discard,
+.o_control_panel_main_buttons .o_list_button_discard,
+.o_control_panel_main_buttons button.btn-secondary.o_list_button_discard {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -377,25 +421,28 @@ button.o_list_button_discard,
     opacity: 1 !important;
     margin-right: 0.35rem !important;
     font-size: 0 !important;
+    line-height: 0 !important;
     text-indent: 0 !important;
 }
 
 .o_list_button_discard i,
-.o_list_button_discard .fa,
-.o_list_button_discard svg {
-    display: none !important;
+.o_list_button_discard .fa {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.95rem !important;
+    color: #334155 !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
+.o_list_button_discard::before,
 .o_list_button_discard::after,
+button.o_list_button_discard::before,
 button.o_list_button_discard::after {
-    content: "\f00d" !important;
-    font-family: "FontAwesome" !important;
-    font-size: 0.95rem !important;
-    font-style: normal !important;
-    font-weight: 400 !important;
-    color: #334155 !important;
-    display: inline-block !important;
-    line-height: 1 !important;
+    display: none !important;
+    content: none !important;
 }
 
 /* Control Panel New Button: Force single plus icon, hide text 'New' */
