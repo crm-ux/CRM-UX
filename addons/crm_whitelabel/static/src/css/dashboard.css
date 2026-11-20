@@ -2746,8 +2746,13 @@ button.o_form_button_cancel::after,
     font-style: normal !important;
     font-weight: 400 !important;
     color: #ffffff !important;
-    display: inline-block !important;
     line-height: 1 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 }
 

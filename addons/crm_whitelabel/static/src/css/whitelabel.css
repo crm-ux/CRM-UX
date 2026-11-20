@@ -2275,6 +2275,8 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     justify-content: center !important;
     background: #0b3d91 !important;
     border: 1px solid #0b3d91 !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .o_control_panel .o_control_panel_main_buttons button.btn-primary::after,
@@ -2287,8 +2289,13 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     font-style: normal !important;
     font-weight: 400 !important;
     color: #ffffff !important;
-    display: inline-block !important;
     line-height: 1 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Form View Label Spacing (Keeps labels like Voucher Approver on a single line) */
