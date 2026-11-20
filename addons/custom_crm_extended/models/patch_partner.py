@@ -53,6 +53,7 @@ class ResCompanyDefaultCard(models.Model):
         'user_id',
         string="Authorized Expense Managers"
     )
+    iap_enrich_auto_done = fields.Boolean(string="Enrich Done", default=True)
 
     def write(self, vals):
         if 'x_default_sale_tax_id' in vals and hasattr(self, 'account_sale_tax_id'):
