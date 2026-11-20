@@ -396,25 +396,44 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
 
-                    // If in Total Pipeline view, also cache pipeline IDs (81 records)
-                    if (this.isTotalPipelineView || this.env.searchModel?.context?.from_total_pipeline) {
+                    const ctx = this.env.searchModel?.context || {};
+                    const currentStageVal = ctx.default_stage_filter_val || sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+
+                    // Cache specific stage IDs vs Total Pipeline IDs
+                    if (this.isTotalPipelineView || ctx.from_total_pipeline) {
                         sessionStorage.setItem("crm_from_total_pipeline", "true");
-                        sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                        if (currentStageVal === "all") {
+                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                        } else {
+                            sessionStorage.setItem("crm_stage_ids_" + currentStageVal, JSON.stringify(ids));
+                        }
                     }
                 }
             } catch (e) {}
             return rawProps;
         }
 
-        // Form View: restore full record count immediately on refresh so pager shows 1/16 instead of 1/1
+        // Form View: restore full record count immediately on refresh so pager shows accurate count
         if (isFormView && resModel) {
             window.__crm_current_form_model = resModel;
             let activeIds = null;
-
-            // 1. If from Total Pipeline, prioritize the Total Pipeline record sequence (81 records)
             const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
-            if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
-                try {
+            const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+
+            try {
+                // 1. If opened from a specific stage (not 'all'), preserve that stage's exact record IDs
+                if (fromTotalPipeline && lastStageVal !== "all") {
+                    const stageStored = sessionStorage.getItem("crm_stage_ids_" + lastStageVal);
+                    if (stageStored) {
+                        const parsedStage = JSON.parse(stageStored);
+                        if (Array.isArray(parsedStage) && parsedStage.length > 1) {
+                            activeIds = parsedStage.map(Number).filter(Boolean);
+                        }
+                    }
+                }
+
+                // 2. If opened from Total Pipeline ('all'), preserve all pipeline IDs (81 records)
+                if (!activeIds && fromTotalPipeline && lastStageVal === "all") {
                     const pipeStored = sessionStorage.getItem("crm_active_pipeline_ids");
                     if (pipeStored) {
                         const parsedPipe = JSON.parse(pipeStored);
@@ -422,11 +441,10 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                             activeIds = parsedPipe.map(Number).filter(Boolean);
                         }
                     }
-                } catch (e) {}
-            }
+                }
 
-            if (!activeIds) {
-                try {
+                // 3. Fallback to model-specific cached IDs
+                if (!activeIds) {
                     const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
                     if (stored) {
                         const parsed = JSON.parse(stored);
@@ -439,8 +457,8 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                             }
                         }
                     }
-                } catch (e) {}
-            }
+                }
+            } catch (e) {}
 
             if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
                 activeIds = window.__crm_cached_res_ids[resModel];
@@ -510,24 +528,25 @@ function navigateBackFromForm(resModel, actionService) {
 
     // Check if this record originated from Total Pipeline
     const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
+    let lastStageVal = "all";
+    let lastStageName = "All Pipeline";
+    let lastEmp = "all";
+    try {
+        lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+        lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || "All Pipeline";
+        lastEmp = sessionStorage.getItem("crm_last_employee_filter_val") || "all";
+    } catch (e) {}
+
+    const quoteStageMap = {
+        "30": "draft",
+        "35": "sent",
+        "40": "negotiation",
+        "50": "order_expected",
+        "90": "won",
+    };
+
     if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
-        let lastStageVal = "all";
-        let lastStageName = "All Pipeline";
-        let lastEmp = "all";
-        try {
-            lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
-            lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || "All Pipeline";
-            lastEmp = sessionStorage.getItem("crm_last_employee_filter_val") || "all";
-        } catch (e) {}
-
-        const quoteStageMap = {
-            "30": "draft",
-            "35": "sent",
-            "40": "negotiation",
-            "50": "order_expected",
-            "90": "won",
-        };
-
+        // If opened from a specific Quotation stage (e.g. Quotes dropdown), return to that specific quote stage
         if (quoteStageMap[lastStageVal]) {
             const quoteStage = quoteStageMap[lastStageVal];
             const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
@@ -545,23 +564,26 @@ function navigateBackFromForm(resModel, actionService) {
                 },
             }, { clearBreadcrumbs: true });
             return;
-        } else {
-            const stageDomain = lastStageVal === "all" ? [] : [["x_stage_sequence", "=", parseInt(lastStageVal)]];
-            const empDomain = lastEmp !== "all" ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
-            actionService.doAction({
-                type: "ir.actions.act_window",
-                name: lastStageVal === "all" ? "All Pipeline Leads" : lastStageName + " Leads",
-                res_model: "crm.lead",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["active", "=", true], ...stageDomain, ...empDomain],
-                context: {
-                    from_total_pipeline: true,
-                    default_stage_filter_val: lastStageVal,
-                    filter_employee_user_id: lastEmp,
-                },
-            }, { clearBreadcrumbs: true });
-            return;
         }
+
+        // All Stages ('all') or Lead / Contacted / Tech Disc / Qualified / Opportunity:
+        // Return to crm.lead with All Pipeline Leads list view (Image 2)
+        const stageDomain = (lastStageVal && lastStageVal !== "all") ? [["x_stage_sequence", "=", parseInt(lastStageVal)]] : [];
+        const empDomain = (lastEmp && lastEmp !== "all") ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
+
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: lastStageVal === "all" ? "All Pipeline Leads" : lastStageName + " Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ...stageDomain, ...empDomain],
+            context: {
+                from_total_pipeline: true,
+                default_stage_filter_val: lastStageVal,
+                filter_employee_user_id: lastEmp,
+            },
+        }, { clearBreadcrumbs: true });
+        return;
     }
 
     if (resModel === "sale.order") {
@@ -724,7 +746,11 @@ patch(ListController.prototype, {
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids[resModel] = ids;
                         if (ctx.from_total_pipeline) {
-                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                            if (ctx.default_stage_filter_val && ctx.default_stage_filter_val !== "all") {
+                                sessionStorage.setItem("crm_stage_ids_" + ctx.default_stage_filter_val, JSON.stringify(ids));
+                            } else {
+                                sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                            }
                         }
                     }
                 }
@@ -752,7 +778,11 @@ patch(ListController.prototype, {
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
                     if (ctx.from_total_pipeline) {
-                        sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                        if (ctx.default_stage_filter_val && ctx.default_stage_filter_val !== "all") {
+                            sessionStorage.setItem("crm_stage_ids_" + ctx.default_stage_filter_val, JSON.stringify(ids));
+                        } else {
+                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                        }
                     }
                 }
             }
@@ -824,12 +854,34 @@ patch(FormController.prototype, {
         if (resModel && currentResId) {
             onWillStart(async () => {
                 let restoredIds = null;
+                const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
+                const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
                 try {
-                    const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        if (Array.isArray(parsed) && parsed.length > 1 && parsed.includes(currentResId)) {
-                            restoredIds = parsed;
+                    if (fromTotalPipeline && lastStageVal !== "all") {
+                        const stageStored = sessionStorage.getItem("crm_stage_ids_" + lastStageVal);
+                        if (stageStored) {
+                            const parsedStage = JSON.parse(stageStored);
+                            if (Array.isArray(parsedStage) && parsedStage.length > 1 && parsedStage.includes(currentResId)) {
+                                restoredIds = parsedStage;
+                            }
+                        }
+                    }
+                    if (!restoredIds && fromTotalPipeline && lastStageVal === "all") {
+                        const pipeStored = sessionStorage.getItem("crm_active_pipeline_ids");
+                        if (pipeStored) {
+                            const parsedPipe = JSON.parse(pipeStored);
+                            if (Array.isArray(parsedPipe) && parsedPipe.length > 1 && parsedPipe.includes(currentResId)) {
+                                restoredIds = parsedPipe;
+                            }
+                        }
+                    }
+                    if (!restoredIds) {
+                        const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            if (Array.isArray(parsed) && parsed.length > 1 && parsed.includes(currentResId)) {
+                                restoredIds = parsed;
+                            }
                         }
                     }
                 } catch (e) {}

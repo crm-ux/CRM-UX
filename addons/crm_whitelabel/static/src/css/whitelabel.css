@@ -309,6 +309,9 @@ button.o_form_button_save,
     width: clamp(2rem, 2.4vh, 2.35rem) !important;
     min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
     max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     padding: 0 !important;
     border-radius: 0.35rem !important;
     background: #0b3d91 !important;
@@ -319,11 +322,27 @@ button.o_form_button_save,
     visibility: visible !important;
     opacity: 1 !important;
     margin-right: 0.5rem !important;
+    font-size: 0 !important;
+    text-indent: 0 !important;
 }
 
 .o_form_button_save i,
-.o_form_button_save .fa {
+.o_form_button_save .fa,
+.o_form_button_save svg {
     display: none !important;
+}
+
+.o_form_button_save::after,
+button.o_form_button_save::after,
+.o_form_status_indicator .o_form_button_save::after {
+    content: "\f0c7" !important;
+    font-family: "FontAwesome" !important;
+    font-size: 0.95rem !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    color: #ffffff !important;
+    display: inline-block !important;
+    line-height: 1 !important;
 }
 
 /* Keep control panel breadcrumbs and actions neatly separated with dynamic gap */
@@ -382,6 +401,9 @@ button.o_form_button_cancel,
     width: clamp(2rem, 2.4vh, 2.35rem) !important;
     min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
     max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
+    max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     padding: 0 !important;
     border-radius: 0.35rem !important;
     background: #e2e8f0 !important;
@@ -391,11 +413,27 @@ button.o_form_button_cancel,
     text-decoration: none !important;
     visibility: visible !important;
     opacity: 1 !important;
+    font-size: 0 !important;
+    text-indent: 0 !important;
 }
 
 .o_form_button_cancel i,
-.o_form_button_cancel .fa {
+.o_form_button_cancel .fa,
+.o_form_button_cancel svg {
     display: none !important;
+}
+
+.o_form_button_cancel::after,
+button.o_form_button_cancel::after,
+.o_form_status_indicator .o_form_button_cancel::after {
+    content: "\f00d" !important;
+    font-family: "FontAwesome" !important;
+    font-size: 0.95rem !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    color: #334155 !important;
+    display: inline-block !important;
+    line-height: 1 !important;
 }
 
 /* Modals & Dialogs already have native text buttons ("Save", "Discard") — prevent duplicate ::after text */
@@ -422,12 +460,8 @@ button.o_form_button_cancel,
 }
 
 /* Unified Button Dimensions across Control Panel */
-.o_control_panel_breadcrumbs button,
-.o_control_panel_main_buttons button,
-.o_form_button_save,
-button.o_form_button_save,
-.o_form_button_cancel,
-button.o_form_button_cancel {
+.o_control_panel_breadcrumbs button:not(.o_form_button_save):not(.o_form_button_cancel),
+.o_control_panel_main_buttons button:not(.o_form_button_save):not(.o_form_button_cancel) {
     height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;

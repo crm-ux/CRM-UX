@@ -214,12 +214,23 @@ export class CrmLeadListController extends ListController {
                         { order: "id desc", limit: 1 }
                     );
                     if (quotes && quotes.length) {
+                        const ctx = this.props.context || this.env?.searchModel?.context || {};
+                        const isTotalPipe = Boolean(ctx.from_total_pipeline);
+                        if (isTotalPipe) {
+                            try {
+                                sessionStorage.setItem("crm_from_total_pipeline", "true");
+                            } catch (e) {}
+                        }
                         return action.doAction({
                             type: "ir.actions.act_window",
                             name: "Quotation",
                             res_model: "sale.order",
                             res_id: quotes[0].id,
                             views: [[false, "form"]],
+                            context: {
+                                ...ctx,
+                                from_total_pipeline: isTotalPipe,
+                            },
                         });
                     }
                 }
