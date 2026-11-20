@@ -413,38 +413,73 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             return rawProps;
         }
 
-        // Form View: restore full record count immediately on refresh so pager shows accurate count
+        // Form View: restore stage-accurate record count immediately so pager shows the real stage count
         if (isFormView && resModel) {
             window.__crm_current_form_model = resModel;
             let activeIds = null;
             const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
-            const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+
+            // Resolve stage for the current record across all 10 stages
+            let recordStage = null;
+            if (currentResId) {
+                recordStage = sessionStorage.getItem("crm_record_stage_" + currentResId);
+            }
+            if (!recordStage && controller?.model?.root?.data) {
+                const rData = controller.model.root.data;
+                if (rData.x_stage_sequence !== undefined && rData.x_stage_sequence !== false) {
+                    recordStage = String(rData.x_stage_sequence);
+                } else if (rData.x_quote_stage) {
+                    const quoteMap = { draft: "30", sent: "35", negotiation: "40", order_expected: "50", won: "90" };
+                    recordStage = quoteMap[rData.x_quote_stage] || null;
+                }
+            }
+            if (!recordStage) {
+                const storedStage = sessionStorage.getItem("crm_last_stage_filter_val");
+                if (storedStage && storedStage !== "all") {
+                    recordStage = storedStage;
+                }
+            }
 
             try {
-                // 1. If opened from a specific stage (not 'all'), preserve that stage's exact record IDs
-                if (fromTotalPipeline && lastStageVal !== "all") {
-                    const stageStored = sessionStorage.getItem("crm_stage_ids_" + lastStageVal);
+                // 1. If record belongs to any of the 10 stages, strictly use that stage's exact IDs
+                if (recordStage && recordStage !== "all") {
+                    const stageStored = sessionStorage.getItem("crm_stage_ids_" + recordStage);
                     if (stageStored) {
                         const parsedStage = JSON.parse(stageStored);
-                        if (Array.isArray(parsedStage) && parsedStage.length > 1) {
+                        if (Array.isArray(parsedStage) && parsedStage.length > 0) {
                             activeIds = parsedStage.map(Number).filter(Boolean);
                         }
                     }
-                }
 
-                // 2. If opened from Total Pipeline ('all'), preserve all pipeline IDs (81 records)
-                if (!activeIds && fromTotalPipeline && lastStageVal === "all") {
-                    const pipeStored = sessionStorage.getItem("crm_active_pipeline_ids");
-                    if (pipeStored) {
-                        const parsedPipe = JSON.parse(pipeStored);
-                        if (Array.isArray(parsedPipe) && parsedPipe.length > 1) {
-                            activeIds = parsedPipe.map(Number).filter(Boolean);
-                        }
+                    // If not in cache, fetch exact stage IDs via ORM
+                    if (!activeIds && this.orm && !window.__crm_fetching_stage_ids?.[recordStage]) {
+                        window.__crm_fetching_stage_ids = window.__crm_fetching_stage_ids || {};
+                        window.__crm_fetching_stage_ids[recordStage] = true;
+
+                        const quoteStageMap = { "30": "draft", "35": "sent", "40": "negotiation", "50": "order_expected", "90": "won" };
+                        const isQuote = quoteStageMap[recordStage];
+                        const stageModel = isQuote ? "sale.order" : "crm.lead";
+                        const stageDomain = isQuote
+                            ? [["x_quote_stage", "=", isQuote], (isQuote === "won" ? ["state", "!=", "cancel"] : ["state", "not in", ["sale", "cancel"]])]
+                            : [["active", "=", true], ["x_stage_sequence", "=", parseInt(recordStage)]];
+
+                        this.orm.search(stageModel, stageDomain, { limit: 1000 }).then((searchRes) => {
+                            window.__crm_fetching_stage_ids[recordStage] = false;
+                            if (Array.isArray(searchRes) && searchRes.length > 0) {
+                                sessionStorage.setItem("crm_stage_ids_" + recordStage, JSON.stringify(searchRes));
+                                if (controller?.model?.root) {
+                                    try { controller.model.root.resIds = searchRes; } catch (e) { }
+                                }
+                                this.render();
+                            }
+                        }).catch(() => {
+                            window.__crm_fetching_stage_ids[recordStage] = false;
+                        });
                     }
                 }
 
-                // 3. Fallback to model-specific cached IDs
-                if (!activeIds) {
+                // 2. Fallback to model-specific cached IDs only if not a specific stage
+                if (!activeIds && !recordStage) {
                     const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
                     if (stored) {
                         const parsed = JSON.parse(stored);
@@ -460,7 +495,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                 }
             } catch (e) { }
 
-            if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
+            if (!activeIds && !recordStage && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
                 activeIds = window.__crm_cached_res_ids[resModel];
             }
 
