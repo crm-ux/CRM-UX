@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, date, timedelta
 import calendar as _calendar
+from lxml import etree
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -26,6 +27,60 @@ class SaleOrder(models.Model):
         currency_id     - Currency
     """
     _inherit = 'sale.order'
+
+    @api.model
+    def _user_can(self, perm_name, default=False):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        if user.custom_perm_override:
+            val = getattr(user, perm_name, None)
+            return bool(val if val is not None else default)
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
+
+    @api.model
+    def get_views(self, views, options=None):
+        res = super(SaleOrder, self).get_views(views, options=options)
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            can_create = self._user_can('perm_lead_create', True)
+            can_write = self._user_can('perm_lead_write', True)
+            can_delete = self._user_can('perm_lead_unlink', False)
+
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        if not can_create:
+                            doc.attrib['create'] = 'false'
+                        if not can_write:
+                            doc.attrib['edit'] = 'false'
+                        if not can_delete:
+                            doc.attrib['delete'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if operation == 'create' and not self._user_can('perm_lead_create', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to create Quotations."))
+                return False
+            if operation == 'write' and not self._user_can('perm_lead_write', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to update Quotations."))
+                return False
+            if operation == 'unlink' and not self._user_can('perm_lead_unlink', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to delete Quotations."))
+                return False
+        return super(SaleOrder, self).check_access_rights(operation, raise_exception=raise_exception)
 
     @api.model
     def default_get(self, fields_list):
@@ -765,6 +820,10 @@ class SaleOrder(models.Model):
             )
 
     def unlink(self):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if not self._user_can('perm_lead_unlink', False):
+                raise UserError(_("Access Denied: You do not have permission to delete Quotations."))
         """If a Won quote is deleted, check linked lead and revert to Opportunity stage if no other Won quotes exist."""
         leads_to_revert = self.env['crm.lead']
         for order in self:
@@ -1087,6 +1146,60 @@ class SaleOrderLineExtended(models.Model):
 
 class SaleOrderSettings(models.Model):
     _inherit = 'sale.order'
+
+    @api.model
+    def _user_can(self, perm_name, default=False):
+        user = self.env.user
+        if user._is_admin() or user.has_group('base.group_system'):
+            return True
+        if user.custom_perm_override:
+            val = getattr(user, perm_name, None)
+            return bool(val if val is not None else default)
+        if user.crm_job_id and hasattr(user.crm_job_id, perm_name):
+            return bool(getattr(user.crm_job_id, perm_name))
+        val = getattr(user, perm_name, None)
+        return bool(val if val is not None else default)
+
+    @api.model
+    def get_views(self, views, options=None):
+        res = super(SaleOrder, self).get_views(views, options=options)
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            can_create = self._user_can('perm_lead_create', True)
+            can_write = self._user_can('perm_lead_write', True)
+            can_delete = self._user_can('perm_lead_unlink', False)
+
+            for vtype in ['form', 'list', 'tree', 'kanban']:
+                if vtype in res.get('views', {}):
+                    arch_str = res['views'][vtype].get('arch')
+                    if arch_str:
+                        doc = etree.fromstring(arch_str)
+                        if not can_create:
+                            doc.attrib['create'] = 'false'
+                        if not can_write:
+                            doc.attrib['edit'] = 'false'
+                        if not can_delete:
+                            doc.attrib['delete'] = 'false'
+                        res['views'][vtype]['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+
+    @api.model
+    def check_access_rights(self, operation, raise_exception=True):
+        user = self.env.user
+        if not user._is_admin() and not user.has_group('base.group_system'):
+            if operation == 'create' and not self._user_can('perm_lead_create', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to create Quotations."))
+                return False
+            if operation == 'write' and not self._user_can('perm_lead_write', True):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to update Quotations."))
+                return False
+            if operation == 'unlink' and not self._user_can('perm_lead_unlink', False):
+                if raise_exception:
+                    raise UserError(_("Access Denied: You do not have permission to delete Quotations."))
+                return False
+        return super(SaleOrder, self).check_access_rights(operation, raise_exception=raise_exception)
 
     def action_go_dashboard(self):
         return {

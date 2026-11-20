@@ -689,6 +689,11 @@ class ResUsers(models.Model):
     perm_exhibition_read = fields.Boolean(string='View Exhibition Contact', default=False)
     perm_exhibition_unlink = fields.Boolean(string='Delete Exhibition Contact', default=False)
 
+    perm_lead_create = fields.Boolean(string='Create Lead & Quote', default=True)
+    perm_lead_write = fields.Boolean(string='Update Lead & Quote', default=True)
+    perm_lead_read = fields.Boolean(string='View Lead & Quote', default=True)
+    perm_lead_unlink = fields.Boolean(string='Delete Lead & Quote', default=False)
+
     is_left_employee = fields.Boolean(
         string='Employee Left',
         default=False,
@@ -800,6 +805,10 @@ class ResUsers(models.Model):
                 'perm_exhibition_write': job.perm_exhibition_write,
                 'perm_exhibition_read': job.perm_exhibition_read,
                 'perm_exhibition_unlink': job.perm_exhibition_unlink,
+                'perm_lead_create': job.perm_lead_create,
+                'perm_lead_write': job.perm_lead_write,
+                'perm_lead_read': job.perm_lead_read,
+                'perm_lead_unlink': job.perm_lead_unlink,
             }
             user.sudo().with_context(skip_sync=True).write(user_vals)
             if sales_grp and job.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
@@ -1558,6 +1567,11 @@ class HrJob(models.Model):
     perm_exhibition_read = fields.Boolean(string='View Exhibition Contact', default=False)
     perm_exhibition_unlink = fields.Boolean(string='Delete Exhibition Contact', default=False)
 
+    perm_lead_create = fields.Boolean(string='Create Lead & Quote', default=True)
+    perm_lead_write = fields.Boolean(string='Update Lead & Quote', default=True)
+    perm_lead_read = fields.Boolean(string='View Lead & Quote', default=True)
+    perm_lead_unlink = fields.Boolean(string='Delete Lead & Quote', default=False)
+
     perm_customer_create = fields.Boolean(string='Create Customer', default=False)
     perm_customer_write = fields.Boolean(string='Update Customer', default=False)
     perm_customer_read = fields.Boolean(string='View Customer', default=False)
@@ -1600,6 +1614,7 @@ class HrJob(models.Model):
     perm_amc_all = fields.Boolean(string='All', default=False)
     perm_product_all = fields.Boolean(string='All', default=False)
     perm_exhibition_all = fields.Boolean(string='All', default=False)
+    perm_lead_all = fields.Boolean(string='All', default=False)
     perm_master_select_all = fields.Boolean(string='Select All Masters', default=False)
 
     @api.onchange('perm_master_select_all')
@@ -1611,12 +1626,14 @@ class HrJob(models.Model):
         self.perm_amc_all = val
         self.perm_product_all = val
         self.perm_exhibition_all = val
+        self.perm_lead_all = val
         self._onchange_perm_customer_all()
         self._onchange_perm_equipment_all()
         self._onchange_perm_ticket_all()
         self._onchange_perm_amc_all()
         self._onchange_perm_product_all()
         self._onchange_perm_exhibition_all()
+        self._onchange_perm_lead_all()
 
     @api.onchange('perm_customer_all')
     def _onchange_perm_customer_all(self):
@@ -1665,6 +1682,14 @@ class HrJob(models.Model):
         self.perm_exhibition_write = val
         self.perm_exhibition_read = val
         self.perm_exhibition_unlink = val
+
+    @api.onchange('perm_lead_all')
+    def _onchange_perm_lead_all(self):
+        val = self.perm_lead_all
+        self.perm_lead_create = val
+        self.perm_lead_write = val
+        self.perm_lead_read = val
+        self.perm_lead_unlink = val
 
     user_count = fields.Integer(string='Users with this Role', compute='_compute_user_count')
 
@@ -1746,6 +1771,7 @@ class HrJob(models.Model):
             'perm_ticket_create', 'perm_ticket_write', 'perm_ticket_read', 'perm_ticket_unlink',
             'perm_amc_create', 'perm_amc_write', 'perm_amc_read', 'perm_amc_unlink',
             'perm_exhibition_create', 'perm_exhibition_write', 'perm_exhibition_read', 'perm_exhibition_unlink',
+            'perm_lead_create', 'perm_lead_write', 'perm_lead_read', 'perm_lead_unlink',
             'perm_export', 'perm_log', 'perm_company'
         ]
         if any(k in vals for k in perm_keys):
