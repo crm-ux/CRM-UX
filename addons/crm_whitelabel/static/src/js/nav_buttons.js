@@ -1033,4 +1033,39 @@ if (typeof window !== "undefined") {
 
 if (typeof window !== "undefined") {
     window.navigateBackFromForm = navigateBackFromForm;
+
+    // Remove text 'New' from DOM inside control panel and render clean icon
+    const cleanNewButtonsGlobally = () => {
+        const btns = document.querySelectorAll(
+            ".o_control_panel_main_buttons .o_form_button_create, " +
+            ".o_control_panel_main_buttons .o_list_button_add, " +
+            ".o_control_panel_main_buttons button.btn-outline-primary"
+        );
+        btns.forEach((btn) => {
+            let foundText = false;
+            Array.from(btn.childNodes).forEach((node) => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                    node.textContent = "";
+                    foundText = true;
+                }
+            });
+            if (foundText || !btn.querySelector("i.fa-plus")) {
+                btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: inherit !important;"></i>';
+            }
+        });
+    };
+
+    const navObserver = new MutationObserver(() => {
+        cleanNewButtonsGlobally();
+    });
+
+    if (document.body) {
+        navObserver.observe(document.body, { childList: true, subtree: true });
+        cleanNewButtonsGlobally();
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            navObserver.observe(document.body, { childList: true, subtree: true });
+            cleanNewButtonsGlobally();
+        });
+    }
 }
