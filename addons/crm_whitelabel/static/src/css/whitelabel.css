@@ -772,9 +772,31 @@ th.o_list_actions_header i.o_optional_columns_dropdown_toggle {
     overflow-y: auto !important;
 }
 
-/* Keep terms & discount totals strictly inside the form sheet */
-.o_form_sheet {
+/* ==========================================================================
+   GLOBAL FULL-WIDTH FORM STRETCH - ELIMINATE RIGHT SIDE GAP ACROSS ALL FORMS
+   ========================================================================== */
+.o_form_view .o_form_sheet_bg {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 1 auto !important;
+}
+
+.o_form_view .o_form_sheet {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+.o_form_view .o_form_sheet_bg > .o_form_sheet {
+    min-width: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 /* Constrain terms note editor */
