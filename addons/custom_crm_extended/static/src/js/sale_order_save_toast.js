@@ -92,15 +92,34 @@ patch(FormController.prototype, {
                     }
                 }
                 try {
-                    await this.actionService.doAction(
-                        {
-                            type: "ir.actions.act_window",
-                            name: "Quotations",
-                            res_model: "sale.order",
-                            views: [[false, "list"], [false, "form"]],
-                        },
-                        { clearBreadcrumbs: true }
-                    );
+                    if (typeof window.navigateBackFromForm === "function") {
+                        window.navigateBackFromForm(SALE_ORDER_MODEL, this.actionService);
+                    } else {
+                        const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
+                        const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+                        if (fromTotalPipeline && lastStageVal === "all") {
+                            await this.actionService.doAction(
+                                {
+                                    type: "ir.actions.act_window",
+                                    name: "All Pipeline Leads",
+                                    res_model: "crm.lead",
+                                    views: [[false, "list"], [false, "form"]],
+                                    context: { from_total_pipeline: true },
+                                },
+                                { clearBreadcrumbs: true }
+                            );
+                        } else {
+                            await this.actionService.doAction(
+                                {
+                                    type: "ir.actions.act_window",
+                                    name: "Quotations",
+                                    res_model: "sale.order",
+                                    views: [[false, "list"], [false, "form"]],
+                                },
+                                { clearBreadcrumbs: true }
+                            );
+                        }
+                    }
                 } catch (e) {
                     console.error("Cancel redirect failed:", e);
                 }

@@ -524,6 +524,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
 
 // ── Universal Navigation Helper to Return to Respective List/Pipeline Views ──
 function navigateBackFromForm(resModel, actionService) {
+    if (!actionService) actionService = window.__crm_action_service;
     if (!actionService) return;
 
     // Check if this record originated from Total Pipeline
@@ -1028,4 +1029,8 @@ if (typeof window !== "undefined") {
 
         navigateBackFromForm(resModel, actionService);
     }, true);
+}
+
+if (typeof window !== "undefined") {
+    window.navigateBackFromForm = navigateBackFromForm;
 }
