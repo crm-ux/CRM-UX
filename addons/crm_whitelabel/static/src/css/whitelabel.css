@@ -299,16 +299,17 @@ nav.o_navbar,
     opacity: 1 !important;
 }
 
-/* Save button as a proper button like New */
+/* Save button as a square icon button matching navbar */
 .o_form_button_save,
 button.o_form_button_save,
 .o_form_status_indicator .o_form_button_save {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: clamp(0.78rem, 0.88vw, 0.85rem) !important;
-    font-weight: 600 !important;
-    padding: 0 clamp(0.65rem, 0.9vw, 0.85rem) !important;
+    width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    padding: 0 !important;
     border-radius: 0.35rem !important;
     background: #0b3d91 !important;
     color: #ffffff !important;
@@ -321,13 +322,13 @@ button.o_form_button_save,
 }
 
 .o_form_button_save::after {
-    content: "Save" !important;
-    margin-left: 0.15rem !important;
+    content: none !important;
 }
 
 .o_form_button_save i,
 .o_form_button_save .fa {
-    display: none !important;
+    display: inline-block !important;
+    font-size: 0.95rem !important;
 }
 
 /* Keep control panel breadcrumbs and actions neatly separated with dynamic gap */
@@ -376,16 +377,17 @@ button.o_form_button_save,
     display: inline-block !important;
 }
 
-/* Discard / Cancel button as a proper button like Dashboard */
+/* Discard / Cancel button as a square icon button matching navbar */
 .o_form_button_cancel,
 button.o_form_button_cancel,
 .o_form_status_indicator .o_form_button_cancel {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    font-size: clamp(0.78rem, 0.88vw, 0.85rem) !important;
-    font-weight: 600 !important;
-    padding: 0 clamp(0.65rem, 0.9vw, 0.85rem) !important;
+    width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    padding: 0 !important;
     border-radius: 0.35rem !important;
     background: #e2e8f0 !important;
     color: #334155 !important;
@@ -397,13 +399,13 @@ button.o_form_button_cancel,
 }
 
 .o_form_button_cancel::after {
-    content: "Cancel" !important;
-    margin-left: 0.15rem !important;
+    content: none !important;
 }
 
 .o_form_button_cancel i,
 .o_form_button_cancel .fa {
-    display: none !important;
+    display: inline-block !important;
+    font-size: 0.95rem !important;
 }
 
 /* Modals & Dialogs already have native text buttons ("Save", "Discard") — prevent duplicate ::after text */

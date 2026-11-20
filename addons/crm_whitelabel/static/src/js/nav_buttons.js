@@ -404,20 +404,37 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
         if (isFormView && resModel) {
             window.__crm_current_form_model = resModel;
             let activeIds = null;
-            try {
-                const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed) && parsed.length > 1) {
-                        const parsedNums = parsed.map(Number).filter(Boolean);
-                        if (!currentResId || parsedNums.includes(Number(currentResId))) {
-                            activeIds = parsedNums;
-                        } else {
-                            activeIds = [Number(currentResId), ...parsedNums];
+
+            // 1. If from Total Pipeline, prioritize the Total Pipeline record sequence (81 records)
+            const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
+            if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
+                try {
+                    const pipeStored = sessionStorage.getItem("crm_active_pipeline_ids");
+                    if (pipeStored) {
+                        const parsedPipe = JSON.parse(pipeStored);
+                        if (Array.isArray(parsedPipe) && parsedPipe.length > 1) {
+                            activeIds = parsedPipe.map(Number).filter(Boolean);
                         }
                     }
-                }
-            } catch (e) {}
+                } catch (e) {}
+            }
+
+            if (!activeIds) {
+                try {
+                    const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed) && parsed.length > 1) {
+                            const parsedNums = parsed.map(Number).filter(Boolean);
+                            if (!currentResId || parsedNums.includes(Number(currentResId))) {
+                                activeIds = parsedNums;
+                            } else {
+                                activeIds = [Number(currentResId), ...parsedNums];
+                            }
+                        }
+                    }
+                } catch (e) {}
+            }
 
             if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
                 activeIds = window.__crm_cached_res_ids[resModel];
@@ -484,6 +501,63 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
 // ── Universal Navigation Helper to Return to Respective List/Pipeline Views ──
 function navigateBackFromForm(resModel, actionService) {
     if (!actionService) return;
+
+    // Check if this record originated from Total Pipeline
+    const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
+    if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
+        let lastStageVal = "all";
+        let lastStageName = "All Pipeline";
+        let lastEmp = "all";
+        try {
+            lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+            lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || "All Pipeline";
+            lastEmp = sessionStorage.getItem("crm_last_employee_filter_val") || "all";
+        } catch (e) {}
+
+        const quoteStageMap = {
+            "30": "draft",
+            "35": "sent",
+            "40": "negotiation",
+            "50": "order_expected",
+            "90": "won",
+        };
+
+        if (quoteStageMap[lastStageVal]) {
+            const quoteStage = quoteStageMap[lastStageVal];
+            const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
+            const empDomain = lastEmp !== "all" ? [["user_id", "=", parseInt(lastEmp)]] : [];
+            actionService.doAction({
+                type: "ir.actions.act_window",
+                name: lastStageName + " Quotations",
+                res_model: "sale.order",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter, ...empDomain],
+                context: {
+                    from_total_pipeline: true,
+                    default_stage_filter_val: lastStageVal,
+                    filter_employee_user_id: lastEmp,
+                },
+            }, { clearBreadcrumbs: true });
+            return;
+        } else {
+            const stageDomain = lastStageVal === "all" ? [] : [["x_stage_sequence", "=", parseInt(lastStageVal)]];
+            const empDomain = lastEmp !== "all" ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
+            actionService.doAction({
+                type: "ir.actions.act_window",
+                name: lastStageVal === "all" ? "All Pipeline Leads" : lastStageName + " Leads",
+                res_model: "crm.lead",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["active", "=", true], ...stageDomain, ...empDomain],
+                context: {
+                    from_total_pipeline: true,
+                    default_stage_filter_val: lastStageVal,
+                    filter_employee_user_id: lastEmp,
+                },
+            }, { clearBreadcrumbs: true });
+            return;
+        }
+    }
+
     if (resModel === "sale.order") {
         actionService.doAction({
             type: "ir.actions.act_window",
@@ -624,12 +698,28 @@ patch(ListController.prototype, {
             try {
                 const resModel = this.model?.root?.resModel || this.props?.resModel;
                 const records = this.model?.root?.records;
+                const ctx = this.props.context || this.env.searchModel?.context || {};
+                if (ctx.from_total_pipeline) {
+                    sessionStorage.setItem("crm_from_total_pipeline", "true");
+                    if (ctx.default_stage_filter_val) {
+                        sessionStorage.setItem("crm_last_stage_filter_val", ctx.default_stage_filter_val);
+                    }
+                    if (ctx.filter_employee_user_id) {
+                        sessionStorage.setItem("crm_last_employee_filter_val", ctx.filter_employee_user_id);
+                    }
+                } else if (resModel !== "crm.lead" && resModel !== "sale.order") {
+                    sessionStorage.removeItem("crm_from_total_pipeline");
+                }
+
                 if (resModel && records && records.length > 0) {
                     const ids = records.map((r) => r.resId).filter(Boolean);
                     if (ids.length > 0) {
                         sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids[resModel] = ids;
+                        if (ctx.from_total_pipeline) {
+                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                        }
                     }
                 }
             } catch (e) {}
@@ -645,12 +735,19 @@ patch(ListController.prototype, {
         try {
             const resModel = this.model?.root?.resModel || this.props?.resModel;
             const records = this.model?.root?.records;
+            const ctx = this.props.context || this.env.searchModel?.context || {};
+            if (ctx.from_total_pipeline) {
+                sessionStorage.setItem("crm_from_total_pipeline", "true");
+            }
             if (resModel && records && records.length > 0) {
                 const ids = records.map((r) => r.resId).filter(Boolean);
                 if (ids.length > 0) {
                     sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
+                    if (ctx.from_total_pipeline) {
+                        sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                    }
                 }
             }
         } catch (e) {}
