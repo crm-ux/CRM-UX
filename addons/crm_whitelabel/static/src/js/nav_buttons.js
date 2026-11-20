@@ -1153,7 +1153,7 @@ if (typeof window !== "undefined") {
                 }
             });
             if (foundText || !btn.querySelector("i.fa-plus")) {
-                btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: inherit !important;"></i>';
+                btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
             }
         });
     };
