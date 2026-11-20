@@ -395,6 +395,12 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
+
+                    // If in Total Pipeline view, also cache pipeline IDs (81 records)
+                    if (this.isTotalPipelineView || this.env.searchModel?.context?.from_total_pipeline) {
+                        sessionStorage.setItem("crm_from_total_pipeline", "true");
+                        sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                    }
                 }
             } catch (e) {}
             return rawProps;
@@ -946,11 +952,14 @@ if (typeof window !== "undefined") {
     window.addEventListener("wheel", handleScrollClose, { capture: true, passive: true });
     window.addEventListener("touchmove", handleScrollClose, { capture: true, passive: true });
 
-    // Handle Cross (Cancel) button clicks on refreshed Form Views when breadcrumbs are empty
+    // Handle Cross (Cancel) button clicks on Form Views to reliably navigate back
     document.addEventListener("click", async (ev) => {
         const cancelBtn = ev.target.closest(".o_form_button_cancel, .o_form_status_indicator_buttons .fa-times");
         if (!cancelBtn) return;
         if (cancelBtn.closest(".modal, .o_dialog")) return;
+
+        ev.preventDefault();
+        ev.stopPropagation();
 
         const actionService = window.__crm_action_service;
         const controller = actionService?.currentController;
@@ -961,14 +970,10 @@ if (typeof window !== "undefined") {
             } catch (e) {}
         }
 
-        const breadcrumbs = window.__crm_control_panel?.env?.config?.breadcrumbs || [];
-        if (breadcrumbs.length <= 1) {
-            ev.preventDefault();
-            ev.stopPropagation();
-            if (controller?.model?.root?.discard) {
-                try { await controller.model.root.discard(); } catch (e) {}
-            }
-            navigateBackFromForm(resModel, actionService);
+        if (controller?.model?.root?.discard) {
+            try { await controller.model.root.discard(); } catch (e) {}
         }
+
+        navigateBackFromForm(resModel, actionService);
     }, true);
 }

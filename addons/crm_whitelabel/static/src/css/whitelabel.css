@@ -321,14 +321,9 @@ button.o_form_button_save,
     margin-right: 0.5rem !important;
 }
 
-.o_form_button_save::after {
-    content: none !important;
-}
-
 .o_form_button_save i,
 .o_form_button_save .fa {
-    display: inline-block !important;
-    font-size: 0.95rem !important;
+    display: none !important;
 }
 
 /* Keep control panel breadcrumbs and actions neatly separated with dynamic gap */
@@ -398,14 +393,9 @@ button.o_form_button_cancel,
     opacity: 1 !important;
 }
 
-.o_form_button_cancel::after {
-    content: none !important;
-}
-
 .o_form_button_cancel i,
 .o_form_button_cancel .fa {
-    display: inline-block !important;
-    font-size: 0.95rem !important;
+    display: none !important;
 }
 
 /* Modals & Dialogs already have native text buttons ("Save", "Discard") — prevent duplicate ::after text */
