@@ -577,8 +577,8 @@ function navigateBackFromForm(resModel, actionService) {
         }
     }
 
-    // Returning from either crm.lead or sale.order: Always maintain crm.lead list view
-    if (fromTotalPipeline || resModel === "crm.lead" || resModel === "sale.order") {
+    // Returning from crm.lead or sale.order: Maintain crm.lead list view
+    if (resModel === "crm.lead" || (resModel === "sale.order" && fromTotalPipeline)) {
         const stageTitle = stageNamesMap[lastStageVal] || lastStageName || "Pipeline";
         let stageDomain = [];
         if (lastStageVal && lastStageVal !== "all") {
@@ -605,6 +605,8 @@ function navigateBackFromForm(resModel, actionService) {
         }, { clearBreadcrumbs: true });
         return;
     }
+
+    try { sessionStorage.removeItem("crm_from_total_pipeline"); } catch (e) { }
 
     if (resModel === "sale.order") {
         actionService.doAction({
@@ -725,6 +727,30 @@ function navigateBackFromForm(resModel, actionService) {
             views: [[false, "list"], [false, "form"]],
             domain: [],
             context: { active_test: false },
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "hr.employee") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Employees",
+            res_model: "hr.employee",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "hr.department") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Departments",
+            res_model: "hr.department",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "hr.employee.category") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Employee Tags",
+            res_model: "hr.employee.category",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
         }, { clearBreadcrumbs: true });
     } else if (resModel) {
         actionService.doAction({
