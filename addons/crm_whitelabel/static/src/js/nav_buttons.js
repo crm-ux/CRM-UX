@@ -202,6 +202,11 @@ patch(ControlPanel.prototype, {
         const ctx = this.env.searchModel?.context || {};
         const selectedText = ev.target.options[ev.target.selectedIndex].text;
         const currentEmp = ctx.filter_employee_user_id || "all";
+        try {
+            sessionStorage.setItem("crm_last_stage_filter_val", val);
+            sessionStorage.setItem("crm_last_stage_filter_name", selectedText);
+            sessionStorage.setItem("crm_last_employee_filter_val", currentEmp);
+        } catch (e) {}
 
         // Map quote sequence numbers to sale.order x_quote_stage values
         const quoteStageMap = {
@@ -273,6 +278,9 @@ patch(ControlPanel.prototype, {
 
     onEmployeeFilterChange(ev) {
         const val = ev.target.value;
+        try {
+            sessionStorage.setItem("crm_last_employee_filter_val", val);
+        } catch (e) {}
         const searchModel = this.env.searchModel;
         if (!searchModel) return;
 
@@ -346,9 +354,28 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
     get() {
         const rawProps = this._customPagerProps || (origPagerPropsDesc.get ? origPagerPropsDesc.get.call(this) : this.props.pagerProps);
         const controller = this.action?.currentController;
-        const resModel = this.env.searchModel?.resModel || controller?.props?.resModel;
-        const currentResId = controller?.model?.root?.resId || controller?.props?.resId;
-        const isFormView = this.env.config?.viewType === "form" || controller?.props?.type === "form";
+
+        // Resilient resolution of model and record id (including immediately on F5 refresh from URL hash)
+        let resModel = this.env.searchModel?.resModel || controller?.props?.resModel || window.__crm_current_form_model;
+        if (!resModel) {
+            try {
+                const m = window.location.hash.match(/[#&]model=([^&]+)/);
+                if (m) resModel = decodeURIComponent(m[1]);
+            } catch (e) {}
+        }
+
+        let currentResId = controller?.model?.root?.resId || controller?.props?.resId;
+        if (!currentResId) {
+            try {
+                const m = window.location.hash.match(/[#&]id=(\d+)/);
+                if (m) currentResId = parseInt(m[1], 10);
+            } catch (e) {}
+        }
+
+        let isFormView = this.env.config?.viewType === "form" || controller?.props?.type === "form";
+        if (!isFormView && (window.location.hash.includes("view_type=form") || window.location.hash.includes("id="))) {
+            isFormView = true;
+        }
 
         // Multi-record view (List / Kanban): continuously cache active record IDs
         if (resModel && rawProps && rawProps.total > 1) {
@@ -373,21 +400,26 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             return rawProps;
         }
 
-        // Form View: restore full record count on refresh so pager shows 1/16 instead of 1/1
-        if (isFormView && resModel && currentResId) {
+        // Form View: restore full record count immediately on refresh so pager shows 1/16 instead of 1/1
+        if (isFormView && resModel) {
             window.__crm_current_form_model = resModel;
             let activeIds = null;
             try {
                 const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
                 if (stored) {
                     const parsed = JSON.parse(stored);
-                    if (Array.isArray(parsed) && parsed.length > 1 && parsed.includes(currentResId)) {
-                        activeIds = parsed;
+                    if (Array.isArray(parsed) && parsed.length > 1) {
+                        const parsedNums = parsed.map(Number).filter(Boolean);
+                        if (!currentResId || parsedNums.includes(Number(currentResId))) {
+                            activeIds = parsedNums;
+                        } else {
+                            activeIds = [Number(currentResId), ...parsedNums];
+                        }
                     }
                 }
             } catch (e) {}
 
-            if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.includes(currentResId)) {
+            if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
                 activeIds = window.__crm_cached_res_ids[resModel];
             }
 
@@ -398,7 +430,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                 const domain = controller?.props?.domain || [];
                 this.orm.search(resModel, domain, { limit: 1000 }).then((searchRes) => {
                     window.__crm_fetching_ids[resModel] = false;
-                    if (Array.isArray(searchRes) && searchRes.length > 1 && searchRes.includes(currentResId)) {
+                    if (Array.isArray(searchRes) && searchRes.length > 1) {
                         sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(searchRes));
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids[resModel] = searchRes;
@@ -413,7 +445,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             }
 
             if (activeIds && activeIds.length > 1) {
-                const currentIndex = activeIds.indexOf(currentResId);
+                const currentIndex = currentResId ? activeIds.indexOf(Number(currentResId)) : 0;
                 const offset = currentIndex >= 0 ? currentIndex : 0;
 
                 if (controller?.model?.root) {
@@ -460,25 +492,86 @@ function navigateBackFromForm(resModel, actionService) {
             views: [[false, "list"], [false, "form"]],
         }, { clearBreadcrumbs: true });
     } else if (resModel === "crm.lead") {
+        const controller = actionService.currentController;
+        const rootData = controller?.model?.root?.data || {};
+        const stageSeq = rootData.x_stage_sequence;
+        let lastStageVal = null;
+        let lastStageName = null;
+        let lastEmp = null;
+        try {
+            lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val");
+            lastStageName = sessionStorage.getItem("crm_last_stage_filter_name");
+            lastEmp = sessionStorage.getItem("crm_last_employee_filter_val");
+        } catch (e) {}
+
+        let filterVal = lastStageVal;
+        if ((!filterVal || filterVal === "all") && stageSeq !== undefined && stageSeq !== false) {
+            filterVal = stageSeq.toString();
+        }
+
+        const stageDomain = (filterVal && filterVal !== "all") ? [["x_stage_sequence", "=", parseInt(filterVal)]] : [];
+        const empDomain = (lastEmp && lastEmp !== "all") ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
+
         actionService.doAction({
             type: "ir.actions.act_window",
-            name: "All Pipeline Leads",
+            name: (lastStageName || "Pipeline") + " Leads",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
-            domain: [["active", "=", true]],
+            domain: [["active", "=", true], ...stageDomain, ...empDomain],
+            context: {
+                from_total_pipeline: true,
+                default_stage_filter_val: filterVal || "all",
+                filter_employee_user_id: lastEmp || "all",
+            },
         }, { clearBreadcrumbs: true });
     } else if (resModel === "service.ticket.voucher.batch") {
-        actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Voucher Submissions",
+            res_model: "service.ticket.voucher.batch",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "service.ticket") {
-        actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Service Tickets",
+            res_model: "service.ticket",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "equipment.master") {
-        actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Equipment Master",
+            res_model: "equipment.master",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "amc.contract") {
-        actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "AMC Contracts",
+            res_model: "amc.contract",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "crm.task.management") {
-        actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Task Management",
+            res_model: "crm.task.management",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "exhibition.contact") {
-        actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Exhibition Contacts",
+            res_model: "exhibition.contact",
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "res.partner") {
         actionService.doAction({
             type: "ir.actions.act_window",
