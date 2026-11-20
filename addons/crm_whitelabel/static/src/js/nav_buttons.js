@@ -334,10 +334,17 @@ patch(ControlPanel.prototype, {
                 }
             }, { clearBreadcrumbs: false });
         }
-    },
+    }
+});
 
-    get pagerProps() {
-        const rawProps = this.props.pagerProps;
+// Safely override ControlPanel.prototype.pagerProps getter using Object.defineProperty
+const origPagerPropsDesc = Object.getOwnPropertyDescriptor(ControlPanel.prototype, "pagerProps") || {
+    get() { return this.props.pagerProps; }
+};
+
+Object.defineProperty(ControlPanel.prototype, "pagerProps", {
+    get() {
+        const rawProps = origPagerPropsDesc.get ? origPagerPropsDesc.get.call(this) : this.props.pagerProps;
         const controller = this.action?.currentController;
         const resModel = this.env.searchModel?.resModel || controller?.props?.resModel;
         const currentResId = controller?.model?.root?.resId || controller?.props?.resId;
@@ -434,7 +441,9 @@ patch(ControlPanel.prototype, {
         }
 
         return rawProps;
-    }
+    },
+    configurable: true,
+    enumerable: true,
 });
 
 // ── Universal Navigation Helper to Return to Respective List/Pipeline Views ──
