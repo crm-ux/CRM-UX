@@ -203,58 +203,37 @@ patch(ControlPanel.prototype, {
         const selectedText = ev.target.options[ev.target.selectedIndex].text;
         const currentEmp = ctx.filter_employee_user_id || "all";
         try {
+            sessionStorage.setItem("crm_from_total_pipeline", "true");
             sessionStorage.setItem("crm_last_stage_filter_val", val);
             sessionStorage.setItem("crm_last_stage_filter_name", selectedText);
             sessionStorage.setItem("crm_last_employee_filter_val", currentEmp);
         } catch (e) { }
 
-        // Map quote sequence numbers to sale.order x_quote_stage values
-        const quoteStageMap = {
-            "30": "draft",
-            "35": "sent",
-            "40": "negotiation",
-            "50": "order_expected",
-            "90": "won",
-        };
-
-        if (quoteStageMap[val]) {
-            // From Quote onwards -> open sale.order directly!
-            const quoteStage = quoteStageMap[val];
-            const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
-            const empDomain = currentEmp !== "all" ? [["user_id", "=", parseInt(currentEmp)]] : [];
-
-            this.action.doAction({
-                type: "ir.actions.act_window",
-                name: selectedText + " Quotations",
-                res_model: "sale.order",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter, ...empDomain],
-                context: {
-                    ...ctx,
-                    from_total_pipeline: true,
-                    default_stage_filter_val: val,
-                    filter_employee_user_id: currentEmp,
-                },
-            }, { clearBreadcrumbs: true });
-        } else {
-            // Early stages (All, Lead, Contacted, Tech Disc, Qualified, Opportunity) -> open crm.lead
-            const stageDomain = val === "all" ? [] : [["x_stage_sequence", "=", parseInt(val)]];
-            const empDomain = currentEmp !== "all" ? ["|", ["user_id", "=", parseInt(currentEmp)], ["x_assign_to_id", "=", parseInt(currentEmp)]] : [];
-
-            this.action.doAction({
-                type: "ir.actions.act_window",
-                name: val === "all" ? "All Pipeline Leads" : selectedText + " Leads",
-                res_model: "crm.lead",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["active", "=", true], ...stageDomain, ...empDomain],
-                context: {
-                    ...ctx,
-                    from_total_pipeline: true,
-                    default_stage_filter_val: val,
-                    filter_employee_user_id: currentEmp,
-                },
-            }, { clearBreadcrumbs: true });
+        // All stages (including Quotes, Sent, Negotiation, Order Expected, Won) maintain crm.lead list view
+        let stageDomain = [];
+        if (val !== "all") {
+            const seq = parseInt(val, 10);
+            stageDomain = [["x_stage_sequence", "=", seq]];
+            if (seq !== 90) {
+                stageDomain.push(["x_stage_sequence", "!=", 90]);
+            }
         }
+        const empDomain = currentEmp !== "all" ? ["|", ["user_id", "=", parseInt(currentEmp)], ["x_assign_to_id", "=", parseInt(currentEmp)]] : [];
+
+        this.action.doAction({
+            type: "ir.actions.act_window",
+            name: val === "all" ? "All Pipeline Leads" : selectedText + " Leads & Deals",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true], ...stageDomain, ...empDomain],
+            context: {
+                ...ctx,
+                from_total_pipeline: true,
+                default_stage_filter_val: val,
+                filter_employee_user_id: currentEmp,
+                is_quote_stage: val !== "all" && parseInt(val, 10) >= 30,
+            },
+        }, { clearBreadcrumbs: true });
     },
 
 
@@ -598,49 +577,30 @@ function navigateBackFromForm(resModel, actionService) {
         }
     }
 
-    const quoteStageMap = {
-        "30": "draft",
-        "35": "sent",
-        "40": "negotiation",
-        "50": "order_expected",
-        "90": "won",
-    };
-
-    if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
-        // If opened from a specific Quotation stage (e.g. Quotes dropdown or card), return to that specific quote stage
-        if (quoteStageMap[lastStageVal]) {
-            const quoteStage = quoteStageMap[lastStageVal];
-            const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
-            const empDomain = lastEmp !== "all" ? [["user_id", "=", parseInt(lastEmp)]] : [];
-            actionService.doAction({
-                type: "ir.actions.act_window",
-                name: lastStageName + " Quotations",
-                res_model: "sale.order",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["x_quote_stage", "=", quoteStage], ...cancelFilter, ...empDomain],
-                context: {
-                    from_total_pipeline: true,
-                    default_stage_filter_val: lastStageVal,
-                    filter_employee_user_id: lastEmp,
-                },
-            }, { clearBreadcrumbs: true });
-            return;
+    // Returning from either crm.lead or sale.order: Always maintain crm.lead list view
+    if (fromTotalPipeline || resModel === "crm.lead" || resModel === "sale.order") {
+        const stageTitle = stageNamesMap[lastStageVal] || lastStageName || "Pipeline";
+        let stageDomain = [];
+        if (lastStageVal && lastStageVal !== "all") {
+            const seq = parseInt(lastStageVal, 10);
+            stageDomain = [["x_stage_sequence", "=", seq]];
+            if (seq !== 90) {
+                stageDomain.push(["x_stage_sequence", "!=", 90]);
+            }
         }
-
-        // Specific Stage (Lead, Contacted, Tech Disc, Qualified, Opportunity) or All Stages:
-        const stageDomain = (lastStageVal && lastStageVal !== "all") ? [["x_stage_sequence", "=", parseInt(lastStageVal)]] : [];
         const empDomain = (lastEmp && lastEmp !== "all") ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
 
         actionService.doAction({
             type: "ir.actions.act_window",
-            name: lastStageVal === "all" ? "All Pipeline Leads" : lastStageName + " Leads",
+            name: lastStageVal === "all" ? "All Pipeline Leads" : stageTitle + " Leads & Deals",
             res_model: "crm.lead",
             views: [[false, "list"], [false, "form"]],
             domain: [["active", "=", true], ...stageDomain, ...empDomain],
             context: {
                 from_total_pipeline: true,
-                default_stage_filter_val: lastStageVal,
-                filter_employee_user_id: lastEmp,
+                default_stage_filter_val: lastStageVal || "all",
+                filter_employee_user_id: lastEmp || "all",
+                is_quote_stage: lastStageVal !== "all" && parseInt(lastStageVal, 10) >= 30,
             },
         }, { clearBreadcrumbs: true });
         return;

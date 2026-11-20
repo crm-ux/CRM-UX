@@ -95,30 +95,36 @@ patch(FormController.prototype, {
                     if (typeof window.navigateBackFromForm === "function") {
                         window.navigateBackFromForm(SALE_ORDER_MODEL, this.actionService);
                     } else {
-                        const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
                         const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
-                        if (fromTotalPipeline && lastStageVal === "all") {
-                            await this.actionService.doAction(
-                                {
-                                    type: "ir.actions.act_window",
-                                    name: "All Pipeline Leads",
-                                    res_model: "crm.lead",
-                                    views: [[false, "list"], [false, "form"]],
-                                    context: { from_total_pipeline: true },
-                                },
-                                { clearBreadcrumbs: true }
-                            );
-                        } else {
-                            await this.actionService.doAction(
-                                {
-                                    type: "ir.actions.act_window",
-                                    name: "Quotations",
-                                    res_model: "sale.order",
-                                    views: [[false, "list"], [false, "form"]],
-                                },
-                                { clearBreadcrumbs: true }
-                            );
+                        const lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || "Pipeline";
+                        const lastEmp = sessionStorage.getItem("crm_last_employee_filter_val") || "all";
+
+                        let stageDomain = [];
+                        if (lastStageVal && lastStageVal !== "all") {
+                            const seq = parseInt(lastStageVal, 10);
+                            stageDomain = [["x_stage_sequence", "=", seq]];
+                            if (seq !== 90) {
+                                stageDomain.push(["x_stage_sequence", "!=", 90]);
+                            }
                         }
+                        const empDomain = (lastEmp && lastEmp !== "all") ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
+
+                        await this.actionService.doAction(
+                            {
+                                type: "ir.actions.act_window",
+                                name: lastStageVal === "all" ? "All Pipeline Leads" : lastStageName + " Leads & Deals",
+                                res_model: "crm.lead",
+                                views: [[false, "list"], [false, "form"]],
+                                domain: [["active", "=", true], ...stageDomain, ...empDomain],
+                                context: {
+                                    from_total_pipeline: true,
+                                    default_stage_filter_val: lastStageVal,
+                                    filter_employee_user_id: lastEmp,
+                                    is_quote_stage: lastStageVal !== "all" && parseInt(lastStageVal, 10) >= 30,
+                                },
+                            },
+                            { clearBreadcrumbs: true }
+                        );
                     }
                 } catch (e) {
                     console.error("Cancel redirect failed:", e);
