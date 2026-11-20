@@ -2431,3 +2431,64 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 .o_form_view .o_group .o_td_label label {
     white-space: nowrap !important;
 }
+
+/* Compact Sleek Notification Toasts matching Modern CRM UI */
+.o_notification_manager {
+    right: 0.85rem !important;
+    top: 0.85rem !important;
+    z-index: 1100 !important;
+}
+
+.o_notification_manager .o_notification,
+.o_notification_manager .toast,
+.o_notification {
+    width: clamp(260px, 20vw, 310px) !important;
+    max-width: 320px !important;
+    min-width: 250px !important;
+    padding: 0.5rem 0.7rem !important;
+    margin-bottom: 0.45rem !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12) !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.o_notification_manager .o_notification .o_notification_body,
+.o_notification .o_notification_body,
+.o_notification .toast-body {
+    padding: 0 !important;
+    font-size: 0.8rem !important;
+    line-height: 1.35 !important;
+}
+
+.o_notification_manager .o_notification .o_notification_title,
+.o_notification .o_notification_title,
+.o_notification .toast-header {
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.2rem !important;
+    padding: 0 !important;
+    line-height: 1.25 !important;
+}
+
+.o_notification_manager .o_notification .o_notification_content,
+.o_notification .o_notification_content {
+    font-size: 0.78rem !important;
+    color: #475569 !important;
+    line-height: 1.35 !important;
+}
+
+.o_notification_manager .o_notification .o_notification_close,
+.o_notification .o_notification_close,
+.o_notification .btn-close {
+    padding: 0.2rem !important;
+    font-size: 0.75rem !important;
+    opacity: 0.6 !important;
+    align-self: flex-start !important;
+}
+
+.o_notification_manager .o_notification .o_notification_close:hover,
+.o_notification .btn-close:hover {
+    opacity: 1 !important;
+}
+
