@@ -215,12 +215,12 @@ export class CrmLeadListController extends ListController {
                     );
                     if (quotes && quotes.length) {
                         const ctx = this.props.context || this.env?.searchModel?.context || {};
-                        const isTotalPipe = Boolean(ctx.from_total_pipeline);
-                        if (isTotalPipe) {
-                            try {
-                                sessionStorage.setItem("crm_from_total_pipeline", "true");
-                            } catch (e) {}
-                        }
+                        try {
+                            sessionStorage.setItem("crm_from_total_pipeline", "true");
+                            const stageVal = ctx.default_stage_filter_val || String(seq);
+                            sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
+                            sessionStorage.setItem("crm_record_stage_" + quotes[0].id, stageVal);
+                        } catch (e) {}
                         return action.doAction({
                             type: "ir.actions.act_window",
                             name: "Quotation",

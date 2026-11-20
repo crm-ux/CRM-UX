@@ -206,7 +206,7 @@ patch(ControlPanel.prototype, {
             sessionStorage.setItem("crm_last_stage_filter_val", val);
             sessionStorage.setItem("crm_last_stage_filter_name", selectedText);
             sessionStorage.setItem("crm_last_employee_filter_val", currentEmp);
-        } catch (e) {}
+        } catch (e) { }
 
         // Map quote sequence numbers to sale.order x_quote_stage values
         const quoteStageMap = {
@@ -280,7 +280,7 @@ patch(ControlPanel.prototype, {
         const val = ev.target.value;
         try {
             sessionStorage.setItem("crm_last_employee_filter_val", val);
-        } catch (e) {}
+        } catch (e) { }
         const searchModel = this.env.searchModel;
         if (!searchModel) return;
 
@@ -361,7 +361,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             try {
                 const m = window.location.hash.match(/[#&]model=([^&]+)/);
                 if (m) resModel = decodeURIComponent(m[1]);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         let currentResId = controller?.model?.root?.resId || controller?.props?.resId;
@@ -369,7 +369,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             try {
                 const m = window.location.hash.match(/[#&]id=(\d+)/);
                 if (m) currentResId = parseInt(m[1], 10);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         let isFormView = this.env.config?.viewType === "form" || controller?.props?.type === "form";
@@ -409,7 +409,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
             return rawProps;
         }
 
@@ -458,7 +458,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.length > 1) {
                 activeIds = window.__crm_cached_res_ids[resModel];
@@ -476,7 +476,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids[resModel] = searchRes;
                         if (controller?.model?.root) {
-                            try { controller.model.root.resIds = searchRes; } catch (e) {}
+                            try { controller.model.root.resIds = searchRes; } catch (e) { }
                         }
                         this.render();
                     }
@@ -492,7 +492,7 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                 if (controller?.model?.root) {
                     try {
                         controller.model.root.resIds = activeIds;
-                    } catch (e) {}
+                    } catch (e) { }
                 }
 
                 return {
@@ -527,16 +527,41 @@ function navigateBackFromForm(resModel, actionService) {
     if (!actionService) actionService = window.__crm_action_service;
     if (!actionService) return;
 
-    // Check if this record originated from Total Pipeline
+    const stageNamesMap = {
+        "all": "All Pipeline",
+        "0": "Lead",
+        "5": "Contacted",
+        "7": "Tech. Discussion",
+        "10": "Qualified",
+        "20": "Opportunity",
+        "30": "Quotes",
+        "35": "Sent",
+        "40": "Negotiation",
+        "50": "Order Expected",
+        "90": "Won"
+    };
+
+    // Check if this record originated from Total Pipeline or a Pipeline Stage
     const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
     let lastStageVal = "all";
     let lastStageName = "All Pipeline";
     let lastEmp = "all";
     try {
         lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
-        lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || "All Pipeline";
+        lastStageName = sessionStorage.getItem("crm_last_stage_filter_name") || stageNamesMap[lastStageVal] || "All Pipeline";
         lastEmp = sessionStorage.getItem("crm_last_employee_filter_val") || "all";
-    } catch (e) {}
+    } catch (e) { }
+
+    // Check if the current record was tagged with its origin stage
+    const controller = actionService.currentController;
+    const curResId = controller?.model?.root?.resId || controller?.props?.resId;
+    if (curResId) {
+        const recStage = sessionStorage.getItem("crm_record_stage_" + curResId);
+        if (recStage) {
+            lastStageVal = recStage;
+            lastStageName = stageNamesMap[recStage] || lastStageName;
+        }
+    }
 
     const quoteStageMap = {
         "30": "draft",
@@ -547,7 +572,7 @@ function navigateBackFromForm(resModel, actionService) {
     };
 
     if (fromTotalPipeline && (resModel === "crm.lead" || resModel === "sale.order")) {
-        // If opened from a specific Quotation stage (e.g. Quotes dropdown), return to that specific quote stage
+        // If opened from a specific Quotation stage (e.g. Quotes dropdown or card), return to that specific quote stage
         if (quoteStageMap[lastStageVal]) {
             const quoteStage = quoteStageMap[lastStageVal];
             const cancelFilter = quoteStage === "won" ? [["state", "!=", "cancel"]] : [["state", "not in", ["sale", "cancel"]], ["x_quote_stage", "not in", ["won", "lost"]]];
@@ -567,8 +592,7 @@ function navigateBackFromForm(resModel, actionService) {
             return;
         }
 
-        // All Stages ('all') or Lead / Contacted / Tech Disc / Qualified / Opportunity:
-        // Return to crm.lead with All Pipeline Leads list view (Image 2)
+        // Specific Stage (Lead, Contacted, Tech Disc, Qualified, Opportunity) or All Stages:
         const stageDomain = (lastStageVal && lastStageVal !== "all") ? [["x_stage_sequence", "=", parseInt(lastStageVal)]] : [];
         const empDomain = (lastEmp && lastEmp !== "all") ? ["|", ["user_id", "=", parseInt(lastEmp)], ["x_assign_to_id", "=", parseInt(lastEmp)]] : [];
 
@@ -605,7 +629,7 @@ function navigateBackFromForm(resModel, actionService) {
             lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val");
             lastStageName = sessionStorage.getItem("crm_last_stage_filter_name");
             lastEmp = sessionStorage.getItem("crm_last_employee_filter_val");
-        } catch (e) {}
+        } catch (e) { }
 
         let filterVal = lastStageVal;
         if ((!filterVal || filterVal === "all") && stageSeq !== undefined && stageSeq !== false) {
@@ -723,15 +747,60 @@ function navigateBackFromForm(resModel, actionService) {
 patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
+        const stageNamesMap = {
+            "all": "All Pipeline",
+            "0": "Lead",
+            "5": "Contacted",
+            "7": "Tech. Discussion",
+            "10": "Qualified",
+            "20": "Opportunity",
+            "30": "Quotes",
+            "35": "Sent",
+            "40": "Negotiation",
+            "50": "Order Expected",
+            "90": "Won"
+        };
+
+        const detectCurrentStage = () => {
+            const domain = this.props.domain || this.env.searchModel?.domain || [];
+            let detectedStage = null;
+            if (Array.isArray(domain)) {
+                for (const cond of domain) {
+                    if (Array.isArray(cond)) {
+                        if (cond[0] === "x_stage_sequence" && cond[1] === "=") {
+                            detectedStage = String(cond[2]);
+                            break;
+                        }
+                        if (cond[0] === "x_quote_stage" && cond[1] === "=") {
+                            const revMap = { draft: "30", sent: "35", negotiation: "40", order_expected: "50", won: "90" };
+                            detectedStage = revMap[cond[2]] || "30";
+                            break;
+                        }
+                    }
+                }
+            }
+            return detectedStage;
+        };
+
         const saveListIds = () => {
             try {
                 const resModel = this.model?.root?.resModel || this.props?.resModel;
                 const records = this.model?.root?.records;
                 const ctx = this.props.context || this.env.searchModel?.context || {};
-                if (ctx.from_total_pipeline) {
+                const detected = detectCurrentStage();
+
+                if (detected !== null) {
+                    sessionStorage.setItem("crm_from_total_pipeline", "true");
+                    sessionStorage.setItem("crm_last_stage_filter_val", detected);
+                    sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[detected] || "Pipeline");
+                } else if (ctx.from_total_pipeline) {
                     sessionStorage.setItem("crm_from_total_pipeline", "true");
                     if (ctx.default_stage_filter_val) {
                         sessionStorage.setItem("crm_last_stage_filter_val", ctx.default_stage_filter_val);
+                        sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[ctx.default_stage_filter_val] || "Pipeline");
+                    } else {
+                        sessionStorage.setItem("crm_last_stage_filter_val", "all");
+                        sessionStorage.setItem("crm_last_stage_filter_name", "All Pipeline");
                     }
                     if (ctx.filter_employee_user_id) {
                         sessionStorage.setItem("crm_last_employee_filter_val", ctx.filter_employee_user_id);
@@ -746,16 +815,15 @@ patch(ListController.prototype, {
                         sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids[resModel] = ids;
-                        if (ctx.from_total_pipeline) {
-                            if (ctx.default_stage_filter_val && ctx.default_stage_filter_val !== "all") {
-                                sessionStorage.setItem("crm_stage_ids_" + ctx.default_stage_filter_val, JSON.stringify(ids));
-                            } else {
-                                sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
-                            }
+                        const effectiveStage = detected || ctx.default_stage_filter_val || "all";
+                        if (effectiveStage !== "all") {
+                            sessionStorage.setItem("crm_stage_ids_" + effectiveStage, JSON.stringify(ids));
+                        } else {
+                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
                         }
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
         onMounted(() => {
             saveListIds();
@@ -769,25 +837,60 @@ patch(ListController.prototype, {
             const resModel = this.model?.root?.resModel || this.props?.resModel;
             const records = this.model?.root?.records;
             const ctx = this.props.context || this.env.searchModel?.context || {};
-            if (ctx.from_total_pipeline) {
-                sessionStorage.setItem("crm_from_total_pipeline", "true");
+            const domain = this.props.domain || this.env.searchModel?.domain || [];
+            let detected = null;
+            if (Array.isArray(domain)) {
+                for (const cond of domain) {
+                    if (Array.isArray(cond)) {
+                        if (cond[0] === "x_stage_sequence" && cond[1] === "=") {
+                            detected = String(cond[2]);
+                            break;
+                        }
+                        if (cond[0] === "x_quote_stage" && cond[1] === "=") {
+                            const revMap = { draft: "30", sent: "35", negotiation: "40", order_expected: "50", won: "90" };
+                            detected = revMap[cond[2]] || "30";
+                            break;
+                        }
+                    }
+                }
             }
+
+            const stageNamesMap = {
+                "all": "All Pipeline",
+                "0": "Lead",
+                "5": "Contacted",
+                "7": "Tech. Discussion",
+                "10": "Qualified",
+                "20": "Opportunity",
+                "30": "Quotes",
+                "35": "Sent",
+                "40": "Negotiation",
+                "50": "Order Expected",
+                "90": "Won"
+            };
+
+            const targetStage = detected || ctx.default_stage_filter_val || (record?.data?.x_stage_sequence !== undefined ? String(record.data.x_stage_sequence) : "all");
+            sessionStorage.setItem("crm_from_total_pipeline", "true");
+            sessionStorage.setItem("crm_last_stage_filter_val", targetStage);
+            sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[targetStage] || "Pipeline");
+            if (record?.resId) {
+                sessionStorage.setItem("crm_record_stage_" + record.resId, targetStage);
+            }
+
             if (resModel && records && records.length > 0) {
                 const ids = records.map((r) => r.resId).filter(Boolean);
                 if (ids.length > 0) {
                     sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
-                    if (ctx.from_total_pipeline) {
-                        if (ctx.default_stage_filter_val && ctx.default_stage_filter_val !== "all") {
-                            sessionStorage.setItem("crm_stage_ids_" + ctx.default_stage_filter_val, JSON.stringify(ids));
-                        } else {
-                            sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
-                        }
+                    if (targetStage !== "all") {
+                        sessionStorage.setItem("crm_stage_ids_" + targetStage, JSON.stringify(ids));
+                    } else {
+                        sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
                     }
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
         return super.openRecord ? super.openRecord(...arguments) : undefined;
     },
 });
@@ -814,7 +917,7 @@ patch(KanbanController.prototype, {
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
         onMounted(saveKanbanIds);
         onWillUnmount(saveKanbanIds);
@@ -838,7 +941,7 @@ patch(KanbanController.prototype, {
                 window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                 window.__crm_cached_res_ids[resModel] = ids;
             }
-        } catch (e) {}
+        } catch (e) { }
         return super.openRecord ? super.openRecord(...arguments) : undefined;
     },
 });
@@ -885,7 +988,7 @@ patch(FormController.prototype, {
                             }
                         }
                     }
-                } catch (e) {}
+                } catch (e) { }
 
                 if (!restoredIds && orm) {
                     try {
@@ -895,7 +998,7 @@ patch(FormController.prototype, {
                             restoredIds = searchRes;
                             sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
                         }
-                    } catch (err) {}
+                    } catch (err) { }
                 }
 
                 if (restoredIds && restoredIds.length > 1) {
@@ -904,7 +1007,7 @@ patch(FormController.prototype, {
                     if (this.model?.root) {
                         try {
                             this.model.root.resIds = restoredIds;
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }
             });
@@ -987,13 +1090,13 @@ if (typeof window !== "undefined") {
             );
             if (openTogglers.length > 0) {
                 openTogglers.forEach(t => {
-                    try { t.click(); } catch (e) {}
+                    try { t.click(); } catch (e) { }
                 });
             } else {
                 // If an untracked popover is open, trigger click on body element (never document)
                 const openPopovers = document.querySelectorAll(".o_select_menu_menu, .o_field_selection_menu, .o_popover");
                 if (openPopovers.length > 0 && document.body) {
-                    try { document.body.click(); } catch (e) {}
+                    try { document.body.click(); } catch (e) { }
                 }
             }
         } catch (err) {
@@ -1020,11 +1123,11 @@ if (typeof window !== "undefined") {
         if (!resModel) {
             try {
                 resModel = new URLSearchParams(window.location.hash.substring(1)).get("model");
-            } catch (e) {}
+            } catch (e) { }
         }
 
         if (controller?.model?.root?.discard) {
-            try { await controller.model.root.discard(); } catch (e) {}
+            try { await controller.model.root.discard(); } catch (e) { }
         }
 
         navigateBackFromForm(resModel, actionService);
