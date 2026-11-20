@@ -2754,7 +2754,7 @@ button.o_form_button_cancel::after,
     display: none !important;
     content: none !important;
 }
-}
+
 
 /* 4. Dashboard -> Home Vector Icon (Matching Secondary Button Color) */
 .o_control_panel_breadcrumbs>button.btn-secondary {
