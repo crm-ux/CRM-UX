@@ -337,14 +337,14 @@ patch(ControlPanel.prototype, {
     }
 });
 
-// Safely override ControlPanel.prototype.pagerProps getter using Object.defineProperty
+// Safely override ControlPanel.prototype.pagerProps getter and setter using Object.defineProperty
 const origPagerPropsDesc = Object.getOwnPropertyDescriptor(ControlPanel.prototype, "pagerProps") || {
     get() { return this.props.pagerProps; }
 };
 
 Object.defineProperty(ControlPanel.prototype, "pagerProps", {
     get() {
-        const rawProps = origPagerPropsDesc.get ? origPagerPropsDesc.get.call(this) : this.props.pagerProps;
+        const rawProps = this._customPagerProps || (origPagerPropsDesc.get ? origPagerPropsDesc.get.call(this) : this.props.pagerProps);
         const controller = this.action?.currentController;
         const resModel = this.env.searchModel?.resModel || controller?.props?.resModel;
         const currentResId = controller?.model?.root?.resId || controller?.props?.resId;
@@ -441,6 +441,9 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
         }
 
         return rawProps;
+    },
+    set(val) {
+        this._customPagerProps = val;
     },
     configurable: true,
     enumerable: true,
