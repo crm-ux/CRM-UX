@@ -5,7 +5,7 @@ import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
 import { KanbanController } from "@web/views/kanban/kanban_controller";
 import { useService } from "@web/core/utils/hooks";
-import { useState, onWillStart, onMounted } from "@odoo/owl";
+import { useState, onWillStart, onMounted, onWillUnmount } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { _t } from "@web/core/l10n/translation";
@@ -453,9 +453,20 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
 function navigateBackFromForm(resModel, actionService) {
     if (!actionService) return;
     if (resModel === "sale.order") {
-        actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Quotations",
+            res_model: "sale.order",
+            views: [[false, "list"], [false, "form"]],
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "crm.lead") {
-        actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "All Pipeline Leads",
+            res_model: "crm.lead",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["active", "=", true]],
+        }, { clearBreadcrumbs: true });
     } else if (resModel === "service.ticket.voucher.batch") {
         actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
     } else if (resModel === "service.ticket") {
@@ -533,6 +544,9 @@ patch(ListController.prototype, {
         onMounted(() => {
             saveListIds();
         });
+        onWillUnmount(() => {
+            saveListIds();
+        });
     },
     async openRecord(record) {
         try {
@@ -552,6 +566,32 @@ patch(ListController.prototype, {
 });
 
 patch(KanbanController.prototype, {
+    setup() {
+        super.setup(...arguments);
+        const saveKanbanIds = () => {
+            try {
+                const resModel = this.model?.root?.resModel || this.props?.resModel;
+                let ids = [];
+                const root = this.model?.root;
+                if (root?.records?.length > 0) {
+                    ids = root.records.map((r) => r.resId).filter(Boolean);
+                } else if (root?.groups?.length > 0) {
+                    for (const grp of root.groups) {
+                        if (grp.list?.records?.length > 0) {
+                            ids.push(...grp.list.records.map((r) => r.resId).filter(Boolean));
+                        }
+                    }
+                }
+                if (resModel && ids.length > 0) {
+                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                    window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                    window.__crm_cached_res_ids[resModel] = ids;
+                }
+            } catch (e) {}
+        };
+        onMounted(saveKanbanIds);
+        onWillUnmount(saveKanbanIds);
+    },
     async openRecord(record) {
         try {
             const resModel = this.model?.root?.resModel || this.props?.resModel;
@@ -580,10 +620,11 @@ patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
         this.actionService = this.env?.services?.action || this.action;
+        const orm = this.env?.services?.orm;
         const resModel = this.props.resModel;
         const currentResId = this.props.resId;
 
-        // Restore resIds on refresh so pager shows full record count (e.g. 1/16 instead of 1/1)
+        // Restore resIds on refresh so pager shows full record count immediately on initial render
         if (resModel && currentResId) {
             onWillStart(async () => {
                 let restoredIds = null;
@@ -597,23 +638,25 @@ patch(FormController.prototype, {
                     }
                 } catch (e) {}
 
-                if (!restoredIds && this.model?.orm) {
+                if (!restoredIds && orm) {
                     try {
                         const domain = this.props.domain || [];
-                        const searchRes = await this.model.orm.search(resModel, domain, { limit: 1000 });
+                        const searchRes = await orm.search(resModel, domain, { limit: 1000 });
                         if (Array.isArray(searchRes) && searchRes.length > 1 && searchRes.includes(currentResId)) {
                             restoredIds = searchRes;
                             sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
-                            window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
-                            window.__crm_cached_res_ids[resModel] = restoredIds;
                         }
                     } catch (err) {}
                 }
 
-                if (restoredIds && restoredIds.length > 1 && this.model?.root) {
-                    try {
-                        this.model.root.resIds = restoredIds;
-                    } catch (e) {}
+                if (restoredIds && restoredIds.length > 1) {
+                    window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                    window.__crm_cached_res_ids[resModel] = restoredIds;
+                    if (this.model?.root) {
+                        try {
+                            this.model.root.resIds = restoredIds;
+                        } catch (e) {}
+                    }
                 }
             });
         }
@@ -721,7 +764,12 @@ if (typeof window !== "undefined") {
 
         const actionService = window.__crm_action_service;
         const controller = actionService?.currentController;
-        const resModel = window.__crm_current_form_model || controller?.props?.resModel;
+        let resModel = window.__crm_current_form_model || controller?.props?.resModel;
+        if (!resModel) {
+            try {
+                resModel = new URLSearchParams(window.location.hash.substring(1)).get("model");
+            } catch (e) {}
+        }
 
         const breadcrumbs = window.__crm_control_panel?.env?.config?.breadcrumbs || [];
         if (breadcrumbs.length <= 1) {
