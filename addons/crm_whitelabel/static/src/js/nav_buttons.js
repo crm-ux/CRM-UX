@@ -3,6 +3,7 @@ import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
+import { KanbanController } from "@web/views/kanban/kanban_controller";
 import { useService } from "@web/core/utils/hooks";
 import { useState, onWillStart, onMounted } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
@@ -82,6 +83,8 @@ patch(ControlPanel.prototype, {
         super.setup(...arguments);
         this.action = useService("action");
         this.orm = useService("orm");
+        window.__crm_action_service = this.action;
+        window.__crm_control_panel = this;
         this.empFilterState = useState({ accessibleEmployees: [] });
 
         onWillStart(async () => {
@@ -331,10 +334,173 @@ patch(ControlPanel.prototype, {
                 }
             }, { clearBreadcrumbs: false });
         }
+    },
+
+    get pagerProps() {
+        const rawProps = this.props.pagerProps;
+        const controller = this.action?.currentController;
+        const resModel = this.env.searchModel?.resModel || controller?.props?.resModel;
+        const currentResId = controller?.model?.root?.resId || controller?.props?.resId;
+        const isFormView = this.env.config?.viewType === "form" || controller?.props?.type === "form";
+
+        // Multi-record view (List / Kanban): continuously cache active record IDs
+        if (resModel && rawProps && rawProps.total > 1) {
+            try {
+                let ids = [];
+                const root = controller?.model?.root;
+                if (root?.records?.length > 0) {
+                    ids = root.records.map((r) => r.resId).filter(Boolean);
+                } else if (root?.groups?.length > 0) {
+                    for (const grp of root.groups) {
+                        if (grp.list?.records?.length > 0) {
+                            ids.push(...grp.list.records.map((r) => r.resId).filter(Boolean));
+                        }
+                    }
+                }
+                if (ids.length > 1) {
+                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                    window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                    window.__crm_cached_res_ids[resModel] = ids;
+                }
+            } catch (e) {}
+            return rawProps;
+        }
+
+        // Form View: restore full record count on refresh so pager shows 1/16 instead of 1/1
+        if (isFormView && resModel && currentResId) {
+            window.__crm_current_form_model = resModel;
+            let activeIds = null;
+            try {
+                const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 1 && parsed.includes(currentResId)) {
+                        activeIds = parsed;
+                    }
+                }
+            } catch (e) {}
+
+            if (!activeIds && window.__crm_cached_res_ids?.[resModel]?.includes(currentResId)) {
+                activeIds = window.__crm_cached_res_ids[resModel];
+            }
+
+            // If not found in cache (e.g. after hard reload), fetch IDs via ORM in background and re-render ControlPanel
+            if (!activeIds && this.orm && !window.__crm_fetching_ids?.[resModel]) {
+                window.__crm_fetching_ids = window.__crm_fetching_ids || {};
+                window.__crm_fetching_ids[resModel] = true;
+                const domain = controller?.props?.domain || [];
+                this.orm.search(resModel, domain, { limit: 1000 }).then((searchRes) => {
+                    window.__crm_fetching_ids[resModel] = false;
+                    if (Array.isArray(searchRes) && searchRes.length > 1 && searchRes.includes(currentResId)) {
+                        sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(searchRes));
+                        window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                        window.__crm_cached_res_ids[resModel] = searchRes;
+                        if (controller?.model?.root) {
+                            try { controller.model.root.resIds = searchRes; } catch (e) {}
+                        }
+                        this.render();
+                    }
+                }).catch(() => {
+                    window.__crm_fetching_ids[resModel] = false;
+                });
+            }
+
+            if (activeIds && activeIds.length > 1) {
+                const currentIndex = activeIds.indexOf(currentResId);
+                const offset = currentIndex >= 0 ? currentIndex : 0;
+
+                if (controller?.model?.root) {
+                    try {
+                        controller.model.root.resIds = activeIds;
+                    } catch (e) {}
+                }
+
+                return {
+                    offset: offset,
+                    limit: 1,
+                    total: activeIds.length,
+                    onUpdate: async (newOffset) => {
+                        const targetId = activeIds[newOffset];
+                        if (!targetId) return;
+                        if (controller?.model?.root?.switchRecord) {
+                            await controller.model.root.switchRecord(targetId);
+                        } else if (controller?.model?.load) {
+                            await controller.model.load({ resId: targetId });
+                        }
+                        this.render();
+                    },
+                };
+            }
+        }
+
+        return rawProps;
     }
 });
 
-// ── Maintain List Record IDs in SessionStorage for Pager Persistence Across Refresh ──
+// ── Universal Navigation Helper to Return to Respective List/Pipeline Views ──
+function navigateBackFromForm(resModel, actionService) {
+    if (!actionService) return;
+    if (resModel === "sale.order") {
+        actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
+    } else if (resModel === "crm.lead") {
+        actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
+    } else if (resModel === "service.ticket.voucher.batch") {
+        actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
+    } else if (resModel === "service.ticket") {
+        actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
+    } else if (resModel === "equipment.master") {
+        actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
+    } else if (resModel === "amc.contract") {
+        actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
+    } else if (resModel === "crm.task.management") {
+        actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
+    } else if (resModel === "exhibition.contact") {
+        actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
+    } else if (resModel === "res.partner") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Customers",
+            res_model: "res.partner",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["is_company", "=", true]],
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "product.template") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Products",
+            res_model: "product.template",
+            views: [[false, "list"], [false, "form"]],
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "res.users") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Users",
+            res_model: "res.users",
+            views: [[false, "list"], [false, "form"]],
+            domain: [["share", "=", false]],
+        }, { clearBreadcrumbs: true });
+    } else if (resModel === "hr.job") {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            name: "Roles & Groups",
+            res_model: "hr.job",
+            views: [[false, "list"], [false, "form"]],
+            domain: [],
+            context: { active_test: false },
+        }, { clearBreadcrumbs: true });
+    } else if (resModel) {
+        actionService.doAction({
+            type: "ir.actions.act_window",
+            res_model: resModel,
+            views: [[false, "list"], [false, "form"]],
+            target: "current",
+        }, { clearBreadcrumbs: true });
+    } else {
+        actionService.doAction(435, { clearBreadcrumbs: true });
+    }
+}
+
+// ── Maintain Record IDs in SessionStorage for Pager Persistence Across Refresh ──
 patch(ListController.prototype, {
     setup() {
         super.setup(...arguments);
@@ -346,11 +512,12 @@ patch(ListController.prototype, {
                     const ids = records.map((r) => r.resId).filter(Boolean);
                     if (ids.length > 0) {
                         sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                        window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                        window.__crm_cached_res_ids[resModel] = ids;
                     }
                 }
             } catch (e) {}
         };
-
         onMounted(() => {
             saveListIds();
         });
@@ -363,7 +530,34 @@ patch(ListController.prototype, {
                 const ids = records.map((r) => r.resId).filter(Boolean);
                 if (ids.length > 0) {
                     sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                    window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                    window.__crm_cached_res_ids[resModel] = ids;
                 }
+            }
+        } catch (e) {}
+        return super.openRecord ? super.openRecord(...arguments) : undefined;
+    },
+});
+
+patch(KanbanController.prototype, {
+    async openRecord(record) {
+        try {
+            const resModel = this.model?.root?.resModel || this.props?.resModel;
+            let ids = [];
+            const root = this.model?.root;
+            if (root?.records?.length > 0) {
+                ids = root.records.map((r) => r.resId).filter(Boolean);
+            } else if (root?.groups?.length > 0) {
+                for (const grp of root.groups) {
+                    if (grp.list?.records?.length > 0) {
+                        ids.push(...grp.list.records.map((r) => r.resId).filter(Boolean));
+                    }
+                }
+            }
+            if (resModel && ids.length > 0) {
+                sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                window.__crm_cached_res_ids[resModel] = ids;
             }
         } catch (e) {}
         return super.openRecord ? super.openRecord(...arguments) : undefined;
@@ -380,83 +574,37 @@ patch(FormController.prototype, {
         // Restore resIds on refresh so pager shows full record count (e.g. 1/16 instead of 1/1)
         if (resModel && currentResId) {
             onWillStart(async () => {
-                if (!this.props.resIds || this.props.resIds.length <= 1) {
-                    let restoredIds = null;
-                    try {
-                        const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
-                        if (stored) {
-                            const parsed = JSON.parse(stored);
-                            if (Array.isArray(parsed) && parsed.includes(currentResId)) {
-                                restoredIds = parsed;
-                            }
-                        }
-                    } catch (e) {}
-
-                    if (!restoredIds) {
-                        try {
-                            const orm = this.model?.orm || this.env?.services?.orm;
-                            if (orm) {
-                                const domain = this.props.domain || [];
-                                const searchRes = await orm.search(resModel, domain, { limit: 1000 });
-                                if (Array.isArray(searchRes) && searchRes.includes(currentResId)) {
-                                    restoredIds = searchRes;
-                                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
-                                }
-                            }
-                        } catch (err) {}
-                    }
-
-                    if (restoredIds && restoredIds.length > 1) {
-                        this.props.resIds = restoredIds;
-                        if (this.model?.root) {
-                            this.model.root.resIds = restoredIds;
-                        }
-                    }
-                }
-            });
-        }
-    },
-
-    get pagerProps() {
-        const props = super.pagerProps;
-        const resModel = this.props.resModel;
-        const currentResId = this.model?.root?.resId || this.props.resId;
-
-        if (!props || props.total <= 1) {
-            let resIds = this.props.resIds;
-            if (!resIds || resIds.length <= 1) {
+                let restoredIds = null;
                 try {
                     const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
                     if (stored) {
                         const parsed = JSON.parse(stored);
-                        if (Array.isArray(parsed) && parsed.includes(currentResId)) {
-                            resIds = parsed;
-                            this.props.resIds = parsed;
-                            if (this.model?.root) this.model.root.resIds = parsed;
+                        if (Array.isArray(parsed) && parsed.length > 1 && parsed.includes(currentResId)) {
+                            restoredIds = parsed;
                         }
                     }
                 } catch (e) {}
-            }
-            if (resIds && resIds.length > 1) {
-                const index = resIds.indexOf(currentResId);
-                return {
-                    offset: index !== -1 ? index : 0,
-                    limit: 1,
-                    total: resIds.length,
-                    onUpdate: async (newOffset) => {
-                        const targetId = resIds[newOffset];
-                        if (targetId) {
-                            if (this.model?.root?.switchRecord) {
-                                await this.model.root.switchRecord(targetId);
-                            } else if (this.model?.load) {
-                                await this.model.load({ resId: targetId });
-                            }
+
+                if (!restoredIds && this.model?.orm) {
+                    try {
+                        const domain = this.props.domain || [];
+                        const searchRes = await this.model.orm.search(resModel, domain, { limit: 1000 });
+                        if (Array.isArray(searchRes) && searchRes.length > 1 && searchRes.includes(currentResId)) {
+                            restoredIds = searchRes;
+                            sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(restoredIds));
+                            window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                            window.__crm_cached_res_ids[resModel] = restoredIds;
                         }
-                    },
-                };
-            }
+                    } catch (err) {}
+                }
+
+                if (restoredIds && restoredIds.length > 1 && this.model?.root) {
+                    try {
+                        this.model.root.resIds = restoredIds;
+                    } catch (e) {}
+                }
+            });
         }
-        return props;
     },
 
     async discard() {
@@ -484,68 +632,9 @@ patch(FormController.prototype, {
                     return;
                 }
             }
-            // Smart Fallbacks when opened without breadcrumbs stack (e.g. after page refresh)
+            // Fallback when opened without breadcrumbs stack (e.g. after page refresh)
             const resModel = this.props.resModel;
-            if (actionService) {
-                if (resModel === "sale.order") {
-                    actionService.doAction("sale.action_quotations_with_onboarding", { clearBreadcrumbs: true });
-                } else if (resModel === "crm.lead") {
-                    actionService.doAction("crm.crm_lead_action_pipeline", { clearBreadcrumbs: true });
-                } else if (resModel === "res.partner") {
-                    actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: "Customers",
-                        res_model: "res.partner",
-                        views: [[false, "list"], [false, "form"]],
-                        domain: [["is_company", "=", true]],
-                    }, { clearBreadcrumbs: true });
-                } else if (resModel === "exhibition.contact") {
-                    actionService.doAction("exhibition_contacts.action_exhibition_contact", { clearBreadcrumbs: true });
-                } else if (resModel === "product.template") {
-                    actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: "Products",
-                        res_model: "product.template",
-                        views: [[false, "list"], [false, "form"]],
-                    }, { clearBreadcrumbs: true });
-                } else if (resModel === "res.users") {
-                    actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: "Users",
-                        res_model: "res.users",
-                        views: [[false, "list"], [false, "form"]],
-                        domain: [["share", "=", false]],
-                    }, { clearBreadcrumbs: true });
-                } else if (resModel === "hr.job") {
-                    actionService.doAction({
-                        type: "ir.actions.act_window",
-                        name: "Roles & Groups",
-                        res_model: "hr.job",
-                        views: [[false, "list"], [false, "form"]],
-                        domain: [],
-                        context: { active_test: false },
-                    }, { clearBreadcrumbs: true });
-                } else if (resModel === "service.ticket.voucher.batch") {
-                    actionService.doAction("custom_crm_extended.action_service_ticket_voucher_batch", { clearBreadcrumbs: true });
-                } else if (resModel === "service.ticket") {
-                    actionService.doAction("custom_crm_extended.action_service_ticket", { clearBreadcrumbs: true });
-                } else if (resModel === "equipment.master") {
-                    actionService.doAction("custom_crm_extended.action_equipment_master", { clearBreadcrumbs: true });
-                } else if (resModel === "amc.contract") {
-                    actionService.doAction("custom_crm_extended.action_amc_contract", { clearBreadcrumbs: true });
-                } else if (resModel === "crm.task.management") {
-                    actionService.doAction("custom_crm_extended.action_crm_task_management", { clearBreadcrumbs: true });
-                } else if (resModel) {
-                    actionService.doAction({
-                        type: "ir.actions.act_window",
-                        res_model: resModel,
-                        views: [[false, "list"], [false, "form"]],
-                        target: "current",
-                    }, { clearBreadcrumbs: true });
-                } else {
-                    actionService.doAction(435, { clearBreadcrumbs: true });
-                }
-            }
+            navigateBackFromForm(resModel, actionService);
         };
 
         if (isDirty) {
@@ -618,19 +707,18 @@ if (typeof window !== "undefined") {
         if (!cancelBtn) return;
         if (cancelBtn.closest(".modal, .o_dialog")) return;
 
-        const controller = odoo.__WOWL_DEBUG__?.root?.env?.services?.action?.currentController;
-        if (controller && (controller.props?.type === "form" || controller.view?.type === "form")) {
-            const breadcrumbs = odoo.__WOWL_DEBUG__?.root?.env?.config?.breadcrumbs || [];
-            if (breadcrumbs.length <= 1) {
-                const isDirty = controller.model?.root?.isDirty ? await controller.model.root.isDirty() : false;
-                if (!isDirty) {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    if (typeof controller.discard === "function") {
-                        await controller.discard();
-                    }
-                }
+        const actionService = window.__crm_action_service;
+        const controller = actionService?.currentController;
+        const resModel = window.__crm_current_form_model || controller?.props?.resModel;
+
+        const breadcrumbs = window.__crm_control_panel?.env?.config?.breadcrumbs || [];
+        if (breadcrumbs.length <= 1) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (controller?.model?.root?.discard) {
+                try { await controller.model.root.discard(); } catch (e) {}
             }
+            navigateBackFromForm(resModel, actionService);
         }
     }, true);
 }

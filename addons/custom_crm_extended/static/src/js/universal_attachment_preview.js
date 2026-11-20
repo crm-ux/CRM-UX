@@ -98,23 +98,23 @@ export class UniversalAttachmentPreviewDialog extends Component {
                                 </ul>
                             </t>
 
-                            <div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; min-height: 200px;">
-                                <table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px;">
+                            <div class="table-responsive border rounded flex-grow-1" style="overflow-y: auto; overflow-x: auto; background: #fafafa; min-height: 200px; width: 100%;">
+                                <table class="table table-bordered table-sm table-hover mb-0 text-dark align-middle" style="font-size: 13px; table-layout: auto !important; width: max-content; min-width: 100%; border-collapse: separate !important; border-spacing: 0;">
                                     <t t-if="activeSheetRows and activeSheetRows.length">
                                         <thead class="table-light sticky-top" style="z-index: 2;">
                                             <tr>
-                                                <th class="text-center bg-light text-muted" style="width: 45px; border-color: #dee2e6;">#</th>
+                                                <th class="text-center bg-light text-muted" style="width: 50px; min-width: 50px; border: 1px solid #dee2e6; position: sticky; top: 0; background: #f8f9fa;">#</th>
                                                 <t t-foreach="activeSheetRows[0]" t-as="col" t-key="col_index">
-                                                    <th class="fw-bold text-nowrap px-3 py-2 bg-light border" style="border-color: #dee2e6;" t-esc="col"/>
+                                                    <th class="fw-bold px-3 py-2 bg-light border text-start" style="border: 1px solid #dee2e6; white-space: nowrap; min-width: 120px; position: sticky; top: 0; background: #f8f9fa;" t-esc="col"/>
                                                 </t>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <t t-foreach="activeSheetRows.slice(1)" t-as="row" t-key="row_index">
                                                 <tr>
-                                                    <td class="text-center text-muted small bg-light" t-esc="row_index + 1"/>
+                                                    <td class="text-center text-muted small bg-light" style="border: 1px solid #dee2e6;" t-esc="row_index + 1"/>
                                                     <t t-foreach="row" t-as="cell" t-key="cell_index">
-                                                        <td class="px-3 py-1 text-nowrap border" style="border-color: #dee2e6;" t-esc="cell"/>
+                                                        <td class="px-3 py-1 border text-start" style="border: 1px solid #dee2e6; white-space: nowrap; min-width: 120px;" t-esc="cell"/>
                                                     </t>
                                                 </tr>
                                             </t>
