@@ -2337,10 +2337,12 @@ class ServiceTicketVoucherLine(models.Model):
 
             if not items:
                 rec.bill_preview_html = '''
-                    <div class="d-flex flex-column align-items-center justify-content-center p-5 text-muted text-center" style="min-height: 250px;">
-                        <i class="fa fa-file-o mb-3" style="font-size: 48px; color: #adb5bd;"></i>
-                        <h6 class="fw-semibold text-secondary mb-1">No Bill Attachments</h6>
-                        <p class="small mb-0">No document or receipt was uploaded for this expense line.</p>
+                    <div class="d-flex flex-column align-items-center justify-content-center w-100 text-center" style="height: 58vh; min-height: 320px;">
+                        <div class="d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="fa fa-file-o mb-3" style="font-size: 52px; color: #adb5bd;"></i>
+                            <h5 class="fw-bold text-secondary mb-1">No Bill Attachments</h5>
+                            <p class="text-muted small mb-0">No document or receipt was uploaded for this expense line.</p>
+                        </div>
                     </div>
                 '''
                 continue

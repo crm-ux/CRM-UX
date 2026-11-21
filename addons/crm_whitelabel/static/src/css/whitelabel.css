@@ -2444,4 +2444,12 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     transform-origin: top right;
 }
 
+/* Bill Preview Modal: suppress unnecessary scrollbar */
+.modal-body:has(.crm_bill_preview_form),
+.crm_bill_preview_form,
+.modal:has(.crm_bill_preview_form) .modal-body {
+    overflow: hidden !important;
+}
+
+
 
