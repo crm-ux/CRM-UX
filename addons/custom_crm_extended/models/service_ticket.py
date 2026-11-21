@@ -1082,7 +1082,7 @@ class ServiceTicket(models.Model):
             else:
                 rec.new_voucher_rate_per_km = 0.0
 
-    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km', 'new_voucher_start_km', 'new_voucher_end_km', 'new_voucher_user_ids', 'engineer_id')
+    @api.onchange('new_voucher_expense_type_id', 'new_voucher_start_km', 'new_voucher_end_km', 'new_voucher_user_ids', 'engineer_id')
     def _onchange_new_voucher_expense_type(self):
         if self.new_voucher_start_km and self.new_voucher_end_km and self.new_voucher_end_km >= self.new_voucher_start_km:
             self.new_voucher_total_km = round(self.new_voucher_end_km - self.new_voucher_start_km, 2)
@@ -4138,7 +4138,7 @@ class ServiceTicketVoucherBatch(models.Model):
                     </div>
                     """
 
-    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km', 'new_voucher_user_ids', 'user_id')
+    @api.onchange('new_voucher_expense_type_id', 'new_voucher_user_ids', 'user_id')
     def _onchange_batch_new_voucher_expense_type(self):
         if self.new_voucher_expense_type_id:
             self.new_voucher_is_km = bool(self.new_voucher_expense_type_id.is_km_based)

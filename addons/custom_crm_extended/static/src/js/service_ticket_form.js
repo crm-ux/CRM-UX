@@ -747,13 +747,17 @@ function globalKmInstantCalc(ev) {
 
         const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
         const amountInput = bar.querySelector("[name='new_voucher_amount'] input, input[name='new_voucher_amount']");
-        if (amountInput && document.activeElement !== amountInput) {
+        if (amountInput) {
+            // Immediate DOM update with 0ms delay and ZERO network buffering
             amountInput.value = calculated.toFixed(2);
         }
 
-        const controller = window.__odooCurrentFormController;
-        if (controller?.model?.root?.update) {
-            controller.model.root.update({ new_voucher_amount: calculated });
+        // ONLY sync to the reactive model on 'change' (when user leaves field), NEVER on every keystroke!
+        if (ev.type === "change") {
+            const controller = window.__odooCurrentFormController;
+            if (controller?.model?.root?.update) {
+                controller.model.root.update({ new_voucher_amount: calculated });
+            }
         }
     }
 
@@ -767,16 +771,36 @@ function globalKmInstantCalc(ev) {
             const kmVal = parseFloat(target.value) || 0.0;
             const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
             const amountInp = row.querySelector("td[name='amount'] input, [data-name='amount'] input");
-            if (amountInp && document.activeElement !== amountInp) {
+            if (amountInp) {
                 amountInp.value = calculated.toFixed(2);
-                amountInp.dispatchEvent(new Event("input", { bubbles: true }));
-                amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+                if (ev.type === "change") {
+                    amountInp.dispatchEvent(new Event("input", { bubbles: true }));
+                    amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+                }
             }
         }
     }
 }
 document.addEventListener("input", globalKmInstantCalc, true);
 document.addEventListener("change", globalKmInstantCalc, true);
+
+// Ensure amount is synced right when clicking "Add Expense"
+document.addEventListener("click", function(ev) {
+    const btn = ev.target && ev.target.closest ? ev.target.closest("button[name='action_add_voucher_line']") : null;
+    if (!btn) return;
+    const bar = btn.closest(".o_voucher_quick_add_bar") || document.querySelector(".o_voucher_quick_add_bar");
+    if (!bar) return;
+    const kmInp = bar.querySelector("[name='new_voucher_total_km'] input, input[name='new_voucher_total_km']");
+    const amountInp = bar.querySelector("[name='new_voucher_amount'] input, input[name='new_voucher_amount']");
+    if (kmInp && amountInp) {
+        const kmVal = parseFloat(kmInp.value) || 0.0;
+        const amtVal = parseFloat(amountInp.value) || 0.0;
+        const controller = window.__odooCurrentFormController;
+        if (kmVal > 0 && amtVal > 0 && controller?.model?.root?.update) {
+            controller.model.root.update({ new_voucher_amount: amtVal });
+        }
+    }
+}, true);
 
 // 2. Intercept "New" button in Detail Form View & capture current active form controller
 patch(FormController.prototype, {
@@ -915,44 +939,6 @@ export class ServiceTicketFormController extends FormController {
             document.addEventListener("change", handleVoucherFileInputChange, true);
             document.addEventListener("click", handleVoucherBillPreview, true);
 
-            // Instant Client-side calculation: Total KM * Rate/KM = Amount
-            const handleKmInstantCalc = (ev) => {
-                const target = ev.target;
-                if (!target) return;
-                const kmField = target.closest("[name='new_voucher_total_km']");
-                if (kmField) {
-                    const bar = target.closest(".o_voucher_quick_add_bar");
-                    if (!bar) return;
-                    const kmVal = parseFloat(target.value) || 0.0;
-
-                    // Find rate value: first check rate field, fallback to Allowed Rate badge
-                    let rateVal = 0.0;
-                    const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
-                    if (rateBox) {
-                        const rateText = rateBox.innerText || rateBox.textContent || rateBox.value || "0";
-                        rateVal = parseFloat(rateText.replace(/[^0-9.]/g, "")) || 0.0;
-                    }
-                    if (!rateVal || rateVal <= 0) {
-                        const badgeBox = bar.querySelector(".o_budget_pool_field, [name='new_voucher_budget_info_html']");
-                        if (badgeBox) {
-                            const match = (badgeBox.textContent || "").match(/₹\s*([0-9]+(?:\.[0-9]+)?)\s*\/\s*KM/i);
-                            if (match) {
-                                rateVal = parseFloat(match[1]) || 0.0;
-                            }
-                        }
-                    }
-
-                    const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
-                    const amountInput = bar.querySelector("[name='new_voucher_amount'] input, input[name='new_voucher_amount']");
-                    if (amountInput && document.activeElement !== amountInput) {
-                        amountInput.value = calculated.toFixed(2);
-                    }
-                    if (this.model && this.model.root && this.model.root.update) {
-                        this.model.root.update({ new_voucher_amount: calculated });
-                    }
-                }
-            };
-
             // Scoped to Service Ticket: instant clear when user backspaces/deletes text in partner_id or equipment_id
             const handleTicketInputInstantClear = (ev) => {
                 const target = ev.target;
@@ -1007,14 +993,10 @@ export class ServiceTicketFormController extends FormController {
                 }
                 document.removeEventListener("change", handleVoucherFileInputChange, true);
                 document.removeEventListener("click", handleVoucherBillPreview, true);
-                document.removeEventListener("input", handleKmInstantCalc, true);
-                document.removeEventListener("change", handleKmInstantCalc, true);
                 document.removeEventListener("input", handleTicketInputInstantClear, true);
             });
 
             document.addEventListener("input", handleTicketInputInstantClear, true);
-            document.addEventListener("input", handleKmInstantCalc, true);
-            document.addEventListener("change", handleKmInstantCalc, true);
         }
     }
 
