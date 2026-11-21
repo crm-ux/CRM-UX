@@ -198,9 +198,28 @@ class CrmDashboard extends Component {
             if (this.env && this.env.services && this.env.services.bus_service) {
                 try {
                     const bs = this.env.services.bus_service;
+                    const handleNotificationEvent = (notifications) => {
+                        for (const notif of (notifications || [])) {
+                            const type = notif.type;
+                            const p = notif.payload || {};
+                            if (type === "simple_notification" || type === "crm_notification") {
+                                const title = p.title || "CRM Notification";
+                                const message = p.message || title;
+                                this.showToast(`${title}: ${message}`);
+                                if (this.notification && typeof this.notification.add === "function") {
+                                    this.notification.add(message, {
+                                        title: title,
+                                        type: p.type || "info",
+                                        sticky: Boolean(p.sticky),
+                                    });
+                                }
+                            }
+                        }
+                        this.loadNotifCount();
+                    };
                     if (typeof bs.addEventListener === "function") {
                         bs.addEventListener("notification", ({ detail: notifications }) => {
-                            this.loadNotifCount();
+                            handleNotificationEvent(notifications);
                         });
                     }
                     if (typeof bs.subscribe === "function") {
@@ -1686,22 +1705,73 @@ class CrmDashboard extends Component {
             const dismissedIds = JSON.parse(localStorage.getItem('crm_dismissed_notifs') || '[]');
             const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
             const partnerId = await this._getCurrentPartnerId();
-            if (!partnerId) return;
-            const messages = await rpc('/web/dataset/call_kw', {
-                model: 'mail.message',
-                method: 'search_read',
-                args: [[['partner_ids', 'in', [partnerId]]]],
-                kwargs: { fields: ['id', 'model', 'author_id'], limit: 50, order: 'date desc' }
-            }, { silent: true });
-            // Exclude task assignments created by oneself (e.g. Admin assigning task to Anurag)
-            const activeMessages = messages.filter(m => {
-                if (dismissedIds.includes(m.id)) return false;
-                if (m.model === 'crm.task.management' && m.author_id && m.author_id[0] === partnerId) {
-                    return false;
+            const uid = this.state.viewAsUserId || user.userId;
+            let activeMessages = [];
+
+            if (partnerId) {
+                try {
+                    const messages = await rpc('/web/dataset/call_kw', {
+                        model: 'mail.message',
+                        method: 'search_read',
+                        args: [[['partner_ids', 'in', [partnerId]]]],
+                        kwargs: { fields: ['id', 'model', 'author_id', 'subject', 'body'], limit: 50, order: 'date desc' }
+                    }, { silent: true });
+                    activeMessages = (messages || []).filter(m => {
+                        if (dismissedIds.includes(m.id)) return false;
+                        if (m.model === 'crm.task.management' && m.author_id && m.author_id[0] === partnerId) {
+                            return false;
+                        }
+                        return true;
+                    });
+                } catch (mErr) { }
+            }
+
+            // Also check crm.notification table
+            let crmNotifs = [];
+            if (uid) {
+                try {
+                    crmNotifs = await rpc('/web/dataset/call_kw', {
+                        model: 'crm.notification',
+                        method: 'search_read',
+                        args: [[['user_id', '=', uid], ['state', '=', 'unread']]],
+                        kwargs: { fields: ['id', 'name', 'summary', 'category', 'sender_id', 'date', 'res_model', 'res_id', 'record_ref_name'], limit: 50, order: 'date desc' }
+                    }, { silent: true }) || [];
+                    crmNotifs = crmNotifs.filter(cn => !dismissedIds.includes('crm_' + cn.id));
+                } catch (cnErr) { }
+            }
+
+            const unreadMailCount = activeMessages.filter(m => !readIds.includes(m.id)).length;
+            const unreadCrmCount = crmNotifs.length;
+            const totalUnread = unreadMailCount + unreadCrmCount;
+
+            // Toast trigger for new unread notifications on polling
+            if (!this._knownNotifKeys) {
+                this._knownNotifKeys = new Set();
+                activeMessages.forEach(m => this._knownNotifKeys.add('mail_' + m.id));
+                crmNotifs.forEach(cn => this._knownNotifKeys.add('crm_' + cn.id));
+            } else {
+                for (const cn of crmNotifs) {
+                    const k = 'crm_' + cn.id;
+                    if (!this._knownNotifKeys.has(k)) {
+                        this._knownNotifKeys.add(k);
+                        const msg = cn.summary || cn.name;
+                        this.showToast(`${cn.name}: ${msg}`);
+                        if (this.notification && typeof this.notification.add === 'function') {
+                            this.notification.add(msg, { title: cn.name, type: 'info' });
+                        }
+                    }
                 }
-                return true;
-            });
-            this.state.notifCount = activeMessages.filter(m => !readIds.includes(m.id)).length;
+                for (const m of activeMessages) {
+                    const k = 'mail_' + m.id;
+                    if (!this._knownNotifKeys.has(k) && !readIds.includes(m.id)) {
+                        this._knownNotifKeys.add(k);
+                        const t = m.subject || 'New Notification';
+                        this.showToast(t);
+                    }
+                }
+            }
+
+            this.state.notifCount = totalUnread;
         } catch (e) { this.state.notifCount = 0; }
     }
     async toggleNotifications() {
@@ -1751,12 +1821,75 @@ class CrmDashboard extends Component {
                     }
                 }
 
+                // 2. Also query crm.notification table
+                const uid = this.state.viewAsUserId || user.userId;
+                let crmCards = [];
+                if (uid) {
+                    try {
+                        const crmNotifs = await rpc('/web/dataset/call_kw', {
+                            model: 'crm.notification',
+                            method: 'search_read',
+                            args: [[['user_id', '=', uid]]],
+                            kwargs: { fields: ['id', 'name', 'summary', 'category', 'sender_id', 'date', 'res_model', 'res_id', 'record_ref_name'], limit: 30, order: 'date desc' }
+                        }) || [];
+                        const filteredCrm = crmNotifs.filter(cn => !dismissedIds.includes('crm_' + cn.id));
+                        crmCards = filteredCrm.map(cn => {
+                            let icon = 'fa fa-wrench';
+                            let modalTitle = cn.name || 'Service Ticket Assigned';
+                            let topLabel = 'TICKET TITLE & COMPLAINT';
+                            let leftLabel = 'ASSIGNED BY';
+                            let rightLabel = 'SCHEDULE';
+                            let bottomLabel = 'PROBLEM DESCRIPTION';
+                            let actionBtnLabel = 'Open Ticket';
+
+                            if (cn.category === 'task') {
+                                icon = 'fa fa-tasks';
+                                topLabel = 'TASK TITLE';
+                                modalTitle = 'Task Assigned';
+                                bottomLabel = 'INSTRUCTIONS';
+                                actionBtnLabel = 'Open Task';
+                            } else if (cn.category === 'lead') {
+                                icon = 'fa fa-briefcase';
+                                topLabel = 'LEAD TITLE';
+                                modalTitle = 'Lead Assigned';
+                                bottomLabel = 'INQUIRY DETAILS';
+                                actionBtnLabel = 'Open Lead';
+                            } else if (cn.category === 'voucher') {
+                                icon = 'fa fa-file-text-o';
+                                topLabel = 'VOUCHER';
+                                modalTitle = 'Expense Voucher';
+                                bottomLabel = 'DETAILS';
+                                actionBtnLabel = 'Open Voucher';
+                            }
+
+                            return {
+                                id: 'crm_' + cn.id,
+                                res_id: cn.res_id,
+                                model: cn.res_model || 'service.ticket',
+                                sender: (cn.sender_id && cn.sender_id[1]) ? cn.sender_id[1].replace(/\s*\(.*?\)\s*/g, '').trim() : 'Administrator',
+                                task_title: cn.record_ref_name || cn.name,
+                                task_note: cn.summary || '',
+                                attachment_name: '',
+                                attachment_ids: [],
+                                date: cn.date ? cn.date.substring(0, 16) : '',
+                                icon: icon,
+                                modalTitle: modalTitle,
+                                topLabel: topLabel,
+                                leftLabel: leftLabel,
+                                rightLabel: rightLabel,
+                                bottomLabel: bottomLabel,
+                                actionBtnLabel: actionBtnLabel
+                            };
+                        });
+                    } catch (cnErr) { }
+                }
+
                 activeMessages = activeMessages.slice(0, 10);
                 const readIds = JSON.parse(localStorage.getItem('crm_read_notifs') || '[]');
                 const newReadIds = Array.from(new Set([...readIds, ...activeMessages.map(m => m.id)]));
                 localStorage.setItem('crm_read_notifs', JSON.stringify(newReadIds));
                 this.state.notifCount = 0;
-                this.state.notifications = activeMessages.map(m => {
+                const mailCards = activeMessages.map(m => {
                     const decodeHtml = (str) => {
                         if (!str) return '';
                         let text = String(str);
@@ -1926,6 +2059,7 @@ class CrmDashboard extends Component {
                         actionBtnLabel: actionBtnLabel
                     };
                 });
+                this.state.notifications = [...crmCards, ...mailCards].slice(0, 15);
             } catch (e) {
                 console.error("Notifications fetch error:", e);
                 this.state.notifications = [];
@@ -1945,16 +2079,26 @@ class CrmDashboard extends Component {
 
         // Also remove notification from database for current user
         try {
-            const partnerId = await this._getCurrentPartnerId();
-            if (partnerId && notifId) {
+            if (String(notifId).startsWith('crm_')) {
+                const cId = parseInt(String(notifId).replace('crm_', ''), 10);
                 await rpc('/web/dataset/call_kw', {
-                    model: 'mail.message',
+                    model: 'crm.notification',
                     method: 'write',
-                    args: [[notifId], {
-                        partner_ids: [[3, partnerId]]
-                    }],
+                    args: [[cId], { state: 'read' }],
                     kwargs: {}
                 });
+            } else {
+                const partnerId = await this._getCurrentPartnerId();
+                if (partnerId && notifId) {
+                    await rpc('/web/dataset/call_kw', {
+                        model: 'mail.message',
+                        method: 'write',
+                        args: [[notifId], {
+                            partner_ids: [[3, partnerId]]
+                        }],
+                        kwargs: {}
+                    });
+                }
             }
         } catch (e) {
             // Ignore
@@ -1976,9 +2120,19 @@ class CrmDashboard extends Component {
 
         // Permanently unbind partner from all cleared messages in database
         try {
+            const uid = this.state.viewAsUserId || user.userId;
+            if (uid) {
+                await rpc('/web/dataset/call_kw', {
+                    model: 'crm.notification',
+                    method: 'action_mark_all_read',
+                    args: [],
+                    kwargs: {}
+                });
+            }
             const partnerId = await this._getCurrentPartnerId();
             if (partnerId && idsToRemove.length > 0) {
                 for (const mid of idsToRemove) {
+                    if (String(mid).startsWith('crm_')) continue;
                     await rpc('/web/dataset/call_kw', {
                         model: 'mail.message',
                         method: 'write',

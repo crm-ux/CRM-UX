@@ -468,15 +468,15 @@ class ResUsers(models.Model):
         """Return all user IDs that this user is permitted to see according to their hierarchy/department."""
         self.ensure_one()
         u = self.sudo()
-        # 2. Check permission level
-        perm = u.perm_lead_quote or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
-        if not perm and perm_field != 'perm_lead_quote':
-            perm = getattr(u, perm_field, None) or (getattr(u.crm_job_id, perm_field, None) if u.crm_job_id else 'own')
+        # 2. Check permission level for the requested field
+        user_perm = getattr(u, perm_field, None) if perm_field else None
+        job_perm = getattr(u.crm_job_id, perm_field, None) if (u.crm_job_id and perm_field) else None
+        perm = user_perm or job_perm or 'own'
         if perm == 'none':
             return []
 
         uids = set([u.id])
-        if perm in ('all', 'admin') or u.perm_lead_quote in ('all', 'admin'):
+        if perm in ('all', 'admin'):
             all_users = self.env['res.users'].sudo().search([('share', '=', False)])
             return all_users.ids
 
