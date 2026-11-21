@@ -532,7 +532,14 @@ function updateRecoverySelectionState() {
 }
 
 function formatVoucherCheckboxButtons() {
-    const table = document.querySelector(".o_service_ticket_voucher_batch_form table.o_list_table, .o_service_ticket_voucher_line_form table.o_list_table, table.o_list_table:has(button[name='action_toggle_recovery_select'])");
+    // Only target the table that actually has recovery selection checkboxes
+    const table = document.querySelector("table.o_list_table:has(button[name='action_toggle_recovery_select'])");
+    
+    // Clean up any stray select-all buttons in other tables (like Draft expenses table)
+    document.querySelectorAll("table.o_list_table:not(:has(button[name='action_toggle_recovery_select'])) thead .crm_voucher_select_all_btn").forEach((btn) => {
+        btn.remove();
+    });
+
     if (!table) return;
 
     const rows = table.querySelectorAll("tbody tr.o_data_row");
@@ -542,8 +549,8 @@ function formatVoucherCheckboxButtons() {
         setRowCheckboxVisual(row, !!isChecked);
     });
 
-    // Inject the "Select All" checkbox in the column header (<th>) if missing
-    const firstTd = table.querySelector("tbody tr.o_data_row td:has(button[name='action_toggle_recovery_select'])") || table.querySelector("tbody tr.o_data_row td.o_list_button");
+    // Inject the "Select All" checkbox in the column header (<th>) ONLY for the recovery select column
+    const firstTd = table.querySelector("tbody tr.o_data_row td:has(button[name='action_toggle_recovery_select'])");
     if (firstTd) {
         const colIndex = Array.from(firstTd.parentElement.children).indexOf(firstTd);
         const headerRow = table.querySelector("thead tr");
