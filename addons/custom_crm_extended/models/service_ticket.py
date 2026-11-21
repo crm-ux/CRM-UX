@@ -262,7 +262,8 @@ class ServiceTicket(models.Model):
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
         ('pm', 'PM'),
-        ('free_call', 'Free Call')
+        ('free_call', 'Free Call'),
+        ('installation', 'Installation')
     ], string='Legacy Complaint Type', default='breakdown')
     complaint_description = fields.Text(string='Complaint Description', tracking=True)
     priority = fields.Selection([
@@ -305,10 +306,12 @@ class ServiceTicket(models.Model):
                     vals['complaint_type'] = 'pm'
                 elif 'free' in name_lower:
                     vals['complaint_type'] = 'free_call'
+                elif 'install' in name_lower:
+                    vals['complaint_type'] = 'installation'
             elif vals.get('complaint_type') and not cid:
                 code = vals.get('complaint_type')
                 ct = self.env['service.ticket.complaint.type'].search([
-                    ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+                    ('name', '=ilike', 'Installation' if code == 'installation' else ('PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown')))
                 ], limit=1)
                 if ct:
                     vals['complaint_type_id'] = ct.id
@@ -409,10 +412,12 @@ class ServiceTicket(models.Model):
                 vals['complaint_type'] = 'pm'
             elif 'free' in name_lower:
                 vals['complaint_type'] = 'free_call'
+            elif 'install' in name_lower:
+                vals['complaint_type'] = 'installation'
         elif vals.get('complaint_type') and not cid:
             code = vals.get('complaint_type')
             ct = self.env['service.ticket.complaint.type'].search([
-                ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+                ('name', '=ilike', 'Installation' if code == 'installation' else ('PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown')))
             ], limit=1)
             if ct:
                 vals['complaint_type_id'] = ct.id
@@ -1740,10 +1745,12 @@ class ServiceTicket(models.Model):
                 vals['complaint_type'] = 'pm'
             elif 'free' in name_lower:
                 vals['complaint_type'] = 'free_call'
+            elif 'install' in name_lower:
+                vals['complaint_type'] = 'installation'
         elif vals.get('complaint_type') and not cid:
             code = vals.get('complaint_type')
             ct = self.env['service.ticket.complaint.type'].search([
-                ('name', '=ilike', 'PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown'))
+                ('name', '=ilike', 'Installation' if code == 'installation' else ('PM' if code == 'pm' else ('Free Call' if code == 'free_call' else 'Breakdown')))
             ], limit=1)
             if ct:
                 vals['complaint_type_id'] = ct.id

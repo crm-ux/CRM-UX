@@ -56,8 +56,32 @@ class ServiceTicketWizard(models.TransientModel):
     complaint_type = fields.Selection([
         ('breakdown', 'Breakdown'),
         ('pm', 'PM'),
-        ('free_call', 'Free Call')
+        ('free_call', 'Free Call'),
+        ('installation', 'Installation')
     ], string='Complaint Type', default='breakdown')
+
+    @api.onchange('complaint_type_id')
+    def _onchange_complaint_type_id(self):
+        if self.complaint_type_id:
+            cname = (self.complaint_type_id.name or '').strip().lower()
+            if 'free' in cname:
+                self.complaint_type = 'free_call'
+            elif 'install' in cname:
+                self.complaint_type = 'installation'
+            elif 'pm' in cname:
+                self.complaint_type = 'pm'
+            elif 'breakdown' in cname:
+                self.complaint_type = 'breakdown'
+            else:
+                self.complaint_type = 'free_call'
+
+    @api.onchange('complaint_type')
+    def _onchange_complaint_type(self):
+        if self.complaint_type:
+            target = 'Free Call' if self.complaint_type == 'free_call' else ('Installation' if self.complaint_type == 'installation' else ('PM' if self.complaint_type == 'pm' else 'Breakdown'))
+            ct = self.env['service.ticket.complaint.type'].search([('name', '=ilike', target)], limit=1)
+            if ct:
+                self.complaint_type_id = ct.id
     complaint_description = fields.Text(string='Complaint Description')
     priority = fields.Selection([
         ('high', 'High'),
@@ -339,9 +363,11 @@ class ServiceTicketWizard(models.TransientModel):
                 if dup_ticket:
                     raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
         elif self.step == 2:
-            # Check remaining quota immediately when leaving Step 2
+            # Check remaining quota immediately when leaving Step 2 (never block Free Call or Installation)
             ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
-            if self.amc_id:
+            if 'free' in ctype_name or 'install' in ctype_name:
+                pass
+            elif self.amc_id:
                 if 'pm' in ctype_name:
                     rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
                     if rem_pm <= 0:
@@ -374,9 +400,12 @@ class ServiceTicketWizard(models.TransientModel):
         else:
             assigned_id = self.ticket_id or _('New')
 
-         # Check and deduct ONLY for PM or Breakdown
+         # Check and deduct ONLY for PM or Breakdown (never deduct or block for Free Call or Installation)
         ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
-        if self.amc_id:
+        if 'free' in ctype_name or 'install' in ctype_name:
+            # Free Call / Installation: zero deductions and no visit limits
+            pass
+        elif self.amc_id:
             if 'pm' in ctype_name:
                 rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
                 if rem_pm <= 0:
@@ -401,6 +430,14 @@ class ServiceTicketWizard(models.TransientModel):
                     "Visit Date (%s) cannot be a past date. Please select today (%s) or a future date."
                 ) % (self.visit_date.strftime('%d-%m-%Y'), today.strftime('%d-%m-%Y')))
 
+        if 'free' in ctype_name:
+            c_code = 'free_call'
+        elif 'install' in ctype_name:
+            c_code = 'installation'
+        elif 'pm' in ctype_name:
+            c_code = 'pm'
+        else:
+            c_code = 'breakdown'
         ticket_vals = {
             'ticket_id': assigned_id,
             'ticket_datetime': self.ticket_datetime or fields.Datetime.now(),
@@ -416,6 +453,7 @@ class ServiceTicketWizard(models.TransientModel):
             'serial_number': self.serial_number,
             'part_number': self.part_number,
             'complaint_type_id': self.complaint_type_id.id if self.complaint_type_id else False,
+            'complaint_type': c_code,
             'complaint_description': self.complaint_description,
             'priority': self.priority or 'medium',
             'engineer_id': self.engineer_id.id if self.engineer_id else False,
