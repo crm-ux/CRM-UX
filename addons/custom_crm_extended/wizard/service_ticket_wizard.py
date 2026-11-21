@@ -363,19 +363,22 @@ class ServiceTicketWizard(models.TransientModel):
                 if dup_ticket:
                     raise ValidationError(_("Ticket ID '%s' already exists! Please use a unique Ticket ID.") % self.ticket_id)
         elif self.step == 2:
-            # Check remaining quota immediately when leaving Step 2 (never block Free Call or Installation)
+            # Check remaining quota when leaving Step 2 (Free Call and Installation are always exempt)
             ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
             if 'free' in ctype_name or 'install' in ctype_name:
                 pass
             elif self.amc_id:
+                # If AMC contract has 0 visits left for Breakdown/PM, allow ticket creation as non-contract / extra visit
                 if 'pm' in ctype_name:
                     rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
                     if rem_pm <= 0:
-                        raise ValidationError(_("This AMC contract has 0 remaining PM visits! You cannot proceed."))
+                        # Auto-detach exhausted AMC so ticket can still be recorded
+                        self.amc_id = False
                 elif 'breakdown' in ctype_name:
                     rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
                     if rem_cm <= 0:
-                        raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits! You cannot proceed."))
+                        # Auto-detach exhausted AMC so ticket can still be recorded
+                        self.amc_id = False
         if self.step < 3:
             self.step += 1
         return self._reopen_wizard()
@@ -400,7 +403,7 @@ class ServiceTicketWizard(models.TransientModel):
         else:
             assigned_id = self.ticket_id or _('New')
 
-         # Check and deduct ONLY for PM or Breakdown (never deduct or block for Free Call or Installation)
+         # Deduct AMC visit count if available (never block ticket creation)
         ctype_name = (self.complaint_type_id.name or '').strip().lower() if self.complaint_type_id else (self.complaint_type or '').strip().lower()
         if 'free' in ctype_name or 'install' in ctype_name:
             # Free Call / Installation: zero deductions and no visit limits
@@ -408,14 +411,12 @@ class ServiceTicketWizard(models.TransientModel):
         elif self.amc_id:
             if 'pm' in ctype_name:
                 rem_pm = int(self.amc_id.pm.strip()) if self.amc_id.pm and self.amc_id.pm.strip().isdigit() else 0
-                if rem_pm <= 0:
-                    raise ValidationError(_("This AMC contract has 0 remaining PM visits!"))
-                self.amc_id.sudo().write({'pm': str(rem_pm - 1)})
+                if rem_pm > 0:
+                    self.amc_id.sudo().write({'pm': str(rem_pm - 1)})
             elif 'breakdown' in ctype_name:
                 rem_cm = int(self.amc_id.cm.strip()) if self.amc_id.cm and self.amc_id.cm.strip().isdigit() else 0
-                if rem_cm <= 0:
-                    raise ValidationError(_("This AMC contract has 0 remaining Breakdown visits!"))
-                self.amc_id.sudo().write({'cm': str(rem_cm - 1)})
+                if rem_cm > 0:
+                    self.amc_id.sudo().write({'cm': str(rem_cm - 1)})
 
         # Check unique Ticket ID
         dup_ticket = self.env['service.ticket'].sudo().search([('ticket_id', '=', assigned_id.strip())], limit=1)
