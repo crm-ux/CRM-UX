@@ -260,9 +260,9 @@ class CrmTaskManagement(models.Model):
         res = super(CrmTaskManagement, self).write(vals)
 
         # Notify new assignee if task is re-assigned
-        if vals.get('assigned_to_id'):
+        if 'assigned_to_id' in vals and vals.get('assigned_to_id'):
             for rec in self:
-                if rec.assigned_to_id and rec.assigned_to_id.partner_id and rec.assigned_to_id.id != old_assignees.get(rec.id):
+                if rec.assigned_to_id and rec.assigned_to_id.partner_id:
                     try:
                         msg = rec.message_post(
                             body=f"<b>New Task Assigned</b><br/>"

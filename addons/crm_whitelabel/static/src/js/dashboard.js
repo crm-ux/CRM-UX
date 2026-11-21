@@ -197,12 +197,17 @@ class CrmDashboard extends Component {
 
             if (this.env && this.env.services && this.env.services.bus_service) {
                 try {
-                    this.env.services.bus_service.subscribe('crm_notification', (payload) => {
-                        this.loadNotifCount();
-                    });
-                    this.env.services.bus_service.subscribe('mail.record/insert', () => {
-                        this.loadNotifCount();
-                    });
+                    const bs = this.env.services.bus_service;
+                    if (typeof bs.addEventListener === "function") {
+                        bs.addEventListener("notification", ({ detail: notifications }) => {
+                            this.loadNotifCount();
+                        });
+                    }
+                    if (typeof bs.subscribe === "function") {
+                        bs.subscribe(() => {
+                            this.loadNotifCount();
+                        });
+                    }
                 } catch (busErr) {
                     console.warn("Bus service subscribe warning:", busErr);
                 }

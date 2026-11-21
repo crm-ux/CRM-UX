@@ -629,7 +629,7 @@ class CrmLead(models.Model):
         if 'user_id' in vals or 'x_assign_to_id' in vals:
             for rec in self.sudo():
                 assigned_user = rec.x_assign_to_id or rec.user_id
-                if assigned_user and assigned_user.id != old_assigned.get(rec.id):
+                if assigned_user and assigned_user.partner_id:
                     if assigned_user.partner_id:
                         contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
                         phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'

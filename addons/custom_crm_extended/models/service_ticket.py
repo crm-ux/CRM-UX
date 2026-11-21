@@ -389,9 +389,9 @@ class ServiceTicket(models.Model):
         old_engineers = {rec.id: rec.engineer_id.id for rec in self} if vals.get('engineer_id') else {}
         res = super().write(vals)
 
-        if vals.get('engineer_id'):
+        if 'engineer_id' in vals and vals.get('engineer_id'):
             for rec in self:
-                if rec.engineer_id and rec.engineer_id.partner_id and rec.engineer_id.id != old_engineers.get(rec.id):
+                if rec.engineer_id and rec.engineer_id.partner_id:
                     p_name = rec.partner_id.name if rec.partner_id else '-'
                     s_name = rec.site_name or '-'
                     v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
