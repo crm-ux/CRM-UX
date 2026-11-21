@@ -1507,6 +1507,7 @@ body:has(.crm-pro-dashboard) .o_loading {
 }
 
 .crm-task-dialog {
+    zoom: 0.9 !important;
     background: #ffffff !important;
     border-radius: 12px !important;
     width: 100% !important;

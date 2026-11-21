@@ -10,6 +10,11 @@
     zoom: 0.80 !important;
 }
 
+/* Notification Task/Detail Wizard Dialog Modal: Zoom 90% */
+.crm-task-dialog {
+    zoom: 0.9 !important;
+}
+
 /* ==========================================================================
    GLOBAL DYNAMIC DROPDOWN PLACEMENT ACROSS ALL FORMS & VIEWS
    Ensures autocomplete / dropdown attaches directly under the input field dynamically
