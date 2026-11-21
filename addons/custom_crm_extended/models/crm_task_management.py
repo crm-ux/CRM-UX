@@ -191,16 +191,21 @@ class CrmTaskManagement(models.Model):
     def create(self, vals_list):
         records = super(CrmTaskManagement, self).create(vals_list)
         for rec in records:
-            if rec.assigned_to_id and rec.assigned_to_id.id != self.env.user.id and rec.assigned_to_id.partner_id:
-                rec.message_post(
-                    body=f"<b>New Task Assigned</b><br/>"
-                         f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                         f"Instructions: {rec.instructions or 'No additional instructions.'}",
-                    subject=f"New Task: {rec.name}",
-                    partner_ids=[rec.assigned_to_id.partner_id.id],
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_comment',
-                )
+            if rec.assigned_to_id and rec.assigned_to_id.partner_id:
+                try:
+                    msg = rec.message_post(
+                        body=f"<b>New Task Assigned</b><br/>"
+                             f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                             f"Instructions: {rec.instructions or 'No additional instructions.'}",
+                        subject=f"New Task: {rec.name}",
+                        partner_ids=[rec.assigned_to_id.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    if msg:
+                        msg.sudo().write({'partner_ids': [(4, rec.assigned_to_id.partner_id.id)]})
+                except Exception:
+                    pass
                 try:
                     self.env['bus.bus']._sendone(
                         rec.assigned_to_id.partner_id,
@@ -257,9 +262,9 @@ class CrmTaskManagement(models.Model):
         # Notify new assignee if task is re-assigned
         if vals.get('assigned_to_id'):
             for rec in self:
-                if rec.assigned_to_id and rec.assigned_to_id.id != old_assignees.get(rec.id) and rec.assigned_to_id.id != self.env.user.id:
-                    if rec.assigned_to_id.partner_id:
-                        rec.message_post(
+                if rec.assigned_to_id and rec.assigned_to_id.partner_id and rec.assigned_to_id.id != old_assignees.get(rec.id):
+                    try:
+                        msg = rec.message_post(
                             body=f"<b>New Task Assigned</b><br/>"
                                  f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
                                  f"Instructions: {rec.instructions or 'No additional instructions.'}",
@@ -268,6 +273,10 @@ class CrmTaskManagement(models.Model):
                             message_type='notification',
                             subtype_xmlid='mail.mt_comment',
                         )
+                        if msg:
+                            msg.sudo().write({'partner_ids': [(4, rec.assigned_to_id.partner_id.id)]})
+                    except Exception:
+                        pass
                         try:
                             self.env['bus.bus']._sendone(
                                 rec.assigned_to_id.partner_id,

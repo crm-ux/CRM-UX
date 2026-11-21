@@ -629,7 +629,7 @@ class CrmLead(models.Model):
         if 'user_id' in vals or 'x_assign_to_id' in vals:
             for rec in self.sudo():
                 assigned_user = rec.x_assign_to_id or rec.user_id
-                if assigned_user and assigned_user.id != old_assigned.get(rec.id) and assigned_user.id != self.env.user.id:
+                if assigned_user and assigned_user.id != old_assigned.get(rec.id):
                     if assigned_user.partner_id:
                         contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
                         phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
@@ -640,13 +640,15 @@ class CrmLead(models.Model):
                             f"Details: {rec.description or 'No additional details provided.'}"
                         )
                         try:
-                            rec.message_post(
+                            msg = rec.message_post(
                                 body=body_msg,
                                 subject=f"Lead Assigned: {rec.name}",
                                 partner_ids=[assigned_user.partner_id.id],
                                 message_type='notification',
                                 subtype_xmlid='mail.mt_comment',
                             )
+                            if msg:
+                                msg.sudo().write({'partner_ids': [(4, assigned_user.partner_id.id)]})
                         except Exception:
                             pass
                         try:
@@ -826,7 +828,7 @@ class CrmLead(models.Model):
         records = super().create(vals_list)
         for rec in records:
             assigned_user = rec.x_assign_to_id or rec.user_id
-            if assigned_user and assigned_user.id != self.env.user.id and assigned_user.partner_id:
+            if assigned_user and assigned_user.partner_id:
                 contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
                 phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
                 body_msg = (
@@ -836,13 +838,15 @@ class CrmLead(models.Model):
                     f"Details: {rec.description or 'No additional details provided.'}"
                 )
                 try:
-                    rec.message_post(
+                    msg = rec.message_post(
                         body=body_msg,
                         subject=f"Lead Assigned: {rec.name}",
                         partner_ids=[assigned_user.partner_id.id],
                         message_type='notification',
                         subtype_xmlid='mail.mt_comment',
                     )
+                    if msg:
+                        msg.sudo().write({'partner_ids': [(4, assigned_user.partner_id.id)]})
                 except Exception:
                     pass
                 try:

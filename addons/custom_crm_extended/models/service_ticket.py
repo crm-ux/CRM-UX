@@ -314,7 +314,7 @@ class ServiceTicket(models.Model):
                     vals['complaint_type_id'] = ct.id
         records = super().create(vals_list)
         for rec in records:
-            if rec.engineer_id and rec.engineer_id.id != self.env.user.id and rec.engineer_id.partner_id:
+            if rec.engineer_id and rec.engineer_id.partner_id:
                 p_name = rec.partner_id.name if rec.partner_id else '-'
                 s_name = rec.site_name or '-'
                 v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
@@ -327,13 +327,18 @@ class ServiceTicket(models.Model):
                     f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
                     f"Problem: {c_desc}"
                 )
-                rec.message_post(
-                    body=body_msg,
-                    subject=f"Ticket Assigned: {tck_title}",
-                    partner_ids=[rec.engineer_id.partner_id.id],
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_comment',
-                )
+                try:
+                    msg = rec.message_post(
+                        body=body_msg,
+                        subject=f"Ticket Assigned: {tck_title}",
+                        partner_ids=[rec.engineer_id.partner_id.id],
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_comment',
+                    )
+                    if msg:
+                        msg.sudo().write({'partner_ids': [(4, rec.engineer_id.partner_id.id)]})
+                except Exception:
+                    pass
                 try:
                     self.env['bus.bus']._sendone(
                         rec.engineer_id.partner_id,
@@ -344,6 +349,19 @@ class ServiceTicket(models.Model):
                             'model': 'service.ticket',
                             'res_id': rec.id,
                         }
+                    )
+                except Exception:
+                    pass
+                try:
+                    self.env['crm.notification'].create_notification(
+                        user=rec.engineer_id,
+                        title=f'Service Ticket Assigned: {tck_title}',
+                        summary=f"Ticket {tck_title} assigned by {self.env.user.name}. Customer: {p_name} ({s_name}), Priority: {rec.priority or 'Medium'}",
+                        category='ticket',
+                        sender=self.env.user,
+                        res_model='service.ticket',
+                        res_id=rec.id,
+                        record_ref_name=rec.ticket_id or 'Service Ticket',
                     )
                 except Exception:
                     pass
@@ -373,40 +391,57 @@ class ServiceTicket(models.Model):
 
         if vals.get('engineer_id'):
             for rec in self:
-                if rec.engineer_id and rec.engineer_id.id != old_engineers.get(rec.id) and rec.engineer_id.id != self.env.user.id:
-                    if rec.engineer_id.partner_id:
-                        p_name = rec.partner_id.name if rec.partner_id else '-'
-                        s_name = rec.site_name or '-'
-                        v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
-                        c_desc = rec.complaint_description or 'No complaint description.'
-                        tck_title = f"{rec.ticket_id or 'Ticket'}: {rec.complaint_type_id.name if rec.complaint_type_id else 'Service Call'}"
-                        body_msg = (
-                            f"<b>Service Ticket Assigned</b><br/>"
-                            f"Ticket <b>{tck_title}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                            f"Customer: <b>{p_name}</b> (Site: <b>{s_name}</b>)<br/>"
-                            f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
-                            f"Problem: {c_desc}"
-                        )
-                        rec.message_post(
+                if rec.engineer_id and rec.engineer_id.partner_id and rec.engineer_id.id != old_engineers.get(rec.id):
+                    p_name = rec.partner_id.name if rec.partner_id else '-'
+                    s_name = rec.site_name or '-'
+                    v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
+                    c_desc = rec.complaint_description or 'No complaint description.'
+                    tck_title = f"{rec.ticket_id or 'Ticket'}: {rec.complaint_type_id.name if rec.complaint_type_id else 'Service Call'}"
+                    body_msg = (
+                        f"<b>Service Ticket Assigned</b><br/>"
+                        f"Ticket <b>{tck_title}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                        f"Customer: <b>{p_name}</b> (Site: <b>{s_name}</b>)<br/>"
+                        f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
+                        f"Problem: {c_desc}"
+                    )
+                    try:
+                        msg = rec.message_post(
                             body=body_msg,
                             subject=f"Ticket Assigned: {tck_title}",
                             partner_ids=[rec.engineer_id.partner_id.id],
                             message_type='notification',
                             subtype_xmlid='mail.mt_comment',
                         )
-                        try:
-                            self.env['bus.bus']._sendone(
-                                rec.engineer_id.partner_id,
-                                'crm_notification',
-                                {
-                                    'title': 'Service Ticket Assigned',
-                                    'message': f"Ticket {tck_title} assigned to you.",
-                                    'model': 'service.ticket',
-                                    'res_id': rec.id,
-                                }
-                            )
-                        except Exception:
-                            pass
+                        if msg:
+                            msg.sudo().write({'partner_ids': [(4, rec.engineer_id.partner_id.id)]})
+                    except Exception:
+                        pass
+                    try:
+                        self.env['bus.bus']._sendone(
+                            rec.engineer_id.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'Service Ticket Assigned',
+                                'message': f"Ticket {tck_title} assigned to you.",
+                                'model': 'service.ticket',
+                                'res_id': rec.id,
+                            }
+                        )
+                    except Exception:
+                        pass
+                    try:
+                        self.env['crm.notification'].create_notification(
+                            user=rec.engineer_id,
+                            title=f'Service Ticket Assigned: {tck_title}',
+                            summary=f"Ticket {tck_title} assigned by {self.env.user.name}. Customer: {p_name} ({s_name}), Priority: {rec.priority or 'Medium'}",
+                            category='ticket',
+                            sender=self.env.user,
+                            res_model='service.ticket',
+                            res_id=rec.id,
+                            record_ref_name=rec.ticket_id or 'Service Ticket',
+                        )
+                    except Exception:
+                        pass
         return res
 
     # Assignment & Schedule
@@ -1379,13 +1414,18 @@ class ServiceTicket(models.Model):
                 f"Amount: <b>₹ {batch_tot:,.2f}</b><br/>"
                 f"Ticket: <b>{tck_name}</b> | Expenses: <b>{exp_names}</b>"
             )
-            batch_rec.message_post(
+            msg = batch_rec.message_post(
                 body=body_msg,
                 subject=f"Voucher Approval: {batch_name}",
                 partner_ids=[dept_approver.partner_id.id],
                 message_type='notification',
                 subtype_xmlid='mail.mt_comment',
             )
+            if msg:
+                try:
+                    msg.sudo().write({'partner_ids': [(4, dept_approver.partner_id.id)]})
+                except Exception:
+                    pass
             try:
                 self.env['bus.bus']._sendone(
                     dept_approver.partner_id,
@@ -3497,7 +3537,7 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
             batch._compute_status()
             submitter = batch.submitted_by_user_id or batch.user_id
             if submitter and submitter.partner_id:
-                batch.message_post(
+                msg = batch.message_post(
                     body=f"<b>Voucher Rejected</b><br/>"
                          f"Your voucher <b>{batch.name}</b> has been rejected by <b>{self.env.user.name}</b>.<br/>"
                          f"Reason: <i>{reason}</i>",
@@ -3506,6 +3546,11 @@ class ServiceTicketVoucherRejectWizard(models.TransientModel):
                     message_type='notification',
                     subtype_xmlid='mail.mt_comment',
                 )
+                if msg:
+                    try:
+                        msg.sudo().write({'partner_ids': [(4, submitter.partner_id.id)]})
+                    except Exception:
+                        pass
                 try:
                     self.env['bus.bus']._sendone(
                         submitter.partner_id,
@@ -4545,7 +4590,7 @@ class ServiceTicketVoucherBatch(models.Model):
             rec._compute_status()
             submitter = rec.submitted_by_user_id or rec.user_id
             if submitter and submitter.partner_id:
-                rec.message_post(
+                msg = rec.message_post(
                     body=f"<b>Voucher Approved</b><br/>"
                          f"Your voucher <b>{rec.name}</b> has been approved by <b>{self.env.user.name}</b>.<br/>"
                          f"Approved Amount: <b>₹ {rec.total_amount:,.2f}</b>",
@@ -4554,6 +4599,11 @@ class ServiceTicketVoucherBatch(models.Model):
                     message_type='notification',
                     subtype_xmlid='mail.mt_comment',
                 )
+                if msg:
+                    try:
+                        msg.sudo().write({'partner_ids': [(4, submitter.partner_id.id)]})
+                    except Exception:
+                        pass
                 try:
                     self.env['bus.bus']._sendone(
                         submitter.partner_id,
