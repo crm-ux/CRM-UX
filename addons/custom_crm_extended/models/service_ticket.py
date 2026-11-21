@@ -862,10 +862,15 @@ class ServiceTicket(models.Model):
     new_voucher_days = fields.Integer(compute='_compute_new_voucher_days', string='Days Count')
     new_voucher_days_display_html = fields.Html(compute='_compute_new_voucher_days', string='Days Badge HTML')
 
-    @api.depends('new_voucher_expense_type_id')
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.calculation_type', 'new_voucher_expense_type_id.is_km_based')
     def _compute_new_voucher_is_daily(self):
         for rec in self:
-            rec.new_voucher_is_daily = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily' and not rec.new_voucher_expense_type_id.is_km_based)
+            rec.new_voucher_is_daily = bool(
+                rec.new_voucher_expense_type_id and (
+                    rec.new_voucher_expense_type_id.is_km_based or
+                    rec.new_voucher_expense_type_id.calculation_type == 'daily'
+                )
+            )
 
     @api.depends('new_voucher_date', 'new_voucher_date_to', 'new_voucher_is_daily')
     def _compute_new_voucher_days(self):
@@ -1271,7 +1276,7 @@ class ServiceTicket(models.Model):
             self.env['service.ticket.voucher.line'].sudo().create({
                 'ticket_id': self.id,
                 'expense_date': exp_date,
-                'expense_date_to': self.new_voucher_date_to if (exp_type.calculation_type == 'daily') else False,
+                'expense_date_to': self.new_voucher_date_to if (exp_type.is_km_based or exp_type.calculation_type == 'daily') else False,
                 'user_id': u.id,
                 'submitted_by_user_id': login_user.id,
                 'other_employee_names': other_names or '',
@@ -4032,15 +4037,20 @@ class ServiceTicketVoucherBatch(models.Model):
         for rec in self:
             rec.new_voucher_is_km = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based)
 
-    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.calculation_type')
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_expense_type_id.calculation_type', 'new_voucher_expense_type_id.is_km_based')
     def _compute_batch_new_voucher_is_daily(self):
         for rec in self:
-            rec.new_voucher_is_daily = bool(rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily')
+            rec.new_voucher_is_daily = bool(
+                rec.new_voucher_expense_type_id and (
+                    rec.new_voucher_expense_type_id.is_km_based or
+                    rec.new_voucher_expense_type_id.calculation_type == 'daily'
+                )
+            )
 
-    @api.depends('new_voucher_date', 'new_voucher_date_to', 'new_voucher_expense_type_id.calculation_type')
+    @api.depends('new_voucher_date', 'new_voucher_date_to', 'new_voucher_is_daily')
     def _compute_batch_new_voucher_days(self):
         for rec in self:
-            if rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.calculation_type == 'daily' and rec.new_voucher_date and rec.new_voucher_date_to:
+            if rec.new_voucher_is_daily and rec.new_voucher_date and rec.new_voucher_date_to:
                 diff = (rec.new_voucher_date_to - rec.new_voucher_date).days + 1
                 rec.new_voucher_days = max(diff, 1)
             else:
@@ -4307,7 +4317,7 @@ class ServiceTicketVoucherBatch(models.Model):
                 'batch_id': self.id,
                 'ticket_id': self.ticket_id.id if self.ticket_id else False,
                 'expense_date': exp_date,
-                'expense_date_to': self.new_voucher_date_to if (exp_type.calculation_type == 'daily') else False,
+                'expense_date_to': self.new_voucher_date_to if (exp_type.is_km_based or exp_type.calculation_type == 'daily') else False,
                 'user_id': u.id,
                 'submitted_by_user_id': login_user.id,
                 'other_employee_names': other_names or '',
