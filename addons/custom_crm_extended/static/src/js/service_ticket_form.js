@@ -532,14 +532,17 @@ function updateRecoverySelectionState() {
 }
 
 function formatVoucherCheckboxButtons() {
-    // Only target the table that actually has recovery selection checkboxes
-    const table = document.querySelector("table.o_list_table:has(button[name='action_toggle_recovery_select'])");
-    
-    // Clean up any stray select-all buttons in other tables (like Draft expenses table)
-    document.querySelectorAll("table.o_list_table:not(:has(button[name='action_toggle_recovery_select'])) thead .crm_voucher_select_all_btn").forEach((btn) => {
-        btn.remove();
+    // Clean up any stray select-all buttons in any table without recovery checkboxes
+    const allTables = document.querySelectorAll("table.o_list_table");
+    allTables.forEach((tbl) => {
+        const hasRecovery = tbl.querySelector("tbody tr.o_data_row button[name='action_toggle_recovery_select']");
+        if (!hasRecovery) {
+            tbl.querySelectorAll(".crm_voucher_select_all_btn").forEach((btn) => btn.remove());
+        }
     });
 
+    // Only target the table that actually has recovery selection checkboxes
+    const table = document.querySelector("table.o_list_table:has(button[name='action_toggle_recovery_select'])");
     if (!table) return;
 
     const rows = table.querySelectorAll("tbody tr.o_data_row");
@@ -714,6 +717,67 @@ if (typeof window !== "undefined" && typeof MutationObserver !== "undefined") {
     }
 }
 
+// Global real-time calculation listener for KM inputs on both Service Ticket and General Voucher
+function globalKmInstantCalc(ev) {
+    const target = ev.target;
+    if (!target) return;
+
+    // 1. Quick Add Bar: new_voucher_total_km
+    const kmField = target.closest("[name='new_voucher_total_km']");
+    if (kmField) {
+        const bar = target.closest(".o_voucher_quick_add_bar");
+        if (!bar) return;
+        const kmVal = parseFloat(target.value) || 0.0;
+
+        let rateVal = 0.0;
+        const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
+        if (rateBox) {
+            const rateText = rateBox.innerText || rateBox.textContent || rateBox.value || "0";
+            rateVal = parseFloat(rateText.replace(/[^0-9.]/g, "")) || 0.0;
+        }
+        if (!rateVal || rateVal <= 0) {
+            const badgeBox = bar.querySelector(".o_budget_pool_field, [name='new_voucher_budget_info_html']");
+            if (badgeBox) {
+                const match = (badgeBox.textContent || "").match(/₹\s*([0-9]+(?:\.[0-9]+)?)\s*\/\s*KM/i);
+                if (match) {
+                    rateVal = parseFloat(match[1]) || 0.0;
+                }
+            }
+        }
+
+        const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
+        const amountInput = bar.querySelector("[name='new_voucher_amount'] input, input[name='new_voucher_amount']");
+        if (amountInput && document.activeElement !== amountInput) {
+            amountInput.value = calculated.toFixed(2);
+        }
+
+        const controller = window.__odooCurrentFormController;
+        if (controller?.model?.root?.update) {
+            controller.model.root.update({ new_voucher_amount: calculated });
+        }
+    }
+
+    // 2. Draft Table list row: total_km
+    const kmCell = target.closest("td[name='total_km'], [data-name='total_km']");
+    if (kmCell) {
+        const row = kmCell.closest("tr.o_data_row");
+        if (row) {
+            const rateCell = row.querySelector("td[name='rate_per_km'], [data-name='rate_per_km']");
+            const rateVal = parseFloat(rateCell?.textContent?.replace(/[^0-9.]/g, "")) || 0.0;
+            const kmVal = parseFloat(target.value) || 0.0;
+            const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
+            const amountInp = row.querySelector("td[name='amount'] input, [data-name='amount'] input");
+            if (amountInp && document.activeElement !== amountInp) {
+                amountInp.value = calculated.toFixed(2);
+                amountInp.dispatchEvent(new Event("input", { bubbles: true }));
+                amountInp.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+        }
+    }
+}
+document.addEventListener("input", globalKmInstantCalc, true);
+document.addEventListener("change", globalKmInstantCalc, true);
+
 // 2. Intercept "New" button in Detail Form View & capture current active form controller
 patch(FormController.prototype, {
     setup() {
@@ -861,24 +925,30 @@ export class ServiceTicketFormController extends FormController {
                     if (!bar) return;
                     const kmVal = parseFloat(target.value) || 0.0;
 
-                    // Find rate value from .o_readonly_box or rate field
-                    const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
+                    // Find rate value: first check rate field, fallback to Allowed Rate badge
                     let rateVal = 0.0;
+                    const rateBox = bar.querySelector("[name='new_voucher_rate_per_km']");
                     if (rateBox) {
                         const rateText = rateBox.innerText || rateBox.textContent || rateBox.value || "0";
                         rateVal = parseFloat(rateText.replace(/[^0-9.]/g, "")) || 0.0;
                     }
+                    if (!rateVal || rateVal <= 0) {
+                        const badgeBox = bar.querySelector(".o_budget_pool_field, [name='new_voucher_budget_info_html']");
+                        if (badgeBox) {
+                            const match = (badgeBox.textContent || "").match(/₹\s*([0-9]+(?:\.[0-9]+)?)\s*\/\s*KM/i);
+                            if (match) {
+                                rateVal = parseFloat(match[1]) || 0.0;
+                            }
+                        }
+                    }
 
-                    if (kmVal > 0 && rateVal > 0) {
-                        const calculated = parseFloat((kmVal * rateVal).toFixed(2));
-                        if (this.model && this.model.root && this.model.root.update) {
-                            this.model.root.update({ new_voucher_amount: calculated });
-                        }
-                    } else {
-                        // When user backspaces or clears KM to 0/empty, immediately calculate Amount to 0.00
-                        if (this.model && this.model.root && this.model.root.update) {
-                            this.model.root.update({ new_voucher_amount: 0.0 });
-                        }
+                    const calculated = (kmVal > 0 && rateVal > 0) ? parseFloat((kmVal * rateVal).toFixed(2)) : 0.0;
+                    const amountInput = bar.querySelector("[name='new_voucher_amount'] input, input[name='new_voucher_amount']");
+                    if (amountInput && document.activeElement !== amountInput) {
+                        amountInput.value = calculated.toFixed(2);
+                    }
+                    if (this.model && this.model.root && this.model.root.update) {
+                        this.model.root.update({ new_voucher_amount: calculated });
                     }
                 }
             };
@@ -943,6 +1013,8 @@ export class ServiceTicketFormController extends FormController {
             });
 
             document.addEventListener("input", handleTicketInputInstantClear, true);
+            document.addEventListener("input", handleKmInstantCalc, true);
+            document.addEventListener("change", handleKmInstantCalc, true);
         }
     }
 

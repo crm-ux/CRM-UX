@@ -1059,7 +1059,7 @@ class ServiceTicket(models.Model):
     new_voucher_end_km = fields.Float(string='End KM')
     new_voucher_total_km = fields.Float(string='Total KM')
     new_voucher_rate_per_km = fields.Float(
-        related='new_voucher_expense_type_id.km_rate', 
+        compute='_compute_new_voucher_rate_per_km', 
         string='Rate/KM (₹)', 
         readonly=True
     )
@@ -1073,21 +1073,38 @@ class ServiceTicket(models.Model):
     new_voucher_bill_filename = fields.Char(string='Bill Filename')
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
 
-    @api.onchange('new_voucher_expense_type_id')
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_user_ids', 'engineer_id')
+    def _compute_new_voucher_rate_per_km(self):
+        for rec in self:
+            if rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based:
+                target_u = (rec.new_voucher_user_ids and rec.new_voucher_user_ids[:1]) or rec.engineer_id or self.env.user
+                rec.new_voucher_rate_per_km = rec.new_voucher_expense_type_id.get_effective_km_rate(user=target_u)
+            else:
+                rec.new_voucher_rate_per_km = 0.0
+
+    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km', 'new_voucher_start_km', 'new_voucher_end_km', 'new_voucher_user_ids', 'engineer_id')
     def _onchange_new_voucher_expense_type(self):
+        if self.new_voucher_start_km and self.new_voucher_end_km and self.new_voucher_end_km >= self.new_voucher_start_km:
+            self.new_voucher_total_km = round(self.new_voucher_end_km - self.new_voucher_start_km, 2)
         if self.new_voucher_expense_type_id:
             self.new_voucher_is_km = bool(self.new_voucher_expense_type_id.is_km_based)
             if self.new_voucher_is_km:
-                rate = self.new_voucher_expense_type_id.km_rate or 0.0
-                if self.new_voucher_total_km > 0 and rate > 0:
+                target_u = (self.new_voucher_user_ids and self.new_voucher_user_ids[:1]) or self.engineer_id or self.env.user
+                rate = self.new_voucher_expense_type_id.get_effective_km_rate(user=target_u)
+                self.new_voucher_rate_per_km = rate
+                if self.new_voucher_total_km and rate:
                     self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
+                elif not self.new_voucher_total_km:
+                    self.new_voucher_amount = 0.0
             else:
                 self.new_voucher_total_km = 0.0
                 self.new_voucher_start_km = 0.0
                 self.new_voucher_end_km = 0.0
+                self.new_voucher_rate_per_km = 0.0
         else:
             self.new_voucher_is_km = False
             self.new_voucher_total_km = 0.0
+            self.new_voucher_rate_per_km = 0.0
 
     def _onchange_voucher_dates_update_pool(self):
         pass
@@ -1249,7 +1266,8 @@ class ServiceTicket(models.Model):
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
-            user_rate = self.new_voucher_rate_per_km or exp_type.get_effective_km_rate(user=u) or 0.0
+            user_rate = exp_type.get_effective_km_rate(user=u) or self.new_voucher_rate_per_km or 0.0
+            line_amt = round(split_km * user_rate, 2) if exp_type.is_km_based else user_splits.get(u.id, 0.0)
             self.env['service.ticket.voucher.line'].sudo().create({
                 'ticket_id': self.id,
                 'expense_date': exp_date,
@@ -1263,7 +1281,7 @@ class ServiceTicket(models.Model):
                 'total_km': split_km if exp_type.is_km_based else 0.0,
                 'rate_per_km': user_rate if exp_type.is_km_based else 0.0,
                 'description': self.new_voucher_description or '',
-                'amount': user_splits.get(u.id, 0.0),
+                'amount': line_amt,
                 'bill_file': bill_file,
                 'bill_filename': bill_filename,
                 'bill_attachment_ids': [(6, 0, self.new_voucher_bill_attachment_ids.ids)] if self.new_voucher_bill_attachment_ids else False,
@@ -2189,19 +2207,35 @@ class ServiceTicketVoucherLine(models.Model):
                 rec.is_over_budget = False
                 rec.over_budget_badge_html = False
 
-    @api.onchange('expense_type_id')
+    @api.onchange('expense_type_id', 'user_id')
     def _onchange_voucher_line_expense_type(self):
         if self.expense_type_id:
-            self.is_km_based = self.expense_type_id.is_km_based
+            self.is_km_based = bool(self.expense_type_id.is_km_based)
             if self.is_km_based:
-                self.rate_per_km = self.expense_type_id.km_rate or 0.0
+                target_u = self.user_id or self.env.user
+                self.rate_per_km = self.expense_type_id.get_effective_km_rate(user=target_u)
                 if self.total_km and self.rate_per_km:
-                    self.amount = self.total_km * self.rate_per_km
+                    self.amount = round(self.total_km * self.rate_per_km, 2)
+                elif not self.total_km:
+                    self.amount = 0.0
+            else:
+                self.rate_per_km = 0.0
+                self.total_km = 0.0
+        else:
+            self.is_km_based = False
+            self.rate_per_km = 0.0
+            self.total_km = 0.0
 
     @api.onchange('total_km', 'rate_per_km')
     def _onchange_voucher_line_km_calc(self):
-        if self.is_km_based and self.total_km and self.rate_per_km:
-            self.amount = self.total_km * self.rate_per_km
+        if self.is_km_based:
+            if not self.rate_per_km and self.expense_type_id:
+                target_u = self.user_id or self.env.user
+                self.rate_per_km = self.expense_type_id.get_effective_km_rate(user=target_u)
+            if self.total_km and self.rate_per_km:
+                self.amount = round(self.total_km * self.rate_per_km, 2)
+            elif not self.total_km:
+                self.amount = 0.0
     bill_file = fields.Binary(string='Upload Bill', required=False)
     bill_filename = fields.Char(string='File Name')
     bill_attachment_ids = fields.Many2many(
@@ -3915,10 +3949,19 @@ class ServiceTicketVoucherBatch(models.Model):
     )
     new_voucher_total_km = fields.Float(string='Total KM')
     new_voucher_rate_per_km = fields.Float(
-        related='new_voucher_expense_type_id.km_rate',
+        compute='_compute_batch_new_voucher_rate_per_km',
         string='Rate/KM (₹)',
         readonly=True,
     )
+
+    @api.depends('new_voucher_expense_type_id', 'new_voucher_user_ids', 'user_id')
+    def _compute_batch_new_voucher_rate_per_km(self):
+        for rec in self:
+            if rec.new_voucher_expense_type_id and rec.new_voucher_expense_type_id.is_km_based:
+                target_u = (rec.new_voucher_user_ids and rec.new_voucher_user_ids[:1]) or rec.user_id or self.env.user
+                rec.new_voucher_rate_per_km = rec.new_voucher_expense_type_id.get_effective_km_rate(user=target_u)
+            else:
+                rec.new_voucher_rate_per_km = 0.0
     new_voucher_description = fields.Char(string='Description')
     new_voucher_amount = fields.Monetary(
         string='Amount',
@@ -4095,19 +4138,25 @@ class ServiceTicketVoucherBatch(models.Model):
                     </div>
                     """
 
-    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km')
+    @api.onchange('new_voucher_expense_type_id', 'new_voucher_total_km', 'new_voucher_user_ids', 'user_id')
     def _onchange_batch_new_voucher_expense_type(self):
         if self.new_voucher_expense_type_id:
             self.new_voucher_is_km = bool(self.new_voucher_expense_type_id.is_km_based)
             if self.new_voucher_is_km:
-                rate = self.new_voucher_expense_type_id.km_rate or 0.0
-                if self.new_voucher_total_km > 0 and rate > 0:
+                target_u = (self.new_voucher_user_ids and self.new_voucher_user_ids[:1]) or self.user_id or self.env.user
+                rate = self.new_voucher_expense_type_id.get_effective_km_rate(user=target_u)
+                self.new_voucher_rate_per_km = rate
+                if self.new_voucher_total_km and rate:
                     self.new_voucher_amount = round(self.new_voucher_total_km * rate, 2)
+                elif not self.new_voucher_total_km:
+                    self.new_voucher_amount = 0.0
             else:
                 self.new_voucher_total_km = 0.0
+                self.new_voucher_rate_per_km = 0.0
         else:
             self.new_voucher_is_km = False
             self.new_voucher_total_km = 0.0
+            self.new_voucher_rate_per_km = 0.0
 
     def action_add_voucher_line(self):
         self.ensure_one()
@@ -4252,7 +4301,8 @@ class ServiceTicketVoucherBatch(models.Model):
         for u in target_users:
             dept = u.crm_department_id or (u.crm_job_id and u.crm_job_id.department_id) or False
             other_names = ", ".join([other.name for other in target_users if other.id != u.id and other.id != login_user.id])
-            user_rate = self.new_voucher_rate_per_km or exp_type.get_effective_km_rate(user=u) or 0.0
+            user_rate = exp_type.get_effective_km_rate(user=u) or self.new_voucher_rate_per_km or 0.0
+            line_amt = round(split_km * user_rate, 2) if exp_type.is_km_based else user_splits.get(u.id, 0.0)
             self.env['service.ticket.voucher.line'].sudo().create({
                 'batch_id': self.id,
                 'ticket_id': self.ticket_id.id if self.ticket_id else False,
@@ -4267,7 +4317,7 @@ class ServiceTicketVoucherBatch(models.Model):
                 'total_km': split_km if exp_type.is_km_based else 0.0,
                 'rate_per_km': user_rate if exp_type.is_km_based else 0.0,
                 'description': self.new_voucher_description or '',
-                'amount': user_splits.get(u.id, 0.0),
+                'amount': line_amt,
                 'bill_attachment_ids': [(6, 0, self.new_voucher_bill_attachment_ids.ids)] if self.new_voucher_bill_attachment_ids else False,
                 'status': 'draft',
             })
