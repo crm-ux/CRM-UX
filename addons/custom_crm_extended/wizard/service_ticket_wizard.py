@@ -468,7 +468,7 @@ class ServiceTicketWizard(models.TransientModel):
             'service_start_time': self.service_start_time,
             'service_end_time': self.service_end_time,
         }
-        ticket = self.env['service.ticket'].create(ticket_vals)
+        ticket = self.env['service.ticket'].sudo().create(ticket_vals)
 
         return {
             'type': 'ir.actions.act_window',

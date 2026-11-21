@@ -528,8 +528,8 @@ class ResUsers(models.Model):
         if user_field:
             return [
                 '|',
+                ('create_uid', '=', self.id),
                 (user_field, 'in', uids),
-                '&', (user_field, '=', False), ('create_uid', 'in', uids)
             ]
         return [('create_uid', 'in', uids)]
 
