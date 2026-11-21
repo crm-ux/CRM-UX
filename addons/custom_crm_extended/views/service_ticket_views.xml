@@ -301,7 +301,7 @@
                                     <field name="over_budget_badge_html" string="Limit Alert" widget="html" readonly="1" optional="show"/>
                                     <field name="bill_attachment_ids" column_invisible="1"/>
                                     <field name="bill_count" column_invisible="1"/>
-                                    <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" string="Bills" title="View Bill" class="btn p-0"/>
+                                    <button name="action_preview_bill" type="object" icon="fa-eye text-crm-blue" title="View Bill" class="btn p-0"/>
                                     <field name="status" widget="badge" decoration-info="status == 'draft'"/>
                                 </list>
                             </field>
