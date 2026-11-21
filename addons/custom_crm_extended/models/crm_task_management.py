@@ -192,18 +192,47 @@ class CrmTaskManagement(models.Model):
         records = super(CrmTaskManagement, self).create(vals_list)
         for rec in records:
             if rec.assigned_to_id and rec.assigned_to_id.partner_id:
+                partner_id = rec.assigned_to_id.partner_id.id
+                body_msg = (
+                    f"<b>New Task Assigned</b><br/>"
+                    f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                    f"Instructions: {rec.instructions or 'No additional instructions.'}"
+                )
                 try:
-                    msg = rec.message_post(
-                        body=f"<b>New Task Assigned</b><br/>"
-                             f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                             f"Instructions: {rec.instructions or 'No additional instructions.'}",
-                        subject=f"New Task: {rec.name}",
-                        partner_ids=[rec.assigned_to_id.partner_id.id],
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_comment',
+                    self.env['mail.message'].sudo().create({
+                        'model': 'crm.task.management',
+                        'res_id': rec.id,
+                        'record_name': rec.name,
+                        'subject': f"New Task: {rec.name}",
+                        'body': body_msg,
+                        'message_type': 'notification',
+                        'author_id': self.env.user.partner_id.id,
+                        'partner_ids': [(6, 0, [partner_id])],
+                    })
+                except Exception:
+                    try:
+                        msg = rec.message_post(
+                            body=body_msg,
+                            subject=f"New Task: {rec.name}",
+                            partner_ids=[partner_id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+                        if msg:
+                            msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                    except Exception:
+                        pass
+                try:
+                    self.env['bus.bus']._sendone(
+                        rec.assigned_to_id.partner_id,
+                        'simple_notification',
+                        {
+                            'title': 'New Task Assigned',
+                            'message': f"Task \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                            'type': 'info',
+                            'sticky': False,
+                        }
                     )
-                    if msg:
-                        msg.sudo().write({'partner_ids': [(4, rec.assigned_to_id.partner_id.id)]})
                 except Exception:
                     pass
                 try:
@@ -263,46 +292,82 @@ class CrmTaskManagement(models.Model):
         if 'assigned_to_id' in vals and vals.get('assigned_to_id'):
             for rec in self:
                 if rec.assigned_to_id and rec.assigned_to_id.partner_id:
+                    partner_id = rec.assigned_to_id.partner_id.id
+                    body_msg = (
+                        f"<b>New Task Assigned</b><br/>"
+                        f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                        f"Instructions: {rec.instructions or 'No additional instructions.'}"
+                    )
+                    # 1. Guarantee mail.message record in DB with partner_ids
                     try:
-                        msg = rec.message_post(
-                            body=f"<b>New Task Assigned</b><br/>"
-                                 f"Task <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                                 f"Instructions: {rec.instructions or 'No additional instructions.'}",
-                            subject=f"New Task: {rec.name}",
-                            partner_ids=[rec.assigned_to_id.partner_id.id],
-                            message_type='notification',
-                            subtype_xmlid='mail.mt_comment',
+                        self.env['mail.message'].sudo().create({
+                            'model': 'crm.task.management',
+                            'res_id': rec.id,
+                            'record_name': rec.name,
+                            'subject': f"New Task: {rec.name}",
+                            'body': body_msg,
+                            'message_type': 'notification',
+                            'author_id': self.env.user.partner_id.id,
+                            'partner_ids': [(6, 0, [partner_id])],
+                        })
+                    except Exception:
+                        try:
+                            msg = rec.message_post(
+                                body=body_msg,
+                                subject=f"New Task: {rec.name}",
+                                partner_ids=[partner_id],
+                                message_type='notification',
+                                subtype_xmlid='mail.mt_comment',
+                            )
+                            if msg:
+                                msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                        except Exception:
+                            pass
+
+                    # 2. Native Odoo 17 Live Toast (simple_notification)
+                    try:
+                        self.env['bus.bus']._sendone(
+                            rec.assigned_to_id.partner_id,
+                            'simple_notification',
+                            {
+                                'title': 'New Task Assigned',
+                                'message': f"Task \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                                'type': 'info',
+                                'sticky': False,
+                            }
                         )
-                        if msg:
-                            msg.sudo().write({'partner_ids': [(4, rec.assigned_to_id.partner_id.id)]})
                     except Exception:
                         pass
-                        try:
-                            self.env['bus.bus']._sendone(
-                                rec.assigned_to_id.partner_id,
-                                'crm_notification',
-                                {
-                                    'title': 'New Task Assigned',
-                                    'message': f"Task {rec.name} assigned to you.",
-                                    'model': 'crm.task.management',
-                                    'res_id': rec.id,
-                                }
-                            )
-                        except Exception:
-                            pass
-                        try:
-                            self.env['crm.notification'].create_notification(
-                                user=rec.assigned_to_id,
-                                title=f'New Task: {rec.name}',
-                                summary=f"Task assigned by {self.env.user.name}. Instructions: {rec.instructions or 'No additional instructions.'}",
-                                category='task',
-                                sender=self.env.user,
-                                res_model='crm.task.management',
-                                res_id=rec.id,
-                                record_ref_name=rec.name,
-                            )
-                        except Exception:
-                            pass
+
+                    # 3. Custom CRM Notification Bus Event
+                    try:
+                        self.env['bus.bus']._sendone(
+                            rec.assigned_to_id.partner_id,
+                            'crm_notification',
+                            {
+                                'title': 'New Task Assigned',
+                                'message': f"Task {rec.name} assigned to you.",
+                                'model': 'crm.task.management',
+                                'res_id': rec.id,
+                            }
+                        )
+                    except Exception:
+                        pass
+
+                    # 4. Master Notification Record
+                    try:
+                        self.env['crm.notification'].create_notification(
+                            user=rec.assigned_to_id,
+                            title=f'New Task: {rec.name}',
+                            summary=f"Task assigned by {self.env.user.name}. Instructions: {rec.instructions or 'No additional instructions.'}",
+                            category='task',
+                            sender=self.env.user,
+                            res_model='crm.task.management',
+                            res_id=rec.id,
+                            record_ref_name=rec.name,
+                        )
+                    except Exception:
+                        pass
 
         # Handle Sequential Task Unlock, Recurrence, and notify assigner on completion
         if 'state' in vals and vals['state'] == 'done':

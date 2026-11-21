@@ -327,18 +327,49 @@ class ServiceTicket(models.Model):
                     f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
                     f"Problem: {c_desc}"
                 )
+                partner_id = rec.engineer_id.partner_id.id
+                # 1. Guarantee mail.message record in DB
                 try:
-                    msg = rec.message_post(
-                        body=body_msg,
-                        subject=f"Ticket Assigned: {tck_title}",
-                        partner_ids=[rec.engineer_id.partner_id.id],
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_comment',
+                    self.env['mail.message'].sudo().create({
+                        'model': 'service.ticket',
+                        'res_id': rec.id,
+                        'record_name': tck_title,
+                        'subject': f"Ticket Assigned: {tck_title}",
+                        'body': body_msg,
+                        'message_type': 'notification',
+                        'author_id': self.env.user.partner_id.id,
+                        'partner_ids': [(6, 0, [partner_id])],
+                    })
+                except Exception:
+                    try:
+                        msg = rec.message_post(
+                            body=body_msg,
+                            subject=f"Ticket Assigned: {tck_title}",
+                            partner_ids=[partner_id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+                        if msg:
+                            msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                    except Exception:
+                        pass
+
+                # 2. Native Odoo 17 Live Toast (simple_notification)
+                try:
+                    self.env['bus.bus']._sendone(
+                        rec.engineer_id.partner_id,
+                        'simple_notification',
+                        {
+                            'title': 'Service Ticket Assigned',
+                            'message': f"Ticket {tck_title} has been assigned to you by {self.env.user.name}.",
+                            'type': 'info',
+                            'sticky': False,
+                        }
                     )
-                    if msg:
-                        msg.sudo().write({'partner_ids': [(4, rec.engineer_id.partner_id.id)]})
                 except Exception:
                     pass
+
+                # 3. Custom CRM Notification Bus Event
                 try:
                     self.env['bus.bus']._sendone(
                         rec.engineer_id.partner_id,
@@ -386,7 +417,6 @@ class ServiceTicket(models.Model):
             if ct:
                 vals['complaint_type_id'] = ct.id
 
-        old_engineers = {rec.id: rec.engineer_id.id for rec in self} if vals.get('engineer_id') else {}
         res = super().write(vals)
 
         if 'engineer_id' in vals and vals.get('engineer_id'):
@@ -396,7 +426,8 @@ class ServiceTicket(models.Model):
                     s_name = rec.site_name or '-'
                     v_date = rec.visit_date.strftime('%d/%m/%Y') if rec.visit_date else '-'
                     c_desc = rec.complaint_description or 'No complaint description.'
-                    tck_title = f"{rec.ticket_id or 'Ticket'}: {rec.complaint_type_id.name if rec.complaint_type_id else 'Service Call'}"
+                    ctype_name = rec.complaint_type_id.name if rec.complaint_type_id else (rec.complaint_type.title() if hasattr(rec, 'complaint_type') and rec.complaint_type else 'Service Call')
+                    tck_title = f"{rec.ticket_id or 'Ticket'}: {ctype_name}"
                     body_msg = (
                         f"<b>Service Ticket Assigned</b><br/>"
                         f"Ticket <b>{tck_title}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
@@ -404,18 +435,49 @@ class ServiceTicket(models.Model):
                         f"Priority: <b>{rec.priority.title() if rec.priority else 'Medium'}</b> | Visit Date: <b>{v_date}</b><br/>"
                         f"Problem: {c_desc}"
                     )
+                    partner_id = rec.engineer_id.partner_id.id
+                    msg = False
+                    # 1. Guarantee mail.message record in DB with partner_ids linked directly
                     try:
-                        msg = rec.message_post(
-                            body=body_msg,
-                            subject=f"Ticket Assigned: {tck_title}",
-                            partner_ids=[rec.engineer_id.partner_id.id],
-                            message_type='notification',
-                            subtype_xmlid='mail.mt_comment',
+                        msg = self.env['mail.message'].sudo().create({
+                            'model': 'service.ticket',
+                            'res_id': rec.id,
+                            'record_name': tck_title,
+                            'subject': f"Ticket Assigned: {tck_title}",
+                            'body': body_msg,
+                            'message_type': 'notification',
+                            'author_id': self.env.user.partner_id.id,
+                            'partner_ids': [(6, 0, [partner_id])],
+                        })
+                    except Exception:
+                        try:
+                            msg = rec.message_post(
+                                body=body_msg,
+                                subject=f"Ticket Assigned: {tck_title}",
+                                message_type='comment',
+                                subtype_xmlid='mail.mt_note',
+                            )
+                            if msg:
+                                msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                        except Exception:
+                            msg = False
+
+                    # 2. Native Odoo 17 Live Toast (simple_notification)
+                    try:
+                        self.env['bus.bus']._sendone(
+                            rec.engineer_id.partner_id,
+                            'simple_notification',
+                            {
+                                'title': 'Service Ticket Assigned',
+                                'message': f"Ticket {tck_title} has been assigned to you by {self.env.user.name}.",
+                                'type': 'info',
+                                'sticky': False,
+                            }
                         )
-                        if msg:
-                            msg.sudo().write({'partner_ids': [(4, rec.engineer_id.partner_id.id)]})
                     except Exception:
                         pass
+
+                    # 3. Custom CRM Notification Bus Event
                     try:
                         self.env['bus.bus']._sendone(
                             rec.engineer_id.partner_id,
@@ -429,6 +491,8 @@ class ServiceTicket(models.Model):
                         )
                     except Exception:
                         pass
+
+                    # 4. Master Notification Record
                     try:
                         self.env['crm.notification'].create_notification(
                             user=rec.engineer_id,

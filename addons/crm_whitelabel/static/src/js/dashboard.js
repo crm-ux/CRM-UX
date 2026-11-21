@@ -1173,6 +1173,8 @@ class CrmDashboard extends Component {
         this.state.viewAsUserName = u.name;
         this.state.viewAsModalOpen = false;
         this.state.isAdmin = false;
+        this._cachedViewAsPartnerId = null;
+        this._cachedViewAsUserId = null;
         try {
             sessionStorage.setItem("crm_view_as_uid", String(u.id));
             sessionStorage.setItem("crm_view_as_uname", u.name);
@@ -1183,6 +1185,7 @@ class CrmDashboard extends Component {
         await this.checkAdminStatus();
         await this.loadStats();
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
+        await this.loadNotifCount();
     }
 
     async exitViewAs() {
@@ -1190,6 +1193,8 @@ class CrmDashboard extends Component {
         this.state.viewAsUserName = "";
         this.state.selectedViewAsId = null;
         this.state.isAdmin = Boolean(user.isAdmin);
+        this._cachedViewAsPartnerId = null;
+        this._cachedViewAsUserId = null;
         try {
             sessionStorage.removeItem("crm_view_as_uid");
             sessionStorage.removeItem("crm_view_as_uname");
@@ -1200,6 +1205,7 @@ class CrmDashboard extends Component {
         await this.checkAdminStatus();
         await this.loadStats();
         await this.loadSalesTrendRange(this.state.salesRangeMonths || 6);
+        await this.loadNotifCount();
     }
 
     async openMyPreferences() {
@@ -1633,13 +1639,33 @@ class CrmDashboard extends Component {
         }, 3200);
     }
     async _getCurrentPartnerId() {
+        if (this.state.viewAsUserId) {
+            if (this._cachedViewAsPartnerId && this._cachedViewAsUserId === this.state.viewAsUserId) {
+                return this._cachedViewAsPartnerId;
+            }
+            try {
+                const uData = await rpc("/web/dataset/call_kw", {
+                    model: "res.users",
+                    method: "read",
+                    args: [[this.state.viewAsUserId], ['partner_id']],
+                    kwargs: {}
+                });
+                if (uData && uData.length && uData[0].partner_id) {
+                    this._cachedViewAsUserId = this.state.viewAsUserId;
+                    this._cachedViewAsPartnerId = uData[0].partner_id[0];
+                    return this._cachedViewAsPartnerId;
+                }
+            } catch (e) {
+                console.error("Failed to get viewAs partnerId:", e);
+            }
+        }
         if (this._cachedPartnerId) return this._cachedPartnerId;
         if (user.partnerId) {
             this._cachedPartnerId = user.partnerId;
             return this._cachedPartnerId;
         }
         try {
-            const uid = this.state.viewAsUserId || user.userId;
+            const uid = user.userId;
             const uData = await rpc("/web/dataset/call_kw", {
                 model: "res.users",
                 method: "read",

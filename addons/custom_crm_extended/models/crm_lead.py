@@ -639,18 +639,32 @@ class CrmLead(models.Model):
                             f"Contact: <b>{contact}</b> ({phone_str})<br/>"
                             f"Details: {rec.description or 'No additional details provided.'}"
                         )
+                        partner_id = assigned_user.partner_id.id
+                        # 1. Guarantee mail.message in DB
                         try:
-                            msg = rec.message_post(
-                                body=body_msg,
-                                subject=f"Lead Assigned: {rec.name}",
-                                partner_ids=[assigned_user.partner_id.id],
-                                message_type='notification',
-                                subtype_xmlid='mail.mt_comment',
-                            )
-                            if msg:
-                                msg.sudo().write({'partner_ids': [(4, assigned_user.partner_id.id)]})
+                            self.env['mail.message'].sudo().create({
+                                'model': 'crm.lead',
+                                'res_id': rec.id,
+                                'record_name': rec.name,
+                                'subject': f"Lead Assigned: {rec.name}",
+                                'body': body_msg,
+                                'message_type': 'notification',
+                                'author_id': self.env.user.partner_id.id,
+                                'partner_ids': [(6, 0, [partner_id])],
+                            })
                         except Exception:
-                            pass
+                            try:
+                                msg = rec.message_post(
+                                    body=body_msg,
+                                    subject=f"Lead Assigned: {rec.name}",
+                                    partner_ids=[partner_id],
+                                    message_type='notification',
+                                    subtype_xmlid='mail.mt_comment',
+                                )
+                                if msg:
+                                    msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                            except Exception:
+                                pass
                         try:
                             self.env['bus.bus']._sendone(
                                 assigned_user.partner_id,
@@ -837,16 +851,43 @@ class CrmLead(models.Model):
                     f"Contact: <b>{contact}</b> ({phone_str})<br/>"
                     f"Details: {rec.description or 'No additional details provided.'}"
                 )
+                partner_id = assigned_user.partner_id.id
+                # 1. Guarantee mail.message in DB
                 try:
-                    msg = rec.message_post(
-                        body=body_msg,
-                        subject=f"Lead Assigned: {rec.name}",
-                        partner_ids=[assigned_user.partner_id.id],
-                        message_type='notification',
-                        subtype_xmlid='mail.mt_comment',
+                    self.env['mail.message'].sudo().create({
+                        'model': 'crm.lead',
+                        'res_id': rec.id,
+                        'record_name': rec.name,
+                        'subject': f"Lead Assigned: {rec.name}",
+                        'body': body_msg,
+                        'message_type': 'notification',
+                        'author_id': self.env.user.partner_id.id,
+                        'partner_ids': [(6, 0, [partner_id])],
+                    })
+                except Exception:
+                    try:
+                        msg = rec.message_post(
+                            body=body_msg,
+                            subject=f"Lead Assigned: {rec.name}",
+                            partner_ids=[partner_id],
+                            message_type='notification',
+                            subtype_xmlid='mail.mt_comment',
+                        )
+                        if msg:
+                            msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                    except Exception:
+                        pass
+                try:
+                    self.env['bus.bus']._sendone(
+                        assigned_user.partner_id,
+                        'simple_notification',
+                        {
+                            'title': 'Lead Assigned',
+                            'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                            'type': 'info',
+                            'sticky': False,
+                        }
                     )
-                    if msg:
-                        msg.sudo().write({'partner_ids': [(4, assigned_user.partner_id.id)]})
                 except Exception:
                     pass
                 try:
