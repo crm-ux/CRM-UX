@@ -2768,7 +2768,7 @@ button.o_form_button_cancel::after,
 
 /* 5. Scale down notification toasts while preserving exact original UI design */
 .o_notification_manager {
-    zoom: 0.82;
-    transform: scale(0.82);
+    zoom: 0.9;
+    transform: scale(0.9);
     transform-origin: top right;
 }

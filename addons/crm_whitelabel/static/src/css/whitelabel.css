@@ -2434,8 +2434,8 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 
 /* Scale down notification toasts while preserving exact original UI design */
 .o_notification_manager {
-    zoom: 0.82;
-    transform: scale(0.82);
+    zoom: 0.9;
+    transform: scale(0.9);
     transform-origin: top right;
 }
 
