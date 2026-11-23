@@ -1003,6 +1003,10 @@ class ResUsers(models.Model):
             pass
 
     def unlink(self):
+        # Safety guard: Never allow deleting an active internal user accidentally!
+        for user in self:
+            if user.active and not user.share and not self.env.context.get('force_unlink_user'):
+                raise UserError(_("Internal user '%s' cannot be deleted directly! To remove this user from a department or job position, please use Revoke Role instead.") % (user.name or ''))
         # Safely delete linked hr.employee records first so Odoo doesn't raise restrict error
         employees = self.env['hr.employee'].sudo().search([('user_id', 'in', self.ids)])
         if employees:

@@ -214,6 +214,19 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 
 /* ===== Assigned Employees Table Action Button & Column Layout ===== */
+.assigned_employees_table th.o_list_record_remove_header,
+.assigned_employees_table td.o_list_record_remove,
+.assigned_employees_table .o_list_record_remove {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  visibility: hidden !important;
+}
+
 .assigned_employees_table th.o_list_button_cell,
 .assigned_employees_table th:last-child {
   text-align: center !important;
