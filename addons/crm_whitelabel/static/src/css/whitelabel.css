@@ -2502,12 +2502,12 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     width: 100% !important;
     min-width: 100% !important;
     display: block !important;
-    margin-top: 0.75rem !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+    margin: 0.5rem 0 0 0 !important;
+    padding: 0 !important;
 }
 
 .assigned_employees_table .o_x2m_control_panel {
+    display: none !important;
     margin: 0 !important;
     padding: 0 !important;
     min-height: 0 !important;

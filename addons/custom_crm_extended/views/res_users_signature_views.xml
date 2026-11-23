@@ -247,9 +247,6 @@
 
                     <!-- TAB 1 (Alternative for Manager Roles): Shows assigned managers with hierarchy button -->
                     <page string="Manager Profile" name="manager_profile_page" invisible="not is_manager_role">
-                        <div class="alert alert-info mb-3" role="alert">
-                            <strong>Department Head / Manager Role:</strong> Users with this role represent department leadership. You can assign multiple managers to this role and configure specific sub-departments for each.
-                        </div>
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table manager_profile_view" options="{'no_create': True}">
                             <list string="Department Managers" delete="false">
                                 <field name="id" column_invisible="1"/>
