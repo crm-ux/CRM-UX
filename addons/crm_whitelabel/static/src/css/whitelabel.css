@@ -2649,3 +2649,20 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     border-color: #cbd5e1 !important;
     background-color: #f8fafc !important;
 }
+
+/* Prevent line click from opening employee user form */
+.assigned_employees_view table.o_list_table tbody tr.o_data_row td:not(.o_list_button):not(.o_list_record_remove) {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+/* On manager table: allow sub-departments dropdown and buttons, disable opening user form on other cells */
+.manager_profile_view table.o_list_table tbody tr.o_data_row td[name="crm_department_ids"],
+.manager_profile_view table.o_list_table tbody tr.o_data_row td.o_list_button,
+.manager_profile_view table.o_list_table tbody tr.o_data_row td.o_list_record_remove {
+    pointer-events: auto !important;
+}
+
+.manager_profile_view table.o_list_table tbody tr.o_data_row td:not([name="crm_department_ids"]):not(.o_list_button):not(.o_list_record_remove) {
+    cursor: default !important;
+}
