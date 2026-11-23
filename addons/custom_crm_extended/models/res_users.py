@@ -579,12 +579,14 @@ class ResUsers(models.Model):
         wizard = self.env['crm.user.hierarchy.wizard'].create({
             'user_id': self.id,
         })
+        view = self.env.ref('custom_crm_extended.view_crm_user_hierarchy_wizard_form', raise_if_not_found=False)
         return {
             'name': f"Organization Chart - {self.name or self.login}",
             'type': 'ir.actions.act_window',
             'res_model': 'crm.user.hierarchy.wizard',
             'res_id': wizard.id,
             'view_mode': 'form',
+            'views': [(view.id if view else False, 'form')],
             'target': 'new',
             'context': {
                 'dialog_size': 'medium',
@@ -698,12 +700,14 @@ class ResUsers(models.Model):
             'perm_company': self.perm_company or 'none',
         })
 
+        view = self.env.ref('custom_crm_extended.view_crm_user_access_control_wizard_form', raise_if_not_found=False)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Access Control — %s') % (self.name or ''),
             'res_model': 'crm.user.access.control.wizard',
             'res_id': wizard.id,
             'view_mode': 'form',
+            'views': [(view.id if view else False, 'form')],
             'target': 'new',
         }
 
@@ -1675,11 +1679,43 @@ class HrJob(models.Model):
 
     def action_revoke_employee(self):
         """Action button on the row to revoke an employee from this role."""
-        user_id = self.env.context.get('revoke_user_id')
+        user_id = self.env.context.get('revoke_user_id') or self.env.context.get('active_id') or self.env.context.get('default_user_id')
         if user_id:
             user = self.env['res.users'].browse(user_id)
             if user.exists() and user.crm_job_id.id == self.id:
                 user.sudo().write({'crm_job_id': False})
+        return True
+
+    def action_open_user_permissions(self):
+        user_id = self.env.context.get('active_id') or self.env.context.get('default_user_id') or self.env.context.get('user_id')
+        if user_id:
+            user = self.env['res.users'].browse(user_id)
+            if user.exists():
+                return user.action_open_user_permissions()
+        return True
+
+    def action_view_user_hierarchy(self):
+        user_id = self.env.context.get('active_id') or self.env.context.get('default_user_id') or self.env.context.get('user_id')
+        if user_id:
+            user = self.env['res.users'].browse(user_id)
+            if user.exists():
+                return user.action_view_user_hierarchy()
+        return True
+
+    def action_revoke_role(self):
+        user_id = self.env.context.get('active_id') or self.env.context.get('default_user_id') or self.env.context.get('user_id')
+        if user_id:
+            user = self.env['res.users'].browse(user_id)
+            if user.exists():
+                return user.action_revoke_role()
+        return True
+
+    def action_reset_user_permissions(self):
+        user_id = self.env.context.get('active_id') or self.env.context.get('default_user_id') or self.env.context.get('user_id')
+        if user_id:
+            user = self.env['res.users'].browse(user_id)
+            if user.exists():
+                return user.action_reset_user_permissions()
         return True
 
     def action_cancel_to_list(self):
@@ -2775,3 +2811,77 @@ class CrmUserAccessControlWizard(models.TransientModel):
                 'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
+
+
+class CrmUserHierarchyWizard(models.TransientModel):
+    _name = 'crm.user.hierarchy.wizard'
+    _description = 'User Reporting Hierarchy Wizard'
+
+    user_id = fields.Many2one('res.users', string='Employee / User', required=True, readonly=True)
+    hierarchy_html = fields.Html(string='Reporting Hierarchy', compute='_compute_hierarchy_html', sanitize=False)
+
+    def _compute_hierarchy_html(self):
+        for rec in self:
+            u = rec.user_id
+            if not u:
+                rec.hierarchy_html = '<div class="p-3 text-muted">No user selected.</div>'
+                continue
+
+            # Build manager chain up to top
+            managers = []
+            curr = u.crm_manager_id
+            visited = {u.id}
+            while curr and curr.id not in visited:
+                managers.insert(0, curr)
+                visited.add(curr.id)
+                curr = curr.crm_manager_id
+
+            # Subordinates down
+            subordinates = u.crm_subordinate_ids.filtered(lambda s: not s.share and s.active)
+
+            html = ['<div class="d-flex flex-column align-items-center py-3" style="gap: 12px; font-family: inherit;">']
+
+            # Render managers
+            for mgr in managers:
+                mgr_job = mgr.crm_job_id.name if mgr.crm_job_id else 'Manager'
+                mgr_dept = mgr.crm_department_id.name if mgr.crm_department_id else ''
+                html.append(f'''
+                    <div class="card shadow-sm border p-2 text-center" style="width: 260px; background: #f8fafc; border-radius: 8px;">
+                        <div class="fw-bold text-secondary small text-uppercase" style="font-size: 10px;">Manager</div>
+                        <div class="fw-bold text-dark">{mgr.name or mgr.login}</div>
+                        <div class="text-muted small">{mgr_job}{(' · ' + mgr_dept) if mgr_dept else ''}</div>
+                    </div>
+                    <div style="width: 2px; height: 16px; background: #cbd5e1;"></div>
+                ''')
+
+            # Render current user (highlighted)
+            u_job = u.crm_job_id.name if u.crm_job_id else 'Job Position'
+            u_dept = u.crm_department_id.name if u.crm_department_id else ''
+            html.append(f'''
+                <div class="card shadow border-primary p-3 text-center" style="width: 280px; background: #eff6ff; border: 2px solid #3b82f6 !important; border-radius: 8px;">
+                    <div class="badge bg-primary mb-1 align-self-center px-2 py-1" style="font-size: 11px;">Current Employee</div>
+                    <div class="fw-bold text-primary fs-6">{u.name or u.login}</div>
+                    <div class="text-muted small">{u.login or ''}</div>
+                    <div class="fw-semibold text-dark small mt-1">{u_job}{(' · ' + u_dept) if u_dept else ''}</div>
+                </div>
+            ''')
+
+            # Render subordinates
+            if subordinates:
+                html.append('<div style="width: 2px; height: 16px; background: #cbd5e1;"></div>')
+                html.append(f'<div class="fw-bold text-muted small text-uppercase mt-1" style="font-size: 10px;">Direct Reports ({len(subordinates)})</div>')
+                html.append('<div class="d-flex flex-wrap justify-content-center gap-2 mt-1" style="max-width: 600px;">')
+                for sub in subordinates:
+                    sub_job = sub.crm_job_id.name if sub.crm_job_id else 'Employee'
+                    html.append(f'''
+                        <div class="card shadow-sm border p-2 text-center" style="width: 180px; background: #ffffff; border-radius: 6px;">
+                            <div class="fw-bold text-dark small text-truncate">{sub.name or sub.login}</div>
+                            <div class="text-muted" style="font-size: 11px;">{sub_job}</div>
+                        </div>
+                    ''')
+                html.append('</div>')
+            else:
+                html.append('<div class="text-muted small mt-2"><em>No direct subordinates assigned.</em></div>')
+
+            html.append('</div>')
+            rec.hierarchy_html = "".join(html)
