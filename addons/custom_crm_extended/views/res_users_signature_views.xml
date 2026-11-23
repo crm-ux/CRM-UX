@@ -203,37 +203,37 @@
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
                             <list string="Assigned Employees" editable="bottom" delete="false">
+                                <field name="id" column_invisible="1"/>
+                                <field name="custom_perm_override" column_invisible="1"/>
                                 <field name="name" string="Employee Name" readonly="1"/>
                                 <field name="login" string="Work Email" readonly="1"/>
                                 <field name="crm_department_id" string="Department" readonly="1"/>
                                 <field name="crm_manager_id" string="Reports To" readonly="1"/>
-                                <field name="custom_perm_override" column_invisible="1"/>
                                 <field name="access_status_badge_html" widget="html" string="Access Status" readonly="1"/>
                                 <button name="action_reset_user_permissions"
                                         type="object"
-                                        icon="fa-refresh text-warning"
+                                        icon="fa-refresh"
                                         title="Reset to Standard Role"
                                         string="Reset"
                                         invisible="not custom_perm_override"
-                                        class="btn btn-sm btn-link p-1 text-warning fw-bold"/>
+                                        class="btn btn-sm btn-outline-warning py-0 px-2 fw-bold"/>
                                 <button name="action_open_user_permissions"
                                         type="object"
-                                        icon="fa-sliders text-primary"
+                                        icon="fa-sliders"
                                         title="Access Control"
                                         string="Access Control"
-                                        class="btn btn-sm btn-link p-1 text-primary fw-semibold"/>
+                                        class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold"/>
                                 <button name="action_view_user_hierarchy"
                                         type="object"
-                                        icon="fa-sitemap text-primary"
+                                        icon="fa-sitemap"
                                         title="View Reporting Hierarchy"
-                                        class="btn btn-sm btn-link p-1 text-primary"/>
-                                <field name="id" column_invisible="1"/>
+                                        class="btn btn-sm btn-outline-secondary py-0 px-2"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
-                                        icon="fa-trash text-danger"
+                                        icon="fa-trash"
                                         title="Revoke Role"
                                         string="Revoke"
-                                        class="btn btn-sm btn-link p-1 text-danger fw-semibold" 
+                                        class="btn btn-sm btn-outline-danger py-0 px-2 fw-semibold" 
                                         confirm="Are you sure you want to revoke this position from this employee?"
                                         help="Remove this role from the employee."/>
                             </list>
@@ -247,38 +247,38 @@
                         </div>
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
                             <list string="Department Managers" editable="bottom" delete="false">
+                                <field name="id" column_invisible="1"/>
+                                <field name="custom_perm_override" column_invisible="1"/>
                                 <field name="name" string="Manager Name" readonly="1"/>
                                 <field name="login" string="Work Email" readonly="1"/>
                                 <field name="crm_department_id" string="Department" readonly="1"/>
                                 <field name="crm_department_ids" widget="many2many_tags" string="Managed Sub-Departments" placeholder="None (Own Dept Only)" options="{'no_create': True}"/>
                                 <field name="crm_manager_id" string="Reports To" readonly="1"/>
-                                <field name="custom_perm_override" column_invisible="1"/>
                                 <field name="access_status_badge_html" widget="html" string="Access Status" readonly="1"/>
                                 <button name="action_reset_user_permissions"
                                         type="object"
-                                        icon="fa-refresh text-warning"
+                                        icon="fa-refresh"
                                         title="Reset to Standard Role"
                                         string="Reset"
                                         invisible="not custom_perm_override"
-                                        class="btn btn-sm btn-link p-1 text-warning fw-bold"/>
+                                        class="btn btn-sm btn-outline-warning py-0 px-2 fw-bold"/>
                                 <button name="action_open_user_permissions"
                                         type="object"
-                                        icon="fa-sliders text-primary"
+                                        icon="fa-sliders"
                                         title="Access Control"
                                         string="Access Control"
-                                        class="btn btn-sm btn-link p-1 text-primary fw-semibold"/>
+                                        class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold"/>
                                 <button name="action_view_user_hierarchy"
                                         type="object"
-                                        icon="fa-sitemap text-primary"
+                                        icon="fa-sitemap"
                                         title="View Reporting Hierarchy"
-                                        class="btn btn-sm btn-link p-1 text-primary"/>
-                                <field name="id" column_invisible="1"/>
+                                        class="btn btn-sm btn-outline-secondary py-0 px-2"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
-                                        icon="fa-trash text-danger"
+                                        icon="fa-trash"
                                         title="Revoke Role"
                                         string="Revoke"
-                                        class="btn btn-sm btn-link p-1 text-danger fw-semibold" 
+                                        class="btn btn-sm btn-outline-danger py-0 px-2 fw-semibold" 
                                         confirm="Are you sure you want to revoke this position from this employee?"
                                         help="Remove this role from the manager."/>
                             </list>
