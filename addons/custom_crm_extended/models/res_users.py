@@ -32,7 +32,7 @@ class ResUsers(models.Model):
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
-    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments', compute='_compute_department_scope', store=True, readonly=False)
+    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
     crm_voucher_department_ids = fields.Many2many(
         'hr.department',
         'res_users_voucher_dept_rel',
@@ -820,13 +820,8 @@ class ResUsers(models.Model):
                 else:
                     export_grp.sudo().write({'user_ids': [(3, user.id)]})
 
-    @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids', 'crm_job_id.is_manager_role')
-    def _compute_department_scope(self):
-        for user in self:
-            depts = self.env['hr.department']
-            if user.crm_job_id and user.crm_job_id.is_manager_role and user.crm_job_id.sub_department_ids:
-                depts |= user.crm_job_id.sub_department_ids.filtered(lambda d: d.id != user.crm_department_id.id)
-            user.crm_department_ids = depts
+    # Department Scope: direct stored field per user, allowing custom managed sub-departments per manager row
+
 
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
