@@ -670,6 +670,35 @@ button.o_form_button_cancel::after,
     content: none !important;
 }
 
+/* Modals & Dialogs Discard / Cancel button: strictly restore normal text button (prevent 0 font-size) */
+.o_dialog .o_form_button_cancel,
+.modal .o_form_button_cancel,
+.modal-footer .o_form_button_cancel {
+    font-size: 0.875rem !important;
+    width: auto !important;
+    min-width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 2rem !important;
+    max-height: none !important;
+    padding: 0.35rem 0.85rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 0.35rem !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 500 !important;
+}
+
+.o_dialog .o_form_button_cancel:hover,
+.modal .o_form_button_cancel:hover,
+.modal-footer .o_form_button_cancel:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
 .o_dialog .o_form_button_save i,
 .o_dialog .o_form_button_save .fa,
 .modal .o_form_button_save i,
@@ -2104,23 +2133,39 @@ button[name="action_cancel_future_series"] i {
     opacity: 1 !important;
 }
 
-/* REMOVE the dropdown toggle arrow from the search bar so it is just a plain, simple search box! */
-.modal .o_searchview_dropdown_toggler,
-.modal button.o_dropdown_button,
+/* In Modals, hide the dropdown toggler button wrapper completely so there is no ghost oval */
+.modal .o_searchview .o_searchview_dropdown_toggler,
+.modal .o_searchview .o-dropdown--narrow,
+.modal .o_searchview button.dropdown-toggle,
+.modal .o_searchview button.o_dropdown_button,
 .modal .o_searchview i.fa-caret-down,
 .modal .o_searchview i.fa-caret-right {
     display: none !important;
     visibility: hidden !important;
     width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+    border: none !important;
 }
 
 .modal .o_searchview {
     border-radius: 6px !important;
     border: 1px solid #cbd5e1 !important;
-    padding-right: 10px !important;
     background: #ffffff !important;
+}
+
+.modal .o_searchview .o_searchview_input_container {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.modal .o_searchview .o_searchview_input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .modal .o_searchview:focus-within {
