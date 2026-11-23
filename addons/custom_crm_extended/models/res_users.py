@@ -32,7 +32,7 @@ class ResUsers(models.Model):
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
-    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments')
+    crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments', compute='_compute_department_scope', store=True, readonly=False)
     crm_voucher_department_ids = fields.Many2many(
         'hr.department',
         'res_users_voucher_dept_rel',
@@ -570,52 +570,6 @@ class ResUsers(models.Model):
             user.sudo().write({'crm_job_id': False})
         return True
 
-    access_status_badge_html = fields.Html(
-        string='Access Status',
-        compute='_compute_access_status_badge_html',
-        sanitize=False,
-    )
-
-    @api.depends('custom_perm_override')
-    def _compute_access_status_badge_html(self):
-        for user in self:
-            if user.custom_perm_override:
-                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #fff3cd !important; color: #b45309 !important; border: 1px solid #f59e0b !important; font-weight: 600; font-size: 11px;"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
-            else:
-                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #f0f4ff !important; color: #0b3d91 !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;">Standard Role</span>'
-
-    def action_reset_user_permissions(self):
-        self.ensure_one()
-        if self.crm_job_id:
-            self.sudo().write({'custom_perm_override': False})
-            self._apply_job_permissions(self.crm_job_id, force=True)
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Permissions Reset'),
-                    'message': _('Permissions for %s have been reset to role defaults.') % (self.name or ''),
-                    'type': 'success',
-                    'sticky': False,
-                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-                }
-            }
-        return False
-
-    def action_open_user_permissions(self):
-        self.ensure_one()
-        view = self.env.ref('base.view_users_form')
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('User Permissions & Profile - %s') % (self.name or ''),
-            'res_model': 'res.users',
-            'res_id': self.id,
-            'view_mode': 'form',
-            'views': [(view.id, 'form')],
-            'view_id': view.id,
-            'target': 'current',
-        }
-
     @api.model
     def check_perm_log(self, target_user_id=None):
         """Returns True if user is admin or has perm_log == 'log'."""
@@ -866,8 +820,13 @@ class ResUsers(models.Model):
                 else:
                     export_grp.sudo().write({'user_ids': [(3, user.id)]})
 
-    # Department Scope: direct stored field per user, allowing custom managed sub-departments per manager row
-
+    @api.depends('crm_department_id', 'crm_job_id', 'crm_job_id.sub_department_ids', 'crm_job_id.is_manager_role')
+    def _compute_department_scope(self):
+        for user in self:
+            depts = self.env['hr.department']
+            if user.crm_job_id and user.crm_job_id.is_manager_role and user.crm_job_id.sub_department_ids:
+                depts |= user.crm_job_id.sub_department_ids.filtered(lambda d: d.id != user.crm_department_id.id)
+            user.crm_department_ids = depts
 
     @api.depends('name', 'employee_ids')
     def _compute_employee_id(self):
@@ -1005,10 +964,6 @@ class ResUsers(models.Model):
             pass
 
     def unlink(self):
-        # Safety guard: Never allow deleting an active internal user accidentally!
-        for user in self:
-            if user.active and not user.share and not self.env.context.get('force_unlink_user'):
-                raise UserError(_("Internal user '%s' cannot be deleted directly! To remove this user from a department or job position, please use Revoke Role instead.") % (user.name or ''))
         # Safely delete linked hr.employee records first so Odoo doesn't raise restrict error
         employees = self.env['hr.employee'].sudo().search([('user_id', 'in', self.ids)])
         if employees:
@@ -1469,13 +1424,13 @@ class HrJob(models.Model):
             # Users added
             added_users = new_users - current_users
             for u in added_users:
-                vals_to_write = {'crm_job_id': job.id, 'custom_perm_override': False}
+                vals_to_write = {'crm_job_id': job.id}
                 if job.department_id:
                     vals_to_write['crm_department_id'] = job.department_id.id
                 if job.default_manager_id:
                     vals_to_write['crm_manager_id'] = job.default_manager_id.id
                 u.sudo().write(vals_to_write)
-                u._apply_job_permissions(job, force=True)
+                u._apply_job_permissions(job)
 
             # Users removed
             removed_users = current_users - new_users

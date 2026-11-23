@@ -103,7 +103,7 @@
                         </a>
                         <ul class="crm-submenu-list">
                             <li><a class="crm-sub-link" href="/web#action=base.action_res_groups" t-on-click="openRolesAndGroups"><i class="fa fa-shield"></i> Roles &amp; Permissions</a></li>
-                            <li><a class="crm-sub-link" href="/app/settings/users"><i class="fa fa-user-circle"></i> Users</a></li>
+                            <li><a class="crm-sub-link" href="/web#action=base.action_res_users" t-on-click="openUsers"><i class="fa fa-user-circle"></i> Users</a></li>
                             <li><a class="crm-sub-link" href="/web#action=hr.open_module_tree_department" t-on-click="openDepartments"><i class="fa fa-building"></i> Departments</a></li>
                             <li><a class="crm-sub-link" href="/web#action=hr.hr_employee_category_action" t-on-click="openEmployeeTags"><i class="fa fa-tags"></i> Employee Tags</a></li>
                         </ul>

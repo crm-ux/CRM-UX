@@ -1003,7 +1003,10 @@ class CrmDashboard extends Component {
         }
         this.go({ type: "ir.actions.act_window", name: "Products", res_model: "product.template", views: [[false, "list"], [false, "form"]] });
     }
-    openUsers() { this.go({ type: "ir.actions.act_window", name: "Users", res_model: "res.users", views: [[false, "list"], [false, "form"]], domain: [["share", "=", false]] }); }
+    openUsers(ev) {
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+        this.actionService.doAction("base.action_res_users");
+    }
     openWon() {
         if (!this.state.isAdmin && !this.state.canViewLeadQuote) {
             this.showAccessDenied("Quotations & Deals");
@@ -2220,10 +2223,10 @@ class CrmDashboard extends Component {
     }
 
     get totalComplaints() {
-        return (this.state.complaintBreakdown || 0) + 
-               (this.state.complaintPm || 0) + 
-               (this.state.complaintFreeCall || 0) + 
-               (this.state.complaintInstallation || 0);
+        return (this.state.complaintBreakdown || 0) +
+            (this.state.complaintPm || 0) +
+            (this.state.complaintFreeCall || 0) +
+            (this.state.complaintInstallation || 0);
     }
 
     get complaintBreakdownPct() {
