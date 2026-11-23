@@ -565,10 +565,120 @@ class ResUsers(models.Model):
         }
 
     def action_revoke_role(self):
-        """Unassigns this role from the user."""
+        """Safely unassigns this role from the user without deleting the employee/user."""
         for user in self:
             user.sudo().write({'crm_job_id': False})
-        return True
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Position Revoked'),
+                'message': _('Role position has been revoked from %s. The employee record was not deleted.') % (self.name or ''),
+                'type': 'warning',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }
+
+    access_status_badge_html = fields.Html(
+        string='Access Status',
+        compute='_compute_access_status_badge_html',
+        sanitize=False,
+    )
+
+    @api.depends('custom_perm_override')
+    def _compute_access_status_badge_html(self):
+        for user in self:
+            if user.custom_perm_override:
+                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #fff3cd !important; color: #b45309 !important; border: 1px solid #f59e0b !important; font-weight: 600; font-size: 11px;"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
+            else:
+                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #f0f4ff !important; color: #0b3d91 !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;">Standard Role</span>'
+
+    def action_reset_user_permissions(self):
+        self.ensure_one()
+        if self.crm_job_id:
+            self.sudo().write({'custom_perm_override': False})
+            self._apply_job_permissions(self.crm_job_id, force=True)
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Permissions Reset'),
+                    'message': _('Permissions for %s have been reset to role defaults.') % (self.name or ''),
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
+            }
+        return False
+
+    def action_open_user_permissions(self):
+        self.ensure_one()
+        # Compute "All" checkboxes based on user's current permissions
+        cust_all = bool(self.perm_customer_create and self.perm_customer_write and self.perm_customer_read and self.perm_customer_unlink)
+        equip_all = bool(self.perm_equipment_create and self.perm_equipment_write and self.perm_equipment_read and self.perm_equipment_unlink)
+        ticket_all = bool(self.perm_ticket_create and self.perm_ticket_write and self.perm_ticket_read and self.perm_ticket_unlink)
+        amc_all = bool(self.perm_amc_create and self.perm_amc_write and self.perm_amc_read and self.perm_amc_unlink)
+        prod_all = bool(self.perm_product_create and self.perm_product_write and self.perm_product_read and self.perm_product_unlink)
+        exhib_all = bool(self.perm_exhibition_create and self.perm_exhibition_write and self.perm_exhibition_read and self.perm_exhibition_unlink)
+        lead_all = bool(self.perm_lead_create and self.perm_lead_write and self.perm_lead_read and self.perm_lead_unlink)
+        master_all = bool(cust_all and equip_all and ticket_all and amc_all and prod_all and exhib_all and lead_all)
+
+        wizard = self.env['crm.user.access.control.wizard'].create({
+            'user_id': self.id,
+            'perm_lead_quote': self.perm_lead_quote or 'own',
+            'perm_equipment': self.perm_equipment or 'own',
+            'perm_service_ticket': self.perm_service_ticket or 'own',
+            'perm_amc': self.perm_amc or 'own',
+            'perm_master_select_all': master_all,
+            'perm_customer_all': cust_all,
+            'perm_customer_create': self.perm_customer_create,
+            'perm_customer_write': self.perm_customer_write,
+            'perm_customer_read': self.perm_customer_read,
+            'perm_customer_unlink': self.perm_customer_unlink,
+            'perm_equipment_all': equip_all,
+            'perm_equipment_create': self.perm_equipment_create,
+            'perm_equipment_write': self.perm_equipment_write,
+            'perm_equipment_read': self.perm_equipment_read,
+            'perm_equipment_unlink': self.perm_equipment_unlink,
+            'perm_ticket_all': ticket_all,
+            'perm_ticket_create': self.perm_ticket_create,
+            'perm_ticket_write': self.perm_ticket_write,
+            'perm_ticket_read': self.perm_ticket_read,
+            'perm_ticket_unlink': self.perm_ticket_unlink,
+            'perm_amc_all': amc_all,
+            'perm_amc_create': self.perm_amc_create,
+            'perm_amc_write': self.perm_amc_write,
+            'perm_amc_read': self.perm_amc_read,
+            'perm_amc_unlink': self.perm_amc_unlink,
+            'perm_product_all': prod_all,
+            'perm_product_create': self.perm_product_create,
+            'perm_product_write': self.perm_product_write,
+            'perm_product_read': self.perm_product_read,
+            'perm_product_unlink': self.perm_product_unlink,
+            'perm_exhibition_all': exhib_all,
+            'perm_exhibition_create': self.perm_exhibition_create,
+            'perm_exhibition_write': self.perm_exhibition_write,
+            'perm_exhibition_read': self.perm_exhibition_read,
+            'perm_exhibition_unlink': self.perm_exhibition_unlink,
+            'perm_lead_all': lead_all,
+            'perm_lead_create': self.perm_lead_create,
+            'perm_lead_write': self.perm_lead_write,
+            'perm_lead_read': self.perm_lead_read,
+            'perm_lead_unlink': self.perm_lead_unlink,
+            'perm_export': self.perm_export or 'none',
+            'perm_log': self.perm_log or 'none',
+            'perm_company': self.perm_company or 'none',
+        })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Access Control — %s') % (self.name or ''),
+            'res_model': 'crm.user.access.control.wizard',
+            'res_id': wizard.id,
+            'view_mode': 'form',
+            'target': 'new',
+        }
 
     @api.model
     def check_perm_log(self, target_user_id=None):
@@ -964,6 +1074,10 @@ class ResUsers(models.Model):
             pass
 
     def unlink(self):
+        # Safety guard: Never allow deleting an active internal user accidentally!
+        for user in self:
+            if user.active and not user.share and not self.env.context.get('force_unlink_user'):
+                raise UserError(_("Internal user '%s' cannot be deleted! To remove this user from a department or job position, please use Revoke instead.") % (user.name or ''))
         # Safely delete linked hr.employee records first so Odoo doesn't raise restrict error
         employees = self.env['hr.employee'].sudo().search([('user_id', 'in', self.ids)])
         if employees:
@@ -2315,3 +2429,229 @@ class HrDepartment(models.Model):
         """Display_name override to prevent long slash-separated paths."""
         for dept in self:
             dept.display_name = dept.name or ''
+
+
+class CrmUserAccessControlWizard(models.TransientModel):
+    _name = 'crm.user.access.control.wizard'
+    _description = 'User Custom Access Control'
+
+    user_id = fields.Many2one('res.users', string='Employee / User', required=True, readonly=True)
+    user_name = fields.Char(related='user_id.name', readonly=True)
+    user_login = fields.Char(related='user_id.login', readonly=True)
+    crm_job_id = fields.Many2one(related='user_id.crm_job_id', readonly=True, string='Job Position / Role')
+
+    # Record Access & Visibility
+    perm_lead_quote = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
+    ], string='Lead & Quotation', default='own')
+
+    perm_equipment = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
+    ], string='Equipment Master', default='own')
+
+    perm_service_ticket = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
+    ], string='Service Ticket', default='own')
+
+    perm_amc = fields.Selection([
+        ('none', 'No'),
+        ('own', 'User: Own Documents Only'),
+        ('subordinates', 'Manager: Assigned Team Only'),
+        ('department', 'Department: All Department & Sub-Dept Records'),
+        ('all', 'All: All Company Records'),
+    ], string='AMC Contract', default='own')
+
+    # Master Data Operations
+    perm_master_select_all = fields.Boolean(string='Select All Masters', default=False)
+
+    perm_customer_all = fields.Boolean(string='Customer Master (All)', default=False)
+    perm_customer_create = fields.Boolean(string='Create Customer', default=False)
+    perm_customer_write = fields.Boolean(string='Update Customer', default=False)
+    perm_customer_read = fields.Boolean(string='View Customer', default=False)
+    perm_customer_unlink = fields.Boolean(string='Delete Customer', default=False)
+
+    perm_equipment_all = fields.Boolean(string='Equipment Master (All)', default=False)
+    perm_equipment_create = fields.Boolean(string='Create Equipment', default=False)
+    perm_equipment_write = fields.Boolean(string='Update Equipment', default=False)
+    perm_equipment_read = fields.Boolean(string='View Equipment', default=False)
+    perm_equipment_unlink = fields.Boolean(string='Delete Equipment', default=False)
+
+    perm_ticket_all = fields.Boolean(string='Service Ticket (All)', default=False)
+    perm_ticket_create = fields.Boolean(string='Create Ticket', default=False)
+    perm_ticket_write = fields.Boolean(string='Update Ticket', default=False)
+    perm_ticket_read = fields.Boolean(string='View Ticket', default=False)
+    perm_ticket_unlink = fields.Boolean(string='Delete Ticket', default=False)
+
+    perm_amc_all = fields.Boolean(string='AMC Contract (All)', default=False)
+    perm_amc_create = fields.Boolean(string='Create AMC', default=False)
+    perm_amc_write = fields.Boolean(string='Update AMC', default=False)
+    perm_amc_read = fields.Boolean(string='View AMC', default=False)
+    perm_amc_unlink = fields.Boolean(string='Delete AMC', default=False)
+
+    perm_product_all = fields.Boolean(string='Product (All)', default=False)
+    perm_product_create = fields.Boolean(string='Create Product', default=False)
+    perm_product_write = fields.Boolean(string='Update Product', default=False)
+    perm_product_read = fields.Boolean(string='View Product', default=False)
+    perm_product_unlink = fields.Boolean(string='Delete Product', default=False)
+
+    perm_exhibition_all = fields.Boolean(string='Exhibition Database (All)', default=False)
+    perm_exhibition_create = fields.Boolean(string='Create Exhibition Contact', default=False)
+    perm_exhibition_write = fields.Boolean(string='Update Exhibition Contact', default=False)
+    perm_exhibition_read = fields.Boolean(string='View Exhibition Contact', default=False)
+    perm_exhibition_unlink = fields.Boolean(string='Delete Exhibition Contact', default=False)
+
+    perm_lead_all = fields.Boolean(string='Lead & Quotation (All)', default=False)
+    perm_lead_create = fields.Boolean(string='Create Lead & Quote', default=False)
+    perm_lead_write = fields.Boolean(string='Update Lead & Quote', default=False)
+    perm_lead_read = fields.Boolean(string='View Lead & Quote', default=False)
+    perm_lead_unlink = fields.Boolean(string='Delete Lead & Quote', default=False)
+
+    # System Actions & Export
+    perm_export = fields.Selection([('none', 'No'), ('export', 'Yes')], string='Excel Export', default='none')
+    perm_log = fields.Selection([('none', 'No'), ('log', 'Yes')], string='Log View', default='none')
+    perm_company = fields.Selection([('none', 'No'), ('create', 'Yes')], string='Company Creation', default='none')
+
+    @api.onchange('perm_master_select_all')
+    def _onchange_perm_master_select_all(self):
+        v = self.perm_master_select_all
+        for prefix in ['customer', 'equipment', 'ticket', 'amc', 'product', 'exhibition', 'lead']:
+            setattr(self, f'perm_{prefix}_all', v)
+            setattr(self, f'perm_{prefix}_create', v)
+            setattr(self, f'perm_{prefix}_write', v)
+            setattr(self, f'perm_{prefix}_read', v)
+            setattr(self, f'perm_{prefix}_unlink', v)
+
+    @api.onchange('perm_customer_all')
+    def _onchange_perm_customer_all(self):
+        v = self.perm_customer_all
+        self.perm_customer_create = v
+        self.perm_customer_write = v
+        self.perm_customer_read = v
+        self.perm_customer_unlink = v
+
+    @api.onchange('perm_equipment_all')
+    def _onchange_perm_equipment_all(self):
+        v = self.perm_equipment_all
+        self.perm_equipment_create = v
+        self.perm_equipment_write = v
+        self.perm_equipment_read = v
+        self.perm_equipment_unlink = v
+
+    @api.onchange('perm_ticket_all')
+    def _onchange_perm_ticket_all(self):
+        v = self.perm_ticket_all
+        self.perm_ticket_create = v
+        self.perm_ticket_write = v
+        self.perm_ticket_read = v
+        self.perm_ticket_unlink = v
+
+    @api.onchange('perm_amc_all')
+    def _onchange_perm_amc_all(self):
+        v = self.perm_amc_all
+        self.perm_amc_create = v
+        self.perm_amc_write = v
+        self.perm_amc_read = v
+        self.perm_amc_unlink = v
+
+    @api.onchange('perm_product_all')
+    def _onchange_perm_product_all(self):
+        v = self.perm_product_all
+        self.perm_product_create = v
+        self.perm_product_write = v
+        self.perm_product_read = v
+        self.perm_product_unlink = v
+
+    @api.onchange('perm_exhibition_all')
+    def _onchange_perm_exhibition_all(self):
+        v = self.perm_exhibition_all
+        self.perm_exhibition_create = v
+        self.perm_exhibition_write = v
+        self.perm_exhibition_read = v
+        self.perm_exhibition_unlink = v
+
+    @api.onchange('perm_lead_all')
+    def _onchange_perm_lead_all(self):
+        v = self.perm_lead_all
+        self.perm_lead_create = v
+        self.perm_lead_write = v
+        self.perm_lead_read = v
+        self.perm_lead_unlink = v
+
+    def action_save_and_apply(self):
+        self.ensure_one()
+        user = self.user_id
+        vals = {
+            'perm_lead_quote': self.perm_lead_quote,
+            'perm_equipment': self.perm_equipment,
+            'perm_service_ticket': self.perm_service_ticket,
+            'perm_amc': self.perm_amc,
+            'perm_customer_create': self.perm_customer_create,
+            'perm_customer_write': self.perm_customer_write,
+            'perm_customer_read': self.perm_customer_read,
+            'perm_customer_unlink': self.perm_customer_unlink,
+            'perm_equipment_create': self.perm_equipment_create,
+            'perm_equipment_write': self.perm_equipment_write,
+            'perm_equipment_read': self.perm_equipment_read,
+            'perm_equipment_unlink': self.perm_equipment_unlink,
+            'perm_ticket_create': self.perm_ticket_create,
+            'perm_ticket_write': self.perm_ticket_write,
+            'perm_ticket_read': self.perm_ticket_read,
+            'perm_ticket_unlink': self.perm_ticket_unlink,
+            'perm_amc_create': self.perm_amc_create,
+            'perm_amc_write': self.perm_amc_write,
+            'perm_amc_read': self.perm_amc_read,
+            'perm_amc_unlink': self.perm_amc_unlink,
+            'perm_product_create': self.perm_product_create,
+            'perm_product_write': self.perm_product_write,
+            'perm_product_read': self.perm_product_read,
+            'perm_product_unlink': self.perm_product_unlink,
+            'perm_exhibition_create': self.perm_exhibition_create,
+            'perm_exhibition_write': self.perm_exhibition_write,
+            'perm_exhibition_read': self.perm_exhibition_read,
+            'perm_exhibition_unlink': self.perm_exhibition_unlink,
+            'perm_lead_create': self.perm_lead_create,
+            'perm_lead_write': self.perm_lead_write,
+            'perm_lead_read': self.perm_lead_read,
+            'perm_lead_unlink': self.perm_lead_unlink,
+            'perm_export': self.perm_export,
+            'perm_log': self.perm_log,
+            'perm_company': self.perm_company,
+            'custom_perm_override': True,
+        }
+        user.sudo().with_context(skip_sync=True).write(vals)
+
+        # Sales and Export groups sync
+        sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
+        if sales_grp:
+            if self.perm_lead_quote in ('own', 'subordinates', 'department', 'all', 'admin'):
+                sales_grp.sudo().write({'user_ids': [(4, user.id)]})
+        export_grp = self.env.ref('base.group_allow_export', raise_if_not_found=False)
+        if export_grp:
+            if self.perm_export == 'export':
+                export_grp.sudo().write({'user_ids': [(4, user.id)]})
+            else:
+                export_grp.sudo().write({'user_ids': [(3, user.id)]})
+
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Custom Access Saved'),
+                'message': _('Custom permissions for %s saved and applied successfully.') % (user.name or ''),
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+            }
+        }

@@ -198,23 +198,39 @@
                     <!-- TAB 1: Assigned Employees (Subordinate Team) -->
                     <page string="Assigned Employees" name="assigned_employees_page" invisible="is_manager_role">
                         <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
-                            <list string="Assigned Employees">
+                            <list string="Assigned Employees" delete="false">
                                 <field name="name" string="Employee Name"/>
                                 <field name="login" string="Work Email"/>
                                 <field name="crm_department_id" string="Department"/>
                                 <field name="crm_manager_id" string="Reports To"/>
+                                <field name="custom_perm_override" column_invisible="1"/>
+                                <field name="access_status_badge_html" widget="html" string="Access Status" readonly="1"/>
+                                <button name="action_reset_user_permissions"
+                                        type="object"
+                                        icon="fa-refresh text-warning"
+                                        title="Reset to Standard Role"
+                                        string="Reset"
+                                        invisible="not custom_perm_override"
+                                        class="btn p-1 text-warning fw-bold"/>
+                                <button name="action_open_user_permissions"
+                                        type="object"
+                                        icon="fa-sliders text-crm-blue"
+                                        title="Access Control"
+                                        string="Access Control"
+                                        class="btn p-1 text-crm-blue fw-semibold"/>
                                 <button name="action_view_user_hierarchy"
                                         type="object"
-                                        icon="fa-sitemap"
+                                        icon="fa-sitemap text-primary"
                                         title="View Reporting Hierarchy"
-                                        class="btn btn-sm btn-outline-primary"/>
-                                <field name="id" column_invisible="True"/>
+                                        class="btn p-1 text-primary"/>
+                                <field name="id" column_invisible="1"/>
                                 <button name="action_revoke_role" 
                                         type="object" 
-                                        string="Revoke" 
-                                        class="btn btn-sm btn-danger" 
+                                        icon="fa-trash text-danger"
                                         title="Revoke Role"
-                                        confirm="Are you sure you want to revoke this job position from this employee?"
+                                        string="Revoke"
+                                        class="btn p-1 text-danger fw-semibold" 
+                                        confirm="Are you sure you want to revoke this position from this employee?"
                                         help="Remove this role from the employee."/>
                             </list>
                         </field>
@@ -223,19 +239,44 @@
                     <!-- TAB 1 (Alternative for Manager Roles): Shows assigned managers with hierarchy button -->
                     <page string="Manager Profile" name="manager_profile_page" invisible="not is_manager_role">
                         <div class="alert alert-info mb-3" role="alert">
-                            <strong>Department Head / Manager Role:</strong> Users with this role represent department leadership. Subordinate employees are assigned to staff roles (e.g. Executives / Engineers) and will automatically report to this position.
+                            <strong>Department Head / Manager Role:</strong> Users with this role represent department leadership. You can assign multiple managers to this role and configure specific sub-departments for each.
                         </div>
-                        <field name="assigned_employee_ids" nolabel="1" readonly="1" options="{'no_create': True, 'no_open': False}">
-                            <list string="Department Managers" create="false" delete="false">
+                        <field name="assigned_employee_ids" nolabel="1" class="assigned_employees_table" options="{'no_create': True}">
+                            <list string="Department Managers" delete="false">
                                 <field name="name" string="Manager Name"/>
                                 <field name="login" string="Work Email"/>
                                 <field name="crm_department_id" string="Department"/>
+                                <field name="crm_department_ids" widget="many2many_tags" string="Managed Sub-Departments" placeholder="None (Own Dept Only)" options="{'no_create': True}"/>
                                 <field name="crm_manager_id" string="Reports To"/>
+                                <field name="custom_perm_override" column_invisible="1"/>
+                                <field name="access_status_badge_html" widget="html" string="Access Status" readonly="1"/>
+                                <button name="action_reset_user_permissions"
+                                        type="object"
+                                        icon="fa-refresh text-warning"
+                                        title="Reset to Standard Role"
+                                        string="Reset"
+                                        invisible="not custom_perm_override"
+                                        class="btn p-1 text-warning fw-bold"/>
+                                <button name="action_open_user_permissions"
+                                        type="object"
+                                        icon="fa-sliders text-crm-blue"
+                                        title="Access Control"
+                                        string="Access Control"
+                                        class="btn p-1 text-crm-blue fw-semibold"/>
                                 <button name="action_view_user_hierarchy"
                                         type="object"
-                                        icon="fa-sitemap"
+                                        icon="fa-sitemap text-primary"
                                         title="View Reporting Hierarchy"
-                                        class="btn btn-sm btn-outline-primary"/>
+                                        class="btn p-1 text-primary"/>
+                                <field name="id" column_invisible="1"/>
+                                <button name="action_revoke_role" 
+                                        type="object" 
+                                        icon="fa-trash text-danger"
+                                        title="Revoke Role"
+                                        string="Revoke"
+                                        class="btn p-1 text-danger fw-semibold" 
+                                        confirm="Are you sure you want to revoke this position from this employee?"
+                                        help="Remove this role from the manager."/>
                             </list>
                         </field>
                     </page>
@@ -401,6 +442,130 @@
                 </sheet>
                 <footer>
                     <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Clean User Custom Access Control Wizard Form View -->
+    <record id="view_crm_user_access_control_wizard_form" model="ir.ui.view">
+        <field name="name">crm.user.access.control.wizard.form</field>
+        <field name="model">crm.user.access.control.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Custom Access Control">
+                <sheet>
+                    <div class="alert alert-info d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
+                        <div>
+                            <i class="fa fa-user me-2 text-primary"/>
+                            <strong>Employee: </strong> <field name="user_name" class="fw-bold me-3"/>
+                            <i class="fa fa-envelope me-1 text-muted"/>
+                            <field name="user_login" class="text-muted me-3"/>
+                            <i class="fa fa-briefcase me-1 text-muted"/>
+                            <strong>Role: </strong> <field name="crm_job_id" class="fw-semibold"/>
+                        </div>
+                    </div>
+                    <field name="user_id" invisible="1"/>
+
+                    <!-- SECTION 1: Record Access & Visibility -->
+                    <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                        Record Access &amp; Visibility Filters
+                    </div>
+                    <group class="custom_radio_clean">
+                        <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
+                        <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
+                        <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
+                        <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+
+                    <!-- SECTION 2: Master Data Operations -->
+                    <div class="d-flex align-items-center justify-content-between mt-4 mb-3 pb-1 border-bottom">
+                        <div class="text-uppercase fw-bold text-primary" style="font-size: 13px; letter-spacing: 0.5px;">
+                            Master Data Operations
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <field name="perm_master_select_all" nolabel="1" class="me-1"/>
+                            <span class="fw-bold text-dark small">Select All Masters</span>
+                        </div>
+                    </div>
+
+                    <group class="custom_radio_clean">
+                        <label for="perm_customer_create" string="Customer Master"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_customer_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_customer_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_equipment_create" string="Equipment Master"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_equipment_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_equipment_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_ticket_create" string="Service Ticket"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_ticket_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_ticket_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_ticket_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_ticket_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_ticket_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_amc_create" string="AMC Contract"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_amc_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_amc_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_amc_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_amc_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_amc_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_product_create" string="Product"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_product_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_product_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_product_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_product_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_product_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_exhibition_create" string="Exhibition Database"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_exhibition_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_exhibition_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_exhibition_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_exhibition_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_exhibition_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+
+                        <label for="perm_lead_create" string="Lead &amp; Quotation"/>
+                        <div class="perm-checkbox-group">
+                            <span class="perm-checkbox-item fw-bold text-primary pe-2 border-end"><field name="perm_lead_all" nolabel="1"/> <span>All</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_lead_create" nolabel="1"/> <span>Create</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_lead_write" nolabel="1"/> <span>Update</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_lead_read" nolabel="1"/> <span>View</span></span>
+                            <span class="perm-checkbox-item"><field name="perm_lead_unlink" nolabel="1"/> <span>Delete</span></span>
+                        </div>
+                    </group>
+
+                    <!-- SECTION 3: System Actions -->
+                    <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                        System Actions &amp; Export
+                    </div>
+                    <group class="custom_radio_clean">
+                        <field name="perm_export" widget="radio" options="{'horizontal': true}"/>
+                        <field name="perm_log" widget="radio" options="{'horizontal': true}"/>
+                        <field name="perm_company" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_save_and_apply" string="Save &amp; Apply Custom Access" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
