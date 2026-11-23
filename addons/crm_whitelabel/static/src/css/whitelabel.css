@@ -2537,15 +2537,19 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 .assigned_employees_view table.o_list_table th[data-name="name"] {
     width: 22% !important;
 }
+
 .assigned_employees_view table.o_list_table th[data-name="login"] {
     width: 22% !important;
 }
+
 .assigned_employees_view table.o_list_table th[data-name="crm_department_id"] {
     width: 16% !important;
 }
+
 .assigned_employees_view table.o_list_table th[data-name="crm_manager_id"] {
     width: 16% !important;
 }
+
 .assigned_employees_view table.o_list_table th[data-name="access_status_badge_html"] {
     width: 14% !important;
 }
@@ -2554,18 +2558,23 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 .manager_profile_view table.o_list_table th[data-name="name"] {
     width: 18% !important;
 }
+
 .manager_profile_view table.o_list_table th[data-name="login"] {
     width: 17% !important;
 }
+
 .manager_profile_view table.o_list_table th[data-name="crm_department_id"] {
     width: 13% !important;
 }
+
 .manager_profile_view table.o_list_table th[data-name="crm_department_ids"] {
     width: 15% !important;
 }
+
 .manager_profile_view table.o_list_table th[data-name="crm_manager_id"] {
     width: 13% !important;
 }
+
 .manager_profile_view table.o_list_table th[data-name="access_status_badge_html"] {
     width: 12% !important;
 }
@@ -2665,4 +2674,28 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 
 .manager_profile_view table.o_list_table tbody tr.o_data_row td:not([name="crm_department_ids"]):not(.o_list_button):not(.o_list_record_remove) {
     cursor: default !important;
+}
+
+/* Department Head row: Distinct highlight & prevent removal */
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) td {
+    background-color: #f0f7ff !important;
+}
+
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove button,
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+/* Department Head row: Distinct highlight & prevent removal */
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) td {
+    background-color: #f0f7ff !important;
+}
+
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove button,
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
 }

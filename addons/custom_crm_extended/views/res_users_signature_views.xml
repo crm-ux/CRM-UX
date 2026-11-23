@@ -251,7 +251,8 @@
                             <list string="Department Managers" delete="false" editable="bottom" open_form_view="False">
                                 <field name="id" column_invisible="1"/>
                                 <field name="custom_perm_override" column_invisible="1"/>
-                                <field name="name" string="Manager Name" readonly="1"/>
+                                <field name="is_head_of_department" column_invisible="1"/>
+                                <field name="manager_display_html" widget="html" string="Manager Name" readonly="1"/>
                                 <field name="login" string="Work Email" readonly="1"/>
                                 <field name="crm_department_id" string="Department" readonly="1"/>
                                 <field name="crm_department_ids" widget="many2many_tags" string="Managed Sub-Departments" placeholder="None (Own Dept Only)" options="{'no_create': True}"/>
@@ -285,6 +286,7 @@
                                         title="Revoke Role"
                                         aria-label="Revoke Role"
                                         context="{'active_id': id, 'default_user_id': id, 'user_id': id}"
+                                        invisible="is_head_of_department"
                                         class="btn btn-sm btn-outline-danger p-1" 
                                         confirm="Are you sure you want to revoke this position from this employee?"
                                         help="Remove this role from the manager."/>

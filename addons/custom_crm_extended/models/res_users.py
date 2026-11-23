@@ -32,6 +32,8 @@ class ResUsers(models.Model):
             user.crm_expense_manager_id = approver if (approver and approver.id != user.id) else False
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
     is_department_head = fields.Boolean(string='Is Department Head', compute='_compute_is_department_head')
+    is_head_of_department = fields.Boolean(string='Is Head of Department', compute='_compute_is_head_of_department')
+    manager_display_html = fields.Html(string='Manager Name', compute='_compute_manager_display_html', sanitize=False)
 
     def _compute_is_department_head(self):
         for user in self:
@@ -41,6 +43,24 @@ class ResUsers(models.Model):
             user.is_department_head = bool(self.env['hr.department'].sudo().search([
                 ('manager_user_id', '=', user.id)
             ], limit=1))
+
+    @api.depends('crm_department_id', 'crm_department_id.manager_user_id')
+    def _compute_is_head_of_department(self):
+        for user in self:
+            if user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id:
+                user.is_head_of_department = True
+            else:
+                user.is_head_of_department = False
+
+    @api.depends('name', 'login', 'crm_department_id', 'crm_department_id.manager_user_id')
+    def _compute_manager_display_html(self):
+        for user in self:
+            name_str = user.name or user.login or ''
+            is_head = bool(user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id)
+            if is_head:
+                user.manager_display_html = f'''<div class="d-inline-flex align-items-center"><span class="fw-bold text-dark">{name_str}</span><span class="badge px-2 py-1 ms-2 badge-dept-head" style="font-size: 10px; font-weight: 700; background-color: #0b3d91 !important; color: #ffffff !important; border-radius: 4px;"><i class="fa fa-star text-warning me-1"></i>Head</span></div>'''
+            else:
+                user.manager_display_html = f'''<span class="text-dark">{name_str}</span>'''
 
     @api.constrains('crm_manager_id')
     def _check_crm_manager_recursion(self):
@@ -596,6 +616,12 @@ class ResUsers(models.Model):
     def action_revoke_role(self):
         """Safely unassigns this role from the user without deleting the employee/user."""
         for user in self:
+            if user.is_head_of_department or (user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id):
+                raise UserError(_(
+                    "Cannot revoke %(name)s's role.\n\n"
+                    "%(name)s is the appointed Department Head of '%(dept)s'. "
+                    "Department Head roles cannot be revoked from here; they must be managed directly from the Department Master."
+                ) % {'name': user.name or user.login, 'dept': user.crm_department_id.name if user.crm_department_id else ''})
             user.sudo().write({'crm_job_id': False})
         return {
             'type': 'ir.actions.client',
@@ -615,10 +641,13 @@ class ResUsers(models.Model):
         sanitize=False,
     )
 
-    @api.depends('custom_perm_override')
+    @api.depends('custom_perm_override', 'crm_department_id', 'crm_department_id.manager_user_id')
     def _compute_access_status_badge_html(self):
         for user in self:
-            if user.custom_perm_override:
+            is_head = bool(user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id)
+            if is_head:
+                user.access_status_badge_html = '<span class="badge px-2 py-1 badge-dept-head" style="background-color: #0b3d91 !important; color: #ffffff !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;"><i class="fa fa-star text-warning me-1"></i>Department Head</span>'
+            elif user.custom_perm_override:
                 user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #fff3cd !important; color: #b45309 !important; border: 1px solid #f59e0b !important; font-weight: 600; font-size: 11px;"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
             else:
                 user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #f0f4ff !important; color: #0b3d91 !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;">Standard Role</span>'
@@ -1673,8 +1702,12 @@ class HrJob(models.Model):
             # Users removed
             removed_users = current_users - new_users
             for u in removed_users:
-                if not job.is_manager_role and job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id.id == u.id:
-                    continue  # do not touch manager
+                if (job.department_id and (job.department_id.manager_user_id.id == u.id or (job.department_id.manager_id and job.department_id.manager_id.user_id.id == u.id))) or u.is_head_of_department:
+                    raise UserError(_(
+                        "Cannot remove %(name)s from this position.\n\n"
+                        "%(name)s is the appointed Department Head of '%(dept)s'. "
+                        "Department Head assignments must be managed directly from the Department Master."
+                    ) % {'name': u.name or u.login, 'dept': job.department_id.name if job.department_id else ''})
                 u.with_context(skip_head_check=True).sudo().write({'crm_job_id': False})
 
     def action_revoke_employee(self):
