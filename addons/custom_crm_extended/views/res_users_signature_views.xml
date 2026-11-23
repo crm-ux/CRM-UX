@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Guarantee Full User Form View is Always Default Over Simple Profile -->
+    <record id="base.view_users_form" model="ir.ui.view">
+        <field name="priority">1</field>
+    </record>
+    <record id="base.view_users_form_simple_modif" model="ir.ui.view">
+        <field name="priority">99</field>
+    </record>
+
+    <!-- Explicitly Bind Full User Form to Base Users Action -->
+    <record id="base.action_res_users" model="ir.actions.act_window">
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'tree', 'view_id': ref('base.view_users_tree')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('base.view_users_form')})
+        ]"/>
+    </record>
+
     <!-- User Form View Extension -->
     <record id="view_users_form_signature_card" model="ir.ui.view">
         <field name="name">res.users.form.signature.card</field>
