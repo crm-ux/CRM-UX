@@ -1624,13 +1624,26 @@ class HrJob(models.Model):
         help='Specific sub-departments that this role is allowed to manage.'
     )
 
-    # 3. Manager Role Toggle
+    # 3. Manager Role Toggle & Display
     is_manager_role = fields.Boolean(
         string='Is Department Head / Manager',
         default=False,
-        groups='base.group_erp_manager',
         help='Check if this role represents the head or manager of the department. If checked, this role reports to the parent department manager instead of this department itself.'
     )
+
+    is_manager_str = fields.Selection([
+        ('yes', 'Yes'),
+        ('no', 'No'),
+    ], string='Is Manager?', compute='_compute_is_manager_str', inverse='_inverse_is_manager_str', store=True)
+
+    @api.depends('is_manager_role')
+    def _compute_is_manager_str(self):
+        for job in self:
+            job.is_manager_str = 'yes' if job.is_manager_role else 'no'
+
+    def _inverse_is_manager_str(self):
+        for job in self:
+            job.is_manager_role = (job.is_manager_str == 'yes')
 
     # 4. Reporting Manager (Auto-fetched from Primary Department or Parent Department)
     default_manager_id = fields.Many2one(
