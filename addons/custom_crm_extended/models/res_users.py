@@ -1,4 +1,5 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError, ValidationError
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
@@ -30,6 +31,32 @@ class ResUsers(models.Model):
                 pass
             user.crm_expense_manager_id = approver if (approver and approver.id != user.id) else False
     is_manager_role = fields.Boolean(related='crm_job_id.is_manager_role', string='Is Manager Role', readonly=True)
+    is_department_head = fields.Boolean(string='Is Department Head', compute='_compute_is_department_head')
+
+    def _compute_is_department_head(self):
+        for user in self:
+            if not user.id:
+                user.is_department_head = False
+                continue
+            user.is_department_head = bool(self.env['hr.department'].sudo().search([
+                ('manager_user_id', '=', user.id)
+            ], limit=1))
+
+    @api.constrains('crm_manager_id')
+    def _check_crm_manager_recursion(self):
+        """Prevents self-reporting and circular reporting loops."""
+        for user in self:
+            if not user.crm_manager_id:
+                continue
+            if user.crm_manager_id.id == user.id:
+                raise ValidationError(_("An employee cannot be set as their own reporting manager."))
+            curr = user.crm_manager_id
+            visited = {user.id}
+            while curr:
+                if curr.id in visited:
+                    raise ValidationError(_("Circular reporting detected: %s cannot report to %s as it creates an infinite reporting loop.") % (user.name, user.crm_manager_id.name))
+                visited.add(curr.id)
+                curr = curr.crm_manager_id
     crm_employee_tag_ids = fields.Many2many('hr.employee.category', string='Employee Tags')
     crm_subordinate_ids = fields.One2many('res.users', 'crm_manager_id', string='Direct Reports / Subordinates')
     crm_department_ids = fields.Many2many('hr.department', 'res_users_hr_department_rel', 'user_id', 'department_id', string='Managed Sub-Departments', compute='_compute_department_scope', store=True, readonly=False)
@@ -864,13 +891,6 @@ class ResUsers(models.Model):
         return super()._check_credentials(password, env)
 
 
-    @api.onchange('crm_job_id')
-    def _onchange_crm_job_id_sync_permissions(self):
-        """When Job Position is selected on user form, apply permissions to this user."""
-        if self.crm_job_id and self._origin.id:
-            real_user = self.env['res.users'].browse(self._origin.id)
-            real_user._apply_job_permissions(self.crm_job_id)
-
     def _apply_job_permissions(self, job, force=False):
         """Applies permissions defined on hr.job down to this user (1-way sync).
         If a user has manually customized their permissions (custom_perm_override=True),
@@ -977,6 +997,27 @@ class ResUsers(models.Model):
 
 
     def write(self, vals):
+        # Safeguard: Department Heads cannot have their Job Position or Department changed from User Form
+        if not self.env.context.get('skip_sync') and not self.env.context.get('skip_head_check'):
+            if 'crm_job_id' in vals or 'crm_department_id' in vals:
+                for user in self:
+                    head_dept = self.env['hr.department'].sudo().search([('manager_user_id', '=', user.id)], limit=1)
+                    if head_dept:
+                        new_job_id = vals.get('crm_job_id')
+                        new_dept_id = vals.get('crm_department_id')
+                        if 'crm_job_id' in vals and new_job_id != (user.crm_job_id.id if user.crm_job_id else False):
+                            raise UserError(
+                                _("%(name)s is currently the Department Head of '%(dept)s'.\n\n"
+                                  "Department Head roles and transfers must be managed directly from the Department or Job Position Master.")
+                                % {'name': user.name, 'dept': head_dept.name}
+                            )
+                        if 'crm_department_id' in vals and new_dept_id != (user.crm_department_id.id if user.crm_department_id else False):
+                            raise UserError(
+                                _("%(name)s is currently the Department Head of '%(dept)s'.\n\n"
+                                  "Department Head assignments must be managed directly from the Department Master.")
+                                % {'name': user.name, 'dept': head_dept.name}
+                            )
+
         # 1. When archiving (active=False), release the login so new employees can reuse the name/login
         if vals.get('active') is False:
             for user in self:
@@ -1120,6 +1161,21 @@ class ResUsers(models.Model):
 
     @api.onchange('crm_job_id')
     def _onchange_crm_job_id_defaults(self):
+        if self._origin.id:
+            head_dept = self.env['hr.department'].sudo().search([('manager_user_id', '=', self._origin.id)], limit=1)
+            if head_dept:
+                self.crm_job_id = self._origin.crm_job_id
+                return {
+                    'warning': {
+                        'title': _("Restricted Action: Department Head"),
+                        'message': _(
+                            "%(name)s is currently the Department Head of '%(dept)s'.\n\n"
+                            "Department Head roles cannot be changed from the User Form. "
+                            "Please manage Head of Department assignments directly from the Department Master or Job Position Master."
+                        ) % {'name': self._origin.name, 'dept': head_dept.name}
+                    }
+                }
+
         if self.crm_job_id:
             dept = self.crm_job_id.department_id
             # Auto-assign Primary Department from Job Role
@@ -1129,12 +1185,76 @@ class ResUsers(models.Model):
             # Pre-fill Managed Sub-Departments from Job Role if defined
             if self.crm_job_id.sub_department_ids:
                 self.crm_department_ids = [(6, 0, self.crm_job_id.sub_department_ids.ids)]
+            else:
+                self.crm_department_ids = [(5, 0, 0)]
 
             # Directly use the Job Role's configured Reporting Manager (e.g. Administrator for Managers)
             if self.crm_job_id.default_manager_id:
                 self.crm_manager_id = self.crm_job_id.default_manager_id.id
             else:
                 self.crm_manager_id = False
+
+            # Transfer warning if existing employee is changing roles
+            if self._origin.id and self._origin.crm_job_id and self._origin.crm_job_id.id != self.crm_job_id.id:
+                return {
+                    'warning': {
+                        'title': _("Role Transfer Warning"),
+                        'message': _(
+                            "This employee is currently assigned to '%(old_role)s'.\n\n"
+                            "Changing to '%(new_role)s' will transfer their position, update their Department to '%(dept)s', "
+                            "and update their access permissions upon saving.\n\n"
+                            "If you do NOT wish to transfer this employee, click Discard to keep them in '%(old_role)s'."
+                        ) % {
+                            'old_role': self._origin.crm_job_id.name,
+                            'new_role': self.crm_job_id.name,
+                            'dept': dept.name if dept else 'None',
+                        }
+                    }
+                }
+        elif not self.crm_job_id and self._origin.id and self._origin.crm_job_id:
+            return {
+                'warning': {
+                    'title': _("Role Revocation Notice"),
+                    'message': _(
+                        "Clearing the Job Position will revoke '%(old_role)s' from this employee upon saving.\n\n"
+                        "Click Discard to keep their current position."
+                    ) % {'old_role': self._origin.crm_job_id.name}
+                }
+            }
+
+    @api.onchange('crm_department_id')
+    def _onchange_crm_department_id_mismatch(self):
+        if self._origin.id:
+            head_dept = self.env['hr.department'].sudo().search([('manager_user_id', '=', self._origin.id)], limit=1)
+            if head_dept and self.crm_department_id and self.crm_department_id.id != head_dept.id:
+                self.crm_department_id = self._origin.crm_department_id
+                return {
+                    'warning': {
+                        'title': _("Restricted Action: Department Head"),
+                        'message': _(
+                            "%(name)s is the Department Head of '%(dept)s'.\n\n"
+                            "Department Head assignments cannot be changed from the User Form."
+                        ) % {'name': self._origin.name, 'dept': head_dept.name}
+                    }
+                }
+
+        if self.crm_department_id and self.crm_job_id:
+            job_dept = self.crm_job_id.department_id
+            if job_dept and job_dept.id != self.crm_department_id.id:
+                return {
+                    'warning': {
+                        'title': _("Department Mismatch Notice"),
+                        'message': _(
+                            "The selected Job Position '%(job)s' belongs to the '%(job_dept)s' department, "
+                            "while Department is set to '%(dept)s'.\n\n"
+                            "Please ensure the Job Position matches the department, or click Discard to revert."
+                        ) % {
+                            'job': self.crm_job_id.name,
+                            'job_dept': job_dept.name,
+                            'dept': self.crm_department_id.name,
+                        }
+                    }
+                }
 
     @api.model
     def action_get_my_profile_data(self):
@@ -1543,7 +1663,7 @@ class HrJob(models.Model):
                     vals_to_write['crm_department_id'] = job.department_id.id
                 if job.default_manager_id:
                     vals_to_write['crm_manager_id'] = job.default_manager_id.id
-                u.sudo().write(vals_to_write)
+                u.with_context(skip_head_check=True).sudo().write(vals_to_write)
                 u._apply_job_permissions(job)
 
             # Users removed
@@ -1551,7 +1671,7 @@ class HrJob(models.Model):
             for u in removed_users:
                 if not job.is_manager_role and job.department_id and job.department_id.manager_id and job.department_id.manager_id.user_id.id == u.id:
                     continue  # do not touch manager
-                u.sudo().write({'crm_job_id': False})
+                u.with_context(skip_head_check=True).sudo().write({'crm_job_id': False})
 
     def action_revoke_employee(self):
         """Action button on the row to revoke an employee from this role."""
