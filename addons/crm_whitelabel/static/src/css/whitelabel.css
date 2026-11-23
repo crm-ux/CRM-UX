@@ -2579,6 +2579,10 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     width: 12% !important;
 }
 
+.assigned_employees_table table.o_list_table tbody td {
+    vertical-align: middle !important;
+}
+
 .assigned_employees_table table.o_list_table th.o_list_button,
 .assigned_employees_table table.o_list_table td.o_list_button {
     white-space: nowrap !important;
@@ -2588,6 +2592,7 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     visibility: visible !important;
     opacity: 1 !important;
     display: table-cell !important;
+    vertical-align: middle !important;
 }
 
 .assigned_employees_table table.o_list_table td.o_list_button .d-flex {
@@ -2598,6 +2603,7 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     flex-wrap: nowrap !important;
     visibility: visible !important;
     opacity: 1 !important;
+    width: 100% !important;
 }
 
 .assigned_employees_table table.o_list_table td.o_list_button button {
@@ -2679,22 +2685,10 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 /* Department Head row: Distinct highlight & prevent removal */
 .manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) td {
     background-color: #f0f7ff !important;
+    vertical-align: middle !important;
 }
 
-.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove button,
-.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove {
-    display: none !important;
-    pointer-events: none !important;
-    visibility: hidden !important;
-}
-
-/* Department Head row: Distinct highlight & prevent removal */
-.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) td {
-    background-color: #f0f7ff !important;
-}
-
-.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove button,
-.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove {
+.manager_profile_view table.o_list_table tbody tr:has(.badge-dept-head) .o_list_record_remove button {
     display: none !important;
     pointer-events: none !important;
     visibility: hidden !important;

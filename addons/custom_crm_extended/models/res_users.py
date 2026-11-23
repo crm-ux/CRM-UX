@@ -58,7 +58,7 @@ class ResUsers(models.Model):
             name_str = user.name or user.login or ''
             is_head = bool(user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id)
             if is_head:
-                user.manager_display_html = f'''<div class="d-inline-flex align-items-center"><span class="fw-bold text-dark">{name_str}</span><span class="badge px-2 py-1 ms-2 badge-dept-head" style="font-size: 10px; font-weight: 700; background-color: #0b3d91 !important; color: #ffffff !important; border-radius: 4px;"><i class="fa fa-star text-warning me-1"></i>Head</span></div>'''
+                user.manager_display_html = f'''<div class="d-inline-flex align-items-center"><span class="fw-bold text-dark">{name_str}</span><span class="badge px-2 py-1 ms-2 badge-dept-head" style="font-size: 11px; font-weight: 600; background-color: #0b3d91 !important; color: #ffffff !important; border-radius: 4px;"><i class="fa fa-star text-warning me-1"></i>Department Head</span></div>'''
             else:
                 user.manager_display_html = f'''<span class="text-dark">{name_str}</span>'''
 
@@ -641,13 +641,10 @@ class ResUsers(models.Model):
         sanitize=False,
     )
 
-    @api.depends('custom_perm_override', 'crm_department_id', 'crm_department_id.manager_user_id')
+    @api.depends('custom_perm_override')
     def _compute_access_status_badge_html(self):
         for user in self:
-            is_head = bool(user.crm_department_id and user.crm_department_id.manager_user_id.id == user.id)
-            if is_head:
-                user.access_status_badge_html = '<span class="badge px-2 py-1 badge-dept-head" style="background-color: #0b3d91 !important; color: #ffffff !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;"><i class="fa fa-star text-warning me-1"></i>Department Head</span>'
-            elif user.custom_perm_override:
+            if user.custom_perm_override:
                 user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #fff3cd !important; color: #b45309 !important; border: 1px solid #f59e0b !important; font-weight: 600; font-size: 11px;"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
             else:
                 user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #f0f4ff !important; color: #0b3d91 !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;">Standard Role</span>'
