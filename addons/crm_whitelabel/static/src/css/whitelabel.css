@@ -2451,5 +2451,11 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
     overflow: hidden !important;
 }
 
+/* Hide phantom tfoot / bottom stray line in Voucher Configuration expense table */
+.o_expense_type_table tfoot {
+    display: none !important;
+}
+
+
 
 

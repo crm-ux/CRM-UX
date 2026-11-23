@@ -570,6 +570,50 @@ class ResUsers(models.Model):
             user.sudo().write({'crm_job_id': False})
         return True
 
+    access_status_badge_html = fields.Html(
+        string='Access Status',
+        compute='_compute_access_status_badge_html',
+        sanitize=False,
+    )
+
+    @api.depends('custom_perm_override')
+    def _compute_access_status_badge_html(self):
+        for user in self:
+            if user.custom_perm_override:
+                user.access_status_badge_html = '<span class="badge bg-warning text-dark px-2 py-1"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
+            else:
+                user.access_status_badge_html = '<span class="badge bg-light text-muted border px-2 py-1">Standard Role</span>'
+
+    def action_reset_user_permissions(self):
+        self.ensure_one()
+        if self.crm_job_id:
+            self.sudo().write({'custom_perm_override': False})
+            self._apply_job_permissions(self.crm_job_id, force=True)
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Permissions Reset'),
+                    'message': _('Permissions for %s have been reset to role defaults.') % (self.name or ''),
+                    'type': 'success',
+                    'sticky': False,
+                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
+                }
+            }
+        return False
+
+    def action_open_user_permissions(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Custom Permissions - %s') % (self.name or ''),
+            'res_model': 'res.users',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'flags': {'mode': 'edit'},
+        }
+
     @api.model
     def check_perm_log(self, target_user_id=None):
         """Returns True if user is admin or has perm_log == 'log'."""
@@ -1419,13 +1463,13 @@ class HrJob(models.Model):
             # Users added
             added_users = new_users - current_users
             for u in added_users:
-                vals_to_write = {'crm_job_id': job.id}
+                vals_to_write = {'crm_job_id': job.id, 'custom_perm_override': False}
                 if job.department_id:
                     vals_to_write['crm_department_id'] = job.department_id.id
                 if job.default_manager_id:
                     vals_to_write['crm_manager_id'] = job.default_manager_id.id
                 u.sudo().write(vals_to_write)
-                u._apply_job_permissions(job)
+                u._apply_job_permissions(job, force=True)
 
             # Users removed
             removed_users = current_users - new_users
