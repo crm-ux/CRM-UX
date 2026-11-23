@@ -229,16 +229,10 @@ body.o_action_menu_last .o_control_panel_breadcrumbs>.me-auto {
 
 .assigned_employees_table th.o_list_button_cell,
 .assigned_employees_table th:last-child {
-  width: clamp(5rem, 6vw, 6.5rem) !important;
-  min-width: clamp(5rem, 6vw, 6.5rem) !important;
-  max-width: clamp(5rem, 6vw, 6.5rem) !important;
   text-align: center !important;
 }
 
 .assigned_employees_table td:has(button[name="action_revoke_role"]) {
-  width: clamp(5rem, 6vw, 6.5rem) !important;
-  min-width: clamp(5rem, 6vw, 6.5rem) !important;
-  max-width: clamp(5rem, 6vw, 6.5rem) !important;
   text-align: center !important;
   vertical-align: middle !important;
 }

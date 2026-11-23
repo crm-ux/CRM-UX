@@ -580,9 +580,9 @@ class ResUsers(models.Model):
     def _compute_access_status_badge_html(self):
         for user in self:
             if user.custom_perm_override:
-                user.access_status_badge_html = '<span class="badge bg-warning text-dark px-2 py-1"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
+                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #fff3cd !important; color: #b45309 !important; border: 1px solid #f59e0b !important; font-weight: 600; font-size: 11px;"><i class="fa fa-sliders me-1"></i>Custom Access</span>'
             else:
-                user.access_status_badge_html = '<span class="badge bg-light text-muted border px-2 py-1">Standard Role</span>'
+                user.access_status_badge_html = '<span class="badge px-2 py-1" style="background-color: #f0f4ff !important; color: #0b3d91 !important; border: 1px solid #0b3d91 !important; font-weight: 600; font-size: 11px;">Standard Role</span>'
 
     def action_reset_user_permissions(self):
         self.ensure_one()
