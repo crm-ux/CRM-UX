@@ -604,14 +604,16 @@ class ResUsers(models.Model):
 
     def action_open_user_permissions(self):
         self.ensure_one()
+        view = self.env.ref('base.view_users_form')
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Custom Permissions - %s') % (self.name or ''),
+            'name': _('User Permissions & Profile - %s') % (self.name or ''),
             'res_model': 'res.users',
             'res_id': self.id,
             'view_mode': 'form',
-            'target': 'new',
-            'flags': {'mode': 'edit'},
+            'views': [(view.id, 'form')],
+            'view_id': view.id,
+            'target': 'current',
         }
 
     @api.model
