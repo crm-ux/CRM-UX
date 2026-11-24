@@ -577,20 +577,18 @@ class ResUsers(models.Model):
 
         can_unassigned = getattr(u, 'perm_view_unassigned', False) or (bool(u.crm_job_id) and getattr(u.crm_job_id, 'perm_view_unassigned', False))
         if can_unassigned:
-            # When allowed to view unassigned, include all unassigned employees (no role or no department)
             unassigned_users = self.env['res.users'].sudo().search([
                 ('share', '=', False),
                 '|', ('crm_job_id', '=', False), ('crm_department_id', '=', False)
             ])
             uids.update(unassigned_users.ids)
         elif not (u._is_admin() or u.has_group('base.group_system')):
-            # Filter out unassigned employees (users without an assigned job position / role)
-            # Only keep self and users who are assigned to a valid job role
+            # Only filter out users who have NO job role at all (unassigned users)
             assigned_users = self.env['res.users'].sudo().search([
                 ('id', 'in', list(uids)),
                 '|',
                 ('id', '=', u.id),
-                '&', ('crm_job_id', '!=', False), ('crm_department_id', '!=', False)
+                ('crm_job_id', '!=', False)
             ])
             uids = set(assigned_users.ids)
 
@@ -614,13 +612,14 @@ class ResUsers(models.Model):
                     ('share', '=', False),
                     '|', ('crm_job_id', '=', False), ('crm_department_id', '=', False)
                 ]).ids
-                all_allowed_uids = list(set(uids + unassigned_uids))
+                all_allowed = list(set(uids + unassigned_uids))
                 return [
                     '|', '|',
-                    (user_field, 'in', all_allowed_uids),
+                    (user_field, 'in', all_allowed),
                     (user_field, '=', False),
                     ('create_uid', 'in', unassigned_uids),
                 ]
+            # When unchecked: strictly restricted to assigned users in their permission scope
             return [
                 '|',
                 (user_field, 'in', uids),
