@@ -27,6 +27,9 @@ patch(FormController.prototype, {
                             cancelLabel: _t("Close"),
                             confirm: () => {
                                 // Transfer/Revoke confirmed: update lastConfirmedJob
+                                const newJobName = Array.isArray(this.model?.root?.data?.crm_job_id)
+                                    ? this.model.root.data.crm_job_id[1]
+                                    : (this.model?.root?.data?.crm_job_id ? "new role" : "");
                                 if (this.model?.root?.data?.crm_job_id) {
                                     lastConfirmedJob = Array.isArray(this.model.root.data.crm_job_id)
                                         ? [...this.model.root.data.crm_job_id]
@@ -34,12 +37,28 @@ patch(FormController.prototype, {
                                 } else {
                                     lastConfirmedJob = false;
                                 }
+                                if (isRevoke) {
+                                    this.env.services.notification?.add(
+                                        _t("Role revocation selected. Save the form to apply."),
+                                        { title: _t("Role Revocation"), type: "warning", sticky: false }
+                                    );
+                                } else {
+                                    this.env.services.notification?.add(
+                                        _t(`Role transfer selected: ${newJobName || "New Role"}. Save the form to apply.`),
+                                        { title: _t("Role Transfer Confirmed"), type: "success", sticky: false }
+                                    );
+                                }
                             },
                             cancel: async () => {
                                 // User cancelled or clicked Close: REVERT back to previous role!
+                                const oldJobName = Array.isArray(lastConfirmedJob) ? lastConfirmedJob[1] : "";
                                 if (lastConfirmedJob && this.model?.root) {
                                     await this.model.root.update({ crm_job_id: lastConfirmedJob });
                                 }
+                                this.env.services.notification?.add(
+                                    _t(`Role transfer cancelled. Retained current position: ${oldJobName || "Original Role"}.`),
+                                    { title: _t("Transfer Cancelled"), type: "info", sticky: false }
+                                );
                             },
                         }, options);
                     }
