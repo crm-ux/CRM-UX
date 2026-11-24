@@ -20,6 +20,16 @@ patch(FormController.prototype, {
 
                 const origUpdate = root.update.bind(root);
                 root.update = (changes, ...args) => {
+                    // Clean off trailing brackets (e.g. " (Service)") so the form input always displays the clean name
+                    if (changes && typeof changes === "object") {
+                        if (changes.crm_job_id && Array.isArray(changes.crm_job_id) && typeof changes.crm_job_id[1] === "string") {
+                            changes.crm_job_id[1] = changes.crm_job_id[1].replace(/\s*\([^)]*\)\s*$/, "").trim();
+                        }
+                        if (changes.crm_manager_id && Array.isArray(changes.crm_manager_id) && typeof changes.crm_manager_id[1] === "string") {
+                            changes.crm_manager_id[1] = changes.crm_manager_id[1].replace(/\s*\([^)]*\)\s*$/, "").trim();
+                        }
+                    }
+
                     if (isBypassingGuard || !root.resId || !changes || typeof changes !== "object") {
                         return origUpdate(changes, ...args);
                     }
@@ -28,11 +38,11 @@ patch(FormController.prototype, {
                     if ("crm_job_id" in changes) {
                         const currentVal = root.data?.crm_job_id;
                         const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
-                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "Unassigned") : "Unassigned";
+                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1].replace(/\s*\([^)]*\)\s*$/, "").trim() : "Unassigned") : "Unassigned";
 
                         const newVal = changes.crm_job_id;
                         const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
-                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "Unassigned") : "Unassigned";
+                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1].replace(/\s*\([^)]*\)\s*$/, "").trim() : "Unassigned") : "Unassigned";
 
                         if (currentId !== newId) {
                             dialogService?.add(ConfirmationDialog, {
@@ -72,11 +82,11 @@ patch(FormController.prototype, {
                     if ("crm_manager_id" in changes) {
                         const currentVal = root.data?.crm_manager_id;
                         const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
-                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "None") : "None";
+                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1].replace(/\s*\([^)]*\)\s*$/, "").trim() : "None") : "None";
 
                         const newVal = changes.crm_manager_id;
                         const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
-                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "None") : "None";
+                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1].replace(/\s*\([^)]*\)\s*$/, "").trim() : "None") : "None";
 
                         if (currentId !== newId) {
                             dialogService?.add(ConfirmationDialog, {

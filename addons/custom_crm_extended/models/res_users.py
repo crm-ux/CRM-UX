@@ -129,9 +129,25 @@ class ResUsers(models.Model):
                 ('email', operator, name),
                 ('crm_department_id.name', operator, name)
             ]
-            records = self.search(search_dom + dom, limit=limit)
-            return [(r.id, r.display_name) for r in records]
-        return super().name_search(name=name, domain=domain, operator=operator, limit=limit)
+            dom = search_dom + dom
+        records = self.search(dom, limit=limit)
+        if self.env.context.get('show_manager_bracket'):
+            return [(r.id, f"{r.name or r.login} ({(r.crm_department_id and r.crm_department_id.name) or 'N/A'})") for r in records]
+        return [(r.id, r.display_name or r.name or r.login) for r in records]
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        domain = list(domain or [])
+        if name:
+            domain = ['|', '|',
+                ('name', operator, name),
+                ('email', operator, name),
+                ('crm_department_id.name', operator, name)
+            ] + domain
+        records = self.search(domain, limit=limit, order=order)
+        if self.env.context.get('show_manager_bracket'):
+            return [(r.id, f"{r.name or r.login} ({(r.crm_department_id and r.crm_department_id.name) or 'N/A'})") for r in records]
+        return [(r.id, r.display_name or r.name or r.login) for r in records]
 
 
 
@@ -1415,25 +1431,32 @@ class HrEmployee(models.Model):
 class HrJob(models.Model):
     _inherit = 'hr.job'
 
-    @api.depends('name', 'department_id.name')
+    @api.depends('name')
     def _compute_display_name(self):
         for job in self:
-            dept_name = job.department_id.name if job.department_id else 'N/A'
-            job.display_name = f"{job.name or ''} ({dept_name})"
+            job.display_name = job.name or ''
 
     def name_get(self):
         result = []
         for job in self:
-            dept_name = job.department_id.name if job.department_id else 'N/A'
-            result.append((job.id, f"{job.name or ''} ({dept_name})"))
+            result.append((job.id, job.name or ''))
         return result
 
     @api.model
     def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
-        domain = domain or []
+        domain = list(domain or [])
         if name:
             domain = ['|', ('name', operator, name), ('department_id.name', operator, name)] + domain
-        return super()._name_search(name, domain=domain, operator=operator, limit=limit, order=order)
+        records = self.search(domain, limit=limit, order=order)
+        return [(r.id, f"{r.name or ''} ({r.department_id.name if r.department_id else 'N/A'})") for r in records]
+
+    @api.model
+    def name_search(self, name='', domain=None, operator='ilike', limit=100):
+        domain = list(domain or [])
+        if name:
+            domain = ['|', ('name', operator, name), ('department_id.name', operator, name)] + domain
+        records = self.search(domain, limit=limit)
+        return [(r.id, f"{r.name or ''} ({r.department_id.name if r.department_id else 'N/A'})") for r in records]
 
     company_id = fields.Many2one('res.company', string='Company', default=False)
 
