@@ -20,40 +20,41 @@ patch(FormController.prototype, {
                 origDialogAdd = dialogService.add.bind(dialogService);
                 dialogService.add = (Component, props, options) => {
                     const title = props?.title || "";
-                    if (typeof title === "string" && (
-                        title.includes("Role Transfer") ||
-                        title.includes("Role Revocation") ||
-                        title.includes("Department Change") ||
-                        title.includes("Manager Change")
-                    )) {
+                    const body = props?.body || props?.message || "";
+                    const isRole = title.includes("Role Transfer") || title.includes("Role Revocation") || body.includes("Role Transfer") || body.includes("Role Revocation") || title === "Warnings";
+                    const isDept = title.includes("Department Change") || body.includes("Department Change");
+                    const isMgr = title.includes("Manager Change") || body.includes("Manager Change");
+
+                    if (isRole || isDept || isMgr) {
                         let confirmBtn = _t("Confirm");
-                        if (title.includes("Role Transfer")) confirmBtn = _t("Transfer Role");
-                        else if (title.includes("Role Revocation")) confirmBtn = _t("Revoke Role");
-                        else if (title.includes("Department Change")) confirmBtn = _t("Change Department");
-                        else if (title.includes("Manager Change")) confirmBtn = _t("Change Manager");
+                        if (isRole) confirmBtn = _t("Transfer Role");
+                        else if (isDept) confirmBtn = _t("Change Department");
+                        else if (isMgr) confirmBtn = _t("Change Manager");
 
                         return origDialogAdd(ConfirmationDialog, {
-                            title: props.title,
-                            body: props.body || props.message,
+                            title: isRole ? _t("Role Transfer Warning") : props.title,
+                            body: body,
                             confirmLabel: confirmBtn,
                             cancelLabel: _t("Close"),
                             confirm: () => {
                                 const d = this.model?.root?.data;
-                                if (title.includes("Role")) {
+                                if (isRole) {
                                     const newJobName = Array.isArray(d?.crm_job_id) ? d.crm_job_id[1] : (d?.crm_job_id ? "new role" : "");
                                     lastConfirmedJob = Array.isArray(d?.crm_job_id) ? [...d.crm_job_id] : (d?.crm_job_id || false);
+                                    lastConfirmedDept = Array.isArray(d?.crm_department_id) ? [...d.crm_department_id] : (d?.crm_department_id || false);
+                                    lastConfirmedMgr = Array.isArray(d?.crm_manager_id) ? [...d.crm_manager_id] : (d?.crm_manager_id || false);
                                     this.env.services.notification?.add(
                                         _t(`Role transfer selected: ${newJobName || "New Role"}. Save the form to apply.`),
                                         { title: _t("Role Transfer Confirmed"), type: "success", sticky: false }
                                     );
-                                } else if (title.includes("Department")) {
+                                } else if (isDept) {
                                     const newDeptName = Array.isArray(d?.crm_department_id) ? d.crm_department_id[1] : "";
                                     lastConfirmedDept = Array.isArray(d?.crm_department_id) ? [...d.crm_department_id] : (d?.crm_department_id || false);
                                     this.env.services.notification?.add(
                                         _t(`Department changed to: ${newDeptName}. Save the form to apply.`),
                                         { title: _t("Department Confirmed"), type: "success", sticky: false }
                                     );
-                                } else if (title.includes("Manager")) {
+                                } else if (isMgr) {
                                     const newMgrName = Array.isArray(d?.crm_manager_id) ? d.crm_manager_id[1] : "";
                                     lastConfirmedMgr = Array.isArray(d?.crm_manager_id) ? [...d.crm_manager_id] : (d?.crm_manager_id || false);
                                     this.env.services.notification?.add(
@@ -64,16 +65,20 @@ patch(FormController.prototype, {
                             },
                             cancel: async () => {
                                 if (this.model?.root) {
-                                    if (title.includes("Role")) {
+                                    if (isRole) {
                                         const oldJobName = Array.isArray(lastConfirmedJob) ? lastConfirmedJob[1] : "";
                                         if (lastConfirmedJob !== null) {
-                                            await this.model.root.update({ crm_job_id: lastConfirmedJob });
+                                            await this.model.root.update({
+                                                crm_job_id: lastConfirmedJob,
+                                                crm_department_id: lastConfirmedDept,
+                                                crm_manager_id: lastConfirmedMgr,
+                                            });
                                         }
                                         this.env.services.notification?.add(
                                             _t(`Role transfer cancelled. Retained: ${oldJobName || "Current Role"}.`),
                                             { title: _t("Transfer Cancelled"), type: "info", sticky: false }
                                         );
-                                    } else if (title.includes("Department")) {
+                                    } else if (isDept) {
                                         const oldDeptName = Array.isArray(lastConfirmedDept) ? lastConfirmedDept[1] : "";
                                         if (lastConfirmedDept !== null) {
                                             await this.model.root.update({ crm_department_id: lastConfirmedDept });
@@ -82,7 +87,7 @@ patch(FormController.prototype, {
                                             _t(`Department change cancelled. Retained: ${oldDeptName || "Current Department"}.`),
                                             { title: _t("Change Cancelled"), type: "info", sticky: false }
                                         );
-                                    } else if (title.includes("Manager")) {
+                                    } else if (isMgr) {
                                         const oldMgrName = Array.isArray(lastConfirmedMgr) ? lastConfirmedMgr[1] : "";
                                         if (lastConfirmedMgr !== null) {
                                             await this.model.root.update({ crm_manager_id: lastConfirmedMgr });

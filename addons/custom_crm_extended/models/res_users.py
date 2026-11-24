@@ -1268,6 +1268,10 @@ class ResUsers(models.Model):
                     }
                 }
 
+            # If department was set automatically by changing the Job Role, skip separate warning
+            if self.crm_job_id and self.crm_job_id.department_id and self.crm_department_id.id == self.crm_job_id.department_id.id:
+                return
+
             old_dept = self._origin.crm_department_id
             if self.crm_department_id and old_dept and old_dept.id != self.crm_department_id.id:
                 return {
@@ -1284,27 +1288,13 @@ class ResUsers(models.Model):
                     }
                 }
 
-        if self.crm_department_id and self.crm_job_id:
-            job_dept = self.crm_job_id.department_id
-            if job_dept and job_dept.id != self.crm_department_id.id:
-                return {
-                    'warning': {
-                        'title': _("Department Mismatch Notice"),
-                        'message': _(
-                            "The selected Job Position '%(job)s' belongs to the '%(job_dept)s' department, "
-                            "while Department is set to '%(dept)s'.\n\n"
-                            "Please ensure the Job Position matches the department, or click Discard to revert."
-                        ) % {
-                            'job': self.crm_job_id.name,
-                            'job_dept': job_dept.name,
-                            'dept': self.crm_department_id.name,
-                        }
-                    }
-                }
-
     @api.onchange('crm_manager_id')
     def _onchange_crm_manager_id_warning(self):
         if self._origin.id:
+            # If manager was set automatically by changing the Job Role, skip separate warning
+            if self.crm_job_id and self.crm_job_id.default_manager_id and self.crm_manager_id.id == self.crm_job_id.default_manager_id.id:
+                return
+
             old_mgr = self._origin.crm_manager_id
             if self.crm_manager_id and old_mgr and old_mgr.id != self.crm_manager_id.id:
                 return {
