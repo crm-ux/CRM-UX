@@ -1415,6 +1415,26 @@ class HrEmployee(models.Model):
 class HrJob(models.Model):
     _inherit = 'hr.job'
 
+    @api.depends('name', 'department_id.name')
+    def _compute_display_name(self):
+        for job in self:
+            dept_name = job.department_id.name if job.department_id else 'N/A'
+            job.display_name = f"{job.name or ''} ({dept_name})"
+
+    def name_get(self):
+        result = []
+        for job in self:
+            dept_name = job.department_id.name if job.department_id else 'N/A'
+            result.append((job.id, f"{job.name or ''} ({dept_name})"))
+        return result
+
+    @api.model
+    def _name_search(self, name, domain=None, operator='ilike', limit=None, order=None):
+        domain = domain or []
+        if name:
+            domain = ['|', ('name', operator, name), ('department_id.name', operator, name)] + domain
+        return super()._name_search(name, domain=domain, operator=operator, limit=limit, order=order)
+
     company_id = fields.Many2one('res.company', string='Company', default=False)
 
     # 1. Primary Department (Home Base)
