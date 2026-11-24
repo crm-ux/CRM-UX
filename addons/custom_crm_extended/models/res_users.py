@@ -713,6 +713,7 @@ class ResUsers(models.Model):
         if self.crm_job_id:
             self.sudo().write({'custom_perm_override': False})
             self._apply_job_permissions(self.crm_job_id, force=True)
+            self.env.registry.clear_cache()
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
@@ -1190,6 +1191,11 @@ class ResUsers(models.Model):
                     ])
                     if open_lines:
                         open_lines.write({'expense_manager_id': approver.id})
+
+        # Instantly invalidate Odoo's cached record rule domains so list views sync live in real-time
+        if any(k.startswith('perm_') or k in ('crm_job_id', 'custom_perm_override', 'crm_department_id', 'crm_manager_id') for k in vals):
+            self.env.registry.clear_cache()
+
         return res
 
 
@@ -2159,6 +2165,7 @@ class HrJob(models.Model):
                     ('share', '=', False),
                 ])
                 users._apply_job_permissions(job)
+            self.env.registry.clear_cache()
         return res
 
     @api.onchange('sub_department_ids', 'department_id')
@@ -2897,6 +2904,7 @@ class CrmUserAccessControlWizard(models.TransientModel):
             'custom_perm_override': True,
         }
         user.sudo().with_context(skip_sync=True).write(vals)
+        self.env.registry.clear_cache()
 
         # Sales and Export groups sync
         sales_grp = self.env.ref('sales_team.group_sale_salesman', raise_if_not_found=False)
