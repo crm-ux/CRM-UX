@@ -1886,9 +1886,74 @@ button[name="action_cancel_future_series"] i {
     border-bottom-color: #cbd5e1 !important;
 }
 
-/* Ensure Gear / Action dropdown menu items (Export, Delete) are always visible and properly styled */
-.o_cp_action_menus .dropdown-menu {
+/* ==========================================================================
+   CONTROL PANEL ACTION / COG / SELECTION ACTION DROPDOWNS COMPACT SCALING
+   Slightly scaled down to match the global compact CRM layout perfectly
+   ========================================================================== */
+.o_cp_action_menus .dropdown-menu,
+.o_control_panel .dropdown-menu,
+.o_control_panel .o-dropdown--menu,
+.o_cp_action_menus .o-dropdown--menu,
+.o_control_panel_actions .dropdown-menu {
+    font-size: 0.80rem !important;
+    padding: 4px 0 !important;
+    border-radius: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10) !important;
+    min-width: 160px !important;
+    max-height: clamp(240px, 58vh, 380px) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     z-index: 1060 !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 #f1f5f9 !important;
+}
+
+.o_cp_action_menus .dropdown-menu::-webkit-scrollbar,
+.o_control_panel .dropdown-menu::-webkit-scrollbar {
+    width: 5px !important;
+}
+.o_cp_action_menus .dropdown-menu::-webkit-scrollbar-thumb,
+.o_control_panel .dropdown-menu::-webkit-scrollbar-thumb {
+    background: #94a3b8 !important;
+    border-radius: 3px !important;
+}
+
+.o_cp_action_menus .dropdown-menu .dropdown-item,
+.o_control_panel .dropdown-menu .dropdown-item,
+.o_cp_action_menus .o-dropdown--menu .dropdown-item,
+.o_control_panel .o-dropdown--menu .dropdown-item {
+    font-size: 0.80rem !important;
+    padding: 4px 12px !important;
+    line-height: 1.35 !important;
+    min-height: auto !important;
+    color: #1e293b !important;
+    display: flex !important;
+    align-items: center !important;
+    transition: background-color 0.15s ease !important;
+}
+
+.o_cp_action_menus .dropdown-menu .dropdown-item:hover,
+.o_control_panel .dropdown-menu .dropdown-item:hover,
+.o_cp_action_menus .dropdown-menu .dropdown-item:focus,
+.o_control_panel .dropdown-menu .dropdown-item:focus {
+    background-color: #f1f5f9 !important;
+    color: #0b3d91 !important;
+}
+
+.o_cp_action_menus .dropdown-menu .dropdown-item i,
+.o_cp_action_menus .dropdown-menu .dropdown-item svg,
+.o_cp_action_menus .dropdown-menu .dropdown-item span,
+.o_control_panel .dropdown-menu .dropdown-item i,
+.o_control_panel .dropdown-menu .dropdown-item svg {
+    font-size: 0.82rem !important;
+    margin-right: 6px !important;
+}
+
+.o_cp_action_menus .dropdown-menu .dropdown-divider,
+.o_control_panel .dropdown-menu .dropdown-divider {
+    margin: 3px 0 !important;
+    border-top: 1px solid #e2e8f0 !important;
 }
 
 /* Bulk Multi-file Upload bar for Task Attachments */
