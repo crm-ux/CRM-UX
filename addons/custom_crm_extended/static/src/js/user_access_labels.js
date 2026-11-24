@@ -10,55 +10,89 @@ patch(FormController.prototype, {
         super.setup(...arguments);
         if (this.props.resModel === "res.users") {
             let lastConfirmedJob = null;
+            let lastConfirmedDept = null;
+            let lastConfirmedMgr = null;
 
-            // Intercept Role Transfer Warning to show 2 buttons: "Transfer Role" and "Close" (Cancel)
+            // Intercept Role Transfer, Department Change, and Manager Change Warnings
             const dialogService = this.env.services?.dialog;
             let origDialogAdd = null;
             if (dialogService && dialogService.add) {
                 origDialogAdd = dialogService.add.bind(dialogService);
                 dialogService.add = (Component, props, options) => {
                     const title = props?.title || "";
-                    if (typeof title === "string" && (title.includes("Role Transfer") || title.includes("Role Revocation"))) {
-                        const isRevoke = title.includes("Role Revocation");
+                    if (typeof title === "string" && (
+                        title.includes("Role Transfer") ||
+                        title.includes("Role Revocation") ||
+                        title.includes("Department Change") ||
+                        title.includes("Manager Change")
+                    )) {
+                        let confirmBtn = _t("Confirm");
+                        if (title.includes("Role Transfer")) confirmBtn = _t("Transfer Role");
+                        else if (title.includes("Role Revocation")) confirmBtn = _t("Revoke Role");
+                        else if (title.includes("Department Change")) confirmBtn = _t("Change Department");
+                        else if (title.includes("Manager Change")) confirmBtn = _t("Change Manager");
+
                         return origDialogAdd(ConfirmationDialog, {
                             title: props.title,
                             body: props.body || props.message,
-                            confirmLabel: isRevoke ? _t("Revoke Role") : _t("Transfer Role"),
+                            confirmLabel: confirmBtn,
                             cancelLabel: _t("Close"),
                             confirm: () => {
-                                // Transfer/Revoke confirmed: update lastConfirmedJob
-                                const newJobName = Array.isArray(this.model?.root?.data?.crm_job_id)
-                                    ? this.model.root.data.crm_job_id[1]
-                                    : (this.model?.root?.data?.crm_job_id ? "new role" : "");
-                                if (this.model?.root?.data?.crm_job_id) {
-                                    lastConfirmedJob = Array.isArray(this.model.root.data.crm_job_id)
-                                        ? [...this.model.root.data.crm_job_id]
-                                        : this.model.root.data.crm_job_id;
-                                } else {
-                                    lastConfirmedJob = false;
-                                }
-                                if (isRevoke) {
-                                    this.env.services.notification?.add(
-                                        _t("Role revocation selected. Save the form to apply."),
-                                        { title: _t("Role Revocation"), type: "warning", sticky: false }
-                                    );
-                                } else {
+                                const d = this.model?.root?.data;
+                                if (title.includes("Role")) {
+                                    const newJobName = Array.isArray(d?.crm_job_id) ? d.crm_job_id[1] : (d?.crm_job_id ? "new role" : "");
+                                    lastConfirmedJob = Array.isArray(d?.crm_job_id) ? [...d.crm_job_id] : (d?.crm_job_id || false);
                                     this.env.services.notification?.add(
                                         _t(`Role transfer selected: ${newJobName || "New Role"}. Save the form to apply.`),
                                         { title: _t("Role Transfer Confirmed"), type: "success", sticky: false }
                                     );
+                                } else if (title.includes("Department")) {
+                                    const newDeptName = Array.isArray(d?.crm_department_id) ? d.crm_department_id[1] : "";
+                                    lastConfirmedDept = Array.isArray(d?.crm_department_id) ? [...d.crm_department_id] : (d?.crm_department_id || false);
+                                    this.env.services.notification?.add(
+                                        _t(`Department changed to: ${newDeptName}. Save the form to apply.`),
+                                        { title: _t("Department Confirmed"), type: "success", sticky: false }
+                                    );
+                                } else if (title.includes("Manager")) {
+                                    const newMgrName = Array.isArray(d?.crm_manager_id) ? d.crm_manager_id[1] : "";
+                                    lastConfirmedMgr = Array.isArray(d?.crm_manager_id) ? [...d.crm_manager_id] : (d?.crm_manager_id || false);
+                                    this.env.services.notification?.add(
+                                        _t(`Assigned manager changed to: ${newMgrName}. Save the form to apply.`),
+                                        { title: _t("Manager Confirmed"), type: "success", sticky: false }
+                                    );
                                 }
                             },
                             cancel: async () => {
-                                // User cancelled or clicked Close: REVERT back to previous role!
-                                const oldJobName = Array.isArray(lastConfirmedJob) ? lastConfirmedJob[1] : "";
-                                if (lastConfirmedJob && this.model?.root) {
-                                    await this.model.root.update({ crm_job_id: lastConfirmedJob });
+                                if (this.model?.root) {
+                                    if (title.includes("Role")) {
+                                        const oldJobName = Array.isArray(lastConfirmedJob) ? lastConfirmedJob[1] : "";
+                                        if (lastConfirmedJob !== null) {
+                                            await this.model.root.update({ crm_job_id: lastConfirmedJob });
+                                        }
+                                        this.env.services.notification?.add(
+                                            _t(`Role transfer cancelled. Retained: ${oldJobName || "Current Role"}.`),
+                                            { title: _t("Transfer Cancelled"), type: "info", sticky: false }
+                                        );
+                                    } else if (title.includes("Department")) {
+                                        const oldDeptName = Array.isArray(lastConfirmedDept) ? lastConfirmedDept[1] : "";
+                                        if (lastConfirmedDept !== null) {
+                                            await this.model.root.update({ crm_department_id: lastConfirmedDept });
+                                        }
+                                        this.env.services.notification?.add(
+                                            _t(`Department change cancelled. Retained: ${oldDeptName || "Current Department"}.`),
+                                            { title: _t("Change Cancelled"), type: "info", sticky: false }
+                                        );
+                                    } else if (title.includes("Manager")) {
+                                        const oldMgrName = Array.isArray(lastConfirmedMgr) ? lastConfirmedMgr[1] : "";
+                                        if (lastConfirmedMgr !== null) {
+                                            await this.model.root.update({ crm_manager_id: lastConfirmedMgr });
+                                        }
+                                        this.env.services.notification?.add(
+                                            _t(`Manager change cancelled. Retained: ${oldMgrName || "Current Manager"}.`),
+                                            { title: _t("Change Cancelled"), type: "info", sticky: false }
+                                        );
+                                    }
                                 }
-                                this.env.services.notification?.add(
-                                    _t(`Role transfer cancelled. Retained current position: ${oldJobName || "Original Role"}.`),
-                                    { title: _t("Transfer Cancelled"), type: "info", sticky: false }
-                                );
                             },
                         }, options);
                     }
@@ -121,10 +155,11 @@ patch(FormController.prototype, {
             };
 
             onMounted(() => {
-                if (this.model?.root?.data?.crm_job_id) {
-                    lastConfirmedJob = Array.isArray(this.model.root.data.crm_job_id)
-                        ? [...this.model.root.data.crm_job_id]
-                        : this.model.root.data.crm_job_id;
+                if (this.model?.root?.data) {
+                    const d = this.model.root.data;
+                    lastConfirmedJob = Array.isArray(d.crm_job_id) ? [...d.crm_job_id] : (d.crm_job_id || false);
+                    lastConfirmedDept = Array.isArray(d.crm_department_id) ? [...d.crm_department_id] : (d.crm_department_id || false);
+                    lastConfirmedMgr = Array.isArray(d.crm_manager_id) ? [...d.crm_manager_id] : (d.crm_manager_id || false);
                 }
                 safeRelabel();
                 observer = new MutationObserver(() => {

@@ -1223,22 +1223,24 @@ class ResUsers(models.Model):
                 self.crm_manager_id = False
 
             # Transfer warning if existing employee is changing roles
-            if self._origin.id and self._origin.crm_job_id and self._origin.crm_job_id.id != self.crm_job_id.id:
-                return {
-                    'warning': {
-                        'title': _("Role Transfer Warning"),
-                        'message': _(
-                            "This employee is currently assigned to '%(old_role)s'.\n\n"
-                            "Changing to '%(new_role)s' will transfer their position, update their Department to '%(dept)s', "
-                            "and update their access permissions upon saving.\n\n"
-                            "Click 'Transfer Role' to confirm and transfer, or click 'Close' to keep them in '%(old_role)s'."
-                        ) % {
-                            'old_role': self._origin.crm_job_id.name,
-                            'new_role': self.crm_job_id.name,
-                            'dept': dept.name if dept else 'None',
+            if self._origin.id:
+                old_job = self._origin.crm_job_id
+                if not old_job or old_job.id != self.crm_job_id.id:
+                    return {
+                        'warning': {
+                            'title': _("Role Transfer Warning"),
+                            'message': _(
+                                "This employee is currently assigned to '%(old_role)s'.\n\n"
+                                "Changing to '%(new_role)s' will transfer their position, update their Department to '%(dept)s', "
+                                "and update their access permissions upon saving.\n\n"
+                                "Click 'Transfer Role' to confirm and transfer, or click 'Close' to keep them in '%(old_role)s'."
+                            ) % {
+                                'old_role': old_job.name if old_job else 'Unassigned',
+                                'new_role': self.crm_job_id.name,
+                                'dept': dept.name if dept else 'None',
+                            }
                         }
                     }
-                }
         elif not self.crm_job_id and self._origin.id and self._origin.crm_job_id:
             return {
                 'warning': {
@@ -1266,6 +1268,22 @@ class ResUsers(models.Model):
                     }
                 }
 
+            old_dept = self._origin.crm_department_id
+            if self.crm_department_id and old_dept and old_dept.id != self.crm_department_id.id:
+                return {
+                    'warning': {
+                        'title': _("Department Change Warning"),
+                        'message': _(
+                            "This employee is currently in Department '%(old_dept)s'.\n\n"
+                            "Changing Department to '%(new_dept)s' may affect their department-level access and visibility.\n\n"
+                            "Click 'Change Department' to confirm, or click 'Close' to keep them in '%(old_dept)s'."
+                        ) % {
+                            'old_dept': old_dept.name,
+                            'new_dept': self.crm_department_id.name,
+                        }
+                    }
+                }
+
         if self.crm_department_id and self.crm_job_id:
             job_dept = self.crm_job_id.department_id
             if job_dept and job_dept.id != self.crm_department_id.id:
@@ -1280,6 +1298,25 @@ class ResUsers(models.Model):
                             'job': self.crm_job_id.name,
                             'job_dept': job_dept.name,
                             'dept': self.crm_department_id.name,
+                        }
+                    }
+                }
+
+    @api.onchange('crm_manager_id')
+    def _onchange_crm_manager_id_warning(self):
+        if self._origin.id:
+            old_mgr = self._origin.crm_manager_id
+            if self.crm_manager_id and old_mgr and old_mgr.id != self.crm_manager_id.id:
+                return {
+                    'warning': {
+                        'title': _("Manager Change Warning"),
+                        'message': _(
+                            "This employee currently reports to '%(old_mgr)s'.\n\n"
+                            "Changing reporting manager to '%(new_mgr)s' will update their reporting line and hierarchy.\n\n"
+                            "Click 'Change Manager' to confirm, or click 'Close' to keep reporting to '%(old_mgr)s'."
+                        ) % {
+                            'old_mgr': old_mgr.name or old_mgr.login,
+                            'new_mgr': self.crm_manager_id.name or self.crm_manager_id.login,
                         }
                     }
                 }
