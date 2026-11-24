@@ -631,7 +631,6 @@ class ResUsers(models.Model):
                 'message': _('Role position has been revoked from %s. The employee record was not deleted.') % (self.name or ''),
                 'type': 'warning',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
@@ -662,7 +661,6 @@ class ResUsers(models.Model):
                     'message': _('Permissions for %s have been reset to role defaults.') % (self.name or ''),
                     'type': 'success',
                     'sticky': False,
-                    'next': {'type': 'ir.actions.client', 'tag': 'reload'},
                 }
             }
         return False
@@ -2851,7 +2849,6 @@ class CrmUserAccessControlWizard(models.TransientModel):
                 'message': _('Custom permissions for %s saved and applied successfully.') % (user.name or ''),
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             }
         }
 
