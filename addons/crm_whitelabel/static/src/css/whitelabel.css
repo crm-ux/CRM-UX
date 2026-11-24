@@ -1888,7 +1888,7 @@ button[name="action_cancel_future_series"] i {
 
 /* ==========================================================================
    POPOVER DROPDOWNS & ACTION / COG / SEARCH MENUS COMPACT SCALING
-   Matches the global 80% compact layout across the entire project
+   Matches the global compact CRM layout perfectly with 100% accurate alignment
    ========================================================================== */
 .o_popover.o-dropdown--menu,
 .o_popover.dropdown-menu,
@@ -1902,13 +1902,13 @@ button[name="action_cancel_future_series"] i {
 .o_cp_action_menus .o-dropdown--menu,
 .o_control_panel_actions .dropdown-menu,
 .o_search_bar_menu {
-    zoom: 0.82 !important;
-    font-size: 0.82rem !important;
-    padding: 4px 0 !important;
+    zoom: normal !important;
+    font-size: 0.80rem !important;
+    padding: 3px 0 !important;
     border-radius: 6px !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.10) !important;
-    min-width: 160px !important;
+    min-width: 150px !important;
     max-height: clamp(240px, 60vh, 420px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
@@ -1939,8 +1939,8 @@ button[name="action_cancel_future_series"] i {
 .o_cp_action_menus .dropdown-menu .dropdown-item,
 .o_control_panel .dropdown-menu .dropdown-item,
 .o_search_bar_menu .dropdown-item {
-    font-size: 0.82rem !important;
-    padding: 4px 12px !important;
+    font-size: 0.80rem !important;
+    padding: 3px 10px !important;
     line-height: 1.35 !important;
     min-height: auto !important;
     color: #1e293b !important;
