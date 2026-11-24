@@ -30,6 +30,12 @@
     overflow: visible !important;
 }
 
+/* Ensure tab pages have sufficient bottom space so dropdowns near the bottom never get clipped */
+.o_form_view .tab-pane {
+    min-height: 380px !important;
+    padding-bottom: 180px !important;
+}
+
 .o_form_view .o_field_many2one,
 .o_form_view .o_field_many2one_selection,
 .o_form_view .o_field_many2many_tags,
