@@ -576,14 +576,21 @@ class ResUsers(models.Model):
                 uids.update(dept_users.ids)
 
         can_unassigned = getattr(u, 'perm_view_unassigned', False) or (bool(u.crm_job_id) and getattr(u.crm_job_id, 'perm_view_unassigned', False))
-        if not can_unassigned and not (u._is_admin() or u.has_group('base.group_system')):
+        if can_unassigned:
+            # When allowed to view unassigned, include all unassigned employees (no role or no department)
+            unassigned_users = self.env['res.users'].sudo().search([
+                ('share', '=', False),
+                '|', ('crm_job_id', '=', False), ('crm_department_id', '=', False)
+            ])
+            uids.update(unassigned_users.ids)
+        elif not (u._is_admin() or u.has_group('base.group_system')):
             # Filter out unassigned employees (users without an assigned job position / role)
             # Only keep self and users who are assigned to a valid job role
             assigned_users = self.env['res.users'].sudo().search([
                 ('id', 'in', list(uids)),
                 '|',
                 ('id', '=', u.id),
-                ('crm_job_id', '!=', False)
+                '&', ('crm_job_id', '!=', False), ('crm_department_id', '!=', False)
             ])
             uids = set(assigned_users.ids)
 
@@ -603,10 +610,14 @@ class ResUsers(models.Model):
         if user_field:
             can_unassigned = getattr(self, 'perm_view_unassigned', False) or (bool(self.crm_job_id) and getattr(self.crm_job_id, 'perm_view_unassigned', False))
             if can_unassigned:
-                unassigned_uids = self.env['res.users'].sudo().search([('share', '=', False), ('crm_job_id', '=', False)]).ids
+                unassigned_uids = self.env['res.users'].sudo().search([
+                    ('share', '=', False),
+                    '|', ('crm_job_id', '=', False), ('crm_department_id', '=', False)
+                ]).ids
+                all_allowed_uids = list(set(uids + unassigned_uids))
                 return [
                     '|', '|',
-                    (user_field, 'in', uids + unassigned_uids),
+                    (user_field, 'in', all_allowed_uids),
                     (user_field, '=', False),
                     ('create_uid', 'in', unassigned_uids),
                 ]
@@ -1123,6 +1134,10 @@ class ResUsers(models.Model):
         if 'crm_job_id' in vals and vals['crm_job_id']:
             job = self.env['hr.job'].browse(vals['crm_job_id'])
             self._apply_job_permissions(job)
+        elif 'crm_job_id' in vals and not vals['crm_job_id'] and not self.env.context.get('skip_role_clear'):
+            vals['crm_department_id'] = False
+            vals['crm_department_ids'] = [(5, 0, 0)]
+            vals['crm_manager_id'] = False
 
         if 'perm_export' in vals:
             export_grp = self.env.ref('base.group_allow_export', raise_if_not_found=False)
@@ -1266,6 +1281,10 @@ class ResUsers(models.Model):
                 self.crm_manager_id = self.crm_job_id.default_manager_id.id
             else:
                 self.crm_manager_id = False
+        else:
+            self.crm_department_id = False
+            self.crm_department_ids = [(5, 0, 0)]
+            self.crm_manager_id = False
 
     @api.onchange('crm_department_id')
     def _onchange_crm_department_id_mismatch(self):

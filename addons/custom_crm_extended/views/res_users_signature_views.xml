@@ -42,7 +42,7 @@
                             <field name="crm_job_id" string="Job Position / Role" readonly="is_department_head" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <field name="crm_manager_id" string="Reports To (Manager)" domain="['|', ('is_manager_role', '=', True), ('id', '=', 2)]" context="{'show_manager_bracket': True}" options="{'no_create': True, 'no_open': True}"/>
                             <field name="crm_expense_manager_id" string="Voucher Approver" options="{'no_create': True, 'no_open': True}"/>
-                            <field name="crm_department_id" string="Department" readonly="1" force_save="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                            <field name="crm_department_id" string="Department" readonly="crm_job_id or is_department_head" force_save="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
                             <div colspan="2" invisible="not is_department_head" class="alert alert-info py-1 px-2 mb-2 small">
                                 <i class="fa fa-shield me-1"/> <strong>Department Head:</strong> Position &amp; Department are managed directly from Department / Job Master.
                             </div>
