@@ -125,6 +125,29 @@ patch(FormController.prototype, {
                 };
             };
 
+            const jobDeptMap = {};
+            const mgrDeptMap = {};
+            const orm = this.env.services?.orm;
+
+            const loadDeptMaps = async () => {
+                if (!orm) return;
+                try {
+                    const jobs = await orm.searchRead("hr.job", [], ["name", "department_id"]);
+                    for (const j of jobs) {
+                        if (j.name) {
+                            jobDeptMap[j.name.trim()] = j.department_id ? j.department_id[1] : "N/A";
+                        }
+                    }
+                    const mgrs = await orm.searchRead("res.users", [], ["name", "crm_department_id"]);
+                    for (const m of mgrs) {
+                        if (m.name) {
+                            mgrDeptMap[m.name.trim()] = m.crm_department_id ? m.crm_department_id[1] : "N/A";
+                        }
+                    }
+                    mgrDeptMap["Administrator"] = "N/A";
+                } catch (e) {}
+            };
+
             const labelMap = {
                 "Sales": "Lead & Quotation",
                 "Products": "Product Catalog",
@@ -133,6 +156,40 @@ patch(FormController.prototype, {
             };
 
             const relabel = () => {
+                // Relabel Job Position dropdown items (Inside dropdown ONLY)
+                const jobField = document.querySelector('div[name="crm_job_id"]');
+                if (jobField) {
+                    jobField.querySelectorAll(".o-autocomplete--dropdown-item a, .dropdown-menu a.dropdown-item").forEach((el) => {
+                        if (el.classList.contains("o_m2o_dropdown_option")) return;
+                        const raw = el.textContent.trim();
+                        if (raw.includes("(") && raw.endsWith(")")) return;
+                        if (jobDeptMap[raw]) {
+                            el.textContent = `${raw} (${jobDeptMap[raw]})`;
+                        }
+                    });
+                    const jobInput = jobField.querySelector("input");
+                    if (jobInput && jobInput.value && jobInput.value.includes("(") && jobInput.value.endsWith(")")) {
+                        jobInput.value = jobInput.value.replace(/\s*\([^)]*\)\s*$/, "").trim();
+                    }
+                }
+
+                // Relabel Manager dropdown items (Inside dropdown ONLY)
+                const mgrField = document.querySelector('div[name="crm_manager_id"]');
+                if (mgrField) {
+                    mgrField.querySelectorAll(".o-autocomplete--dropdown-item a, .dropdown-menu a.dropdown-item").forEach((el) => {
+                        if (el.classList.contains("o_m2o_dropdown_option")) return;
+                        const raw = el.textContent.trim();
+                        if (raw.includes("(") && raw.endsWith(")")) return;
+                        if (mgrDeptMap[raw]) {
+                            el.textContent = `${raw} (${mgrDeptMap[raw]})`;
+                        }
+                    });
+                    const mgrInput = mgrField.querySelector("input");
+                    if (mgrInput && mgrInput.value && mgrInput.value.includes("(") && mgrInput.value.endsWith(")")) {
+                        mgrInput.value = mgrInput.value.replace(/\s*\([^)]*\)\s*$/, "").trim();
+                    }
+                }
+
                 document.querySelectorAll("label.o_form_label").forEach((lbl) => {
                     // Match the label text directly
                     const firstText = Array.from(lbl.childNodes)
@@ -181,6 +238,7 @@ patch(FormController.prototype, {
 
             onMounted(() => {
                 wrapRootUpdate();
+                loadDeptMaps();
                 safeRelabel();
                 observer = new MutationObserver(() => {
                     if (!isRelabeling) safeRelabel();
