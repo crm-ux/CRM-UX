@@ -210,11 +210,13 @@ nav.o_navbar,
 /* ==========================================================================
    GLOBAL LOADING SCREEN FOR ALL PAGES
    Transforms Odoo default bottom-right purple badge (.o_loading_indicator)
-   into a centered, elegant blur screen with custom blue spinner (#0d3e8e)
+   and full-screen blocker (.o_blockUI) into an elegant blur screen with blue spinner.
+   Debounce: 1.5s delay so normal button clicks and window focus changes never freeze screen.
    ========================================================================== */
 
 .o_loading_indicator,
-.o_loading {
+.o_loading,
+.o_blockUI {
     position: fixed !important;
     inset: -100vmax !important;
     top: -100vmax !important;
@@ -242,27 +244,42 @@ nav.o_navbar,
     font-size: 0 !important;
     /* Hide original text */
     color: transparent !important;
-    /* Debounce: Do NOT show for fast <350ms micro-requests; only show for real loads */
-    animation: crmLoaderDebounce 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.35s both !important;
+    /* Debounce: 1.5s delay - hide completely during fast requests and tab refocus */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    animation: crmLoaderDebounce 0.3s cubic-bezier(0.4, 0, 0.2, 1) 1.5s forwards !important;
 }
 
 @keyframes crmLoaderDebounce {
     from {
         opacity: 0;
         visibility: hidden;
+        pointer-events: none;
     }
 
     to {
         opacity: 1;
         visibility: visible;
+        pointer-events: auto;
     }
 }
 
 /* Spinner directly on the global loader */
 .o_loading_indicator::before,
-.o_loading::before {
+.o_loading::before,
+.o_blockUI:not(:has(.o_spinner))::before {
     content: "" !important;
     display: block !important;
+    width: 48px !important;
+    height: 48px !important;
+    border: 4px solid rgba(13, 62, 142, 0.15) !important;
+    border-top: 4px solid #0d3e8e !important;
+    border-radius: 50% !important;
+    animation: crmGlobalSpin 0.8s linear infinite !important;
+}
+
+.o_blockUI .o_spinner {
     width: 48px !important;
     height: 48px !important;
     border: 4px solid rgba(13, 62, 142, 0.15) !important;
