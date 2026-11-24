@@ -575,6 +575,18 @@ class ResUsers(models.Model):
                 ])
                 uids.update(dept_users.ids)
 
+        can_unassigned = getattr(u, 'perm_view_unassigned', False) or (bool(u.crm_job_id) and getattr(u.crm_job_id, 'perm_view_unassigned', False))
+        if not can_unassigned and not (u._is_admin() or u.has_group('base.group_system')):
+            # Filter out unassigned employees (users without an assigned job position / role)
+            # Only keep self and users who are assigned to a valid job role
+            assigned_users = self.env['res.users'].sudo().search([
+                ('id', 'in', list(uids)),
+                '|',
+                ('id', '=', u.id),
+                ('crm_job_id', '!=', False)
+            ])
+            uids = set(assigned_users.ids)
+
         return list(uids)
 
     def _get_hierarchy_domain(self, perm_field, user_field='user_id'):
@@ -591,10 +603,12 @@ class ResUsers(models.Model):
         if user_field:
             can_unassigned = getattr(self, 'perm_view_unassigned', False) or (bool(self.crm_job_id) and getattr(self.crm_job_id, 'perm_view_unassigned', False))
             if can_unassigned:
+                unassigned_uids = self.env['res.users'].sudo().search([('share', '=', False), ('crm_job_id', '=', False)]).ids
                 return [
-                    '|',
-                    (user_field, 'in', uids),
+                    '|', '|',
+                    (user_field, 'in', uids + unassigned_uids),
                     (user_field, '=', False),
+                    ('create_uid', 'in', unassigned_uids),
                 ]
             return [
                 '|',
