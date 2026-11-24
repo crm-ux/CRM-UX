@@ -602,11 +602,27 @@ class ResUsers(models.Model):
             return [(1, '=', 1)]
         if perm in ('none', False):
             return [(0, '=', 1)]
+
+        can_unassigned = getattr(self, 'perm_view_unassigned', False) or (bool(self.crm_job_id) and getattr(self.crm_job_id, 'perm_view_unassigned', False))
+
+        if perm == 'own':
+            # Own documents only: user sees strictly their own assigned records
+            if user_field:
+                if can_unassigned:
+                    return [
+                        '|', '|',
+                        (user_field, '=', self.id),
+                        (user_field, '=', False),
+                        ('create_uid', '=', self.id),
+                    ]
+                return [(user_field, '=', self.id)]
+            return [('create_uid', '=', self.id)]
+
         uids = self._get_accessible_user_ids(perm_field)
         if not uids:
             return [(0, '=', 1)]
+
         if user_field:
-            can_unassigned = getattr(self, 'perm_view_unassigned', False) or (bool(self.crm_job_id) and getattr(self.crm_job_id, 'perm_view_unassigned', False))
             if can_unassigned:
                 unassigned_uids = self.env['res.users'].sudo().search([
                     ('share', '=', False),
@@ -617,14 +633,11 @@ class ResUsers(models.Model):
                     '|', '|',
                     (user_field, 'in', all_allowed),
                     (user_field, '=', False),
-                    ('create_uid', 'in', unassigned_uids),
+                    ('create_uid', 'in', all_allowed),
                 ]
             # When unchecked: strictly restricted to assigned users in their permission scope
-            return [
-                '|',
-                (user_field, 'in', uids),
-                '&', (user_field, '=', False), ('create_uid', '=', self.id),
-            ]
+            return [(user_field, 'in', uids)]
+
         return [('create_uid', 'in', uids)]
 
     @api.model
