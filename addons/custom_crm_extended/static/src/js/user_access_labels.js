@@ -9,7 +9,7 @@ patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
         if (this.props.resModel === "res.users") {
-            let lastConfirmedJob = this.model.root.data?.crm_job_id ? [...this.model.root.data.crm_job_id] : false;
+            let lastConfirmedJob = null;
 
             // Intercept Role Transfer Warning to show 2 buttons: "Transfer Role" and "Close" (Cancel)
             const dialogService = this.env.services?.dialog;
@@ -27,11 +27,17 @@ patch(FormController.prototype, {
                             cancelLabel: _t("Close"),
                             confirm: () => {
                                 // Transfer/Revoke confirmed: update lastConfirmedJob
-                                lastConfirmedJob = this.model.root.data?.crm_job_id ? [...this.model.root.data.crm_job_id] : false;
+                                if (this.model?.root?.data?.crm_job_id) {
+                                    lastConfirmedJob = Array.isArray(this.model.root.data.crm_job_id)
+                                        ? [...this.model.root.data.crm_job_id]
+                                        : this.model.root.data.crm_job_id;
+                                } else {
+                                    lastConfirmedJob = false;
+                                }
                             },
                             cancel: async () => {
                                 // User cancelled or clicked Close: REVERT back to previous role!
-                                if (lastConfirmedJob && this.model.root) {
+                                if (lastConfirmedJob && this.model?.root) {
                                     await this.model.root.update({ crm_job_id: lastConfirmedJob });
                                 }
                             },
@@ -96,6 +102,11 @@ patch(FormController.prototype, {
             };
 
             onMounted(() => {
+                if (this.model?.root?.data?.crm_job_id) {
+                    lastConfirmedJob = Array.isArray(this.model.root.data.crm_job_id)
+                        ? [...this.model.root.data.crm_job_id]
+                        : this.model.root.data.crm_job_id;
+                }
                 safeRelabel();
                 observer = new MutationObserver(() => {
                     if (!isRelabeling) safeRelabel();
