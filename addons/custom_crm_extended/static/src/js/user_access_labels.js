@@ -9,101 +9,154 @@ patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
         if (this.props.resModel === "res.users") {
-            let lastConfirmedJob = null;
-            let lastConfirmedDept = null;
-            let lastConfirmedMgr = null;
-
-            // Intercept Role Transfer, Department Change, and Manager Change Warnings
             const dialogService = this.env.services?.dialog;
-            let origDialogAdd = null;
-            if (dialogService && dialogService.add) {
-                origDialogAdd = dialogService.add.bind(dialogService);
-                dialogService.add = (Component, props, options) => {
-                    const title = props?.title || "";
-                    const body = props?.body || props?.message || "";
-                    const isRole = title.includes("Role Transfer") || title.includes("Role Revocation") || body.includes("Role Transfer") || body.includes("Role Revocation") || title === "Warnings";
-                    const isDept = title.includes("Department Change") || body.includes("Department Change");
-                    const isMgr = title.includes("Manager Change") || body.includes("Manager Change");
+            const notificationService = this.env.services?.notification;
+            let isBypassingGuard = false;
 
-                    if (isRole || isDept || isMgr) {
-                        let confirmBtn = _t("Confirm");
-                        if (isRole) confirmBtn = _t("Transfer Role");
-                        else if (isDept) confirmBtn = _t("Change Department");
-                        else if (isMgr) confirmBtn = _t("Change Manager");
+            const wrapRootUpdate = () => {
+                const root = this.model?.root;
+                if (!root || root._crmGuarded) return;
+                root._crmGuarded = true;
 
-                        return origDialogAdd(ConfirmationDialog, {
-                            title: isRole ? _t("Role Transfer Warning") : props.title,
-                            body: body,
-                            confirmLabel: confirmBtn,
-                            cancelLabel: _t("Close"),
-                            confirm: () => {
-                                const d = this.model?.root?.data;
-                                if (isRole) {
-                                    const newJobName = Array.isArray(d?.crm_job_id) ? d.crm_job_id[1] : (d?.crm_job_id ? "new role" : "");
-                                    lastConfirmedJob = Array.isArray(d?.crm_job_id) ? [...d.crm_job_id] : (d?.crm_job_id || false);
-                                    lastConfirmedDept = Array.isArray(d?.crm_department_id) ? [...d.crm_department_id] : (d?.crm_department_id || false);
-                                    lastConfirmedMgr = Array.isArray(d?.crm_manager_id) ? [...d.crm_manager_id] : (d?.crm_manager_id || false);
-                                    this.env.services.notification?.add(
-                                        _t(`Role transfer selected: ${newJobName || "New Role"}. Save the form to apply.`),
-                                        { title: _t("Role Transfer Confirmed"), type: "success", sticky: false }
-                                    );
-                                } else if (isDept) {
-                                    const newDeptName = Array.isArray(d?.crm_department_id) ? d.crm_department_id[1] : "";
-                                    lastConfirmedDept = Array.isArray(d?.crm_department_id) ? [...d.crm_department_id] : (d?.crm_department_id || false);
-                                    this.env.services.notification?.add(
-                                        _t(`Department changed to: ${newDeptName}. Save the form to apply.`),
-                                        { title: _t("Department Confirmed"), type: "success", sticky: false }
-                                    );
-                                } else if (isMgr) {
-                                    const newMgrName = Array.isArray(d?.crm_manager_id) ? d.crm_manager_id[1] : "";
-                                    lastConfirmedMgr = Array.isArray(d?.crm_manager_id) ? [...d.crm_manager_id] : (d?.crm_manager_id || false);
-                                    this.env.services.notification?.add(
-                                        _t(`Assigned manager changed to: ${newMgrName}. Save the form to apply.`),
-                                        { title: _t("Manager Confirmed"), type: "success", sticky: false }
-                                    );
-                                }
-                            },
-                            cancel: async () => {
-                                if (this.model?.root) {
-                                    if (isRole) {
-                                        const oldJobName = Array.isArray(lastConfirmedJob) ? lastConfirmedJob[1] : "";
-                                        if (lastConfirmedJob !== null) {
-                                            await this.model.root.update({
-                                                crm_job_id: lastConfirmedJob,
-                                                crm_department_id: lastConfirmedDept,
-                                                crm_manager_id: lastConfirmedMgr,
-                                            });
-                                        }
-                                        this.env.services.notification?.add(
-                                            _t(`Role transfer cancelled. Retained: ${oldJobName || "Current Role"}.`),
-                                            { title: _t("Transfer Cancelled"), type: "info", sticky: false }
-                                        );
-                                    } else if (isDept) {
-                                        const oldDeptName = Array.isArray(lastConfirmedDept) ? lastConfirmedDept[1] : "";
-                                        if (lastConfirmedDept !== null) {
-                                            await this.model.root.update({ crm_department_id: lastConfirmedDept });
-                                        }
-                                        this.env.services.notification?.add(
-                                            _t(`Department change cancelled. Retained: ${oldDeptName || "Current Department"}.`),
-                                            { title: _t("Change Cancelled"), type: "info", sticky: false }
-                                        );
-                                    } else if (isMgr) {
-                                        const oldMgrName = Array.isArray(lastConfirmedMgr) ? lastConfirmedMgr[1] : "";
-                                        if (lastConfirmedMgr !== null) {
-                                            await this.model.root.update({ crm_manager_id: lastConfirmedMgr });
-                                        }
-                                        this.env.services.notification?.add(
-                                            _t(`Manager change cancelled. Retained: ${oldMgrName || "Current Manager"}.`),
-                                            { title: _t("Change Cancelled"), type: "info", sticky: false }
-                                        );
-                                    }
-                                }
-                            },
-                        }, options);
+                const origUpdate = root.update.bind(root);
+                root.update = (changes, ...args) => {
+                    if (isBypassingGuard || !root.resId || !changes || typeof changes !== "object") {
+                        return origUpdate(changes, ...args);
                     }
-                    return origDialogAdd(Component, props, options);
+
+                    // 1. JOB POSITION CHANGE
+                    if ("crm_job_id" in changes) {
+                        const currentVal = root.data?.crm_job_id;
+                        const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
+                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "Unassigned") : "Unassigned";
+
+                        const newVal = changes.crm_job_id;
+                        const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
+                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "Unassigned") : "Unassigned";
+
+                        if (currentId !== newId) {
+                            dialogService?.add(ConfirmationDialog, {
+                                title: _t("Role Transfer Warning"),
+                                body: _t(
+                                    `This employee is currently assigned to '${currentName}'.\n\n` +
+                                    `Changing to '${newName}' will transfer their position, update their Department, ` +
+                                    `and update their access permissions upon saving.\n\n` +
+                                    `Click 'Transfer Role' to confirm, or click 'Close' to keep them in '${currentName}'.`
+                                ),
+                                confirmLabel: _t("Transfer Role"),
+                                cancelLabel: _t("Close"),
+                                confirm: async () => {
+                                    isBypassingGuard = true;
+                                    try {
+                                        await origUpdate(changes, ...args);
+                                        notificationService?.add(
+                                            _t(`Role transfer selected: ${newName}. Save the form to apply.`),
+                                            { title: _t("Role Transfer Confirmed"), type: "success", sticky: false }
+                                        );
+                                    } finally {
+                                        isBypassingGuard = false;
+                                    }
+                                },
+                                cancel: () => {
+                                    notificationService?.add(
+                                        _t(`Role transfer cancelled. Retained current position: ${currentName}.`),
+                                        { title: _t("Transfer Cancelled"), type: "info", sticky: false }
+                                    );
+                                },
+                            });
+                            return Promise.resolve();
+                        }
+                    }
+
+                    // 2. DEPARTMENT CHANGE
+                    if ("crm_department_id" in changes) {
+                        const currentVal = root.data?.crm_department_id;
+                        const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
+                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "None") : "None";
+
+                        const newVal = changes.crm_department_id;
+                        const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
+                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "None") : "None";
+
+                        if (currentId !== newId) {
+                            dialogService?.add(ConfirmationDialog, {
+                                title: _t("Department Change Warning"),
+                                body: _t(
+                                    `This employee is currently in Department '${currentName}'.\n\n` +
+                                    `Changing Department to '${newName}' may affect their department-level access and visibility.\n\n` +
+                                    `Click 'Change Department' to confirm, or click 'Close' to keep them in '${currentName}'.`
+                                ),
+                                confirmLabel: _t("Change Department"),
+                                cancelLabel: _t("Close"),
+                                confirm: async () => {
+                                    isBypassingGuard = true;
+                                    try {
+                                        await origUpdate(changes, ...args);
+                                        notificationService?.add(
+                                            _t(`Department changed to: ${newName}. Save the form to apply.`),
+                                            { title: _t("Department Confirmed"), type: "success", sticky: false }
+                                        );
+                                    } finally {
+                                        isBypassingGuard = false;
+                                    }
+                                },
+                                cancel: () => {
+                                    notificationService?.add(
+                                        _t(`Department change cancelled. Retained current department: ${currentName}.`),
+                                        { title: _t("Change Cancelled"), type: "info", sticky: false }
+                                    );
+                                },
+                            });
+                            return Promise.resolve();
+                        }
+                    }
+
+                    // 3. ASSIGNED MANAGER CHANGE
+                    if ("crm_manager_id" in changes) {
+                        const currentVal = root.data?.crm_manager_id;
+                        const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
+                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "None") : "None";
+
+                        const newVal = changes.crm_manager_id;
+                        const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
+                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "None") : "None";
+
+                        if (currentId !== newId) {
+                            dialogService?.add(ConfirmationDialog, {
+                                title: _t("Manager Change Warning"),
+                                body: _t(
+                                    `This employee currently reports to '${currentName}'.\n\n` +
+                                    `Changing reporting manager to '${newName}' will update their reporting line and hierarchy.\n\n` +
+                                    `Click 'Change Manager' to confirm, or click 'Close' to keep reporting to '${currentName}'.`
+                                ),
+                                confirmLabel: _t("Change Manager"),
+                                cancelLabel: _t("Close"),
+                                confirm: async () => {
+                                    isBypassingGuard = true;
+                                    try {
+                                        await origUpdate(changes, ...args);
+                                        notificationService?.add(
+                                            _t(`Assigned manager changed to: ${newName}. Save the form to apply.`),
+                                            { title: _t("Manager Confirmed"), type: "success", sticky: false }
+                                        );
+                                    } finally {
+                                        isBypassingGuard = false;
+                                    }
+                                },
+                                cancel: () => {
+                                    notificationService?.add(
+                                        _t(`Manager change cancelled. Retained current manager: ${currentName}.`),
+                                        { title: _t("Change Cancelled"), type: "info", sticky: false }
+                                    );
+                                },
+                            });
+                            return Promise.resolve();
+                        }
+                    }
+
+                    return origUpdate(changes, ...args);
                 };
-            }
+            };
 
             const labelMap = {
                 "Sales": "Lead & Quotation",
@@ -160,12 +213,7 @@ patch(FormController.prototype, {
             };
 
             onMounted(() => {
-                if (this.model?.root?.data) {
-                    const d = this.model.root.data;
-                    lastConfirmedJob = Array.isArray(d.crm_job_id) ? [...d.crm_job_id] : (d.crm_job_id || false);
-                    lastConfirmedDept = Array.isArray(d.crm_department_id) ? [...d.crm_department_id] : (d.crm_department_id || false);
-                    lastConfirmedMgr = Array.isArray(d.crm_manager_id) ? [...d.crm_manager_id] : (d.crm_manager_id || false);
-                }
+                wrapRootUpdate();
                 safeRelabel();
                 observer = new MutationObserver(() => {
                     if (!isRelabeling) safeRelabel();
@@ -173,13 +221,13 @@ patch(FormController.prototype, {
                 observer.observe(document.body, { childList: true, subtree: true });
             });
 
-            onPatched(safeRelabel);
+            onPatched(() => {
+                wrapRootUpdate();
+                safeRelabel();
+            });
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
-                if (dialogService && origDialogAdd) {
-                    dialogService.add = origDialogAdd;
-                }
             });
         }
     },
