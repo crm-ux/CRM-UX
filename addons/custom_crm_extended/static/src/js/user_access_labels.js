@@ -68,50 +68,7 @@ patch(FormController.prototype, {
                         }
                     }
 
-                    // 2. DEPARTMENT CHANGE
-                    if ("crm_department_id" in changes) {
-                        const currentVal = root.data?.crm_department_id;
-                        const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
-                        const currentName = currentVal ? (Array.isArray(currentVal) ? currentVal[1] : "None") : "None";
-
-                        const newVal = changes.crm_department_id;
-                        const newId = newVal ? (Array.isArray(newVal) ? newVal[0] : newVal) : false;
-                        const newName = newVal ? (Array.isArray(newVal) ? newVal[1] : "None") : "None";
-
-                        if (currentId !== newId) {
-                            dialogService?.add(ConfirmationDialog, {
-                                title: _t("Department Change Warning"),
-                                body: _t(
-                                    `This employee is currently in Department '${currentName}'.\n\n` +
-                                    `Changing Department to '${newName}' may affect their department-level access and visibility.\n\n` +
-                                    `Click 'Change Department' to confirm, or click 'Close' to keep them in '${currentName}'.`
-                                ),
-                                confirmLabel: _t("Change Department"),
-                                cancelLabel: _t("Close"),
-                                confirm: async () => {
-                                    isBypassingGuard = true;
-                                    try {
-                                        await origUpdate(changes, ...args);
-                                        notificationService?.add(
-                                            _t(`Department changed to: ${newName}. Save the form to apply.`),
-                                            { title: _t("Department Confirmed"), type: "success", sticky: false }
-                                        );
-                                    } finally {
-                                        isBypassingGuard = false;
-                                    }
-                                },
-                                cancel: () => {
-                                    notificationService?.add(
-                                        _t(`Department change cancelled. Retained current department: ${currentName}.`),
-                                        { title: _t("Change Cancelled"), type: "info", sticky: false }
-                                    );
-                                },
-                            });
-                            return Promise.resolve();
-                        }
-                    }
-
-                    // 3. ASSIGNED MANAGER CHANGE
+                    // 2. ASSIGNED MANAGER CHANGE
                     if ("crm_manager_id" in changes) {
                         const currentVal = root.data?.crm_manager_id;
                         const currentId = currentVal ? (Array.isArray(currentVal) ? currentVal[0] : currentVal) : false;
