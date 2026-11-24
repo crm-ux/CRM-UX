@@ -589,6 +589,13 @@ class ResUsers(models.Model):
         if not uids:
             return [(0, '=', 1)]
         if user_field:
+            can_unassigned = getattr(self, 'perm_view_unassigned', False) or (bool(self.crm_job_id) and getattr(self.crm_job_id, 'perm_view_unassigned', False))
+            if can_unassigned:
+                return [
+                    '|',
+                    (user_field, 'in', uids),
+                    (user_field, '=', False),
+                ]
             return [
                 '|',
                 (user_field, 'in', uids),
@@ -738,6 +745,7 @@ class ResUsers(models.Model):
             'perm_export': self.perm_export or 'none',
             'perm_log': self.perm_log or 'none',
             'perm_company': self.perm_company or 'none',
+            'perm_view_unassigned': self.perm_view_unassigned,
         })
 
         view = self.env.ref('custom_crm_extended.view_crm_user_access_control_wizard_form', raise_if_not_found=False)
@@ -793,6 +801,12 @@ class ResUsers(models.Model):
         ('none', 'No'),
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
+
+    perm_view_unassigned = fields.Boolean(
+        string='Allow Viewing Unassigned Records',
+        default=False,
+        help='If enabled, this user can view unassigned records across the system in addition to their assigned scope.'
+    )
 
     perm_lead_quote = fields.Selection([
         ('none', 'No'),
@@ -952,6 +966,7 @@ class ResUsers(models.Model):
                 'perm_export': job.perm_export,
                 'perm_log': job.perm_log,
                 'perm_company': job.perm_company,
+                'perm_view_unassigned': job.perm_view_unassigned,
                 'perm_service_ticket': job.perm_service_ticket,
                 'perm_amc': job.perm_amc,
                 'perm_equipment': job.perm_equipment,
@@ -1919,6 +1934,12 @@ class HrJob(models.Model):
         ('create', 'Yes'),
     ], string='Company Creation', default='none')
 
+    perm_view_unassigned = fields.Boolean(
+        string='Allow Viewing Unassigned Records',
+        default=False,
+        help='If enabled, this user can view unassigned records across the system in addition to their assigned scope.'
+    )
+
     # Master "Select All" toggles for each entity
     perm_customer_all = fields.Boolean(string='All', default=False)
     perm_equipment_all = fields.Boolean(string='All', default=False)
@@ -2084,7 +2105,7 @@ class HrJob(models.Model):
             'perm_amc_create', 'perm_amc_write', 'perm_amc_read', 'perm_amc_unlink',
             'perm_exhibition_create', 'perm_exhibition_write', 'perm_exhibition_read', 'perm_exhibition_unlink',
             'perm_lead_create', 'perm_lead_write', 'perm_lead_read', 'perm_lead_unlink',
-            'perm_export', 'perm_log', 'perm_company'
+            'perm_export', 'perm_log', 'perm_company', 'perm_view_unassigned'
         ]
         if any(k in vals for k in perm_keys):
             for job in self:
@@ -2720,6 +2741,7 @@ class CrmUserAccessControlWizard(models.TransientModel):
     perm_export = fields.Selection([('none', 'No'), ('export', 'Yes')], string='Excel Export', default='none')
     perm_log = fields.Selection([('none', 'No'), ('log', 'Yes')], string='Log View', default='none')
     perm_company = fields.Selection([('none', 'No'), ('create', 'Yes')], string='Company Creation', default='none')
+    perm_view_unassigned = fields.Boolean(string='Allow Viewing Unassigned Records', default=False)
 
     @api.onchange('perm_master_select_all')
     def _onchange_perm_master_select_all(self):
@@ -2826,6 +2848,7 @@ class CrmUserAccessControlWizard(models.TransientModel):
             'perm_export': self.perm_export,
             'perm_log': self.perm_log,
             'perm_company': self.perm_company,
+            'perm_view_unassigned': self.perm_view_unassigned,
             'custom_perm_override': True,
         }
         user.sudo().with_context(skip_sync=True).write(vals)

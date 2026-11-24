@@ -168,6 +168,14 @@
                             <span class="d-inline-flex align-items-center gap-1"><field name="perm_lead_unlink" nolabel="1"/> Delete</span>
                         </div>
                     </group>
+
+                    <!-- SECTION: Unassigned Records Access -->
+                    <div colspan="2" class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-2" style="font-size: 13px; letter-spacing: 0.5px;">
+                        Unassigned Records Access
+                    </div>
+                    <group colspan="2" class="custom_radio_clean">
+                        <field name="perm_view_unassigned" string="Allow Viewing Unassigned Records"/>
+                    </group>
                 </group>
             </xpath>
 
@@ -320,6 +328,14 @@
                             <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
                             <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+
+                        <!-- SECTION: Unassigned Records Access -->
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                            Unassigned Records Access
+                        </div>
+                        <group class="custom_radio_clean">
+                            <field name="perm_view_unassigned" string="Allow Viewing Unassigned Records"/>
                         </group>
 
                         <!-- SECTION 2: Master Data Actions -->
@@ -502,6 +518,14 @@
                         <field name="perm_equipment" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_service_ticket" widget="radio" options="{'horizontal': true}"/>
                         <field name="perm_amc" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+
+                    <!-- SECTION: Unassigned Records Access -->
+                    <div class="o_horizontal_separator text-uppercase fw-bold text-primary mt-4 mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                        Unassigned Records Access
+                    </div>
+                    <group class="custom_radio_clean">
+                        <field name="perm_view_unassigned" string="Allow Viewing Unassigned Records"/>
                     </group>
 
                     <!-- SECTION 2: Master Data Operations -->
