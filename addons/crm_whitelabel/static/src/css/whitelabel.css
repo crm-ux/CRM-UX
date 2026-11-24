@@ -834,13 +834,97 @@ button.o_form_button_cancel::after,
     visibility: visible !important;
 }
 
-/* Save & Cancel container */
-.o_form_status_indicator {
+/* ==========================================================================
+   STRICT ALIGNMENT: Home, Create, Save, Discard, Cog & Stat Buttons
+   ========================================================================== */
+.o_control_panel .o_control_panel_breadcrumbs,
+.o_control_panel_breadcrumbs {
     display: inline-flex !important;
     align-items: center !important;
-    margin-right: 0.5rem !important;
-    margin-left: 0 !important;
-    flex-shrink: 0 !important;
+    vertical-align: middle !important;
+    gap: 5px !important;
+}
+
+/* Ensure all button sub-containers align to center vertically with no offset */
+.o_control_panel_breadcrumbs > *,
+.o_control_panel_breadcrumbs .o_control_panel_main_buttons,
+.o_control_panel_breadcrumbs .o_form_status_indicator,
+.o_control_panel_breadcrumbs .o_breadcrumb,
+.o_control_panel_breadcrumbs .o_cp_action_menus,
+.o_control_panel_breadcrumbs .o_control_panel_breadcrumbs_actions,
+.o_control_panel_breadcrumbs .o_form_status_indicator_buttons {
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+}
+
+/* Uniform button dimensions & center alignment across all header buttons */
+.o_control_panel_breadcrumbs > button,
+.o_control_panel_breadcrumbs .o_control_panel_main_buttons button,
+.o_control_panel_breadcrumbs .o_form_button_save,
+.o_control_panel_breadcrumbs .o_form_button_cancel,
+.o_control_panel_breadcrumbs .o_cp_action_menus button {
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    margin: 0 2px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    align-self: center !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+}
+
+/* Cog button icon centering & border */
+.o_control_panel_breadcrumbs .o_cp_action_menus button {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #334155 !important;
+}
+.o_control_panel_breadcrumbs .o_cp_action_menus button:hover {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Stat Buttons Box: vertically aligned with identical height */
+.o_control_panel .oe_button_box,
+.o_control_panel_actions .oe_button_box,
+.oe_button_box {
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: center !important;
+    margin: 0 0 0 8px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+.oe_button_box .oe_stat_button,
+.oe_button_box .btn.oe_stat_button,
+.o_control_panel .oe_stat_button {
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    align-self: center !important;
+    padding: 0 8px !important;
+    box-sizing: border-box !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.oe_button_box .oe_stat_button .o_stat_info,
+.oe_button_box .oe_stat_button .o_button_icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1.1 !important;
 }
 
 /* Filter dropdowns if present */
