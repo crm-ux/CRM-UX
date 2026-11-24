@@ -2849,6 +2849,7 @@ class CrmUserAccessControlWizard(models.TransientModel):
                 'message': _('Custom permissions for %s saved and applied successfully.') % (user.name or ''),
                 'type': 'success',
                 'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
             }
         }
 
