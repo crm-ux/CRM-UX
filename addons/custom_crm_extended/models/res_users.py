@@ -1231,7 +1231,7 @@ class ResUsers(models.Model):
                             "This employee is currently assigned to '%(old_role)s'.\n\n"
                             "Changing to '%(new_role)s' will transfer their position, update their Department to '%(dept)s', "
                             "and update their access permissions upon saving.\n\n"
-                            "If you do NOT wish to transfer this employee, click Discard to keep them in '%(old_role)s'."
+                            "Click 'Transfer Role' to confirm and transfer, or click 'Close' to keep them in '%(old_role)s'."
                         ) % {
                             'old_role': self._origin.crm_job_id.name,
                             'new_role': self.crm_job_id.name,
@@ -1245,7 +1245,7 @@ class ResUsers(models.Model):
                     'title': _("Role Revocation Notice"),
                     'message': _(
                         "Clearing the Job Position will revoke '%(old_role)s' from this employee upon saving.\n\n"
-                        "Click Discard to keep their current position."
+                        "Click 'Revoke Role' to confirm, or click 'Close' to keep their current position."
                     ) % {'old_role': self._origin.crm_job_id.name}
                 }
             }

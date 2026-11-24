@@ -1,12 +1,46 @@
 /** @odoo-module **/
 import { patch } from "@web/core/utils/patch";
 import { FormController } from "@web/views/form/form_controller";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { _t } from "@web/core/l10n/translation";
 import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 
 patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
         if (this.props.resModel === "res.users") {
+            let lastConfirmedJob = this.model.root.data?.crm_job_id ? [...this.model.root.data.crm_job_id] : false;
+
+            // Intercept Role Transfer Warning to show 2 buttons: "Transfer Role" and "Close" (Cancel)
+            const dialogService = this.env.services?.dialog;
+            let origDialogAdd = null;
+            if (dialogService && dialogService.add) {
+                origDialogAdd = dialogService.add.bind(dialogService);
+                dialogService.add = (Component, props, options) => {
+                    const title = props?.title || "";
+                    if (typeof title === "string" && (title.includes("Role Transfer") || title.includes("Role Revocation"))) {
+                        const isRevoke = title.includes("Role Revocation");
+                        return origDialogAdd(ConfirmationDialog, {
+                            title: props.title,
+                            body: props.body || props.message,
+                            confirmLabel: isRevoke ? _t("Revoke Role") : _t("Transfer Role"),
+                            cancelLabel: _t("Close"),
+                            confirm: () => {
+                                // Transfer/Revoke confirmed: update lastConfirmedJob
+                                lastConfirmedJob = this.model.root.data?.crm_job_id ? [...this.model.root.data.crm_job_id] : false;
+                            },
+                            cancel: async () => {
+                                // User cancelled or clicked Close: REVERT back to previous role!
+                                if (lastConfirmedJob && this.model.root) {
+                                    await this.model.root.update({ crm_job_id: lastConfirmedJob });
+                                }
+                            },
+                        }, options);
+                    }
+                    return origDialogAdd(Component, props, options);
+                };
+            }
+
             const labelMap = {
                 "Sales": "Lead & Quotation",
                 "Products": "Product Catalog",
@@ -73,6 +107,9 @@ patch(FormController.prototype, {
 
             onWillUnmount(() => {
                 if (observer) observer.disconnect();
+                if (dialogService && origDialogAdd) {
+                    dialogService.add = origDialogAdd;
+                }
             });
         }
     },
