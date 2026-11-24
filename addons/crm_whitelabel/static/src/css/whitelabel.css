@@ -19,6 +19,17 @@
    GLOBAL DYNAMIC DROPDOWN PLACEMENT ACROSS ALL FORMS & VIEWS
    Ensures autocomplete / dropdown attaches directly under the input field dynamically
    ========================================================================== */
+.o_form_view .o_form_sheet,
+.o_form_view .o_notebook,
+.o_form_view .tab-content,
+.o_form_view .tab-pane,
+.o_form_view .o_group,
+.o_form_view .o_inner_group,
+.o_form_view .o_cell,
+.o_form_view .o_wrap_field {
+    overflow: visible !important;
+}
+
 .o_form_view .o_field_many2one,
 .o_form_view .o_field_many2one_selection,
 .o_form_view .o_field_many2many_tags,
@@ -59,14 +70,37 @@
     width: auto !important;
     min-width: 220px !important;
     max-width: clamp(280px, 45vw, 450px) !important;
-    max-height: clamp(140px, 32vh, 260px) !important;
+    max-height: clamp(200px, 45vh, 320px) !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    z-index: 1060 !important;
+    overscroll-behavior: contain !important;
+    z-index: 10500 !important;
     border-radius: clamp(4px, 0.6vw, 8px) !important;
     border: 1px solid #cbd5e1 !important;
     box-shadow: 0 clamp(4px, 1vh, 12px) clamp(10px, 2vw, 24px) rgba(0, 0, 0, 0.12) !important;
     background-color: #ffffff !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 #f1f5f9 !important;
+}
+
+.o_form_view .o-autocomplete--dropdown-menu::-webkit-scrollbar,
+.modal .o-autocomplete--dropdown-menu::-webkit-scrollbar,
+.ui-autocomplete::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.o_form_view .o-autocomplete--dropdown-menu::-webkit-scrollbar-thumb,
+.modal .o-autocomplete--dropdown-menu::-webkit-scrollbar-thumb,
+.ui-autocomplete::-webkit-scrollbar-thumb {
+    background: #94a3b8 !important;
+    border-radius: 4px !important;
+}
+
+.o_form_view .o-autocomplete--dropdown-menu::-webkit-scrollbar-track,
+.modal .o-autocomplete--dropdown-menu::-webkit-scrollbar-track,
+.ui-autocomplete::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
 }
 
 .o_form_view .o-autocomplete--dropdown-item,
