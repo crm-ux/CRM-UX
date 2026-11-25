@@ -1317,54 +1317,6 @@ if (typeof window !== "undefined") {
             }
         });
 
-        // Import Action Buttons: Upload Data File (Cloud Upload icon) & Single Cancel (Times icon)
-        const importUploadBtns = document.querySelectorAll(
-            ".o_control_panel_main_buttons button.o_import_file, " +
-            ".o_control_panel_main_buttons .o_file_input button"
-        );
-        importUploadBtns.forEach((btn) => {
-            btn.title = "Upload Data File";
-            let foundText = false;
-            Array.from(btn.childNodes).forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                    node.textContent = "";
-                    foundText = true;
-                }
-            });
-            if (foundText || !btn.querySelector("i.fa-cloud-upload")) {
-                btn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-            }
-        });
-
-        // Strictly target only the actual Cancel button (never Test or Import)
-        const importCancelBtns = document.querySelectorAll(
-            ".o_control_panel_main_buttons button.o_import_cancel, " +
-            ".o_import_action button.o_import_cancel, " +
-            ".o_control_panel_main_buttons .o_file_input + button"
-        );
-        let seenCancel = false;
-        importCancelBtns.forEach((btn) => {
-            if (btn.classList.contains("o_import_test") || btn.classList.contains("o_import_import")) {
-                return;
-            }
-            if (seenCancel) {
-                btn.style.setProperty("display", "none", "important");
-                return;
-            }
-            seenCancel = true;
-            btn.title = "Cancel";
-            let foundText = false;
-            Array.from(btn.childNodes).forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                    node.textContent = "";
-                    foundText = true;
-                }
-            });
-            if (foundText || !btn.querySelector("i.fa-times")) {
-                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-            }
-        });
-
         // Hide Help section on Import page
         const importHelpLinks = document.querySelectorAll(
             ".o_import_action a[href*='faq'], .o_import_action a[href*='FAQ'], .o_import_action .o_import_template_link"
