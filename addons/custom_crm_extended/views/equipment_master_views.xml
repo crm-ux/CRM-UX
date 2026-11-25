@@ -13,7 +13,7 @@
                             <field name="equipment_id" placeholder="e.g. LT000123" readonly="1"/>
                         </h1>
                         <h2>
-                            <field name="name" placeholder="Search product..." context="{'display_default_code': False}" options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
+                            <field name="name" placeholder="Search product..." required="1" context="{'display_default_code': False}" options="{'no_create': True, 'no_create_edit': True, 'no_quick_create': True}"/>
                         </h2>
                     </div>
 
@@ -39,7 +39,7 @@
                             <field name="company_id" options="{'no_create': True}" placeholder="Leave empty for all companies"/>
                         </group>
                         <group string="Customer Location &amp; Contact">
-                            <field name="partner_id"/>
+                            <field name="partner_id" required="1"/>
                             <field name="contact_person"/>
                             <field name="contact_number"/>
                             <field name="email"/>

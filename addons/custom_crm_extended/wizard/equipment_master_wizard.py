@@ -200,6 +200,8 @@ class EquipmentMasterWizard(models.TransientModel):
         if self.step == 1:
             if not self.equipment_id:
                 raise ValidationError(_("Please enter Equipment ID before proceeding."))
+            if not self.name:
+                raise ValidationError(_("Please select Model Name before proceeding."))
             # Check unique Equipment ID
             dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
             if dup_eq:
@@ -209,6 +211,9 @@ class EquipmentMasterWizard(models.TransientModel):
                 dup_sn = self.env['equipment.master'].sudo().search([('serial_number', '=', self.serial_number.strip())], limit=1)
                 if dup_sn:
                     raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+        elif self.step == 2:
+            if not self.partner_id:
+                raise ValidationError(_("Please select Customer Name before proceeding."))
 
         if self.step < 4:
             self.step += 1
@@ -228,6 +233,8 @@ class EquipmentMasterWizard(models.TransientModel):
     def _check_step_1_uniqueness(self):
         if not self.equipment_id:
             raise ValidationError(_("Please enter Equipment ID before proceeding."))
+        if not self.name:
+            raise ValidationError(_("Please select Model Name before proceeding."))
         dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', self.equipment_id.strip())], limit=1)
         if dup_eq:
             raise ValidationError(_("Equipment ID '%s' already exists! Please use a unique Equipment ID.") % self.equipment_id)
@@ -235,6 +242,10 @@ class EquipmentMasterWizard(models.TransientModel):
             dup_sn = self.env['equipment.master'].sudo().search([('serial_number', '=', self.serial_number.strip())], limit=1)
             if dup_sn:
                 raise ValidationError(_("Serial Number '%s' already exists! Each equipment must have a unique Serial Number.") % self.serial_number)
+
+    def _check_step_2_validation(self):
+        if not self.partner_id:
+            raise ValidationError(_("Please select Customer Name before proceeding."))
 
     def action_goto_2(self):
         self.ensure_one()
@@ -245,12 +256,14 @@ class EquipmentMasterWizard(models.TransientModel):
     def action_goto_3(self):
         self.ensure_one()
         self._check_step_1_uniqueness()
+        self._check_step_2_validation()
         self.step = 3
         return self._reopen_self()
 
     def action_goto_4(self):
         self.ensure_one()
         self._check_step_1_uniqueness()
+        self._check_step_2_validation()
         self.step = 4
         return self._reopen_self()
 
@@ -337,6 +350,10 @@ class EquipmentMasterWizard(models.TransientModel):
 
         if not assigned_eq_id:
             raise ValidationError(_("Please enter Equipment ID before saving."))
+        if not self.name:
+            raise ValidationError(_("Model Name is required to save Equipment."))
+        if not self.partner_id:
+            raise ValidationError(_("Customer Name is required to save Equipment."))
 
         # Final uniqueness check for Equipment ID
         dup_eq = self.env['equipment.master'].sudo().search([('equipment_id', '=', assigned_eq_id.strip())], limit=1)

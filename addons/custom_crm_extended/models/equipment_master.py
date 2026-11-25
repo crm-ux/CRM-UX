@@ -518,6 +518,14 @@ class EquipmentMaster(models.Model):
         records = self.search(domain, limit=limit)
         return [(r.id, r.display_name) for r in records]
 
+    @api.constrains('name', 'partner_id')
+    def _check_required_fields(self):
+        for rec in self:
+            if not rec.name:
+                raise ValidationError(_("Model Name is required to save Equipment."))
+            if not rec.partner_id:
+                raise ValidationError(_("Customer Name is required to save Equipment."))
+
     @api.constrains('equipment_id')
     def _check_unique_equipment_id(self):
         for rec in self:
