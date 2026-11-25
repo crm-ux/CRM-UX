@@ -1319,114 +1319,115 @@ if (typeof window !== "undefined") {
 
         // Dedicated Import Screen Handling (Screen 1: Upload, Screen 2: Mapping)
         const isImportPage = window.location.href.includes("/import") ||
-            !!document.querySelector("input[name='ufile'], .o_import_file, .o_import_panel, table.o_import_table, [name='sheet'], .o_doc_link, .pt-3.pb-4.border-top") ||
+            !!document.querySelector("input[name='ufile'], .o_import_file, .o_doc_link, .pt-3.pb-4.border-top") ||
             (document.querySelector(".o_last_breadcrumb_item")?.textContent?.toLowerCase().includes("import") ?? false);
 
         if (isImportPage) {
             document.body.classList.add("crm_import_active");
 
-            // Check if on Mapping Screen (file is loaded and columns/options are shown)
-            const isMappingScreen = !!document.querySelector(".o_import_panel, table.o_import_table, [name='sheet'], .o_import_data_side, select[name='sheet']");
-
             const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
             if (controlPanelBtns) {
-                if (!isMappingScreen) {
-                    // SCREEN 1: INITIAL UPLOAD SCREEN
-                    // Button 1: Upload Data File (inside .o_file_input)
-                    const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
-                    if (uploadBtn) {
-                        Array.from(uploadBtn.childNodes).forEach((n) => {
-                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
-                        });
-                        uploadBtn.setAttribute("title", "Upload Data File");
-                        if (!uploadBtn.querySelector("i.fa-cloud-upload")) {
-                            uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                        }
-                    }
+                // Detect whether file is loaded by checking if 'Test' or 'Import' buttons exist
+                const allButtons = Array.from(controlPanelBtns.querySelectorAll("button"));
+                const hasTestOrImport = allButtons.some((b) => {
+                    const t = b.textContent.trim().toLowerCase();
+                    const title = (b.getAttribute("title") || "").toLowerCase();
+                    return t === "test" || t === "import" || title === "test" || title === "import" || b.classList.contains("o_import_test") || b.classList.contains("o_import_import");
+                });
 
-                    // Button 2: Cancel button
-                    const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => {
-                        const t = b.textContent.trim().toLowerCase();
-                        return t === "cancel" || b.title === "Cancel" || b.classList.contains("o_import_cancel");
+                if (hasTestOrImport) {
+                    // SCREEN 2: MAPPING SCREEN (File is loaded)
+                    // 1. Hide the redundant .o_file_input completely (eliminates the empty white box)
+                    controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger").forEach((fi) => {
+                        fi.style.setProperty("display", "none", "important");
                     });
-                    cancelBtns.forEach((btn, idx) => {
-                        if (idx === 0) {
-                            Array.from(btn.childNodes).forEach((n) => {
-                                if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
-                            });
-                            btn.setAttribute("title", "Cancel");
-                            if (!btn.querySelector("i.fa-times")) {
-                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                            }
+
+                    // 2. Format Test, Import, and Cancel buttons strictly as clean icon squares
+                    const actionBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
+                    let cancelFound = false;
+
+                    actionBtns.forEach((btn) => {
+                        const t = btn.textContent.trim().toLowerCase();
+                        const title = (btn.getAttribute("title") || "").toLowerCase();
+
+                        if (t === "test" || title === "test" || btn.classList.contains("btn-primary") || btn.classList.contains("o_import_test")) {
+                            btn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                            btn.setAttribute("title", "Test");
+                            btn.className = "btn btn-primary";
                             btn.style.setProperty("display", "inline-flex", "important");
+                        } else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
+                            btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                            btn.setAttribute("title", "Import");
+                            btn.className = "btn btn-primary";
+                            btn.style.setProperty("display", "inline-flex", "important");
+                        } else if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
+                            if (!cancelFound) {
+                                cancelFound = true;
+                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                btn.setAttribute("title", "Cancel");
+                                btn.className = "btn btn-secondary";
+                                btn.style.setProperty("display", "inline-flex", "important");
+                            } else {
+                                btn.style.setProperty("display", "none", "important");
+                            }
                         } else {
                             btn.style.setProperty("display", "none", "important");
                         }
                     });
                 } else {
-                    // SCREEN 2: MAPPING SCREEN
-                    // 1. Hide the redundant .o_file_input trigger completely (eliminates the empty white box)
-                    const fileInputs = controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger");
-                    fileInputs.forEach((fi) => {
-                        fi.style.setProperty("display", "none", "important");
-                    });
-
-                    // 2. Identify Test, Import, and Cancel buttons
-                    const allBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => {
-                        return !b.closest(".o_file_input");
-                    });
-
-                    // Test Button: primary button or text 'test'
-                    const testBtn = allBtns.find((b) => {
-                        const t = b.textContent.trim().toLowerCase();
-                        return t === "test" || b.title === "Test" || b.classList.contains("btn-primary") || b.classList.contains("o_import_test");
-                    });
-                    if (testBtn) {
-                        Array.from(testBtn.childNodes).forEach((n) => {
-                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
-                        });
-                        testBtn.setAttribute("title", "Test");
-                        if (!testBtn.querySelector("i.fa-check")) {
-                            testBtn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                        }
+                    // SCREEN 1: INITIAL UPLOAD SCREEN (No file loaded yet)
+                    // Button 1: Upload Data File
+                    const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
+                    if (uploadBtn) {
+                        uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                        uploadBtn.setAttribute("title", "Upload Data File");
+                        uploadBtn.className = "btn btn-primary o_import_file";
+                        uploadBtn.style.setProperty("display", "inline-flex", "important");
                     }
 
-                    // Import Button: secondary button with text 'import' or o_import_import
-                    const importBtn = allBtns.find((b) => {
-                        const t = b.textContent.trim().toLowerCase();
-                        return (t === "import" || b.title === "Import" || b.classList.contains("o_import_import")) && b !== testBtn;
-                    });
-                    if (importBtn) {
-                        Array.from(importBtn.childNodes).forEach((n) => {
-                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
-                        });
-                        importBtn.setAttribute("title", "Import");
-                        if (!importBtn.querySelector("i.fa-download")) {
-                            importBtn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                        }
-                    }
-
-                    // Cancel Button: strictly ONE button
-                    const cancelBtns = allBtns.filter((b) => {
-                        const t = b.textContent.trim().toLowerCase();
-                        return (t === "cancel" || b.title === "Cancel" || b.classList.contains("o_import_cancel")) && b !== testBtn && b !== importBtn;
-                    });
-                    cancelBtns.forEach((btn, idx) => {
-                        if (idx === 0) {
-                            Array.from(btn.childNodes).forEach((n) => {
-                                if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
-                            });
-                            btn.setAttribute("title", "Cancel");
-                            if (!btn.querySelector("i.fa-times")) {
+                    // Button 2: Cancel button (Strictly ONE)
+                    let cancelFound = false;
+                    const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
+                    cancelBtns.forEach((btn) => {
+                        const t = btn.textContent.trim().toLowerCase();
+                        const title = (btn.getAttribute("title") || "").toLowerCase();
+                        if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
+                            if (!cancelFound) {
+                                cancelFound = true;
                                 btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                btn.setAttribute("title", "Cancel");
+                                btn.className = "btn btn-secondary";
+                                btn.style.setProperty("display", "inline-flex", "important");
+                            } else {
+                                btn.style.setProperty("display", "none", "important");
                             }
-                            btn.style.setProperty("display", "inline-flex", "important");
-                        } else {
-                            btn.style.setProperty("display", "none", "important");
                         }
                     });
                 }
             }
+
+            // Hide Help & FAQ & Template section on both screens
+            const helpSections = document.querySelectorAll(
+                ".pt-3.pb-4.border-top, .o_doc_link, a[href*='export_import_data'], a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template'], a[href$='.xls']"
+            );
+            helpSections.forEach((el) => {
+                if (el.matches(".pt-3.pb-4.border-top")) {
+                    el.style.setProperty("display", "none", "important");
+                } else {
+                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                    parent.style.setProperty("display", "none", "important");
+                }
+            });
+            document.querySelectorAll("h4, h5, p, span").forEach((el) => {
+                const text = el.textContent?.trim().toLowerCase() || "";
+                if (text === "help" || text.startsWith("need help?")) {
+                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                    parent.style.setProperty("display", "none", "important");
+                }
+            });
+        } else {
+            document.body.classList.remove("crm_import_active");
+        }
 
             // Hide Help & FAQ & Template section on both screens (specifically <div class="pt-3 pb-4 border-top"><h4>Help</h4>...</div>)
             const helpSections = document.querySelectorAll(
