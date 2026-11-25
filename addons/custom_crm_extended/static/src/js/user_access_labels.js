@@ -268,26 +268,38 @@ if (typeof window !== "undefined" && !window._crmNoticeDismissAttached) {
     window._crmNoticeDismissedForCurrentForm = false;
 
     // MutationObserver: instantly suppresses notice if dismissed when OWL re-renders tabs
-    if (typeof MutationObserver !== "undefined") {
-        const dismissObserver = new MutationObserver((mutations) => {
-            if (window._crmNoticeDismissedForCurrentForm) {
-                for (const m of mutations) {
-                    for (const node of m.addedNodes) {
-                        if (node.nodeType === 1) {
-                            if (node.classList?.contains("crm-admin-perm-notice")) {
-                                node.style.setProperty("display", "none", "important");
-                            } else if (node.querySelectorAll) {
-                                const found = node.querySelectorAll(".crm-admin-perm-notice");
-                                if (found?.length) {
-                                    found.forEach((el) => el.style.setProperty("display", "none", "important"));
+    if (typeof MutationObserver !== "undefined" && typeof document !== "undefined") {
+        const initDismissObserver = () => {
+            const target = document.body || document.documentElement;
+            if (!target || window._crmNoticeObserverAttached) return;
+            window._crmNoticeObserverAttached = true;
+
+            const dismissObserver = new MutationObserver((mutations) => {
+                if (window._crmNoticeDismissedForCurrentForm) {
+                    for (const m of mutations) {
+                        for (const node of m.addedNodes) {
+                            if (node.nodeType === 1) {
+                                if (node.classList?.contains("crm-admin-perm-notice")) {
+                                    node.style.setProperty("display", "none", "important");
+                                } else if (node.querySelectorAll) {
+                                    const found = node.querySelectorAll(".crm-admin-perm-notice");
+                                    if (found?.length) {
+                                        found.forEach((el) => el.style.setProperty("display", "none", "important"));
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-        });
-        dismissObserver.observe(document.body, { childList: true, subtree: true });
+            });
+            dismissObserver.observe(target, { childList: true, subtree: true });
+        };
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initDismissObserver);
+        } else {
+            initDismissObserver();
+        }
     }
 
     document.addEventListener("click", (e) => {
