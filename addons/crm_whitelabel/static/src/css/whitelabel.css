@@ -846,7 +846,7 @@ button.o_form_button_cancel::after,
 }
 
 /* Ensure all button sub-containers align to center vertically with no offset */
-.o_control_panel_breadcrumbs > *,
+.o_control_panel_breadcrumbs>*,
 .o_control_panel_breadcrumbs .o_control_panel_main_buttons,
 .o_control_panel_breadcrumbs .o_form_status_indicator,
 .o_control_panel_breadcrumbs .o_breadcrumb,
@@ -862,7 +862,7 @@ button.o_form_button_cancel::after,
 }
 
 /* Uniform button dimensions & center alignment across all header buttons */
-.o_control_panel_breadcrumbs > button,
+.o_control_panel_breadcrumbs>button,
 .o_control_panel_breadcrumbs .o_control_panel_main_buttons button,
 .o_control_panel_breadcrumbs .o_form_button_save,
 .o_control_panel_breadcrumbs .o_form_button_cancel,
@@ -889,6 +889,7 @@ button.o_form_button_cancel::after,
     border: 1px solid #cbd5e1 !important;
     color: #334155 !important;
 }
+
 .o_control_panel_breadcrumbs .o_cp_action_menus button:hover {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
@@ -2042,6 +2043,7 @@ button[name="action_cancel_future_series"] i {
 .o_control_panel .dropdown-menu::-webkit-scrollbar {
     width: 5px !important;
 }
+
 .o_popover.o-dropdown--menu::-webkit-scrollbar-thumb,
 .o_popover.dropdown-menu::-webkit-scrollbar-thumb,
 .o_search_bar_menu::-webkit-scrollbar-thumb,
