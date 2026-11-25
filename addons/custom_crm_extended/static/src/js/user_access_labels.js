@@ -257,3 +257,17 @@ patch(FormController.prototype, {
         }
     },
 });
+
+// Allow dismissing the custom admin permissions notice banner on click
+if (typeof window !== "undefined" && !window._crmNoticeDismissAttached) {
+    window._crmNoticeDismissAttached = true;
+    document.addEventListener("click", (e) => {
+        const closeBtn = e.target.closest(".crm-close-notice");
+        if (closeBtn) {
+            const notice = closeBtn.closest(".crm-admin-perm-notice");
+            if (notice) {
+                notice.style.setProperty("display", "none", "important");
+            }
+        }
+    });
+}
