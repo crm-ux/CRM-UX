@@ -2709,8 +2709,8 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 }
 
 /* Global Control Panel 'New' button: Clean square plus icon across all models */
-.o_control_panel .o_control_panel_main_buttons button.btn-primary,
-.o_control_panel .o_control_panel_main_buttons button.btn-outline-primary,
+.o_control_panel .o_control_panel_main_buttons button.btn-primary:not(.o_import_file):not([class*="o_import"]),
+.o_control_panel .o_control_panel_main_buttons button.btn-outline-primary:not(.o_import_file):not([class*="o_import"]),
 .o_control_panel .o_control_panel_main_buttons .o_list_button_add,
 .o_control_panel .o_control_panel_main_buttons .o_form_button_create {
     width: clamp(2rem, 2.4vh, 2.35rem) !important;
@@ -2976,14 +2976,19 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
    ========================================================================== */
 
 /* 1. Restore auto width and spacing for Import Action Control Panel buttons */
+.o_control_panel .o_control_panel_main_buttons button.o_import_file,
 .o_control_panel .o_control_panel_main_buttons button.o_import_data_file,
-.o_control_panel .o_control_panel_main_buttons button.o_import_cancel,
-.o_control_panel .o_control_panel_main_buttons button.o_import_import,
-.o_control_panel .o_control_panel_main_buttons button.o_import_test,
+.o_control_panel .o_control_panel_main_buttons .o_file_input button,
+.o_control_panel .o_control_panel_main_buttons .o_file_input_trigger button,
+.o_control_panel .o_control_panel_main_buttons:has(.o_file_input) button,
+.o_control_panel .o_control_panel_main_buttons:has(.o_import_file) button,
+.o_control_panel_main_buttons button.o_import_file,
 .o_control_panel_main_buttons button.o_import_data_file,
-.o_control_panel_main_buttons button.o_import_cancel,
-.o_control_panel_main_buttons button.o_import_import,
-.o_control_panel_main_buttons button.o_import_test,
+.o_control_panel_main_buttons .o_file_input button,
+.o_control_panel_main_buttons .o_file_input_trigger button,
+.o_control_panel_main_buttons:has(.o_file_input) button,
+.o_control_panel_main_buttons:has(.o_import_file) button,
+button.o_import_file,
 button.o_import_data_file,
 button.o_import_cancel,
 button.o_import_import,
@@ -2994,7 +2999,7 @@ button.o_import_test {
     height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
-    padding: 0 clamp(0.75rem, 1.2vw, 1.1rem) !important;
+    padding: 0 clamp(0.85rem, 1.3vw, 1.25rem) !important;
     font-size: clamp(0.82rem, 0.9vw, 0.88rem) !important;
     font-weight: 600 !important;
     border-radius: 0.35rem !important;
@@ -3004,22 +3009,35 @@ button.o_import_test {
     gap: 0.45rem !important;
     white-space: nowrap !important;
     text-transform: none !important;
+    box-sizing: border-box !important;
 }
 
 /* Upload Data File Button: Custom Blue + Cloud Upload Icon */
+button.o_import_file,
 button.o_import_data_file,
-.o_control_panel_main_buttons button.o_import_data_file {
+.o_control_panel_main_buttons button.o_import_file,
+.o_control_panel_main_buttons button.o_import_data_file,
+.o_control_panel_main_buttons .o_file_input button,
+.o_control_panel_main_buttons .o_file_input_trigger button {
     background-color: #0b3d91 !important;
     border: 1px solid #0b3d91 !important;
     color: #ffffff !important;
 }
+button.o_import_file:hover,
 button.o_import_data_file:hover,
-.o_control_panel_main_buttons button.o_import_data_file:hover {
+.o_control_panel_main_buttons button.o_import_file:hover,
+.o_control_panel_main_buttons button.o_import_data_file:hover,
+.o_control_panel_main_buttons .o_file_input button:hover,
+.o_control_panel_main_buttons .o_file_input_trigger button:hover {
     background-color: #082d6e !important;
     border-color: #082d6e !important;
 }
+button.o_import_file::before,
 button.o_import_data_file::before,
-.o_control_panel_main_buttons button.o_import_data_file::before {
+.o_control_panel_main_buttons button.o_import_file::before,
+.o_control_panel_main_buttons button.o_import_data_file::before,
+.o_control_panel_main_buttons .o_file_input button::before,
+.o_control_panel_main_buttons .o_file_input_trigger button::before {
     content: "\f0ee" !important; /* FontAwesome fa-cloud-upload */
     font-family: FontAwesome !important;
     font-size: 0.95rem !important;
@@ -3030,21 +3048,27 @@ button.o_import_data_file::before,
 }
 
 /* Cancel Button: Clean Neutral + Close / Cancel Icon */
-button.o_import_cancel,
-.o_control_panel_main_buttons button.o_import_cancel {
+.o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary,
+.o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary,
+.o_control_panel_main_buttons button.o_import_cancel,
+button.o_import_cancel {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     color: #334155 !important;
     margin-left: 0.4rem !important;
 }
-button.o_import_cancel:hover,
-.o_control_panel_main_buttons button.o_import_cancel:hover {
+.o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary:hover,
+.o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary:hover,
+.o_control_panel_main_buttons button.o_import_cancel:hover,
+button.o_import_cancel:hover {
     background-color: #f1f5f9 !important;
     border-color: #94a3b8 !important;
     color: #0f172a !important;
 }
-button.o_import_cancel::before,
-.o_control_panel_main_buttons button.o_import_cancel::before {
+.o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary::before,
+.o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary::before,
+.o_control_panel_main_buttons button.o_import_cancel::before,
+button.o_import_cancel::before {
     content: "\f00d" !important; /* FontAwesome fa-times */
     font-family: FontAwesome !important;
     font-size: 0.9rem !important;
