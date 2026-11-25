@@ -338,11 +338,8 @@
                         </div>
                         
                         <!-- SECTION 1: Record Access & Visibility -->
-                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3 d-flex align-items-center justify-content-between" style="font-size: 13px; letter-spacing: 0.5px;">
-                            <span>Record Access &amp; Visibility Filters</span>
-                            <span class="text-muted text-lowercase fw-normal" title="System Administrators always maintain full unrestricted access to all records, unassigned data, and masters. These permissions apply to standard employees." style="font-size: 11px; cursor: help;">
-                                <i class="fa fa-info-circle text-info me-1"/>Admin has full unrestricted access
-                            </span>
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
+                            Record Access &amp; Visibility Filters
                         </div>
                         <group class="custom_radio_clean">
                             <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
