@@ -99,7 +99,7 @@ class CrmNotification(models.Model):
         }
 
     @api.model
-    def create_notification(self, user, title, summary, category='general', sender=None, res_model=None, res_id=None, record_ref_name=None):
+    def create_notification(self, user, title, summary, category='general', sender=None, res_model=None, res_id=None, record_ref_name=None, skip_bus=False):
         """Helper to create notification master record for a user and dispatch real-time popups."""
         if not user:
             return False
@@ -118,8 +118,8 @@ class CrmNotification(models.Model):
         }
         notif = self.sudo().create(val)
 
-        # Dispatch single real-time live notification via bus to target user
-        if target_user and target_user.exists() and target_user.partner_id:
+        # Dispatch single real-time live notification via bus to target user (unless skip_bus is requested)
+        if not skip_bus and target_user and target_user.exists() and target_user.partner_id:
             try:
                 self.env['bus.bus']._sendone(
                     target_user.partner_id,

@@ -8,12 +8,21 @@ export const crmLiveToastService = {
     start(env, { bus_service, notification, action }) {
         if (!bus_service) return;
 
+        const seenNotifs = new Map();
+
         const handleNotification = (notif) => {
             if (!notif) return;
             const type = notif.type;
             const payload = notif.payload || {};
 
             if (type === "crm_notification" || type === "simple_notification") {
+                const key = `${payload.title || ""}_${payload.message || ""}`;
+                const now = Date.now();
+                if (seenNotifs.has(key) && (now - seenNotifs.get(key)) < 2500) {
+                    return; // Ignore duplicate notification within 2.5 seconds
+                }
+                seenNotifs.set(key, now);
+
                 notification.add(payload.message || "", {
                     title: payload.title || _t("Notification"),
                     type: payload.type || "info",

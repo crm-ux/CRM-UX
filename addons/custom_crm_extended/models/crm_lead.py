@@ -629,8 +629,12 @@ class CrmLead(models.Model):
         if 'user_id' in vals or 'x_assign_to_id' in vals:
             for rec in self.sudo():
                 assigned_user = rec.x_assign_to_id or rec.user_id
-                if assigned_user and assigned_user.partner_id:
-                    if assigned_user.partner_id:
+                old_user_id = old_assigned.get(rec.id)
+                # Only notify if assignee actually changed and is not the current user
+                if assigned_user and assigned_user.partner_id and assigned_user.id != old_user_id and assigned_user.id != self.env.user.id:
+                    ctx_key = f"notif_lead_{rec.id}_{assigned_user.id}"
+                    if not self.env.context.get(ctx_key):
+                        self = self.with_context({ctx_key: True})
                         contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
                         phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
                         body_msg = (
@@ -665,6 +669,8 @@ class CrmLead(models.Model):
                                     msg.sudo().write({'partner_ids': [(4, partner_id)]})
                             except Exception:
                                 pass
+
+                        # 2. Single Live Toast (Format 1)
                         try:
                             self.env['bus.bus']._sendone(
                                 assigned_user.partner_id,
@@ -678,29 +684,19 @@ class CrmLead(models.Model):
                             )
                         except Exception:
                             pass
-                        try:
-                            self.env['bus.bus']._sendone(
-                                assigned_user.partner_id,
-                                'crm_notification',
-                                {
-                                    'title': 'Lead Assigned',
-                                    'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
-                                    'model': 'crm.lead',
-                                    'res_id': rec.id,
-                                }
-                            )
-                        except Exception:
-                            pass
+
+                        # 3. Save to CRM notification history without duplicate bus toast
                         try:
                             self.env['crm.notification'].create_notification(
                                 user=assigned_user,
                                 title=f'Lead Assigned: {rec.name}',
-                                summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
+                                summary=f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
                                 category='lead',
                                 sender=self.env.user,
                                 res_model='crm.lead',
                                 res_id=rec.id,
                                 record_ref_name=rec.name,
+                                skip_bus=True,
                             )
                         except Exception:
                             pass
@@ -842,80 +838,75 @@ class CrmLead(models.Model):
         records = super().create(vals_list)
         for rec in records:
             assigned_user = rec.x_assign_to_id or rec.user_id
-            if assigned_user and assigned_user.partner_id:
-                contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
-                phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
-                body_msg = (
-                    f"<b>Lead Assigned</b><br/>"
-                    f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
-                    f"Contact: <b>{contact}</b> ({phone_str})<br/>"
-                    f"Details: {rec.description or 'No additional details provided.'}"
-                )
-                partner_id = assigned_user.partner_id.id
-                # 1. Guarantee mail.message in DB
-                try:
-                    self.env['mail.message'].sudo().create({
-                        'model': 'crm.lead',
-                        'res_id': rec.id,
-                        'record_name': rec.name,
-                        'subject': f"Lead Assigned: {rec.name}",
-                        'body': body_msg,
-                        'message_type': 'notification',
-                        'author_id': self.env.user.partner_id.id,
-                        'partner_ids': [(6, 0, [partner_id])],
-                    })
-                except Exception:
-                    try:
-                        msg = rec.message_post(
-                            body=body_msg,
-                            subject=f"Lead Assigned: {rec.name}",
-                            partner_ids=[partner_id],
-                            message_type='notification',
-                            subtype_xmlid='mail.mt_comment',
-                        )
-                        if msg:
-                            msg.sudo().write({'partner_ids': [(4, partner_id)]})
-                    except Exception:
-                        pass
-                try:
-                    self.env['bus.bus']._sendone(
-                        assigned_user.partner_id,
-                        'simple_notification',
-                        {
-                            'title': 'Lead Assigned',
-                            'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
-                            'type': 'info',
-                            'sticky': False,
-                        }
+            if assigned_user and assigned_user.partner_id and assigned_user.id != self.env.user.id:
+                ctx_key = f"notif_lead_{rec.id}_{assigned_user.id}"
+                if not self.env.context.get(ctx_key):
+                    self = self.with_context({ctx_key: True})
+                    contact = rec.partner_name or rec.contact_name or (rec.partner_id.name if rec.partner_id else '-')
+                    phone_str = rec.phone or getattr(rec, 'x_mobile', None) or getattr(rec, 'mobile', None) or '-'
+                    body_msg = (
+                        f"<b>Lead Assigned</b><br/>"
+                        f"Lead <b>{rec.name}</b> has been assigned to you by <b>{self.env.user.name}</b>.<br/>"
+                        f"Contact: <b>{contact}</b> ({phone_str})<br/>"
+                        f"Details: {rec.description or 'No additional details provided.'}"
                     )
-                except Exception:
-                    pass
-                try:
-                    self.env['bus.bus']._sendone(
-                        assigned_user.partner_id,
-                        'crm_notification',
-                        {
-                            'title': 'Lead Assigned',
-                            'message': f"Lead {rec.name} has been assigned to you.",
+                    partner_id = assigned_user.partner_id.id
+                    # 1. Guarantee mail.message in DB
+                    try:
+                        self.env['mail.message'].sudo().create({
                             'model': 'crm.lead',
                             'res_id': rec.id,
-                        }
-                    )
-                except Exception:
-                    pass
-                try:
-                    self.env['crm.notification'].create_notification(
-                        user=assigned_user,
-                        title=f'Lead Assigned: {rec.name}',
-                        summary=f"Lead {rec.name} assigned by {self.env.user.name}. Contact: {contact} ({phone_str}), Details: {rec.description or 'No details'}",
-                        category='lead',
-                        sender=self.env.user,
-                        res_model='crm.lead',
-                        res_id=rec.id,
-                        record_ref_name=rec.name,
-                    )
-                except Exception:
-                    pass
+                            'record_name': rec.name,
+                            'subject': f"Lead Assigned: {rec.name}",
+                            'body': body_msg,
+                            'message_type': 'notification',
+                            'author_id': self.env.user.partner_id.id,
+                            'partner_ids': [(6, 0, [partner_id])],
+                        })
+                    except Exception:
+                        try:
+                            msg = rec.message_post(
+                                body=body_msg,
+                                subject=f"Lead Assigned: {rec.name}",
+                                partner_ids=[partner_id],
+                                message_type='notification',
+                                subtype_xmlid='mail.mt_comment',
+                            )
+                            if msg:
+                                msg.sudo().write({'partner_ids': [(4, partner_id)]})
+                        except Exception:
+                            pass
+
+                    # 2. Single Live Toast (Format 1)
+                    try:
+                        self.env['bus.bus']._sendone(
+                            assigned_user.partner_id,
+                            'simple_notification',
+                            {
+                                'title': 'Lead Assigned',
+                                'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                                'type': 'info',
+                                'sticky': False,
+                            }
+                        )
+                    except Exception:
+                        pass
+
+                    # 3. Save to CRM notification history without duplicate bus toast
+                    try:
+                        self.env['crm.notification'].create_notification(
+                            user=assigned_user,
+                            title=f'Lead Assigned: {rec.name}',
+                            summary=f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                            category='lead',
+                            sender=self.env.user,
+                            res_model='crm.lead',
+                            res_id=rec.id,
+                            record_ref_name=rec.name,
+                            skip_bus=True,
+                        )
+                    except Exception:
+                        pass
         return records
 
 class ResPartnerRestrict(models.Model):
