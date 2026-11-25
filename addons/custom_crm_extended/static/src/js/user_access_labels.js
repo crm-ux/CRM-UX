@@ -8,6 +8,10 @@ import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 patch(FormController.prototype, {
     setup() {
         super.setup(...arguments);
+        if (["hr.job", "res.users"].includes(this.props.resModel)) {
+            // Fresh record opened: reset dismiss flag so message appears for this open session
+            window._crmNoticeDismissedForCurrentForm = false;
+        }
         if (this.props.resModel === "res.users") {
             const dialogService = this.env.services?.dialog;
             const notificationService = this.env.services?.notification;
@@ -261,28 +265,54 @@ patch(FormController.prototype, {
 // Allow dismissing the custom admin permissions notice banner on click and keep it hidden across tab switches
 if (typeof window !== "undefined" && !window._crmNoticeDismissAttached) {
     window._crmNoticeDismissAttached = true;
+    window._crmNoticeDismissedForCurrentForm = false;
 
-    if (typeof document !== "undefined") {
-        const styleId = "crm-notice-dismiss-style";
-        if (!document.getElementById(styleId)) {
-            const style = document.createElement("style");
-            style.id = styleId;
-            style.textContent = ".o_form_view.crm-notice-dismissed .crm-admin-perm-notice { display: none !important; }";
-            document.head.appendChild(style);
-        }
+    // MutationObserver: instantly suppresses notice if dismissed when OWL re-renders tabs
+    if (typeof MutationObserver !== "undefined") {
+        const dismissObserver = new MutationObserver((mutations) => {
+            if (window._crmNoticeDismissedForCurrentForm) {
+                for (const m of mutations) {
+                    for (const node of m.addedNodes) {
+                        if (node.nodeType === 1) {
+                            if (node.classList?.contains("crm-admin-perm-notice")) {
+                                node.style.setProperty("display", "none", "important");
+                            } else if (node.querySelectorAll) {
+                                const found = node.querySelectorAll(".crm-admin-perm-notice");
+                                if (found?.length) {
+                                    found.forEach((el) => el.style.setProperty("display", "none", "important"));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        dismissObserver.observe(document.body, { childList: true, subtree: true });
     }
 
     document.addEventListener("click", (e) => {
+        // 1. User clicks close button [✕]
         const closeBtn = e.target.closest(".crm-close-notice");
         if (closeBtn) {
-            const formView = closeBtn.closest(".o_form_view");
-            if (formView) {
-                formView.classList.add("crm-notice-dismissed");
-            }
+            window._crmNoticeDismissedForCurrentForm = true;
             const notice = closeBtn.closest(".crm-admin-perm-notice");
             if (notice) {
                 notice.style.setProperty("display", "none", "important");
             }
+            return;
+        }
+
+        // 2. User switches notebook tabs: if dismissed, guarantee it stays hidden
+        const tabLink = e.target.closest(".o_notebook_headers .nav-link, .nav-tabs .nav-link");
+        if (tabLink && window._crmNoticeDismissedForCurrentForm) {
+            const hideAll = () => {
+                document.querySelectorAll(".crm-admin-perm-notice").forEach((el) => {
+                    el.style.setProperty("display", "none", "important");
+                });
+            };
+            hideAll();
+            setTimeout(hideAll, 0);
+            setTimeout(hideAll, 60);
         }
     });
 }
