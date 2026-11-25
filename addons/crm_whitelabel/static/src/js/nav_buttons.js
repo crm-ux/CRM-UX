@@ -1262,171 +1262,189 @@ if (typeof window !== "undefined") {
     window.navigateBackFromForm = navigateBackFromForm;
 
     // Remove text 'New', 'Save', 'Discard' from DOM inside control panel and render clean icons
+    let isUpdatingButtons = false;
     const cleanNewButtonsGlobally = () => {
-        const btns = document.querySelectorAll(
-            ".o_control_panel_main_buttons .o_form_button_create, " +
-            ".o_control_panel_main_buttons .o_list_button_add, " +
-            ".o_control_panel_main_buttons button.btn-outline-primary"
-        );
-        btns.forEach((btn) => {
-            let foundText = false;
-            Array.from(btn.childNodes).forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                    node.textContent = "";
-                    foundText = true;
-                }
-            });
-            if (foundText || !btn.querySelector("i.fa-plus")) {
-                btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-            }
-        });
-
-        // Editable list Save button (Floppy disk icon)
-        const saveBtns = document.querySelectorAll(
-            ".o_control_panel_main_buttons .o_list_button_save, " +
-            ".o_list_button_save"
-        );
-        saveBtns.forEach((btn) => {
-            let foundText = false;
-            Array.from(btn.childNodes).forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                    node.textContent = "";
-                    foundText = true;
-                }
-            });
-            if (foundText || !btn.querySelector("i.fa-floppy-o")) {
-                btn.innerHTML = '<i class="fa fa-floppy-o" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-            }
-        });
-
-        // Editable list Discard button (Times / Cross icon)
-        const discardBtns = document.querySelectorAll(
-            ".o_control_panel_main_buttons .o_list_button_discard, " +
-            ".o_list_button_discard"
-        );
-        discardBtns.forEach((btn) => {
-            let foundText = false;
-            Array.from(btn.childNodes).forEach((node) => {
-                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-                    node.textContent = "";
-                    foundText = true;
-                }
-            });
-            if (foundText || !btn.querySelector("i.fa-times")) {
-                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-            }
-        });
-
-        // Dedicated Import Screen Handling (Screen 1: Upload, Screen 2: Mapping)
-        const isImportPage = window.location.href.includes("/import") ||
-            !!document.querySelector("input[name='ufile'], .o_import_file, .o_doc_link, .pt-3.pb-4.border-top") ||
-            (document.querySelector(".o_last_breadcrumb_item")?.textContent?.toLowerCase().includes("import") ?? false);
-
-        if (isImportPage) {
-            document.body.classList.add("crm_import_active");
-
-            const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
-            if (controlPanelBtns) {
-                // Detect whether file is loaded by checking if 'Test' or 'Import' buttons exist
-                const allButtons = Array.from(controlPanelBtns.querySelectorAll("button"));
-                const hasTestOrImport = allButtons.some((b) => {
-                    const t = b.textContent.trim().toLowerCase();
-                    const title = (b.getAttribute("title") || "").toLowerCase();
-                    return t === "test" || t === "import" || title === "test" || title === "import" || b.classList.contains("o_import_test") || b.classList.contains("o_import_import");
-                });
-
-                if (hasTestOrImport) {
-                    // SCREEN 2: MAPPING SCREEN (File is loaded)
-                    // 1. Hide the redundant .o_file_input completely (eliminates the empty white box)
-                    controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger").forEach((fi) => {
-                        fi.style.setProperty("display", "none", "important");
-                    });
-
-                    // 2. Format Test, Import, and Cancel buttons strictly as clean icon squares
-                    const actionBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
-                    let cancelFound = false;
-
-                    actionBtns.forEach((btn) => {
-                        const t = btn.textContent.trim().toLowerCase();
-                        const title = (btn.getAttribute("title") || "").toLowerCase();
-
-                        if (t === "test" || title === "test" || btn.classList.contains("btn-primary") || btn.classList.contains("o_import_test")) {
-                            btn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                            btn.setAttribute("title", "Test");
-                            btn.className = "btn btn-primary";
-                            btn.style.setProperty("display", "inline-flex", "important");
-                        } else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
-                            btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                            btn.setAttribute("title", "Import");
-                            btn.className = "btn btn-primary";
-                            btn.style.setProperty("display", "inline-flex", "important");
-                        } else if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
-                            if (!cancelFound) {
-                                cancelFound = true;
-                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                                btn.setAttribute("title", "Cancel");
-                                btn.className = "btn btn-secondary";
-                                btn.style.setProperty("display", "inline-flex", "important");
-                            } else {
-                                btn.style.setProperty("display", "none", "important");
-                            }
-                        } else {
-                            btn.style.setProperty("display", "none", "important");
-                        }
-                    });
-                } else {
-                    // SCREEN 1: INITIAL UPLOAD SCREEN (No file loaded yet)
-                    // Button 1: Upload Data File
-                    const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
-                    if (uploadBtn) {
-                        uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                        uploadBtn.setAttribute("title", "Upload Data File");
-                        uploadBtn.className = "btn btn-primary o_import_file";
-                        uploadBtn.style.setProperty("display", "inline-flex", "important");
-                    }
-
-                    // Button 2: Cancel button (Strictly ONE)
-                    let cancelFound = false;
-                    const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
-                    cancelBtns.forEach((btn) => {
-                        const t = btn.textContent.trim().toLowerCase();
-                        const title = (btn.getAttribute("title") || "").toLowerCase();
-                        if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
-                            if (!cancelFound) {
-                                cancelFound = true;
-                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                                btn.setAttribute("title", "Cancel");
-                                btn.className = "btn btn-secondary";
-                                btn.style.setProperty("display", "inline-flex", "important");
-                            } else {
-                                btn.style.setProperty("display", "none", "important");
-                            }
-                        }
-                    });
-                }
-            }
-
-            // Hide Help & FAQ & Template section on both screens
-            const helpSections = document.querySelectorAll(
-                ".pt-3.pb-4.border-top, .o_doc_link, a[href*='export_import_data'], a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template'], a[href$='.xls']"
+        if (isUpdatingButtons) return;
+        isUpdatingButtons = true;
+        try {
+            const btns = document.querySelectorAll(
+                ".o_control_panel_main_buttons .o_form_button_create, " +
+                ".o_control_panel_main_buttons .o_list_button_add, " +
+                ".o_control_panel_main_buttons button.btn-outline-primary"
             );
-            helpSections.forEach((el) => {
-                if (el.matches(".pt-3.pb-4.border-top")) {
-                    el.style.setProperty("display", "none", "important");
-                } else {
-                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
-                    parent.style.setProperty("display", "none", "important");
+            btns.forEach((btn) => {
+                let foundText = false;
+                Array.from(btn.childNodes).forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                        node.textContent = "";
+                        foundText = true;
+                    }
+                });
+                if (foundText || !btn.querySelector("i.fa-plus")) {
+                    btn.innerHTML = '<i class="fa fa-plus" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
                 }
             });
-            document.querySelectorAll("h4, h5, p, span").forEach((el) => {
-                const text = el.textContent?.trim().toLowerCase() || "";
-                if (text === "help" || text.startsWith("need help?")) {
-                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
-                    parent.style.setProperty("display", "none", "important");
+
+            // Editable list Save button (Floppy disk icon)
+            const saveBtns = document.querySelectorAll(
+                ".o_control_panel_main_buttons .o_list_button_save, " +
+                ".o_list_button_save"
+            );
+            saveBtns.forEach((btn) => {
+                let foundText = false;
+                Array.from(btn.childNodes).forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                        node.textContent = "";
+                        foundText = true;
+                    }
+                });
+                if (foundText || !btn.querySelector("i.fa-floppy-o")) {
+                    btn.innerHTML = '<i class="fa fa-floppy-o" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
                 }
             });
-        } else {
-            document.body.classList.remove("crm_import_active");
+
+            // Editable list Discard button (Times / Cross icon)
+            const discardBtns = document.querySelectorAll(
+                ".o_control_panel_main_buttons .o_list_button_discard, " +
+                ".o_list_button_discard"
+            );
+            discardBtns.forEach((btn) => {
+                let foundText = false;
+                Array.from(btn.childNodes).forEach((node) => {
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                        node.textContent = "";
+                        foundText = true;
+                    }
+                });
+                if (foundText || !btn.querySelector("i.fa-times")) {
+                    btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                }
+            });
+
+            // Dedicated Import Screen Handling (Screen 1: Upload, Screen 2: Mapping)
+            const isImportPage = window.location.href.includes("/import") ||
+                !!document.querySelector("input[name='ufile'], .o_import_file, .o_doc_link, .pt-3.pb-4.border-top") ||
+                (document.querySelector(".o_last_breadcrumb_item")?.textContent?.toLowerCase().includes("import") ?? false);
+
+            if (isImportPage) {
+                if (!document.body.classList.contains("crm_import_active")) {
+                    document.body.classList.add("crm_import_active");
+                }
+
+                const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
+                if (controlPanelBtns) {
+                    const allButtons = Array.from(controlPanelBtns.querySelectorAll("button"));
+                    const hasTestOrImport = allButtons.some((b) => {
+                        const t = b.textContent.trim().toLowerCase();
+                        const title = (b.getAttribute("title") || "").toLowerCase();
+                        return t === "test" || t === "import" || title === "test" || title === "import" || b.classList.contains("o_import_test") || b.classList.contains("o_import_import");
+                    });
+
+                    if (hasTestOrImport) {
+                        // SCREEN 2: MAPPING SCREEN (File is loaded)
+                        controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger").forEach((fi) => {
+                            if (fi.style.display !== "none") {
+                                fi.style.setProperty("display", "none", "important");
+                            }
+                        });
+
+                        const actionBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
+                        let cancelFound = false;
+
+                        actionBtns.forEach((btn) => {
+                            const t = btn.textContent.trim().toLowerCase();
+                            const title = (btn.getAttribute("title") || "").toLowerCase();
+
+                            if (t === "test" || title === "test" || btn.classList.contains("btn-primary") || btn.classList.contains("o_import_test")) {
+                                if (!btn.querySelector("i.fa-check")) {
+                                    btn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                }
+                                if (btn.getAttribute("title") !== "Test") btn.setAttribute("title", "Test");
+                                if (btn.className !== "btn btn-primary") btn.className = "btn btn-primary";
+                                if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                            } else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
+                                if (!btn.querySelector("i.fa-download")) {
+                                    btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                }
+                                if (btn.getAttribute("title") !== "Import") btn.setAttribute("title", "Import");
+                                if (btn.className !== "btn btn-primary") btn.className = "btn btn-primary";
+                                if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                            } else if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
+                                if (!cancelFound) {
+                                    cancelFound = true;
+                                    if (!btn.querySelector("i.fa-times")) {
+                                        btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                    }
+                                    if (btn.getAttribute("title") !== "Cancel") btn.setAttribute("title", "Cancel");
+                                    if (btn.className !== "btn btn-secondary") btn.className = "btn btn-secondary";
+                                    if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                                } else {
+                                    if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                                }
+                            } else {
+                                if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                            }
+                        });
+                    } else {
+                        // SCREEN 1: INITIAL UPLOAD SCREEN (No file loaded yet)
+                        const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
+                        if (uploadBtn) {
+                            if (!uploadBtn.querySelector("i.fa-cloud-upload")) {
+                                uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                            }
+                            if (uploadBtn.getAttribute("title") !== "Upload Data File") uploadBtn.setAttribute("title", "Upload Data File");
+                            if (uploadBtn.className !== "btn btn-primary o_import_file") uploadBtn.className = "btn btn-primary o_import_file";
+                            if (uploadBtn.style.display !== "inline-flex") uploadBtn.style.setProperty("display", "inline-flex", "important");
+                        }
+
+                        let cancelFound = false;
+                        const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
+                        cancelBtns.forEach((btn) => {
+                            const t = btn.textContent.trim().toLowerCase();
+                            const title = (btn.getAttribute("title") || "").toLowerCase();
+                            if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
+                                if (!cancelFound) {
+                                    cancelFound = true;
+                                    if (!btn.querySelector("i.fa-times")) {
+                                        btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                    }
+                                    if (btn.getAttribute("title") !== "Cancel") btn.setAttribute("title", "Cancel");
+                                    if (btn.className !== "btn btn-secondary") btn.className = "btn btn-secondary";
+                                    if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                                } else {
+                                    if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Hide Help & FAQ & Template section on both screens
+                const helpSections = document.querySelectorAll(
+                    ".pt-3.pb-4.border-top, .o_doc_link, a[href*='export_import_data'], a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template'], a[href$='.xls']"
+                );
+                helpSections.forEach((el) => {
+                    const target = el.matches(".pt-3.pb-4.border-top") ? el : (el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el);
+                    if (target && target.style.display !== "none") {
+                        target.style.setProperty("display", "none", "important");
+                    }
+                });
+                document.querySelectorAll("h4, h5, p, span").forEach((el) => {
+                    const text = el.textContent?.trim().toLowerCase() || "";
+                    if (text === "help" || text.startsWith("need help?")) {
+                        const target = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                        if (target && target.style.display !== "none") {
+                            target.style.setProperty("display", "none", "important");
+                        }
+                    }
+                });
+            } else {
+                if (document.body.classList.contains("crm_import_active")) {
+                    document.body.classList.remove("crm_import_active");
+                }
+            }
+        } finally {
+            isUpdatingButtons = false;
         }
     };
 
