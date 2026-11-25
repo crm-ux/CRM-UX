@@ -644,7 +644,7 @@ class CrmLead(models.Model):
                             f"Details: {rec.description or 'No additional details provided.'}"
                         )
                         partner_id = assigned_user.partner_id.id
-                        # 1. Guarantee mail.message in DB
+                        # 1. Log in lead chatter for audit history (without triggering Odoo default popups)
                         try:
                             self.env['mail.message'].sudo().create({
                                 'model': 'crm.lead',
@@ -652,51 +652,24 @@ class CrmLead(models.Model):
                                 'record_name': rec.name,
                                 'subject': f"Lead Assigned: {rec.name}",
                                 'body': body_msg,
-                                'message_type': 'notification',
+                                'message_type': 'comment',
                                 'author_id': self.env.user.partner_id.id,
-                                'partner_ids': [(6, 0, [partner_id])],
                             })
-                        except Exception:
-                            try:
-                                msg = rec.message_post(
-                                    body=body_msg,
-                                    subject=f"Lead Assigned: {rec.name}",
-                                    partner_ids=[partner_id],
-                                    message_type='notification',
-                                    subtype_xmlid='mail.mt_comment',
-                                )
-                                if msg:
-                                    msg.sudo().write({'partner_ids': [(4, partner_id)]})
-                            except Exception:
-                                pass
-
-                        # 2. Single Live Toast (Format 1)
-                        try:
-                            self.env['bus.bus']._sendone(
-                                assigned_user.partner_id,
-                                'simple_notification',
-                                {
-                                    'title': 'Lead Assigned',
-                                    'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
-                                    'type': 'info',
-                                    'sticky': False,
-                                }
-                            )
                         except Exception:
                             pass
 
-                        # 3. Save to CRM notification history without duplicate bus toast
+                        # 2. Dispatch via our Custom Notification system (Format 1 popup + bell counter)
                         try:
                             self.env['crm.notification'].create_notification(
                                 user=assigned_user,
-                                title=f'Lead Assigned: {rec.name}',
+                                title='Lead Assigned',
                                 summary=f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
                                 category='lead',
                                 sender=self.env.user,
                                 res_model='crm.lead',
                                 res_id=rec.id,
                                 record_ref_name=rec.name,
-                                skip_bus=True,
+                                skip_bus=False,
                             )
                         except Exception:
                             pass
@@ -851,7 +824,7 @@ class CrmLead(models.Model):
                         f"Details: {rec.description or 'No additional details provided.'}"
                     )
                     partner_id = assigned_user.partner_id.id
-                    # 1. Guarantee mail.message in DB
+                    # 1. Log in lead chatter for audit history (without triggering Odoo default popups)
                     try:
                         self.env['mail.message'].sudo().create({
                             'model': 'crm.lead',
@@ -859,51 +832,24 @@ class CrmLead(models.Model):
                             'record_name': rec.name,
                             'subject': f"Lead Assigned: {rec.name}",
                             'body': body_msg,
-                            'message_type': 'notification',
+                            'message_type': 'comment',
                             'author_id': self.env.user.partner_id.id,
-                            'partner_ids': [(6, 0, [partner_id])],
                         })
-                    except Exception:
-                        try:
-                            msg = rec.message_post(
-                                body=body_msg,
-                                subject=f"Lead Assigned: {rec.name}",
-                                partner_ids=[partner_id],
-                                message_type='notification',
-                                subtype_xmlid='mail.mt_comment',
-                            )
-                            if msg:
-                                msg.sudo().write({'partner_ids': [(4, partner_id)]})
-                        except Exception:
-                            pass
-
-                    # 2. Single Live Toast (Format 1)
-                    try:
-                        self.env['bus.bus']._sendone(
-                            assigned_user.partner_id,
-                            'simple_notification',
-                            {
-                                'title': 'Lead Assigned',
-                                'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
-                                'type': 'info',
-                                'sticky': False,
-                            }
-                        )
                     except Exception:
                         pass
 
-                    # 3. Save to CRM notification history without duplicate bus toast
+                    # 2. Dispatch via our Custom Notification system (Format 1 popup + bell counter)
                     try:
                         self.env['crm.notification'].create_notification(
                             user=assigned_user,
-                            title=f'Lead Assigned: {rec.name}',
+                            title='Lead Assigned',
                             summary=f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
                             category='lead',
                             sender=self.env.user,
                             res_model='crm.lead',
                             res_id=rec.id,
                             record_ref_name=rec.name,
-                            skip_bus=True,
+                            skip_bus=False,
                         )
                     except Exception:
                         pass
