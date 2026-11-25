@@ -1185,7 +1185,7 @@ div[name="note"] .o-wysiwyg {
 .o_control_panel .o_list_selection_box~.btn,
 .o_control_panel div:has(> .o_list_selection_box)~button,
 .o_control_panel div:has(> .o_list_selection_box)~.btn,
-.o_control_panel .btn-secondary:not(.o_form_button_cancel):not([title="Search..."]) {
+.o_control_panel .btn-secondary:not(.o_form_button_cancel):not([title="Search..."]):not(.o_file_input + button):not(.o_file_input ~ button) {
     height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
@@ -2990,10 +2990,16 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
 .o_control_panel .o_control_panel_main_buttons button.o_import_data_file,
 .o_control_panel .o_control_panel_main_buttons .o_file_input button,
 .o_control_panel .o_control_panel_main_buttons .o_file_input_trigger button,
+.o_control_panel .o_control_panel_main_buttons .o_file_input + button,
+.o_control_panel .o_control_panel_main_buttons .o_file_input ~ button,
 .o_control_panel_main_buttons button.o_import_file,
 .o_control_panel_main_buttons button.o_import_data_file,
 .o_control_panel_main_buttons .o_file_input button,
 .o_control_panel_main_buttons .o_file_input_trigger button,
+.o_control_panel_main_buttons .o_file_input + button,
+.o_control_panel_main_buttons .o_file_input ~ button,
+.o_file_input + button,
+.o_file_input ~ button,
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary,
 button.o_import_file,
@@ -3058,14 +3064,32 @@ button.o_import_data_file::before,
 }
 
 /* Cancel Button: Clean Neutral + Close / Cancel Icon Only */
+.o_control_panel .o_control_panel_main_buttons .o_file_input + button,
+.o_control_panel .o_control_panel_main_buttons .o_file_input ~ button,
+.o_control_panel_main_buttons .o_file_input + button,
+.o_control_panel_main_buttons .o_file_input ~ button,
+.o_control_panel_main_buttons .o_file_input + button.btn-secondary,
+.o_control_panel_main_buttons .o_file_input ~ button.btn-secondary,
+.o_file_input + button,
+.o_file_input ~ button,
+.o_file_input + button.btn-secondary,
+.o_file_input ~ button.btn-secondary,
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary,
 .o_control_panel_main_buttons button.o_import_cancel,
 button.o_import_cancel {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
-    margin-left: 0.3rem !important;
+    margin-left: 0.35rem !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    overflow: hidden !important;
 }
+.o_control_panel .o_control_panel_main_buttons .o_file_input + button:hover,
+.o_control_panel .o_control_panel_main_buttons .o_file_input ~ button:hover,
+.o_control_panel_main_buttons .o_file_input + button:hover,
+.o_control_panel_main_buttons .o_file_input ~ button:hover,
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary:hover,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary:hover,
 .o_control_panel_main_buttons button.o_import_cancel:hover,
@@ -3073,6 +3097,16 @@ button.o_import_cancel:hover {
     background-color: #f1f5f9 !important;
     border-color: #94a3b8 !important;
 }
+.o_control_panel .o_control_panel_main_buttons .o_file_input + button::before,
+.o_control_panel .o_control_panel_main_buttons .o_file_input ~ button::before,
+.o_control_panel_main_buttons .o_file_input + button::before,
+.o_control_panel_main_buttons .o_file_input ~ button::before,
+.o_control_panel_main_buttons .o_file_input + button.btn-secondary::before,
+.o_control_panel_main_buttons .o_file_input ~ button.btn-secondary::before,
+.o_file_input + button::before,
+.o_file_input ~ button::before,
+.o_file_input + button.btn-secondary::before,
+.o_file_input ~ button.btn-secondary::before,
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary::before,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary::before,
 .o_control_panel_main_buttons button.o_import_cancel::before,

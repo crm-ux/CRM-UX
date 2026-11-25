@@ -1316,6 +1316,46 @@ if (typeof window !== "undefined") {
                 btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
             }
         });
+
+        // Import Action Buttons: Upload Data File (Cloud Upload icon) & Cancel (Times icon)
+        const importUploadBtns = document.querySelectorAll(
+            ".o_control_panel_main_buttons button.o_import_file, " +
+            ".o_control_panel_main_buttons .o_file_input button"
+        );
+        importUploadBtns.forEach((btn) => {
+            btn.title = "Upload Data File";
+            let foundText = false;
+            Array.from(btn.childNodes).forEach((node) => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                    node.textContent = "";
+                    foundText = true;
+                }
+            });
+            if (foundText || !btn.querySelector("i.fa-cloud-upload")) {
+                btn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+            }
+        });
+
+        const importCancelBtns = document.querySelectorAll(
+            ".o_control_panel_main_buttons .o_file_input + button, " +
+            ".o_control_panel_main_buttons .o_file_input ~ button, " +
+            ".o_file_input + button, " +
+            ".o_file_input ~ button, " +
+            ".o_control_panel_main_buttons button.o_import_cancel"
+        );
+        importCancelBtns.forEach((btn) => {
+            btn.title = "Cancel";
+            let foundText = false;
+            Array.from(btn.childNodes).forEach((node) => {
+                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+                    node.textContent = "";
+                    foundText = true;
+                }
+            });
+            if (foundText || !btn.querySelector("i.fa-times")) {
+                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+            }
+        });
     };
 
     const navObserver = new MutationObserver(() => {
