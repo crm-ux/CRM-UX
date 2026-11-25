@@ -15,7 +15,7 @@ export const crmLiveToastService = {
             const type = notif.type;
             const payload = notif.payload || {};
 
-            if (type === "crm_notification" || type === "simple_notification") {
+            if (type === "crm_notification") {
                 const key = `${payload.title || ""}_${payload.message || ""}`;
                 const now = Date.now();
                 if (seenNotifs.has(key) && (now - seenNotifs.get(key)) < 2500) {
@@ -36,28 +36,25 @@ export const crmLiveToastService = {
                 } else if (current && current.model && current.model.root && typeof current.model.root.load === "function") {
                     current.model.root.load().catch(() => {});
                 }
+            } else if (type === "simple_notification") {
+                // simple_notification is already displayed natively by Odoo core notification service.
+                // We only reload active controller without duplicating the popup toast.
+                const current = action.currentController;
+                if (current && current.model && typeof current.model.load === "function") {
+                    current.model.load().catch(() => {});
+                } else if (current && current.model && current.model.root && typeof current.model.root.load === "function") {
+                    current.model.root.load().catch(() => {});
+                }
             }
         };
 
-        // 1. Odoo 17 EventBus Standard Listener
+        // Odoo 17 EventBus Standard Listener
         try {
             if (typeof bus_service.addEventListener === "function") {
                 bus_service.addEventListener("notification", ({ detail: notifications }) => {
                     for (const notif of (notifications || [])) {
                         handleNotification(notif);
                     }
-                });
-            }
-        } catch (e) {}
-
-        // 2. Legacy / Fallback Subscribe Listener
-        try {
-            if (typeof bus_service.subscribe === "function") {
-                bus_service.subscribe("crm_notification", (payload) => {
-                    handleNotification({ type: "crm_notification", payload });
-                });
-                bus_service.subscribe("simple_notification", (payload) => {
-                    handleNotification({ type: "simple_notification", payload });
                 });
             }
         } catch (e) {}

@@ -203,16 +203,8 @@ class CrmDashboard extends Component {
                             const type = notif.type;
                             const p = notif.payload || {};
                             if (type === "simple_notification" || type === "crm_notification") {
-                                const title = p.title || "CRM Notification";
-                                const message = p.message || title;
-                                this.showToast(`${title}: ${message}`);
-                                if (this.notification && typeof this.notification.add === "function") {
-                                    this.notification.add(message, {
-                                        title: title,
-                                        type: p.type || "info",
-                                        sticky: Boolean(p.sticky),
-                                    });
-                                }
+                                // Odoo core notification_service handles the popup toast natively.
+                                // We refresh the unread notification badge counter here.
                             }
                         }
                         this.loadNotifCount();
