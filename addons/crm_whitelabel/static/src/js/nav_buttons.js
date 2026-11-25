@@ -1428,29 +1428,6 @@ if (typeof window !== "undefined") {
         } else {
             document.body.classList.remove("crm_import_active");
         }
-
-            // Hide Help & FAQ & Template section on both screens (specifically <div class="pt-3 pb-4 border-top"><h4>Help</h4>...</div>)
-            const helpSections = document.querySelectorAll(
-                ".pt-3.pb-4.border-top, .o_doc_link, a[href*='export_import_data'], a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template'], a[href$='.xls']"
-            );
-            helpSections.forEach((el) => {
-                if (el.matches(".pt-3.pb-4.border-top")) {
-                    el.style.setProperty("display", "none", "important");
-                } else {
-                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
-                    parent.style.setProperty("display", "none", "important");
-                }
-            });
-            document.querySelectorAll("h4, h5, p, span").forEach((el) => {
-                const text = el.textContent?.trim().toLowerCase() || "";
-                if (text === "help" || text.startsWith("need help?")) {
-                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
-                    parent.style.setProperty("display", "none", "important");
-                }
-            });
-        } else {
-            document.body.classList.remove("crm_import_active");
-        }
     };
 
     const navObserver = new MutationObserver(() => {
