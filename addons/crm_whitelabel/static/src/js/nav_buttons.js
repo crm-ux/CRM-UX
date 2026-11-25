@@ -1317,25 +1317,132 @@ if (typeof window !== "undefined") {
             }
         });
 
-        // Hide Help section on Import page
-        const importHelpLinks = document.querySelectorAll(
-            ".o_import_action a[href*='faq'], .o_import_action a[href*='FAQ'], .o_import_action .o_import_template_link"
-        );
-        importHelpLinks.forEach((link) => {
-            const section = link.closest("div.mb-3, div.mb-4, div.mt-3, div.mt-4") || link.parentElement;
-            if (section && section !== document.body) {
-                section.style.setProperty("display", "none", "important");
-            }
-        });
-        const h5s = document.querySelectorAll(".o_import_action h5");
-        h5s.forEach((h5) => {
-            if (h5.textContent.trim().toLowerCase() === "help") {
-                const parent = h5.parentElement;
-                if (parent) {
-                    parent.style.setProperty("display", "none", "important");
+        // Dedicated Import Screen Handling (Screen 1: Upload, Screen 2: Mapping)
+        const isImportPage = !!document.querySelector("input[name='ufile'], .o_import_file, .o_import_panel, table.o_import_table, [name='sheet']") ||
+            (document.querySelector(".o_last_breadcrumb_item")?.textContent?.toLowerCase().includes("import") ?? false);
+
+        if (isImportPage) {
+            document.body.classList.add("crm_import_active");
+
+            // Check if on Mapping Screen (file is loaded and columns/options are shown)
+            const isMappingScreen = !!document.querySelector(".o_import_panel, table.o_import_table, [name='sheet'], .o_import_data_side");
+
+            const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
+            if (controlPanelBtns) {
+                if (!isMappingScreen) {
+                    // SCREEN 1: INITIAL UPLOAD SCREEN
+                    // Button 1: Upload Data File (inside .o_file_input)
+                    const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
+                    if (uploadBtn) {
+                        Array.from(uploadBtn.childNodes).forEach((n) => {
+                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
+                        });
+                        uploadBtn.setAttribute("title", "Upload Data File");
+                        if (!uploadBtn.querySelector("i.fa-cloud-upload")) {
+                            uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                        }
+                    }
+
+                    // Button 2: Cancel button
+                    const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => {
+                        const t = b.textContent.trim().toLowerCase();
+                        return t === "cancel" || b.title === "Cancel" || b.classList.contains("o_import_cancel");
+                    });
+                    cancelBtns.forEach((btn, idx) => {
+                        if (idx === 0) {
+                            Array.from(btn.childNodes).forEach((n) => {
+                                if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
+                            });
+                            btn.setAttribute("title", "Cancel");
+                            if (!btn.querySelector("i.fa-times")) {
+                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                            }
+                            btn.style.setProperty("display", "inline-flex", "important");
+                        } else {
+                            btn.style.setProperty("display", "none", "important");
+                        }
+                    });
+                } else {
+                    // SCREEN 2: MAPPING SCREEN
+                    // 1. Hide the redundant .o_file_input trigger completely
+                    const fileInput = controlPanelBtns.querySelector(".o_file_input");
+                    if (fileInput) {
+                        fileInput.style.setProperty("display", "none", "important");
+                    }
+
+                    // 2. Identify Test, Import, and Cancel buttons
+                    const allBtns = Array.from(controlPanelBtns.querySelectorAll("button"));
+
+                    // Test Button: primary button or text 'test'
+                    const testBtn = allBtns.find((b) => {
+                        const t = b.textContent.trim().toLowerCase();
+                        return t === "test" || b.title === "Test" || b.classList.contains("btn-primary") || b.classList.contains("o_import_test");
+                    });
+                    if (testBtn) {
+                        Array.from(testBtn.childNodes).forEach((n) => {
+                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
+                        });
+                        testBtn.setAttribute("title", "Test");
+                        if (!testBtn.querySelector("i.fa-check")) {
+                            testBtn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                        }
+                    }
+
+                    // Import Button: secondary button with text 'import' or o_import_import
+                    const importBtn = allBtns.find((b) => {
+                        const t = b.textContent.trim().toLowerCase();
+                        return (t === "import" || b.title === "Import" || b.classList.contains("o_import_import")) && b !== testBtn;
+                    });
+                    if (importBtn) {
+                        Array.from(importBtn.childNodes).forEach((n) => {
+                            if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
+                        });
+                        importBtn.setAttribute("title", "Import");
+                        if (!importBtn.querySelector("i.fa-download")) {
+                            importBtn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                        }
+                    }
+
+                    // Cancel Button: strictly ONE button
+                    const cancelBtns = allBtns.filter((b) => {
+                        const t = b.textContent.trim().toLowerCase();
+                        return (t === "cancel" || b.title === "Cancel" || b.classList.contains("o_import_cancel")) && b !== testBtn && b !== importBtn;
+                    });
+                    cancelBtns.forEach((btn, idx) => {
+                        if (idx === 0) {
+                            Array.from(btn.childNodes).forEach((n) => {
+                                if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) n.textContent = "";
+                            });
+                            btn.setAttribute("title", "Cancel");
+                            if (!btn.querySelector("i.fa-times")) {
+                                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                            }
+                            btn.style.setProperty("display", "inline-flex", "important");
+                        } else {
+                            btn.style.setProperty("display", "none", "important");
+                        }
+                    });
                 }
             }
-        });
+
+            // Hide Help & FAQ & Template section on both screens
+            const helpTargets = document.querySelectorAll(
+                "a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template']"
+            );
+            helpTargets.forEach((el) => {
+                const parent = el.closest(".mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                parent.style.setProperty("display", "none", "important");
+            });
+            document.querySelectorAll("h5, p, span").forEach((el) => {
+                const text = el.textContent?.trim().toLowerCase() || "";
+                if (text === "help" || text.startsWith("need help?")) {
+                    const parent = el.closest(".mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                    parent.style.setProperty("display", "none", "important");
+                }
+            });
+        } else {
+            document.body.classList.remove("crm_import_active");
+        }
     };
 
     const navObserver = new MutationObserver(() => {
