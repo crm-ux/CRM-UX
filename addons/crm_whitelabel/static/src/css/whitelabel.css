@@ -2976,23 +2976,29 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
    ========================================================================== */
 
 /* 1. Import Action Control Panel buttons: Clean Square Icon-Only Buttons matching navbar [Home] */
+.o_control_panel_main_buttons .o_file_input,
+.o_control_panel_main_buttons .o_file_input_trigger {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+}
+
 .o_control_panel .o_control_panel_main_buttons button.o_import_file,
 .o_control_panel .o_control_panel_main_buttons button.o_import_data_file,
 .o_control_panel .o_control_panel_main_buttons .o_file_input button,
 .o_control_panel .o_control_panel_main_buttons .o_file_input_trigger button,
-.o_control_panel .o_control_panel_main_buttons:has(.o_file_input) button,
-.o_control_panel .o_control_panel_main_buttons:has(.o_import_file) button,
 .o_control_panel_main_buttons button.o_import_file,
 .o_control_panel_main_buttons button.o_import_data_file,
 .o_control_panel_main_buttons .o_file_input button,
 .o_control_panel_main_buttons .o_file_input_trigger button,
-.o_control_panel_main_buttons:has(.o_file_input) button,
-.o_control_panel_main_buttons:has(.o_import_file) button,
+.o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary,
+.o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary,
 button.o_import_file,
 button.o_import_data_file,
-button.o_import_cancel,
-button.o_import_import,
-button.o_import_test {
+button.o_import_cancel {
     width: clamp(2rem, 2.4vh, 2.35rem) !important;
     min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
     max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
@@ -3000,15 +3006,18 @@ button.o_import_test {
     min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     padding: 0 !important;
-    font-size: 0 !important; /* Hide text, show only icon */
-    font-weight: normal !important;
+    margin: 0 !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    overflow: hidden !important;
+    position: relative !important;
     border-radius: 0.35rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0 !important;
-    white-space: nowrap !important;
     box-sizing: border-box !important;
+    cursor: pointer !important;
 }
 
 /* Upload Data File Button: Custom Blue + Cloud Upload Icon Only */
@@ -3020,7 +3029,6 @@ button.o_import_data_file,
 .o_control_panel_main_buttons .o_file_input_trigger button {
     background-color: #0b3d91 !important;
     border: 1px solid #0b3d91 !important;
-    color: #ffffff !important;
 }
 button.o_import_file:hover,
 button.o_import_data_file:hover,
@@ -3041,11 +3049,12 @@ button.o_import_data_file::before,
     font-family: FontAwesome !important;
     font-size: 0.95rem !important;
     color: #ffffff !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     line-height: 1 !important;
+    pointer-events: none !important;
 }
 
 /* Cancel Button: Clean Neutral + Close / Cancel Icon Only */
@@ -3055,8 +3064,7 @@ button.o_import_data_file::before,
 button.o_import_cancel {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
-    color: #334155 !important;
-    margin-left: 0.25rem !important;
+    margin-left: 0.3rem !important;
 }
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary:hover,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary:hover,
@@ -3064,7 +3072,6 @@ button.o_import_cancel {
 button.o_import_cancel:hover {
     background-color: #f1f5f9 !important;
     border-color: #94a3b8 !important;
-    color: #0f172a !important;
 }
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary::before,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary::before,
@@ -3073,12 +3080,13 @@ button.o_import_cancel::before {
     content: "\f00d" !important; /* FontAwesome fa-times */
     font-family: FontAwesome !important;
     font-size: 0.95rem !important;
-    color: #64748b !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin: 0 !important;
+    color: #475569 !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
     line-height: 1 !important;
+    pointer-events: none !important;
 }
 
 /* Import & Test Action Buttons */
