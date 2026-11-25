@@ -2975,7 +2975,7 @@ div[name="ticket_voucher_line_ids"] td.o_list_button button[name="action_reset_t
    Import Records Navbar Buttons & Lead/Quotation Fallback Button Theme Fix
    ========================================================================== */
 
-/* 1. Restore auto width and spacing for Import Action Control Panel buttons */
+/* 1. Import Action Control Panel buttons: Clean Square Icon-Only Buttons matching navbar [Home] */
 .o_control_panel .o_control_panel_main_buttons button.o_import_file,
 .o_control_panel .o_control_panel_main_buttons button.o_import_data_file,
 .o_control_panel .o_control_panel_main_buttons .o_file_input button,
@@ -2993,26 +2993,25 @@ button.o_import_data_file,
 button.o_import_cancel,
 button.o_import_import,
 button.o_import_test {
-    width: auto !important;
-    min-width: auto !important;
-    max-width: none !important;
+    width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    min-width: clamp(2rem, 2.4vh, 2.35rem) !important;
+    max-width: clamp(2rem, 2.4vh, 2.35rem) !important;
     height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     min-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
     max-height: clamp(1.95rem, 2.3vh, 2.25rem) !important;
-    padding: 0 clamp(0.85rem, 1.3vw, 1.25rem) !important;
-    font-size: clamp(0.82rem, 0.9vw, 0.88rem) !important;
-    font-weight: 600 !important;
+    padding: 0 !important;
+    font-size: 0 !important; /* Hide text, show only icon */
+    font-weight: normal !important;
     border-radius: 0.35rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.45rem !important;
+    gap: 0 !important;
     white-space: nowrap !important;
-    text-transform: none !important;
     box-sizing: border-box !important;
 }
 
-/* Upload Data File Button: Custom Blue + Cloud Upload Icon */
+/* Upload Data File Button: Custom Blue + Cloud Upload Icon Only */
 button.o_import_file,
 button.o_import_data_file,
 .o_control_panel_main_buttons button.o_import_file,
@@ -3042,12 +3041,14 @@ button.o_import_data_file::before,
     font-family: FontAwesome !important;
     font-size: 0.95rem !important;
     color: #ffffff !important;
-    display: inline-block !important;
-    margin-right: 0.35rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
     line-height: 1 !important;
 }
 
-/* Cancel Button: Clean Neutral + Close / Cancel Icon */
+/* Cancel Button: Clean Neutral + Close / Cancel Icon Only */
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary,
 .o_control_panel_main_buttons button.o_import_cancel,
@@ -3055,7 +3056,7 @@ button.o_import_cancel {
     background-color: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     color: #334155 !important;
-    margin-left: 0.4rem !important;
+    margin-left: 0.25rem !important;
 }
 .o_control_panel_main_buttons:has(.o_file_input) button.btn-secondary:hover,
 .o_control_panel_main_buttons:has(.o_import_file) button.btn-secondary:hover,
@@ -3071,10 +3072,12 @@ button.o_import_cancel:hover {
 button.o_import_cancel::before {
     content: "\f00d" !important; /* FontAwesome fa-times */
     font-family: FontAwesome !important;
-    font-size: 0.9rem !important;
+    font-size: 0.95rem !important;
     color: #64748b !important;
-    display: inline-block !important;
-    margin-right: 0.35rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
     line-height: 1 !important;
 }
 
