@@ -689,16 +689,61 @@ class EquipmentMaster(models.Model):
             to_create.append(vals)
 
         if to_create:
-            records |= super(EquipmentMaster, self).create(to_create)
+            created = super(EquipmentMaster, self).create(to_create)
+            records |= created
+            created._notify_equipment_assignment()
 
         return records
+
+    def _notify_equipment_assignment(self, old_users=None):
+        old_users = old_users or {}
+        for rec in self.sudo():
+            assigned_user = rec.user_id
+            old_user_id = old_users.get(rec.id)
+            if assigned_user and assigned_user.partner_id and assigned_user.id != old_user_id and assigned_user.id != self.env.user.id:
+                ctx_key = f"notif_eq_{rec.id}_{assigned_user.id}"
+                if not self.env.context.get(ctx_key):
+                    self = self.with_context({ctx_key: True})
+                    eq_name = rec.name or rec.equipment_id or f"Equipment #{rec.id}"
+                    msg = f"Equipment \"{eq_name}\" has been assigned to you by {self.env.user.name}."
+                    try:
+                        self.env['bus.bus']._sendone(
+                            assigned_user.partner_id,
+                            'simple_notification',
+                            {
+                                'title': 'Equipment Assigned',
+                                'message': msg,
+                                'type': 'info',
+                                'sticky': False,
+                            }
+                        )
+                    except Exception:
+                        pass
+                    try:
+                        self.env['crm.notification'].create_notification(
+                            user=assigned_user,
+                            title='Equipment Assigned',
+                            summary=msg,
+                            category='equipment',
+                            sender=self.env.user,
+                            res_model='equipment.master',
+                            res_id=rec.id,
+                            record_ref_name=eq_name,
+                            skip_bus=True,
+                        )
+                    except Exception:
+                        pass
 
     def write(self, vals):
         user = self.env.user
         if not user._is_admin() and not user.has_group('base.group_system'):
             if not self._user_can('perm_equipment_write', False):
                 raise UserError(_("Access Denied: You do not have permission to update Equipment Master records."))
-        return super(EquipmentMaster, self).write(vals)
+        old_users = {rec.id: rec.user_id.id for rec in self.sudo()} if 'user_id' in vals else {}
+        res = super(EquipmentMaster, self).write(vals)
+        if 'user_id' in vals:
+            self._notify_equipment_assignment(old_users)
+        return res
 
     def unlink(self):
         for rec in self:

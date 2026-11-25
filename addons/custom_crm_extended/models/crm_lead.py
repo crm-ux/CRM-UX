@@ -658,7 +658,22 @@ class CrmLead(models.Model):
                         except Exception:
                             pass
 
-                        # 2. Dispatch via our Custom Notification system (Format 1 popup + bell counter)
+                        # 2. Native Live Toast (Format 1)
+                        try:
+                            self.env['bus.bus']._sendone(
+                                assigned_user.partner_id,
+                                'simple_notification',
+                                {
+                                    'title': 'Lead Assigned',
+                                    'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                                    'type': 'info',
+                                    'sticky': False,
+                                }
+                            )
+                        except Exception:
+                            pass
+
+                        # 3. Save to CRM notification history & bell counter
                         try:
                             self.env['crm.notification'].create_notification(
                                 user=assigned_user,
@@ -669,7 +684,7 @@ class CrmLead(models.Model):
                                 res_model='crm.lead',
                                 res_id=rec.id,
                                 record_ref_name=rec.name,
-                                skip_bus=False,
+                                skip_bus=True,
                             )
                         except Exception:
                             pass
@@ -838,7 +853,22 @@ class CrmLead(models.Model):
                     except Exception:
                         pass
 
-                    # 2. Dispatch via our Custom Notification system (Format 1 popup + bell counter)
+                    # 2. Native Live Toast (Format 1)
+                    try:
+                        self.env['bus.bus']._sendone(
+                            assigned_user.partner_id,
+                            'simple_notification',
+                            {
+                                'title': 'Lead Assigned',
+                                'message': f"Lead \"{rec.name}\" has been assigned to you by {self.env.user.name}.",
+                                'type': 'info',
+                                'sticky': False,
+                            }
+                        )
+                    except Exception:
+                        pass
+
+                    # 3. Save to CRM notification history & bell counter
                     try:
                         self.env['crm.notification'].create_notification(
                             user=assigned_user,
@@ -849,7 +879,7 @@ class CrmLead(models.Model):
                             res_model='crm.lead',
                             res_id=rec.id,
                             record_ref_name=rec.name,
-                            skip_bus=False,
+                            skip_bus=True,
                         )
                     except Exception:
                         pass

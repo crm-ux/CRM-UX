@@ -18,6 +18,7 @@
                         <!-- Row 1: Customer/company name | Date -->
                         <group>
                             <field name="partner_id" default_focus="1" string="Customer Name"/>
+                            <field name="user_id" string="Assigned Responsible" options="{'no_create': True, 'no_open': True}"/>
                         </group>
                         <group>
                             <field name="date"/>

@@ -28,6 +28,8 @@ class CrmNotification(models.Model):
         ('ticket', 'Service Ticket'),
         ('lead', 'CRM Lead'),
         ('task', 'Task Management'),
+        ('equipment', 'Equipment Master'),
+        ('amc', 'AMC Contract'),
         ('general', 'General'),
     ], string='Category', default='general', required=True, index=True)
 
