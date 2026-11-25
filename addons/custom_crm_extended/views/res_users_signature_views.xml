@@ -92,6 +92,15 @@
             <!-- 1. Place Configuration & Masters AFTER the Roles & Companies group -->
             <xpath expr="//page[@name='access_rights']//group[1]" position="after">
                 <group string="Configuration &amp; Masters">
+                    <div colspan="2" class="alert alert-info alert-dismissible fade show d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="alert">
+                        <div class="d-flex align-items-center">
+                            <i class="fa fa-info-circle me-2 text-info"/>
+                            <span>
+                                <strong>System Administrator Notice:</strong> Administrators have full unrestricted access to all company records, unassigned data, and masters. These custom permissions apply when Role is set to 'User'.
+                            </span>
+                        </div>
+                        <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"/>
+                    </div>
                     <div colspan="2" invisible="not custom_perm_override" class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
                         <div>
                             <i class="fa fa-info-circle me-1"/>
@@ -318,6 +327,15 @@
 
                     <!-- TAB 2: Permissions Matrix -->
                     <page string="Permissions" name="permissions_page">
+                        <div class="alert alert-info alert-dismissible fade show d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fa fa-info-circle me-2 text-info"/>
+                                <span>
+                                    <strong>Role Permissions Note:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access to all records, unassigned data, and masters.
+                                </span>
+                            </div>
+                            <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"/>
+                        </div>
                         
                         <!-- SECTION 1: Record Access & Visibility -->
                         <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
