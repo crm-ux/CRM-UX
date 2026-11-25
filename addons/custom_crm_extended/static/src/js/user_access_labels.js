@@ -258,12 +258,27 @@ patch(FormController.prototype, {
     },
 });
 
-// Allow dismissing the custom admin permissions notice banner on click
+// Allow dismissing the custom admin permissions notice banner on click and keep it hidden across tab switches
 if (typeof window !== "undefined" && !window._crmNoticeDismissAttached) {
     window._crmNoticeDismissAttached = true;
+
+    if (typeof document !== "undefined") {
+        const styleId = "crm-notice-dismiss-style";
+        if (!document.getElementById(styleId)) {
+            const style = document.createElement("style");
+            style.id = styleId;
+            style.textContent = ".o_form_view.crm-notice-dismissed .crm-admin-perm-notice { display: none !important; }";
+            document.head.appendChild(style);
+        }
+    }
+
     document.addEventListener("click", (e) => {
         const closeBtn = e.target.closest(".crm-close-notice");
         if (closeBtn) {
+            const formView = closeBtn.closest(".o_form_view");
+            if (formView) {
+                formView.classList.add("crm-notice-dismissed");
+            }
             const notice = closeBtn.closest(".crm-admin-perm-notice");
             if (notice) {
                 notice.style.setProperty("display", "none", "important");

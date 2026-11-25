@@ -4401,3 +4401,8 @@ body:has(button[name="action_toggle_recovery_select"].crm_checkbox_checked:not(.
     font-size: 16px !important;
     color: #0b3d91 !important;
 }
+
+/* Persistent dismissal of admin permissions notice within the current form session across tab switches */
+.o_form_view.crm-notice-dismissed .crm-admin-perm-notice {
+    display: none !important;
+}
