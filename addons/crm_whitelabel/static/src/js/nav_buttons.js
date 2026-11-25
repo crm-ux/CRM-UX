@@ -1317,7 +1317,7 @@ if (typeof window !== "undefined") {
             }
         });
 
-        // Import Action Buttons: Upload Data File (Cloud Upload icon) & Cancel (Times icon)
+        // Import Action Buttons: Upload Data File (Cloud Upload icon) & Single Cancel (Times icon)
         const importUploadBtns = document.querySelectorAll(
             ".o_control_panel_main_buttons button.o_import_file, " +
             ".o_control_panel_main_buttons .o_file_input button"
@@ -1336,14 +1336,22 @@ if (typeof window !== "undefined") {
             }
         });
 
+        // Strictly target only the actual Cancel button (never Test or Import)
         const importCancelBtns = document.querySelectorAll(
-            ".o_control_panel_main_buttons .o_file_input + button, " +
-            ".o_control_panel_main_buttons .o_file_input ~ button, " +
-            ".o_file_input + button, " +
-            ".o_file_input ~ button, " +
-            ".o_control_panel_main_buttons button.o_import_cancel"
+            ".o_control_panel_main_buttons button.o_import_cancel, " +
+            ".o_import_action button.o_import_cancel, " +
+            ".o_control_panel_main_buttons .o_file_input + button"
         );
+        let seenCancel = false;
         importCancelBtns.forEach((btn) => {
+            if (btn.classList.contains("o_import_test") || btn.classList.contains("o_import_import")) {
+                return;
+            }
+            if (seenCancel) {
+                btn.style.setProperty("display", "none", "important");
+                return;
+            }
+            seenCancel = true;
             btn.title = "Cancel";
             let foundText = false;
             Array.from(btn.childNodes).forEach((node) => {
@@ -1353,7 +1361,27 @@ if (typeof window !== "undefined") {
                 }
             });
             if (foundText || !btn.querySelector("i.fa-times")) {
-                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #334155 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+            }
+        });
+
+        // Hide Help section on Import page
+        const importHelpLinks = document.querySelectorAll(
+            ".o_import_action a[href*='faq'], .o_import_action a[href*='FAQ'], .o_import_action .o_import_template_link"
+        );
+        importHelpLinks.forEach((link) => {
+            const section = link.closest("div.mb-3, div.mb-4, div.mt-3, div.mt-4") || link.parentElement;
+            if (section && section !== document.body) {
+                section.style.setProperty("display", "none", "important");
+            }
+        });
+        const h5s = document.querySelectorAll(".o_import_action h5");
+        h5s.forEach((h5) => {
+            if (h5.textContent.trim().toLowerCase() === "help") {
+                const parent = h5.parentElement;
+                if (parent) {
+                    parent.style.setProperty("display", "none", "important");
+                }
             }
         });
     };
