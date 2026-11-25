@@ -92,14 +92,11 @@
             <!-- 1. Place Configuration & Masters AFTER the Roles & Companies group -->
             <xpath expr="//page[@name='access_rights']//group[1]" position="after">
                 <group string="Configuration &amp; Masters">
-                    <div colspan="2" class="alert alert-info alert-dismissible fade show d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="alert">
-                        <div class="d-flex align-items-center">
+                    <div colspan="2" class="alert alert-info d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
+                        <div>
                             <i class="fa fa-info-circle me-2 text-info"/>
-                            <span>
-                                <strong>System Administrator Notice:</strong> Administrators have full unrestricted access to all company records, unassigned data, and masters. These custom permissions apply when Role is set to 'User'.
-                            </span>
+                            <strong>System Administrator Notice:</strong> Administrators have full unrestricted access to all company records, unassigned data, and masters. These custom permissions apply when Role is set to 'User'.
                         </div>
-                        <span class="btn-close ms-2 d-inline-block" data-bs-dismiss="alert" role="button" aria-label="Close" style="cursor: pointer;"/>
                     </div>
                     <div colspan="2" invisible="not custom_perm_override" class="alert alert-warning d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
                         <div>
@@ -327,19 +324,19 @@
 
                     <!-- TAB 2: Permissions Matrix -->
                     <page string="Permissions" name="permissions_page">
-                        <div class="alert alert-info alert-dismissible fade show d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="alert">
-                            <div class="d-flex align-items-center">
+                        <div class="alert alert-info d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status">
+                            <div>
                                 <i class="fa fa-info-circle me-2 text-info"/>
-                                <span>
-                                    <strong>Role Permissions Note:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access to all records, unassigned data, and masters.
-                                </span>
+                                <strong>Role Permissions Note:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access to all records, unassigned data, and masters.
                             </div>
-                            <span class="btn-close ms-2 d-inline-block" data-bs-dismiss="alert" role="button" aria-label="Close" style="cursor: pointer;"/>
                         </div>
                         
                         <!-- SECTION 1: Record Access & Visibility -->
-                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3" style="font-size: 13px; letter-spacing: 0.5px;">
-                            Record Access &amp; Visibility Filters
+                        <div class="o_horizontal_separator text-uppercase fw-bold text-primary mb-3 d-flex align-items-center justify-content-between" style="font-size: 13px; letter-spacing: 0.5px;">
+                            <span>Record Access &amp; Visibility Filters</span>
+                            <span class="text-muted text-lowercase fw-normal" title="System Administrators always maintain full unrestricted access to all records, unassigned data, and masters. These permissions apply to standard employees." style="font-size: 11px; cursor: help;">
+                                <i class="fa fa-info-circle text-info me-1"/>Admin has full unrestricted access
+                            </span>
                         </div>
                         <group class="custom_radio_clean">
                             <field name="perm_lead_quote" widget="radio" options="{'horizontal': true}"/>
