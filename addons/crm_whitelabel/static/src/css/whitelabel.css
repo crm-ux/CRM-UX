@@ -3040,6 +3040,9 @@ body.crm_import_active .o_control_panel_main_buttons button::after {
 }
 
 /* Hide Help & FAQ elements via CSS as well */
+body.crm_import_active .pt-3.pb-4.border-top,
+body.crm_import_active .o_doc_link,
+body.crm_import_active a[href*="export_import_data"],
 body.crm_import_active a[href*="faq"],
 body.crm_import_active a[href*="FAQ"],
 body.crm_import_active .o_import_template_link,

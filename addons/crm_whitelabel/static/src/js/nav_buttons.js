@@ -1318,14 +1318,15 @@ if (typeof window !== "undefined") {
         });
 
         // Dedicated Import Screen Handling (Screen 1: Upload, Screen 2: Mapping)
-        const isImportPage = !!document.querySelector("input[name='ufile'], .o_import_file, .o_import_panel, table.o_import_table, [name='sheet']") ||
+        const isImportPage = window.location.href.includes("/import") ||
+            !!document.querySelector("input[name='ufile'], .o_import_file, .o_import_panel, table.o_import_table, [name='sheet'], .o_doc_link, .pt-3.pb-4.border-top") ||
             (document.querySelector(".o_last_breadcrumb_item")?.textContent?.toLowerCase().includes("import") ?? false);
 
         if (isImportPage) {
             document.body.classList.add("crm_import_active");
 
             // Check if on Mapping Screen (file is loaded and columns/options are shown)
-            const isMappingScreen = !!document.querySelector(".o_import_panel, table.o_import_table, [name='sheet'], .o_import_data_side");
+            const isMappingScreen = !!document.querySelector(".o_import_panel, table.o_import_table, [name='sheet'], .o_import_data_side, select[name='sheet']");
 
             const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
             if (controlPanelBtns) {
@@ -1364,14 +1365,16 @@ if (typeof window !== "undefined") {
                     });
                 } else {
                     // SCREEN 2: MAPPING SCREEN
-                    // 1. Hide the redundant .o_file_input trigger completely
-                    const fileInput = controlPanelBtns.querySelector(".o_file_input");
-                    if (fileInput) {
-                        fileInput.style.setProperty("display", "none", "important");
-                    }
+                    // 1. Hide the redundant .o_file_input trigger completely (eliminates the empty white box)
+                    const fileInputs = controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger");
+                    fileInputs.forEach((fi) => {
+                        fi.style.setProperty("display", "none", "important");
+                    });
 
                     // 2. Identify Test, Import, and Cancel buttons
-                    const allBtns = Array.from(controlPanelBtns.querySelectorAll("button"));
+                    const allBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => {
+                        return !b.closest(".o_file_input");
+                    });
 
                     // Test Button: primary button or text 'test'
                     const testBtn = allBtns.find((b) => {
@@ -1425,18 +1428,22 @@ if (typeof window !== "undefined") {
                 }
             }
 
-            // Hide Help & FAQ & Template section on both screens
-            const helpTargets = document.querySelectorAll(
-                "a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template']"
+            // Hide Help & FAQ & Template section on both screens (specifically <div class="pt-3 pb-4 border-top"><h4>Help</h4>...</div>)
+            const helpSections = document.querySelectorAll(
+                ".pt-3.pb-4.border-top, .o_doc_link, a[href*='export_import_data'], a[href*='faq'], a[href*='FAQ'], .o_import_template_link, [class*='import_template'], a[href$='.xls']"
             );
-            helpTargets.forEach((el) => {
-                const parent = el.closest(".mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
-                parent.style.setProperty("display", "none", "important");
+            helpSections.forEach((el) => {
+                if (el.matches(".pt-3.pb-4.border-top")) {
+                    el.style.setProperty("display", "none", "important");
+                } else {
+                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, .text-muted, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                    parent.style.setProperty("display", "none", "important");
+                }
             });
-            document.querySelectorAll("h5, p, span").forEach((el) => {
+            document.querySelectorAll("h4, h5, p, span").forEach((el) => {
                 const text = el.textContent?.trim().toLowerCase() || "";
                 if (text === "help" || text.startsWith("need help?")) {
-                    const parent = el.closest(".mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
+                    const parent = el.closest(".pt-3.pb-4.border-top, .border-top, .mb-3, .mb-4, .mt-3, .mt-4, div:not(.o_action_manager):not(.o_content):not(.o_control_panel)") || el;
                     parent.style.setProperty("display", "none", "important");
                 }
             });
