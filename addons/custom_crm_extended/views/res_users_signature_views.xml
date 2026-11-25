@@ -95,7 +95,7 @@
                     <div colspan="2" class="crm-admin-perm-notice d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status" style="background-color: #cff4fc !important; border: 1px solid #9eeaf9 !important; border-radius: 6px !important; color: #055160 !important; display: flex !important;">
                         <div>
                             <i class="fa fa-info-circle me-2 text-info" style="font-size: 14px;"/>
-                            <strong>System Administrator Notice:</strong> Administrators have full unrestricted access to all company records, unassigned data, and masters. These custom permissions apply when Role is set to 'User'.
+                            <strong>System Administrator Notice:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access across all company records and operations.
                         </div>
                         <span class="crm-close-notice ms-2" role="button" aria-label="Close" title="Close" style="cursor: pointer; font-size: 15px; color: #055160; opacity: 0.65; padding: 2px 6px; line-height: 1;">
                             <i class="fa fa-times"/>
@@ -330,7 +330,7 @@
                         <div class="crm-admin-perm-notice d-flex align-items-center justify-content-between mb-3 py-2 px-3" role="status" style="background-color: #cff4fc !important; border: 1px solid #9eeaf9 !important; border-radius: 6px !important; color: #055160 !important; display: flex !important;">
                             <div>
                                 <i class="fa fa-info-circle me-2 text-info" style="font-size: 14px;"/>
-                                <strong>Role Permissions Note:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access to all records, unassigned data, and masters.
+                                <strong>Role Permissions Note:</strong> These settings configure default access for standard employees assigned to this position. System Administrators always maintain full unrestricted access across all company records and operations.
                             </div>
                             <span class="crm-close-notice ms-2" role="button" aria-label="Close" title="Close" style="cursor: pointer; font-size: 15px; color: #055160; opacity: 0.65; padding: 2px 6px; line-height: 1;">
                                 <i class="fa fa-times"/>
