@@ -216,27 +216,6 @@ try:
     from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
     class CustomAuthSignupHome(AuthSignupHome):
-        def get_auth_signup_qcontext(self):
-            qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
-            token = qcontext.get('token')
-            if token:
-                try:
-                    partner = request.env['res.partner'].sudo()._signup_retrieve_partner(token)
-                    if partner:
-                        user = partner.user_ids[0] if partner.user_ids else False
-                        user_email = (user and user.email) or partner.email or ''
-                        user_login = (user and user.login) or ''
-                        if user_login:
-                            qcontext['name'] = user_login
-                            qcontext['user_real_login'] = user_login
-                        if user_email:
-                            qcontext['login'] = user_email
-                            qcontext['user_real_email'] = user_email
-                        qcontext['only_passwords'] = True
-                except Exception:
-                    pass
-            return qcontext
-
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
             try:
