@@ -22,14 +22,22 @@
     <!-- Reset Password / Forgot Password link enabled -->
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
-        <!-- Add YantraConnect CRM Logo & Header -->
+        <!-- Add YantraConnect CRM Logo & Header at the top of the card -->
         <xpath expr="//form" position="before">
-            <div class="text-center" style="padding-top:20px;margin-bottom:20px;">
+            <div class="crm-branding-header text-center" style="order:-999 !important;padding-top:20px;margin-bottom:20px;">
                 <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
                     <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
                 <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
                 <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
+                <script type="text/javascript">
+                    (function() {
+                        var h = document.currentScript ? document.currentScript.parentElement : document.querySelector('.crm-branding-header');
+                        if (h &amp;&amp; h.parentElement) {
+                            h.parentElement.prepend(h);
+                        }
+                    })();
+                </script>
             </div>
         </xpath>
         <xpath expr="//label[@for='login']" position="replace">
@@ -58,12 +66,20 @@
     <template id="signup_custom" name="CRM Set Password Branding" inherit_id="auth_signup.signup" priority="20">
         <!-- Add YantraConnect CRM Logo & Header -->
         <xpath expr="//form" position="before">
-            <div class="text-center" style="padding-top:20px;margin-bottom:20px;">
+            <div class="crm-branding-header text-center" style="order:-999 !important;padding-top:20px;margin-bottom:20px;">
                 <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
                     <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
                 <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
                 <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
+                <script type="text/javascript">
+                    (function() {
+                        var h = document.currentScript ? document.currentScript.parentElement : document.querySelector('.crm-branding-header');
+                        if (h &amp;&amp; h.parentElement) {
+                            h.parentElement.prepend(h);
+                        }
+                    })();
+                </script>
             </div>
         </xpath>
 
@@ -78,6 +94,7 @@
         <xpath expr="//form" position="inside">
             <style>
                 .oe_signup_form a,
+                form.oe_signup_form a,
                 form[action*="signup"] a,
                 a[href*="/web/login"] {
                     display: none !important;
@@ -85,16 +102,17 @@
             </style>
             <script type="text/javascript">
                 document.addEventListener("DOMContentLoaded", function () {
-                    // Rename 'Name' label to 'Username'
+                    // Rename 'Name' / 'Your Name' label to 'Username'
                     var labels = document.querySelectorAll("label");
                     for (var i = 0; i &lt; labels.length; i++) {
-                        if (labels[i].textContent.trim().toLowerCase() === 'your name' || labels[i].textContent.trim().toLowerCase() === 'name') {
+                        var txt = labels[i].textContent.trim().toLowerCase();
+                        if (txt === 'your name' || txt === 'name') {
                             labels[i].textContent = "Username";
                         }
                     }
 
-                    var realEmail = "<t t-esc="user_real_email or ''"/>";
-                    var realLogin = "<t t-esc="user_real_login or ''"/>";
+                    var realEmail = "<t t-esc="qcontext.get('user_real_email', '')"/>";
+                    var realLogin = "<t t-esc="qcontext.get('user_real_login', '')"/>";
 
                     // Make Username input readonly and ensure it displays user login
                     var nameInput = document.querySelector("input[name='name']");
@@ -105,7 +123,7 @@
                         nameInput.readOnly = true;
                         nameInput.style.setProperty("background-color", "#f1f5f9", "important");
                         nameInput.style.setProperty("cursor", "not-allowed", "important");
-                        nameInput.style.setProperty("color", "#64748b", "important");
+                        nameInput.style.setProperty("color", "#475569", "important");
                     }
 
                     // Make Email input readonly and ensure it displays real user email
@@ -117,7 +135,16 @@
                         loginInput.readOnly = true;
                         loginInput.style.setProperty("background-color", "#f1f5f9", "important");
                         loginInput.style.setProperty("cursor", "not-allowed", "important");
-                        loginInput.style.setProperty("color", "#64748b", "important");
+                        loginInput.style.setProperty("color", "#475569", "important");
+                    }
+
+                    // Remove/hide 'Already have an account?' link completely
+                    var links = document.querySelectorAll(".oe_signup_form a, form a");
+                    for (var j = 0; j &lt; links.length; j++) {
+                        var ltxt = links[j].textContent.trim().toLowerCase();
+                        if (ltxt.indexOf("already have an account") !== -1 || ltxt.indexOf("back to login") !== -1 || (links[j].getAttribute("href") &amp;&amp; links[j].getAttribute("href").indexOf("/web/login") !== -1)) {
+                            links[j].style.setProperty("display", "none", "important");
+                        }
                     }
                 });
             </script>

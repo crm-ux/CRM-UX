@@ -216,6 +216,23 @@ try:
     from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
     class CustomAuthSignupHome(AuthSignupHome):
+        def get_auth_signup_qcontext(self):
+            qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
+            token = qcontext.get('token')
+            if token:
+                partner = request.env['res.partner'].sudo().search([('signup_token', '=', token)], limit=1)
+                if partner:
+                    user = partner.user_ids[0] if partner.user_ids else False
+                    user_email = (user and user.email) or partner.email or ''
+                    user_login = (user and user.login) or ''
+                    qcontext['user_real_email'] = user_email
+                    qcontext['user_real_login'] = user_login
+            if 'user_real_email' not in qcontext:
+                qcontext['user_real_email'] = ''
+            if 'user_real_login' not in qcontext:
+                qcontext['user_real_login'] = ''
+            return qcontext
+
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
             qcontext = self.get_auth_signup_qcontext()
@@ -276,10 +293,6 @@ try:
                 </div>
                 """
                 
-                import smtplib
-                from email.mime.text import MIMEText
-                from email.mime.multipart import MIMEMultipart
-
                 mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
                 if not mail_server:
                     raise Exception("No active outgoing mail server configured in CRM.")
@@ -287,7 +300,6 @@ try:
                 host = mail_server.smtp_host or 'smtp.gmail.com'
                 port = mail_server.smtp_port or 587
                 user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
-                pass_smtp = (mail_server.smtp_pass or '').replace(' ', '')
                 enc = mail_server.smtp_encryption or 'starttls'
 
                 try:
@@ -349,18 +361,12 @@ try:
         @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
         def web_auth_signup(self, *args, **kw):
             qcontext = self.get_auth_signup_qcontext()
-            token = qcontext.get('token')
-            if token:
-                partner = request.env['res.partner'].sudo().search([('signup_token', '=', token)], limit=1)
-                if partner and partner.user_ids:
-                    user = partner.user_ids[0]
-                    qcontext['user_real_email'] = user.email or partner.email or ''
-                    qcontext['user_real_login'] = user.login or ''
-                    if request.httprequest.method == 'POST':
-                        qcontext['login'] = user.login
 
             if request.httprequest.method == 'POST' and qcontext.get('token'):
-                # Handle reset password confirmation and redirect cleanly to Login page
+                # Ensure the login value stays fixed to the user's username
+                if qcontext.get('user_real_login'):
+                    qcontext['login'] = qcontext['user_real_login']
+
                 try:
                     self.do_signup(qcontext)
                     from urllib.parse import quote_plus
@@ -370,6 +376,7 @@ try:
                 except Exception as e:
                     qcontext['error'] = str(e)
                     return request.render('auth_signup.signup', qcontext)
+
             return super(CustomAuthSignupHome, self).web_auth_signup(*args, **kw)
 except Exception:
     pass

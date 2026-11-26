@@ -28,6 +28,16 @@ body.o_home_menu_background {
     background: #FFFFFF !important;
 }
 
+.card-body {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Force CRM Branding Header to be at the absolute top of the card */
+.crm-branding-header {
+    order: -999 !important;
+}
+
 /* Hide Odoo logo image inside card */
 .card .text-center img[alt*="Logo"],
 .card .text-center svg,
@@ -147,7 +157,20 @@ a[href*="reset_password"]:hover,
     box-shadow: 0 0 0 2px rgba(26, 61, 110, 0.2) !important;
 }
 
-/* Hide 'Already have an account?' link completely on the set password / reset screen */
-.oe_signup_form a {
+/* Hide 'Already have an account?' and other unneeded links on signup/reset screen */
+.oe_signup_form a,
+form.oe_signup_form a,
+form[action*="signup"] a {
+    display: none !important;
+}
+
+/* Hide top header bar with 'Home' and 'Back' links on error / frontend pages */
+header,
+header#top,
+#wrapwrap > header,
+body > header,
+.o_header_standard,
+a[href="javascript:history.back()"],
+header a[href="/"] {
     display: none !important;
 }
