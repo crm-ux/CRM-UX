@@ -49,17 +49,6 @@
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
-        <xpath expr="//form" position="inside">
-            <script t-if="dev_error_details" type="text/javascript">
-                console.group("%c[CRM Mail Error Diagnostics]", "color: #dc2626; font-weight: bold; font-size: 13px;");
-                console.error("Recipient:", "<t t-esc="dev_error_details.get('recipient')"/>");
-                console.error("Mail Server:", "<t t-esc="dev_error_details.get('host')"/>:<t t-esc="dev_error_details.get('port')"/> (<t t-esc="dev_error_details.get('encryption')"/>)");
-                console.error("SMTP User:", "<t t-esc="dev_error_details.get('user')"/>");
-                console.error("Odoo Native Error:", "<t t-esc="dev_error_details.get('odoo_error')"/>");
-                console.error("Direct SMTP Error:", "<t t-esc="dev_error_details.get('smtp_error')"/>");
-                console.groupEnd();
-            </script>
-        </xpath>
     </template>
 
     <!-- Set Password Screen Branding (When opening email link) -->

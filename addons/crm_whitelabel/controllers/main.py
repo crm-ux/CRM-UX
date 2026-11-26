@@ -254,9 +254,9 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
                 
                 # Prepare partner signup token specifically for password reset (24 hour validity)
-                from dateutil.relativedelta import relativedelta
-                from odoo import fields
-                user.partner_id.signup_prepare(signup_type="reset", expiration=fields.Datetime.now() + relativedelta(days=1))
+                import datetime
+                exp_dt = datetime.datetime.now() + datetime.timedelta(days=1)
+                user.partner_id.signup_prepare(signup_type="reset", expiration=exp_dt)
                 token = user.partner_id.signup_token
                 dbname = request.env.cr.dbname
                 base_url = request.httprequest.host_url.rstrip('/')
