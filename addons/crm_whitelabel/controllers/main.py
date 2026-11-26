@@ -298,7 +298,8 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
                 except Exception as odoo_mail_err:
                     import logging
-                    logging.getLogger(__name__).warning("Odoo native send_email failed (%s), trying direct SMTP...", odoo_mail_err)
+                    _logger = logging.getLogger(__name__)
+                    _logger.warning("Odoo native send_email failed (%s), trying direct SMTP...", odoo_mail_err)
                     try:
                         # Try direct SSL (port 465) or STARTTLS (port 587) with SSL context
                         import ssl
@@ -324,8 +325,14 @@ try:
                         qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
                         return request.render('auth_signup.reset_password', qcontext)
                     except Exception as mail_err:
-                        logging.getLogger(__name__).error("Direct SMTP also failed: %s", mail_err)
-                        qcontext['error'] = f"Unable to send password reset email: {str(mail_err)}. Please verify outgoing mail server credentials."
+                        _logger.error("=" * 65)
+                        _logger.error("[RESET PASSWORD ERROR DETAILS]")
+                        _logger.error("Recipient: %s", user_email)
+                        _logger.error("Host: %s | Port: %s | User: %s | Enc: %s", host, port, user_smtp, enc)
+                        _logger.error("Odoo Native Send Error: %s", odoo_mail_err, exc_info=True)
+                        _logger.error("Direct SMTP Send Error: %s", mail_err, exc_info=True)
+                        _logger.error("=" * 65)
+                        qcontext['error'] = "An unexpected error occurred while sending the email. Please try again later or contact your system administrator."
                         return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
