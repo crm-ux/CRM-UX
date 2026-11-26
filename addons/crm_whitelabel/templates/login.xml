@@ -64,7 +64,7 @@
             </button>
         </xpath>
 
-        <!-- Hide 'Already have an account?' link completely from this screen -->
+        <!-- Hide 'Already have an account?' link completely and set Username/Email readonly -->
         <xpath expr="//form" position="inside">
             <style>
                 .oe_signup_form a,
@@ -73,25 +73,33 @@
                     display: none !important;
                 }
             </style>
-        </xpath>
-    </template>
-
-    <!-- Make Username & Email Read-only and rename Name to Username -->
-    <template id="signup_fields_custom" name="CRM Signup Fields Branding" inherit_id="auth_signup.fields" priority="20">
-        <!-- Rename Name label to Username -->
-        <xpath expr="//label[@for='name']" position="replace">
-            <label for="name" class="col-form-label" style="font-weight: 600; color: #1e293b;">Username</label>
-        </xpath>
-        <!-- Make Username input readonly -->
-        <xpath expr="//input[@name='name']" position="attributes">
-            <attribute name="readonly">readonly</attribute>
-            <attribute name="style">background-color: #f1f5f9 !important; cursor: not-allowed; color: #64748b !important;</attribute>
-        </xpath>
-
-        <!-- Make Email input readonly -->
-        <xpath expr="//input[@name='login']" position="attributes">
-            <attribute name="readonly">readonly</attribute>
-            <attribute name="style">background-color: #f1f5f9 !important; cursor: not-allowed; color: #64748b !important;</attribute>
+            <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Rename 'Name' label to 'Username'
+                    var labels = document.querySelectorAll("label");
+                    for (var i = 0; i &lt; labels.length; i++) {
+                        if (labels[i].textContent.trim().toLowerCase() === 'your name' || labels[i].textContent.trim().toLowerCase() === 'name') {
+                            labels[i].textContent = "Username";
+                        }
+                    }
+                    // Make Username input readonly
+                    var nameInput = document.querySelector("input[name='name']");
+                    if (nameInput) {
+                        nameInput.readOnly = true;
+                        nameInput.style.setProperty("background-color", "#f1f5f9", "important");
+                        nameInput.style.setProperty("cursor", "not-allowed", "important");
+                        nameInput.style.setProperty("color", "#64748b", "important");
+                    }
+                    // Make Email input readonly
+                    var loginInput = document.querySelector("input[name='login']");
+                    if (loginInput) {
+                        loginInput.readOnly = true;
+                        loginInput.style.setProperty("background-color", "#f1f5f9", "important");
+                        loginInput.style.setProperty("cursor", "not-allowed", "important");
+                        loginInput.style.setProperty("color", "#64748b", "important");
+                    }
+                });
+            </script>
         </xpath>
     </template>
 
