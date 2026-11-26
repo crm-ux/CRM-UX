@@ -221,12 +221,13 @@ try:
             qcontext = self.get_auth_signup_qcontext()
             if request.httprequest.method == 'POST' and (kw.get('login') or qcontext.get('login')):
                 login_val = (kw.get('login') or qcontext.get('login') or '').strip()
-                user = request.env['res.users'].sudo().search([
-                    '|', ('login', '=', login_val), ('email', '=', login_val)
-                ], limit=1)
+                # Search by unique username (login) first, then fallback to email
+                user = request.env['res.users'].sudo().search([('login', '=', login_val)], limit=1)
+                if not user:
+                    user = request.env['res.users'].sudo().search([('email', '=', login_val)], limit=1)
                 
                 if not user:
-                    qcontext['error'] = "No user found with this username or email."
+                    qcontext['error'] = "No user found with this username."
                     return request.render('auth_signup.reset_password', qcontext)
                 
                 user_email = user.email or (user.partner_id and user.partner_id.email)

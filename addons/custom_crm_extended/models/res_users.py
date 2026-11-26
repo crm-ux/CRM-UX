@@ -3003,3 +3003,39 @@ class CrmUserHierarchyWizard(models.TransientModel):
 
             html.append('</div>')
             rec.hierarchy_html = "".join(html)
+
+    @api.constrains('email')
+    def _check_unique_email(self):
+        for user in self:
+            if user.email and user.email.strip():
+                clean_email = user.email.strip().lower()
+                existing = self.sudo().search([
+                    ('id', '!=', user.id),
+                    ('email', '=ilike', clean_email),
+                    ('active', 'in', [True, False]),
+                ], limit=1)
+                if existing:
+                    raise ValidationError(_(
+                        "The email '%s' is already in use by another user/employee (%s). "
+                        "Every employee/user must have a unique email address."
+                    ) % (user.email, existing.name or existing.login))
+
+
+class HrEmployee(models.Model):
+    _inherit = 'hr.employee'
+
+    @api.constrains('work_email')
+    def _check_unique_work_email(self):
+        for emp in self:
+            if emp.work_email and emp.work_email.strip():
+                clean_email = emp.work_email.strip().lower()
+                existing = self.sudo().search([
+                    ('id', '!=', emp.id),
+                    ('work_email', '=ilike', clean_email),
+                    ('active', 'in', [True, False]),
+                ], limit=1)
+                if existing:
+                    raise ValidationError(_(
+                        "The work email '%s' is already in use by another employee (%s). "
+                        "Every employee must have a unique email address."
+                    ) % (emp.work_email, existing.name))

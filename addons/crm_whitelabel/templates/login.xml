@@ -22,6 +22,12 @@
     <!-- Reset Password / Forgot Password link enabled -->
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
+        <xpath expr="//label[@for='login']" position="replace">
+            <label for="login" class="col-form-label" style="font-weight: 600; color: #1e293b;">Username</label>
+        </xpath>
+        <xpath expr="//input[@name='login']" position="attributes">
+            <attribute name="placeholder">Enter your username</attribute>
+        </xpath>
         <xpath expr="//button[@type='submit']" position="attributes">
             <attribute name="style">background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;</attribute>
         </xpath>
