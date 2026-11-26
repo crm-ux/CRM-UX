@@ -1334,89 +1334,78 @@ if (typeof window !== "undefined") {
                 const controlPanelBtns = document.querySelector(".o_control_panel_main_buttons");
                 if (controlPanelBtns) {
                     const allButtons = Array.from(controlPanelBtns.querySelectorAll("button"));
-                    const hasTestOrImport = allButtons.some((b) => {
-                        const t = b.textContent.trim().toLowerCase();
-                        const title = (b.getAttribute("title") || "").toLowerCase();
-                        return t === "test" || t === "import" || title === "test" || title === "import" || b.classList.contains("o_import_test") || b.classList.contains("o_import_import");
-                    });
 
-                    if (hasTestOrImport) {
-                        // SCREEN 2: MAPPING SCREEN (File is loaded)
-                        controlPanelBtns.querySelectorAll(".o_file_input, span.o_file_input, span.o_file_input_trigger").forEach((fi) => {
-                            if (fi.style.display !== "none") {
-                                fi.style.setProperty("display", "none", "important");
-                            }
-                        });
+                    // Track configured buttons to ensure strictly ONE of each and zero duplicates
+                    let testFound = false;
+                    let importFound = false;
+                    let loadFileFound = false;
+                    let cancelFound = false;
 
-                        const actionBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
-                        let cancelFound = false;
+                    allButtons.forEach((btn) => {
+                        const t = btn.textContent.trim().toLowerCase();
+                        const title = (btn.getAttribute("title") || "").toLowerCase();
 
-                        actionBtns.forEach((btn) => {
-                            const t = btn.textContent.trim().toLowerCase();
-                            const title = (btn.getAttribute("title") || "").toLowerCase();
-
-                            if (t === "test" || title === "test" || btn.classList.contains("btn-primary") || btn.classList.contains("o_import_test")) {
-                                if (!btn.querySelector("i.fa-check")) {
-                                    btn.innerHTML = '<i class="fa fa-check" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                        // 1. TEST BUTTON
+                        if (t === "test" || title === "test" || btn.classList.contains("o_import_test")) {
+                            if (!testFound) {
+                                testFound = true;
+                                if (!btn.querySelector("i.fa-flask")) {
+                                    btn.innerHTML = '<i class="fa fa-flask" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
                                 }
                                 if (btn.getAttribute("title") !== "Test") btn.setAttribute("title", "Test");
-                                if (btn.className !== "btn btn-primary") btn.className = "btn btn-primary";
                                 if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
-                            } else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
+                            } else {
+                                if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                            }
+                        }
+                        // 2. IMPORT BUTTON
+                        else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
+                            if (!importFound) {
+                                importFound = true;
                                 if (!btn.querySelector("i.fa-download")) {
                                     btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
                                 }
                                 if (btn.getAttribute("title") !== "Import") btn.setAttribute("title", "Import");
-                                if (btn.className !== "btn btn-primary") btn.className = "btn btn-primary";
                                 if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
-                            } else if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
-                                if (!cancelFound) {
-                                    cancelFound = true;
-                                    if (!btn.querySelector("i.fa-times")) {
-                                        btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                                    }
-                                    if (btn.getAttribute("title") !== "Cancel") btn.setAttribute("title", "Cancel");
-                                    if (btn.className !== "btn btn-secondary") btn.className = "btn btn-secondary";
-                                    if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
-                                } else {
-                                    if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                            } else {
+                                if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                            }
+                        }
+                        // 3. LOAD DATA FILE BUTTON
+                        else if (t.includes("data file") || t.includes("load") || t.includes("upload") || title.includes("data file") || btn.closest(".o_file_input") || btn.classList.contains("o_import_file")) {
+                            if (!loadFileFound) {
+                                loadFileFound = true;
+                                if (!btn.querySelector("i.fa-cloud-upload")) {
+                                    btn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #0b3d91 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                }
+                                if (btn.getAttribute("title") !== "Load Data File") btn.setAttribute("title", "Load Data File");
+                                if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                                const fileSpan = btn.closest(".o_file_input");
+                                if (fileSpan && fileSpan.style.display !== "inline-flex") {
+                                    fileSpan.style.setProperty("display", "inline-flex", "important");
                                 }
                             } else {
                                 if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
                             }
-                        });
-                    } else {
-                        // SCREEN 1: INITIAL UPLOAD SCREEN (No file loaded yet)
-                        const uploadBtn = controlPanelBtns.querySelector(".o_file_input button, button.o_import_file");
-                        if (uploadBtn) {
-                            if (!uploadBtn.querySelector("i.fa-cloud-upload")) {
-                                uploadBtn.innerHTML = '<i class="fa fa-cloud-upload" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                            }
-                            if (uploadBtn.getAttribute("title") !== "Upload Data File") uploadBtn.setAttribute("title", "Upload Data File");
-                            if (uploadBtn.className !== "btn btn-primary o_import_file") uploadBtn.className = "btn btn-primary o_import_file";
-                            if (uploadBtn.style.display !== "inline-flex") uploadBtn.style.setProperty("display", "inline-flex", "important");
                         }
-
-                        let cancelFound = false;
-                        const cancelBtns = Array.from(controlPanelBtns.querySelectorAll("button")).filter((b) => !b.closest(".o_file_input"));
-                        cancelBtns.forEach((btn) => {
-                            const t = btn.textContent.trim().toLowerCase();
-                            const title = (btn.getAttribute("title") || "").toLowerCase();
-                            if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
-                                if (!cancelFound) {
-                                    cancelFound = true;
-                                    if (!btn.querySelector("i.fa-times")) {
-                                        btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
-                                    }
-                                    if (btn.getAttribute("title") !== "Cancel") btn.setAttribute("title", "Cancel");
-                                    if (btn.className !== "btn btn-secondary") btn.className = "btn btn-secondary";
-                                    if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
-                                } else {
-                                    if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                        // 4. CANCEL BUTTON
+                        else if (t === "cancel" || title === "cancel" || btn.classList.contains("o_import_cancel")) {
+                            if (!cancelFound) {
+                                cancelFound = true;
+                                if (!btn.querySelector("i.fa-times")) {
+                                    btn.innerHTML = '<i class="fa fa-times" style="font-size: 0.95rem !important; color: #475569 !important; line-height: 1 !important; display: inline-block !important;"></i>';
                                 }
+                                if (btn.getAttribute("title") !== "Cancel") btn.setAttribute("title", "Cancel");
+                                if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
+                            } else {
+                                if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
                             }
-                        });
-                    }
+                        }
+                        // Any extra / duplicate button
+                        else {
+                            if (btn.style.display !== "none") btn.style.setProperty("display", "none", "important");
+                        }
+                    });
                 }
 
                 // Hide Help & FAQ & Template section on both screens
