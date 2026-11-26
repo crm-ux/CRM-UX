@@ -345,5 +345,21 @@ try:
                     return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+
+        @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
+        def web_auth_signup(self, *args, **kw):
+            qcontext = self.get_auth_signup_qcontext()
+            if request.httprequest.method == 'POST' and qcontext.get('token'):
+                # Handle reset password confirmation and redirect cleanly to Login page
+                try:
+                    self.do_signup(qcontext)
+                    from urllib.parse import quote_plus
+                    msg = quote_plus("Password reset successfully! Please sign in with your new password.")
+                    request.session.logout(keep_db=True)
+                    return request.redirect(f"/web/login?message={msg}")
+                except Exception as e:
+                    qcontext['error'] = str(e)
+                    return request.render('auth_signup.signup', qcontext)
+            return super(CustomAuthSignupHome, self).web_auth_signup(*args, **kw)
 except Exception:
     pass
