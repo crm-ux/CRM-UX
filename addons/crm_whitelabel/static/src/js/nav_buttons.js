@@ -398,8 +398,12 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             return rawProps;
         }
 
-        // Form View: restore stage-accurate record count immediately so pager shows the real stage count
+        // Form View: if Odoo already has active list pager with multiple records, preserve it natively!
         if (isFormView && resModel) {
+            if (rawProps && rawProps.total > 1 && controller?.model?.root?.resIds?.length > 1) {
+                return rawProps;
+            }
+
             window.__crm_current_form_model = resModel;
             let activeIds = null;
             const fromTotalPipeline = sessionStorage.getItem("crm_from_total_pipeline") === "true";
@@ -1021,56 +1025,6 @@ patch(KanbanController.prototype, {
                 sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
                 window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                 window.__crm_cached_res_ids[resModel] = ids;
-            }
-
-            // For the 5 Quote Stages (Quotes:30, Sent:35, Negotiation:40, Order Expected:50, Won:90), open record directly as Quotation (sale.order)
-            if (resModel === "crm.lead" && record?.resId) {
-                const leadId = record.resId;
-                const orm = this.env?.services?.orm;
-                const action = this.actionService || this.action || this.env?.services?.action || window.__crm_action_service;
-
-                let seq = 0;
-                if (record.data?.x_stage_sequence !== undefined && record.data.x_stage_sequence !== false) {
-                    seq = parseInt(record.data.x_stage_sequence, 10);
-                }
-
-                if ((!seq || isNaN(seq)) && orm) {
-                    try {
-                        const lRes = await orm.read("crm.lead", [leadId], ["x_stage_sequence"]);
-                        if (lRes && lRes[0] && lRes[0].x_stage_sequence) {
-                            seq = parseInt(lRes[0].x_stage_sequence, 10);
-                        }
-                    } catch (e) { }
-                }
-
-                const isQuoteStage = Boolean(ctx.is_quote_stage || (seq && seq >= 30));
-
-                if (isQuoteStage && orm && action) {
-                    const quotes = await orm.searchRead(
-                        "sale.order",
-                        [["opportunity_id", "=", leadId]],
-                        ["id"],
-                        { order: "id desc", limit: 1 }
-                    );
-                    if (quotes && quotes.length > 0) {
-                        const stageVal = String(seq || 30);
-                        sessionStorage.setItem("crm_from_total_pipeline", "true");
-                        sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
-                        sessionStorage.setItem("crm_record_stage_" + quotes[0].id, stageVal);
-                        return action.doAction({
-                            type: "ir.actions.act_window",
-                            name: "Quotation",
-                            res_model: "sale.order",
-                            res_id: quotes[0].id,
-                            views: [[false, "form"]],
-                            context: {
-                                ...ctx,
-                                from_total_pipeline: true,
-                                default_stage_filter_val: stageVal,
-                            },
-                        });
-                    }
-                }
             }
         } catch (e) { }
         return super.openRecord ? super.openRecord(...arguments) : undefined;
