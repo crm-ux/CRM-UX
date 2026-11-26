@@ -1270,6 +1270,7 @@ if (typeof window !== "undefined") {
             const btns = document.querySelectorAll(
                 ".o_control_panel_main_buttons .o_form_button_create, " +
                 ".o_control_panel_main_buttons .o_list_button_add, " +
+                ".o_control_panel_main_buttons .o-kanban-button-new, " +
                 ".o_control_panel_main_buttons button.btn-outline-primary"
             );
             btns.forEach((btn) => {
