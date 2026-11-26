@@ -250,6 +250,10 @@ try:
                     base_url = request.httprequest.host_url.rstrip('/')
                     reset_url = f"{base_url}{raw_url}"
 
+                # Test environment specific: If accessing via test IP, ensure port 8070 is attached
+                if '34.14.132.247' in reset_url and ':8070' not in reset_url:
+                    reset_url = reset_url.replace('34.14.132.247', '34.14.132.247:8070')
+
                 # Compose professional branded email body
                 company = user.company_id or request.env.company
                 company_name = company.name or "YantraConnect CRM"
