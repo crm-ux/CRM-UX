@@ -421,22 +421,25 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
             }
 
             try {
-                // 1. If record belongs to any of the 10 stages, strictly use that stage's exact IDs
+                // 1. If record belongs to any of the 10 stages, strictly use that stage's exact IDs matching the model
                 if (recordStage && recordStage !== "all") {
-                    const stageStored = sessionStorage.getItem("crm_stage_ids_" + recordStage);
-                    if (stageStored) {
-                        const parsedStage = JSON.parse(stageStored);
-                        if (Array.isArray(parsedStage) && parsedStage.length > 0 && (!currentResId || parsedStage.map(Number).includes(Number(currentResId)))) {
-                            activeIds = parsedStage.map(Number).filter(Boolean);
-                        }
-                    }
-                    if (!activeIds && resModel === "sale.order") {
-                        const quoteStored = sessionStorage.getItem("crm_active_res_ids_sale.order");
+                    if (resModel === "sale.order") {
+                        const quoteStored = sessionStorage.getItem("crm_stage_quote_ids_" + recordStage) || sessionStorage.getItem("crm_active_res_ids_sale.order");
                         if (quoteStored) {
                             try {
                                 const parsedQuote = JSON.parse(quoteStored);
                                 if (Array.isArray(parsedQuote) && parsedQuote.length > 0 && (!currentResId || parsedQuote.map(Number).includes(Number(currentResId)))) {
                                     activeIds = parsedQuote.map(Number).filter(Boolean);
+                                }
+                            } catch (e) { }
+                        }
+                    } else {
+                        const stageStored = sessionStorage.getItem("crm_stage_ids_" + recordStage);
+                        if (stageStored) {
+                            try {
+                                const parsedStage = JSON.parse(stageStored);
+                                if (Array.isArray(parsedStage) && parsedStage.length > 0 && (!currentResId || parsedStage.map(Number).includes(Number(currentResId)))) {
+                                    activeIds = parsedStage.map(Number).filter(Boolean);
                                 }
                             } catch (e) { }
                         }
@@ -565,8 +568,10 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                                 }
                                 try { controller.render(true); } catch (e) { }
                                 this.render();
-                                return;
-                            } catch (e) { }
+                            } catch (e) {
+                                console.warn("CRM Pager: skipping missing record", targetId);
+                            }
+                            return;
                         }
 
                         const actService = this.action || window.__crm_action_service || controller?.env?.services?.action;
@@ -1034,7 +1039,7 @@ patch(ListController.prototype, {
                         sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
                         sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[stageVal] || "Quotes");
                         sessionStorage.setItem("crm_record_stage_" + targetQuoteId, stageVal);
-                        sessionStorage.setItem("crm_stage_ids_" + stageVal, JSON.stringify(quoteIds));
+                        sessionStorage.setItem("crm_stage_quote_ids_" + stageVal, JSON.stringify(quoteIds));
                         sessionStorage.setItem("crm_active_res_ids_sale.order", JSON.stringify(quoteIds));
                         window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                         window.__crm_cached_res_ids["sale.order"] = quoteIds;
@@ -1130,23 +1135,26 @@ patch(FormController.prototype, {
                 const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
                 try {
                     if (fromTotalPipeline && lastStageVal !== "all") {
-                        const stageStored = sessionStorage.getItem("crm_stage_ids_" + lastStageVal);
-                        if (stageStored) {
-                            const parsedStage = JSON.parse(stageStored);
-                            if (Array.isArray(parsedStage) && parsedStage.length > 1 && parsedStage.includes(currentResId)) {
-                                restoredIds = parsedStage;
+                        if (resModel === "sale.order") {
+                            const quoteStored = sessionStorage.getItem("crm_stage_quote_ids_" + lastStageVal) || sessionStorage.getItem("crm_active_res_ids_sale.order");
+                            if (quoteStored) {
+                                try {
+                                    const parsedQuote = JSON.parse(quoteStored);
+                                    if (Array.isArray(parsedQuote) && parsedQuote.length > 1 && parsedQuote.includes(currentResId)) {
+                                        restoredIds = parsedQuote;
+                                    }
+                                } catch (e) { }
                             }
-                        }
-                    }
-                    if (!restoredIds && resModel === "sale.order") {
-                        const quoteStored = sessionStorage.getItem("crm_active_res_ids_sale.order");
-                        if (quoteStored) {
-                            try {
-                                const parsedQuote = JSON.parse(quoteStored);
-                                if (Array.isArray(parsedQuote) && parsedQuote.length > 1 && parsedQuote.includes(currentResId)) {
-                                    restoredIds = parsedQuote;
-                                }
-                            } catch (e) { }
+                        } else {
+                            const stageStored = sessionStorage.getItem("crm_stage_ids_" + lastStageVal);
+                            if (stageStored) {
+                                try {
+                                    const parsedStage = JSON.parse(stageStored);
+                                    if (Array.isArray(parsedStage) && parsedStage.length > 1 && parsedStage.includes(currentResId)) {
+                                        restoredIds = parsedStage;
+                                    }
+                                } catch (e) { }
+                            }
                         }
                     }
                     if (!restoredIds && fromTotalPipeline && lastStageVal === "all") {
