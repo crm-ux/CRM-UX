@@ -199,15 +199,7 @@ class PersistentHome(Home):
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
-        if kw.get('message') or request.params.get('message'):
-            try:
-                request.session.logout(keep_db=True)
-            except Exception:
-                pass
-            request.session.uid = False
-            request.session.login = False
-
-        if request.session.uid and not redirect:
+        if request.session.uid and not redirect and not kw.get('message') and not request.params.get('message'):
             return request.redirect('/app/action-435')
         
         response = super(PersistentHome, self).web_login(redirect=redirect, **kw)
@@ -257,8 +249,6 @@ try:
                         request.session.logout(keep_db=True)
                     except Exception:
                         pass
-                    request.session.uid = False
-                    request.session.login = False
                     
                     from urllib.parse import quote_plus
                     msg = quote_plus("Password reset successfully! Please sign in with your new password.")
