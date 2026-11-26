@@ -146,3 +146,8 @@ a[href*="reset_password"]:hover,
     border-color: #1a3d6e !important;
     box-shadow: 0 0 0 2px rgba(26, 61, 110, 0.2) !important;
 }
+
+/* Hide 'Already have an account?' link completely on the set password / reset screen */
+.oe_signup_form a {
+    display: none !important;
+}

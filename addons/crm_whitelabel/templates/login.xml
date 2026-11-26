@@ -63,6 +63,36 @@
                 Reset Password
             </button>
         </xpath>
+
+        <!-- Hide 'Already have an account?' link completely from this screen -->
+        <xpath expr="//form" position="inside">
+            <style>
+                .oe_signup_form a,
+                form[action*="signup"] a,
+                a[href*="/web/login"] {
+                    display: none !important;
+                }
+            </style>
+        </xpath>
+    </template>
+
+    <!-- Make Username & Email Read-only and rename Name to Username -->
+    <template id="signup_fields_custom" name="CRM Signup Fields Branding" inherit_id="auth_signup.fields" priority="20">
+        <!-- Rename Name label to Username -->
+        <xpath expr="//label[@for='name']" position="replace">
+            <label for="name" class="col-form-label" style="font-weight: 600; color: #1e293b;">Username</label>
+        </xpath>
+        <!-- Make Username input readonly -->
+        <xpath expr="//input[@name='name']" position="attributes">
+            <attribute name="readonly">readonly</attribute>
+            <attribute name="style">background-color: #f1f5f9 !important; cursor: not-allowed; color: #64748b !important;</attribute>
+        </xpath>
+
+        <!-- Make Email input readonly -->
+        <xpath expr="//input[@name='login']" position="attributes">
+            <attribute name="readonly">readonly</attribute>
+            <attribute name="style">background-color: #f1f5f9 !important; cursor: not-allowed; color: #64748b !important;</attribute>
+        </xpath>
     </template>
 
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
