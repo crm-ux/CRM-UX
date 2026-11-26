@@ -410,22 +410,13 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
 
             // Resolve stage for the current record across all 10 stages
             let recordStage = null;
-            if (currentResId) {
-                recordStage = sessionStorage.getItem("crm_record_stage_" + currentResId);
-            }
-            if (!recordStage && controller?.model?.root?.data) {
-                const rData = controller.model.root.data;
-                if (rData.x_stage_sequence !== undefined && rData.x_stage_sequence !== false) {
-                    recordStage = String(rData.x_stage_sequence);
-                } else if (rData.x_quote_stage) {
-                    const quoteMap = { draft: "30", sent: "35", negotiation: "40", order_expected: "50", won: "90" };
-                    recordStage = quoteMap[rData.x_quote_stage] || null;
-                }
-            }
-            if (!recordStage) {
-                const storedStage = sessionStorage.getItem("crm_last_stage_filter_val");
-                if (storedStage && storedStage !== "all") {
-                    recordStage = storedStage;
+            const lastStageVal = sessionStorage.getItem("crm_last_stage_filter_val") || "all";
+            if (lastStageVal && lastStageVal !== "all") {
+                recordStage = lastStageVal;
+            } else if (currentResId) {
+                const taggedStage = sessionStorage.getItem("crm_record_stage_" + currentResId);
+                if (taggedStage && taggedStage !== "all" && lastStageVal !== "all") {
+                    recordStage = taggedStage;
                 }
             }
 
@@ -467,17 +458,28 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     }
                 }
 
-                // 2. Fallback to model-specific cached IDs only if not a specific stage
+                // 2. Fallback to Total Pipeline or model-specific cached IDs only if not a specific stage
                 if (!activeIds && !recordStage) {
-                    const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        if (Array.isArray(parsed) && parsed.length > 1) {
-                            const parsedNums = parsed.map(Number).filter(Boolean);
-                            if (!currentResId || parsedNums.includes(Number(currentResId))) {
-                                activeIds = parsedNums;
-                            } else {
-                                activeIds = [Number(currentResId), ...parsedNums];
+                    const pipeStored = sessionStorage.getItem("crm_active_pipeline_ids");
+                    if (pipeStored) {
+                        try {
+                            const parsedPipe = JSON.parse(pipeStored);
+                            if (Array.isArray(parsedPipe) && parsedPipe.length > 1) {
+                                activeIds = parsedPipe.map(Number).filter(Boolean);
+                            }
+                        } catch (e) { }
+                    }
+                    if (!activeIds) {
+                        const stored = sessionStorage.getItem("crm_active_res_ids_" + resModel);
+                        if (stored) {
+                            const parsed = JSON.parse(stored);
+                            if (Array.isArray(parsed) && parsed.length > 1) {
+                                const parsedNums = parsed.map(Number).filter(Boolean);
+                                if (!currentResId || parsedNums.includes(Number(currentResId))) {
+                                    activeIds = parsedNums;
+                                } else {
+                                    activeIds = [Number(currentResId), ...parsedNums];
+                                }
                             }
                         }
                     }
@@ -616,9 +618,9 @@ function navigateBackFromForm(resModel, actionService) {
     // Check if the current record was tagged with its origin stage
     const controller = actionService.currentController;
     const curResId = controller?.model?.root?.resId || controller?.props?.resId;
-    if (curResId) {
+    if (curResId && lastStageVal !== "all") {
         const recStage = sessionStorage.getItem("crm_record_stage_" + curResId);
-        if (recStage) {
+        if (recStage && recStage !== "all") {
             lastStageVal = recStage;
             lastStageName = stageNamesMap[recStage] || lastStageName;
         }
@@ -937,8 +939,10 @@ patch(ListController.prototype, {
                 "90": "Won"
             };
 
-            const targetStage = detected || ctx.default_stage_filter_val || (record?.data?.x_stage_sequence !== undefined ? String(record.data.x_stage_sequence) : "all");
-            sessionStorage.setItem("crm_from_total_pipeline", "true");
+            const targetStage = detected || ctx.default_stage_filter_val || "all";
+            if (ctx.from_total_pipeline || targetStage !== "all") {
+                sessionStorage.setItem("crm_from_total_pipeline", "true");
+            }
             sessionStorage.setItem("crm_last_stage_filter_val", targetStage);
             sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[targetStage] || "Pipeline");
             if (record?.resId) {
@@ -955,58 +959,6 @@ patch(ListController.prototype, {
                         sessionStorage.setItem("crm_stage_ids_" + targetStage, JSON.stringify(ids));
                     } else {
                         sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
-                    }
-                }
-            }
-
-            // For the 5 Quote Stages (Quotes:30, Sent:35, Negotiation:40, Order Expected:50, Won:90), open record directly as Quotation (sale.order)
-            if (resModel === "crm.lead" && record?.resId) {
-                const leadId = record.resId;
-                const orm = this.env?.services?.orm;
-                const action = this.actionService || this.action || this.env?.services?.action || window.__crm_action_service;
-
-                let seq = 0;
-                if (record.data?.x_stage_sequence !== undefined && record.data.x_stage_sequence !== false) {
-                    seq = parseInt(record.data.x_stage_sequence, 10);
-                } else if (targetStage && targetStage !== "all") {
-                    seq = parseInt(targetStage, 10);
-                }
-
-                if ((!seq || isNaN(seq)) && orm) {
-                    try {
-                        const lRes = await orm.read("crm.lead", [leadId], ["x_stage_sequence"]);
-                        if (lRes && lRes[0] && lRes[0].x_stage_sequence) {
-                            seq = parseInt(lRes[0].x_stage_sequence, 10);
-                        }
-                    } catch (e) { }
-                }
-
-                const isQuoteStage = Boolean(ctx.is_quote_stage || (seq && seq >= 30));
-
-                if (isQuoteStage && orm && action) {
-                    const quotes = await orm.searchRead(
-                        "sale.order",
-                        [["opportunity_id", "=", leadId]],
-                        ["id"],
-                        { order: "id desc", limit: 1 }
-                    );
-                    if (quotes && quotes.length > 0) {
-                        const stageVal = String(seq || 30);
-                        sessionStorage.setItem("crm_from_total_pipeline", "true");
-                        sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
-                        sessionStorage.setItem("crm_record_stage_" + quotes[0].id, stageVal);
-                        return action.doAction({
-                            type: "ir.actions.act_window",
-                            name: "Quotation",
-                            res_model: "sale.order",
-                            res_id: quotes[0].id,
-                            views: [[false, "form"]],
-                            context: {
-                                ...ctx,
-                                from_total_pipeline: true,
-                                default_stage_filter_val: stageVal,
-                            },
-                        });
                     }
                 }
             }

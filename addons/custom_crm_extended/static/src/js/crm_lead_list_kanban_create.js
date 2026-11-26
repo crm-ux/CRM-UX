@@ -22,60 +22,6 @@ export class CrmLeadListController extends ListController {
     }
 
     async openRecord(record) {
-        const leadId = record.resId;
-        const orm = this.env?.services?.orm;
-        const action = this.env?.services?.action || this.actionService || this.action || window.__crm_action_service;
-
-        if (orm && action && leadId) {
-            try {
-                // Check stage sequence of the clicked lead
-                let seq = 0;
-                if (record.data?.x_stage_sequence !== undefined && record.data.x_stage_sequence !== false) {
-                    seq = parseInt(record.data.x_stage_sequence, 10);
-                } else {
-                    const leadData = await orm.read("crm.lead", [leadId], ["x_stage_sequence", "stage_id"]);
-                    if (leadData && leadData[0]) {
-                        if (leadData[0].x_stage_sequence !== undefined && leadData[0].x_stage_sequence !== false) {
-                            seq = parseInt(leadData[0].x_stage_sequence, 10);
-                        } else if (leadData[0].stage_id) {
-                            const stages = await orm.read("crm.stage", [leadData[0].stage_id[0]], ["sequence"]);
-                            seq = stages && stages[0] ? stages[0].sequence : 0;
-                        }
-                    }
-                }
-
-                // If sequence is 30 or above (Quotes, Sent, Negotiation, Order Expected, Won)
-                if (seq >= 30) {
-                    const quotes = await orm.searchRead(
-                        "sale.order",
-                        [["opportunity_id", "=", leadId]],
-                        ["id"],
-                        { order: "id desc", limit: 1 }
-                    );
-                    if (quotes && quotes.length) {
-                        const ctx = this.props.context || this.env?.searchModel?.context || {};
-                        try {
-                            sessionStorage.setItem("crm_from_total_pipeline", "true");
-                            const stageVal = ctx.default_stage_filter_val || String(seq);
-                            sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
-                            sessionStorage.setItem("crm_record_stage_" + quotes[0].id, stageVal);
-                        } catch (e) { }
-                        return action.doAction({
-                            type: "ir.actions.act_window",
-                            name: "Quotation",
-                            res_model: "sale.order",
-                            res_id: quotes[0].id,
-                            views: [[false, "form"]],
-                            context: {
-                                ...ctx,
-                                from_total_pipeline: true,
-                                default_stage_filter_val: String(seq),
-                            },
-                        });
-                    }
-                }
-            } catch (e) { }
-        }
         return super.openRecord(...arguments);
     }
 
