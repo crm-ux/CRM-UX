@@ -236,122 +236,94 @@ try:
 
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
-            qcontext = self.get_auth_signup_qcontext()
-            if request.httprequest.method == 'POST' and (kw.get('login') or qcontext.get('login')):
-                login_val = (kw.get('login') or qcontext.get('login') or '').strip()
-                # Search by unique username (login) first, then fallback to email
-                user = request.env['res.users'].sudo().search([('login', '=', login_val)], limit=1)
-                if not user:
-                    user = request.env['res.users'].sudo().search([('email', '=', login_val)], limit=1)
-                
-                if not user:
-                    qcontext['error'] = "No user found with this username."
-                    return request.render('auth_signup.reset_password', qcontext)
-                
-                user_email = user.email or (user.partner_id and user.partner_id.email)
-                if not user_email or not user_email.strip():
-                    qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
-                    return request.render('auth_signup.reset_password', qcontext)
-                
-                # Prepare partner signup token specifically for password reset (24 hour validity)
-                import datetime
-                exp_dt = datetime.datetime.now() + datetime.timedelta(days=1)
-                user.partner_id.signup_prepare(signup_type="reset", expiration=exp_dt)
-                token = user.partner_id.signup_token
-                dbname = request.env.cr.dbname
-                base_url = request.httprequest.host_url.rstrip('/')
-                reset_url = f"{base_url}/web/signup?token={token}&db={dbname}"
+            try:
+                qcontext = self.get_auth_signup_qcontext()
+                if request.httprequest.method == 'POST' and (kw.get('login') or qcontext.get('login')):
+                    login_val = (kw.get('login') or qcontext.get('login') or '').strip()
+                    # Search by unique username (login) first, then fallback to email
+                    user = request.env['res.users'].sudo().search([('login', '=', login_val)], limit=1)
+                    if not user:
+                        user = request.env['res.users'].sudo().search([('email', '=', login_val)], limit=1)
+                    
+                    if not user:
+                        qcontext['error'] = "No user found with this username."
+                        return request.render('auth_signup.reset_password', qcontext)
+                    
+                    user_email = user.email or (user.partner_id and user.partner_id.email)
+                    if not user_email or not user_email.strip():
+                        qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
+                        return request.render('auth_signup.reset_password', qcontext)
+                    
+                    # Prepare partner signup token specifically for password reset
+                    user.partner_id.signup_prepare(signup_type="reset")
+                    token = user.partner_id.signup_token
+                    dbname = request.env.cr.dbname
+                    base_url = request.httprequest.host_url.rstrip('/')
+                    reset_url = f"{base_url}/web/signup?token={token}&db={dbname}"
 
-                # Test environment specific: If accessing via test IP, ensure port 8070 is attached
-                if '34.14.132.247' in reset_url and ':8070' not in reset_url:
-                    reset_url = reset_url.replace('34.14.132.247', '34.14.132.247:8070')
+                    # Test environment specific: If accessing via test IP, ensure port 8070 is attached
+                    if '34.14.132.247' in reset_url and ':8070' not in reset_url:
+                        reset_url = reset_url.replace('34.14.132.247', '34.14.132.247:8070')
 
-                # Compose professional branded email body
-                company = user.company_id or request.env.company
-                company_name = company.name or "YantraConnect CRM"
-                
-                body_html = f"""
-                <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
-                    <div style="text-align: center; margin-bottom: 25px;">
-                        <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; margin-bottom: 10px;">Y</div>
-                        <h2 style="color: #1a3d6e; margin: 0; font-size: 22px;">{company_name}</h2>
-                        <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Password Reset Request</p>
+                    # Compose professional branded email body
+                    company = user.company_id or request.env.company
+                    company_name = company.name or "YantraConnect CRM"
+                    
+                    body_html = f"""
+                    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 30px; border: 1px solid #E2E8F0; border-radius: 12px; background: #FFFFFF;">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <div style="width: 55px; height: 55px; background: #1a3d6e; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 26px; font-weight: bold; line-height: 55px; margin-bottom: 10px;">Y</div>
+                            <h2 style="color: #1a3d6e; margin: 0; font-size: 22px;">{company_name}</h2>
+                            <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Password Reset Request</p>
+                        </div>
+                        <p style="color: #1E293B; font-size: 14px; line-height: 1.6;">Hello <strong>{user.name}</strong>,</p>
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6;">A password reset was requested for your CRM account. Click the button below to choose your new password:</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="{reset_url}" style="background: #1a3d6e; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
+                        </div>
+                        <p style="color: #64748B; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
+                        <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 25px 0;"/>
+                        <p style="color: #94A3B8; font-size: 11px; text-align: center; margin: 0;">&copy; {company_name}. All rights reserved.</p>
                     </div>
-                    <p style="color: #1E293B; font-size: 14px; line-height: 1.6;">Hello <strong>{user.name}</strong>,</p>
-                    <p style="color: #475569; font-size: 14px; line-height: 1.6;">A password reset was requested for your CRM account. Click the button below to choose your new password:</p>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="{reset_url}" style="background: #1a3d6e; color: #FFFFFF; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
-                    </div>
-                    <p style="color: #64748B; font-size: 12px; line-height: 1.5;">If you did not request a password reset, you can safely ignore this email.</p>
-                    <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 25px 0;"/>
-                    <p style="color: #94A3B8; font-size: 11px; text-align: center; margin: 0;">&copy; {company_name}. All rights reserved.</p>
-                </div>
-                """
-                
-                mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
-                if not mail_server:
-                    raise Exception("No active outgoing mail server configured in CRM.")
-
-                host = mail_server.smtp_host or 'smtp.gmail.com'
-                port = mail_server.smtp_port or 587
-                user_smtp = mail_server.smtp_user or 'crm@yantradynamics.in'
-                enc = mail_server.smtp_encryption or 'starttls'
-
-                try:
-                    # Use Odoo's native mail.mail model with the configured mail_server
+                    """
+                    
+                    mail_server = request.env['ir.mail_server'].sudo().search([('active', '=', True)], limit=1)
+                    user_smtp = mail_server.smtp_user if mail_server and mail_server.smtp_user else 'crm@yantradynamics.in'
                     email_from = f"{company_name} <{user_smtp}>"
+
                     mail_values = {
                         'subject': f"Password Reset Instructions - {company_name}",
                         'body_html': body_html,
                         'email_to': user_email,
                         'email_from': email_from,
-                        'mail_server_id': mail_server.id,
                         'auto_delete': True,
                     }
-                    mail = request.env['mail.mail'].sudo().create(mail_values)
-                    mail.send(raise_exception=True)
-                    qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
-                    return request.render('auth_signup.reset_password', qcontext)
-                except Exception as mail_err:
-                    import sys
-                    import traceback
-                    import logging
-                    _logger = logging.getLogger(__name__)
+                    if mail_server:
+                        mail_values['mail_server_id'] = mail_server.id
 
-                    err_details = (
-                        f"\n{'=' * 65}\n"
-                        f"[RESET PASSWORD ERROR DETAILS]\n"
-                        f"Recipient: {user_email}\n"
-                        f"Mail Server ID: {mail_server.id} | Host: {host}:{port} | User: {user_smtp} | Enc: {enc}\n"
-                        f"Error: {mail_err}\n"
-                        f"Traceback:\n{traceback.format_exc()}\n"
-                        f"{'=' * 65}\n"
-                    )
-                    # 1. Force flush to systemd console (stderr)
-                    sys.stderr.write(err_details)
-                    sys.stderr.flush()
-
-                    # 2. Write directly to dedicated log file in /tmp
                     try:
-                        with open('/tmp/crm_reset_password_error.log', 'w', encoding='utf-8') as f:
-                            f.write(err_details)
-                    except Exception:
-                        pass
+                        mail = request.env['mail.mail'].sudo().create(mail_values)
+                        mail.send(raise_exception=True)
+                        qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
+                        return request.render('auth_signup.reset_password', qcontext)
+                    except Exception as mail_err:
+                        import logging
+                        _logger = logging.getLogger(__name__)
+                        _logger.exception("Mail delivery error: %s", mail_err)
+                        qcontext['error'] = f"Failed to send email: {str(mail_err)}"
+                        return request.render('auth_signup.reset_password', qcontext)
 
-                    _logger.error("%s", err_details)
-                    qcontext['dev_error_details'] = {
-                        'recipient': user_email or '',
-                        'host': host or '',
-                        'port': str(port or ''),
-                        'user': user_smtp or '',
-                        'encryption': enc or '',
-                        'odoo_error': str(mail_err or '').replace('"', "'"),
-                        'smtp_error': str(mail_err or '').replace('"', "'"),
-                    }
-                    qcontext['error'] = "Unable to deliver the reset email due to a temporary service issue. Please try again after some time."
-                    return request.render('auth_signup.reset_password', qcontext)
-
-            return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+                return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
+            except Exception as e:
+                import logging
+                _logger = logging.getLogger(__name__)
+                _logger.exception("Error in web_auth_reset_password: %s", e)
+                try:
+                    qcontext = self.get_auth_signup_qcontext()
+                except Exception:
+                    qcontext = {}
+                qcontext['error'] = str(e)
+                return request.render('auth_signup.reset_password', qcontext)
 
         @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
         def web_auth_signup(self, *args, **kw):
