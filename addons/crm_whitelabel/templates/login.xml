@@ -151,6 +151,11 @@
         </xpath>
     </template>
 
+    <!-- Remove top header bar (Home and Back navigation) completely from frontend layout -->
+    <template id="frontend_layout_remove_header" inherit_id="web.frontend_layout" priority="99">
+        <xpath expr="//header" position="replace"/>
+    </template>
+
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">
         <xpath expr="//nav" position="attributes">
             <attribute name="style">display:none !important;</attribute>

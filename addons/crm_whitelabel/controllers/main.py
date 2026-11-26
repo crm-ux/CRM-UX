@@ -369,11 +369,22 @@ try:
 
                 try:
                     self.do_signup(qcontext)
+                    # Clear session cleanly so the user logs in fresh with new credentials
+                    try:
+                        if hasattr(request.session, 'logout'):
+                            request.session.logout(keep_db=True)
+                        request.session.uid = False
+                        request.session.login = False
+                    except Exception:
+                        request.session.uid = False
+                    
                     from urllib.parse import quote_plus
                     msg = quote_plus("Password reset successfully! Please sign in with your new password.")
-                    request.session.logout(keep_db=True)
                     return request.redirect(f"/web/login?message={msg}")
                 except Exception as e:
+                    import logging
+                    _logger = logging.getLogger(__name__)
+                    _logger.exception("Error in reset password do_signup: %s", e)
                     qcontext['error'] = str(e)
                     return request.render('auth_signup.signup', qcontext)
 
