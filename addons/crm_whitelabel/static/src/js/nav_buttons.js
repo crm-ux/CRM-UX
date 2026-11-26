@@ -518,6 +518,11 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         controller.model.root.resIds = activeIds;
                     } catch (e) { }
                 }
+                if (controller?.props) {
+                    try {
+                        controller.props.resIds = activeIds;
+                    } catch (e) { }
+                }
 
                 return {
                     offset: offset,
@@ -528,16 +533,21 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         const targetId = activeIds[offsetIndex];
                         if (!targetId) return;
 
-                        if (typeof controller?.onPagerUpdate === "function") {
-                            try {
-                                await controller.onPagerUpdate({ offset: offsetIndex, limit: 1 });
-                                return;
-                            } catch (e) { }
+                        if (controller?.model?.root) {
+                            try { controller.model.root.resIds = activeIds; } catch (e) { }
+                        }
+                        if (controller?.props) {
+                            try { controller.props.resIds = activeIds; } catch (e) { }
                         }
 
-                        if (rawProps && typeof rawProps.onUpdate === "function") {
+                        // Load target record directly without letting onPagerUpdate receive undefined
+                        if (controller?.model?.root?.load) {
                             try {
-                                await rawProps.onUpdate({ offset: offsetIndex, limit: 1 });
+                                await controller.model.root.load({ resId: targetId });
+                                if (controller?.env?.services?.router?.pushState) {
+                                    try { controller.env.services.router.pushState({ id: targetId }); } catch (e) { }
+                                }
+                                this.render();
                                 return;
                             } catch (e) { }
                         }
