@@ -379,6 +379,10 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     const currentStageVal = ctx.default_stage_filter_val || sessionStorage.getItem("crm_last_stage_filter_val") || "all";
 
                     // Cache specific stage IDs vs Total Pipeline IDs
+                    sessionStorage.setItem("crm_active_res_ids_" + resModel, JSON.stringify(ids));
+                    window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                    window.__crm_cached_res_ids[resModel] = ids;
+
                     if (this.isTotalPipelineView || ctx.from_total_pipeline) {
                         sessionStorage.setItem("crm_from_total_pipeline", "true");
                         if (currentStageVal === "all") {
@@ -386,6 +390,8 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         } else {
                             sessionStorage.setItem("crm_stage_ids_" + currentStageVal, JSON.stringify(ids));
                         }
+                    } else if (currentStageVal && currentStageVal !== "all") {
+                        sessionStorage.setItem("crm_stage_ids_" + currentStageVal, JSON.stringify(ids));
                     }
                 }
             } catch (e) { }
@@ -437,9 +443,9 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
 
                         const quoteStageMap = { "30": "draft", "35": "sent", "40": "negotiation", "50": "order_expected", "90": "won" };
                         const isQuote = quoteStageMap[recordStage];
-                        const stageModel = isQuote ? "sale.order" : "crm.lead";
-                        const stageDomain = isQuote
-                            ? [["x_quote_stage", "=", isQuote], (isQuote === "won" ? ["state", "!=", "cancel"] : ["state", "not in", ["sale", "cancel"]])]
+                        const stageModel = resModel;
+                        const stageDomain = (resModel === "sale.order")
+                            ? (isQuote ? [["x_quote_stage", "=", isQuote], (isQuote === "won" ? ["state", "!=", "cancel"] : ["state", "not in", ["sale", "cancel"]])] : [["state", "!=", "cancel"]])
                             : [["active", "=", true], ["x_stage_sequence", "=", parseInt(recordStage)]];
 
                         this.orm.search(stageModel, stageDomain, { limit: 1000 }).then((searchRes) => {
@@ -514,7 +520,8 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     limit: 1,
                     total: activeIds.length,
                     onUpdate: async (newOffset) => {
-                        const targetId = activeIds[newOffset];
+                        const offsetIndex = (typeof newOffset === "object" && newOffset !== null) ? newOffset.offset : newOffset;
+                        const targetId = activeIds[offsetIndex];
                         if (!targetId) return;
                         if (controller?.model?.root?.switchRecord) {
                             await controller.model.root.switchRecord(targetId);

@@ -888,6 +888,7 @@ class CrmDashboard extends Component {
             context: {
                 allowed_company_ids: this.state.selectedCompanies,
                 is_quote_stage: true,
+                default_stage_filter_val: String(seq),
             }
         });
     }
@@ -918,6 +919,7 @@ class CrmDashboard extends Component {
                 search_default_assigned_to_me: 0,
                 search_default_my_leads: 0,
                 is_quote_stage: isQuote,
+                default_stage_filter_val: String(seq),
             }
         });
     }
