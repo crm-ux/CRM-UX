@@ -220,18 +220,21 @@ try:
             qcontext = super(CustomAuthSignupHome, self).get_auth_signup_qcontext()
             token = qcontext.get('token')
             if token:
-                partner = request.env['res.partner'].sudo().search([('signup_token', '=', token)], limit=1)
-                if partner:
-                    user = partner.user_ids[0] if partner.user_ids else False
-                    user_email = (user and user.email) or partner.email or ''
-                    user_login = (user and user.login) or ''
-                    if user_login:
-                        qcontext['name'] = user_login
-                        qcontext['user_real_login'] = user_login
-                    if user_email:
-                        qcontext['login'] = user_email
-                        qcontext['user_real_email'] = user_email
-                    qcontext['only_passwords'] = True
+                try:
+                    partner = request.env['res.partner'].sudo()._signup_retrieve_partner(token)
+                    if partner:
+                        user = partner.user_ids[0] if partner.user_ids else False
+                        user_email = (user and user.email) or partner.email or ''
+                        user_login = (user and user.login) or ''
+                        if user_login:
+                            qcontext['name'] = user_login
+                            qcontext['user_real_login'] = user_login
+                        if user_email:
+                            qcontext['login'] = user_email
+                            qcontext['user_real_email'] = user_email
+                        qcontext['only_passwords'] = True
+                except Exception:
+                    pass
             return qcontext
 
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
@@ -256,10 +259,15 @@ try:
                     
                     # Prepare partner signup token specifically for password reset
                     user.partner_id.signup_prepare(signup_type="reset")
-                    token = user.partner_id.signup_token
-                    dbname = request.env.cr.dbname
+                    signup_urls = user.partner_id._get_signup_url_for_action()
+                    raw_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
+
+                    # Ensure the reset URL includes the exact host and port (e.g. :8070)
                     base_url = request.httprequest.host_url.rstrip('/')
-                    reset_url = f"{base_url}/web/signup?token={token}&db={dbname}"
+                    if raw_url.startswith('http://') or raw_url.startswith('https://'):
+                        reset_url = raw_url
+                    else:
+                        reset_url = f"{base_url}{raw_url}"
 
                     # Test environment specific: If accessing via test IP, ensure port 8070 is attached
                     if '34.14.132.247' in reset_url and ':8070' not in reset_url:
