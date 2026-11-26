@@ -19,10 +19,7 @@
         </xpath>
     </template>
 
-    <!-- Temporarily hide Forgot Password / Reset Password link from login -->
-    <template id="auth_signup_login_custom" name="CRM Auth Signup Login Custom" inherit_id="auth_signup.login" priority="20">
-        <xpath expr="//a[contains(@t-attf-href, 'reset_password')]" position="replace"/>
-    </template>
+    <!-- Reset Password / Forgot Password link enabled -->
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
         <xpath expr="//button[@type='submit']" position="attributes">
