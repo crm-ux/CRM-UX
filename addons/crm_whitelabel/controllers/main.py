@@ -225,12 +225,13 @@ try:
                     user = partner.user_ids[0] if partner.user_ids else False
                     user_email = (user and user.email) or partner.email or ''
                     user_login = (user and user.login) or ''
-                    qcontext['user_real_email'] = user_email
-                    qcontext['user_real_login'] = user_login
-            if 'user_real_email' not in qcontext:
-                qcontext['user_real_email'] = ''
-            if 'user_real_login' not in qcontext:
-                qcontext['user_real_login'] = ''
+                    if user_login:
+                        qcontext['name'] = user_login
+                        qcontext['user_real_login'] = user_login
+                    if user_email:
+                        qcontext['login'] = user_email
+                        qcontext['user_real_email'] = user_email
+                    qcontext['only_passwords'] = True
             return qcontext
 
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
@@ -354,42 +355,34 @@ try:
 
         @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
         def web_auth_signup(self, *args, **kw):
-            try:
-                qcontext = self.get_auth_signup_qcontext()
+            qcontext = self.get_auth_signup_qcontext()
 
-                if request.httprequest.method == 'POST' and qcontext.get('token'):
-                    # Ensure the login value stays fixed to the user's username
-                    if qcontext.get('user_real_login'):
-                        qcontext['login'] = qcontext['user_real_login']
+            if request.httprequest.method == 'POST' and qcontext.get('token'):
+                # Ensure the login value stays fixed to the user's username
+                if qcontext.get('user_real_login'):
+                    qcontext['login'] = qcontext['user_real_login']
 
+                try:
+                    self.do_signup(qcontext)
+                    # Clear session cleanly so the user logs in fresh with new credentials
                     try:
-                        self.do_signup(qcontext)
-                        # Clear session cleanly so the user logs in fresh with new credentials
-                        try:
-                            if hasattr(request.session, 'logout'):
-                                request.session.logout(keep_db=True)
-                            request.session.uid = False
-                            request.session.login = False
-                        except Exception:
-                            request.session.uid = False
-                        
-                        from urllib.parse import quote_plus
-                        msg = quote_plus("Password reset successfully! Please sign in with your new password.")
-                        return request.redirect(f"/web/login?message={msg}")
-                    except Exception as e:
-                        import logging
-                        _logger = logging.getLogger(__name__)
-                        _logger.exception("Error in reset password do_signup: %s", e)
-                        qcontext['error'] = str(e)
-                        return request.render('auth_signup.signup', qcontext)
+                        if hasattr(request.session, 'logout'):
+                            request.session.logout(keep_db=True)
+                        request.session.uid = False
+                        request.session.login = False
+                    except Exception:
+                        request.session.uid = False
+                    
+                    from urllib.parse import quote_plus
+                    msg = quote_plus("Password reset successfully! Please sign in with your new password.")
+                    return request.redirect(f"/web/login?message={msg}")
+                except Exception as e:
+                    import logging
+                    _logger = logging.getLogger(__name__)
+                    _logger.exception("Error in reset password do_signup: %s", e)
+                    qcontext['error'] = str(e)
+                    return request.render('auth_signup.signup', qcontext)
 
-                return super(CustomAuthSignupHome, self).web_auth_signup(*args, **kw)
-            except Exception as e:
-                import logging
-                _logger = logging.getLogger(__name__)
-                _logger.exception("CRM Signup error: %s", e)
-                from urllib.parse import quote_plus
-                err_msg = quote_plus("This password reset link is invalid or has expired. Please request a new one.")
-                return request.redirect(f"/web/reset_password?error={err_msg}")
+            return super(CustomAuthSignupHome, self).web_auth_signup(*args, **kw)
 except Exception:
     pass

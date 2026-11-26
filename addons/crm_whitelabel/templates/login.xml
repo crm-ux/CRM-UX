@@ -111,34 +111,25 @@
                         }
                     }
 
-                    var realEmail = "<t t-esc="qcontext.get('user_real_email', '')"/>";
-                    var realLogin = "<t t-esc="qcontext.get('user_real_login', '')"/>";
-
-                    // Make Username input readonly and ensure it displays user login
+                    // Style Username input
                     var nameInput = document.querySelector("input[name='name']");
                     if (nameInput) {
-                        if (realLogin) {
-                            nameInput.value = realLogin;
-                        }
                         nameInput.readOnly = true;
                         nameInput.style.setProperty("background-color", "#f1f5f9", "important");
                         nameInput.style.setProperty("cursor", "not-allowed", "important");
                         nameInput.style.setProperty("color", "#475569", "important");
                     }
 
-                    // Make Email input readonly and ensure it displays real user email
+                    // Style Email input
                     var loginInput = document.querySelector("input[name='login']");
                     if (loginInput) {
-                        if (realEmail) {
-                            loginInput.value = realEmail;
-                        }
                         loginInput.readOnly = true;
                         loginInput.style.setProperty("background-color", "#f1f5f9", "important");
                         loginInput.style.setProperty("cursor", "not-allowed", "important");
                         loginInput.style.setProperty("color", "#475569", "important");
                     }
 
-                    // Remove/hide 'Already have an account?' link completely
+                    // Remove/hide 'Already have an account?' and 'Back to Login' links completely
                     var links = document.querySelectorAll(".oe_signup_form a, form a");
                     for (var j = 0; j &lt; links.length; j++) {
                         var ltxt = links[j].textContent.trim().toLowerCase();
