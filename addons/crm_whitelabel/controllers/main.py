@@ -249,7 +249,23 @@ try:
         def web_auth_reset_password(self, *args, **kw):
             try:
                 qcontext = self.get_auth_signup_qcontext()
-                if request.httprequest.method == 'POST' and (kw.get('login') or qcontext.get('login')):
+
+                # CASE 1: Setting New Password (User clicked link from email, token is present)
+                if request.httprequest.method == 'POST' and qcontext.get('token'):
+                    self.do_signup(qcontext)
+                    try:
+                        request.session.logout(keep_db=True)
+                    except Exception:
+                        pass
+                    request.session.uid = False
+                    request.session.login = False
+                    
+                    from urllib.parse import quote_plus
+                    msg = quote_plus("Password reset successfully! Please sign in with your new password.")
+                    return request.redirect(f"/web/login?message={msg}")
+
+                # CASE 2: Requesting Reset Email (Initial forgot password request, no token)
+                if request.httprequest.method == 'POST' and not qcontext.get('token'):
                     login_val = (kw.get('login') or qcontext.get('login') or '').strip()
                     # Search by unique username (login) first, then fallback to email
                     user = request.env['res.users'].sudo().search([('login', '=', login_val)], limit=1)
