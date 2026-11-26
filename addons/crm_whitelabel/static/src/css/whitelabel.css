@@ -3010,11 +3010,16 @@ body.crm_import_active .o_control_panel_main_buttons button[title="Test"] {
     color: #ffffff !important;
 }
 
-/* Import Button (Primary Blue) */
+/* Import Button (White button with Blue icon) */
 body.crm_import_active .o_control_panel_main_buttons button[title="Import"] {
-    background-color: #0b3d91 !important;
-    border: 1px solid #0b3d91 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0b3d91 !important;
+}
+
+body.crm_import_active .o_control_panel_main_buttons button[title="Import"] i,
+body.crm_import_active .o_control_panel_main_buttons button i.fa-download {
+    color: #0b3d91 !important;
 }
 
 /* Cancel & Load Data File Buttons (White / Slate Border) */

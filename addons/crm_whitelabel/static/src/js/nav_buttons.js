@@ -1362,8 +1362,11 @@ if (typeof window !== "undefined") {
                         else if (t === "import" || title === "import" || btn.classList.contains("o_import_import")) {
                             if (!importFound) {
                                 importFound = true;
-                                if (!btn.querySelector("i.fa-download")) {
-                                    btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #ffffff !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                const dlIcon = btn.querySelector("i.fa-download");
+                                if (!dlIcon) {
+                                    btn.innerHTML = '<i class="fa fa-download" style="font-size: 0.95rem !important; color: #0b3d91 !important; line-height: 1 !important; display: inline-block !important;"></i>';
+                                } else {
+                                    dlIcon.style.setProperty("color", "#0b3d91", "important");
                                 }
                                 if (btn.getAttribute("title") !== "Import") btn.setAttribute("title", "Import");
                                 if (btn.style.display !== "inline-flex") btn.style.setProperty("display", "inline-flex", "important");
