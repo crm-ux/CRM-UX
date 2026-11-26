@@ -325,14 +325,32 @@ try:
                         qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
                         return request.render('auth_signup.reset_password', qcontext)
                     except Exception as mail_err:
-                        _logger.error("=" * 65)
-                        _logger.error("[RESET PASSWORD ERROR DETAILS]")
-                        _logger.error("Recipient: %s", user_email)
-                        _logger.error("Host: %s | Port: %s | User: %s | Enc: %s", host, port, user_smtp, enc)
-                        _logger.error("Odoo Native Send Error: %s", odoo_mail_err, exc_info=True)
-                        _logger.error("Direct SMTP Send Error: %s", mail_err, exc_info=True)
-                        _logger.error("=" * 65)
-                        qcontext['error'] = "An unexpected error occurred while sending the email. Please try again later or contact your system administrator."
+                        import sys
+                        import traceback
+
+                        err_details = (
+                            f"\n{'=' * 65}\n"
+                            f"[RESET PASSWORD ERROR DETAILS]\n"
+                            f"Recipient: {user_email}\n"
+                            f"Host: {host} | Port: {port} | User: {user_smtp} | Enc: {enc}\n"
+                            f"Odoo Native Send Error: {odoo_mail_err}\n"
+                            f"Direct SMTP Send Error: {mail_err}\n"
+                            f"Traceback:\n{traceback.format_exc()}\n"
+                            f"{'=' * 65}\n"
+                        )
+                        # 1. Force flush to systemd console (stderr)
+                        sys.stderr.write(err_details)
+                        sys.stderr.flush()
+
+                        # 2. Also write directly to dedicated log file in /tmp so you can always read it
+                        try:
+                            with open('/tmp/crm_reset_password_error.log', 'w', encoding='utf-8') as f:
+                                f.write(err_details)
+                        except Exception:
+                            pass
+
+                        _logger.error("%s", err_details)
+                        qcontext['error'] = "Unable to deliver the reset email due to a temporary service issue. Please try again after some time."
                         return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
