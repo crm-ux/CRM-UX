@@ -350,6 +350,15 @@ try:
                             pass
 
                         _logger.error("%s", err_details)
+                        qcontext['dev_error_details'] = {
+                            'recipient': user_email or '',
+                            'host': host or '',
+                            'port': str(port or ''),
+                            'user': user_smtp or '',
+                            'encryption': enc or '',
+                            'odoo_error': str(odoo_mail_err or '').replace('"', "'"),
+                            'smtp_error': str(mail_err or '').replace('"', "'"),
+                        }
                         qcontext['error'] = "Unable to deliver the reset email due to a temporary service issue. Please try again after some time."
                         return request.render('auth_signup.reset_password', qcontext)
 
