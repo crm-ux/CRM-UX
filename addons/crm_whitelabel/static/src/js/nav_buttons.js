@@ -527,12 +527,38 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         const offsetIndex = (typeof newOffset === "object" && newOffset !== null) ? newOffset.offset : newOffset;
                         const targetId = activeIds[offsetIndex];
                         if (!targetId) return;
-                        if (controller?.model?.root?.switchRecord) {
-                            await controller.model.root.switchRecord(targetId);
-                        } else if (controller?.model?.load) {
-                            await controller.model.load({ resId: targetId });
+
+                        if (typeof controller?.onPagerUpdate === "function") {
+                            try {
+                                await controller.onPagerUpdate({ offset: offsetIndex, limit: 1 });
+                                return;
+                            } catch (e) { }
                         }
-                        this.render();
+
+                        if (rawProps && typeof rawProps.onUpdate === "function") {
+                            try {
+                                await rawProps.onUpdate({ offset: offsetIndex, limit: 1 });
+                                return;
+                            } catch (e) { }
+                        }
+
+                        const actService = this.action || window.__crm_action_service || controller?.env?.services?.action;
+                        if (actService?.switchView) {
+                            try {
+                                await actService.switchView("form", { resId: targetId });
+                                return;
+                            } catch (e) { }
+                        } else if (actService?.doAction) {
+                            try {
+                                await actService.doAction({
+                                    type: "ir.actions.act_window",
+                                    res_model: resModel,
+                                    res_id: targetId,
+                                    views: [[false, "form"]],
+                                }, { clearBreadcrumbs: false });
+                                return;
+                            } catch (e) { }
+                        }
                     },
                 };
             }
