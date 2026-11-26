@@ -22,6 +22,16 @@
     <!-- Reset Password / Forgot Password link enabled -->
 
     <template id="reset_password_custom" name="CRM Reset Password Branding" inherit_id="auth_signup.reset_password" priority="20">
+        <!-- Add YantraConnect CRM Logo & Header -->
+        <xpath expr="//form" position="before">
+            <div class="text-center" style="padding-top:20px;margin-bottom:20px;">
+                <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+                    <span style="color:white;font-size:28px;font-weight:800;">Y</span>
+                </div>
+                <div style="font-size:22px;font-weight:800;color:#1a3d6e;">YantraConnect CRM</div>
+                <div style="font-size:12px;color:#64748B;margin-top:4px;">Sales and Lead Management</div>
+            </div>
+        </xpath>
         <xpath expr="//label[@for='login']" position="replace">
             <label for="login" class="col-form-label" style="font-weight: 600; color: #1e293b;">Username</label>
         </xpath>
@@ -82,17 +92,28 @@
                             labels[i].textContent = "Username";
                         }
                     }
-                    // Make Username input readonly
+
+                    var realEmail = "<t t-esc="user_real_email or ''"/>";
+                    var realLogin = "<t t-esc="user_real_login or ''"/>";
+
+                    // Make Username input readonly and ensure it displays user login
                     var nameInput = document.querySelector("input[name='name']");
                     if (nameInput) {
+                        if (realLogin) {
+                            nameInput.value = realLogin;
+                        }
                         nameInput.readOnly = true;
                         nameInput.style.setProperty("background-color", "#f1f5f9", "important");
                         nameInput.style.setProperty("cursor", "not-allowed", "important");
                         nameInput.style.setProperty("color", "#64748b", "important");
                     }
-                    // Make Email input readonly
+
+                    // Make Email input readonly and ensure it displays real user email
                     var loginInput = document.querySelector("input[name='login']");
                     if (loginInput) {
+                        if (realEmail) {
+                            loginInput.value = realEmail;
+                        }
                         loginInput.readOnly = true;
                         loginInput.style.setProperty("background-color", "#f1f5f9", "important");
                         loginInput.style.setProperty("cursor", "not-allowed", "important");

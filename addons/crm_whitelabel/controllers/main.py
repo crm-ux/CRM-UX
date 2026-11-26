@@ -349,6 +349,16 @@ try:
         @http.route('/web/signup', type='http', auth='public', website=True, sitemap=False)
         def web_auth_signup(self, *args, **kw):
             qcontext = self.get_auth_signup_qcontext()
+            token = qcontext.get('token')
+            if token:
+                partner = request.env['res.partner'].sudo().search([('signup_token', '=', token)], limit=1)
+                if partner and partner.user_ids:
+                    user = partner.user_ids[0]
+                    qcontext['user_real_email'] = user.email or partner.email or ''
+                    qcontext['user_real_login'] = user.login or ''
+                    if request.httprequest.method == 'POST':
+                        qcontext['login'] = user.login
+
             if request.httprequest.method == 'POST' and qcontext.get('token'):
                 # Handle reset password confirmation and redirect cleanly to Login page
                 try:
