@@ -36,6 +36,33 @@ class DashboardStats(models.Model):
                 }
                 new_lead = self.env['crm.lead'].sudo().create(lead_vals)
                 q.sudo().write({'opportunity_id': new_lead.id})
+
+            # Auto-backfill any empty x_quote_number on crm.lead from its sale.order
+            self.env.cr.execute("""
+                UPDATE crm_lead cl
+                SET x_quote_number = so.name
+                FROM (
+                    SELECT opportunity_id, name,
+                           ROW_NUMBER() OVER(PARTITION BY opportunity_id ORDER BY id DESC) as rn
+                    FROM sale_order
+                    WHERE state != 'cancel' AND opportunity_id IS NOT NULL AND name IS NOT NULL
+                ) so
+                WHERE cl.id = so.opportunity_id
+                  AND so.rn = 1
+                  AND (cl.x_quote_number IS NULL OR cl.x_quote_number = '' OR cl.x_quote_number = cl.name);
+
+                UPDATE crm_lead cl
+                SET x_quote_validity = so.validity_date
+                FROM (
+                    SELECT opportunity_id, validity_date,
+                           ROW_NUMBER() OVER(PARTITION BY opportunity_id ORDER BY id DESC) as rn
+                    FROM sale_order
+                    WHERE state != 'cancel' AND opportunity_id IS NOT NULL AND validity_date IS NOT NULL
+                ) so
+                WHERE cl.id = so.opportunity_id
+                  AND so.rn = 1
+                  AND cl.x_quote_validity IS NULL;
+            """)
         except Exception:
             pass
 

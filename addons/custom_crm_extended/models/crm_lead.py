@@ -424,16 +424,53 @@ class CrmLead(models.Model):
     @api.depends('order_ids.name', 'order_ids.validity_date', 'order_ids.state', 'name')
     def _compute_quote_details(self):
         for rec in self:
-            quote = self.env['sale.order'].sudo().search([
-                ('opportunity_id', '=', rec.id),
-                ('state', '!=', 'cancel')
-            ], order='id desc', limit=1)
+            quote = False
+            if rec.order_ids:
+                active_orders = rec.order_ids.filtered(lambda q: q.state != 'cancel')
+                if active_orders:
+                    quote = active_orders.sorted('id', reverse=True)[0]
+            if not quote:
+                quote = self.env['sale.order'].sudo().search([
+                    ('opportunity_id', '=', rec.id),
+                    ('state', '!=', 'cancel')
+                ], order='id desc', limit=1)
             if quote:
-                rec.x_quote_number = quote.name or rec.name
+                rec.x_quote_number = quote.name or rec.name or ''
                 rec.x_quote_validity = quote.validity_date or False
             else:
                 rec.x_quote_number = rec.name or ''
                 rec.x_quote_validity = False
+
+    def init(self):
+        super().init()
+        try:
+            self._cr.execute("""
+                UPDATE crm_lead cl
+                SET x_quote_number = so.name
+                FROM (
+                    SELECT opportunity_id, name,
+                           ROW_NUMBER() OVER(PARTITION BY opportunity_id ORDER BY id DESC) as rn
+                    FROM sale_order
+                    WHERE state != 'cancel' AND opportunity_id IS NOT NULL AND name IS NOT NULL
+                ) so
+                WHERE cl.id = so.opportunity_id
+                  AND so.rn = 1
+                  AND (cl.x_quote_number IS NULL OR cl.x_quote_number = '' OR cl.x_quote_number = cl.name);
+
+                UPDATE crm_lead cl
+                SET x_quote_validity = so.validity_date
+                FROM (
+                    SELECT opportunity_id, validity_date,
+                           ROW_NUMBER() OVER(PARTITION BY opportunity_id ORDER BY id DESC) as rn
+                    FROM sale_order
+                    WHERE state != 'cancel' AND opportunity_id IS NOT NULL AND validity_date IS NOT NULL
+                ) so
+                WHERE cl.id = so.opportunity_id
+                  AND so.rn = 1
+                  AND cl.x_quote_validity IS NULL;
+            """)
+        except Exception:
+            pass
 
     x_stage_sequence = fields.Integer(
         string='Stage Sequence',
