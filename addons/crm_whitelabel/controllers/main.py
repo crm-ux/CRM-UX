@@ -11,10 +11,6 @@ if hasattr(root, 'session_store') and root.session_store:
     root.session_store.session_timeout = SESSION_1_YEAR
 
 class CrmWhitelabelController(http.Controller):
-    @http.route(['/web/webclient/translations', '/web/webclient/translations/<string:unique>', '/website/translations', '/website/translations/<string:unique>'], type='http', auth='none', cors='*')
-    def get_public_translations(self, **kw):
-        return request.make_response('{}', headers=[('Content-Type', 'application/json')])
-
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, sitemap=False, readonly=True)
     def favicon(self, **kw):
         return request.redirect('/web/static/img/favicon.ico', code=301)
@@ -228,14 +224,9 @@ try:
                 # CASE 1: Setting New Password (User clicked link from email, token is present)
                 if request.httprequest.method == 'POST' and qcontext.get('token'):
                     self.do_signup(qcontext)
-                    try:
-                        request.session.logout(keep_db=True)
-                    except Exception:
-                        pass
-                    
                     from urllib.parse import quote_plus
                     msg = quote_plus("Password reset successfully! Please sign in with your new password.")
-                    return request.redirect(f"/web/login?message={msg}")
+                    return request.redirect(f"/web/session/logout?redirect=/web/login%3Fmessage%3D{msg}")
 
                 # CASE 2: Requesting Reset Email (Initial forgot password request, no token)
                 if request.httprequest.method == 'POST' and not qcontext.get('token'):
@@ -341,18 +332,9 @@ try:
 
                 try:
                     self.do_signup(qcontext)
-                    # Clear session cleanly so the user logs in fresh with new credentials
-                    try:
-                        if hasattr(request.session, 'logout'):
-                            request.session.logout(keep_db=True)
-                        request.session.uid = False
-                        request.session.login = False
-                    except Exception:
-                        request.session.uid = False
-                    
                     from urllib.parse import quote_plus
                     msg = quote_plus("Password reset successfully! Please sign in with your new password.")
-                    return request.redirect(f"/web/login?message={msg}")
+                    return request.redirect(f"/web/session/logout?redirect=/web/login%3Fmessage%3D{msg}")
                 except Exception as e:
                     import logging
                     _logger = logging.getLogger(__name__)
