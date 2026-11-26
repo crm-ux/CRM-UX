@@ -1,6 +1,7 @@
 /** @odoo-module **/
 import { registry } from "@web/core/registry";
 import { patch } from "@web/core/utils/patch";
+import { RelationalModel } from "@web/model/relational_model/relational_model";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
 import { ListController } from "@web/views/list/list_controller";
@@ -35,6 +36,25 @@ registry.category("error_handlers").add("missing_record_error_handler", ({ error
         } catch (e) { }
         return true; // Mark as handled to prevent OwlError crash dialog
     }
+});
+
+// Suppress unhandled FetchRecordError inside RelationalModel
+patch(RelationalModel.prototype, {
+    async load(params) {
+        try {
+            return await super.load(...arguments);
+        } catch (error) {
+            const msg = (error?.message || error?.cause?.message || "").toLowerCase();
+            if (error?.name === "FetchRecordError" || error?.cause?.name === "FetchRecordError" || msg.includes("cannot be found") || msg.includes("deleted")) {
+                console.warn("RelationalModel.load: record missing/deleted, suppressing Owl crash:", error);
+                if (window.navigateBackFromForm) {
+                    window.navigateBackFromForm(params?.resModel || window.__crm_current_form_model);
+                }
+                return;
+            }
+            throw error;
+        }
+    },
 });
 
 // Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
@@ -585,6 +605,21 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                             return;
                         }
 
+                        // Verify target record exists in database before loading
+                        const orm = controller?.env?.services?.orm || this.orm;
+                        if (orm && resModel && targetId) {
+                            try {
+                                const count = await orm.searchCount(resModel, [["id", "=", targetId]]);
+                                if (count === 0) {
+                                    if (this.env?.services?.notification) {
+                                        this.env.services.notification.add(_t("The requested record is not available or has been deleted."), { type: "warning" });
+                                    }
+                                    activeIds = activeIds.filter((id) => id !== targetId);
+                                    return;
+                                }
+                            } catch (e) { }
+                        }
+
                         if (controller?.model?.root) {
                             try { controller.model.root.resIds = activeIds; } catch (e) { }
                         }
@@ -960,7 +995,24 @@ patch(ListController.prototype, {
     },
     async openRecord(record) {
         try {
+            const orm = this.env?.services?.orm;
             const resModel = this.model?.root?.resModel || this.props?.resModel;
+
+            // Verify record exists in database before opening (filters out deleted records like 173)
+            if (orm && resModel && record?.resId) {
+                try {
+                    const count = await orm.searchCount(resModel, [["id", "=", record.resId]]);
+                    if (count === 0) {
+                        if (this.env?.services?.notification) {
+                            this.env.services.notification.add(_t("This record is not available or has been deleted."), { type: "warning" });
+                        }
+                        if (this.model?.root?.load) {
+                            await this.model.root.load();
+                        }
+                        return;
+                    }
+                } catch (e) { }
+            }
             const records = this.model?.root?.records;
             const ctx = this.props.context || this.env.searchModel?.context || {};
             const domain = this.props.domain || this.env.searchModel?.domain || [];
@@ -1132,7 +1184,24 @@ patch(KanbanController.prototype, {
     },
     async openRecord(record) {
         try {
+            const orm = this.env?.services?.orm;
             const resModel = this.model?.root?.resModel || this.props?.resModel;
+
+            // Verify record exists in database before opening (filters out deleted records like 173)
+            if (orm && resModel && record?.resId) {
+                try {
+                    const count = await orm.searchCount(resModel, [["id", "=", record.resId]]);
+                    if (count === 0) {
+                        if (this.env?.services?.notification) {
+                            this.env.services.notification.add(_t("This record is not available or has been deleted."), { type: "warning" });
+                        }
+                        if (this.model?.root?.load) {
+                            await this.model.root.load();
+                        }
+                        return;
+                    }
+                } catch (e) { }
+            }
             const ctx = this.props?.context || this.env?.searchModel?.context || {};
             let ids = [];
             const root = this.model?.root;
