@@ -276,91 +276,59 @@ try:
                 pass_smtp = (mail_server.smtp_pass or '').replace(' ', '')
                 enc = mail_server.smtp_encryption or 'starttls'
 
-                msg = MIMEMultipart('alternative')
-                msg['Subject'] = f"Password Reset Instructions - {company_name}"
-                msg['From'] = f"{company_name} <{user_smtp}>"
-                msg['To'] = user_email
-                msg.attach(MIMEText(body_html, 'html'))
-
                 try:
-                    # Prefer Odoo's native build_email and send_email via ir.mail_server
-                    email_from = f"{company_name} <{mail_server.smtp_user or 'crm@yantradynamics.in'}>"
-                    email_to = [user_email]
-                    email_msg = request.env['ir.mail_server'].sudo().build_email(
-                        email_from=email_from,
-                        email_to=email_to,
-                        subject=f"Password Reset Instructions - {company_name}",
-                        body=body_html,
-                        subtype='html',
-                    )
-                    request.env['ir.mail_server'].sudo().send_email(email_msg, mail_server_id=mail_server.id)
+                    # Use Odoo's native mail.mail model with the configured mail_server
+                    email_from = f"{company_name} <{user_smtp}>"
+                    mail_values = {
+                        'subject': f"Password Reset Instructions - {company_name}",
+                        'body_html': body_html,
+                        'email_to': user_email,
+                        'email_from': email_from,
+                        'mail_server_id': mail_server.id,
+                        'auto_delete': True,
+                    }
+                    mail = request.env['mail.mail'].sudo().create(mail_values)
+                    mail.send(raise_exception=True)
                     qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
                     return request.render('auth_signup.reset_password', qcontext)
-                except Exception as odoo_mail_err:
+                except Exception as mail_err:
+                    import sys
+                    import traceback
                     import logging
                     _logger = logging.getLogger(__name__)
-                    _logger.warning("Odoo native send_email failed (%s), trying direct SMTP...", odoo_mail_err)
+
+                    err_details = (
+                        f"\n{'=' * 65}\n"
+                        f"[RESET PASSWORD ERROR DETAILS]\n"
+                        f"Recipient: {user_email}\n"
+                        f"Mail Server ID: {mail_server.id} | Host: {host}:{port} | User: {user_smtp} | Enc: {enc}\n"
+                        f"Error: {mail_err}\n"
+                        f"Traceback:\n{traceback.format_exc()}\n"
+                        f"{'=' * 65}\n"
+                    )
+                    # 1. Force flush to systemd console (stderr)
+                    sys.stderr.write(err_details)
+                    sys.stderr.flush()
+
+                    # 2. Write directly to dedicated log file in /tmp
                     try:
-                        # Try direct SSL (port 465) or STARTTLS (port 587) with SSL context
-                        import ssl
-                        ctx = ssl.create_default_context()
-                        
-                        # Try SSL port 465 first if 587 failed, or according to config
-                        if enc == 'ssl' or port == 465:
-                            smtp_conn = smtplib.SMTP_SSL(host, 465, context=ctx, timeout=20)
-                        else:
-                            try:
-                                smtp_conn = smtplib.SMTP(host, port, timeout=20)
-                                smtp_conn.ehlo()
-                                smtp_conn.starttls(context=ctx)
-                                smtp_conn.ehlo()
-                            except Exception:
-                                # Fallback to SSL 465 if STARTTLS disconnected
-                                smtp_conn = smtplib.SMTP_SSL(host, 465, context=ctx, timeout=20)
+                        with open('/tmp/crm_reset_password_error.log', 'w', encoding='utf-8') as f:
+                            f.write(err_details)
+                    except Exception:
+                        pass
 
-                        if pass_smtp:
-                            smtp_conn.login(user_smtp, pass_smtp)
-                        smtp_conn.sendmail(user_smtp, user_email, msg.as_string())
-                        smtp_conn.quit()
-                        qcontext['message'] = f"A password reset link has been sent to {user_email}. Please check your inbox or spam folder."
-                        return request.render('auth_signup.reset_password', qcontext)
-                    except Exception as mail_err:
-                        import sys
-                        import traceback
-
-                        err_details = (
-                            f"\n{'=' * 65}\n"
-                            f"[RESET PASSWORD ERROR DETAILS]\n"
-                            f"Recipient: {user_email}\n"
-                            f"Host: {host} | Port: {port} | User: {user_smtp} | Enc: {enc}\n"
-                            f"Odoo Native Send Error: {odoo_mail_err}\n"
-                            f"Direct SMTP Send Error: {mail_err}\n"
-                            f"Traceback:\n{traceback.format_exc()}\n"
-                            f"{'=' * 65}\n"
-                        )
-                        # 1. Force flush to systemd console (stderr)
-                        sys.stderr.write(err_details)
-                        sys.stderr.flush()
-
-                        # 2. Also write directly to dedicated log file in /tmp so you can always read it
-                        try:
-                            with open('/tmp/crm_reset_password_error.log', 'w', encoding='utf-8') as f:
-                                f.write(err_details)
-                        except Exception:
-                            pass
-
-                        _logger.error("%s", err_details)
-                        qcontext['dev_error_details'] = {
-                            'recipient': user_email or '',
-                            'host': host or '',
-                            'port': str(port or ''),
-                            'user': user_smtp or '',
-                            'encryption': enc or '',
-                            'odoo_error': str(odoo_mail_err or '').replace('"', "'"),
-                            'smtp_error': str(mail_err or '').replace('"', "'"),
-                        }
-                        qcontext['error'] = "Unable to deliver the reset email due to a temporary service issue. Please try again after some time."
-                        return request.render('auth_signup.reset_password', qcontext)
+                    _logger.error("%s", err_details)
+                    qcontext['dev_error_details'] = {
+                        'recipient': user_email or '',
+                        'host': host or '',
+                        'port': str(port or ''),
+                        'user': user_smtp or '',
+                        'encryption': enc or '',
+                        'odoo_error': str(mail_err or '').replace('"', "'"),
+                        'smtp_error': str(mail_err or '').replace('"', "'"),
+                    }
+                    qcontext['error'] = "Unable to deliver the reset email due to a temporary service issue. Please try again after some time."
+                    return request.render('auth_signup.reset_password', qcontext)
 
             return super(CustomAuthSignupHome, self).web_auth_reset_password(*args, **kw)
 except Exception:
