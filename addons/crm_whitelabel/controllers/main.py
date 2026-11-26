@@ -238,7 +238,17 @@ try:
                 # Prepare partner signup token
                 user.partner_id.action_signup_prepare()
                 signup_urls = user.partner_id._get_signup_url_for_action()
-                reset_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
+                raw_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
+
+                # Ensure the reset URL includes the exact host and port (e.g. :8070)
+                from urllib.parse import urlparse, urlunparse
+                req_parsed = urlparse(request.httprequest.host_url)
+                if raw_url.startswith('http://') or raw_url.startswith('https://'):
+                    parsed = urlparse(raw_url)
+                    reset_url = urlunparse((req_parsed.scheme, req_parsed.netloc, parsed.path, parsed.params, parsed.query, parsed.fragment))
+                else:
+                    base_url = request.httprequest.host_url.rstrip('/')
+                    reset_url = f"{base_url}{raw_url}"
 
                 # Compose professional branded email body
                 company = user.company_id or request.env.company
