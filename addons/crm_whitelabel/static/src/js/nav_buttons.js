@@ -1,4 +1,5 @@
 /** @odoo-module **/
+import { registry } from "@web/core/registry";
 import { patch } from "@web/core/utils/patch";
 import { ControlPanel } from "@web/search/control_panel/control_panel";
 import { FormController } from "@web/views/form/form_controller";
@@ -11,6 +12,30 @@ import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_d
 import { _t } from "@web/core/l10n/translation";
 import { notificationService } from "@web/core/notifications/notification_service";
 import { user } from "@web/core/user";
+
+// Global error handler: Catch FetchRecordError / Missing Record errors and prevent Owl lifecycle crashes
+registry.category("error_handlers").add("missing_record_error_handler", ({ error, env }) => {
+    const errorStr = (error?.message || error?.cause?.message || error?.toString() || "").toLowerCase();
+    const isMissing = errorStr.includes("cannot be found") ||
+                      errorStr.includes("might have been deleted") ||
+                      errorStr.includes("missingerror") ||
+                      error?.name === "FetchRecordError" ||
+                      error?.cause?.name === "FetchRecordError";
+    if (isMissing) {
+        try {
+            if (env?.services?.notification) {
+                env.services.notification.add(_t("The requested record is not available or has been deleted."), {
+                    type: "warning",
+                    sticky: false,
+                });
+            }
+            if (window.navigateBackFromForm) {
+                window.navigateBackFromForm(window.__crm_current_form_model, env?.services?.action);
+            }
+        } catch (e) { }
+        return true; // Mark as handled to prevent OwlError crash dialog
+    }
+});
 
 // Centralized Interceptor: Convert Missing Record error notifications into clean Modal Popup
 // Centralized In-Page 404 Screen for Missing Records across ALL models
@@ -546,8 +571,19 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     total: activeIds.length,
                     onUpdate: async (newOffset) => {
                         const offsetIndex = (typeof newOffset === "object" && newOffset !== null) ? newOffset.offset : newOffset;
+                        if (offsetIndex < 0 || offsetIndex >= activeIds.length) {
+                            if (this.env?.services?.notification) {
+                                this.env.services.notification.add(_t("The requested record is not available."), { type: "warning" });
+                            }
+                            return;
+                        }
                         const targetId = activeIds[offsetIndex];
-                        if (!targetId) return;
+                        if (!targetId) {
+                            if (this.env?.services?.notification) {
+                                this.env.services.notification.add(_t("The requested record is not available."), { type: "warning" });
+                            }
+                            return;
+                        }
 
                         if (controller?.model?.root) {
                             try { controller.model.root.resIds = activeIds; } catch (e) { }
