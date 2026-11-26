@@ -1,31 +1,6 @@
-import re
 from odoo import http
-from odoo.http import request, root, Response
+from odoo.http import request, root
 from odoo.addons.web.controllers.home import Home
-
-# Globally strip top navigation header (Home / Back) from all rendered frontend and error pages
-_orig_response_render = Response.render
-
-def _clean_html_header(content):
-    if isinstance(content, str):
-        content = re.sub(r'<header\b[^>]*>.*?</header>', '', content, flags=re.DOTALL | re.IGNORECASE)
-        content = re.sub(r'<ul\b[^>]*id=["\']top_menu["\'][^>]*>.*?</ul>', '', content, flags=re.DOTALL | re.IGNORECASE)
-    elif isinstance(content, bytes):
-        content = re.sub(rb'<header\b[^>]*>.*?</header>', b'', content, flags=re.DOTALL | re.IGNORECASE)
-        content = re.sub(rb'<ul\b[^>]*id=["\']top_menu["\'][^>]*>.*?</ul>', b'', content, flags=re.DOTALL | re.IGNORECASE)
-    return content
-
-def _patched_render(self):
-    content = _orig_response_render(self)
-    try:
-        content = _clean_html_header(content)
-        if hasattr(self, 'response') and self.response:
-            self.response = [_clean_html_header(x) for x in self.response]
-    except Exception:
-        pass
-    return content
-
-Response.render = _patched_render
 
 SESSION_1_YEAR = 365 * 24 * 60 * 60
 
