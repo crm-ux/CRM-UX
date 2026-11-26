@@ -413,14 +413,15 @@ class CrmLead(models.Model):
     x_quote_number = fields.Char(
         string='Quote Number',
         compute='_compute_quote_details',
-        store=False,
+        store=True,
     )
     x_quote_validity = fields.Date(
         string='Validity',
         compute='_compute_quote_details',
-        store=False,
+        store=True,
     )
 
+    @api.depends('order_ids.name', 'order_ids.validity_date', 'order_ids.state', 'name')
     def _compute_quote_details(self):
         for rec in self:
             quote = self.env['sale.order'].sudo().search([
