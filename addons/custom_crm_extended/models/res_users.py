@@ -1221,11 +1221,25 @@ class ResUsers(models.Model):
             pass
 
     def unlink(self):
-        # Safety guard: Never allow deleting an active internal user accidentally!
+        # Allow deletion for unlinked users (e.g. interns or test accounts without employee records, roles, or assigned CRM data).
+        # Only block deletion if the user is linked to an active Employee, has an assigned Role/Department, or owns active CRM data.
         for user in self:
-            if user.active and not user.share and not self.env.context.get('force_unlink_user'):
-                raise UserError(_("Internal user '%s' cannot be deleted! To remove this user from a department or job position, please use Revoke instead.") % (user.name or ''))
-        # Safely delete linked hr.employee records first so Odoo doesn't raise restrict error
+            if self.env.context.get('force_unlink_user'):
+                continue
+
+            # 1. Block if linked to an employee record or assigned a department/job role
+            emp_exists = self.env['hr.employee'].sudo().search_count([('user_id', '=', user.id)]) > 0
+            has_role = bool(user.crm_job_id or user.crm_department_id)
+            if emp_exists or has_role:
+                raise UserError(_("User '%s' cannot be deleted because they are assigned to an Employee profile or Job Role/Department! To remove this user from a department or position, please use Revoke instead, or Archive the user.") % (user.name or ''))
+
+            # 2. Block if user is assigned to active CRM leads or sales orders
+            has_leads = self.env['crm.lead'].sudo().search_count([('user_id', '=', user.id)]) > 0
+            has_orders = self.env['sale.order'].sudo().search_count([('user_id', '=', user.id)]) > 0
+            if has_leads or has_orders:
+                raise UserError(_("User '%s' cannot be deleted because they have CRM leads or quotations assigned to them. Please reassign their records or Archive the user.") % (user.name or ''))
+
+        # Safely delete linked hr.employee records first if any (for force_unlink_user)
         employees = self.env['hr.employee'].sudo().search([('user_id', 'in', self.ids)])
         if employees:
             employees.unlink()
