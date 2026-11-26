@@ -546,9 +546,13 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                         if (controller?.model?.root?.load) {
                             try {
                                 await controller.model.root.load({ resId: targetId });
+                                if (controller?.props) {
+                                    try { controller.props.resId = targetId; } catch (e) { }
+                                }
                                 if (controller?.env?.services?.router?.pushState) {
                                     try { controller.env.services.router.pushState({ id: targetId }); } catch (e) { }
                                 }
+                                try { controller.render(true); } catch (e) { }
                                 this.render();
                                 return;
                             } catch (e) { }
@@ -959,6 +963,81 @@ patch(ListController.prototype, {
                         sessionStorage.setItem("crm_stage_ids_" + targetStage, JSON.stringify(ids));
                     } else {
                         sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
+                    }
+                }
+            }
+
+            // For the 5 Quote Stages (Quotes:30, Sent:35, Negotiation:40, Order Expected:50, Won:90), open record directly as Quotation (sale.order)
+            if (resModel === "crm.lead" && record?.resId) {
+                const leadId = record.resId;
+                const orm = this.env?.services?.orm;
+                const action = this.actionService || this.action || this.env?.services?.action || window.__crm_action_service;
+
+                let seq = 0;
+                if (record.data?.x_stage_sequence !== undefined && record.data.x_stage_sequence !== false) {
+                    seq = parseInt(record.data.x_stage_sequence, 10);
+                } else if (targetStage && targetStage !== "all") {
+                    seq = parseInt(targetStage, 10);
+                }
+
+                if ((!seq || isNaN(seq)) && orm) {
+                    try {
+                        const lRes = await orm.read("crm.lead", [leadId], ["x_stage_sequence"]);
+                        if (lRes && lRes[0] && lRes[0].x_stage_sequence) {
+                            seq = parseInt(lRes[0].x_stage_sequence, 10);
+                        }
+                    } catch (e) { }
+                }
+
+                const isQuoteStage = Boolean(ctx.is_quote_stage || (seq && seq >= 30));
+
+                if (isQuoteStage && orm && action) {
+                    const leadIds = records && records.length > 0 ? records.map((r) => r.resId).filter(Boolean) : [leadId];
+                    const quotes = await orm.searchRead(
+                        "sale.order",
+                        [["opportunity_id", "in", leadIds]],
+                        ["id", "opportunity_id"],
+                        { order: "id desc" }
+                    );
+
+                    const leadToQuote = {};
+                    if (quotes && quotes.length > 0) {
+                        for (const q of quotes) {
+                            const oppId = Array.isArray(q.opportunity_id) ? q.opportunity_id[0] : q.opportunity_id;
+                            if (oppId && !leadToQuote[oppId]) {
+                                leadToQuote[oppId] = q.id;
+                            }
+                        }
+                    }
+
+                    const targetQuoteId = leadToQuote[leadId];
+                    if (targetQuoteId) {
+                        const quoteIds = leadIds.map((lid) => leadToQuote[lid]).filter(Boolean);
+                        const stageVal = String(seq || 30);
+                        sessionStorage.setItem("crm_from_total_pipeline", "true");
+                        sessionStorage.setItem("crm_last_stage_filter_val", stageVal);
+                        sessionStorage.setItem("crm_last_stage_filter_name", stageNamesMap[stageVal] || "Quotes");
+                        sessionStorage.setItem("crm_record_stage_" + targetQuoteId, stageVal);
+                        sessionStorage.setItem("crm_stage_ids_" + stageVal, JSON.stringify(quoteIds));
+                        sessionStorage.setItem("crm_active_res_ids_sale.order", JSON.stringify(quoteIds));
+                        window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
+                        window.__crm_cached_res_ids["sale.order"] = quoteIds;
+
+                        return action.doAction({
+                            type: "ir.actions.act_window",
+                            name: "Quotation",
+                            res_model: "sale.order",
+                            res_id: targetQuoteId,
+                            resIds: quoteIds,
+                            views: [[false, "form"]],
+                            context: {
+                                ...ctx,
+                                from_total_pipeline: true,
+                                default_stage_filter_val: stageVal,
+                                active_ids: quoteIds,
+                                res_ids: quoteIds,
+                            },
+                        });
                     }
                 }
             }
