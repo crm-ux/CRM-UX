@@ -11,6 +11,28 @@ if hasattr(root, 'session_store') and root.session_store:
     root.session_store.session_timeout = SESSION_1_YEAR
 
 class CrmWhitelabelController(http.Controller):
+    @http.route([
+        '/web/webclient/translations/<string:unique>',
+        '/web/webclient/translations',
+        '/website/translations/<string:unique>',
+        '/website/translations',
+    ], type='http', auth='none', cors='*')
+    def webclient_translations(self, unique=None, mods=None, lang=None, **kw):
+        import json
+        data = {
+            'modules': {},
+            'lang': lang or 'en_US',
+            'lang_parameters': {
+                'direction': 'ltr',
+                'date_format': '%m/%d/%Y',
+                'time_format': '%H:%M:%S',
+                'grouping': '[]',
+                'decimal_point': '.',
+                'thousands_sep': ',',
+            }
+        }
+        return request.make_response(json.dumps(data), headers=[('Content-Type', 'application/json')])
+
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, sitemap=False, readonly=True)
     def favicon(self, **kw):
         return request.redirect('/web/static/img/favicon.ico', code=301)
