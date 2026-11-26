@@ -47,8 +47,8 @@
     <!-- Set Password Screen Branding (When opening email link) -->
     <template id="signup_custom" name="CRM Set Password Branding" inherit_id="auth_signup.signup" priority="20">
         <!-- Add YantraConnect CRM Logo & Header -->
-        <xpath expr="//div[@id='oe_structure_login_top']" position="after">
-            <div class="text-center" style="padding-top:30px;margin-bottom:20px;">
+        <xpath expr="//form" position="before">
+            <div class="text-center" style="padding-top:20px;margin-bottom:20px;">
                 <div style="width:60px;height:60px;background:#1a3d6e;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
                     <span style="color:white;font-size:28px;font-weight:800;">Y</span>
                 </div>
@@ -62,15 +62,6 @@
             <button type="submit" class="btn btn-primary btn-block w-100" style="background:#1a3d6e !important;border-color:#1a3d6e !important;color:#fff !important;padding:10px !important;font-weight:600 !important;font-size:14px !important;border-radius:6px !important;">
                 Reset Password
             </button>
-        </xpath>
-
-        <!-- Replace 'Already have an account?' with clean 'Back to Login' -->
-        <xpath expr="//a[contains(@href, '/web/login')]" position="replace">
-            <div class="text-center mt-3">
-                <a href="/web/login" class="btn btn-link btn-sm" style="color:#1a3d6e;font-size:13px;text-decoration:none;font-weight:500;">
-                    <i class="fa fa-arrow-left me-1"></i> Back to Login
-                </a>
-            </div>
         </xpath>
     </template>
 
