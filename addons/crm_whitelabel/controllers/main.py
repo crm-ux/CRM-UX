@@ -277,20 +277,14 @@ try:
                     qcontext['error'] = "No email address is linked to this account. Please contact your administrator to add your email."
                     return request.render('auth_signup.reset_password', qcontext)
                 
-                # Prepare partner signup token
-                user.partner_id.action_signup_prepare()
-                signup_urls = user.partner_id._get_signup_url_for_action()
-                raw_url = signup_urls.get(user.partner_id.id, f"/web/reset_password?login={user.login}")
-
-                # Ensure the reset URL includes the exact host and port (e.g. :8070)
-                from urllib.parse import urlparse, urlunparse
-                req_parsed = urlparse(request.httprequest.host_url)
-                if raw_url.startswith('http://') or raw_url.startswith('https://'):
-                    parsed = urlparse(raw_url)
-                    reset_url = urlunparse((req_parsed.scheme, req_parsed.netloc, parsed.path, parsed.params, parsed.query, parsed.fragment))
-                else:
-                    base_url = request.httprequest.host_url.rstrip('/')
-                    reset_url = f"{base_url}{raw_url}"
+                # Prepare partner signup token specifically for password reset (24 hour validity)
+                from dateutil.relativedelta import relativedelta
+                from odoo import fields
+                user.partner_id.signup_prepare(signup_type="reset", expiration=fields.Datetime.now() + relativedelta(days=1))
+                token = user.partner_id.signup_token
+                dbname = request.env.cr.dbname
+                base_url = request.httprequest.host_url.rstrip('/')
+                reset_url = f"{base_url}/web/signup?token={token}&db={dbname}"
 
                 # Test environment specific: If accessing via test IP, ensure port 8070 is attached
                 if '34.14.132.247' in reset_url and ':8070' not in reset_url:
