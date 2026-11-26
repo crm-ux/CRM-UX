@@ -426,8 +426,19 @@ Object.defineProperty(ControlPanel.prototype, "pagerProps", {
                     const stageStored = sessionStorage.getItem("crm_stage_ids_" + recordStage);
                     if (stageStored) {
                         const parsedStage = JSON.parse(stageStored);
-                        if (Array.isArray(parsedStage) && parsedStage.length > 0) {
+                        if (Array.isArray(parsedStage) && parsedStage.length > 0 && (!currentResId || parsedStage.map(Number).includes(Number(currentResId)))) {
                             activeIds = parsedStage.map(Number).filter(Boolean);
+                        }
+                    }
+                    if (!activeIds && resModel === "sale.order") {
+                        const quoteStored = sessionStorage.getItem("crm_active_res_ids_sale.order");
+                        if (quoteStored) {
+                            try {
+                                const parsedQuote = JSON.parse(quoteStored);
+                                if (Array.isArray(parsedQuote) && parsedQuote.length > 0 && (!currentResId || parsedQuote.map(Number).includes(Number(currentResId)))) {
+                                    activeIds = parsedQuote.map(Number).filter(Boolean);
+                                }
+                            } catch (e) { }
                         }
                     }
 
@@ -960,7 +971,12 @@ patch(ListController.prototype, {
                     window.__crm_cached_res_ids = window.__crm_cached_res_ids || {};
                     window.__crm_cached_res_ids[resModel] = ids;
                     if (targetStage !== "all") {
-                        sessionStorage.setItem("crm_stage_ids_" + targetStage, JSON.stringify(ids));
+                        const stageSeq = parseInt(targetStage, 10);
+                        if (resModel === "crm.lead" && stageSeq >= 30) {
+                            sessionStorage.setItem("crm_stage_lead_ids_" + targetStage, JSON.stringify(ids));
+                        } else {
+                            sessionStorage.setItem("crm_stage_ids_" + targetStage, JSON.stringify(ids));
+                        }
                     } else {
                         sessionStorage.setItem("crm_active_pipeline_ids", JSON.stringify(ids));
                     }
@@ -1120,6 +1136,17 @@ patch(FormController.prototype, {
                             if (Array.isArray(parsedStage) && parsedStage.length > 1 && parsedStage.includes(currentResId)) {
                                 restoredIds = parsedStage;
                             }
+                        }
+                    }
+                    if (!restoredIds && resModel === "sale.order") {
+                        const quoteStored = sessionStorage.getItem("crm_active_res_ids_sale.order");
+                        if (quoteStored) {
+                            try {
+                                const parsedQuote = JSON.parse(quoteStored);
+                                if (Array.isArray(parsedQuote) && parsedQuote.length > 1 && parsedQuote.includes(currentResId)) {
+                                    restoredIds = parsedQuote;
+                                }
+                            } catch (e) { }
                         }
                     }
                     if (!restoredIds && fromTotalPipeline && lastStageVal === "all") {
