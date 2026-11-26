@@ -199,6 +199,14 @@ class PersistentHome(Home):
 
     @http.route('/web/login', type='http', auth="public", sitemap=False)
     def web_login(self, redirect=None, **kw):
+        if kw.get('message') or request.params.get('message'):
+            try:
+                request.session.logout(keep_db=True)
+            except Exception:
+                pass
+            request.session.uid = False
+            request.session.login = False
+
         if request.session.uid and not redirect:
             return request.redirect('/app/action-435')
         
