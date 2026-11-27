@@ -1298,10 +1298,25 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         try:
                             from PIL import Image as _PILImage
                             img_bytes = base64.b64decode(img_b64)
-                            pil_img = _PILImage.open(io.BytesIO(img_bytes))
-                            png_buf = io.BytesIO()
-                            pil_img.save(png_buf, format='PNG')
-                            png_buf.seek(0)
+                            if img_bytes.lstrip().startswith((b'<svg', b'<?xml')):
+                                import subprocess, tempfile, os
+                                with tempfile.NamedTemporaryFile(suffix='.svg', delete=False) as tf:
+                                    tf.write(img_bytes)
+                                    svg_path = tf.name
+                                png_path = svg_path + '.png'
+                                try:
+                                    subprocess.run(['rsvg-convert', '-o', png_path, svg_path], check=True)
+                                except Exception:
+                                    subprocess.run(['convert', svg_path, png_path], check=True)
+                                with open(png_path, 'rb') as pf:
+                                    png_buf = io.BytesIO(pf.read())
+                                os.unlink(svg_path)
+                                os.unlink(png_path)
+                            else:
+                                pil_img = _PILImage.open(io.BytesIO(img_bytes))
+                                png_buf = io.BytesIO()
+                                pil_img.save(png_buf, format='PNG')
+                                png_buf.seek(0)
                             p_img = cell.add_paragraph()
                             p_img.alignment = WD_ALIGN_PARAGRAPH.LEFT
                             p_img.paragraph_format.space_before = Pt(4)
@@ -1309,7 +1324,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             p_img.add_run().add_picture(png_buf, width=_Inches(0.75))
                         except Exception as img_err:
                             import logging
-                            logging.getLogger(__name__).warning("DOCX product image embed failed: %s", img_err)
+                            logging.getLogger(__name__).warning("DOCX product image embed failed (%s): head=%r", img_err, img_b64[:40])
                     format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=40, right=40, nowrap=False)
                 else:
                     p = cell.paragraphs[0]
