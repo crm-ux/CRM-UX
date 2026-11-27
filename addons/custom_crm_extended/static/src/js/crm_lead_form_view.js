@@ -311,23 +311,7 @@ registry.category("views").add("crm_lead_kanban", {
             ta.style.cssText =
                 "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;background:transparent;outline:none;box-shadow:none;padding:0;margin:0;";
 
-            const initialVal = input.value || "";
-            ta.value = initialVal;
-
-            // Override input.value getter/setter so OWL reads/writes multi-line \n without browser stripping it
-            Object.defineProperty(input, "value", {
-                configurable: true,
-                get() {
-                    return ta.value;
-                },
-                set(v) {
-                    const nextVal = v == null ? "" : String(v);
-                    if (document.activeElement !== ta) {
-                        ta.value = nextVal;
-                        ta.rows = Math.max(1, nextVal.split("\n").length);
-                    }
-                },
-            });
+            ta.value = input.value || "";
 
             const autoResize = () => {
                 ta.rows = Math.max(1, (ta.value || "").split("\n").length);
@@ -335,18 +319,23 @@ registry.category("views").add("crm_lead_kanban", {
             };
 
             ta.addEventListener("input", () => {
+                input.value = ta.value;
                 input.dispatchEvent(new Event("input", { bubbles: true }));
                 autoResize();
             });
             ta.addEventListener("keyup", autoResize);
             ta.addEventListener("change", () => {
+                input.value = ta.value;
                 input.dispatchEvent(new Event("change", { bubbles: true }));
             });
             ta.addEventListener("blur", () => {
+                input.value = ta.value;
                 input.dispatchEvent(new Event("change", { bubbles: true }));
             });
 
             input.parentNode.insertBefore(ta, input.nextSibling);
+        } else if (document.activeElement !== ta && ta.value !== input.value) {
+            ta.value = input.value || "";
         }
 
         ta.rows = Math.max(1, (ta.value || "").split("\n").length);
