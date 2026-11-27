@@ -171,6 +171,9 @@ header#top,
 body > header,
 .o_header_standard,
 a[href="javascript:history.back()"],
-header a[href="/"] {
+header a[href="/"],
+.o_frontend_to_backend_nav,
+.o_frontend_to_backend_buttons,
+.o_frontend_to_backend_apps_menu {
     display: none !important;
 }

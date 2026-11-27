@@ -131,9 +131,22 @@
         </xpath>
     </template>
 
-    <!-- Remove top header bar (Home and Back navigation) completely from frontend layout -->
+    <!-- Remove top header bar (Home and Back navigation) and backend app menu completely from frontend layout -->
     <template id="frontend_layout_remove_header" inherit_id="web.frontend_layout" priority="99">
         <xpath expr="//header" position="replace"/>
+        <xpath expr="." position="inside">
+            <style>
+                .o_frontend_to_backend_nav,
+                .o_frontend_to_backend_buttons,
+                .o_frontend_to_backend_apps_menu,
+                .o_frontend_to_backend_icon {
+                    display: none !important;
+                    visibility: hidden !important;
+                    height: 0 !important;
+                    overflow: hidden !important;
+                }
+            </style>
+        </xpath>
     </template>
 
     <template id="hide_website_nav" inherit_id="website.navbar" priority="99">

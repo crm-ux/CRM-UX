@@ -267,20 +267,15 @@ try:
         def web_auth_reset_password(self, *args, **kw):
             # If the user is currently logged into an account in this browser,
             # Odoo security blocks them from accessing another user's reset token (403 Access Denied).
-            # Auto-logout and redirect so the reset page opens cleanly as public guest.
+            # Redirect through /web/session/logout to cleanly wipe the session cookie before loading the reset form.
             token = kw.get('token') or request.params.get('token')
             if request.session.uid and token:
                 db = kw.get('db') or request.params.get('db') or ''
-                try:
-                    request.session.logout(keep_db=True)
-                except Exception:
-                    pass
-                request.session.uid = False
-                request.session.login = False
-                redir = f"/web/reset_password?token={token}"
+                from urllib.parse import quote_plus
+                target = f"/web/reset_password?token={token}"
                 if db:
-                    redir += f"&db={db}"
-                return request.redirect(redir)
+                    target += f"&db={db}"
+                return request.redirect(f"/web/session/logout?redirect={quote_plus(target)}")
 
             try:
                 qcontext = self.get_auth_signup_qcontext()
