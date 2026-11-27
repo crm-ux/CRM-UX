@@ -605,15 +605,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
             raw_desc = (tmpl_bin.description if tmpl_bin else '') or (prod_bin.description if prod_bin else '') or ''
             if raw_desc:
                 import re as _re_img
+                seen_ids = set()
                 for m_id in _re_img.findall(r'(?:data-attachment-id="|/web/image/)(\d+)', str(raw_desc)):
-                    att = self.env['ir.attachment'].sudo().browse(int(m_id)).with_context(bin_size=False)
+                    aid = int(m_id)
+                    if aid in seen_ids:
+                        continue
+                    seen_ids.add(aid)
+                    att = self.env['ir.attachment'].sudo().browse(aid).with_context(bin_size=False)
                     if att.exists() and att.datas:
                         all_imgs.append(att.datas)
             if all_imgs:
                 desc += '<br/><div style="margin-top:4px;">'
                 for im_b64 in all_imgs:
                     im_str = im_b64.decode('utf-8') if isinstance(im_b64, bytes) else str(im_b64)
-                    desc += '<img src="data:image/png;base64,%s" style="max-width:70px;max-height:70px;margin:2px 6px 2px 0;display:inline-block;vertical-align:top;object-fit:contain;"/>' % im_str
+                    desc += '<img src="data:image/png;base64,%s" style="max-width:77px;max-height:77px;margin:2px 6px 2px 0;display:inline-block;vertical-align:top;object-fit:contain;"/>' % im_str
                 desc += '</div>'
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
@@ -1309,8 +1314,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     raw_desc = (tmpl_bin.description if tmpl_bin else '') or (prod_bin.description if prod_bin else '') or ''
                     if raw_desc:
                         import re as _re_img
+                        seen_ids = set()
                         for m_id in _re_img.findall(r'(?:data-attachment-id="|/web/image/)(\d+)', str(raw_desc)):
-                            att = self.env['ir.attachment'].sudo().browse(int(m_id)).with_context(bin_size=False)
+                            aid = int(m_id)
+                            if aid in seen_ids:
+                                continue
+                            seen_ids.add(aid)
+                            att = self.env['ir.attachment'].sudo().browse(aid).with_context(bin_size=False)
                             if att.exists() and att.datas:
                                 all_imgs.append(att.datas)
                     if all_imgs:
@@ -1360,7 +1370,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                                     png_buf = io.BytesIO()
                                     pil_img.save(png_buf, format='PNG')
                                     png_buf.seek(0)
-                                p_img.add_run().add_picture(png_buf, width=_Inches(0.7))
+                                p_img.add_run().add_picture(png_buf, width=_Inches(0.77))
                                 p_img.add_run(' ')
                             except Exception as img_err:
                                 import logging
