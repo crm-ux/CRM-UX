@@ -271,7 +271,12 @@ try:
             token = kw.get('token') or request.params.get('token')
             if request.session.uid and token:
                 db = kw.get('db') or request.params.get('db') or ''
-                request.session.logout(keep_db=True)
+                try:
+                    request.session.logout(keep_db=True)
+                except Exception:
+                    pass
+                request.session.uid = False
+                request.session.login = False
                 redir = f"/web/reset_password?token={token}"
                 if db:
                     redir += f"&db={db}"
