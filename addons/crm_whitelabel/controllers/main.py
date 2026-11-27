@@ -284,7 +284,7 @@ try:
                 if request.httprequest.method == 'POST' and qcontext.get('token'):
                     self.do_signup(qcontext)
                     from urllib.parse import quote_plus
-                    msg = quote_plus("Password reset successfully! Please sign in with your new password.")
+                    msg = quote_plus("Password reset successfully! Please log in with your new password.")
                     return request.redirect(f"/web/session/logout?redirect=/web/login%3Fmessage%3D{msg}")
 
                 # CASE 2: Requesting Reset Email (Initial forgot password request, no token)
@@ -392,7 +392,7 @@ try:
                 try:
                     self.do_signup(qcontext)
                     from urllib.parse import quote_plus
-                    msg = quote_plus("Password reset successfully! Please sign in with your new password.")
+                    msg = quote_plus("Password reset successfully! Please log in with your new password.")
                     return request.redirect(f"/web/session/logout?redirect=/web/login%3Fmessage%3D{msg}")
                 except Exception as e:
                     import logging
