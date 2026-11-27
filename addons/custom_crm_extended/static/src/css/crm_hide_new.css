@@ -1120,6 +1120,21 @@ td[name="x_product_image"] img {
     display: none !important;
 }
 
+/* Align Product Internal Notes toolbar & placeholder and use custom brand color (#1a3d6e) on hover/focus */
+.o_field_html[name="description"] .o-we-toolbar,
+.o_field_html[name="description"] .oe-toolbar {
+    justify-content: flex-start !important;
+    margin-left: 0 !important;
+}
+.o_field_html[name="description"]:hover,
+.o_field_html[name="description"]:focus-within,
+.o_field_html[name="description"] .odoo-editor-editable:hover,
+.o_field_html[name="description"] .odoo-editor-editable:focus {
+    border-bottom-color: #1a3d6e !important;
+    box-shadow: inset 0 -1px 0 #1a3d6e !important;
+    outline-color: #1a3d6e !important;
+}
+
 /* Excel spreadsheet preview styling inside preview dialog only */
 .crm-invoice-preview-container .nav-tabs .nav-link.active {
     color: #137333 !important;
