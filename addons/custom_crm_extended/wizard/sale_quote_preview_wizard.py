@@ -593,7 +593,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><b>Description:</b>'
                 for n in notes_list:
                     desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
-            img_b64 = line.x_product_image or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+            img_b64 = (
+                line.x_product_image
+                or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+                or (line.product_id and line.product_id.product_tmpl_id and (line.product_id.product_tmpl_id.image_128 or line.product_id.product_tmpl_id.image_1920))
+            )
             if img_b64:
                 img_str = img_b64.decode('utf-8') if isinstance(img_b64, bytes) else str(img_b64)
                 desc += '<br/><img src="data:image/png;base64,%s" style="max-width:75px;max-height:75px;margin-top:4px;object-fit:contain;"/>' % img_str
@@ -1279,7 +1283,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         else:
                             r = p.add_run(part)
                             r.font.size = Pt(10)
-                    img_b64 = line.x_product_image or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+                    img_b64 = (
+                line.x_product_image
+                or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+                or (line.product_id and line.product_id.product_tmpl_id and (line.product_id.product_tmpl_id.image_128 or line.product_id.product_tmpl_id.image_1920))
+            )
                     if img_b64:
                         try:
                             from PIL import Image as _PILImage
