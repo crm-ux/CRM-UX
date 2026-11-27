@@ -184,6 +184,7 @@
                        column_invisible="not parent.x_show_cost_profit or not parent.can_show_margin"/>
                 <field name="x_technical_specs" string="Technical Specs" optional="show"/>
                 <field name="x_product_image" string="Product Image" widget="image" optional="hide" options="{'size': [50, 50]}" width="65px"/>
+                <field name="x_section_image_urls" column_invisible="1"/>
             </xpath>
             <xpath expr="//page[@name='order_lines']" position="after">
                 <page string="PO and Handoff" name="x_po_handoff">

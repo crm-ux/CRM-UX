@@ -358,24 +358,34 @@ if (solField && solField.component) {
                     }
                 }
 
-                // Show compact product/internal-note image below description in section row
-                const tr = cell.closest("tr.o_is_line_section");
-                const prevTr = tr ? tr.previousElementSibling : null;
-                const prevImg = prevTr ? prevTr.querySelector('td[name="x_product_image"] img') : null;
-                const imgSrc = prevImg && prevImg.src && !prevImg.src.includes("placeholder.png") ? prevImg.src : "";
-                let secImg = cell.querySelector("img.crm-section-img");
-                if (imgSrc) {
-                    if (!secImg) {
-                        secImg = document.createElement("img");
-                        secImg.className = "crm-section-img";
-                        secImg.style.cssText = "max-width:75px;max-height:75px;margin-top:4px;display:block;object-fit:contain;border-radius:4px;";
-                        cell.appendChild(secImg);
+                // Show all images from Product Internal Notes (1, 2, 3, 4...) inside section row
+                let urls = [];
+                try {
+                    urls = JSON.parse(this.props.record.data.x_section_image_urls || "[]");
+                } catch (_e) {
+                    urls = [];
+                }
+                let imgWrap = cell.querySelector("div.crm-section-imgs");
+                if (urls.length) {
+                    if (!imgWrap) {
+                        imgWrap = document.createElement("div");
+                        imgWrap.className = "crm-section-imgs";
+                        imgWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;";
+                        cell.appendChild(imgWrap);
                     }
-                    if (secImg.src !== imgSrc) {
-                        secImg.src = imgSrc;
+                    const key = urls.join("|");
+                    if (imgWrap.dataset.urlsKey !== key) {
+                        imgWrap.dataset.urlsKey = key;
+                        imgWrap.innerHTML = "";
+                        for (const src of urls) {
+                            const im = document.createElement("img");
+                            im.src = src;
+                            im.style.cssText = "max-width:75px;max-height:75px;object-fit:contain;border-radius:4px;";
+                            imgWrap.appendChild(im);
+                        }
                     }
-                } else if (secImg) {
-                    secImg.remove();
+                } else if (imgWrap) {
+                    imgWrap.remove();
                 }
             };
             onMounted(syncSection);

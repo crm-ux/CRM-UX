@@ -967,6 +967,30 @@ class SaleOrderLine(models.Model):
     x_default_price = fields.Float(string='Master Price', digits='Product Price')
     x_notes = fields.Char(string='Notes')
     x_technical_specs = fields.Text(string='Technical Specifications')
+    x_section_image_urls = fields.Char(
+        string='Section Image URLs',
+        compute='_compute_x_section_image_urls',
+        store=False,
+    )
+
+    @api.depends('display_type', 'order_id.order_line.product_id', 'order_id.order_line.sequence')
+    def _compute_x_section_image_urls(self):
+        import json, re
+        for line in self:
+            urls = []
+            if line.display_type == 'line_section' and line.order_id:
+                ordered = line.order_id.order_line.sorted(key=lambda l: (l.sequence, l.id or 0))
+                prev_prod = False
+                for l in ordered:
+                    if l == line:
+                        break
+                    if not l.display_type and l.product_id:
+                        prev_prod = l.product_id
+                if prev_prod:
+                    raw = prev_prod.description or prev_prod.product_tmpl_id.description or ''
+                    urls = re.findall(r'<img[^>]+src="([^"]+)"', str(raw), flags=re.IGNORECASE)
+            line.x_section_image_urls = json.dumps(urls) if urls else '[]'
+
     x_product_image = fields.Binary(
         string='Product Image',
         compute='_compute_x_product_image',
