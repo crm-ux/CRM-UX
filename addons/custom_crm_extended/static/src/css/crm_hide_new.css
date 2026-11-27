@@ -1120,11 +1120,10 @@ td[name="x_product_image"] img {
     display: none !important;
 }
 
-/* Align Product Internal Notes power buttons & placeholder and use custom brand color (#1a3d6e) on hover/focus */
+/* Align Product Internal Notes power buttons on the same line right after 'Type "/" for commands' */
 .o_field_html[name="description"] .o_we_power_buttons {
-    position: static !important;
-    justify-content: flex-start !important;
-    margin: 4px 0 0 0 !important;
+    left: 145px !important;
+    margin: 0 !important;
     padding: 0 !important;
 }
 .o_field_html[name="description"]:hover,
