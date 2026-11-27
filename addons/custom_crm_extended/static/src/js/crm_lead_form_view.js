@@ -363,3 +363,24 @@ if (solField && solField.component) {
         },
     });
 }
+
+
+// Align .o_we_power_buttons on the exact same vertical line as .o-we-hint in Product Internal Notes
+(function () {
+    function alignPowerButtons() {
+        const field = document.querySelector('.o_field_html[name="description"]');
+        if (!field) return;
+        const btns = field.querySelector(".o_we_power_buttons");
+        const hint = field.querySelector(".o-we-hint");
+        if (!btns || !hint || !btns.offsetParent) return;
+        const parentRect = btns.offsetParent.getBoundingClientRect();
+        const hintRect = hint.getBoundingClientRect();
+        const btnsHeight = btns.offsetHeight || 28;
+        const top = hintRect.top - parentRect.top + (hintRect.height - btnsHeight) / 2;
+        btns.style.setProperty("top", Math.round(top) + "px", "important");
+    }
+    const obs = new MutationObserver(() => requestAnimationFrame(alignPowerButtons));
+    if (document.body) {
+        obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
+    }
+})();
