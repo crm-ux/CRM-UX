@@ -1298,20 +1298,39 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         try:
                             from PIL import Image as _PILImage
                             img_bytes = base64.b64decode(img_b64)
-                            if img_bytes.lstrip().startswith((b'<svg', b'<?xml')):
+                            is_svg = img_bytes.lstrip().startswith((b'<svg', b'<?xml'))
+                            is_webp = len(img_bytes) >= 12 and img_bytes[:4] == b'RIFF' and img_bytes[8:12] == b'WEBP'
+                            if is_svg or is_webp:
                                 import subprocess, tempfile, os
-                                with tempfile.NamedTemporaryFile(suffix='.svg', delete=False) as tf:
+                                ext = '.svg' if is_svg else '.webp'
+                                with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tf:
                                     tf.write(img_bytes)
-                                    svg_path = tf.name
-                                png_path = svg_path + '.png'
-                                try:
-                                    subprocess.run(['rsvg-convert', '-o', png_path, svg_path], check=True)
-                                except Exception:
-                                    subprocess.run(['convert', svg_path, png_path], check=True)
-                                with open(png_path, 'rb') as pf:
-                                    png_buf = io.BytesIO(pf.read())
-                                os.unlink(svg_path)
-                                os.unlink(png_path)
+                                    src_path = tf.name
+                                png_path = src_path + '.png'
+                                converted = False
+                                cmds = (
+                                    [['rsvg-convert', '-o', png_path, src_path], ['convert', src_path, png_path]]
+                                    if is_svg
+                                    else [['dwebp', src_path, '-o', png_path], ['convert', src_path, png_path], ['ffmpeg', '-y', '-i', src_path, png_path]]
+                                )
+                                for cmd in cmds:
+                                    try:
+                                        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                        converted = True
+                                        break
+                                    except Exception:
+                                        continue
+                                if converted and os.path.exists(png_path):
+                                    with open(png_path, 'rb') as pf:
+                                        png_buf = io.BytesIO(pf.read())
+                                else:
+                                    pil_img = _PILImage.open(io.BytesIO(img_bytes))
+                                    png_buf = io.BytesIO()
+                                    pil_img.save(png_buf, format='PNG')
+                                    png_buf.seek(0)
+                                for p_tmp in (src_path, png_path):
+                                    if os.path.exists(p_tmp):
+                                        os.unlink(p_tmp)
                             else:
                                 pil_img = _PILImage.open(io.BytesIO(img_bytes))
                                 png_buf = io.BytesIO()
