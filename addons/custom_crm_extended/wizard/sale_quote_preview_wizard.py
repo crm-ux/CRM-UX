@@ -593,10 +593,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><b>Description:</b>'
                 for n in notes_list:
                     desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
+            line_bin = line.with_context(bin_size=False)
+            prod_bin = line.product_id.with_context(bin_size=False) if line.product_id else False
+            tmpl_bin = line.product_id.product_tmpl_id.with_context(bin_size=False) if (line.product_id and line.product_id.product_tmpl_id) else False
             img_b64 = (
-                line.x_product_image
-                or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
-                or (line.product_id and line.product_id.product_tmpl_id and (line.product_id.product_tmpl_id.image_128 or line.product_id.product_tmpl_id.image_1920))
+                line_bin.x_product_image
+                or (prod_bin and (prod_bin.image_128 or prod_bin.image_1920))
+                or (tmpl_bin and (tmpl_bin.image_128 or tmpl_bin.image_1920))
             )
             if img_b64:
                 img_str = img_b64.decode('utf-8') if isinstance(img_b64, bytes) else str(img_b64)
@@ -1283,10 +1286,13 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         else:
                             r = p.add_run(part)
                             r.font.size = Pt(10)
-                    img_b64 = (
-                line.x_product_image
-                or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
-                or (line.product_id and line.product_id.product_tmpl_id and (line.product_id.product_tmpl_id.image_128 or line.product_id.product_tmpl_id.image_1920))
+                    line_bin = line.with_context(bin_size=False)
+            prod_bin = line.product_id.with_context(bin_size=False) if line.product_id else False
+            tmpl_bin = line.product_id.product_tmpl_id.with_context(bin_size=False) if (line.product_id and line.product_id.product_tmpl_id) else False
+            img_b64 = (
+                line_bin.x_product_image
+                or (prod_bin and (prod_bin.image_128 or prod_bin.image_1920))
+                or (tmpl_bin and (tmpl_bin.image_128 or tmpl_bin.image_1920))
             )
                     if img_b64:
                         try:
