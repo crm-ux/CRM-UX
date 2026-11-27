@@ -1113,6 +1113,13 @@ td[name="x_product_image"] img {
     object-fit: contain !important;
 }
 
+/* Hide the 2nd (Upload file) button in Product Internal Notes HTML editor toolbar */
+.o_field_html[name="description"] button[title*="Upload"],
+.o_field_html[name="description"] button:has(.fa-upload),
+.o_field_html[name="description"] button[name="upload"] {
+    display: none !important;
+}
+
 /* Excel spreadsheet preview styling inside preview dialog only */
 .crm-invoice-preview-container .nav-tabs .nav-link.active {
     color: #137333 !important;
