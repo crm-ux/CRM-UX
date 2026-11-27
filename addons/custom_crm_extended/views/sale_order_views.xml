@@ -168,6 +168,9 @@
             <xpath expr="//field[@name='order_line']//list//field[@name='name']" position="attributes">
                 <attribute name="optional">hide</attribute>
             </xpath>
+            <xpath expr="//field[@name='order_line']//list//control//create[@name='add_section_control']" position="attributes">
+                <attribute name="string">Enter a description</attribute>
+            </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="attributes">
                 <attribute name="column_invisible">not parent.x_gst_included</attribute>
             </xpath>

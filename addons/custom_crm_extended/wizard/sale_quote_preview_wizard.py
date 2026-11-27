@@ -538,7 +538,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         note_map = {}
         prev_product_line = None
         for line in order_lines_pdf:
-            if line.display_type in ('line_note', 'note'):
+            if line.display_type in ('line_note', 'note', 'line_section', 'section'):
                 if prev_product_line is not None:
                     note_map.setdefault(prev_product_line, []).append(line.name or '')
             else:
@@ -589,7 +589,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><b>Description:</b> %s' % '<br/>'.join(extra_name_lines)
             if make: desc += '<br/><b>Make:</b> %s' % make
             for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#333;">%s</i>' % n
+                desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
                 rows += ('<tr>'
@@ -1082,7 +1082,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         docx_note_map = {}
         prev_line_id = None
         for l in order.order_line:
-            if l.display_type in ('line_note', 'note'):
+            if l.display_type in ('line_note', 'note', 'line_section', 'section'):
                 if prev_line_id:
                     docx_note_map.setdefault(prev_line_id, []).append(l.name or '')
             else:

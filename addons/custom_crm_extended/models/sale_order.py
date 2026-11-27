@@ -1129,19 +1129,62 @@ class SaleOrderLineExtended(models.Model):
 
     @api.onchange('product_id')
     def _onchange_product_internal_note(self):
-        """Sync product name m2o and internal notes when product_id changes."""
+        """Sync product name m2o and GST toggle when product_id changes."""
         if self.product_id:
             self.x_product_name_m2o = self.product_id
-            # Auto-fill internal notes
-            if self.product_id.description:
-                import re
-                clean_note = re.sub(r'<[^>]+>', '', str(self.product_id.description)).strip()
-                if clean_note:
-                    self.x_notes = clean_note
             # Keep line taxes consistent with the order's own GST toggle,
             # regardless of the product's own default tax configuration.
             if self.order_id and not self.order_id.x_gst_included:
                 self.tax_ids = [(5, 0, 0)]
+
+
+class SaleOrderAutoSection(models.Model):
+    _inherit = 'sale.order'
+
+    @staticmethod
+    def _extract_product_internal_notes(product):
+        """Convert product.description (Internal Notes) HTML into clean multi-line text."""
+        import re
+        from html import unescape
+        raw = product.description or product.product_tmpl_id.description or ''
+        if not raw:
+            return ''
+        text = str(raw)
+        text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
+        text = re.sub(r'</(p|div|li|tr|h[1-6])>', '\n', text, flags=re.IGNORECASE)
+        text = re.sub(r'<[^>]+>', '', text)
+        text = unescape(text)
+        lines = [ln.rstrip() for ln in text.splitlines()]
+        # Collapse leading/trailing blank lines while preserving internal line breaks
+        return '\n'.join(lines).strip()
+
+    @api.onchange('order_line')
+    def _onchange_order_line_auto_section(self):
+        """Auto-insert an editable multi-line section below each product line from Internal Notes."""
+        lines = list(self.order_line)
+        if not lines:
+            return
+        new_lines = []
+        changed = False
+        for idx, line in enumerate(lines):
+            new_lines.append(line)
+            if not line.display_type and line.product_id:
+                note_text = self._extract_product_internal_notes(line.product_id)
+                if note_text:
+                    next_line = lines[idx + 1] if idx + 1 < len(lines) else None
+                    # Only insert if the next line is not already a section
+                    if not next_line or next_line.display_type != 'line_section':
+                        sec_vals = {
+                            'display_type': 'line_section',
+                            'name': note_text,
+                            'sequence': (line.sequence or 10) + 1,
+                        }
+                        new_lines.append(self.env['sale.order.line'].new(sec_vals))
+                        changed = True
+        if changed:
+            for seq_idx, l in enumerate(new_lines, start=1):
+                l.sequence = seq_idx * 10
+            self.order_line = new_lines
 
 
 class SaleOrderSettings(models.Model):
