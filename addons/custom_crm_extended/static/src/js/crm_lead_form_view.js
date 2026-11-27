@@ -357,6 +357,26 @@ if (solField && solField.component) {
                         span.textContent = val;
                     }
                 }
+
+                // Show compact product/internal-note image below description in section row
+                const tr = cell.closest("tr.o_is_line_section");
+                const prevTr = tr ? tr.previousElementSibling : null;
+                const prevImg = prevTr ? prevTr.querySelector('td[name="x_product_image"] img') : null;
+                const imgSrc = prevImg && prevImg.src && !prevImg.src.includes("placeholder.png") ? prevImg.src : "";
+                let secImg = cell.querySelector("img.crm-section-img");
+                if (imgSrc) {
+                    if (!secImg) {
+                        secImg = document.createElement("img");
+                        secImg.className = "crm-section-img";
+                        secImg.style.cssText = "max-width:75px;max-height:75px;margin-top:4px;display:block;object-fit:contain;border-radius:4px;";
+                        cell.appendChild(secImg);
+                    }
+                    if (secImg.src !== imgSrc) {
+                        secImg.src = imgSrc;
+                    }
+                } else if (secImg) {
+                    secImg.remove();
+                }
             };
             onMounted(syncSection);
             onPatched(syncSection);
