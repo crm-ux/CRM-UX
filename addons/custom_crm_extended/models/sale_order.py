@@ -974,7 +974,20 @@ class SaleOrderLine(models.Model):
         readonly=False,
     )
 
-    @api.depends('product_id', 'product_id.image_128', 'product_id.product_tmpl_id.image_128')
+    def _extract_internal_note_image(self, product):
+        """Extract first embedded image attachment base64 from product Internal Notes."""
+        import re
+        raw = (product.description or product.product_tmpl_id.description or '') if product else ''
+        if not raw:
+            return False
+        m = re.search(r'data-attachment-id="(\d+)"', str(raw)) or re.search(r'/web/image/(\d+)', str(raw))
+        if m:
+            att = self.env['ir.attachment'].sudo().browse(int(m.group(1))).with_context(bin_size=False)
+            if att.exists() and att.datas:
+                return att.datas
+        return False
+
+    @api.depends('product_id', 'product_id.image_128', 'product_id.product_tmpl_id.image_128', 'product_id.description', 'product_id.product_tmpl_id.description')
     def _compute_x_product_image(self):
         for line in self:
             if line.product_id:
@@ -983,6 +996,7 @@ class SaleOrderLine(models.Model):
                     or line.product_id.image_1920
                     or line.product_id.product_tmpl_id.image_128
                     or line.product_id.product_tmpl_id.image_1920
+                    or line._extract_internal_note_image(line.product_id)
                     or False
                 )
             elif not line.x_product_image:
@@ -1084,7 +1098,7 @@ class SaleOrderLine(models.Model):
         self.x_hsn_code = product.l10n_in_hsn_code or product.product_tmpl_id.l10n_in_hsn_code or ''
         self.x_make = product.x_make or product.product_tmpl_id.x_make or ''
         self.x_default_price = product.list_price or 0.0
-        self.x_product_image = product.image_128 or product.image_1920 or product.product_tmpl_id.image_128 or product.product_tmpl_id.image_1920 or False
+        self.x_product_image = product.image_128 or product.image_1920 or product.product_tmpl_id.image_128 or product.product_tmpl_id.image_1920 or self._extract_internal_note_image(product) or False
 
     @api.onchange('product_id')
     def _onchange_custom_product_fields(self):
