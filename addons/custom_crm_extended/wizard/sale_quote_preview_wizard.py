@@ -588,8 +588,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
             if extra_name_lines:
                 desc += '<br/><b>Description:</b> %s' % '<br/>'.join(extra_name_lines)
             if make: desc += '<br/><b>Make:</b> %s' % make
-            for n in note_map.get(line.id, []):
-                desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
+            notes_list = note_map.get(line.id, [])
+            if notes_list:
+                desc += '<br/><b>Description:</b>'
+                for n in notes_list:
+                    desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
                 rows += ('<tr>'
@@ -1225,8 +1228,11 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '\nDescription: ' + '\n'.join(extra_name_lines_d)
             if line.x_make:
                 desc += '\nMake: ' + line.x_make
-            for n in docx_note_map.get(line.id, []):
-                desc += '\n' + n
+            docx_notes_list = docx_note_map.get(line.id, [])
+            if docx_notes_list:
+                desc += '\nDescription:'
+                for n in docx_notes_list:
+                    desc += '\n' + n
             hsn = line.product_id.l10n_in_hsn_code or ''
             unit_price = line.price_unit or 0
             disc_pct = line.discount or 0
