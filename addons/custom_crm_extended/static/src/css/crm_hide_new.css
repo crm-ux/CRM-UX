@@ -1113,10 +1113,13 @@ td[name="x_product_image"] img {
     object-fit: contain !important;
 }
 
-/* Hide the 2nd (Upload file) button in Product Internal Notes HTML editor toolbar */
+/* Hide unused buttons in Product Internal Notes power buttons (Upload, Add a button, Checklist, More options) */
 .o_field_html[name="description"] button[title*="Upload"],
 .o_field_html[name="description"] button:has(.fa-upload),
-.o_field_html[name="description"] button[name="upload"] {
+.o_field_html[name="description"] button[name="upload"],
+.o_field_html[name="description"] button.fa-square,
+.o_field_html[name="description"] button.fa-check-square-o,
+.o_field_html[name="description"] button.oi-ellipsis-v {
     display: none !important;
 }
 
