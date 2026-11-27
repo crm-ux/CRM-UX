@@ -1165,19 +1165,31 @@ class SaleOrderAutoSection(models.Model):
 
     @staticmethod
     def _extract_product_internal_notes(product):
-        """Convert product.description (Internal Notes) HTML into clean multi-line text."""
+        """Convert product.description (Internal Notes) HTML into clean multi-line text with bullets."""
         import re
         from html import unescape
         raw = product.description or product.product_tmpl_id.description or ''
         if not raw:
             return ''
         text = str(raw)
+        # Remove uploaded file-box links (e.g. QR.png) so filenames don't leak as text
+        text = re.sub(r'<div[^>]*class="[^"]*o_file_box[^"]*"[^>]*>.*?</div>', '', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(r'<a[^>]*class="[^"]*o_file_box[^"]*"[^>]*>.*?</a>', '', text, flags=re.IGNORECASE | re.DOTALL)
+
+        # Convert ordered lists (<ol><li>...</li></ol>) to numbered lines
+        def _ol_repl(match):
+            items = re.findall(r'<li[^>]*>(.*?)</li>', match.group(0), flags=re.IGNORECASE | re.DOTALL)
+            return '\n'.join(f"{i + 1}. {item.strip()}" for i, item in enumerate(items)) + '\n'
+
+        text = re.sub(r'<ol[^>]*>.*?</ol>', _ol_repl, text, flags=re.IGNORECASE | re.DOTALL)
+        # Convert unordered list items (<li>) to bullet lines
+        text = re.sub(r'<li[^>]*>', '• ', text, flags=re.IGNORECASE)
+        text = re.sub(r'</li>', '\n', text, flags=re.IGNORECASE)
         text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
-        text = re.sub(r'</(p|div|li|tr|h[1-6])>', '\n', text, flags=re.IGNORECASE)
+        text = re.sub(r'</(p|div|tr|h[1-6])>', '\n', text, flags=re.IGNORECASE)
         text = re.sub(r'<[^>]+>', '', text)
         text = unescape(text)
         lines = [ln.rstrip() for ln in text.splitlines()]
-        # Collapse leading/trailing blank lines while preserving internal line breaks
         return '\n'.join(lines).strip()
 
     @api.onchange('order_line')
