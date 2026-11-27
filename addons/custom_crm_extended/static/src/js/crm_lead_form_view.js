@@ -288,3 +288,23 @@ registry.category("views").add("crm_lead_kanban", {
     ...kanbanView,
     Controller: CrmLeadKanbanController,
 });
+
+
+// Allow Enter key inside quotation section/description textarea to insert a newline
+// instead of triggering Odoo's list-row save / "Add a product".
+document.addEventListener(
+    "keydown",
+    (ev) => {
+        if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
+            const target = ev.target;
+            if (
+                target &&
+                target.tagName === "TEXTAREA" &&
+                target.closest(".o_is_line_section")
+            ) {
+                ev.stopPropagation();
+            }
+        }
+    },
+    true
+);

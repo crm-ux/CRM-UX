@@ -1164,35 +1164,23 @@ class SaleOrderAutoSection(models.Model):
         lines = list(self.order_line)
         if not lines:
             return
-        to_add = []
+        # Space existing line sequences (10, 30, 50...) so new sections fit right below (11, 31, 51...)
+        for idx, line in enumerate(lines):
+            line.sequence = (idx + 1) * 20 - 10
+        new_secs = []
         for idx, line in enumerate(lines):
             if not line.display_type and line.product_id:
                 note_text = self._extract_product_internal_notes(line.product_id)
                 if note_text:
                     next_line = lines[idx + 1] if idx + 1 < len(lines) else None
-                    # Only insert if the next line is not already a section
                     if not next_line or next_line.display_type != 'line_section':
-                        to_add.append((line, {
+                        new_secs.append({
                             'display_type': 'line_section',
                             'name': note_text,
-                            'sequence': (line.sequence or 10) + 1,
-                        }))
-        if to_add:
-            for _, sec_vals in to_add:
-                self.order_line += self.env['sale.order.line'].new(sec_vals)
-            # Re-sequence so each section stays right below its product line
-            ordered = []
-            add_map = {id(prod_line): vals['name'] for prod_line, vals in to_add}
-            new_secs = [l for l in self.order_line if l.display_type == 'line_section' and id(l) not in {id(x) for x in lines}]
-            sec_iter = iter(new_secs)
-            for l in lines:
-                ordered.append(l)
-                if id(l) in add_map:
-                    sec = next(sec_iter, None)
-                    if sec:
-                        ordered.append(sec)
-            for seq_idx, l in enumerate(ordered, start=1):
-                l.sequence = seq_idx * 10
+                            'sequence': line.sequence + 1,
+                        })
+        for sec_vals in new_secs:
+            self.order_line += self.env['sale.order.line'].new(sec_vals)
 
 
 class SaleOrderSettings(models.Model):
