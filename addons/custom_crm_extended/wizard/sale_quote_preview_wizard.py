@@ -596,14 +596,25 @@ class SaleQuotePreviewWizard(models.TransientModel):
             line_bin = line.with_context(bin_size=False)
             prod_bin = line.product_id.with_context(bin_size=False) if line.product_id else False
             tmpl_bin = line.product_id.product_tmpl_id.with_context(bin_size=False) if (line.product_id and line.product_id.product_tmpl_id) else False
-            img_b64 = (
+            main_img = (
                 line_bin.x_product_image
                 or (prod_bin and (prod_bin.image_128 or prod_bin.image_1920))
                 or (tmpl_bin and (tmpl_bin.image_128 or tmpl_bin.image_1920))
             )
-            if img_b64:
-                img_str = img_b64.decode('utf-8') if isinstance(img_b64, bytes) else str(img_b64)
-                desc += '<br/><img src="data:image/png;base64,%s" style="max-width:75px;max-height:75px;margin-top:4px;object-fit:contain;"/>' % img_str
+            all_imgs = [main_img] if main_img else []
+            raw_desc = (tmpl_bin.description if tmpl_bin else '') or (prod_bin.description if prod_bin else '') or ''
+            if raw_desc:
+                import re as _re_img
+                for m_id in _re_img.findall(r'(?:data-attachment-id="|/web/image/)(\d+)', str(raw_desc)):
+                    att = self.env['ir.attachment'].sudo().browse(int(m_id)).with_context(bin_size=False)
+                    if att.exists() and att.datas:
+                        all_imgs.append(att.datas)
+            if all_imgs:
+                desc += '<br/><div style="margin-top:4px;">'
+                for im_b64 in all_imgs:
+                    im_str = im_b64.decode('utf-8') if isinstance(im_b64, bytes) else str(im_b64)
+                    desc += '<img src="data:image/png;base64,%s" style="max-width:70px;max-height:70px;margin:2px 6px 2px 0;display:inline-block;vertical-align:top;object-fit:contain;"/>' % im_str
+                desc += '</div>'
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
                 rows += ('<tr>'
@@ -1289,61 +1300,71 @@ class SaleQuotePreviewWizard(models.TransientModel):
                             line_bin = line.with_context(bin_size=False)
                     prod_bin = line.product_id.with_context(bin_size=False) if line.product_id else False
                     tmpl_bin = line.product_id.product_tmpl_id.with_context(bin_size=False) if (line.product_id and line.product_id.product_tmpl_id) else False
-                    img_b64 = (
+                    main_img = (
                         line_bin.x_product_image
                         or (prod_bin and (prod_bin.image_128 or prod_bin.image_1920))
                         or (tmpl_bin and (tmpl_bin.image_128 or tmpl_bin.image_1920))
                     )
-                    if img_b64:
-                        try:
-                            from PIL import Image as _PILImage
-                            img_bytes = base64.b64decode(img_b64)
-                            is_svg = img_bytes.lstrip().startswith((b'<svg', b'<?xml'))
-                            is_webp = len(img_bytes) >= 12 and img_bytes[:4] == b'RIFF' and img_bytes[8:12] == b'WEBP'
-                            if is_svg or is_webp:
-                                import subprocess, tempfile, os
-                                ext = '.svg' if is_svg else '.webp'
-                                with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tf:
-                                    tf.write(img_bytes)
-                                    src_path = tf.name
-                                png_path = src_path + '.png'
-                                converted = False
-                                cmds = (
-                                    [['rsvg-convert', '-o', png_path, src_path], ['convert', src_path, png_path]]
-                                    if is_svg
-                                    else [['dwebp', src_path, '-o', png_path], ['convert', src_path, png_path], ['ffmpeg', '-y', '-i', src_path, png_path]]
-                                )
-                                for cmd in cmds:
-                                    try:
-                                        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                                        converted = True
-                                        break
-                                    except Exception:
-                                        continue
-                                if converted and os.path.exists(png_path):
-                                    with open(png_path, 'rb') as pf:
-                                        png_buf = io.BytesIO(pf.read())
+                    all_imgs = [main_img] if main_img else []
+                    raw_desc = (tmpl_bin.description if tmpl_bin else '') or (prod_bin.description if prod_bin else '') or ''
+                    if raw_desc:
+                        import re as _re_img
+                        for m_id in _re_img.findall(r'(?:data-attachment-id="|/web/image/)(\d+)', str(raw_desc)):
+                            att = self.env['ir.attachment'].sudo().browse(int(m_id)).with_context(bin_size=False)
+                            if att.exists() and att.datas:
+                                all_imgs.append(att.datas)
+                    if all_imgs:
+                        p_img = cell.add_paragraph()
+                        p_img.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                        p_img.paragraph_format.space_before = Pt(4)
+                        p_img.paragraph_format.space_after = Pt(0)
+                        for im_b64 in all_imgs:
+                            try:
+                                from PIL import Image as _PILImage
+                                img_bytes = base64.b64decode(im_b64)
+                                is_svg = img_bytes.lstrip().startswith((b'<svg', b'<?xml'))
+                                is_webp = len(img_bytes) >= 12 and img_bytes[:4] == b'RIFF' and img_bytes[8:12] == b'WEBP'
+                                if is_svg or is_webp:
+                                    import subprocess, tempfile, os
+                                    ext = '.svg' if is_svg else '.webp'
+                                    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tf:
+                                        tf.write(img_bytes)
+                                        src_path = tf.name
+                                    png_path = src_path + '.png'
+                                    converted = False
+                                    cmds = (
+                                        [['rsvg-convert', '-o', png_path, src_path], ['convert', src_path, png_path]]
+                                        if is_svg
+                                        else [['dwebp', src_path, '-o', png_path], ['convert', src_path, png_path], ['ffmpeg', '-y', '-i', src_path, png_path]]
+                                    )
+                                    for cmd in cmds:
+                                        try:
+                                            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                            converted = True
+                                            break
+                                        except Exception:
+                                            continue
+                                    if converted and os.path.exists(png_path):
+                                        with open(png_path, 'rb') as pf:
+                                            png_buf = io.BytesIO(pf.read())
+                                    else:
+                                        pil_img = _PILImage.open(io.BytesIO(img_bytes))
+                                        png_buf = io.BytesIO()
+                                        pil_img.save(png_buf, format='PNG')
+                                        png_buf.seek(0)
+                                    for p_tmp in (src_path, png_path):
+                                        if os.path.exists(p_tmp):
+                                            os.unlink(p_tmp)
                                 else:
                                     pil_img = _PILImage.open(io.BytesIO(img_bytes))
                                     png_buf = io.BytesIO()
                                     pil_img.save(png_buf, format='PNG')
                                     png_buf.seek(0)
-                                for p_tmp in (src_path, png_path):
-                                    if os.path.exists(p_tmp):
-                                        os.unlink(p_tmp)
-                            else:
-                                pil_img = _PILImage.open(io.BytesIO(img_bytes))
-                                png_buf = io.BytesIO()
-                                pil_img.save(png_buf, format='PNG')
-                                png_buf.seek(0)
-                            p_img = cell.add_paragraph()
-                            p_img.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                            p_img.paragraph_format.space_before = Pt(4)
-                            p_img.paragraph_format.space_after = Pt(0)
-                            p_img.add_run().add_picture(png_buf, width=_Inches(0.75))
-                        except Exception as img_err:
-                            import logging
-                            logging.getLogger(__name__).warning("DOCX product image embed failed (%s): head=%r", img_err, img_b64[:40])
+                                p_img.add_run().add_picture(png_buf, width=_Inches(0.7))
+                                p_img.add_run(' ')
+                            except Exception as img_err:
+                                import logging
+                                logging.getLogger(__name__).warning("DOCX product image embed failed (%s): head=%r", img_err, im_b64[:40])
                     format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=40, right=40, nowrap=False)
                 else:
                     p = cell.paragraphs[0]
