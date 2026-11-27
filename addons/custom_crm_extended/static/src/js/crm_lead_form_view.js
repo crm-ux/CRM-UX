@@ -382,8 +382,15 @@ if (solField && solField.component) {
             btns.style.setProperty("top", targetTop + "px", "important");
         }
     }
-    const obs = new MutationObserver(() => requestAnimationFrame(alignPowerButtons));
+    const scheduleAlign = () => {
+        requestAnimationFrame(alignPowerButtons);
+        setTimeout(alignPowerButtons, 30);
+    };
+    const obs = new MutationObserver(scheduleAlign);
     if (document.body) {
         obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
     }
+    document.addEventListener("selectionchange", scheduleAlign);
+    document.addEventListener("click", scheduleAlign, true);
+    document.addEventListener("keyup", scheduleAlign, true);
 })();
