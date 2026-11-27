@@ -1065,6 +1065,7 @@ class SaleOrderLine(models.Model):
         self.x_hsn_code = product.l10n_in_hsn_code or product.product_tmpl_id.l10n_in_hsn_code or ''
         self.x_make = product.x_make or product.product_tmpl_id.x_make or ''
         self.x_default_price = product.list_price or 0.0
+        self.x_product_image = product.image_128 or product.image_1920 or product.product_tmpl_id.image_128 or product.product_tmpl_id.image_1920 or False
 
     @api.onchange('product_id')
     def _onchange_custom_product_fields(self):
@@ -1092,6 +1093,8 @@ class SaleOrderLine(models.Model):
                     vals['x_make'] = product.x_make or product.product_tmpl_id.x_make or ''
                 if not vals.get('x_default_price'):
                     vals['x_default_price'] = product.list_price or 0.0
+                if not vals.get('x_product_image'):
+                    vals['x_product_image'] = product.image_128 or product.image_1920 or product.product_tmpl_id.image_128 or product.product_tmpl_id.image_1920 or False
         return super().create(vals_list)
 
     # ==================================================================
