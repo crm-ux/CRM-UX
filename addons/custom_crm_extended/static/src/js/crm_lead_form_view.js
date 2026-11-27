@@ -313,10 +313,7 @@ registry.category("views").add("crm_lead_kanban", {
 
             const autoResize = () => {
                 ta.rows = Math.max(1, (ta.value || "").split("\n").length);
-                ta.style.height = "auto";
-                if (ta.scrollHeight > 0) {
-                    ta.style.height = ta.scrollHeight + "px";
-                }
+                ta.style.height = "";
             };
 
             ta.addEventListener("input", () => {
@@ -341,10 +338,7 @@ registry.category("views").add("crm_lead_kanban", {
             ta.value = input.value || "";
         }
         ta.rows = Math.max(1, (ta.value || "").split("\n").length);
-        ta.style.height = "auto";
-        if (ta.scrollHeight > 0) {
-            ta.style.height = ta.scrollHeight + "px";
-        }
+        ta.style.height = "";
     }
 
     const observer = new MutationObserver(() => {
