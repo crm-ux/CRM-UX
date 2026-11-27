@@ -290,85 +290,79 @@ registry.category("views").add("crm_lead_kanban", {
 });
 
 
-// Make quotation section/description rows multi-line (single clean textarea, no duplicates)
-// and allow Enter to insert a newline instead of triggering "Add a product".
-(function () {
-    function syncSectionTextarea(cell) {
-        if (!cell) return;
-        const input = cell.querySelector("input.o_input");
-        if (!input) return;
+import { patch } from "@web/core/utils/patch";
+import { registry } from "@web/core/registry";
+import { onMounted, onPatched } from "@odoo/owl";
 
-        // Hide original single-line input completely
-        input.classList.add("d-none");
-        input.style.setProperty("display", "none", "important");
-        cell.style.setProperty("height", "auto", "important");
-
-        let ta = cell.querySelector("textarea.crm-section-ta");
-        if (!ta) {
-            ta = document.createElement("textarea");
-            ta.className = "o_input text-wrap border-0 w-100 fw-bolder crm-section-ta";
-            ta.placeholder = input.placeholder || "Enter a description";
-            ta.style.cssText =
-                "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;background:transparent;outline:none;box-shadow:none;padding:0;margin:0;";
-
-            ta.value = input.value || "";
-
-            const autoResize = () => {
-                ta.rows = Math.max(1, (ta.value || "").split("\n").length);
-                ta.style.height = "";
-            };
-
-            ta.addEventListener("input", () => {
-                input.value = ta.value;
-                input.dispatchEvent(new Event("input", { bubbles: true }));
-                autoResize();
-            });
-            ta.addEventListener("keyup", autoResize);
-            ta.addEventListener("change", () => {
-                input.value = ta.value;
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            });
-            ta.addEventListener("blur", () => {
-                input.value = ta.value;
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            });
-
-            input.parentNode.insertBefore(ta, input.nextSibling);
-        } else if (document.activeElement !== ta && ta.value !== input.value) {
-            ta.value = input.value || "";
-        }
-
-        ta.rows = Math.max(1, (ta.value || "").split("\n").length);
-        ta.style.height = "";
-    }
-
-    const observer = new MutationObserver(() => {
-        document
-            .querySelectorAll(".o_is_line_section .o_field_product_label_section_and_note_cell")
-            .forEach(syncSectionTextarea);
-    });
-    if (document.body) {
-        observer.observe(document.body, { childList: true, subtree: true });
-    } else {
-        document.addEventListener("DOMContentLoaded", () => {
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-    }
-
-    document.addEventListener(
-        "keydown",
-        (ev) => {
-            if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
-                const target = ev.target;
-                if (
-                    target &&
-                    target.tagName === "TEXTAREA" &&
-                    target.classList.contains("crm-section-ta")
-                ) {
-                    ev.stopPropagation();
+// Patch sol_product_many2one so line_section rows render & save multi-line (\n) natively
+// via record.update({ name }) without HTMLInputElement stripping newlines.
+const solField = registry.category("fields").get("sol_product_many2one");
+if (solField && solField.component) {
+    patch(solField.component.prototype, {
+        setup() {
+            super.setup(...arguments);
+            const syncSection = () => {
+                if (this.props.record?.data?.display_type !== "line_section") {
+                    return;
                 }
-            }
+                const el = this.__owl__?.bdom?.el;
+                if (!el) return;
+                const cell = el.querySelector(".o_field_product_label_section_and_note_cell") || el;
+                cell.style.setProperty("height", "auto", "important");
+                cell.style.setProperty("white-space", "pre-wrap", "important");
+
+                const val = this.props.record.data.name || "";
+                const input = cell.querySelector("input.o_input");
+                if (input) {
+                    input.classList.add("d-none");
+                    input.style.setProperty("display", "none", "important");
+
+                    let ta = cell.querySelector("textarea.crm-section-ta");
+                    if (!ta) {
+                        ta = document.createElement("textarea");
+                        ta.className = "o_input text-wrap border-0 w-100 fw-bolder crm-section-ta";
+                        ta.placeholder = input.placeholder || "Enter a description";
+                        ta.style.cssText =
+                            "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;background:transparent;outline:none;box-shadow:none;padding:0;margin:0;";
+
+                        const autoResize = () => {
+                            ta.rows = Math.max(1, (ta.value || "").split("\n").length);
+                            ta.style.height = "";
+                        };
+
+                        ta.addEventListener("input", () => {
+                            autoResize();
+                        });
+                        ta.addEventListener("change", () => {
+                            this.props.record.update({ name: ta.value });
+                        });
+                        ta.addEventListener("blur", () => {
+                            this.props.record.update({ name: ta.value });
+                        });
+                        ta.addEventListener("keydown", (ev) => {
+                            if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
+                                ev.stopPropagation();
+                            }
+                        });
+
+                        input.parentNode.insertBefore(ta, input.nextSibling);
+                    }
+                    if (document.activeElement !== ta && ta.value !== val) {
+                        ta.value = val;
+                    }
+                    ta.rows = Math.max(1, (ta.value || "").split("\n").length);
+                    ta.style.height = "";
+                } else {
+                    // Read-only display: preserve \n line breaks
+                    const span = cell.querySelector("span") || cell;
+                    span.style.setProperty("white-space", "pre-wrap", "important");
+                    if (span.textContent !== val) {
+                        span.textContent = val;
+                    }
+                }
+            };
+            onMounted(syncSection);
+            onPatched(syncSection);
         },
-        true
-    );
-})();
+    });
+}
