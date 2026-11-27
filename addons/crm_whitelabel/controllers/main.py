@@ -16,12 +16,12 @@ class CrmWhitelabelController(http.Controller):
         '/web/webclient/translations',
         '/website/translations/<string:unique>',
         '/website/translations',
-    ], type='http', auth='none', cors='*')
+    ], type='http', auth='public', website=True, sitemap=False, cors='*')
     def webclient_translations(self, unique=None, mods=None, lang=None, **kw):
         import json
         data = {
             'modules': {},
-            'lang': lang or 'en_US',
+            'lang': lang or kw.get('lang') or 'en_US',
             'lang_parameters': {
                 'direction': 'ltr',
                 'date_format': '%m/%d/%Y',
@@ -32,6 +32,31 @@ class CrmWhitelabelController(http.Controller):
             }
         }
         return request.make_response(json.dumps(data), headers=[('Content-Type', 'application/json')])
+
+try:
+    from odoo.addons.website.controllers.main import Website
+    class CustomWebsiteTranslations(Website):
+        @http.route([
+            '/website/translations/<string:unique>',
+            '/website/translations',
+        ], type='http', auth='public', website=True, sitemap=False, cors='*')
+        def get_website_translations(self, *args, **kw):
+            import json
+            data = {
+                'modules': {},
+                'lang': kw.get('lang') or 'en_US',
+                'lang_parameters': {
+                    'direction': 'ltr',
+                    'date_format': '%m/%d/%Y',
+                    'time_format': '%H:%M:%S',
+                    'grouping': '[]',
+                    'decimal_point': '.',
+                    'thousands_sep': ',',
+                }
+            }
+            return request.make_response(json.dumps(data), headers=[('Content-Type', 'application/json')])
+except Exception:
+    pass
 
     @http.route(['/favicon.ico'], type='http', auth='public', website=True, sitemap=False, readonly=True)
     def favicon(self, **kw):
