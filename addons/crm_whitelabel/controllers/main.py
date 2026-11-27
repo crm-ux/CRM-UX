@@ -238,8 +238,17 @@ try:
     from odoo.addons.auth_signup.controllers.main import AuthSignupHome
 
     class CustomAuthSignupHome(AuthSignupHome):
-        @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
+        @http.route('/web/reset_password', type='http', auth='public', website=False, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
+            # If user has an active session in the browser, log out so the reset token page opens cleanly without 403 Access Denied
+            if (kw.get('token') or request.params.get('token')) and request.session.uid:
+                try:
+                    request.session.logout(keep_db=True)
+                except Exception:
+                    pass
+                request.session.uid = False
+                request.session.login = False
+
             try:
                 qcontext = self.get_auth_signup_qcontext()
 
