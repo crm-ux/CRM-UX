@@ -967,7 +967,26 @@ class SaleOrderLine(models.Model):
     x_default_price = fields.Float(string='Master Price', digits='Product Price')
     x_notes = fields.Char(string='Notes')
     x_technical_specs = fields.Text(string='Technical Specifications')
-    x_product_image = fields.Binary(string='Product Image')
+    x_product_image = fields.Binary(
+        string='Product Image',
+        compute='_compute_x_product_image',
+        store=True,
+        readonly=False,
+    )
+
+    @api.depends('product_id', 'product_id.image_128', 'product_id.product_tmpl_id.image_128')
+    def _compute_x_product_image(self):
+        for line in self:
+            if line.product_id:
+                line.x_product_image = (
+                    line.product_id.image_128
+                    or line.product_id.image_1920
+                    or line.product_id.product_tmpl_id.image_128
+                    or line.product_id.product_tmpl_id.image_1920
+                    or False
+                )
+            elif not line.x_product_image:
+                line.x_product_image = False
     x_product_image_name = fields.Char(string='Product Image Name')
 
     # Toggle to show/hide Cost/Profit/Margin columns (admin only)
