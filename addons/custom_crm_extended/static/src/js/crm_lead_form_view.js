@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import { onMounted, onWillUnmount } from "@odoo/owl";
+import { onMounted, onPatched, onWillUnmount } from "@odoo/owl";
 import { registry } from "@web/core/registry";
+import { patch } from "@web/core/utils/patch";
 import { formView } from "@web/views/form/form_view";
 import { FormController } from "@web/views/form/form_controller";
 import { listView } from "@web/views/list/list_view";
@@ -289,10 +290,6 @@ registry.category("views").add("crm_lead_kanban", {
     Controller: CrmLeadKanbanController,
 });
 
-
-import { patch } from "@web/core/utils/patch";
-import { registry } from "@web/core/registry";
-import { onMounted, onPatched } from "@odoo/owl";
 
 // Patch sol_product_many2one so line_section rows render & save multi-line (\n) natively
 // via record.update({ name }) without HTMLInputElement stripping newlines.
