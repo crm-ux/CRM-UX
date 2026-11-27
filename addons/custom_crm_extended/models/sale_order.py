@@ -1160,9 +1160,14 @@ class SaleOrderAutoSection(models.Model):
 
     @api.onchange('order_line')
     def _onchange_order_line_auto_section(self):
-        """Auto-insert an editable multi-line section below each product line from Internal Notes."""
+        """Auto-insert an editable multi-line section below newly added product lines."""
         lines = list(self.order_line)
         if not lines:
+            return
+        prev_count = getattr(self, '_auto_sec_line_count', None)
+        # If the user deleted a line (count decreased), do not re-insert the deleted section
+        if prev_count is not None and len(lines) < prev_count:
+            self._auto_sec_line_count = len(lines)
             return
         # Space existing line sequences (10, 30, 50...) so new sections fit right below (11, 31, 51...)
         for idx, line in enumerate(lines):
@@ -1181,6 +1186,7 @@ class SaleOrderAutoSection(models.Model):
                         })
         for sec_vals in new_secs:
             self.order_line += self.env['sale.order.line'].new(sec_vals)
+        self._auto_sec_line_count = len(self.order_line)
 
 
 class SaleOrderSettings(models.Model):

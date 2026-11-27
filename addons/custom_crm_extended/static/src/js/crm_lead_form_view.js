@@ -312,8 +312,11 @@ registry.category("views").add("crm_lead_kanban", {
                 "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;background:transparent;outline:none;box-shadow:none;padding:0;margin:0;";
 
             const autoResize = () => {
+                ta.rows = Math.max(1, (ta.value || "").split("\n").length);
                 ta.style.height = "auto";
-                ta.style.height = ta.scrollHeight + "px";
+                if (ta.scrollHeight > 0) {
+                    ta.style.height = ta.scrollHeight + "px";
+                }
             };
 
             ta.addEventListener("input", () => {
@@ -321,6 +324,7 @@ registry.category("views").add("crm_lead_kanban", {
                 input.dispatchEvent(new Event("input", { bubbles: true }));
                 autoResize();
             });
+            ta.addEventListener("keyup", autoResize);
             ta.addEventListener("change", () => {
                 input.value = ta.value;
                 input.dispatchEvent(new Event("change", { bubbles: true }));
@@ -336,8 +340,11 @@ registry.category("views").add("crm_lead_kanban", {
         if (document.activeElement !== ta && ta.value !== input.value) {
             ta.value = input.value || "";
         }
+        ta.rows = Math.max(1, (ta.value || "").split("\n").length);
         ta.style.height = "auto";
-        ta.style.height = ta.scrollHeight + "px";
+        if (ta.scrollHeight > 0) {
+            ta.style.height = ta.scrollHeight + "px";
+        }
     }
 
     const observer = new MutationObserver(() => {
