@@ -365,32 +365,4 @@ if (solField && solField.component) {
 }
 
 
-// Align .o_we_power_buttons on the exact same vertical line as .o-we-hint in Product Internal Notes
-(function () {
-    function alignPowerButtons() {
-        const field = document.querySelector('.o_field_html[name="description"]');
-        if (!field) return;
-        const btns = field.querySelector(".o_we_power_buttons") || document.querySelector(".o_we_power_buttons");
-        const hint = field.querySelector(".o-we-hint");
-        if (!btns || !hint || !btns.parentElement) return;
-        const overlayRect = btns.parentElement.getBoundingClientRect();
-        const hintRect = hint.getBoundingClientRect();
-        const btnsHeight = btns.offsetHeight || 28;
-        const targetTop = Math.round(hintRect.top - overlayRect.top + (hintRect.height - btnsHeight) / 2);
-        const curTop = parseFloat(btns.style.top || "0");
-        if (Math.abs(curTop - targetTop) > 2) {
-            btns.style.setProperty("top", targetTop + "px", "important");
-        }
-    }
-    const scheduleAlign = () => {
-        requestAnimationFrame(alignPowerButtons);
-        setTimeout(alignPowerButtons, 30);
-    };
-    const obs = new MutationObserver(scheduleAlign);
-    if (document.body) {
-        obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class"] });
-    }
-    document.addEventListener("selectionchange", scheduleAlign);
-    document.addEventListener("click", scheduleAlign, true);
-    document.addEventListener("keyup", scheduleAlign, true);
-})();
+

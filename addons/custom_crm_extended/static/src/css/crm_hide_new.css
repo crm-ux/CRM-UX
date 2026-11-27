@@ -1120,11 +1120,24 @@ td[name="x_product_image"] img {
     display: none !important;
 }
 
-/* Align Product Internal Notes power buttons on the same line right after 'Type "/" for commands' */
+/* Stick power buttons cleanly at the bottom-left above the border and hide 'Type "/" for commands' */
+.o_field_html[name="description"] .o-wysiwyg {
+    position: relative !important;
+    padding-bottom: 32px !important;
+}
+.o_field_html[name="description"] .o-wysiwyg-local-overlay {
+    position: static !important;
+}
 .o_field_html[name="description"] .o_we_power_buttons {
-    left: 145px !important;
+    top: auto !important;
+    bottom: 4px !important;
+    left: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
+}
+.o_field_html[name="description"] .o-we-hint::after {
+    display: none !important;
+    content: "" !important;
 }
 .o_field_html[name="description"]:hover,
 .o_field_html[name="description"]:focus-within,
