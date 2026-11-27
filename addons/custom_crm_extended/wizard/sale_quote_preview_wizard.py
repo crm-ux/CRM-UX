@@ -593,6 +593,10 @@ class SaleQuotePreviewWizard(models.TransientModel):
                 desc += '<br/><b>Description:</b>'
                 for n in notes_list:
                     desc += '<br/><i style="color:#333;">%s</i>' % (n or '').replace('\n', '<br/>')
+            img_b64 = line.x_product_image or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+            if img_b64:
+                img_str = img_b64.decode('utf-8') if isinstance(img_b64, bytes) else str(img_b64)
+                desc += '<br/><img src="data:image/png;base64,%s" style="max-width:75px;max-height:75px;margin-top:4px;object-fit:contain;"/>' % img_str
             if has_discount_pdf:
                 disc_str = '(%s%%)' % int(discount_pct) if discount_pct else '-'
                 rows += ('<tr>'
@@ -1275,6 +1279,17 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         else:
                             r = p.add_run(part)
                             r.font.size = Pt(10)
+                    img_b64 = line.x_product_image or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
+                    if img_b64:
+                        try:
+                            img_bytes = base64.b64decode(img_b64)
+                            p_img = cell.add_paragraph()
+                            p_img.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                            p_img.paragraph_format.space_before = Pt(4)
+                            p_img.paragraph_format.space_after = Pt(0)
+                            p_img.add_run().add_picture(io.BytesIO(img_bytes), width=_Inches(0.75))
+                        except Exception:
+                            pass
                     format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=40, right=40, nowrap=False)
                 else:
                     p = cell.paragraphs[0]
