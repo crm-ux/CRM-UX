@@ -1282,14 +1282,20 @@ class SaleQuotePreviewWizard(models.TransientModel):
                     img_b64 = line.x_product_image or (line.product_id and (line.product_id.image_128 or line.product_id.image_1920))
                     if img_b64:
                         try:
+                            from PIL import Image as _PILImage
                             img_bytes = base64.b64decode(img_b64)
+                            pil_img = _PILImage.open(io.BytesIO(img_bytes))
+                            png_buf = io.BytesIO()
+                            pil_img.save(png_buf, format='PNG')
+                            png_buf.seek(0)
                             p_img = cell.add_paragraph()
                             p_img.alignment = WD_ALIGN_PARAGRAPH.LEFT
                             p_img.paragraph_format.space_before = Pt(4)
                             p_img.paragraph_format.space_after = Pt(0)
-                            p_img.add_run().add_picture(io.BytesIO(img_bytes), width=_Inches(0.75))
-                        except Exception:
-                            pass
+                            p_img.add_run().add_picture(png_buf, width=_Inches(0.75))
+                        except Exception as img_err:
+                            import logging
+                            logging.getLogger(__name__).warning("DOCX product image embed failed: %s", img_err)
                     format_cell(cell, col_dxa[i], col_widths[i], top=40, bottom=40, left=40, right=40, nowrap=False)
                 else:
                     p = cell.paragraphs[0]
