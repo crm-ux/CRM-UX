@@ -265,10 +265,18 @@ try:
     class CustomAuthSignupHome(AuthSignupHome):
         @http.route('/web/reset_password', type='http', auth='public', website=True, sitemap=False)
         def web_auth_reset_password(self, *args, **kw):
-            import logging
-            _logger = logging.getLogger(__name__)
-            _logger.info("RESET_PW_CALLED: method=%s, uid=%s, token_in_kw=%s, token_in_params=%s",
-                         request.httprequest.method, request.session.uid, bool(kw.get('token')), bool(request.params.get('token')))
+            # If the user is currently logged into an account in this browser,
+            # Odoo security blocks them from accessing another user's reset token (403 Access Denied).
+            # Auto-logout and redirect so the reset page opens cleanly as public guest.
+            token = kw.get('token') or request.params.get('token')
+            if request.session.uid and token:
+                db = kw.get('db') or request.params.get('db') or ''
+                request.session.logout(keep_db=True)
+                redir = f"/web/reset_password?token={token}"
+                if db:
+                    redir += f"&db={db}"
+                return request.redirect(redir)
+
             try:
                 qcontext = self.get_auth_signup_qcontext()
 
