@@ -1135,6 +1135,15 @@ td[name="x_product_image"] img {
     outline-color: #1a3d6e !important;
 }
 
+/* Keep images inside Product Internal Notes at a normal compact size */
+.o_field_html[name="description"] img {
+    max-width: 220px !important;
+    max-height: 160px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+
 /* Excel spreadsheet preview styling inside preview dialog only */
 .crm-invoice-preview-container .nav-tabs .nav-link.active {
     color: #137333 !important;
