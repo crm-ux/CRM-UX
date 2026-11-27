@@ -372,12 +372,15 @@ if (solField && solField.component) {
         if (!field) return;
         const btns = field.querySelector(".o_we_power_buttons") || document.querySelector(".o_we_power_buttons");
         const hint = field.querySelector(".o-we-hint");
-        if (!btns || !hint || !btns.offsetParent) return;
-        const parentRect = btns.offsetParent.getBoundingClientRect();
+        if (!btns || !hint || !btns.parentElement) return;
+        const overlayRect = btns.parentElement.getBoundingClientRect();
         const hintRect = hint.getBoundingClientRect();
         const btnsHeight = btns.offsetHeight || 28;
-        const top = hintRect.top - parentRect.top + (hintRect.height - btnsHeight) / 2;
-        btns.style.setProperty("top", Math.round(top) + "px", "important");
+        const targetTop = Math.round(hintRect.top - overlayRect.top + (hintRect.height - btnsHeight) / 2);
+        const curTop = parseFloat(btns.style.top || "0");
+        if (Math.abs(curTop - targetTop) > 2) {
+            btns.style.setProperty("top", targetTop + "px", "important");
+        }
     }
     const obs = new MutationObserver(() => requestAnimationFrame(alignPowerButtons));
     if (document.body) {
