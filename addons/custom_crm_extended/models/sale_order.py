@@ -1189,7 +1189,7 @@ class SaleOrderAutoSection(models.Model):
         text = re.sub(r'</(p|div|tr|h[1-6])>', '\n', text, flags=re.IGNORECASE)
         text = re.sub(r'<[^>]+>', '', text)
         text = unescape(text)
-        lines = [ln.rstrip() for ln in text.splitlines()]
+        lines = [ln.rstrip() for ln in text.splitlines() if ln.strip()]
         return '\n'.join(lines).strip()
 
     @api.onchange('order_line')
