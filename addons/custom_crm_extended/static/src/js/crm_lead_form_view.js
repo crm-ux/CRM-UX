@@ -370,7 +370,7 @@ if (solField && solField.component) {
     function alignPowerButtons() {
         const field = document.querySelector('.o_field_html[name="description"]');
         if (!field) return;
-        const btns = field.querySelector(".o_we_power_buttons");
+        const btns = field.querySelector(".o_we_power_buttons") || document.querySelector(".o_we_power_buttons");
         const hint = field.querySelector(".o-we-hint");
         if (!btns || !hint || !btns.offsetParent) return;
         const parentRect = btns.offsetParent.getBoundingClientRect();
