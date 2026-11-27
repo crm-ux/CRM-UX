@@ -290,21 +290,76 @@ registry.category("views").add("crm_lead_kanban", {
 });
 
 
-// Allow Enter key inside quotation section/description textarea to insert a newline
-// instead of triggering Odoo's list-row save / "Add a product".
-document.addEventListener(
-    "keydown",
-    (ev) => {
-        if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
-            const target = ev.target;
-            if (
-                target &&
-                target.tagName === "TEXTAREA" &&
-                target.closest(".o_is_line_section")
-            ) {
-                ev.stopPropagation();
-            }
+// Upgrade single-line <input> in quotation section/description rows to multi-line <textarea>
+// and allow Enter to insert a newline instead of triggering "Add a product".
+(function () {
+    function upgradeSectionInputToTextarea(input) {
+        if (!input || input.tagName !== "INPUT" || input.dataset.multilineUpgraded) {
+            return;
         }
-    },
-    true
-);
+        const cell = input.closest(".o_is_line_section .o_field_product_label_section_and_note_cell");
+        if (!cell) {
+            return;
+        }
+        input.dataset.multilineUpgraded = "1";
+        const ta = document.createElement("textarea");
+        ta.className = input.className;
+        ta.placeholder = input.placeholder || "Enter a description";
+        ta.value = input.value || "";
+        ta.rows = Math.max(1, (ta.value.match(/\n/g) || []).length + 1);
+        ta.style.cssText = "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;";
+
+        const autoResize = () => {
+            ta.style.height = "auto";
+            ta.style.height = ta.scrollHeight + "px";
+            cell.style.height = "auto";
+        };
+
+        ta.addEventListener("input", () => {
+            input.value = ta.value;
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+            autoResize();
+        });
+        ta.addEventListener("change", () => {
+            input.value = ta.value;
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        ta.addEventListener("blur", () => {
+            input.value = ta.value;
+            input.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+
+        input.style.display = "none";
+        cell.style.height = "auto";
+        input.parentNode.insertBefore(ta, input.nextSibling);
+        autoResize();
+        ta.focus();
+    }
+
+    document.addEventListener(
+        "focusin",
+        (ev) => {
+            if (ev.target && ev.target.tagName === "INPUT") {
+                upgradeSectionInputToTextarea(ev.target);
+            }
+        },
+        true
+    );
+
+    document.addEventListener(
+        "keydown",
+        (ev) => {
+            if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
+                const target = ev.target;
+                if (
+                    target &&
+                    target.tagName === "TEXTAREA" &&
+                    target.closest(".o_is_line_section")
+                ) {
+                    ev.stopPropagation();
+                }
+            }
+        },
+        true
+    );
+})();
