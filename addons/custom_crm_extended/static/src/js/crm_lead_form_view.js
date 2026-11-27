@@ -290,20 +290,83 @@ registry.category("views").add("crm_lead_kanban", {
 });
 
 
-// Allow Enter key inside quotation section/description without triggering "Add a product".
-document.addEventListener(
-    "keydown",
-    (ev) => {
-        if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
-            const target = ev.target;
-            if (
-                target &&
-                target.tagName === "TEXTAREA" &&
-                target.closest(".o_is_line_section")
-            ) {
-                ev.stopPropagation();
-            }
+// Make quotation section/description rows multi-line (single clean textarea, no duplicates)
+// and allow Enter to insert a newline instead of triggering "Add a product".
+(function () {
+    function syncSectionTextarea(cell) {
+        if (!cell) return;
+        const input = cell.querySelector("input.o_input");
+        if (!input) return;
+
+        // Hide original single-line input completely
+        input.classList.add("d-none");
+        input.style.setProperty("display", "none", "important");
+        cell.style.setProperty("height", "auto", "important");
+
+        let ta = cell.querySelector("textarea.crm-section-ta");
+        if (!ta) {
+            ta = document.createElement("textarea");
+            ta.className = "o_input text-wrap border-0 w-100 fw-bolder crm-section-ta";
+            ta.placeholder = input.placeholder || "Enter a description";
+            ta.style.cssText =
+                "width:100%;resize:none;overflow:hidden;white-space:pre-wrap;min-height:21px;line-height:1.4;background:transparent;outline:none;box-shadow:none;padding:0;margin:0;";
+
+            const autoResize = () => {
+                ta.style.height = "auto";
+                ta.style.height = ta.scrollHeight + "px";
+            };
+
+            ta.addEventListener("input", () => {
+                input.value = ta.value;
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+                autoResize();
+            });
+            ta.addEventListener("change", () => {
+                input.value = ta.value;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+            ta.addEventListener("blur", () => {
+                input.value = ta.value;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+
+            input.parentNode.insertBefore(ta, input.nextSibling);
         }
-    },
-    true
-);
+
+        if (document.activeElement !== ta && ta.value !== input.value) {
+            ta.value = input.value || "";
+        }
+        ta.style.height = "auto";
+        ta.style.height = ta.scrollHeight + "px";
+    }
+
+    const observer = new MutationObserver(() => {
+        document
+            .querySelectorAll(".o_is_line_section .o_field_product_label_section_and_note_cell")
+            .forEach(syncSectionTextarea);
+    });
+    if (document.body) {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    }
+
+    document.addEventListener(
+        "keydown",
+        (ev) => {
+            if (ev.key === "Enter" && !ev.ctrlKey && !ev.metaKey) {
+                const target = ev.target;
+                if (
+                    target &&
+                    target.tagName === "TEXTAREA" &&
+                    target.classList.contains("crm-section-ta")
+                ) {
+                    ev.stopPropagation();
+                }
+            }
+        },
+        true
+    );
+})();
