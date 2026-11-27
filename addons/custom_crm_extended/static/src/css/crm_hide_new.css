@@ -1093,9 +1093,11 @@ div[name="access_rights"] .o_inner_group:has([data-id="6"]) * {
 /* Multi-line support for Quotation Order Lines description/section rows */
 .o_is_line_section td,
 .o_is_line_section span,
+.o_is_line_section div,
 .o_is_line_section textarea,
 .o_is_line_section .o_field_section_and_note_text,
-.o_is_line_section .o_field_product_label_section_and_note_cell {
+.o_is_line_section .o_field_product_label_section_and_note_cell,
+.o_is_line_section .o_field_product_label_section_and_note_cell * {
     white-space: pre-wrap !important;
     word-break: break-word !important;
     height: auto !important;

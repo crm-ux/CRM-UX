@@ -312,7 +312,7 @@ registry.category("views").add("crm_lead_kanban", {
         const autoResize = () => {
             ta.style.height = "auto";
             ta.style.height = ta.scrollHeight + "px";
-            cell.style.height = "auto";
+            cell.style.setProperty("height", "auto", "important");
         };
 
         ta.addEventListener("input", () => {
@@ -320,6 +320,7 @@ registry.category("views").add("crm_lead_kanban", {
             input.dispatchEvent(new Event("input", { bubbles: true }));
             autoResize();
         });
+        ta.addEventListener("keyup", autoResize);
         ta.addEventListener("change", () => {
             input.value = ta.value;
             input.dispatchEvent(new Event("change", { bubbles: true }));
@@ -329,8 +330,9 @@ registry.category("views").add("crm_lead_kanban", {
             input.dispatchEvent(new Event("change", { bubbles: true }));
         });
 
-        input.style.display = "none";
-        cell.style.height = "auto";
+        input.classList.add("d-none");
+        input.style.setProperty("display", "none", "important");
+        cell.style.setProperty("height", "auto", "important");
         input.parentNode.insertBefore(ta, input.nextSibling);
         autoResize();
         ta.focus();
