@@ -1120,11 +1120,12 @@ td[name="x_product_image"] img {
     display: none !important;
 }
 
-/* Pin power buttons cleanly below INTERNAL NOTES header, hide '/' placeholder & popup */
+/* Pin power buttons cleanly above text, keep single #1a3d6e underline, hide '/' placeholder & popup */
 .o_field_html[name="description"] .o-wysiwyg {
     position: relative !important;
-    padding-top: 34px !important;
-    padding-bottom: 0 !important;
+}
+.o_field_html[name="description"] .odoo-editor-editable {
+    padding-top: 36px !important;
 }
 .o_field_html[name="description"] .o-wysiwyg-local-overlay {
     position: static !important;
@@ -1140,6 +1141,8 @@ td[name="x_product_image"] img {
     display: none !important;
     content: "" !important;
 }
+.o-we-powerbox,
+.o_we_powerbox,
 .o-we-command,
 .o_we_command_menu,
 .o-powerbox {
@@ -1147,7 +1150,7 @@ td[name="x_product_image"] img {
 }
 .o_field_html[name="description"]:hover,
 .o_field_html[name="description"]:focus-within {
-    border-bottom-color: #1a3d6e !important;
+    border-bottom: 1px solid #1a3d6e !important;
     outline-color: #1a3d6e !important;
 }
 .o_field_html[name="description"] .odoo-editor-editable:hover,
