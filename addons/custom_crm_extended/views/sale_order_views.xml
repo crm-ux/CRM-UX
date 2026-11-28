@@ -22,6 +22,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="default_order">name desc</attribute>
+            </xpath>
             <xpath expr="//field[@name='invoice_status']" position="replace">
                 <field name="x_custom_invoice_status" 
                        string="Invoice Status" 
