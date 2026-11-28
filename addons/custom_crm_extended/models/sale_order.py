@@ -1344,3 +1344,10 @@ class ResPartnerContactName(models.Model):
             return [(p.id, p.name or '') for p in self]
         return super().name_get()
 
+
+
+class IrSequenceActiveFix(models.Model):
+    _inherit = 'ir.sequence'
+
+    def web_read(self, specification):
+        return super(IrSequenceActiveFix, self.with_context(active_test=False)).web_read(specification)
