@@ -430,5 +430,11 @@ if (solField && solField.component) {
     const obs = new MutationObserver(() => requestAnimationFrame(initOrderLineDragLock));
     if (document.body) {
         obs.observe(document.body, { childList: true, subtree: true });
+        initOrderLineDragLock();
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            obs.observe(document.body, { childList: true, subtree: true });
+            initOrderLineDragLock();
+        });
     }
 })();
