@@ -25,12 +25,12 @@
                     </group>
                     <separator string="Terms &amp; Conditions"/>
                     <field name="selected_term_ids" widget="many2many_checkboxes" nolabel="1"/>
-                    <separator string="Technical Specifications (optional)"/>
-                    <field name="technical_specs_html" widget="html" nolabel="1" placeholder="Add technical specifications here..."/>
-                    <separator string="Quote Images (optional)"/>
-                    <field name="quote_image_ids" widget="many2many_binary" nolabel="1"/>
-                    <separator string="Product Table Preview"/>
-                    <field name="x_table_html" widget="html" nolabel="1" readonly="1"/>
+                    <separator string="Technical Specifications (optional)" invisible="1"/>
+                    <field name="technical_specs_html" widget="html" nolabel="1" placeholder="Add technical specifications here..." invisible="1"/>
+                    <separator string="Quote Images (optional)" invisible="1"/>
+                    <field name="quote_image_ids" widget="many2many_binary" nolabel="1" invisible="1"/>
+                    <separator string="Product Table Preview" invisible="1"/>
+                    <field name="x_table_html" widget="html" nolabel="1" readonly="1" invisible="1"/>
                 </sheet>
                 <footer>
                     <button name="action_print_edited_pdf" string="Print PDF" type="object" class="btn-primary"/>
