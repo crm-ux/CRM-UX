@@ -1186,12 +1186,14 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
 }
 
 /* Catalog only: replace "Back to Quotation" text with white left arrow icon, and use #1a3d6e instead of purple */
-.o_control_panel_main_buttons button.o-kanban-button-back {
+.o_control_panel .o_control_panel_breadcrumbs .o_control_panel_main_buttons button.btn-primary.o-kanban-button-back,
+.o_control_panel .o_control_panel_main_buttons button.btn-primary.o-kanban-button-back {
     font-size: 0 !important;
     line-height: 0 !important;
+    background: #1a3d6e !important;
     background-color: #1a3d6e !important;
     border-color: #1a3d6e !important;
-    color: #ffffff !important;
+    color: transparent !important;
     width: 34px !important;
     min-width: 34px !important;
     height: 34px !important;
@@ -1200,7 +1202,8 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
     align-items: center !important;
     justify-content: center !important;
 }
-.o_control_panel_main_buttons button.o-kanban-button-back::before {
+.o_control_panel .o_control_panel_breadcrumbs .o_control_panel_main_buttons button.btn-primary.o-kanban-button-back::before,
+.o_control_panel .o_control_panel_main_buttons button.btn-primary.o-kanban-button-back::before {
     content: "\f060" !important;
     font-family: "FontAwesome" !important;
     font-size: 14px !important;
