@@ -1349,5 +1349,8 @@ class ResPartnerContactName(models.Model):
 class IrSequenceActiveFix(models.Model):
     _inherit = 'ir.sequence'
 
+    def read(self, fields=None, load='_classic_read'):
+        return super(IrSequenceActiveFix, self.with_context(active_test=False)).read(fields=fields, load=load)
+
     def web_read(self, specification):
         return super(IrSequenceActiveFix, self.with_context(active_test=False)).web_read(specification)
