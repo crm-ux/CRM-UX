@@ -1323,15 +1323,6 @@ patch(FormController.prototype, {
         const isDirty = this.model?.root?.isDirty ? await this.model.root.isDirty() : false;
         const goBack = async () => {
             if (this.model?.root?.discard) await this.model.root.discard();
-            const breadcrumbs = this.env.config?.breadcrumbs || [];
-            if (breadcrumbs.length > 1) {
-                const prev = breadcrumbs[breadcrumbs.length - 2];
-                if (prev && prev.jsId && actionService?.restore) {
-                    actionService.restore(prev.jsId);
-                    return;
-                }
-            }
-            // Fallback when opened without breadcrumbs stack (e.g. after page refresh)
             const resModel = this.props.resModel;
             navigateBackFromForm(resModel, actionService);
         };
