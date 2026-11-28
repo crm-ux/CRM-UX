@@ -1222,8 +1222,14 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
 .o_kanban_view:has(.o-kanban-button-back) .o_search_panel .btn-link {
     color: #1a3d6e !important;
 }
-.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections {
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > i.fa-filter,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > span,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > ul.list-group,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > button.btn-link {
     display: none !important;
+}
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > div {
+    margin-left: 0 !important;
 }
 
 /* Keep images inside Product Internal Notes at a normal compact size */
