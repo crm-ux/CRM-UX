@@ -1185,13 +1185,15 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
     cursor: not-allowed !important;
 }
 
-/* Catalog: replace "Back to Quotation" text with white left arrow icon, and use #1a3d6e instead of purple */
+/* Catalog only: replace "Back to Quotation" text with white left arrow icon, and use #1a3d6e instead of purple */
 .o_control_panel_main_buttons button.o-kanban-button-back {
     font-size: 0 !important;
+    line-height: 0 !important;
     background-color: #1a3d6e !important;
     border-color: #1a3d6e !important;
     color: #ffffff !important;
     width: 34px !important;
+    min-width: 34px !important;
     height: 34px !important;
     padding: 0 !important;
     display: inline-flex !important;
@@ -1202,16 +1204,19 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
     content: "\f060" !important;
     font-family: "FontAwesome" !important;
     font-size: 14px !important;
+    line-height: 1 !important;
     color: #ffffff !important;
 }
-.o_product_catalog_kanban .o_kanban_record.border-primary,
-.o_product_catalog_kanban .o_kanban_record:has(.o_product_catalog_quantity) {
+.o_kanban_view:has(.o-kanban-button-back) .o_kanban_record.border-primary,
+.o_kanban_view:has(.o-kanban-button-back) .o_kanban_record:has(input.o_input) {
     border-color: #1a3d6e !important;
     box-shadow: 0 0 0 1px #1a3d6e !important;
 }
-.o_product_catalog_kanban .o_search_panel_category_value .o_search_panel_label_title,
-.o_product_catalog_kanban .o_search_panel .fa,
-.o_product_catalog_kanban .o_search_panel .oi {
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .text-primary,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_section_icon,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .fa,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .oi,
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .btn-link {
     color: #1a3d6e !important;
 }
 
