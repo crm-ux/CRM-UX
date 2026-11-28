@@ -1231,6 +1231,23 @@ table.crm-drag-locked td[name="sequence"] .o_row_handle {
 .o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > div {
     margin-left: 0 !important;
 }
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections {
+    margin-top: 1.5rem !important;
+}
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header {
+    margin-bottom: 0.25rem !important;
+}
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_category > header {
+    padding-top: 0.75rem !important;
+}
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > div > span.me-2 {
+    font-size: 0 !important;
+}
+.o_kanban_view:has(.o-kanban-button-back) .o_search_panel .o_search_panel_sections > header > div > span.me-2::before {
+    content: "Selected Only";
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+}
 
 /* Keep images inside Product Internal Notes at a normal compact size */
 .o_field_html[name="description"] img {
