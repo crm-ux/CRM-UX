@@ -89,6 +89,9 @@
         <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
         <field name="priority">30</field>
         <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="default_order">x_quote_number desc</attribute>
+            </xpath>
             <xpath expr="//field[@name='name']" position="attributes">
                 <attribute name="column_invisible">context.get('is_quote_stage')</attribute>
             </xpath>
