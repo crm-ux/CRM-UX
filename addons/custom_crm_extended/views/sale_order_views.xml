@@ -176,7 +176,7 @@
                 <attribute name="column_invisible">not parent.x_gst_included</attribute>
             </xpath>
             <xpath expr="//field[@name='order_line']//list//field[@name='price_total'][1]" position="after">
-                <field name="x_notes" string="Notes" optional="show"/>
+                <field name="x_notes" string="Notes" column_invisible="1"/>
                 <field name="x_cost" string="Cost" optional="hide" 
                        column_invisible="not parent.x_show_cost_profit or not parent.can_show_margin"/>
                 <field name="x_profit" string="Profit" optional="hide" readonly="1" 
