@@ -846,6 +846,8 @@ function navigateBackFromForm(resModel, actionService) {
         }, { clearBreadcrumbs: true });
     } else if (resModel === "product.template") {
         actionService.doAction("sale.product_template_action", { clearBreadcrumbs: true });
+    } else if (resModel === "ir.sequence") {
+        window.history.back();
     } else if (resModel === "res.users") {
         actionService.doAction({
             type: "ir.actions.act_window",
