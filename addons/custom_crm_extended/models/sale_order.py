@@ -1144,6 +1144,8 @@ class SaleOrderLine(models.Model):
                     vals['x_product_code'] = product.default_code or ''
                 if not vals.get('x_product_name'):
                     vals['x_product_name'] = product.with_context(lang='en_US').name or ''
+                if not vals.get('x_product_name_m2o'):
+                    vals['x_product_name_m2o'] = product_id
                 if not vals.get('x_hsn_code'):
                     vals['x_hsn_code'] = product.l10n_in_hsn_code or product.product_tmpl_id.l10n_in_hsn_code or ''
                 if not vals.get('x_make'):
@@ -1152,7 +1154,23 @@ class SaleOrderLine(models.Model):
                     vals['x_default_price'] = product.list_price or 0.0
                 if not vals.get('x_product_image'):
                     vals['x_product_image'] = product.image_128 or product.image_1920 or product.product_tmpl_id.image_128 or product.product_tmpl_id.image_1920 or False
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        if not self.env.context.get('skip_auto_section'):
+            for line in records:
+                if not line.display_type and line.product_id and line.order_id:
+                    note_text = SaleOrderAutoSection._extract_product_internal_notes(line.product_id)
+                    if note_text:
+                        ordered = line.order_id.order_line.sorted(key=lambda l: (l.sequence, l.id or 0))
+                        idx = list(ordered).index(line) if line in ordered else -1
+                        next_line = ordered[idx + 1] if 0 <= idx and idx + 1 < len(ordered) else None
+                        if not next_line or next_line.display_type != 'line_section':
+                            self.with_context(skip_auto_section=True).create({
+                                'order_id': line.order_id.id,
+                                'display_type': 'line_section',
+                                'name': note_text,
+                                'sequence': (line.sequence or 10) + 1,
+                            })
+        return records
 
     # ==================================================================
     # COMPUTE
