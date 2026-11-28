@@ -806,7 +806,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
         # Page margins
         from docx.oxml import OxmlElement
         section = doc.sections[0]
-        section.top_margin = Inches(0.5)
+        section.header_distance = Inches(0.35)
+        section.top_margin = Inches(1.1)
         section.bottom_margin = Inches(0.5)
         section.left_margin = Inches(0.8)
         section.right_margin = Inches(0.8)
