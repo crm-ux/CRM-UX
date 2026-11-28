@@ -849,7 +849,7 @@ function navigateBackFromForm(resModel, actionService) {
             type: "ir.actions.act_window",
             name: "Products",
             res_model: "product.template",
-            views: [[false, "kanban"], [false, "list"], [false, "form"]],
+            views: [[false, "list"], [false, "form"]],
         }, { clearBreadcrumbs: true });
     } else if (resModel === "res.users") {
         actionService.doAction({
