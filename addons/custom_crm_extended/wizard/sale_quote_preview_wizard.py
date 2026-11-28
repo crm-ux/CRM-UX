@@ -1539,7 +1539,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
         return {
             'type': 'ir.actions.act_url',
             'url': '/web/content/%s?download=true' % attachment.id,
-            'target': 'new',
+            'target': 'self',
         }
 
     def action_send_email(self):
@@ -1679,7 +1679,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
                         return {
                             'type': 'ir.actions.act_url',
                             'url': '/web/content/%s?download=true' % attachment.id,
-                            'target': 'new',
+                            'target': 'self',
                         }
                     else:
                         _log.warning("LibreOffice finished with returncode %s but %s was not found.", res.returncode, pdf_path)
