@@ -1402,7 +1402,7 @@ if (typeof window !== "undefined") {
 
         const actionService = window.__crm_action_service;
         const controller = actionService?.currentController;
-        let resModel = window.__crm_current_form_model || controller?.props?.resModel;
+        let resModel = controller?.props?.resModel || window.__crm_current_form_model;
         if (!resModel) {
             try {
                 resModel = new URLSearchParams(window.location.hash.substring(1)).get("model");
