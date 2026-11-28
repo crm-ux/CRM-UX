@@ -196,8 +196,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # Logo
         logo_html = ''
-        if order.company_id.logo_web:
-            logo_b64 = order.company_id.logo_web.decode('utf-8') if isinstance(order.company_id.logo_web, bytes) else order.company_id.logo_web
+        if order.company_id.logo:
+            logo_b64 = order.company_id.logo.decode('utf-8') if isinstance(order.company_id.logo, bytes) else order.company_id.logo
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:80px;"/>' % logo_b64
 
         intro_text = self.env['ir.config_parameter'].sudo().get_param('sale.quote.intro.template', 'With reference to your discussion with the undersigned as regards your subject requirement, we are pleased to quote our best offer for')
@@ -314,7 +314,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             'valid_until': order.x_draft_valid_until or order.validity_date,
             'subject': order.x_draft_subject or 'Quotation for Products / Services',
             'best_offer_for': order.x_draft_best_offer or product_cats,
-            'company_logo': order.company_id.logo_web,
+            'company_logo': order.company_id.logo,
             'document_html': Markup(html),
             'x_table_html': table_html,
             'x_terms_html': terms_html,
@@ -431,8 +431,8 @@ class SaleQuotePreviewWizard(models.TransientModel):
 
         # ── LOGO ──
         logo_html = ''
-        if comp.logo_web:
-            b64 = comp.logo_web.decode('utf-8') if isinstance(comp.logo_web, bytes) else comp.logo_web
+        if comp.logo:
+            b64 = comp.logo.decode('utf-8') if isinstance(comp.logo, bytes) else comp.logo
             logo_html = '<img src="data:image/png;base64,%s" style="max-height:70px;max-width:200px;object-fit:contain;"/>' % b64
 
         # ── SUBJECT / INTRO ──
@@ -826,7 +826,7 @@ class SaleQuotePreviewWizard(models.TransientModel):
             sectPr.remove(titlePg)
 
         # Set logo in both normal header and first_page_header for 100% compatibility across all MS Word versions
-        logo_data = order.company_id.logo_web
+        logo_data = order.company_id.logo
         if logo_data:
             if isinstance(logo_data, str):
                 logo_data = logo_data.encode()
