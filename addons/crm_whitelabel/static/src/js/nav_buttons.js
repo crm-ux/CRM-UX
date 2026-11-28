@@ -845,12 +845,7 @@ function navigateBackFromForm(resModel, actionService) {
             domain: [["is_company", "=", true]],
         }, { clearBreadcrumbs: true });
     } else if (resModel === "product.template") {
-        actionService.doAction({
-            type: "ir.actions.act_window",
-            name: "Products",
-            res_model: "product.template",
-            views: [[false, "list"], [false, "form"]],
-        }, { clearBreadcrumbs: true });
+        actionService.doAction("sale.product_template_action", { clearBreadcrumbs: true });
     } else if (resModel === "res.users") {
         actionService.doAction({
             type: "ir.actions.act_window",
