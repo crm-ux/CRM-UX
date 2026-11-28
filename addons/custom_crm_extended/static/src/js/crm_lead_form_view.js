@@ -401,29 +401,30 @@ if (solField && solField.component) {
 // Order Lines drag-handle Lock/Unlock toggle in th[data-name="sequence"]
 (function () {
     function initOrderLineDragLock() {
-        const th = document.querySelector('div[name="order_line"] th[data-name="sequence"]');
-        if (!th || th.querySelector(".crm-drag-lock-btn")) return;
-        const table = th.closest("table");
-        if (!table) return;
+        document.querySelectorAll('th[data-name="sequence"].o_handle_cell').forEach((th) => {
+            if (th.querySelector(".crm-drag-lock-btn")) return;
+            const table = th.closest("table");
+            if (!table) return;
 
-        // Default locked so rows cannot be dragged accidentally
-        table.classList.add("crm-drag-locked");
+            // Default locked so rows cannot be dragged accidentally
+            table.classList.add("crm-drag-locked");
 
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "crm-drag-lock-btn";
-        btn.title = "Locked (click to unlock row dragging)";
-        btn.innerHTML = '<i class="fa fa-lock"></i>';
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "crm-drag-lock-btn";
+            btn.title = "Locked (click to unlock row dragging)";
+            btn.innerHTML = '<i class="fa fa-lock"></i>';
 
-        btn.addEventListener("click", (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            const locked = table.classList.toggle("crm-drag-locked");
-            btn.innerHTML = locked ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock"></i>';
-            btn.title = locked ? "Locked (click to unlock row dragging)" : "Unlocked (click to lock row dragging)";
+            btn.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const locked = table.classList.toggle("crm-drag-locked");
+                btn.innerHTML = locked ? '<i class="fa fa-lock"></i>' : '<i class="fa fa-unlock"></i>';
+                btn.title = locked ? "Locked (click to unlock row dragging)" : "Unlocked (click to lock row dragging)";
+            });
+
+            th.appendChild(btn);
         });
-
-        th.appendChild(btn);
     }
 
     const obs = new MutationObserver(() => requestAnimationFrame(initOrderLineDragLock));
