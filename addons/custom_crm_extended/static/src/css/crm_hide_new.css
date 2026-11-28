@@ -1163,6 +1163,28 @@ td[name="x_product_image"] img {
     outline: none !important;
 }
 
+/* Order Lines drag-handle Lock/Unlock toggle */
+.crm-drag-lock-btn {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    color: #1a3d6e !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+}
+table.crm-drag-locked td[name="sequence"],
+table.crm-drag-locked td[name="sequence"] .o_row_handle {
+    pointer-events: none !important;
+    opacity: 0.35 !important;
+    cursor: not-allowed !important;
+}
+
 /* Keep images inside Product Internal Notes at a normal compact size */
 .o_field_html[name="description"] img {
     max-width: 220px !important;
